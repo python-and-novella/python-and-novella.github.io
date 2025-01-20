@@ -1,0 +1,1 @@
+include: ["_mkdocstrings.css", "_images", "_sphinx_design_static", "_redirects"]

@@ -1,1 +1,1 @@
-include: ["_mkdocstrings.css", "_images", "_sphinx_design_static", "_redirects","_static"]
+include: ["_mkdocstrings.css", "_images", "_sphinx_design_static", "_redirects","_static","_sphinx_javascript_frameworks_compat.js"]

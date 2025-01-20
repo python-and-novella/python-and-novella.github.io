@@ -33,7 +33,14 @@
             js.document.body.append(div)
           `);
           run = pyodide.runPython
-          run('import this')
+          await pyodide.runPythonAsync(`
+    from pyodide.http import pyfetch
+    response = await pyfetch("./script.py")
+    with open("script.py", "wb") as f:
+        f.write(await response.bytes())
+`)
+psf = pyodide.pyimport("script");
+psf.main();
         }
         setTimeout(()=>term.writeln('耐心等待，奇迹就会出现。'),3000)
         setTimeout(main,10000)

@@ -3,41 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>РΥТНОΝ&ИОΛЕГ</title>
-    <script src="./lib/pyodide/pyodide.js"></script>
-    <script src="./lib/xtermjs/xterm.js"></script>
-    <link rel="stylesheet" href="./lib/xtermjs/xterm.css" />
+    <title>РΥТНОΝ&ИОΛЕГ</title> 
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>const textArray = ['Python','科幻小说','......'];const releaseContent =  "<a href='./index_py.html' style='text-decoration: none;color: white'>点击访问</a>";const releaseDate = "2025.1.29";
+    </script>
 </head>
-<!--教程链接为主，可以考虑放科幻作品的彩蛋，或者尝试用框架实现简单的项目-->
 <body>
-    <a href="./docs/python-3.13-docs-html/index.html">🐍Ĺ</a>
-    <a href="./docs/python-3.12-docs-html/index.html">🐍ĸ</a>
-    <a href="./docs/textual-docs-site/index.html">Textual</a>
-    <a href="./docs/rich-stable/index.html">Rich</a><a href="./docs/rich-latest/index.html">.</a>
-    <a href="./docs/mkdocs-docs/index.html">MkDocs</a>
-    <a href="./docs/pyodide-stable/index.html">Pyodide</a>
-    <a href="./docs/flet-docs/index.html">Flet</a>
-    <br>
-    <div id="terminal"></div>
-    <script type="text/javascript">
-        var term = new Terminal();
-        term.open(document.getElementById('terminal'));
-        term.writeln('Wait for python...')
-        async function main(xterm){
-          pyodide = await loadPyodide();
-          term.writeln('Python is ready!')
-          pyodide.runPython(`
-            import js
-            div = js.document.createElement("div")
-            div.innerHTML = '<a href="./tui/pytermtk/index.html">9¾</a><a href="./tui/pytermtk/index_full.html">.</a>'
-            js.document.body.append(div)
-          `);
-          run = pyodide.runPython
-          run('import this')
-        }
-        setTimeout(()=>term.writeln('耐心等待，奇迹就会出现。'),3000)
-        setTimeout(main,10000)
-        setTimeout(()=>term.writeln('提示：在浏览器控制台使用run函数运行Python代码试试。'),13000)        
-      </script>
+    
+    <div class="bgimg">
+        <video autoplay muted loop poster="poster.png">
+            
+                <source src="bg.mp4" type="video/mp4">
+            
+        </video>
+        
+        <div class="topleft">
+            
+                <p>РΥТНОΝ&ИОΛЕГ ❤️ <span class='animatedText'></span></p>
+                <div id="demo_div">当前公开的是：<p id="demo_content">神秘内容</p></div>
+            
+        </div>
+        <div class="middle">
+            <p id="demo"></p>  
+            <h1>公开</h1>
+            <p>神秘内容</p>            
+        </div>
+        <div class="bottomleft">
+            <p>
+            </p>
+        </div>
+    </div>
+    <div class="left">
+        
+        <section class="social-icons">
+            <ul class="social-icons-list">
+                
+                <li class="social-icon">
+                    
+                    <a href="mailto:pythonpan@foxmail.com "
+                       >
+                        <img src="./svg/icons/email.svg" alt="test" />
+                    </a>
+                </li>
+                
+                <li class="social-icon">
+                    
+                    <a href="https://python-and-fiction.github.io/"
+                       >
+                        <img src="./svg/icons/github.svg" alt="test" />
+                    </a>
+                </li>
+                
+            </ul>
+        </section>
+        
+    </div>
+        <script src="./js/script.js"></script>
 </body>
+<footer>
+        <p>更多精彩尽在<a href='./index_py.html' style='text-decoration: none;'> </a><a href="https://python-and-fiction.github.io/">Python和科幻小说</a></p>
+</footer>
 </html>

@@ -6034,32 +6034,40 @@ if __name__ == '__main__':
 `run`方法（完整介绍可以参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.run)）的参数有：
 
 -   `headless`参数，布尔类型，表示是否开启无头模式。所谓无头模式，即不在终端输出内容的模式，但程序的组件依然可以通过编程交互，通常在自动化测试时开启。默认为`False`，即不开启。
+
 -   `inline`参数，布尔类型，表示是否开启行内模式。默认为`False`，即不开启。
+
 -   `inline_no_clear`参数，布尔类型，表示退出开启行内模式的程序时是否清除显示在终端的内容（需要同时设置`inline`参数为`True`），本参数为`True`时不清除显示在终端的内容。默认为`False`，即退出开启行内模式的程序时清除显示在终端的内容。
+
 -   `mouse`参数，布尔类型，表示是否开启程序的鼠标支持。默认为`True`，即程序默认支持鼠标。
+
 -   `size`参数，整数元组类型，表示程序启动时的显示大小（即整个`Screen`组件的大小），拖动终端时会让显示大小重新调整。元组只有两个元素，第一个元素表示显示的宽度，第二个元素表示显示的高度。
 
+-   `auto_pilot`参数，可调用类型，表示程序在开始运行之后，执行的自动化操作。传给该参数的函数会被传入一个`Pilot`类型的对象（`from textual.pilot import Pilot`导入，支持的操作参考[官网文档](https://textual.textualize.io/api/pilot/)）作为参数，并在函数内部定义一系列使用该对象的自动化操作，主要用于自动化测试。通常该参数的基本用法如下（非完整代码，只展示该参数相关的部分）：
 
+    ```python3
+    from textual.pilot import Pilot
+    
+    async def auto_pilot(pilot:Pilot):
+        await pilot.pause() # 必须等pilot就位
+        # 可以用 await pilot.wait_for_animation() 
+        # 或者 await pilot.wait_for_scheduled_animations()
+        for _ in range(9):
+            await pilot.pause(0.5) # 两次点击之间最好暂停0.5秒以上，避免丢失操作
+            await pilot.click('#plus') # 点击id为plus的组件
+        pilot.app.exit() # 退出程序，测试时候需要，其他用途不用
+        # await pilot.exit(0) 这种退出必须提供退出结果，且要用await修饰
+        # await pilot.press('ctrl+q') 也可以模拟按键退出（旧版本需要模拟'ctrl+c'）
+            
+    app.run(headless=True,auto_pilot=auto_pilot) # pilot支持无头模式
+    ```
 
-`auto_pilot`参数，一个可调用的自动化操作函数，参数为`Pilot`类型对象（`from textual.pilot import Pilot`），主要用于测试（https://textual.textualize.io/api/pilot/）
+    在常量模块中，有一个与该参数有关的常量——`constants.PRESS`，
 
 constants.PRESS : auto_pilot为None时模拟的按键
 
 ```python3
-from textual.pilot import Pilot
 
-async def auto_pilot(pilot:Pilot):
-    await pilot.pause() # 必须等pilot就位
-    # 可以用 await pilot.wait_for_animation() 
-    # 或者 await pilot.wait_for_scheduled_animations()
-    for _ in range(9):
-        await pilot.pause(0.5) # 两次点击之间最好暂停0.5秒以上，避免丢失操作
-        await pilot.click('#plus')
-    pilot.app.exit() # 退出程序，测试时候需要，其他用途不用
-    # await pilot.exit(0) 这种退出必须提供退出结果，且要用await修饰
-    # await pilot.press('ctrl+q') 也可以模拟按键退出（旧版本需要模拟'ctrl+c'）
-        
-app.run(headless=True,auto_pilot=auto_pilot) # pilot支持无头模式
 ```
 
 `auto_pilot`参数的完整示例代码如下：
@@ -6094,7 +6102,7 @@ async def auto_pilot(pilot:Pilot):
     # 或者 await pilot.wait_for_scheduled_animations()
     for _ in range(9):
         await pilot.pause(0.5) # 两次点击之间最好暂停0.5秒以上，避免丢失操作
-        await pilot.click('#plus')
+        await pilot.click('#plus') # 点击id为plus的组件
     pilot.app.exit() # 退出程序，测试时候需要，其他用途不用
     # await pilot.exit(0) 这种退出必须提供退出结果，且要用await修饰
     # await pilot.press('ctrl+q') 也可以模拟按键退出（旧版本需要模拟'ctrl+c'）

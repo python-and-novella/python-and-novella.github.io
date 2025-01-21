@@ -7384,6 +7384,8 @@ ui.run(native=True)
 
 如果当前剪贴板保存的是图片，点击"Read"按钮会弹出对话框，显示出该图片。
 
+![clipboard_1](nicegui.assets/clipboard_1.gif)
+
 #### 3.15.2 后台任务（2025.01.08更新）
 
 前面说使用`time.sleep`会阻塞主线程，所以要用异步，但如果是后台任务，不在主线程上运行，那就没问题了。
@@ -7531,6 +7533,8 @@ ui.run(native=True)
 ```
 
 如果当前剪贴板保存的是图片，点击"Read"按钮会弹出对话框，显示出该图片。
+
+![clipboard_1](nicegui.assets/clipboard_1.gif)
 
 ## 4 具体示例【随时更新】
 

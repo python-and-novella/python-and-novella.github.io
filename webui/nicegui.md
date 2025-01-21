@@ -1014,7 +1014,7 @@ ui.run(native=True)
 
 <img src="nicegui.assets/ui_menu.png" alt="ui_menu" style="zoom:67%;" />
 
-##### 2.3.4.5 `ui.tooltip`（2025.01.08更新）
+##### 2.3.4.5 `ui.tooltip`
 
 `ui.tooltip`可以给控件添加一种光标悬停之后弹出的提示。一般是在给定控件的上下文添加，也可以用给定控件的`tooltip`方法来添加，代码如下：
 
@@ -1045,40 +1045,6 @@ ui.run(native=True)
 ```
 
 ![ui_tooltip](nicegui.assets/ui_tooltip.png)
-
-如果想要获取到控件`tooltip`方法设置的`tooltip`，可以遍历控件来获取控件内部的其他控件，再判断控件是不是需要的类型：
-
-```python3
-from nicegui import ui
-
-with ui.button(icon='thumb_up'):
-    ui.tooltip('I like this').classes('bg-green')
-
-button = ui.button(icon='thumb_up')
-button.tooltip('I like this')
-for i in button:
-    if isinstance(i,ui.tooltip):
-        i.classes('bg-green')
-
-ui.run(native=True)
-```
-
-如果使用后续会学到的`ElementFilter`方法，也可以简单快捷地设置控件内部的`tooltip`：
-
-```python3
-from nicegui import ui,ElementFilter
-
-with ui.button(icon='thumb_up'):
-    ui.tooltip('I like this').classes('bg-green')
-
-button = ui.button(icon='thumb_up')
-button.tooltip('I like this')
-
-with button:
-    ElementFilter(kind=ui.tooltip,local_scope=True).classes('bg-green')
-
-ui.run(native=True)
-```
 
 ##### 2.3.4.6 `ui.notify`
 
@@ -1495,7 +1461,7 @@ ui.run(native=True)
 
 ![app_timer_2](nicegui.assets/app_timer_2.gif)
 
-##### 2.3.7.4 UI更新和可刷新方法`ui.refreshable`（2025.01.08更新）
+##### 2.3.7.4 UI更新和可刷新方法`ui.refreshable`（2025.01.21更新）
 
 一般来说，当修改控件的属性时，NiceGUI会尝试更新控件的显示状态，比如标签的文本、输入框的内容、控件的`style`/`classes`/`props `属性等。当然，如果某些修改不会触发UI刷新，那就要调用控件的`update`方法来更新控件显示。如果需要更新的控件比较多，也可以使用`ui`的`update`方法，该方法可以传入多个控件，一次性完成每个控件的更新，不用重复调用每个控件`update`方法的代码。
 
@@ -1575,6 +1541,80 @@ ui.run(native=True)
 可刷新方法`ui.refreshable`装饰的函数，会多一个`refresh`方法，调用这个方法会触发被装饰函数的重新执行，相当于这一部分的UI全部重新绘制，并不会像`update`方法一样只是触发刷新。触发刷新只能检测到与控件相关联的事件，示例代码里定义的列表`a`，没有使用绑定方法与控件关联，只有执行迭代的时候才有不同，因此`ui.row`的刷新并不能实现预期效果。
 
 一般来说，为了快捷创建有规律的控件而使用迭代方法，需要根据数据变化刷新显示，都要用`ui.refreshable`来重新绘制。当然，没有控件数量变化的时候也有需要使用`ui.refreshable`来重新绘制的情况，读者在遇到时见机行事。毕竟重新绘制比触发刷新的性能开销大，非必要的情况，还是不要制造需要重新绘制的情况。
+
+也许有的读者会说，每次增加一个`ui.label`就要手动调用一次`refresh`方法，代码看上去很“啰嗦”。这个时候，可以尝试一下`ui.state`。这个控件没有界面，但它却是`ui.refreshable`的最佳搭档。
+
+假定`ui.refreshable`装饰的函数是一个新的控件——计数器，函数内定义的控件就是被包装的控件（包括显示当前数字的标签和负责加一、归零的按钮）。按照前面的写法，代码是这样的：
+
+```python3
+from nicegui import ui
+
+num = 0
+@ui.refreshable
+def counter():
+    with ui.row():
+        ui.label(str(num))
+        ui.button('+1',on_click=lambda :(globals().update({'num':num+1}),counter.refresh()))
+        ui.button('0',on_click=lambda :(globals().update({'num':0}),counter.refresh()))
+            
+counter()
+
+ui.run(native=True)
+```
+
+好像出了什么问题，明明说前面的代码看上去很“啰嗦”，怎么这里的写法还是那个味道？另外，为什么要在函数的外面定义`num = 0`？
+
+不管是加一还是归零，每次计数变化，都需要调用`refresh`方法，所以两个按钮除了做本职工作之外，还要负责计数器的刷新。
+
+为了让计数可以存下来，必须要由一个变量存储这个值，所以，这个变量只能在函数外面（在函数内定义不行，在类内部可以）。
+
+如果想要在这个组合控件内定义一个只由内部控件控制的变量来存储当前的计数值，那就只能用类，但类不能被`ui.refreshable`装饰。倒是可以在类内实现一系列方法来实现这个组合控件，但难度和复杂度都会上升，不符合教程前半部分的简洁宗旨。
+
+好了，不卖关子了，是时候让`ui.state`登场了。该控件需要放在被`ui.refreshable`装饰的函数内，创建控件时需要给该控件传入一个值（也可以是对象）。该控件会返回一个包含代表该值的变量、设置该值的方法的二元素元组（即`(变量, 方法)`）。当调用该方法设置该值时，如果值有变化（值是对象的话需要重新创建，不然只能手动调用上层函数的`refresh`方法），该控件会自动调用上层函数的`refresh`方法，来避免使用该值的控件没有刷新。
+
+一般来说，该控件的实际代码是这样的：`num,set_num = ui.state(0)`。
+
+因此，用了`ui.state`之后，计数器可以这样写：
+
+```python3
+from nicegui import ui
+
+@ui.refreshable
+def counter():
+    num,set_num = ui.state(0)
+    with ui.row():
+        ui.label(str(num))
+        ui.button('+1',on_click=lambda :set_num(num+1))
+        ui.button('0',on_click=lambda :set_num(0))
+            
+counter()
+
+ui.run(native=True)
+```
+
+当然，为了验证`ui.state`有没有真的调用`refresh`方法，可以添加一个动态创建同等数量标签的代码：
+
+```python3
+from nicegui import ui
+
+@ui.refreshable
+def counter():
+    num,set_num = ui.state(0)
+    with ui.row():
+        ui.label(str(num))
+        ui.button('+1',on_click=lambda :set_num(num+1))
+        ui.button('0',on_click=lambda :set_num(0))
+    if num:
+        with ui.row():
+            for _ in range(num):
+                ui.label('A')
+            
+counter()
+
+ui.run(native=True)
+```
+
+![ui_state_1](nicegui.assets/ui_state_1.gif)
 
 ##### 2.3.7.5 运行JavaScript代码`ui.run_javascript`
 
@@ -3656,7 +3696,7 @@ ui.run(native=True)
 
 ![ui_menu_2](nicegui.assets/ui_menu_2.png)
 
-#### 3.9.14 `ui.tooltip`补充
+#### 3.9.14 `ui.tooltip`补充（2025.01.21更新）
 
 对于像`ui.html`、`ui.markdown`、`ui.upload`等不支持添加`tooltip`的元素，可以使用`ui.element`包装来间接实现：
 
@@ -3682,6 +3722,40 @@ ui.run(native=True)
 ```
 
 ![ui_tooltip_2](nicegui.assets/ui_tooltip_2.png)
+
+前面说过`tooltip`方法返回的是控件本身，而不是`tooltip`。但是，这并不是说就没有办法设置`tooltip`方法生成的`tooltip`。如果想要获取到控件`tooltip`方法设置的`tooltip`，可以遍历控件来获取控件内部的其他控件，再判断控件是不是需要的类型：
+
+```python3
+from nicegui import ui
+
+with ui.button(icon='thumb_up'):
+    ui.tooltip('I like this').classes('bg-green')
+
+button = ui.button(icon='thumb_up')
+button.tooltip('I like this')
+for i in button:
+    if isinstance(i,ui.tooltip):
+        i.classes('bg-green')
+
+ui.run(native=True)
+```
+
+也可以使用`ElementFilter`方法，简单快捷地设置控件内部的`tooltip`：
+
+```python3
+from nicegui import ui,ElementFilter
+
+with ui.button(icon='thumb_up'):
+    ui.tooltip('I like this').classes('bg-green')
+
+button = ui.button(icon='thumb_up')
+button.tooltip('I like this')
+
+with button:
+    ElementFilter(kind=ui.tooltip,local_scope=True).classes('bg-green')
+
+ui.run(native=True)
+```
 
 ### 3.10 其他常用控件
 

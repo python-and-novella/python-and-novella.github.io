@@ -6062,13 +6062,7 @@ if __name__ == '__main__':
     app.run(headless=True,auto_pilot=auto_pilot) # pilot支持无头模式
     ```
 
-    在常量模块中，有一个与该参数有关的常量——`constants.PRESS`，
-
-constants.PRESS : auto_pilot为None时模拟的按键
-
-```python3
-
-```
+    在常量模块中，有一个与该参数有关的常量——`constants.PRESS`，该常量为字符串类型，表示当`auto_pilot`为`None`时模拟的按键，比如`constants.PRESS = 'ctrl+c,ctrl+v'`。
 
 `auto_pilot`参数的完整示例代码如下：
 
@@ -6114,7 +6108,9 @@ if __name__ == '__main__':
 
 #### 3.1.3 样式的高阶知识
 
-​	颜色类（`from textual.color import Color`），`Color.parse`其实还可以转换ansi颜色，比如`Color.parse('ansi_red')`
+##### 3.1.3.1 颜色的高阶知识
+
+颜色类（`from textual.color import Color`）的`Color.parse`方法除了可以转换RGB之类的Web常用颜色，其实还可以转换ansi颜色，比如`Color.parse('ansi_red')`。不过，与前面讲到的ansi颜色不同，这里转换出来的是Rich框架中的ansi颜色，即下面列表中的颜色：
 
 ```python3
 ANSI_COLORS = [
@@ -6137,28 +6133,101 @@ ANSI_COLORS = [
 ]
 ```
 
-​	特别的颜色：`'transparent'`
+因此，下面代码中的`'ansi_red'`颜色和同名转换颜色，看起来很不一样：
 
-​	边框标题相关的其他样式：[`border-title-color`](https://textual.textualize.io/styles/border_subtitle_color/)、[`border-title-background`](https://textual.textualize.io/styles/border_subtitle_background/)、[`border-title-style`](https://textual.textualize.io/styles/border_subtitle_style/)、[`border-subtitle-color`](https://textual.textualize.io/styles/border_subtitle_color/)、[`border-subtitle-background`](https://textual.textualize.io/styles/border_subtitle_background/)、[`border-subtitle-style`](https://textual.textualize.io/styles/border_subtitle_style/)。
+```python3
+from textual.app import App
+from textual.widgets import Static
+from textual.color import Color
 
+class MyApp(App):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.ansi_color = True
+    def on_mount(self):
+        self.widgets = [
+            Static('regular_red',id='regular'),
+            Static('ansi_red',id='ansi'),
+        ]
+        self.mount_all(self.widgets)
+        self.query_one('#regular').styles.background = 'ansi_red'
+        self.query_one('#ansi').styles.background = Color.parse('ansi_red')
 
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
+![ansi_color_1](textual.assets/ansi_color_1.png)
 
+其实，这个转换出来的ansi颜色，对应的是`Color`类实例化时给`ansi`参数传入一个整数，这个整数就是'ansi_'为前缀的颜色名去掉前缀的名字在上面列表中的索引值。而这个得到的索引值，对应的就是Rich框架的`color.ANSI_COLOR_NAMES`字典（使用`from rich import color`导入）中，这个去掉前缀的颜色名字在字典中的值：
+
+```python3
+{'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'magenta': 5, 'cyan': 6, 'white': 7, 'bright_black': 8, 'bright_red': 9, 'bright_green': 10, 'bright_yellow': 11, 'bright_blue': 12, 'bright_magenta': 13, 'bright_cyan': 14, 'bright_white': 15, 'grey0': 16, 'gray0': 16, 'navy_blue': 17, 'dark_blue': 18, 'blue3': 20, 'blue1': 21, 'dark_green': 22, 'deep_sky_blue4': 25, 'dodger_blue3': 26, 'dodger_blue2': 27, 'green4': 28, 'spring_green4': 29, 'turquoise4': 30, 'deep_sky_blue3': 32, 'dodger_blue1': 33, 'green3': 40, 'spring_green3': 41, 'dark_cyan': 36, 'light_sea_green': 37, 'deep_sky_blue2': 38, 'deep_sky_blue1': 39, 'spring_green2': 47, 'cyan3': 43, 'dark_turquoise': 44, 'turquoise2': 45, 'green1': 46, 'spring_green1': 48, 'medium_spring_green': 49, 'cyan2': 50, 'cyan1': 51, 'dark_red': 88, 'deep_pink4': 125, 'purple4': 55, 'purple3': 56, 'blue_violet': 57, 'orange4': 94, 'grey37': 59, 'gray37': 59, 'medium_purple4': 60, 'slate_blue3': 62, 'royal_blue1': 63, 'chartreuse4': 64, 'dark_sea_green4': 71, 'pale_turquoise4': 66, 'steel_blue': 67, 'steel_blue3': 68, 'cornflower_blue': 69, 'chartreuse3': 76, 'cadet_blue': 73, 'sky_blue3': 74, 'steel_blue1': 81, 'pale_green3': 114, 'sea_green3': 78, 'aquamarine3': 79, 'medium_turquoise': 80, 'chartreuse2': 112, 'sea_green2': 83, 'sea_green1': 85, 'aquamarine1': 122, 'dark_slate_gray2': 87, 'dark_magenta': 91, 'dark_violet': 128, 'purple': 129, 'light_pink4': 95, 'plum4': 96, 'medium_purple3': 98, 'slate_blue1': 99, 'yellow4': 106, 'wheat4': 101, 'grey53': 102, 'gray53': 102, 'light_slate_grey': 103, 'light_slate_gray': 103, 'medium_purple': 104, 'light_slate_blue': 105, 'dark_olive_green3': 149, 'dark_sea_green': 108, 'light_sky_blue3': 110, 'sky_blue2': 111, 'dark_sea_green3': 150, 'dark_slate_gray3': 116, 'sky_blue1': 117, 'chartreuse1': 118, 'light_green': 120, 'pale_green1': 156, 'dark_slate_gray1': 123, 'red3': 160, 'medium_violet_red': 126, 'magenta3': 164, 'dark_orange3': 166, 'indian_red': 167, 'hot_pink3': 168, 'medium_orchid3': 133, 'medium_orchid': 134, 'medium_purple2': 140, 'dark_goldenrod': 136, 'light_salmon3': 173, 'rosy_brown': 138, 'grey63': 139, 'gray63': 139, 'medium_purple1': 141, 'gold3': 178, 'dark_khaki': 143, 'navajo_white3': 144, 'grey69': 145, 'gray69': 145, 'light_steel_blue3': 146, 'light_steel_blue': 147, 'yellow3': 184, 'dark_sea_green2': 157, 'light_cyan3': 152, 'light_sky_blue1': 153, 'green_yellow': 154, 'dark_olive_green2': 155, 'dark_sea_green1': 193, 'pale_turquoise1': 159, 'deep_pink3': 162, 'magenta2': 200, 'hot_pink2': 169, 'orchid': 170, 'medium_orchid1': 207, 'orange3': 172, 'light_pink3': 174, 'pink3': 175, 'plum3': 176, 'violet': 177, 'light_goldenrod3': 179, 'tan': 180, 'misty_rose3': 181, 'thistle3': 182, 'plum2': 183, 'khaki3': 185, 'light_goldenrod2': 222, 'light_yellow3': 187, 'grey84': 188, 'gray84': 188, 'light_steel_blue1': 189, 'yellow2': 190, 'dark_olive_green1': 192, 'honeydew2': 194, 'light_cyan1': 195, 'red1': 196, 'deep_pink2': 197, 'deep_pink1': 199, 'magenta1': 201, 'orange_red1': 202, 'indian_red1': 204, 'hot_pink': 206, 'dark_orange': 208, 'salmon1': 209, 'light_coral': 210, 'pale_violet_red1': 211, 'orchid2': 212, 'orchid1': 213, 'orange1': 214, 'sandy_brown': 215, 'light_salmon1': 216, 'light_pink1': 217, 'pink1': 218, 'plum1': 219, 'gold1': 220, 'navajo_white1': 223, 'misty_rose1': 224, 'thistle1': 225, 'yellow1': 226, 'light_goldenrod1': 227, 'khaki1': 228, 'wheat1': 229, 'cornsilk1': 230, 'grey100': 231, 'gray100': 231, 'grey3': 232, 'gray3': 232, 'grey7': 233, 'gray7': 233, 'grey11': 234, 'gray11': 234, 'grey15': 235, 'gray15': 235, 'grey19': 236, 'gray19': 236, 'grey23': 237, 'gray23': 237, 'grey27': 238, 'gray27': 238, 'grey30': 239, 'gray30': 239, 'grey35': 240, 'gray35': 240, 'grey39': 241, 'gray39': 241, 'grey42': 242, 'gray42': 242, 'grey46': 243, 'gray46': 243, 'grey50': 244, 'gray50': 244, 'grey54': 245, 'gray54': 245, 'grey58': 246, 'gray58': 246, 'grey62': 247, 'gray62': 247, 'grey66': 248, 'gray66': 248, 'grey70': 249, 'gray70': 249, 'grey74': 250, 'gray74': 250, 'grey78': 251, 'gray78': 251, 'grey82': 252, 'gray82': 252, 'grey85': 253, 'gray85': 253, 'grey89': 254, 'gray89': 254, 'grey93': 255, 'gray93': 255}
+```
+
+没错，这两个值是统一的，也就是说Textual框架为了对应Rich框架的这个值，而做了一点映射操作。不过，这里不是想说两个值为什么一样，而是要说颜色和转换颜色为什么看起来不一样。
+
+上面的颜色转换出来之后，实际上得到的是`Color(128, 0, 0, ansi=1)`这个对象。注意其中的`ansi`参数，以及上面提到的索引值。这个对象，看起来和普通颜色对象一样，但额外的参数让其与众不同。没错，这个`ansi`参数会让颜色严格遵循ansi标准，之前所谓的ansi颜色并真的ansi颜色。假如上面的示例代码不用简单的颜色名，都用颜色对象的话，那两种颜色的实际对象就是`Color(128, 0, 0)`和`Color(128, 0, 0, ansi=1)`。
+
+需要特别说明的是，`Color`类对象的`ansi`参数其实严格遵循Rich框架的定义，即使前面的几个参数都是`0`，只要`ansi`参数正确，输出的颜色就是标准的ansi颜色。如果读者后续在使用颜色类（`from textual.color import Color`）的`Color.parse`方法解析颜色，发现和不解析的颜色有差异时，一定要看看颜色名是不是有'ansi_'前缀。
+
+在Textual中有一个特别的颜色——`'transparent'`（透明），看意思的话应该和没有颜色一样。但是，读者可不要误以为这个透明是前面提到的透明度为0%的透明（当前颜色完全没有，显示出下面组件的颜色），这个透明是黑色。想要真透明的话，还是要给这个颜色设置一下透明度。
+
+##### 3.1.3.2 边框标题相关的其他样式
+
+边框标题也支持一些样式：[`border-title-color`](https://textual.textualize.io/styles/border_subtitle_color/)（边框标题颜色）、[`border-title-background`](https://textual.textualize.io/styles/border_subtitle_background/)（边框标题背景颜色）、[`border-title-style`](https://textual.textualize.io/styles/border_subtitle_style/)（边框标题文字样式）、[`border-subtitle-color`](https://textual.textualize.io/styles/border_subtitle_color/)（边框副标题颜色）、[`border-subtitle-background`](https://textual.textualize.io/styles/border_subtitle_background/)（边框副标题背景颜色）、[`border-subtitle-style`](https://textual.textualize.io/styles/border_subtitle_style/)（边框副标题文字样式）。
+
+示例代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Static
+
+class MyApp(App):
+    def compose(self):
+        self.widget = Static()
+        yield self.widget
+
+    def on_mount(self) -> None:
+        self.widget.styles.width = 50
+        border = ('heavy','yellow')
+        self.widget.styles.border = border
+        self.widget.styles.background = 'purple'
+        self.widget.update(f'The widget\'s border is {border}.')
+        self.widget.border_title = 'border_title'
+        self.widget.border_subtitle = 'border_subtitle'
+        self.widget.styles.border_title_align = 'center'
+        self.widget.styles.border_title_color = 'green'
+        self.widget.styles.border_title_background = 'blue'
+        self.widget.styles.border_title_style = 'bold'
+        self.widget.styles.border_subtitle_color = "red"
+        self.widget.styles.border_subtitle_background = 'white'
+        self.widget.styles.border_subtitle_style = 'italic'
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![border_title_style_2](textual.assets/border_title_style_2.png)
 
 #### 3.1.4 事件与消息的高阶知识
 
-`on`装饰器的高阶知识
+##### 3.1.4.1 `on`装饰器的高阶知识
 
-`on`装饰器支持额外的关键字参数，用选择器匹配消息的属性组件：
+`on`装饰器支持额外的关键字参数，该关键字就是消息的`ALLOW_SELECTOR_MATCH`属性（完整介绍参考[官网](https://textual.textualize.io/api/message/#textual.message.Message.ALLOW_SELECTOR_MATCH)）中的组件名。该组件名同时也是消息的属性，对应的是一个确定的子组件。因此，该关键字参数对应的值就是匹配子组件的选择器，用于从一样的子组件中匹配特定的子组件。
 
--   `ListView`的`Highlighted`和`Selected`消息支持`item`属性
--   `RadioSet`的`Changed`消息支持`pressed`
--   `TabbedContent`的`TabActivated`消息支持`pane`
--   `Tabs`的`TabMessage`继承消息（包括`TabActivated`、`TabDisabled`、`TabEnabled`、`TabHidden`、`TabShown`）支持`tab`
+比如`RadioSet`的`Changed`消息支持`pressed`属性，该属性就在`ALLOW_SELECTOR_MATCH`属性中，装饰器可以这样写：`@on(RadioSet.Changed, pressed='.b')`。因为`pressed`属性只存在于`Changed`消息中，该装饰器就只会匹配到触发了`Changed`消息同时样式类有`'b'`的子组件。
 
-https://textual.textualize.io/api/message/#textual.message.Message.ALLOW_SELECTOR_MATCH
+可以当作关键字参数的消息属性：
 
-示例使用了https://textual.textualize.io/widgets/radioset/#textual.widgets.RadioSet.Changed.ALLOW_SELECTOR_MATCH
+-   `ListView`的`Highlighted`消息、`Selected`消息的`item`属性，表示触发对应消息的`ListItem`。
+-   `RadioSet`的`Changed`消息的`pressed`属性，表示触发对应消息的`RadioButton`。
+-   `TabbedContent`的`TabActivated`消息的`pane`属性，表示触发对应消息的`TabPane`。
+-   `Tabs`的`TabMessage`继承消息（包括`TabActivated`消息、`TabDisabled`消息、`TabEnabled`消息、`TabHidden`消息、`TabShown`消息）的`tab`属性，表示触发对应消息的`Tab`。注意，`Tabs`支持直接传入字符串来生成`Tab`，这种会自动生成带`id`的`Tab`。如果传给`Tabs`的`Tab`组件没有`id`，也会按照规则生成`id`属性。按照传给`Tabs`的顺序排序，没有`id`的`Tab`和字符串生成的`Tab`，其`id`属性会依次被赋值为`'tab-1'`、`'tab-2'`……`'tab-n'`，可以依据这个规律来匹配对应的`Tab`。
+
+以下示例使用了`RadioSet`的`Changed`消息的`pressed`属性（完整用法参考[官网文档](https://textual.textualize.io/widgets/radioset/#textual.widgets.RadioSet.Changed.ALLOW_SELECTOR_MATCH)），只有点击到特定的单选按钮，按钮文字才会改变：
 
 ```python3
 from textual.app import App
@@ -6186,11 +6255,9 @@ if __name__ == '__main__':
     app.run()
 ```
 
-（动图）
+![on_decorator_1](textual.assets/on_decorator_1.gif)
 
-
-
-`tab`键的隐形绑定
+##### 3.1.4.2 `tab`键的隐形绑定
 
 为什么不能在`App`子类成功执行`tab`键的响应函数？即无法让`App`子类的`key_tab`成功执行。
 
@@ -6226,15 +6293,15 @@ if __name__ == '__main__':
     app.run()
 ```
 
-
-
-剪贴板操作——复制与粘贴
+##### 3.1.4.3 剪贴板操作——复制与粘贴
 
 访问只读属性`self.app.clipboard`可以获取到程序内剪贴板的内容。
 
 实现`on_paste`方法，可以响应`ctrl+v`的粘贴操作操作。消息参数的`text`属性就是（系统的剪贴板）粘贴的内容。`ctrl+v`是唯一可以获取到系统剪贴板的方法，没有其他非按键响应方法可以获取。
 
 调用`self.app.copy_to_clipboard`方法，可以将字符串内容粘贴到剪贴板（程序内的和系统的）。
+
+示例如下：
 
 ```python3
 from textual.app import App
@@ -6262,19 +6329,23 @@ if __name__ == '__main__':
     app.run()
 ```
 
-
-
-
-
 ### 3.2 高阶模块
 
 本节主要介绍前面没有提到过的高阶模块。
 
-#### 3.2.1 反应性reactivity
+#### 3.2.1 反应性reactivity（重新想一想章节名字）
 
 
 
-#### 3.2.2 执行者worker
+https://textual.textualize.io/guide/reactivity/
+
+
+
+#### 3.2.2 执行者worker（重新想一想章节名字）
+
+
+
+https://textual.textualize.io/guide/workers/
 
 
 
@@ -6311,11 +6382,11 @@ Header = HeaderWithIcon
 
 
 
-#### 3.2.4 组件
+#### 3.2.4 定制组件
 
 
 
-https://textual.textualize.io/widgets/
+https://textual.textualize.io/guide/widgets/
 
 
 

@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>РΥТНОΝ&ИОΛЕГ</title>
+    <title>РΥТНОΝ&ИОΛЕГLΑ</title>
     <script src="./lib/pyodide/pyodide.js"></script>
     <script src="./lib/xtermjs/xterm.js"></script>
     <link rel="stylesheet" href="./lib/xtermjs/xterm.css" />
 </head>
 <!--教程链接为主，可以考虑放科幻作品的彩蛋，或者尝试用框架实现简单的项目-->
 <body>
+  РΥТНОΝ&ИОΛЕГLΑ 本地托管文档：
+    <br>
     <a href="./docs/python-3.13-docs-html/index.html">🐍Ĺ</a>
     <a href="./docs/python-3.12-docs-html/index.html">🐍ĸ</a>
     <a href="./docs/textual-docs-site/index.html">Textual</a>
@@ -39,8 +41,8 @@
     with open("script.py", "wb") as f:
         f.write(await response.bytes())
 `)
-psf = pyodide.pyimport("script");
-psf.main();
+pan = pyodide.pyimport("script");
+pan.main();
         }
         setTimeout(()=>term.writeln('耐心等待，奇迹就会出现。'),3000)
         setTimeout(main,10000)

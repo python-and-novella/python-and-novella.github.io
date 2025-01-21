@@ -7322,7 +7322,7 @@ async def read() -> None:
     ui.notify(await ui.clipboard.read()
 ```
 
-另外需要注意的是，不同用户的剪贴板不能互通，读写剪贴板的操作只能在确定的客户端上执行，因此读写剪贴板的操作只能在`ui.page`中使用。
+另外需要注意的是，不同用户的剪贴板不能互通，读写剪贴板的操作只能在确定的客户端上执行，因此读写剪贴板的操作只能在`ui.page`中使用。并且读写剪贴板的操作要求安全上下文（即当前网址为本地域名、ip，或者网络连接的协议是HTTPS协议）。
 
 下面的示例代码中，`ui.page`装饰的函数是个异步函数，其实并非必须的，只是第一次读取剪贴板的时候会弹出请求剪贴板的弹窗，如果不使用异步函数，第一次允许时会导致终端报错，但不影响读取；如果是异步函数，函数就会等待这个允许操作，终端不会报错。
 
@@ -7358,6 +7358,32 @@ ui.run(native=True)
 
 代码中，由JavaScript代码发射一个`"clipboard"`事件，并把读取结果通过`args`属性返回Python代码；Python代码监听`"clipboard"`事件，并接收返回的值，完成剪贴板的读取。
 
+NiceGUI官方在2.10.0版本新增了从剪贴板读取图片的功能——`ui.clipboard.read_image`方法。该方法依赖`pillow`，想要使用该功能，需要提前安装此模块。示例代码如下：
+
+```python3
+from nicegui import ui
+
+@ui.page('/')
+async def index():
+    ui.button('Write', on_click=lambda: ui.clipboard.write('Hi!'))
+
+    async def read() -> None:
+        img = await ui.clipboard.read_image()
+        if img:
+            with ui.dialog() as dialog:
+                with ui.column().classes('w-72 items-center'):
+                    ui.image(img)
+                    ui.button('关闭',on_click=dialog.close)
+            dialog.open()
+        else:
+            ui.notify(await ui.clipboard.read())
+    ui.button('Read', on_click=read)
+
+ui.run(native=True)
+```
+
+如果当前剪贴板保存的是图片，点击"Read"按钮会弹出对话框，显示出该图片。
+
 #### 3.15.2 后台任务（2025.01.08更新）
 
 前面说使用`time.sleep`会阻塞主线程，所以要用异步，但如果是后台任务，不在主线程上运行，那就没问题了。
@@ -7389,9 +7415,11 @@ ui.button('background task',on_click=sub_task)
 ui.run(native=True)
 ```
 
-### 3.16 版本亮点
+### 3.16 版本亮点（随版本更新）
 
-#### 3.16.1 `app.timer`——2.9.0版本新增
+为了方便查找对应版本号添加的有趣功能，本节将版本号前置，并取消了章节序号。
+
+#### 2.9.0版本新增：`app.timer`——app级别的定时器
 
 NiceGUI官方在2.9.0版本新增了`app.timer`定时器，虽然用法上和`ui.timer`一样，但其归属于`app`而不是`ui`，还是有所区别的。
 
@@ -7475,6 +7503,34 @@ ui.run()
 ```
 
 两种定时器在这种情景下都不会出问题，这里替换为新的定时器更多是为了区分定时器的作用范围。
+
+#### 2.10.0版本新增：`ui.clipboard.read_image`——从剪贴板读取图片
+
+NiceGUI官方在2.10.0版本新增了从剪贴板读取图片的功能——`ui.clipboard.read_image`方法。该方法依赖`pillow`，想要使用该功能，需要提前安装此模块。示例代码如下：
+
+```python3
+from nicegui import ui
+
+@ui.page('/')
+async def index():
+    ui.button('Write', on_click=lambda: ui.clipboard.write('Hi!'))
+
+    async def read() -> None:
+        img = await ui.clipboard.read_image()
+        if img:
+            with ui.dialog() as dialog:
+                with ui.column().classes('w-72 items-center'):
+                    ui.image(img)
+                    ui.button('关闭',on_click=dialog.close)
+            dialog.open()
+        else:
+            ui.notify(await ui.clipboard.read())
+    ui.button('Read', on_click=read)
+
+ui.run(native=True)
+```
+
+如果当前剪贴板保存的是图片，点击"Read"按钮会弹出对话框，显示出该图片。
 
 ## 4 具体示例【随时更新】
 

@@ -6329,19 +6329,1114 @@ if __name__ == '__main__':
     app.run()
 ```
 
-### 3.2 高阶模块
+### 3.2 高阶功能
 
-本节主要介绍前面没有提到过的高阶模块。
+本节主要介绍前面没有提到过的高阶功能。
 
-#### 3.2.1 反应性reactivity（重新想一想章节名字）
+#### 3.2.1 反应性属性
 
+学过Python的都知道，如果在类内直接定义一个变量，这个变量会成为这个类的属性。通过类名可以访问此属性，通过类的实例也可以访问此属性。类的属性是共享的，示例的属性是隔离的。
 
+在Textual中，为了方便`App`类的实例和组件可以更轻松地使用属性，特地创造出一种名叫反应性属性的包装属性。使用这种属性，很多Textual程序中的需求可以更加简单地实现，不需要自己从零开始创建代码。话不多说，这就揭开反应性属性的神秘面纱。如果读者等不及介绍，可以看官网的英文文档：https://textual.textualize.io/guide/reactivity/ 。
 
-https://textual.textualize.io/guide/reactivity/
+##### 3.2.1.1 创建反应性属性
 
+创建一个反应性属性和给类创建属性一样，只不过反应性属性是Textual的一个定义好的类，创建反应性属性实际上是创建这个类的对象。因此，创建之前需要先导入：`from textual.reactive import reactive`。
 
+导入之后，就可以创建反应性属性，在`App`子类或者组件类子类内都可以：
 
-#### 3.2.2 执行者worker（重新想一想章节名字）
+```python3
+from textual.app import App
+from textual.reactive import reactive
+
+class MyApp(App):
+    num = reactive(0)
+```
+
+`reactive`类有很多初始化参数，除了第一个是位置参数，是必须值，其余都是关键字参数（完整用法参考[官网文档](https://textual.textualize.io/api/reactive/#textual.reactive.reactive)），都是可选值。必须值是反应性属性的默认值，可以是常量，也可以是变量，支持小数、整数、字符串等类型的值。其实也支持列表、字典、集合、元组这种带元素的包装数据类型或者对象，不过复杂的类型在使用时有一些注意事项，后面会细讲，前面先用简单的类型讲解。
+
+##### 3.2.1.2 使用反应性属性——智能刷新
+
+创建反应性属性看起来没什么特别的，就像是创建了一个对象当做属性。当然，使用反应性属性也和普通的属性差不多：
+
+```python3
+from textual.app import App
+from textual.widgets import Static,Button
+from textual.reactive import reactive
+
+class MyApp(App):
+    num = reactive(0)
+    def on_mount(self):
+        self.widgets = [
+            Static(''),
+            Button('+1',action='app.plus')
+        ]
+        self.mount_all(self.widgets)
+        self.query_one(Static).update(str(self.num))
+
+    def action_plus(self):
+        self.num += 1
+        self.query_one(Static).update(str(self.num))
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![reactive_1](textual.assets/reactive_1.gif)
+
+不过，如果只是把反应性属性当普通属性用，那换成普通属性也一样，就没有必要创建反应性属性了：
+
+```python3
+from textual.app import App
+from textual.widgets import Static,Button
+
+class MyApp(App):
+    num = 0
+    def on_mount(self):
+        self.widgets = [
+            Static(''),
+            Button('+1',action='app.plus')
+        ]
+        self.mount_all(self.widgets)
+        self.query_one(Static).update(str(self.num))
+
+    def action_plus(self):
+        self.num += 1
+        self.query_one(Static).update(str(self.num))
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+把反应性属性当成普通属性使用没有任何区别，反而更繁琐。但是，如果简单自定义一个组件，并在组件中定义一个反应性属性，然后在组件的`render`方法中使用反应性属性，效果就不一样了。一旦反应性属性的值变化，其所在的组件会自动刷新显示，不需要像上面示例一样手动调用刷新显示文本的代码（`Static`组件的`update`方法可以设置组件的显示文字）。
+
+下面的代码中，通过继承`Widget`类（不具备任何功能的基础组件类）来实现一个自定义组件。自定义组件的方法后面会细讲，这里主要用来展示反应性属性在自定义中的效果。并且需要注意的是，只有在`render`方法中，反应性属性才会触发自动刷新。如果是前面那种继承Textual中现有组件的自定义组件方法，则需要覆盖原本实现好的`render`方法，可能会导致意外的问题。所以，这里是继承`Widget`类。在`render`方法中，返回Rich框架的可刷新对象，Textual就会将其处理为该组件的实际显示效果。当然，这里主要是展示反应性属性的特性，就只返回一个字符串，字符串中嵌入了反应性属性。
+
+完整代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0)
+    def render(self):
+        return f'{self.num}'
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+一般来说，组件类内会有一个默认的CSS，用于定义组件初始显示时的默认样式，但这部分内容后面会专门讲，这里就在`App`的子类内定义其CSS来代替。将宽度和高度设置为自动，组件的宽度和高度就不会默认占据整个屏幕，只会等于初始内容的宽度和高度（并不会因为内容改变而调整，这里卖个关子，下面马上解释）。可以看到，代码中没有任何主动刷新操作的情况下，组件的显示会随着反应性属性的变化而刷新：
+
+![reactive_1](textual.assets/reactive_1.gif)
+
+作为对比，将反应性属性换成普通属性的话，需要手动调用组件的`refresh`方法才是刷新显示：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = 0
+    def render(self):
+        return f'{self.num}'
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+        self.query_one(Counter).refresh()
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![reactive_1](textual.assets/reactive_1.gif)
+
+没错，反应性属性在值发生变化时，会让组件使用反应性属性的内容自动刷新显示，这就是反应性属性的智能刷新功能，也是其比普通属性更适合用在Textual的特点。
+
+那上面提到过组件的宽度高度不会随内容变化是怎么回事？明明已经设置了自动样式，难道是bug？其实不是，问题出在构建反应性属性时的参数，默认情况下，反应性属性中的`layout`参数是`False`，即认为组件的宽度和高度是固定的，与之相关的布局不会发生变化。因此，即使组件高度和宽度设置为自动，组件也不会因为内容变化，而改变显示尺寸的。就像下图演示中，数字变成两位的时候，只能显示一位，看上去就像出bug一样：
+
+![reactive_2](textual.assets/reactive_2.gif)
+
+如果显示的内容不是固定大小，在创建反应性属性时，务必将`layout`参数为`True`：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,layout=True)
+    def render(self):
+        return f'{self.num}'
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![reactive_3](textual.assets/reactive_3.gif)
+
+##### 3.2.1.3 使用反应性属性——重新生成
+
+与智能刷新类似的，是重新生成。如果想开启并使用反应性属性的重新生成，需要将`recompose`参数设置为`True`。此时，每次反应性属性的值变化（如果是后面提到的计算方法更新了反应性属性的值，则不会触发重新生成，原因会在介绍计算方法时解释），使用反应性属性的组件就会删掉组件的子组件并重新创建，因此使用反应性属性的内容和布局会随之更新，就不需要设置`layout`参数了。因为重新生成的刷新原理与智能刷新不同，想要让重新生成代替智能刷新来负责反应性属性相关的显示更新，就要将使用反应性属性的内容放到`compose`方法中。当然，不同于`render`方法直接返回可渲染对象，这里的`compose`方法，需要返回现成的组件，就和之前介绍的`App`子类的`compose`方法一样，使用`yield`关键字，代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,recompose=True)
+    def compose(self):
+        yield Static(f'{self.num}')
+
+class MyApp(App):
+    CSS='''
+    Counter,Static{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![reactive_1](textual.assets/reactive_1.gif)
+
+需要特别注意的是，因为重新生成是删掉子组件并重新创建，因此原来组件外面存储子组件的变量将会失效，除非第一时间更新变量的指向，否则将没法操作子组件。此外，部分组件不会存储临时数据（`Input`和`TextArea`输入的内容、`DataTable`的选择状态等），重新生成会让这些数据变成默认值，如果子组件是这些组件，建议不要使用重新生成的方式来更新显示。若是子组件较多，重新生成的性能开销会比智能刷新大，如果自定义组件比较复杂的话，务必参考上面提到的内容，慎重选择更新显示的方式。
+
+##### 3.2.1.4 使用反应性属性——验证
+
+在介绍本节内容前，先看一下下面的示例：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,layout=True)
+    def render(self):
+        return f'{self.num}'
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+    def action_minus(self):
+        self.query_one(Counter).num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+代码基于之前的示例修改，在原本只有加一按钮的基础上，添加了减一按钮，使得数字可以自由增减。那么，问题也随之而来，如果原本定义数字就是非负数，一开始要是点了减一按钮，会让数字变成负一。如果不希望数字变成负数，有没有办法限制一下呢？
+
+在按钮执行的动作内添加额外的检查代码是一个简单直接的方法，但这种像是验证反应性属性合法性的代码，似乎放在组件内部更合适。于是，在内部定义一个验证方法，就成了一个更加合适的方法。
+
+对于每一个反应性属性，都可以在反应性属性所在的类内定义一个'validate_'为前缀、后接属性名的方法，用来验证反应性属性的值。说是验证也不完全准确，因为此方法有一个额外的参数，用于接收反应性属性的当前值；而此方法还必须返回一个值，用于在验证值是否合适之后，将反应性属性设置为新的值。
+
+添加了验证方法之后，代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,layout=True)
+    def render(self):
+        return f'{self.num}'
+    def validate_num(self,new_value):
+        if new_value < 0:
+            return 0
+        return new_value
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+    def action_minus(self):
+        self.query_one(Counter).num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![reactive_4](textual.assets/reactive_4.gif)
+
+##### 3.2.1.5 使用反应性属性——监视
+
+验证方法也可以用于监视反应性属性的值变化，但这样借用的方式和上节引入验证方法的原因一样，显得不太合适。此外，验证方法没法接收属性变化前的旧值。这样的话，如果反应性属性的值变化时，需要对比新旧值，就没法实现。这时，只需将验证方法的'validate\_'的前缀换成'watch\_'即可。这样，一个验证方法就变成了监视方法——'watch\_'为前缀、后接属性名的方法。监视方法会在反应性属性的值变化时执行；如果反应性属性的`always_update`参数为`True`（默认为`False`），则监视方法会在反应性属性被赋值（无论值是否变化）时执行。
+
+但需要注意的是，如果反应性属性不是简单的数值类型（整数类型、浮点类型、字符串类型），而是包装类型（列表类型、字典类型、集合类型、元组类型）或者对象的话，修改其成员并不会执行反应性属性的监视方法，那就需要手动刷新了。手动刷新的方法会在下一节介绍，这里暂不展开说，本节重点学习监视方法。
+
+当然，只是简单的改名，代码不会出错，但会失去防止负数的效果，还需要改一下方法内部的代码。监视方法不需要返回任何值，它只是简单接收反应性属性的新值作为参数。因此，需要在方法内部判断完新值是负数之后，将反应性属性设置为最小的`0`：
+
+```python3
+def watch_num(self,new_value):
+    if new_value < 0:
+        self.num = 0
+```
+
+前面提到过，想要对比新旧值的话，只能用监视方法，但上面只有一个新值，没法获取到旧值。这个时候，就要说明一下监视方法支持的参数数量和区别。除了上面传入一个额外参数、参数是新值的监视方法，还可以不传入额外参数，那上面的代码就变成了这样：
+
+```python3
+def watch_num(self,new_value):
+    if self.num < 0:
+        self.num = 0
+```
+
+还有两个额外参数的监视方法，则此时两个额外参数分别是反应性属性的旧值、新值。当然，上面的方法不需要关注旧值，所以，只需检查新值即可：
+
+```python3
+def watch_num(self,old_value,new_value):
+    if new_value < 0:
+        self.num = 0
+```
+
+除了通过定义指定前缀加上属性名的函数来监视属性，组件类和`App`类还支持通过`watch`方法（完整用法参考[官网文档](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.watch)）来动态添加任意函数为监视方法，并根据方法支持的参数个数匹配上面的使用方法。以上面的监视方法为例，如果是放在完整可以执行的代码中的话，是这样的：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,layout=True)
+    def render(self):
+        return f'{self.num}'
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+    def action_minus(self):
+        self.query_one(Counter).num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+现在，将规定函数名前缀的监视方法修改为任意名字，则`Counter`类的代码会变成这样：
+
+```python3
+class Counter(Widget):
+    num = reactive(0,layout=True)
+    def render(self):
+        return f'{self.num}'
+    def check_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+```
+
+这个时候，完整的代码已经失效，因为`num`属性没有了对应的监视方法，也就没法检查、修改其值。所以，需要用`watch`方法将其添加为`num`属性的监视方法。添加代码只能执行一次，这里就将代码放到`on_mount`方法中。没错，自定义组件也支持`on_mount`方法，此方法会在组件被挂载的时候执行一次。`watch`方法支持四个参数：
+
+-   `obj`参数，对象类型，表示监视哪个对象的反应性属性。
+-   `attribute_name`参数，字符串类型，反应性属性的名字，表示监视哪个反应性属性。
+-    `callback`参数，可调用类型，表示当监视方法应该执行的时候，要执行的操作。
+-   `init`参数，布尔类型，表示是否在添加监视方法时执行一次监视方法，默认为`True`，即添加时会执行一次。
+
+根据参数用途，那`Counter`类的代码要这样写：
+
+```python3
+class Counter(Widget):
+    num = reactive(0,layout=True)
+    def render(self):
+        return f'{self.num}'
+    def check_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+    def on_mount(self):
+        self.watch(self,'num',self.check_num,True)
+```
+
+如果其他反应性属性的需求也一样，这种类的方法，可以批量用在其他反应性属性的监视上。不过，定义了类的方法，很容易把方法暴露出去，导致被错误使用。虽然使用下划线当函数名前缀是约定俗成的私有方法，但那种方法不能从语法上禁止使用。因此，可以在`on_mount`中定义函数内的函数（也称为闭包），将其绑定给反应性属性的监视方法，从而避免此方法被外部错误使用：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,layout=True)
+    def render(self):
+        return f'{self.num}'
+    def on_mount(self):
+        def check_num(old_value,new_value):
+            if new_value < 0:
+                self.num = 0
+        self.watch(self,'num',check_num,False)
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+    def action_minus(self):
+        self.query_one(Counter).num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+虽然上面的示例中使用反应性属性的监视方法没遇到什么问题，但要是在监视方法了与DOM有关的方法（比如前面介绍过的`query_one`方法）的话，就会出问题。
+
+先上代码：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0)
+    def compose(self):
+        yield Static('old_value is 0.')
+        yield Digits(f'{self.num}.')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+        self.query_one(Static).update(f'old_value is {old_value}.')
+        self.query_one(Digits).update( f'{self.num}')
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        self.query_one(Counter).num += 1
+    def action_minus(self):
+        self.query_one(Counter).num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+为了让监视方法中表示旧值的参数不再闲置，自定义组件使用`compose`方法显示两个组件——静态文本（`Static`）和数码显示组件（`Digits`），其中静态文本用来显示旧值，数码显示组件用来显示当前值。
+
+当然，嵌入反应性属性的组件可以使用重新生成来实时刷新，但要想让旧值的显示始终保持在静态文本中，就不能使用重新生成（其实可以，这里为了引出下面要说的问题，所以只用“笨”办法解决）。因此，两个组件的显示内容将都使用各自的更新方法（都是`update`）来刷新。不过，在更新之前，要先用查询方法——`query_one`，找到这两个组件，才能调用`update`方法，进而更新显示内容。
+
+代码看上去没什么问题，可偏偏执行时候直接报错，都没来得及点按钮：
+
+![reactive_5](textual.assets/reactive_5.png)
+
+报错看上去匪夷所思，没有找到静态文本？这是怎么回事？在探究问题的原因之前，先给各位测试示例同样出错但比较心急于解决的读者提供一下解决方法。
+
+官方提供的解决方法是：在类的初始化方法（`__init__`）中，使用组件类或者`App`类的（完整用法参考[官网文档](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.set_reactive)）设置一次反应性属性的默认值。
+
+`set_reactive`方法支持两个参数：
+
+-   `reactive`参数，表示要设置的反应性属性，这里要使用`{类名}.{反应性属性名}`这种格式，比如`Counter.num`。
+-   `value`参数，要给反应性属性设置的默认值。
+
+当然，别忘了调用父类的初始化方法。那`Counter`类的代码要这样写：
+
+```python3
+class Counter(Widget):
+    num = reactive(0)
+    def __init__(self, *args,**kwargs):
+        super().__init__(*args, **kwargs)
+        self.set_reactive(Counter.num,0)
+    def compose(self):
+        yield Static('old_value is 0.')
+        yield Digits(f'{self.num}.')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+        self.query_one(Static).update(f'old_value is {old_value}.')
+        self.query_one(Digits).update( f'{self.num}')
+```
+
+![reactive_6](textual.assets/reactive_6.gif)
+
+除了官方的解决方法，还有非官方（官方没说但在示例中有效）的解决方法：给监视方法添加`async`关键字，使之成为异步方法；在反应性属性的值没有变化时直接返回。
+
+使用异步关键字的话，那`Counter`类的代码要这样写（比较推荐）：
+
+```python3
+class Counter(Widget):
+    num = reactive(0)
+    def compose(self):
+        yield Static('old_value is 0.')
+        yield Digits(f'{self.num}.')
+    async def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+        self.query_one(Static).update(f'old_value is {old_value}.')
+        self.query_one(Digits).update( f'{self.num}')
+```
+
+![reactive_7](textual.assets/reactive_7.gif)
+
+若是判断值不变直接返回，那`Counter`类的代码要这样写（不太推荐，限制较多且容易出bug）：
+
+```python3
+class Counter(Widget):
+    num = reactive(0)
+    def compose(self):
+        yield Static('old_value is 0.')
+        yield Digits(f'{self.num}.')
+    def watch_num(self,old_value,new_value):
+        if old_value == new_value:
+            return
+        if new_value < 0:
+            self.num = 0
+        self.query_one(Static).update(f'old_value is {old_value}.')
+        self.query_one(Digits).update( f'{self.num}')
+```
+
+![reactive_6](textual.assets/reactive_6.gif)
+
+其实，上面问题的本质是如果组件使用了反应性属性，默认其`init`参数值是`True`，即该属性会在所在类初始化时（此时组件还没有挂载）触发该反应性属性的监视方法。如果在监视方法中使用了DOM查询方法，就会报错。
+
+那解决方法的原理是什么呢？若要说清楚解决的原理，需要先从类初始化时触发监视方法的来源说起。
+
+如果反应性属性所在的类（组件类或者`App`类）挂载的组件使用了反应性属性，当类初始化时，会执行一次反应性属性的初始化方法。此初始化方法不是`__init__`魔法方法，而是一个内部定义的、将反应性属性（反应性属性的真实属性名是`f"_reactive_{name}"`）附在所在类的实例上的方法。反应性属性的初始化方法内部会在`init`参数值是`True`时触发一次监视方法。此时反应性属性的值其实没有变化，这个触发过程不会管`always_update`参数是不是`True`。默认`always_update`参数为`False`，即反应性属性的值不变时不触发监视方法，但这里是强制触发，不是代码中检查`always_update`参数来决定是否触发监视方法的部分，所以修改`always_update`参数也不能解决此问题。
+
+说完触发的过程，那解决的原理是什么呢？
+
+使用`set_reactive`方法给所在类设置反应性属性之后，反应性属性的初始化方法在检查到当前类、实例有此反应性属性之后，就直接返回了，不会执行判断`init`参数值是`True`才执行的部分，也就不会触发监视方法，而且在实例中依然可以正常使用反应性属性。
+
+当然，转化为异步函数，会让监视方法的执行乖乖等待组件完成挂载之后，自然不会报错。
+
+而判断值不变就返回的粗暴手动，也是直接规避了组件完成挂载前，会执行监视方法中DOM查询方法的可能。因为此时反应性属性的值实际上没有变化。但粗暴手段会让`always_update`参数失效，即使反应性属性的值不变也会完整执行监视方法了。而且，粗暴手段也不适用于复杂类型的反应性属性，因为复杂类型的数据，只是修改其成员的话，本身相当于没有变化。哪怕是下节介绍的`mutate_reactive`方法也不能正常执行。所以，只有不需要`always_update`参数的功能时才可以使用，不推荐使用此解决方法。
+
+了解了问题触发的过程，那新的解决方法也就出来了：将反应性属性的`init`参数值设置为`False`，同样可以规避此问题。
+
+那`Counter`类的代码要这样写：
+
+```python3
+class Counter(Widget):
+    num = reactive(0,init=False)
+    def compose(self):
+        yield Static('old_value is 0.')
+        yield Digits(f'{self.num}.')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+        self.query_one(Static).update(f'old_value is {old_value}.')
+        self.query_one(Digits).update( f'{self.num}')
+```
+
+![reactive_6](textual.assets/reactive_6.gif)
+
+根据上面的介绍，这里提出一个`set_reactive`方法的引申用法：使用`set_reactive`方法会同步修改实例的反应性属性，可以在不会触发实例的反应性属性监视方法前提下修改实例的反应性属性的值。
+
+##### 3.2.1.6 使用反应性属性——刷新复杂类型
+
+自定义的组件里有两个可以显示内容的子组件，只是用来显示当前值和旧值未免有点浪费。既然自定义组件是计数器，那除了记录当前数值，还可以记录按钮点了几次。
+
+为了引出本节要介绍的方法，这里用于记录点击次数的，并不是增加的反应性属性，而是原来的反应性属性。将原本简单的整数类型，升级为数组，这样一个反应性属性就能记录两个值。
+
+代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive([0,0],init=False,recompose=True)
+    def compose(self):
+        yield Static(f'You click {self.num[1]} time(s).')
+        yield Digits(f'{self.num[0]}.')
+    def watch_num(self,old_value,new_value):
+        if new_value[0] < 0:
+            self.num[0] = 0
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        widget = self.query_one(Counter)
+        widget.num[0] += 1
+        widget.num[1] += 1
+    def action_minus(self):
+        widget = self.query_one(Counter)
+        widget.num[0] -= 1
+        widget.num[1] += 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+在自定义组件中，数组的两个元素分别代表当前值和点击次数，并嵌入了子组件中。因此，加一按钮和减一按钮除了要修改数组的第一个元素，还要添加一个给第二元素加一的操作。当然，两个子组件都嵌入了反应性元素，原本的查询方法就没有必要，使用重新生成即可。可是，上面的代码并不会出现预期的结果，点击两个按钮都不会让显示刷新这是为何？
+
+这就不得不回顾一下前面说过的内容。在讲监视方法的时候说过：“如果反应性属性不是简单的数值类型（整数类型、浮点类型、字符串类型），而是包装类型（列表类型、字典类型、集合类型、元组类型）或者对象的话，修改其成员并不会执行反应性属性的监视方法。”因为修改成员并不会让反应性属性的值发生变化（值变化的本质是创建了新的对象，对象的地址发生变化），修改成员，并不会修改原本的对象地址。当然，如果每次都创建新的对象代替原来的对象，倒是可以和简单类型的反应性属性一样。但本节将介绍一个更加简单有效的方法——`mutate_reactive`方法（完整用法参考[官网文档](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.mutate_reactive)）。
+
+和`set_reactive`方法的参数类似，让类的实例调用此方法，参数为`{类名}.{反应性属性名}`，比如`Counter.num`，即可刷新此反应性属性。刷新时还会触发此属性的监视方法，所以此方法还可以用于强制触发反应性属性的刷新。
+
+那上面的代码就只需在两个按钮的动作函数中添加`widget.mutate_reactive(Counter.num)`即可：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive([0,0],init=False,recompose=True)
+    def compose(self):
+        yield Static(f'You click {self.num[1]} time(s).')
+        yield Digits(f'{self.num[0]}.')
+    def watch_num(self,old_value,new_value):
+        if new_value[0] < 0:
+            self.num[0] = 0
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        widget = self.query_one(Counter)
+        widget.num[0] += 1
+        widget.num[1] += 1
+        widget.mutate_reactive(Counter.num)
+    def action_minus(self):
+        widget = self.query_one(Counter)
+        widget.num[0] -= 1
+        widget.num[1] += 1
+        widget.mutate_reactive(Counter.num)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![reactive_8](textual.assets/reactive_8.gif)
+
+##### 3.2.1.7 使用反应性属性——计算
+
+依照惯例，介绍新内容前先看示例：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,recompose=True)
+    price = reactive(0,recompose=True)
+    def compose(self):
+        yield Static(f'You buy {self.num} apple(s). The sum price is')
+        yield Digits(f'{self.price:.2f}')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+        self.price = self.num*3.95
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        widget = self.query_one(Counter)
+        widget.num += 1
+    def action_minus(self):
+        widget = self.query_one(Counter)
+        widget.num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+示例实现了一个简单计价系统，只需使用按钮调整购买数量，下面的数码显示组件就会显示总价：
+
+![reactive_9](textual.assets/reactive_9.gif)
+
+自定义组件中使用了两个反应性属性，分别用来记录数量和总价。上面的代码没有什么问题，但Textual提供了一个更好的方法实现此功能，那就是'compute\_'为前缀、后接属性名的计算方法。
+
+计算方法可用于返回基于其他反应性属性计算之后的该反应性属性的值，并且计算方法会在其他反应性属性发生变化或者组件生成时执行一次，更新该反应性属性的值。
+
+那`Counter`类的代码可以这样写，实现同样的效果：
+
+```python3
+class Counter(Widget):
+    num = reactive(0,recompose=True)
+    price = reactive(0,recompose=True)
+    def compose(self):
+        yield Static(f'You buy {self.num} apple(s). The sum price is')
+        yield Digits(f'{self.price:.2f}')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+    def compute_price(self):
+        return self.num*3.95
+```
+
+当然，如果还定义了监视方法，计算方法一样会触发监视方法。
+
+需要额外注意的是，计算方法虽然更新了反应性属性的值，但这个过程不会触发组件的重新生成，哪怕反应性属性的`recompose`参数是`True`。因为Textual为了确保重新生成时有计算方法的反应性属性的值是准确的，会在组件生成（`compose`）时，执行一遍所有反应性属性的计算方法。如果计算方法再触发组件的重新生成，就会产生死循环。因此，计算方法更新反应性属性的值不会触发组件的重新生成。
+
+##### 3.2.1.8 使用反应性属性——绑定
+
+上一节的总价计算器将单价写到了自定义组件类内，想要修改单价的话，还需要每次修改源代码，有点不方便。因此，本节将结合反应性属性的功能，让单价可以轻松修改。
+
+在自定义组件类内添加一个新的反应性属性——`unit_price`来记录单价，然后将`compute_price`方法中的固定单价替换为`self.unit_price`。这样，在`App`子类中需要修改单价时，就可以执行类似`self.query_one(Counter).unit_price = 4`这样的代码来实现：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits
+from textual.reactive import reactive
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,recompose=True)
+    price = reactive(0,recompose=True)
+    unit_price = reactive(3.95,recompose=True)
+    def compose(self):
+        yield Static(f'You buy {self.num} apple(s). The sum price is')
+        yield Digits(f'{self.price:.2f}')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+    def compute_price(self):
+        return self.num*self.unit_price
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Counter(),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+        self.query_one(Counter).unit_price = 4
+
+    def action_plus(self):
+        widget = self.query_one(Counter)
+        widget.num += 1
+    def action_minus(self):
+        widget = self.query_one(Counter)
+        widget.num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+当然，和上一节类似，本节也要介绍一个平替方法——`data_bind`方法（完整用法参考[官方文档](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.data_bind)）。此方法可以将外面的反应性属性绑定到自定义组件的反应性属性，实现内外反应性属性的联动。
+
+`data_bind`方法支持两种类型的参数：
+
+-   直接传入位置参数，没有先后顺序，但要求传入`{当前代码所在类的类名}.{与被绑定反应性属性同名的反应性属性名}`。比如，想要将`MyApp`类的`unit_price`属性绑定到`Counter`类的`unit_price`属性，代码就是这样的：`Counter().data_bind(MyApp.unit_price)`。
+-   传入关键字参数，没有先后顺序。参数值的格式和位置参数一样，但值所对应的关键字有规则，那就是被绑定的反应性属性名。没错，这种类型的参数不要求绑定的属性名与被绑定的属性名一致。比如，想要将`MyApp`类的`current_price`属性绑定到`Counter`类的`unit_price`属性，代码就是这样的：`Counter().data_bind(unit_price=MyApp.current_price)`。
+
+如果在`MyApp`类中定义了一个反应性属性`unit_price= reactive(4)`，用于表示修改后的价格，那就可以调用自定义组件对象的`data_bind`方法，将组件对象的`unit_price`属性，与`MyApp.unit_price`绑定，这样就不需要单独修改组件对象的`unit_price`属性，只需修改`MyApp`类实例的`unit_price`属性即可。
+
+因为是要给组件对象的反应性属性绑定，因此，需要调用组件对象的`data_bind`方法。此方法返回的是对象本身，所以可以在创建组件对象时调用：`Counter().data_bind(MyApp.unit_price)`。
+
+传入位置参数的示例如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits
+from textual.reactive import reactive,var
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,recompose=True)
+    price = reactive(0,recompose=True)
+    unit_price = reactive(3.95,recompose=True)
+    def compose(self):
+        yield Static(f'You buy {self.num} apple(s). The sum price is')
+        yield Digits(f'{self.price:.2f}')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+    def compute_price(self):
+        return self.num*self.unit_price
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    unit_price = reactive(4)
+    def on_mount(self):
+        self.widgets = [
+            Counter().data_bind(MyApp.unit_price),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+        
+    def action_plus(self):
+        widget = self.query_one(Counter)
+        widget.num += 1
+    def action_minus(self):
+        widget = self.query_one(Counter)
+        widget.num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+传入关键字参数的示例如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits
+from textual.reactive import reactive,var
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,recompose=True)
+    price = reactive(0,recompose=True)
+    unit_price = reactive(3.95,recompose=True)
+    def compose(self):
+        yield Static(f'You buy {self.num} apple(s). The sum price is')
+        yield Digits(f'{self.price:.2f}')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+    def compute_price(self):
+        return self.num*self.unit_price
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    current_price = reactive(4)
+    def on_mount(self):
+        self.widgets = [
+            Counter().data_bind(unit_price=MyApp.current_price),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus')
+        ]
+        self.mount_all(self.widgets)
+        
+    def action_plus(self):
+        widget = self.query_one(Counter)
+        widget.num += 1
+    def action_minus(self):
+        widget = self.query_one(Counter)
+        widget.num -= 1
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+既然是要在外面修改价格，让自定义组件接收，那就额外提供一个可以修改价格的示例：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits,Input
+from textual.reactive import reactive,var
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,recompose=True)
+    price = reactive(0,recompose=True)
+    unit_price = reactive(3.95,recompose=True)
+    def compose(self):
+        yield Static(f'You buy {self.num} apple(s). The sum price is')
+        yield Digits(f'{self.price:.2f}')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+    def compute_price(self):
+        return self.num*self.unit_price
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    current_price = reactive(4)
+    def on_mount(self):
+        self.widgets = [
+            Counter().data_bind(unit_price=MyApp.current_price),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus'),
+            Input(f'{self.current_price}',type='number',placeholder='Please input unit price')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        widget = self.query_one(Counter)
+        widget.num += 1
+    def action_minus(self):
+        widget = self.query_one(Counter)
+        widget.num -= 1
+    def on_input_changed(self,e:Input.Changed):
+        try:
+            ans = float(e.value)
+        except:
+            return
+        self.current_price=ans
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+代码中添加了一个输入框，让输入框在数值变化时修改`MyApp`类实例的`current_price`属性，这样`Counter`类实例内部就会接收到这个价格值，然后重新计算总价：
+
+![reactive_10](textual.assets/reactive_10.gif)
+
+##### 3.2.1.9 使用反应性属性——不想刷新
+
+上节最后提供的示例中，`MyApp`类的`current_price`属性用在了输入框中，用起来没啥问题。其实，这里的输入框是主动输出数据的，哪怕反应性不支持智能刷新也没问题。当然，如果在实际开发中不希望某个反应性属性用在组件中但又不希望其触发显示的智能刷新，或者只想用反应性属性的监视方法、验证方法、计算方法等但不喜欢看到额外的参数，那可以试试不触发智能刷新的反应性属性——`var`（完整用法参考[官网文档](https://textual.textualize.io/api/reactive/#textual.reactive.var)）。
+
+因此，将`MyApp`类中的反应性属性替换为`current_price = var(4)`，并不会影响程序的执行结果：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Static,Digits,Input
+from textual.reactive import reactive,var
+from textual.widget import Widget
+
+class Counter(Widget):
+    num = reactive(0,recompose=True)
+    price = reactive(0,recompose=True)
+    unit_price = reactive(3.95,recompose=True)
+    def compose(self):
+        yield Static(f'You buy {self.num} apple(s). The sum price is')
+        yield Digits(f'{self.price:.2f}')
+    def watch_num(self,old_value,new_value):
+        if new_value < 0:
+            self.num = 0
+    def compute_price(self):
+        return self.num*self.unit_price
+
+class MyApp(App):
+    CSS='''
+    Counter{
+        height:auto;
+        width:auto;
+    }
+    '''
+    current_price = var(4)
+    def on_mount(self):
+        self.widgets = [
+            Counter().data_bind(unit_price=MyApp.current_price),
+            Button('+1',action='app.plus'),
+            Button('-1',action='app.minus'),
+            Input(f'{self.current_price}',type='number',placeholder='Please input unit price')
+        ]
+        self.mount_all(self.widgets)
+
+    def action_plus(self):
+        widget = self.query_one(Counter)
+        widget.num += 1
+    def action_minus(self):
+        widget = self.query_one(Counter)
+        widget.num -= 1
+    def on_input_changed(self,e:Input.Changed):
+        try:
+            ans = float(e.value)
+        except:
+            return
+        self.current_price=ans
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![reactive_10](textual.assets/reactive_10.gif)
+
+#### 3.2.2 异步
 
 
 
@@ -6349,7 +7444,11 @@ https://textual.textualize.io/guide/workers/
 
 
 
-#### 3.2.3 调色盘——快捷命令面板
+#### 3.2.3 命令面板
+
+
+
+快捷命令面板
 
 给`Header`添加参数来隐藏`icon`：
 

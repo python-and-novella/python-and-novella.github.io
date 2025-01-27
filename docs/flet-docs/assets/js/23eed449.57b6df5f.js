@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkflet_dev=self.webpackChunkflet_dev||[]).push([[71957],{74194:e=>{e.exports=JSON.parse('{"metadata":{"permalink":"/docs/flet-docs/blog/page/2","page":2,"postsPerPage":5,"totalPages":7,"totalCount":34,"previousPage":"/docs/flet-docs/blog","nextPage":"/docs/flet-docs/blog/page/3","blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

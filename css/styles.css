@@ -112,6 +112,7 @@ width: 40%;
   right: 0;
   bottom: 10px;
   position: absolute;
+  z-index: 10;
 }
 footer {
   align-items: center;

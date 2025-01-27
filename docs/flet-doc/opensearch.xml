@@ -5,7 +5,7 @@
   <Description>Search Flet</Description>
   <InputEncoding>UTF-8</InputEncoding>
   <Image width="16" height="16" type="image/x-icon">https://python-and-novella.github.io/docs/flet-doc/img/favicon.ico</Image>
-  <Url type="text/html" method="get" template="https://python-and-novella.github.io/docs/flet-doc/search?q={searchTerms}"/>
+  <Url type="text/html" method="get" template="https://python-and-novella.github.io/docs/flet-doc/search?q={searchTerms}"/docs/flet-doc/>
   <Url type="application/opensearchdescription+xml" rel="self" template="https://python-and-novella.github.io/docs/flet-doc/opensearch.xml" />
   <moz:SearchForm>https://python-and-novella.github.io/docs/flet-doc/</moz:SearchForm>
 </OpenSearchDescription>

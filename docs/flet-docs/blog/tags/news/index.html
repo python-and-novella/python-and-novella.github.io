@@ -18,7 +18,7 @@
 <p>I&#x27;ve been thinking on how to make Python runtime embedded into Flutter iOS or Android app to run user Python program. No doubt, it&#x27;s technically possible as Kivy and BeeWare projects do that already.</p>
 <h2 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="current-flet-architecture">Current Flet architecture<a class="hash-link" aria-label="Direct link to Current Flet architecture" title="Direct link to Current Flet architecture" href="/docs/flet-docs/blog/tags/news#current-flet-architecture">​</a></h2>
 <p>The current architecture of Flet desktop app is shown on the diagram below:</p>
-<img src="/img/blog/mobile-update/flet-desktop-architecture.svg" class="screenshot-100">
+<img src="/docs/flet-docs/img/blog/mobile-update/flet-desktop-architecture.svg" class="screenshot-100">
 <p>Running Flet program on a desktop involves three applications (processes) working together:</p>
 <ul>
 <li><strong>Python runtime</strong> (<code>python3</code>) - Python interpreter running your Python script. This is what you are starting from a command line. Python starts Fletd server and connects to it via WebSockets.</li>
@@ -32,13 +32,13 @@
 </ul>
 <h2 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="flet-new-desktop-architecture">Flet new desktop architecture<a class="hash-link" aria-label="Direct link to Flet new desktop architecture" title="Direct link to Flet new desktop architecture" href="/docs/flet-docs/blog/tags/news#flet-new-desktop-architecture">​</a></h2>
 <p>Flet desktop app architecture can be simplified by replacing Fletd with a &quot;stub&quot; written in Python and communicating with Flet desktop client via sockets (Windows) and named pipes (macOS and Linux):</p>
-<img src="/img/blog/mobile-update/flet-desktop-architecture-v2.svg" class="screenshot-70">
+<img src="/docs/flet-docs/img/blog/mobile-update/flet-desktop-architecture-v2.svg" class="screenshot-70">
 <h2 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="flet-mobile-architecture">Flet mobile architecture<a class="hash-link" aria-label="Direct link to Flet mobile architecture" title="Direct link to Flet mobile architecture" href="/docs/flet-docs/blog/tags/news#flet-mobile-architecture">​</a></h2>
 <p>Mobile applications are running in a very strict context with a number of limitations. For example, on iOS the app cannot spawn a new processes. Other words, Flet Flutter app cannot just start &quot;python.exe&quot; and pass your script as an argument.</p>
 <p>Luckily for us, <a href="https://docs.python.org/3/extending/embedding.html" target="_blank" rel="noopener noreferrer">Python can be embedded</a> into another app as a C library and Dart (the language in which Flutter apps are written) allows calling C libraries via <a href="https://dart.dev/guides/libraries/c-interop" target="_blank" rel="noopener noreferrer">FFI</a> (Foreign Function Interface).</p>
 <p>Additionally, while Android allows loading of dynamically linked libraries iOS requires all libraries statically linked into app executable. <a href="https://blog.logrocket.com/dart-ffi-native-libraries-flutter/" target="_blank" rel="noopener noreferrer">This article</a> covers Dart FFI in more details, if you are curious.</p>
 <p>Flet mobile architecture could look like this:</p>
-<img src="/img/blog/mobile-update/flet-mobile-architecture-v2.svg" class="screenshot-40">
+<img src="/docs/flet-docs/img/blog/mobile-update/flet-mobile-architecture-v2.svg" class="screenshot-40">
 <p>Python runtime will be statically or dynamically linked with Flutter client app and called via FFI and/or named pipes.</p>
 <p>Running Python on mobile will have some limitations though. Most notable one is the requirement to use &quot;pure&quot; Python modules or modules with native code compiled specifically for mobile ARM64 architecture.</p>
 <h2 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="asyncio-support">Asyncio support<a class="hash-link" aria-label="Direct link to Asyncio support" title="Direct link to Asyncio support" href="/docs/flet-docs/blog/tags/news#asyncio-support">​</a></h2>

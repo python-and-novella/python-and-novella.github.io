@@ -23,13 +23,13 @@ bundle (.apk, .ipa, .exe, .app) contains your Python program, Python interpreter
 <p>A &quot;pure-Python&quot; package is a package that only contains Python code, and doesn&#x27;t include extensions written in C, C++, Rust or other languages. You only need a Python interpreter and the Python Standard Library to run a pure-Python package, and it doesn&#x27;t matter what your OS or platform is.</p>
 <p>Examples of such packages: <code>httpx</code>, <code>click</code>, <code>rich</code>, <code>requests</code>.</p>
 <p>To verify if the package is pure, find that package on <a href="https://pypi.org" target="_blank" rel="noopener noreferrer">PyPI</a> and navigate to its &quot;Download files&quot; page. If under &quot;Built distribution&quot; section there is only one wheel ending with <code>-py3-none-any.whl</code> then <em>most probably</em> it&#x27;s a pure Python package that will work &quot;as is&quot; on any device with Python.</p>
-<img src="/img/blog/packaging/pypi-pure-package.png" class="screenshot-80 screenshot-rounded">
+<img src="/docs/flet-docs/img/blog/packaging/pypi-pure-package.png" class="screenshot-80 screenshot-rounded">
 <p>We say <em>&quot;probably&quot;</em> because that pure package could depend on a non-pure package which brings you to the next section. For example, <a href="https://pypi.org/project/pydantic/#files" target="_blank" rel="noopener noreferrer"><code>pydantic</code></a> is a pure package, but to work properly it requires <a href="https://pypi.org/project/pydantic-core/#files" target="_blank" rel="noopener noreferrer"><code>pydantic-core</code></a> non-pure package written in Rust.</p>
 <h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="non-pure-python-packages">Non-pure Python packages<a class="hash-link" aria-label="Direct link to Non-pure Python packages" title="Direct link to Non-pure Python packages" href="/docs/flet-docs/blog/flet-packaging-update#non-pure-python-packages">​</a></h3>
 <p>A &quot;non-pure Python&quot; package is one that is fully or partially written in C, C++, Rust, or another language and must be compiled to machine code for the platform on which it will run.</p>
 <p>Examples of such packages: <code>cryptography</code>, <code>opencv-python</code>, <code>numpy</code>, <code>msgpack</code>.</p>
 <p>On &quot;Download files&quot; page of non-pure package you will find a bunch of wheels pre-built for various platforms: macOS, Windows, Linux.</p>
-<img src="/img/blog/packaging/pypi-non-pure-package.png" class="screenshot-80 screenshot-rounded">
+<img src="/docs/flet-docs/img/blog/packaging/pypi-non-pure-package.png" class="screenshot-80 screenshot-rounded">
 <p>When you run <code>pip install &lt;package&gt;</code> pip tries to find a wheel for your specific platform and Python version looking at
 wheel suffixes that include that information.</p>
 <p>It&#x27;s a courtesy of package developer to provide pre-compiled wheels for multiple platforms. There could be missing wheels for some platforms, or no wheels at all - just <code>.tar.gz</code> under &quot;Source distribution&quot; with package sources.</p>

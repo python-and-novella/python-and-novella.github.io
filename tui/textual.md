@@ -5345,7 +5345,7 @@ if __name__ == '__main__':
 
 本节主要介绍常用组件及其的常用功能、示例，更多用法和介绍参考[官网完整文档](https://textual.textualize.io/widgets/)。
 
-（根据使用频率、难易程度调整先后顺序）Static Label Butto
+（根据使用频率、难易程度调整先后顺序）Static Label Button Link
 
 #### 2.3.1 `Button`按钮
 

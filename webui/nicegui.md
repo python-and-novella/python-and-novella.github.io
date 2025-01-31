@@ -7647,6 +7647,23 @@ ui.button("Download", on_click=lambda: ui.download(b'Demo text','demo_file.txt')
 ui.run(native=True)
 ```
 
+2，如何让native mode运行在QT的QtWebEngine中？
+
+默认情况下，如果Windows系统安装了Webview2，native mode优先采用Webview2当做浏览器运行时，哪怕Python添加了QT的包（PyQT5、PyQT6、PySide2、PySide6）。如果想要native mode采用QtWebEngine当做浏览器运行时，需要手动指定PyWebview的Web engine（参考文档见[官方](https://pywebview.flowrl.com/guide/web_engine.html)），代码如下：
+
+```python3
+from nicegui import ui, app
+
+app.native.start_args['gui'] = 'qt'
+app.native.start_args['icon'] = 'favicon.ico'
+
+ui.button('Say Hi',on_click=lambda :ui.notify('Hello World!'))
+
+ui.run(native=True)
+```
+
+使用QtWebEngine当做浏览器运行时，窗口图标默认为Windows默认图标，而不是Python的图标，可以像代码中一样，使用`app.native.start_args['icon'] = 'favicon.ico'`指定，路径默认为源代码同目录，可以使用相对路径或者绝对路径。
+
 ### 4.3 ui.*
 
 #### 4.3.1 `ui.run`

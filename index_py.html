@@ -31,7 +31,7 @@
           pyodide.runPython(`
             import js
             div = js.document.createElement("div")
-            div.innerHTML = '<a href="./tui/pytermtk/index.html">9¾</a><a href="./tui/pytermtk/index_full.html">.</a><a href="./webui/linux.pdf">🖼</a>'
+            div.innerHTML = '<a href="./tui/pytermtk/index.html">9¾</a><a href="./tui/pytermtk/index_full.html">.</a><a href="./webui/linux.pdf">🖼</a><br>提示：在浏览器控制台使用run函数运行Python代码试试。'
             js.document.body.append(div)
           `);
           run = pyodide.runPython
@@ -46,7 +46,6 @@ pan.main();
         }
         setTimeout(()=>term.writeln('耐心等待，奇迹就会出现。'),3000)
         setTimeout(main,10000)
-        setTimeout(()=>term.writeln('提示：在浏览器控制台使用run函数运行Python代码试试。'),13000)        
       </script>
 </body>
 </html>

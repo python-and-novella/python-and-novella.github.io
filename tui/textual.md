@@ -5341,13 +5341,49 @@ if __name__ == '__main__':
     app.run()
 ```
 
-### 2.3 常用组件（慢慢更新，三天一个组件）
+### 2.3 常用组件
 
 本节主要介绍常用组件及其的常用功能、示例，更多用法和介绍参考[官网完整文档](https://textual.textualize.io/widgets/)。
 
-（根据使用频率、难易程度调整先后顺序）Static Label Button Link
+#### 2.3.1 `Static`静态文本
 
-#### 2.3.1 `Button`按钮
+
+
+https://textual.textualize.io/widgets/label/
+
+
+
+#### 2.3.2 `Label`文本标签
+
+
+
+https://textual.textualize.io/widgets/label/
+
+
+
+
+
+#### 2.3.3 `Pretty`美化文本
+
+
+
+https://textual.textualize.io/widgets/pretty/
+
+
+
+#### 2.3.4 `Link`超链接
+
+
+
+https://textual.textualize.io/widgets/link/
+
+
+
+#### 2.3.x `Button`按钮
+
+
+
+https://textual.textualize.io/widgets/button/
 
 
 
@@ -5383,7 +5419,7 @@ if __name__ == '__main__':
 
 
 
-#### 2.3.2 `Checkbox`复选框
+
 
 
 

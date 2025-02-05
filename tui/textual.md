@@ -5347,21 +5347,358 @@ if __name__ == '__main__':
 
 #### 2.3.1 `Static`静态文本
 
+静态文本组件是最简单的文本显示组件，这也是为什么第一节内容中会使用该组件显示文本内容。该组件的完整用法可以参考[官网文档](https://textual.textualize.io/widgets/label/)。
 
+临时需要注意的是，官方虽然在`main`分支修复了`markup`参数失效的问题，但1.0.0版本没有包含此修复，下面的演示是使用同等效果的代码（使用`from rich.markup import escape`导入`escape`方法，用此方法转义markup标签，让标签不被解析）代替，而不是实际的示例代码。如果想要参数有效，可以自己基于`main`分支构建Python包，或者使用已经构建好的包（[下载地址](https://github.com/python-and-novella/textual/releases/tag/1.0.0-dev)，使用`pdm run pip install --force-reinstall {textual包的地址}`来强制安装）。后续官方会发布此修复，如果不是着急使用，请耐心等待官方更新，或者使用示例中的替代方法。
 
-https://textual.textualize.io/widgets/label/
+静态文本组件支持以下参数：
 
+-   `content`参数，Rich的可渲染类型（包括Python的字符串类型）或者支持可视化类型（实现了`visualize`方法并且该方法返回可渲染对象的类），表示静态文本显示的内容。一般的可渲染类型就不必多说，除了常规的字符串，更多是使用Rich的可渲染类型来包装、修饰的内容，这里就不写例子了。对于支持可视化类型的例子，这里简单写一个：
 
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    
+    class RichText:
+        def __init__(self,text):
+            self._text = text
+        def visualize(self):
+            from rich.text import Text
+            return Text.from_markup(self._text)
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Static(content=RichText('Hello World'))
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    此参数是位置参数，即可以不用指定参数名直接传入。后面的几个参数均为关键字参数，必须指定参数名才能传入。
+
+-   `expand`参数，布尔类型，表示当内容的宽度小于容器的宽度时，是否扩展内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让静态文本组件的宽度正好等于容器的宽度：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    from textual.containers import Container
+    
+    class MyApp(App):
+        CSS = '''
+        Static {
+            border: solid yellow;
+            width: auto;
+        }
+        Container {
+            border: solid green;
+            width: 25;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Static(content='Hello World',expand=True)
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_1](textual.assets/static_1.png)
+
+-   `shrink`参数，布尔类型，表示当内容的宽度大于容器的宽度时，是否收缩内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让静态文本组件的宽度正好等于容器的宽度：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    from textual.containers import Container
+    
+    class MyApp(App):
+        CSS = '''
+        Static {
+            border: solid yellow;
+            width: auto;
+        }
+        Container {
+            border: solid green;
+            width: 10;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Static(content='Hello World',shrink=True)
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_2](textual.assets/static_2.png)
+
+-   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（语法参考Rich的[文档](https://rich.readthedocs.io/en/latest/markup.html)），默认为`True`，即解析。如果不需要解析，可以使用Rich框架的`escape`方法（使用`from rich.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    from rich.markup import escape
+    from textual.containers import Container
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Static(content='[red]Hello[/] World'),
+                Static(content='[red]Hello[/] World',markup=False),
+                Static(content=escape('[red]Hello[/] World')),
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_3](textual.assets/static_3.png)
+
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
+-   `classes`参数，字符串类型，表示组件的样式类。
+
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。处于禁用状态的组件除了不能响应用户的操作（静态文本组件默认没有响应动作），还会显示为伪类设计的样式（静态文本组件没有设计禁用时的伪类样式）。如果想区分静态文本组件是否被禁用，可以参考下面的示例代码：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    
+    class MyApp(App):
+        CSS = '''
+        Static:disabled {
+            border:solid yellow;
+            color: $link-color 50%;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Static(content='[red]Hello[/] World'),
+                Static(content='[red]Hello[/] World',disabled=True)
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_4](textual.assets/static_4.png)
+
+静态文本组件支持以下属性：
+
+-   `renderable`属性，表示静态文本组件显示的内容，可以在组件创建后，使用此属性获取显示的内容。如果想要更新静态文本组件的内容，请使用`update`方法。
+
+静态文本组件支持以下方法：
+
+-   `update`方法，用于更新静态文本组件显示的内容。该方法只有一个`content`参数，支持的类型和用法同静态文本组件的`content`参数。
 
 #### 2.3.2 `Label`文本标签
 
+继承自静态文本组件，但比静态文本组件多了一个参数`variant`，并且默认的位置参数名改成了`renderable`。该组件的完整用法可以参考[官网文档](https://textual.textualize.io/widgets/label/)。大部分时候，文本标签组件和静态文本组件的用法、显示接近，只不过文本标签组件的额外参数让文本标签组件比静态文本组件的显示效果更丰富。
 
+文本标签组件支持以下参数：
 
-https://textual.textualize.io/widgets/label/
+-   `renderable`参数，Rich的可渲染类型（包括Python的字符串类型）或者支持可视化类型（实现了`visualize`方法并且该方法返回可渲染对象的类），表示静态文本显示的内容。一般的可渲染类型就不必多说，除了常规的字符串，更多是使用Rich的可渲染类型来包装、修饰的内容，这里就不写例子了。对于支持可视化类型的例子，这里简单写一个：
 
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    
+    class RichText:
+        def __init__(self,text):
+            self._text = text
+        def visualize(self):
+            from rich.text import Text
+            return Text.from_markup(self._text)
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Label(renderable=RichText('Hello World'))
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
 
+    此参数是位置参数，即可以不用指定参数名直接传入。后面的几个参数均为关键字参数，必须指定参数名才能传入。
 
+-   `variant`参数，字符串类型，表示文本标签组件预设的显示效果。默认为`None`，即没有显示效果，可以将该参数设置为`["success", "error", "warning", "primary", "secondary", "accent"]`中的任意一个，切换显示效果（实际上是给组件添加对应名字的样式类）。示例如下：
 
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Label(renderable=f'Hello World from {name}',variant=name) 
+                for name in [None,"success", "error", "warning", "primary", "secondary", "accent"]
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![label_1](textual.assets/label_1.png)
+
+-   `expand`参数，布尔类型，表示当内容的宽度小于容器的宽度时，是否扩展内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让文本标签组件的宽度正好等于容器的宽度：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    from textual.containers import Container
+    
+    class MyApp(App):
+        CSS = '''
+        Label {
+            border: solid yellow;
+            width: auto;
+        }
+        Container {
+            border: solid green;
+            width: 25;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Label(renderable='Hello World',expand=True)
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_1](textual.assets/static_1.png)
+
+-   `shrink`参数，布尔类型，表示当内容的宽度大于容器的宽度时，是否收缩内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让文本标签组件的宽度正好等于容器的宽度：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    from textual.containers import Container
+    
+    class MyApp(App):
+        CSS = '''
+        Label {
+            border: solid yellow;
+            width: auto;
+        }
+        Container {
+            border: solid green;
+            width: 10;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Label(renderable='Hello World',shrink=True)
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_2](textual.assets/static_2.png)
+
+-   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（语法参考Rich的[文档](https://rich.readthedocs.io/en/latest/markup.html)），默认为`True`，即解析。如果不需要解析，可以使用Rich框架的`escape`方法（使用`from rich.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    from rich.markup import escape
+    from textual.containers import Container
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Label(renderable='[red]Hello[/] World'),
+                Label(renderable='[red]Hello[/] World',markup=False),
+                Label(renderable=escape('[red]Hello[/] World')),
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_3](textual.assets/static_3.png)
+
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
+-   `classes`参数，字符串类型，表示组件的样式类。
+
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。处于禁用状态的组件除了不能响应用户的操作（文本标签组件默认没有响应动作），还会显示为伪类设计的样式（文本标签组件没有设计禁用时的伪类样式）。如果想区分文本标签组件是否被禁用，可以参考下面的示例代码：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    
+    class MyApp(App):
+        CSS = '''
+        Label:disabled {
+            border:solid yellow;
+            color: $link-color 50%;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Label(renderable='[red]Hello[/] World'),
+                Label(renderable='[red]Hello[/] World',disabled=True)
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_4](textual.assets/static_4.png)
+
+文本标签组件支持以下属性：
+
+-   `renderable`属性，表示文本标签组件显示的内容，可以在组件创建后，使用此属性获取显示的内容。如果想要更新文本标签组件的内容，请使用`update`方法。
+
+文本标签组件支持以下方法：
+
+-   `update`方法，用于更新文本标签组件显示的内容。该方法只有一个`content`参数，支持的类型和用法同文本标签组件的`renderable`参数。
 
 #### 2.3.3 `Pretty`美化文本
 
@@ -5371,11 +5708,41 @@ https://textual.textualize.io/widgets/pretty/
 
 
 
+```python3
+from textual.app import App
+from textual.widgets import Pretty
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Pretty(object=self)
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+
+
+
+
 #### 2.3.4 `Link`超链接
 
 
 
 https://textual.textualize.io/widgets/link/
+
+
+
+
+
+#### 2.3.5 `Digits`数码显示
+
+
+
+https://textual.textualize.io/widgets/digits/
 
 
 
@@ -5399,11 +5766,11 @@ https://textual.textualize.io/widgets/button/
 
 
 
-属性（反应性属性）
+属性（含反应性属性）
 
 
 
-消息及消息参数、属性
+消息名及消息属性
 
 
 
@@ -5415,17 +5782,81 @@ https://textual.textualize.io/widgets/button/
 
 
 
+方法
+
+
+
 特别需要注意的内容
 
 
 
 
 
+其他常用组件
 
 
 
 
-toast
+
+Checkbox
+
+Collapsible
+
+ContentSwitcher
+
+DataTable
+
+DirectoryTree
+
+Footer
+
+Header
+
+Input
+
+ListItem
+
+ListView
+
+LoadingIndicator
+
+Log
+
+MarkdownViewer
+
+Markdown
+
+MaskedInput
+
+OptionList
+
+Placeholder
+
+ProgressBar
+
+RadioButton
+
+RadioSet
+
+RichLog
+
+Rule
+
+Select
+
+SelectionList
+
+Switch
+
+TabbedContent
+
+Tabs
+
+TextArea
+
+Toast
+
+Tree
 
 
 
@@ -7480,11 +7911,543 @@ if __name__ == '__main__':
 
 ![reactive_10](textual.assets/reactive_10.gif)
 
-#### 3.2.2 异步
+#### 3.2.2 后台任务
+
+恰如其他UI框架是在主线程处理UI，Textual也未能免俗。因此，如果在主线程中处理耗时的任务，很容易让界面卡住（不能立刻响应用户的其他操作）。为了解决这一问题，Textual也提供了在后台运行耗时任务的功能——工人。完整的介绍可以参考[官网页面](https://textual.textualize.io/guide/workers/)。
+
+##### 3.2.2.1 为什么需要工人？
+
+在正式介绍工人的用法之前，先看下面的示例：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+        
+    async def get_result(self):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(1,99))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        await self.get_result()
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+示例中定义了一个异步函数`get_result`，使用`asyncio`的`sleep`来模拟耗时的操作，并在操作结束后，将`Label`的内容更新为随机数，用来模拟耗时操作后显示操作的结果。当然，为了避免操作之后卡住界面，这里使用的是异步函数。
+
+逻辑上说得通，可当实际使用的时候，结果看上去不太理想：
+
+![worker_1](textual.assets/worker_1.gif)
+
+可能有的读者会觉得是异步函数的问题，使用非异步写法不会出问题。这里需要说明一下，如果这里不使用异步函数的话（即不使用`await`等待操作结果，或者`get_result`不是异步函数），效果是一样的，非异步的示例如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import time,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+        
+    def get_result(self):
+        time.sleep(3)
+        self.result = str(random.randint(1,99))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    def action_fetch(self):
+        self.get_result()
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+非异步的耗时操作会卡住主线程可以理解，为何异步也会导致这样的问题呢？原来，Textual默认处理异步操作是在一个完整的消息循环中进行，虽然不会卡住所有的界面，但当前组件的交互包含点击前的动画、点击动画、点击执行的操作、操作完成之后的动画。看上去是按钮被卡主了，实际上是按钮在执行完耗时操作前，最后的释放动画没有执行。因此，如果此时同时存在多个按钮的话，其他按钮是可以正常点击的，比如下面的代码：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+        
+    async def get_result(self):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(1,99))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        await self.get_result()
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+即便只是卡住被点击的按钮，观感上也不像正常异步处理过的交互舒服。因此，需要使用Textual提供的工人功能，让这类操作挂到后台运行，不要卡住当前组件的交互过程。
+
+##### 3.2.2.2 使用工人——`run_worker`方法
+
+前面说了工人，那工人到底是什么？简单理解的话，工人就是Textual用来后台执行函数的执行器。因为其英文是worker，不好找到更加贴切的中文意思，只能简单直译了。
+
+在Textual中使用工人的第一种方法，不需要修改要执行的函数，只需要修改执行的方法。组件类或者`App`类的实例都有一个`run_worker`方法，该方法的第一个参数`work`就是要执行的异步函数。注意，此方法和下节介绍的装饰器在默认不修改其他参数的情况下，是使用协程运行要后台执行的函数，因此不支持非异步函数。如果想要后台运行非异步函数，请参考后面的介绍的`thread`参数。
+
+示例如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+        
+    async def get_result(self):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(1,99))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.run_worker(work=self.get_result)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![worker_2](textual.assets/worker_2.gif)
+
+`work`参数除了可以传入上面示例中的可执行类型，也可以传入可等待类型，即异步函数的执行结果：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+        
+    async def get_result(self):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(1,99))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.run_worker(work=self.get_result())
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+可能读者发现，如果是可等待类型的话，是不是可以给被执行的函数传入额外的参数？没错，那代码可以这样写：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+        
+    async def get_result(self,a=1,b=99):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.run_worker(work=self.get_result(1,9))
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+##### 3.2.2.3 使用工人——`worker`装饰器
+
+除了上面的方法，还可以使用`worker`装饰器（使用`from textual import work`导入）修饰要执行的函数，这样就可以和调用普通函数一样，在后台执行任意函数了：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+from textual import work
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    @work
+    async def get_result(self):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(1,99))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.get_result()
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![worker_2](textual.assets/worker_2.gif)
+
+带参数的函数可以转变为后台执行的函数：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+from textual import work
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    @work
+    async def get_result(self,a=1,b=99):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.get_result(1,9)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+##### 3.2.2.4 工人对象——生命周期
+
+其实，前面两种使用工人的方法，本质上都是创建了工人对象（完整用法参考[官方文档](https://textual.textualize.io/api/worker/)），而工人对象除了上面的简单创建方法之外，其参数、方法、属性和相关事件，对创建后台任务都有不同的用途。不过，在正式深入学习工人对象之前，需要先了解一下工人对象的生命周期。
+
+`App`类实例的`workers`属性是工人管理器（完整用法参考[官网文档](https://textual.textualize.io/api/worker_manager/#textual.worker_manager.WorkerManager)），是个单例对象，可以管理当前应用内所有的工人对象。工人管理器是个类似容器的对象，可以通过遍历来获取工人管理器内所有的工人对象。
+
+所有的工人对象都和创建工人对象的DOM节点（`App`类实例、`Screen`组件、其他组件等）绑定，也就是说，如果对应的DOM节点消失（当前节点或者父节点对应的组件被删除、销毁，`App`类实例销毁，程序退出），都会自动清除相关节点绑定的工人对象，正在运行的工人对象则会被取消。
+
+工人对象的`state`属性（完整介绍参考[官网文档](https://textual.textualize.io/api/worker/#textual.worker.WorkerState)）表明了其运行状态，属性的值是一系列枚举值（`textual.worker.WorkerState`），枚举值对应的状态可以参考下表：
+
+| 值          | 含义                                                         |
+| :---------- | :----------------------------------------------------------- |
+| `PENDING`   | 工人对象已经创建，还没开始运行。                             |
+| `RUNNING`   | 工人对象正在运行。                                           |
+| `CANCELLED` | 工人对象被取消，不会再运行。                                 |
+| `ERROR`     | 工人对象发生异常，此时工人对象的`error`属性会变成发生的异常对象。 |
+| `SUCCESS`   | 工人对象成功运行，此时工人对象的`result`属性会变成工人对象所执行函数的返回值。 |
+
+上面几种状态的关系，可以参考下图：
+
+![worker_3](textual.assets/worker_3.png)
+
+##### 3.2.2.5 工人对象——创建参数
+
+了解了工人对象的生命周期之后，下面正式开始介绍工人对象支持的参数。不过，一般情况下，代码中并不需要直接创建工人对象，都是使用`run_worker`方法或者`work`装饰器来创建工人对象，因此下面介绍的是两种创建方法的对象，如果读者有兴趣和能力，可以参考[官网文档](https://textual.textualize.io/api/worker/#textual.worker.Worker)学习完整的工人对象的参数。
+
+`run_worker`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.run_worker)）支持以下参数：
+
+-   `work`参数，可执行类型或可等待类型，表示工人对象要执行的操作。该参数可以通过位置、关键字传入，`run_worker`方法的所有参数都可以这样传入。
+-   `name`参数，字符串类型，表示工人对象的名字，常用于调试。
+-   `group`参数，字符串类型，表示工人对象所属的分组，默认为`'default'`。此参数主要配合`exclusive`参数使用，设置`exclusive`参数为`True`之后，运行新的工人对象时，会撤销同分组中正在运行的其他工人对象。
+-   `description`参数，字符串类型，一般指工人对象的描述。也可以用于存储一些字符串内容，可以通过修改工人对象的`description`属性的值来修改。
+-   `exit_on_error`参数，布尔类型，表示当工人对象执行的操作发生异常时，是否退出整个程序，默认为`True`。如果设置为`False`的话，程序不会退出，但不会继续执行发生异常之后的部分。
+-   `start`参数，布尔类型，表示在创建出工人对象之后，是否立即开始执行需要执行的操作，默认为`True`。
+-   `exclusive`参数，布尔类型，表示是否在运行新的工人对象时，会撤销同分组中正在运行的其他工人对象，默认为`False`，即运行新的工人对象时，不会撤销同分组中之前运行的工人对象。
+-   `thread`参数，布尔类型，表示是否在单独的线程中执行需要后台执行的操作。
+
+`work`装饰器（完整介绍参考[官网文档](https://textual.textualize.io/api/work/)）支持以下参数：
+
+-   `method`参数，可执行类型或可等待类型，表示工人对象要执行的操作。如果是使用常规装饰器语法（`@work`），此参数不能显式传入，只能是被装饰的函数。想要给此参数传入值，可以使用装饰器的展开表达方式，比如`get_result = work(get_result)`。
+-   `name`参数，字符串类型，表示工人对象的名字，常用于调试。本参数以及后续的参数只能通过关键字传入。使用装饰器的展开表达方式的话，很好理解如何传入本参数以及后续的参数。但是，如果是常规的装饰器语法，想要传入本参数以及后续的参数，则需要在原本的装饰器之后，使用类似创建对象传参的方式传入，比如`@work(name='worker_1')`，这样得到的装饰器依然是有效的装饰器，后面被装饰的函数可以被`method`参数正常接收。
+-   `group`参数，字符串类型，表示工人对象所属的分组，默认为`'default'`。此参数主要配合`exclusive`参数使用，设置`exclusive`参数为`True`之后，运行新的工人对象时，会撤销同分组中正在运行的其他工人对象。
+-   `exit_on_error`参数，布尔类型，表示当工人对象执行的操作发生异常时，是否退出整个程序，默认为`True`。如果设置为`False`的话，程序不会退出，但不会继续执行发生异常之后的部分。
+-   `exclusive`参数，布尔类型，表示是否在运行新的工人对象时，会撤销同分组中正在运行的其他工人对象，默认为`False`，即运行新的工人对象时，不会撤销同分组中之前运行的工人对象。
+-   `description`参数，字符串类型，一般指工人对象的描述。也可以用于存储一些字符串内容，可以通过修改工人对象的`description`属性的值来修改。
+-   `thread`参数，布尔类型，表示是否在单独的线程中执行需要后台执行的操作。
+
+可以看到两种创建方法的大部分参数是一样的，因此只需记住对应名字参数的用途，两种方法可以互相转化。下面就其中的`exclusive`参数和`thread`参数的用法写几个示例，详细讲解一下。
+
+通过设置`exclusive`参数为`True`，可以在多次运行工人对象时，抛弃之前没有完成的后台任务，进而避免结果在短时间内跳变，使最终结果只会是最后一次运行工人对象的结果：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+from textual import work
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    @work(exclusive=True)
+    async def get_result(self,a=1,b=99):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.get_result(1,9)
+
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![worker_4](textual.assets/worker_4.gif)
+
+通过设置`thread`参数为`True`，可以让原本只是在主线程上使用协程方式运行的后台任务，变成单独创建一个线程来运行。
+
+不过，需要注意的是，使用单独线程运行后台任务的话，`exclusive`参数会失效：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+from textual import work
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    @work(exclusive=True,thread=True)
+    async def get_result(self,a=1,b=99):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.get_result(1,9)
+
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![worker_5](textual.assets/worker_5.gif)
+
+而且，因为大部分Textual的函数是非线程安全的，要是在单独的线程中修改反应性属性或者UI组件的话，最好是使用`App.call_from_thread`（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.call_from_thread)）来调用，这样才能正确触发界面刷新，避免出现多个线程同时修改一个变量而导致数据异常：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+from textual import work
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    @work(thread=True)
+    async def get_result(self,a=1,b=99):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.call_from_thread(self.query_one(Label).update,f'result is {self.result}')
+        # 操作UI或者反应性属性时，最好使用 App.call_from_thread 
+        # https://textual.textualize.io/api/app/#textual.app.App.call_from_thread
+        # 不推荐 self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.get_result(1,9)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+不过，`post_message` 方法是个例外（完整用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.post_message) ），此方法是线程安全的。因此，如果对UI、反应性属性的修改是放在独立线程的工人对象中，除了使用`App.call_from_thread`间接操作之外，使用`post_message` 方法发送自定义消息（完整用法参考[官网文档](https://textual.textualize.io/guide/events/)），让消息的处理函数去修改，也是个稳妥的选择。
+
+前面提到过工人对象默认情况下不能运行非异步函数，如果读者有类似需求（比如有的操作就是不支持异步等待），那可以设置工人对象的`thread`参数为`True`，这样工人对象就能运行非异步函数了。
+
+以下面的代码为例，代码中将原本的异步的休眠操作（`await asyncio.sleep(3)`），替换为非异步的休眠（`time.sleep(3)`），来模拟非异步的耗时操作，此时，需要设置`thread`参数为`True`，才不会引起异常（`work`装饰器修饰非异步函数时，不把`thread`参数为`True`的话，会直接触发异常）：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import time,random
+from textual import work
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    @work(thread=True)
+    def get_result(self,a=1,b=99):
+        time.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.call_from_thread(self.query_one(Label).update,f'result is {self.result}')
+        # 操作UI或者反应性属性时，最好使用 App.call_from_thread 
+        # https://textual.textualize.io/api/app/#textual.app.App.call_from_thread
+        # 不推荐 self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.get_result(1,9)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+但需要注意的是，如果是想要使用`run_work`方法运行非异步函数同时还要带上参数的话，需要使用lambda表达式包装一下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import time,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    def get_result(self,a=1,b=99):
+        time.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.call_from_thread(self.query_one(Label).update,f'result is {self.result}')
+        # 操作UI或者反应性属性时，最好使用 App.call_from_thread 
+        # https://textual.textualize.io/api/app/#textual.app.App.call_from_thread
+        # 不推荐 self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.run_worker(work=lambda :self.get_result(1,9),thread=True)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+如果不传入参数，直接传入可调用类型的对象，就不需要这么复杂：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import time,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    def get_result(self,a=1,b=99):
+        time.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.call_from_thread(self.query_one(Label).update,f'result is {self.result}')
+        # 操作UI或者反应性属性时，最好使用 App.call_from_thread 
+        # https://textual.textualize.io/api/app/#textual.app.App.call_from_thread
+        # 不推荐 self.query_one(Label).update(f'result is {self.result}')
+        
+    async def action_fetch(self):
+        self.run_worker(work=self.get_result,thread=True)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+##### 3.2.2.6 工人对象——方法
 
 
 
-https://textual.textualize.io/guide/workers/
+取消
+
+
+
+##### 3.2.2.7 工人对象——事件
+
+
+
+
+
+##### 3.2.2.8 工人对象——属性
+
+
+
+
 
 
 

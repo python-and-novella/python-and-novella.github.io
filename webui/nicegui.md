@@ -1780,6 +1780,39 @@ ui.run(port=8000)
 
 因为`pywebview`默认禁止下载，在测试上面的代码时，需要设置`app.native.settings['ALLOW_DOWNLOADS']`为`True`来允许下载。
 
+##### 2.3.8.5 `ui.fullscreen`（2025.02.05更新）
+
+如果想让浏览器全屏，除了使用快捷键`f11`，用得最多的就是使用JavaScript代码。不管是哪种方法，都不如通过NiceGUIde 2.11.0版本新增的`ui.fullscreen`进入全屏方便。先看代码：
+
+```python3
+from nicegui import ui
+
+fullscreen = ui.fullscreen()
+
+ui.switch('Require escape hold').bind_value_to(fullscreen, 'require_escape_hold')
+
+ui.button('Enter Fullscreen', on_click=fullscreen.enter)
+ui.button('Exit Fullscreen', on_click=fullscreen.exit)
+ui.button('Toggle Fullscreen', on_click=fullscreen.toggle)
+
+ui.run()
+```
+
+![fullscreen_1](nicegui.assets/fullscreen_1.gif)
+
+`ui.fullscreen`支持两个参数：
+
+-   `require_escape_hold`参数，布尔类型，表示退出全屏时是否需要长按`esc`键，默认为`False`，即短按`esc`键即可退出。注意，只有谷歌的Chrome浏览器和其他基于chromium开发的浏览器（比如微软的Edge浏览器和大部分国产浏览器）支持长按退出全屏的操作。另外，此参数实际上对应的是`ui.fullscreen`的`require_escape_hold`属性，如果想要动态启用、禁用长按退出全屏的功能，可以在非全屏状态下修改此属性。但是，在启用时，此功能是即时生效的；如果在启用之后进入了一次全屏，禁用之后则需要刷新页面才能生效。
+-   `on_value_change`参数，可调用类型，表示当`ui.fullscreen`的`value`属性变化时，执行什么操作。`ui.fullscreen`的`value`属性的值实际上就是当前是否为全屏状态的布尔值，不过并不能通过直接设置此值来切换全屏状态。因为浏览器的安全设置，想要通过此控件切换全屏状态，必须要用户手动触发，即用户点击了控件之后，此控件将此值设置为其他布尔值，才能切换全屏状态。如果想要默认进入全屏状态，需要设置运行参数`fullscreen`，比如`ui.run(fullscreen=True)`。
+
+此外，需要额外注意的是，此控件只能用于浏览器，后面提到的native mode不能通过此控件切换全屏。
+
+`ui.fullscreen`支持以下方法，可以让用户通过与控件交互之后的触发动作调用这些方法，来实现对全屏状态的控制：
+
+-   `enter`方法，进入全屏状态。
+-   `exit`方法，退出全屏状态。
+-   `toggle`方法，切换全屏状态。
+
 #### 2.3.9 运行配置
 
 ##### 2.3.9.1 `ui.run`
@@ -7609,6 +7642,39 @@ ui.run(native=True)
 如果当前剪贴板保存的是图片，点击"Read"按钮会弹出对话框，显示出该图片。
 
 ![clipboard_1](nicegui.assets/clipboard_1.gif)
+
+#### 2.11.0版本新增：`ui.fullscreen`——让浏览器全屏更简单
+
+如果想让浏览器全屏，除了使用快捷键`f11`，用得最多的就是使用JavaScript代码。不管是哪种方法，都不如通过NiceGUIde 2.11.0版本新增的`ui.fullscreen`进入全屏方便。先看代码：
+
+```python3
+from nicegui import ui
+
+fullscreen = ui.fullscreen()
+
+ui.switch('Require escape hold').bind_value_to(fullscreen, 'require_escape_hold')
+
+ui.button('Enter Fullscreen', on_click=fullscreen.enter)
+ui.button('Exit Fullscreen', on_click=fullscreen.exit)
+ui.button('Toggle Fullscreen', on_click=fullscreen.toggle)
+
+ui.run()
+```
+
+![fullscreen_1](nicegui.assets/fullscreen_1.gif)
+
+`ui.fullscreen`支持两个参数：
+
+-   `require_escape_hold`参数，布尔类型，表示退出全屏时是否需要长按`esc`键，默认为`False`，即短按`esc`键即可退出。注意，只有谷歌的Chrome浏览器和其他基于chromium开发的浏览器（比如微软的Edge浏览器和大部分国产浏览器）支持长按退出全屏的操作。另外，此参数实际上对应的是`ui.fullscreen`的`require_escape_hold`属性，如果想要动态启用、禁用长按退出全屏的功能，可以在非全屏状态下修改此属性。但是，在启用时，此功能是即时生效的；如果在启用之后进入了一次全屏，禁用之后则需要刷新页面才能生效。
+-   `on_value_change`参数，可调用类型，表示当`ui.fullscreen`的`value`属性变化时，执行什么操作。`ui.fullscreen`的`value`属性的值实际上就是当前是否为全屏状态的布尔值，不过并不能通过直接设置此值来切换全屏状态。因为浏览器的安全设置，想要通过此控件切换全屏状态，必须要用户手动触发，即用户点击了控件之后，此控件将此值设置为其他布尔值，才能切换全屏状态。如果想要默认进入全屏状态，需要设置运行参数`fullscreen`，比如`ui.run(fullscreen=True)`。
+
+此外，需要额外注意的是，此控件只能用于浏览器，后面提到的native mode不能通过此控件切换全屏。
+
+`ui.fullscreen`支持以下方法，可以让用户通过与控件交互之后的触发动作调用这些方法，来实现对全屏状态的控制：
+
+-   `enter`方法，进入全屏状态。
+-   `exit`方法，退出全屏状态。
+-   `toggle`方法，切换全屏状态。
 
 ## 4 具体示例【随时更新】
 

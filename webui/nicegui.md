@@ -1782,7 +1782,7 @@ ui.run(port=8000)
 
 ##### 2.3.8.5 `ui.fullscreen`（2025.02.05更新）
 
-如果想让浏览器全屏，除了使用快捷键`f11`，用得最多的就是使用JavaScript代码。不管是哪种方法，都不如通过NiceGUIde 2.11.0版本新增的`ui.fullscreen`进入全屏方便。先看代码：
+如果想让浏览器全屏，除了使用快捷键`f11`，用得最多的就是使用JavaScript代码。不管是哪种方法，都不如通过NiceGUI的2.11.0版本新增的`ui.fullscreen`进入全屏方便。先看代码：
 
 ```python3
 from nicegui import ui
@@ -7645,7 +7645,7 @@ ui.run(native=True)
 
 #### 2.11.0版本新增：`ui.fullscreen`——让浏览器全屏更简单
 
-如果想让浏览器全屏，除了使用快捷键`f11`，用得最多的就是使用JavaScript代码。不管是哪种方法，都不如通过NiceGUIde 2.11.0版本新增的`ui.fullscreen`进入全屏方便。先看代码：
+如果想让浏览器全屏，除了使用快捷键`f11`，用得最多的就是使用JavaScript代码。不管是哪种方法，都不如通过NiceGUI的2.11.0版本新增的`ui.fullscreen`进入全屏方便。先看代码：
 
 ```python3
 from nicegui import ui

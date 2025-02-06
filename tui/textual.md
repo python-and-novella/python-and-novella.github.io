@@ -5237,7 +5237,7 @@ if __name__ == '__main__':
 -   `self`参数，表示调用此方法的实例，不需要传入。因此方法是由实例对象调用，因此这个参数实际上只在定义中有。只有在扩展组件类或者`App`类时，才会接触到此参数，只是直接使用方法不需要关注。
 -   `delay`参数，浮点类型，表示过多长时间之后执行定时器指定的操作，单位秒。
 -   `callback`参数，可调用类型，表示定时器要执行的操作。如果要执行的操作需要带上参数，则要用lambda表达式代替，比如`lambda :do("something")`。
--   `name`参数，字符串类型，表示定时器的名字，一般用于调试。从这个参数开始（包括这个参数），参数就全是关键字参数了。也就是只能通过关键字传入，不能缺少参数名而按照位置对应。
+-   `name`参数，字符串类型，表示定时器的名字，一般用于调试、标识定时器对象。从这个参数开始（包括这个参数），参数就全是关键字参数了。也就是只能通过关键字传入，不能缺少参数名而按照位置对应。
 -   `pause`参数，布尔类型，表示创建完定时器，是否让定时器立即开始计时，即创建完的定时器是不是暂停状态。默认为`False`，即创建完就开始计时。
 
 `set_interval`方法支持的参数：
@@ -8203,18 +8203,18 @@ if __name__ == '__main__':
 `run_worker`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.run_worker)）支持以下参数：
 
 -   `work`参数，可执行类型或可等待类型，表示工人对象要执行的操作。该参数可以通过位置、关键字传入，`run_worker`方法的所有参数都可以这样传入。
--   `name`参数，字符串类型，表示工人对象的名字，常用于调试。
+-   `name`参数，字符串类型，表示工人对象的名字，常用于调试、标识工人对象。
 -   `group`参数，字符串类型，表示工人对象所属的分组，默认为`'default'`。此参数主要配合`exclusive`参数使用，设置`exclusive`参数为`True`之后，运行新的工人对象时，会撤销同分组中正在运行的其他工人对象。
 -   `description`参数，字符串类型，一般指工人对象的描述。也可以用于存储一些字符串内容，可以通过修改工人对象的`description`属性的值来修改。
 -   `exit_on_error`参数，布尔类型，表示当工人对象执行的操作发生异常时，是否退出整个程序，默认为`True`。如果设置为`False`的话，程序不会退出，但不会继续执行发生异常之后的部分。
--   `start`参数，布尔类型，表示在创建出工人对象之后，是否立即开始执行需要执行的操作，默认为`True`。
+-   `start`参数，布尔类型，表示在创建出工人对象之后，是否立即开始执行需要执行的操作，默认为`True`。如果不想立即开始执行，可以将此参数设置为`False`，并在需要执行的时候，调用工人管理器的`start_all`方法。
 -   `exclusive`参数，布尔类型，表示是否在运行新的工人对象时，会撤销同分组中正在运行的其他工人对象，默认为`False`，即运行新的工人对象时，不会撤销同分组中之前运行的工人对象。
 -   `thread`参数，布尔类型，表示是否在单独的线程中执行需要后台执行的操作。
 
 `work`装饰器（完整介绍参考[官网文档](https://textual.textualize.io/api/work/)）支持以下参数：
 
 -   `method`参数，可执行类型或可等待类型，表示工人对象要执行的操作。如果是使用常规装饰器语法（`@work`），此参数不能显式传入，只能是被装饰的函数。想要给此参数传入值，可以使用装饰器的展开表达方式，比如`get_result = work(get_result)`。
--   `name`参数，字符串类型，表示工人对象的名字，常用于调试。本参数以及后续的参数只能通过关键字传入。使用装饰器的展开表达方式的话，很好理解如何传入本参数以及后续的参数。但是，如果是常规的装饰器语法，想要传入本参数以及后续的参数，则需要在原本的装饰器之后，使用类似创建对象传参的方式传入，比如`@work(name='worker_1')`，这样得到的装饰器依然是有效的装饰器，后面被装饰的函数可以被`method`参数正常接收。
+-   `name`参数，字符串类型，表示工人对象的名字，常用于调试、标识工人对象。本参数以及后续的参数只能通过关键字传入。使用装饰器的展开表达方式的话，很好理解如何传入本参数以及后续的参数。但是，如果是常规的装饰器语法，想要传入本参数以及后续的参数，则需要在原本的装饰器之后，使用类似创建对象传参的方式传入，比如`@work(name='worker_1')`，这样得到的装饰器依然是有效的装饰器，后面被装饰的函数可以被`method`参数正常接收。
 -   `group`参数，字符串类型，表示工人对象所属的分组，默认为`'default'`。此参数主要配合`exclusive`参数使用，设置`exclusive`参数为`True`之后，运行新的工人对象时，会撤销同分组中正在运行的其他工人对象。
 -   `exit_on_error`参数，布尔类型，表示当工人对象执行的操作发生异常时，是否退出整个程序，默认为`True`。如果设置为`False`的话，程序不会退出，但不会继续执行发生异常之后的部分。
 -   `exclusive`参数，布尔类型，表示是否在运行新的工人对象时，会撤销同分组中正在运行的其他工人对象，默认为`False`，即运行新的工人对象时，不会撤销同分组中之前运行的工人对象。
@@ -8248,7 +8248,6 @@ class MyApp(App):
         
     async def action_fetch(self):
         self.get_result(1,9)
-
 
 if __name__ == '__main__':
     app = MyApp()
@@ -8284,7 +8283,6 @@ class MyApp(App):
         
     async def action_fetch(self):
         self.get_result(1,9)
-
 
 if __name__ == '__main__':
     app = MyApp()
@@ -8431,25 +8429,205 @@ if __name__ == '__main__':
 
 ##### 3.2.2.6 工人对象——方法
 
+工人对象支持的方法可以参考[官网文档](https://textual.textualize.io/api/worker/#textual.worker.Worker)，这里主要介绍两个常用的方法：
 
+-   `cancel`方法，可以取消正在运行的工人对象。示例如下：
 
-取消
+    ```python3
+    from textual.app import App
+    from textual.widgets import Button,Label
+    import asyncio,random
+    
+    class MyApp(App):
+        result = '...'
+        def on_mount(self):
+            self.widgets = [
+                Label(f'result is {self.result}'),
+                Button('fetch result',action='app.fetch')
+            ]
+            self.mount_all(self.widgets)
+    
+        async def get_result(self,a=1,b=99):
+            await asyncio.sleep(3)
+            self.result = str(random.randint(a,b))
+            self.query_one(Label).update(f'result is {self.result}')
+            
+        async def action_fetch(self):
+            worker = self.run_worker(work=self.get_result(1,9))
+            await asyncio.sleep(0.1)
+            worker.cancel()
+            await asyncio.sleep(0.1)
+            self.query_one(Label).update(f'The state of worker is {worker.state}.')
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
 
+    需要注意的是，取消工人对象之后，工人对象的状态不会立即更新，需要稍微等一下才行。
 
+-   `wait`方法，调用此方法会等待工人对象执行完成之后，返回工人对象所执行操作的返回值。比如：
 
-##### 3.2.2.7 工人对象——事件
+    ```python3
+    from textual.app import App
+    from textual.widgets import Button,Label
+    import asyncio,random
+    
+    class MyApp(App):
+        result = '...'
+        def on_mount(self):
+            self.widgets = [
+                Label(f'result is {self.result}'),
+                Button('fetch result',action='app.fetch')
+            ]
+            self.mount_all(self.widgets)
+    
+        async def get_result(self,a=1,b=99):
+            await asyncio.sleep(3)
+            self.result = str(random.randint(a,b))
+            self.query_one(Label).update(f'result is {self.result}')
+            return self.result
+            
+        async def action_fetch(self):
+            worker = self.run_worker(work=self.get_result(1,9))
+            result = await  worker.wait()
+            self.query_one(Label).update(f'The result of worker is {result}.')
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
 
+    不过需要注意的是，此方法是个异步函数，因此，如果想要获得返回值，就需要使用异步等待关键字（`await`）。但是，这样会阻塞UI的更新操作。为了避免此类情况，最好是定义`on_worker_state_changed`，在处理工人对象的状态改变事件（ `Worker.StateChanged`，完整用法参考[官网文档](https://textual.textualize.io/api/worker/#textual.worker.Worker.StateChanged) ）时，将工人对象的执行结果（`result`属性）传递出去。
 
+##### 3.2.2.7 工人对象——属性
 
+工人对象支持的属性可以参考[官网文档](https://textual.textualize.io/api/worker/#textual.worker.Worker)，这里主要介绍几个常用的属性。
 
+除了通过比较`state`属性和枚举值（`textual.worker.WorkerState`）来判断工人对象的运行状态，还可以判断以下属性的布尔值来确定运行状态：
 
-##### 3.2.2.8 工人对象——属性
+-   `is_cancelled`属性，工人对象是否被取消。
+-   `is_running`属性，工人对象是否在运行。
+-   `is_finished`属性，工人对象是否已经完成。
 
+上节提到工人对象的执行结果可以通过`result`属性传递出去，这里就不用解释`result`属性的作用了，直接提供一个示例：
 
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
 
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
 
+    async def get_result(self,a=1,b=99):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.query_one(Label).update(f'result is {self.result}')
+        return self.result
+        
+    async def action_fetch(self):
+        worker = self.run_worker(work=self.get_result(1,9))
+        await worker.wait()
+        self.query_one(Label).update(f'The result of worker is {worker.result}.')
 
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
+需要注意的是，`result`属性在工人对象成功完成之前是`None`，不是实际的返回值。如果想准确获取到返回值，必须确保工人对象已经完成且没有发生错误。
+
+当然，如果工人对象在运行时发生了错误，除了用`try...except`捕获，还可以通过`error`属性来获取：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    async def get_result(self,a=1,b=99):
+        await asyncio.sleep(3)
+        raise Exception('no name error')
+        self.result = str(random.randint(a,b))
+        self.query_one(Label).update(f'result is {self.result}')
+        return self.result
+        
+    async def action_fetch(self):
+        worker = self.run_worker(work=self.get_result(1,9),exit_on_error=False)
+        try:
+            await worker.wait()
+        except:
+            pass
+        finally:
+            self.query_one(Label).update(f'The error of worker is {worker.error}.')
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![worker_6](textual.assets/worker_6.png)
+
+可以看到，示例中没有捕获异常，但可以通过`error`属性得知异常的名字。
+
+##### 3.2.2.8 工人对象——事件
+
+最佳获取工人对象的结果的方式是定义`on_worker_state_changed`，并处理工人对象的状态改变事件（ `Worker.StateChanged`，完整用法参考[官网文档](https://textual.textualize.io/api/worker/#textual.worker.Worker.StateChanged) ），状态改变事件有两个属性（事件的参数）：
+
+-   `worker`属性，表示触发事件的工人对象。
+-   `state`属性，表示触发事件的工人对象的状态。
+
+因此，可以通过使用上面的两个属性，判断出指定工人对象是否运行成功，并得到该工人对象的执行结果：
+
+```python3
+from textual.app import App
+from textual.widgets import Button,Label
+import asyncio,random
+from textual.worker import Worker,WorkerState
+
+class MyApp(App):
+    result = '...'
+    def on_mount(self):
+        self.widgets = [
+            Label(f'result is {self.result}'),
+            Button('fetch result',action='app.fetch')
+        ]
+        self.mount_all(self.widgets)
+
+    async def get_result(self,a=1,b=99):
+        await asyncio.sleep(3)
+        self.result = str(random.randint(a,b))
+        self.query_one(Label).update(f'result is {self.result}')
+        return self.result
+        
+    async def action_fetch(self):
+        self.run_worker(work=self.get_result(1,9),name='fetch')
+
+    def on_worker_state_changed(self, e: Worker.StateChanged):
+        if e.worker.name in ['fetch'] and e.state == WorkerState.SUCCESS:
+            self.query_one(Label).update(f'The result of worker is {e.worker.result}.')
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![worker_7](textual.assets/worker_7.png)
 
 #### 3.2.3 命令面板
 

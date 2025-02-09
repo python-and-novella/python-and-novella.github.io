@@ -1406,7 +1406,7 @@ if __name__ == '__main__':
 
 先别急，在下面剖析选择器语法之前，还需要学习一下，如何给上一小节的示例代码，增加CSS文件的引用，以及方便调试的运行方法。
 
-其实，再往前的内容已经介绍过方法，就是App子类里的`CSS`和`CSS_PATH`。前者是直接使用CSS文件内容，后者是CSS文件的路径。
+其实，再往前的内容已经介绍过方法，就是`App`子类里的`CSS`和`CSS_PATH`。前者是直接使用CSS文件内容，后者是CSS文件的路径。
 
 为了方便学习下面的内容，读者需要在代码文件的同目录下，创建'.tcss'后缀的CSS文件（示例中是`myapp.tcss`），然后将包含后缀的完整文件名，赋予`CSS_PATH`。那么，代码就变成下面的样子：
 
@@ -1464,7 +1464,7 @@ if __name__ == '__main__':
     app.run()
 ```
 
-样式接口、App子类里的`CSS`和`CSS_PATH`都可以给组件设置样式，到底用哪种方法调试CSS最合适？
+样式接口、`App`子类里的`CSS`和`CSS_PATH`都可以给组件设置样式，到底用哪种方法调试CSS最合适？
 
 答案就是`App`子类里的`CSS_PATH`。
 
@@ -4967,14 +4967,14 @@ Static('[b]click[/b] [@click=app.now("Time is")]me[/] to update time')
 
 说一个与动作无关的内容，那就是嵌入链接的样式。嵌入链接是Textual的特性功能，不能与Rich框架的标记标签混用，也就是说不支持通过标记标签改变嵌入链接的样式（比如颜色）。如果想要改变某个组件内的嵌入链接的样式，只能通过CSS（完整文档参考[官网](https://textual.textualize.io/styles/links/)）修改。嵌入链接主要支持以下样式：
 
-| 样式类型                                                     | 含义                                                    |
-| :----------------------------------------------------------- | :------------------------------------------------------ |
-| [`link-background`](https://textual.textualize.io/styles/links/link_background/) | 链接文本的背景颜色。                                    |
-| [`link-background-hover`](https://textual.textualize.io/styles/links/link_background_hover/) | 鼠标悬停在链接文本上时的背景颜色。                      |
-| [`link-color`](https://textual.textualize.io/styles/links/link_color/) | 链接文本的文本颜色。                                    |
-| [`link-color-hover`](https://textual.textualize.io/styles/links/link_color_hover/) | 鼠标悬停在链接文本上时的文本颜色。                      |
-| [`link-style`](https://textual.textualize.io/styles/links/link_style/) | 链接文本上的文本样式，比如设置underline就是添加下划线。 |
-| [`link-style-hover`](https://textual.textualize.io/styles/links/link_style_hover/) | 鼠标悬停在链接文本上时的文本样式。                      |
+| 样式类型                                                     | 含义                                                      |
+| :----------------------------------------------------------- | :-------------------------------------------------------- |
+| [`link-background`](https://textual.textualize.io/styles/links/link_background/) | 链接文本的背景颜色。                                      |
+| [`link-background-hover`](https://textual.textualize.io/styles/links/link_background_hover/) | 鼠标悬停在链接文本上时的背景颜色。                        |
+| [`link-color`](https://textual.textualize.io/styles/links/link_color/) | 链接文本的文本颜色。                                      |
+| [`link-color-hover`](https://textual.textualize.io/styles/links/link_color_hover/) | 鼠标悬停在链接文本上时的文本颜色。                        |
+| [`link-style`](https://textual.textualize.io/styles/links/link_style/) | 链接文本上的文本样式，比如设置`underline`就是添加下划线。 |
+| [`link-style-hover`](https://textual.textualize.io/styles/links/link_style_hover/) | 鼠标悬停在链接文本上时的文本样式。                        |
 
 下面的示例演示了如何修改嵌入链接的文本颜色：
 
@@ -8629,7 +8629,399 @@ if __name__ == '__main__':
 
 ![worker_7](textual.assets/worker_7.png)
 
-#### 3.2.3 命令面板
+#### 3.2.3 自定义组件
+
+在介绍反应性属性的时候，简单介绍了自定义组件的方法，本节将详细讲解一下如何自定义组件（完整介绍参考[官网文档](https://textual.textualize.io/guide/widgets/)）。自定义组件涉及到的Rich框架部分内容，本节会根据需要，适当展开介绍。如果读者需要全面了解，可以访问Rich框架的[官网文档](https://rich.readthedocs.io/en/latest/index.html)。
+
+##### 3.2.3.1 组件的组成
+
+前面的内容在创建自定义组件时，只是提供了现成的代码，并没有深入介绍组件的组成和自定义方法。因此，本节在正式进入自定义组件之前，需要先明确一下自定义组件的基础——组件的组成，才能更准确地理解自定义组件基本原理。
+
+>   组件，在其他UI框架中也可以称之为控件，是用户界面上重要的组成部分。组件是一个或者一组预先定义好的内容，可以在终端中（在Textual中称之为当前屏幕）显示出来，用来构成用户界面
+
+这是基础知识中对组件的定义，但在学习了前面诸多功能之后，现在需要重新认识一下组件。
+
+在事件与消息、反应性属性等章节中，有过给自定义组件添加消息处理函数、反应性属性的示例。然而，这些功能在`App`类的实例中也可以创建。因此，组件实际上就是一个小型的应用程序，Textual也确实这样设计的，每个组件都是运行在自己的异步任务中，对应的就是`App`类的`run`方法。
+
+而且，前面也有自定义组件内实现`compose`方法这种类似的代码，进一步佐证了二者的相似性。更别说诸如`on_mount`之类的事件响应方法，二者都具备，大大降低了开发者的学习难度（也可能埋下了更难发现的坑）。
+
+##### 3.2.3.2 创建自定义组件的基本方法
+
+了解了组件的基本组成之后，下面讲一讲创建自定义组件的基本方法。首先要知道，组件是个类，不是一个方法。所以，自定义组件的本质，是创建了一个自定义类。从零开始写一个完全支持Textual渲染方法的类实在是费事，因此，想要省事的话，最好是继承基础类，在基础类的肩膀上，尽可能少地编写自定义代码。
+
+在Textual中，可用于创建自定义组件的基础类有两种：
+
+-   内置的组件类，使用`from textual.widgets import {组件类}`导入。继承此基础类创建自定义组件比较简单，因为基础组件已经实现了完善的交互和样式，可以直接在类似组件的基础上，快速增改功能、样式。但也有一些限制，对基础组件应用的样式也会传递到自定义组件中，也容易触发基础组件相关的事件，需要特别注意。
+-   `Widget`类，使用`from textual.widget import Widget`导入。继承此基础类则不用担心自定义组件与现有组件出现异常关联，但缺点也与此相关，需要自己实现交互、样式等代码。可以说，易用性和耦合性呈正相关。
+
+说完了继承类，创建自定义显示内容的入口方法也有多种选择。通过在自定义组件类内实现以下方法，可以自定义组件显示的内容：
+
+-   `render`方法，直接返回可渲染对象，是大部分基本组件的底层渲染方法。
+-   `render_line`方法，直接返回条对象（`Strip`，完整用法参见[官网文档](https://textual.textualize.io/api/strip/#textual.strip.Strip)）。条对象是一个包含多个段对象（`Segment`，完整用法参见[官网文档](https://rich.readthedocs.io/en/stable/reference/segment.html#rich.segment.Segment)）并放置在一行的复合对象。与`render`方法不同的是，此方法是线性渲染，在内容改变需要刷新的时候，只会刷新局部，在自定义组件包含较多内容时，此方法可以减少卡顿和所需的计算资源。
+-   `compose`方法，直接生成（`yield`）基本组件，创建复合组件（包含其他组件的自定义组件）时使用此方法。
+-   `on_mount`方法，基于事件的自定义方法，当自定义组件被挂载时，可以在此方法中动态添加其他组件。效果上和`compose`方法类似，是一种备选、增强的方法，但不推荐只使用此方法自定义组件，因为此方法只会执行一次，一旦有重复刷新自定义组件的情况，此方法没法实时更新显示。
+
+虽然前面已经有过很多创建自定义组件的例子，这里还是根据本节内容，基于`render`方法提供一个简单的示例：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+
+class MyWidget(Widget):
+    def render(self):
+        return 'hello world'
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget()
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+需要注意的是，自定义组件的类名，首字母必须大写，否则会触发异常。
+
+##### 3.2.3.3 设计自定义组件——CSS
+
+前面在讲Textual的CSS的时候，介绍过默认CSS——使用`initial`会让组件的样式变成默认的。而在这一节，就要重点说说默认CSS。
+
+不同于在`App`子类里设置`CSS`和`CSS_PATH`，可以嵌入CSS或者指定CSS文件，想要给自定义的组件设置CSS或者嵌入CSS，只能设置默认CSS——`DEFAULT_CSS`。默认CSS的用法和`App`子类里的`CSS`类似，主要特点在于其默认的特性——不给其设置CSS的话将采用默认CSS中的样式。
+
+此外，在前面介绍过CSS的优先级，这里需要明确一点，组件的默认CSS里样式的优先级，比所有`App`子类`CSS`里的样式都低。哪怕`DEFAULT_CSS`中已经是最高优先级（比如`!important`），只要`App`子类里设置的`CSS`中有匹配的样式，优先级再低也会覆盖掉默认CSS。
+
+以下面的代码为例：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static
+
+class MyWidget(Widget):
+    DEFAULT_CSS = """
+    MyWidget {
+        width: auto;
+        height: auto;
+    }
+    Static.s {
+        width: auto;
+        height: auto;
+        background: blue!important;
+    }
+    """
+    def compose(self):
+        yield Static('Hello World',classes='s')
+
+class MyApp(App):
+    CSS = """
+    Static {
+        width: auto;
+        height: auto;
+        background: red;
+    }
+    """
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+            Static('Hello World',classes='s'),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_1](textual.assets/widget_1.png)
+
+哪怕默认CSS中的样式优先级多高，只要外面的CSS可以匹配到，自定义组件中的样式也会被覆盖。
+
+除了优先级比较低，默认CSS还有一个特点，默认只影响组件内的子组件，不会影响外面的组件。还是上面的代码，去掉外面的CSS，保留组件内的默认CSS：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static
+
+class MyWidget(Widget):
+    DEFAULT_CSS = """
+    MyWidget {
+        width: auto;
+        height: auto;
+    }
+    Static.s {
+        width: auto;
+        height: auto;
+        background: blue!important;
+    }
+    """
+    def compose(self):
+        yield Static('Hello World',classes='s')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+            Static('Hello World',classes='s'),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_2](textual.assets/widget_2.png)
+
+可以看到，同样都是静态文本，不是自定义组件内的静态文本，背景颜色不是蓝色而是默认颜色。这样设计的原因，是怕自定义组件时设计的样式，污染到使用该组件的程序中的其他组件。
+
+不过，如果读者有特殊需求，想要改变其他组件的样式，可以在自定义组件类中添加`SCOPED_CSS`属性，并设置为`False`，可以让原本只在当前类内生效的默认CSS，扩展到整个程序：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static
+
+class MyWidget(Widget):
+    DEFAULT_CSS = """
+    MyWidget {
+        width: auto;
+        height: auto;
+    }
+    Static.s {
+        width: auto;
+        height: auto;
+        background: blue!important;
+    }
+    """
+    SCOPED_CSS = False
+    def compose(self):
+        yield Static('Hello World',classes='s')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+            Static('Hello World',classes='s'),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_3](textual.assets/widget_3.png)
+
+##### 3.2.3.4 设计自定义组件——嵌入链接与文本美化
+
+嵌入链接其实前面介绍过，这里简单复习一下。
+
+任何自定义组件中显示的文本，只要没有禁用标记标签解析或者使用Rich框架的`escape`方法（使用`from rich.markup import escape`导入）转义，其中的标记标签（相关用法参考[markup标签](https://rich.readthedocs.io/en/latest/markup.html)和[Rich样式](https://rich.readthedocs.io/en/latest/style.html#styles)）都会被解析。其中，`[@click={action}]...[/]`看起来像是markup标签但其作用类似HTML的超链接标签，就是嵌入链接。
+
+需要注意的是，嵌入链接是Textual的特性功能，不能与Rich框架的标记标签混用，也就是说不支持通过标记标签改变嵌入链接的样式（比如颜色）。如果想要改变某个组件内的嵌入链接的样式，只能通过CSS（完整文档参考[官网](https://textual.textualize.io/styles/links/)）修改。嵌入链接主要支持以下样式：
+
+| 样式类型                                                     | 含义                                                      |
+| :----------------------------------------------------------- | :-------------------------------------------------------- |
+| [`link-background`](https://textual.textualize.io/styles/links/link_background/) | 链接文本的背景颜色。                                      |
+| [`link-background-hover`](https://textual.textualize.io/styles/links/link_background_hover/) | 鼠标悬停在链接文本上时的背景颜色。                        |
+| [`link-color`](https://textual.textualize.io/styles/links/link_color/) | 链接文本的文本颜色。                                      |
+| [`link-color-hover`](https://textual.textualize.io/styles/links/link_color_hover/) | 鼠标悬停在链接文本上时的文本颜色。                        |
+| [`link-style`](https://textual.textualize.io/styles/links/link_style/) | 链接文本上的文本样式，比如设置`underline`就是添加下划线。 |
+| [`link-style-hover`](https://textual.textualize.io/styles/links/link_style_hover/) | 鼠标悬停在链接文本上时的文本样式。                        |
+
+下面的示例演示了如何在自定义组件中使用嵌入链接和标记标签：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static
+
+class MyWidget(Widget):
+    DEFAULT_CSS = '''
+    Static {
+        link-color: ansi_red;
+    }
+    '''
+    def compose(self):
+        yield Static('Click [@click=app.quit]Me[/] to [red]quit[/red] app')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_4](textual.assets/widget_4.png)
+
+##### 3.2.3.5 设计自定义组件——标题和副标题
+
+与`App`类支持标题和副标题类似，自定义组件也能设置标题和副标题——边框标题和边框副标题。
+
+等一下，这两个听起来有点像样式里的边框标题和边框副标题，难道是和上一小节一样，用前面讲过的内容水一节？
+
+非也，设置自定义组件的边框标题和边框副标题，除了前面设置组件实例的`border_title`属性（完整用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.border_title)）和`border_subtitle`属性（完整用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.border_subtitle)）之外，还可以在类内添加`BORDER_TITLE`变量（完整用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.BORDER_TITLE)）和`BORDER_SUBTITLE`变量（完整用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.BORDER_SUBTITLE)），实现同样的效果。
+
+需要注意的是，边框标题和边框副标题只有在自定义组件启用边框时才会显示，并且标题内容设置为空的话，对应标题就不再显示。
+
+示例代码如下：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static
+
+class MyWidget(Widget):
+    DEFAULT_CSS = '''
+    MyWidget {
+        border: solid yellow;
+    }
+    '''
+    BORDER_TITLE = 'MyWidget'
+    def compose(self):
+        self.border_subtitle = 'From Python'
+        yield Static('Hello World')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_5](textual.assets/widget_5.png)
+
+##### 3.2.3.6 设计自定义组件——焦点与快捷键绑定
+
+前面提到过静态文本不能获得焦点，在创建自定义组件时，如果父类是`Widget`类或者静态文本这种不能获得焦点的类，那自定义组件也不能获得焦点。
+
+想要让自定义组件可以获得焦点，需要将自定义组件的`can_focus`属性设置为`True`才行，传递给父类的`__init_subclass__`方法或者设置类变量都可以。
+
+如前面介绍快捷键绑定时说的，能够获得焦点的组件才可以使用内部定义快捷键，并且优先级比上级组件的快捷键高，设置`priority`参数为`True`的快捷键，比不设置的高，如果都设置为`True`，则遵循越近越优先。
+
+所以，如果自定义组件设置了内部的快捷键绑定（和在`App`子类中设置快捷键绑定一样，设置`BINDINGS`属性），别忘了让自定义组件可以获得焦点：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static,Button
+
+class MyWidget(Widget,can_focus=True):
+    # 也可以设置类变量
+    # can_focus=True
+    DEFAULT_CSS = '''
+    MyWidget,Static {
+        width: auto;
+        height: 1;
+        &:focus {
+            background: green;
+        }
+    }
+    '''
+    BINDINGS = [('q','update_static','Update Static')]
+    def compose(self):
+        yield Static('Hello World')
+    def action_update_static(self):
+        self.query_one(Static).update('Hello everyone')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Button('Fake Button'),
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_6](textual.assets/widget_6.gif)
+
+如上图所示，自定义组件在获得焦点时背景会变成绿色，并且组件内定义了一个快捷键，可以更新内部静态文本的内容。读者可以复制上面的代码，将其自定义组件改成不能获得焦点，对比一下执行的效果。
+
+##### 3.2.3.7 设计自定义组件——可渲染对象
+
+
+
+https://rich.readthedocs.io/en/latest/protocol.html
+
+
+
+https://rich.readthedocs.io/en/latest/index.html
+
+
+
+
+
+##### 3.2.3.8 设计自定义组件——内容尺寸
+
+
+
+
+
+
+
+##### 3.2.3.9 设计自定义组件——工具提示
+
+
+
+
+
+
+
+##### 3.2.3.10 设计自定义组件——加载状态
+
+
+
+
+
+
+
+##### 3.2.3.11 设计自定义组件——线性渲染
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### 3.2.4 屏幕
+
+
+
+
+
+#### 3.2.5 动画
+
+
+
+
+
+#### 3.2.6 命令面板
+
+
 
 
 
@@ -8663,37 +9055,6 @@ Header = HeaderWithIcon
 
 
 
-
-
-
-#### 3.2.4 定制组件
-
-
-
-https://textual.textualize.io/guide/widgets/
-
-
-
-#### 3.2.5 动画
-
-
-
-#### 3.2.6 屏幕
-
-
-
-
-
-#### 3.2.7 Textual依赖的Rich
-
-Rich相关的样式：https://rich.readthedocs.io/en/latest/markup.html 和 https://rich.readthedocs.io/en/latest/style.html#styles
-
-（简单提一些Textual中会用到的功能，完整的学习单开一本书）
-
-```python3
-from rich import print
-print("[bold red]alert![/bold red] Something happened")
-```
 
 
 

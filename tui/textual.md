@@ -8657,7 +8657,7 @@ if __name__ == '__main__':
 说完了继承类，创建自定义显示内容的入口方法也有多种选择。通过在自定义组件类内实现以下方法，可以自定义组件显示的内容：
 
 -   `render`方法，直接返回可渲染对象，是大部分基本组件的底层渲染方法。
--   `render_line`方法，直接返回条对象（`Strip`，完整用法参见[官网文档](https://textual.textualize.io/api/strip/#textual.strip.Strip)）。条对象是一个包含多个段对象（`Segment`，完整用法参见[官网文档](https://rich.readthedocs.io/en/stable/reference/segment.html#rich.segment.Segment)）并放置在一行的复合对象。与`render`方法不同的是，此方法是线性渲染，在内容改变需要刷新的时候，只会刷新局部，在自定义组件包含较多内容时，此方法可以减少卡顿和所需的计算资源。
+-   `render_line`方法，直接返回条对象（`Strip`，完整用法参见[官网文档](https://textual.textualize.io/api/strip/#textual.strip.Strip)）。条对象是一个包含多个段对象（`Segment`，完整用法参见[官网文档](https://rich.readthedocs.io/en/stable/reference/segment.html#rich.segment.Segment)）并放置在一行的复合对象。与`render`方法不同的是，此方法是线性渲染，在内容改变需要刷新的时候，只会刷新局部，而不是整个自定义组件。在自定义组件包含较多内容时，此方法可以减少卡顿和所需的计算资源。
 -   `compose`方法，直接生成（`yield`）基本组件，创建复合组件（包含其他组件的自定义组件）时使用此方法。
 -   `on_mount`方法，基于事件的自定义方法，当自定义组件被挂载时，可以在此方法中动态添加其他组件。效果上和`compose`方法类似，是一种备选、增强的方法，但不推荐只使用此方法自定义组件，因为此方法只会执行一次，一旦有重复刷新自定义组件的情况，此方法没法实时更新显示。
 
@@ -8752,10 +8752,10 @@ class MyWidget(Widget):
         width: auto;
         height: auto;
     }
-    Static.s {
+    .s {
         width: auto;
         height: auto;
-        background: blue!important;
+        background: blue;
     }
     """
     def compose(self):
@@ -8791,10 +8791,10 @@ class MyWidget(Widget):
         width: auto;
         height: auto;
     }
-    Static.s {
+    .s {
         width: auto;
         height: auto;
-        background: blue!important;
+        background: blue;
     }
     """
     SCOPED_CSS = False
@@ -8815,6 +8815,136 @@ if __name__ == '__main__':
 ```
 
 ![widget_3](textual.assets/widget_3.png)
+
+关于自定义组件的CSS，其实还有一个和样式类有关的类变量`DEFAULT_CLASSES`，但在介绍之前，需要先弄清楚一个问题——自定义组件`DEFAULT_CSS`中定义的样式类要怎么才能生效。先看下面的代码：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static
+
+class MyWidget(Widget):
+    DEFAULT_CSS = """
+    MyWidget {
+        width: auto;
+        height: auto;
+    }
+    Static {
+        width: auto;
+        height: auto;
+    }
+    .s {
+        background: blue;
+    }
+    """
+    def compose(self):
+        yield Static('Hello World')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(classes='s'),
+            Static('Hello World'),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+按照前面思路，这种定义在组件内部的样式类，只在内部生效，在外面设置不应该生效。但是，使用该样式类的就是自定义组件，给自定义组件设置一个内部定义的样式类，又应该生效。想来想去，样式类无论是否生效，都难以理解。
+
+这里先揭晓一下答案，上面代码中，自定义组件内部定义的样式类`s`，是没有生效的。至于原因，需要看一下修改后能够生效的代码：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static
+
+class MyWidget(Widget):
+    DEFAULT_CSS = """
+    MyWidget {
+        width: auto;
+        height: auto;
+    }
+    Static {
+        width: auto;
+        height: auto;
+    }
+    MyWidget.s {
+        background: blue;
+    }
+    """
+    def compose(self):
+        yield Static('Hello World')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(classes='s'),
+            Static('Hello World'),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+相比于上一个示例代码，这一个示例只是将原本的样式类选择器，改成了`MyWidget.s`，变成了必须同时匹配`MyWidget`组件和样式类`s`才会应用样式，那结果便与上一个示例不同：
+
+![widget_2](textual.assets/widget_2.png)
+
+想必读者已经猜到了可能的原因，这里就明确解释一下。对于自定义组件来说，没有扩大CSS的应用范围的话，想要让自定义组件本身应用内部的样式，则必须使用类型选择器匹配自定义组件类。因此，想要让自定义组件使用样式类，也要同时使用类型选择器才行。
+
+创建组件时，可以给组件的初始化参数`classes`传参来设置组件的样式类。
+
+而在自定义组件类内部，可以在方法内部设置实例的`classes`属性，实现默认应用样式类。不过，这种设置样式类的方法都是显式的，也就是说需要开发者在某个地方主动设置。同时，这样设置的样式没法被更高优先级的方法覆盖，会导致默认初始化参数`classes`没法生效，很不方便。
+
+幸好，自定义组件支持`DEFAULT_CLASSES`类变量，该变量表示组件在没有设置样式类时，默认添加哪些样式类，支持内部样式类和外部样式类。其中，内部样式类需要满足上面的原则，必须同时使用类型选择器。这样，就可以把应用默认样式类的任务交给`DEFAULT_CLASSES`类变量：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static
+
+class MyWidget(Widget):
+    DEFAULT_CLASSES = 's'
+    DEFAULT_CSS = """
+    MyWidget {
+        width: auto;
+        height: auto;
+    }
+    Static {
+        width: auto;
+        height: auto;
+    }
+    MyWidget.s {
+        background: blue;
+    }
+    """
+    def compose(self):
+        yield Static('Hello World')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+            Static('Hello World'),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_2](textual.assets/widget_2.png)
+
+如果想要保留默认样式类，同时添加新的样式类，可以使用组件的`add_class`方法。
+
+顺便多说一句，其实`App`子类也像自定义组件一样支持`DEFAULT_CSS`类变量和`DEFAULT_CLASSES`类变量。只不过`App`子类示例本身不是可以显示的组件，其实际显示的主体对应的是DOM节点中子级的`Screen`组件。因此，其应用的样式类实际上没有效果，`DEFAULT_CLASSES`类变量也没什么用。至于`DEFAULT_CSS`，效果上和`CSS`一样，但其优先级比`CSS`低，一般用于设置没有加载外部CSS文件时或者加载失败时的默认样式。
 
 ##### 3.2.3.4 设计自定义组件——嵌入链接与文本美化
 
@@ -8957,55 +9087,668 @@ if __name__ == '__main__':
 
 ##### 3.2.3.7 设计自定义组件——可渲染对象
 
+`render`方法通过返回可渲染对象（渲染协议说明参考Rich的[文档](https://rich.readthedocs.io/en/latest/protocol.html)），借助Rich更加接近底层的自定义能力，可以实现更高自由度的定制。
 
+比如，可以使用Rich的`Panel`（[官网文档](https://rich.readthedocs.io/en/latest/panel.html)），绘制出一个带圆角边框的静态文本组件：
 
-https://rich.readthedocs.io/en/latest/protocol.html
+```python3
+from textual.app import App
+from textual.widget import Widget
+from rich.panel import Panel
 
+class MyWidget(Widget):
+    def render(self):
+        return Panel('Hello World',expand=False,height=3)
 
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
 
-https://rich.readthedocs.io/en/latest/index.html
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
-
-
-
+![widget_7](textual.assets/widget_7.png)
 
 ##### 3.2.3.8 设计自定义组件——内容尺寸
 
+当自定义组件的高度和宽度设置为自动时，程序会调用组件的`get_content_height`方法（支持的参数和用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.get_content_height)）和`get_content_width`方法（支持的参数和用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.get_content_width)），根据返回值，确定组件高度和宽度。
 
+下面的代码中，就实现了这两个方法，并返回固定值，让组件显示出来的高度和宽度比实际内容大了一些：
 
+```python3
+from textual.app import App
+from textual.widget import Widget
+from rich.panel import Panel
 
+class MyWidget(Widget):
+    DEFAULT_CSS = '''
+    MyWidget {
+        width: auto;
+        height: auto;
+        background: green;
+    }
+    '''
+    def get_content_height(self, container, viewport, width):
+        return 5
+    def get_content_width(self, container, viewport):
+        return 20
+    def render(self):
+        return Panel('Hello World',expand=False,height=3)
 
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
 
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_8](textual.assets/widget_8.png)
 
 ##### 3.2.3.9 设计自定义组件——工具提示
 
+给组件设置`tooltip`属性（在类或者实例中设置均可，类的话就会自动应用到全部实例，完整介绍参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.tooltip)）后，当鼠标在组件上悬停时，鼠标下方会显示出提示性的内容，一旦鼠标移动就会消失。`tooltip`属性支持字符串和可渲染对象，因此，可以定制不同组件的工具提示。
 
+```python3
+from textual.app import App
+from textual.widget import Widget
+from rich.panel import Panel
 
+class MyWidget(Widget):
+    tooltip = Panel('Hello everyone',expand=False,height=3)
+    def render(self):
+        return Panel('Hello World',expand=False,height=3)
 
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
 
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
+![widget_9](textual.assets/widget_9.png)
+
+除了通过设置`tooltip`属性创建工具提示，也可以调用组件实例的`with_tooltip`方法创建工具提示。
+
+需要注意的是，虽然创建工具提示是通过组件的属性或者方法，但想要设置工具提示的显示样式，则需要在`App`子类的CSS中设置，使用类型选择器`Tooltip`，因为工具提示归属于`Screen`组件：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from rich.panel import Panel
+
+class MyWidget(Widget):
+    def render(self):
+        self.with_tooltip(Panel('Hello everyone',expand=False,height=3))
+        return Panel('Hello World',expand=False,height=3)
+
+class MyApp(App):
+    CSS = '''
+    Tooltip {
+        background: white;
+        color: red;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_10](textual.assets/widget_10.png)
 
 ##### 3.2.3.10 设计自定义组件——加载状态
 
+设置组件的`loading`属性（完整用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.loading)）为`True`时，组件会临时被`LoadingIndicator`组件（完整用法参考[官网文档](https://textual.textualize.io/widgets/loading_indicator/)）代替，用于表示组件正在加载。
+
+示例如下：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from rich.panel import Panel
+import asyncio
+
+class MyWidget(Widget):
+    def render(self):
+        return Panel('Hello World',expand=False,height=3)
+    
+    async def waiting(self):
+        await asyncio.sleep(1)
+        self.loading = False
+        
+    def on_mount(self):
+        self.loading = True
+        self.run_worker(self.waiting)
+        
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_11](textual.assets/widget_11.gif)
+
+和工具提示类似，想要设置加载状态的样式，只能在`App`子类的CSS中设置：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from rich.panel import Panel
+import asyncio
+
+class MyWidget(Widget):
+    def render(self):
+        return Panel('Hello World',expand=False,height=3)
+    
+    async def waiting(self):
+        await asyncio.sleep(1)
+        self.loading = False
+
+    def on_mount(self):
+        self.loading = True
+        self.run_worker(self.waiting)
+
+class MyApp(App):
+    CSS = '''
+    LoadingIndicator {
+        color: red;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_12](textual.assets/widget_12.gif)
+
+##### 3.2.3.11 基本方法——线性渲染
+
+在介绍自定义组件的入口方法时，提到过`render_line`方法。此方法是线性渲染，可以做到局部刷新。不过，此方法用法比较复杂，有余力的读者可以在阅读教程的同时查阅官网文档，自主学习。对于只是想简单自定义组件或者组合现有组件的需求，可以跳过本节，使用前面介绍的方法即可。
+
+什么是线性渲染？
+
+如下图所示，线性渲染就是将原本完整的组件拆分成一条一条的，也可以说成是一行一行的。对于线性渲染的组件（定义了`render_line`方法的组件）来说，组件在渲染时，会根据相对于组件顶部的纵向坐标（Y坐标），依次渲染该坐标对应的条对象（完整介绍参考[官网文档](https://textual.textualize.io/api/strip/#textual.strip.Strip)）。
+
+![widget_13](textual.assets/widget_13.png)
+
+每一个条对象实际上是由多个段对象组成的列表，这也就是为什么线性渲染可以做到局部刷新的原因，本质上刷新的是段对象（完整介绍参考[官网文档](https://rich.readthedocs.io/en/latest/protocol.html#low-level-render)）。
+
+段对象是Rich框架的内容（使用`from rich.segment import Segment`导入），条对象则是Textual控件的内容（使用`from textual.strip import Strip`导入）。在使用时，需要将段对象放到列表中，传递给条对象，才能让`render_line`方法渲染。不过，想要美化段对象，还需要借助Rich框架的样式对象（使用`from rich.style import Style`导入）。
+
+构建一个段对象很简单，第一个参数传入文本内容，第二个参数传入该文本的样式（可以不指定样式），就能得到一个段对象：
+
+```python3
+greeting = Segment("Hello, World!", Style(bold=True))
+```
+
+![widget_14](textual.assets/widget_14.png)
+
+之后就是将该对象放到列表中，并传递给条对象第一个参数，就能正常渲染：
+
+```python3
+from textual.app import App
+from textual.strip import Strip
+from textual.widget import Widget
+
+from rich.segment import Segment
+from rich.style import Style
+
+class MyWidget(Widget):
+    def render_line(self, y: int):
+        if y <= 0:
+            greeting = Segment("Hello, World!", Style(bold=True))
+            return Strip(
+                [
+                    greeting
+                ]
+            )
+        else:
+            return Strip.blank(self.size.width)
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+
+```
+
+当然，既然是列表，传入多个段对象，并让每个段对象使用不同的样式，也是没问题的：
+
+```python3
+from textual.app import App
+from textual.strip import Strip
+from textual.widget import Widget
+
+from rich.segment import Segment
+from rich.style import Style
+
+class MyWidget(Widget):
+    def render_line(self, y: int):
+        if y <= 0:
+            return Strip(
+                [
+                    Segment("Hello, "),
+                    Segment("World", Style(bold=True)),
+                    Segment("!")
+                ]
+            )
+        else:
+            return Strip.blank(self.size.width)
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+需要注意的是，线性渲染是将整个屏幕当做渲染对象，因此，对于不包含内容的区域，必须返回空白的条对象（`Strip.blank(self.size.width)`）。空白条对象的第一个参数是内容的宽度，必须手动指定。
+
+与之对应的，有内容的条对象的第二个参数是内容的宽度，既可以手动指定，也可以根据内容自动计算宽度。
+
+在介绍后面的内容前，需要先引入一个示例：
+
+```python3
+from textual.app import App
+from textual.strip import Strip
+from textual.widget import Widget
+
+from rich.segment import Segment
+from rich.style import Style
+
+class MyWidget(Widget):
+    def __init__(self, content:list = None, *children, name = None, id = None, classes = None, disabled = False):
+        self.content = content if content else []
+        super().__init__(*children, name=name, id=id, classes=classes, disabled=disabled)
+    def render_line(self, y: int):
+        if y < len(self.content):
+            red = Style.parse('red')
+            green = Style.parse('green')
+            return Strip([Segment(self.content[y], red if y%2 == 0 else green)])
+        else:
+            return Strip.blank(self.size.width)
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(['hello','world','hello','everyone','hello','sun']),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+示例中，创建的自定义组件可以接收一个字符串数组，并遍历该数组，让每个元素显示为一行，根据行数的奇偶，让字体颜色变为红色或者绿色：
+
+![widget_15](textual.assets/widget_15.png)
+
+代码中使用了Rich框架的样式对象（使用`from rich.style import Style`导入）设置显示内容的颜色，对于不太熟悉Rich框架或者需要设置更丰富样式的读者来说，这个样式对象还是有点不太方便。
+
+幸好，使用组件实例的`get_component_rich_style`方法（完整用法参考[官网文档](https://textual.textualize.io/api/widget/#textual.widget.Widget.get_component_rich_style)），可以将`COMPONENT_CLASSES`类变量（完整用法参考[官网文档](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.COMPONENT_CLASSES)）中注册的样式类转换成Rich样式。在`DEFAULT_CSS`中创建好对应类名选择器应用的样式，可以很方便地修改`render_line`中设置的显示效果。也可以在`App`子类的`CSS`中或者`CSS_PATH`指定的CSS文件中用同名样式类覆盖默认样式。
+
+```python3
+from textual.app import App
+from textual.strip import Strip
+from textual.widget import Widget
+
+from rich.segment import Segment
+from rich.style import Style
+
+class MyWidget(Widget):
+    COMPONENT_CLASSES = {
+        "MyWidget--red-line",
+        "MyWidget--green-line",
+    }
+    DEFAULT_CSS = '''
+    .MyWidget--red-line {
+        color: ansi_red;
+    }
+    .MyWidget--green-line {
+        color: ansi_green;
+    }
+    '''
+    def __init__(self, content:list = None, *children, name = None, id = None, classes = None, disabled = False):
+        self.content = content if content else []
+        super().__init__(*children, name=name, id=id, classes=classes, disabled=disabled)
+    def render_line(self, y: int):
+        if y < len(self.content):
+            red = self.get_component_rich_style("MyWidget--red-line")
+            green = self.get_component_rich_style("MyWidget--green-line")
+            return Strip([Segment(self.content[y], red if y%2 == 0 else green)])
+        else:
+            return Strip.blank(self.size.width)
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(['hello','world','hello','everyone','hello','sun']),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![](textual.assets/widget_15.png)
+
+读者可以复制上面的示例代码，按照需求修改样式，看看运行的效果。
+
+前面说过线性渲染可以更新局部，接下来，就围绕局部刷新功能修改上面的例子，让鼠标下的单个字符高亮，其余位置的字符不变。
+
+首先，局部刷新的前提是每一个部分是独立的。到目前为止，上面的例子只是每一行独立，因为每一行对应的条对象内，将一整个字符串放到一个段对象内，想要刷新单个字符的显示状态，还是要刷新整行才行。因此，修改的第一步，就是把一行的字符串拆分成单个字符，并将单个字符放到段对象内。
+
+```python3
+Strip( 
+    [ Segment( item, red if y%2 == 0 else green) for item in self.content[y] ]
+)
+```
+
+因为是要将鼠标下的单个字符高亮，还需要在鼠标移动时获取鼠标当前的位置，并将其存入反应性属性中。这部分相关代码如下：
+
+```python3
+class MyWidget(Widget):
+    mouse_pos = var(Offset(0, 0))
+    def on_mouse_move(self, e: events.MouseMove):
+        self.mouse_pos = e.offset
+```
+
+获取到鼠标位置之后，需要修改`render_line`方法，让组件渲染时，鼠标位置下的字符使用其他样式。这部分相关代码如下：
+
+```python3
+class MyWidget(Widget):
+    COMPONENT_CLASSES = {
+        "MyWidget--red-line",
+        "MyWidget--green-line",
+        "MyWidget--mouse-on-line",
+    }
+    DEFAULT_CSS = '''
+    .MyWidget--red-line {
+        color: ansi_red;
+    }
+    .MyWidget--green-line {
+        color: ansi_green;
+    }
+    .MyWidget--mouse-on-line {
+        background: blue;
+    }
+    '''
+    def render_line(self, y: int):
+        if y < len(self.content):
+            red = self.get_component_rich_style("MyWidget--red-line")
+            green = self.get_component_rich_style("MyWidget--green-line")
+            blue = self.get_component_rich_style(
+                "MyWidget--mouse-on-line") if y == self.mouse_pos.y else None
+            return Strip(
+                segments=[
+                    Segment(text=item, style=(index == self.mouse_pos.x and blue)
+                            or (red if y % 2 == 0 else green)
+                            )
+                    for index, item in enumerate(self.content[y])
+                ]
+            )
+        else:
+            return Strip.blank(self.size.width)
+```
+
+代码中，先是定义了新的样式类`"MyWidget--mouse-on-line"`，并进行转化：
+
+```python3
+blue = self.get_component_rich_style("MyWidget--mouse-on-line") if y == self.mouse_pos.y else None
+```
+
+注意，此时对鼠标位置的Y坐标进行了对比，只有在鼠标所在行的`blue`变量才不是`None`，相当于匹配了鼠标位置的Y坐标。
+
+对鼠标位置的X坐标的匹配则放到了构建条对象中：
+
+```python3
+Strip(
+    segments=[
+        Segment(
+            text=item, 
+            style= (index == self.mouse_pos.x and blue) or (red if y % 2 == 0 else green)
+        )
+        for index, item in enumerate(self.content[y])
+    ]
+)
+```
+
+在构建条对象时，遍历的是枚举对象`enumerate(self.content[y])`，好处是可以在获得每个元素的同时，还能得到该元素的索引值。而索引值在数值上等于该段对象在组件坐标系中的X坐标。因此，可以与鼠标位置的X坐标比较，结合上一步已经匹配的鼠标位置的Y坐标，可以找出鼠标位置下的段对象，让该对象应用的样式是`blue`。
+
+不过，将上面几个修改后的代码组合到一起还不算完成，因为反应性属性用的是`var`，不会触发组件的智能刷新。不过，也不需要触发智能刷新，这里要实现的是局部刷新，触发智能刷新的话就不是局部刷新了。
+
+想要做局部刷新，就需要利用到反应性属性的监视方法：
+
+```python3
+def watch_mouse_pos(self, old_pos: Offset, new_pos: Offset):
+    old_region = Region(old_pos.x, old_pos.y, 1, 1)
+    new_region = Region(new_pos.x, new_pos.y, 1, 1)
+    self.refresh(old_region)
+    self.refresh(new_region)
+```
+
+当反应性属性变化时，可以同时得到当前鼠标位置和之前鼠标位置。通过创建`Region`对象（完整用法参考[官网文档](https://textual.textualize.io/api/geometry/#textual.geometry.Region)），划定出一个字符面积、以鼠标位置为起点的矩形。这样，组件的`refresh`方法就可以只刷新矩形区域，不用刷新整个组件。
+
+最后，将上面的代码合并，得到完整代码：
+
+```python3
+from textual.app import App
+from textual.strip import Strip
+from textual.widget import Widget
+from textual import events
+from textual.reactive import var
+from textual.geometry import Offset, Region
+
+from rich.segment import Segment
+
+class MyWidget(Widget):
+    COMPONENT_CLASSES = {
+        "MyWidget--red-line",
+        "MyWidget--green-line",
+        "MyWidget--mouse-on-line",
+    }
+    DEFAULT_CSS = '''
+    .MyWidget--red-line {
+        color: ansi_red;
+    }
+    .MyWidget--green-line {
+        color: ansi_green;
+    }
+    .MyWidget--mouse-on-line {
+        background: blue;
+    }
+    '''
+    mouse_pos = var(Offset(0, 0))
+
+    def __init__(self, content: list = None, *children, name=None, id=None, classes=None, disabled=False):
+        self.content = content if content else []
+        super().__init__(*children, name=name, id=id, classes=classes, disabled=disabled)
+
+    def on_mouse_move(self, e: events.MouseMove):
+        self.mouse_pos = e.offset
+
+    def watch_mouse_pos(self, old_pos: Offset, new_pos: Offset):
+        old_region = Region(old_pos.x, old_pos.y, 1, 1)
+        new_region = Region(new_pos.x, new_pos.y, 1, 1)
+        self.refresh(old_region)
+        self.refresh(new_region)
+
+    def render_line(self, y: int):
+        if y < len(self.content):
+            red = self.get_component_rich_style("MyWidget--red-line")
+            green = self.get_component_rich_style("MyWidget--green-line")
+            blue = self.get_component_rich_style(
+                "MyWidget--mouse-on-line") if y == self.mouse_pos.y else None
+            return Strip(
+                segments=[
+                    Segment(text=item, style=(index == self.mouse_pos.x and blue)
+                            or (red if y % 2 == 0 else green)
+                            )
+                    for index, item in enumerate(self.content[y])
+                ]
+            )
+        else:
+            return Strip.blank(self.size.width)
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(['hello', 'world', 'hello', 'everyone', 'hello', 'sun']),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_16](textual.assets/widget_16.gif)
+
+
+
+滚动内容
+
+https://textual.textualize.io/api/scroll_view/#textual.scroll_view.ScrollView
+
+ `virtual_size` property
+
+![widget_17](textual.assets/widget_17.png)
 
 
 
 
 
+[Strip](https://textual.textualize.io/api/strip/#textual.strip.Strip) objects are immutable, so methods will return a new Strip rather than modifying the original.
 
-##### 3.2.3.11 设计自定义组件——线性渲染
+```python3
+from textual.app import App
+from textual.strip import Strip
+from textual.scroll_view import ScrollView
+from textual import events
+from textual.reactive import var
+from textual.geometry import Offset, Region, Size
+
+from rich.segment import Segment
+
+class MyWidget(ScrollView):
+    COMPONENT_CLASSES = {
+        "MyWidget--red-line",
+        "MyWidget--green-line",
+        "MyWidget--mouse-on-line",
+    }
+    DEFAULT_CSS = '''
+    .MyWidget--red-line {
+        color: ansi_red;
+    }
+    .MyWidget--green-line {
+        color: ansi_green;
+    }
+    .MyWidget--mouse-on-line {
+        background: blue;
+    }
+    '''
+    mouse_pos = var(Offset(0, 0))
+
+    def __init__(self, content: list = None):
+        super().__init__()
+        self.content = content if content else []
+        self.virtual_size = Size(len(max(self.content,key=len)),len(self.content))
+        
+    def on_mouse_move(self, e: events.MouseMove):
+        self.mouse_pos = e.offset+self.scroll_offset
+
+    def watch_mouse_pos(self, old_pos: Offset, new_pos: Offset):
+        old_region = Region(old_pos.x, old_pos.y, 1, 1).translate(-self.scroll_offset)
+        new_region = Region(new_pos.x, new_pos.y, 1, 1).translate(-self.scroll_offset)
+        self.refresh(old_region)
+        self.refresh(new_region)
+
+    def render_line(self, y: int):
+        scroll_x, scroll_y = self.scroll_offset
+        y += scroll_y 
+        if y < len(self.content):
+            red = self.get_component_rich_style("MyWidget--red-line")
+            green = self.get_component_rich_style("MyWidget--green-line")
+            blue = self.get_component_rich_style(
+                "MyWidget--mouse-on-line") if y == self.mouse_pos.y else None
+            return Strip(
+                segments=[
+                    Segment(text=item, style=(index == self.mouse_pos.x and blue)
+                            or (red if y % 2 == 0 else green)
+                            )
+                    for index, item in enumerate(self.content[y])
+                ]
+            ).crop(scroll_x, scroll_x + self.size.width)
+        else:
+            return Strip.blank(self.size.width)
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(['hello', 'world', 'hello', 'everyone', 'hello', 'sun'*100]*10),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
 
 
 
 
+以下几个内置的组件也是使用了线性渲染，如果读者有兴趣，可以研究一下它们的源代码，本教程就不做过多展开：
 
-
-
-
-
-
-
+-   [DataTable](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_data_table.py)
+-   [RichLog](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_rich_log.py)
+-   [Tree](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_tree.py)
 
 #### 3.2.4 屏幕
 

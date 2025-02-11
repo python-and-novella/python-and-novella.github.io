@@ -9956,13 +9956,13 @@ if __name__ == '__main__':
 
 ![widget_18](textual.assets/widget_18.gif)
 
-学习完线性渲染的教程之后，要是还觉得意犹未尽，可以看俺以下几个内置的组件，它们也是使用了线性渲染：
+学习完线性渲染的教程之后，要是还觉得意犹未尽，可以看看以下几个内置的组件的源代码，它们也是使用了线性渲染：
 
 -   [DataTable](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_data_table.py)
 -   [RichLog](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_rich_log.py)
 -   [Tree](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_tree.py)
 
-如果读者有兴趣，可以点开它们的源代码，研究一下官方是怎么处理组件的交互，本教程就不做过多展开了。
+受限于篇幅，如果读者有兴趣，可以点开它们的源代码，研究一下官方是怎么处理组件的交互，本教程就不做过多展开了。
 
 #### 3.2.4 屏幕
 

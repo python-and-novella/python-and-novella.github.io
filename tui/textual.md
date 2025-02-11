@@ -9294,7 +9294,48 @@ if __name__ == '__main__':
 
 ![widget_12](textual.assets/widget_12.gif)
 
-##### 3.2.3.11 基本方法——线性渲染
+##### 3.2.3.11 设计自定义组件——组合基本组件
+
+将基本组件组合成新的组件，说起来简单，其实用起来也不难，甚至前面都已经有了类似的代码。不过，这里还是简单复习一下，那就是`compose`方法。
+
+在组件中定义`compose`方法，可以像搭建程序一样搭建自定义组件。用法上前面已经有过很多例子和介绍，能学到这里的读者自然也不会陌生，下面就提供一个简单的示例，不做太多解释了：
+
+```python3
+from textual.app import App
+from textual.widget import Widget
+from textual.widgets import Static,Button
+
+class MyWidget(Widget):
+    DEFAULT_CSS = """
+    MyWidget {
+        width: auto;
+        height: auto;
+    }
+    Static {
+        width: auto;
+        height: auto;
+    }
+    """
+    def compose(self):
+        yield Static('Hello World')
+        yield Button('Say Hi',variant='success')
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(),
+            MyWidget()
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_19](textual.assets/widget_19.png)
+
+##### 3.2.3.12 基本方法——线性渲染
 
 在介绍自定义组件的入口方法时，提到过`render_line`方法。此方法是线性渲染，可以做到局部刷新。不过，此方法用法比较复杂，有余力的读者可以在阅读教程的同时查阅官网文档，自主学习。对于只是想简单自定义组件或者组合现有组件的需求，可以跳过本节，使用前面介绍的方法即可。
 
@@ -9650,21 +9691,187 @@ if __name__ == '__main__':
 
 ![widget_16](textual.assets/widget_16.gif)
 
+上面的示例在实际使用的时候，其实很容易遇到一个问题：如果内容太多，超过终端大小，是没法让内容滚动显示的。
 
+将上面示例中`App`子类的部分改成如下代码：
 
-滚动内容
+```python3
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            MyWidget(
+                content=['hello', 'world', 'hello',
+                         'everyone', 'hello', 'sun'*100]*10),
+        ]
+        self.mount_all(self.widgets)
+```
 
-https://textual.textualize.io/api/scroll_view/#textual.scroll_view.ScrollView
+就会看到显示出来的组件是固定不动的，横向、纵向的其余内容没法滚动显示。
 
- `virtual_size` property
+如果想要让这种内容大小远超可显示区域的组件，可以滚动显示，简单一点的方法就是让组件本身的宽度和高度设置为自动，并实现组件的`get_content_height`方法和`get_content_width`方法。这样，组件的内容就会直接扩展到真实内容的大小。接下来要做的，就是将这个组件，放到可滚动的容器中，比如`ScrollableContainer`（使用`from textual.containers import ScrollableContainer`导入）。完整代码如下：
+
+```python3
+from textual.app import App
+from textual.strip import Strip
+from textual.widget import Widget
+from textual.containers import ScrollableContainer
+from textual import events
+from textual.reactive import var
+from textual.geometry import Offset, Region
+
+from rich.segment import Segment
+
+class MyWidget(Widget):
+    COMPONENT_CLASSES = {
+        "MyWidget--red-line",
+        "MyWidget--green-line",
+        "MyWidget--mouse-on-line",
+    }
+    DEFAULT_CSS = '''
+    .MyWidget--red-line {
+        color: ansi_red;
+    }
+    .MyWidget--green-line {
+        color: ansi_green;
+    }
+    .MyWidget--mouse-on-line {
+        background: blue;
+    }
+    MyWidget {
+        width: auto;
+        height: auto;
+    }
+    '''
+    mouse_pos = var(Offset(0, 0))
+
+    def __init__(self, content: list = None, *children, name=None, id=None, classes=None, disabled=False):
+        self.content = content if content else []
+        super().__init__(*children, name=name, id=id, classes=classes, disabled=disabled)
+
+    def get_content_width(self, container, viewport):
+        return len(max(self.content,key=len))
+    
+    def get_content_height(self, container, viewport, width):
+        return len(self.content)
+    
+    def on_mouse_move(self, e: events.MouseMove):
+        self.mouse_pos = e.offset
+
+    def watch_mouse_pos(self, old_pos: Offset, new_pos: Offset):
+        old_region = Region(old_pos.x, old_pos.y, 1, 1)
+        new_region = Region(new_pos.x, new_pos.y, 1, 1)
+        self.refresh(old_region)
+        self.refresh(new_region)
+
+    def render_line(self, y: int):
+        if y < len(self.content):
+            red = self.get_component_rich_style("MyWidget--red-line")
+            green = self.get_component_rich_style("MyWidget--green-line")
+            blue = self.get_component_rich_style(
+                "MyWidget--mouse-on-line") if y == self.mouse_pos.y else None
+            return Strip(
+                segments=[
+                    Segment(text=item, style=(index == self.mouse_pos.x and blue)
+                            or (red if y % 2 == 0 else green)
+                            )
+                    for index, item in enumerate(self.content[y])
+                ]
+            )
+        else:
+            return Strip.blank(self.size.width)
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            ScrollableContainer(
+            MyWidget(
+                content=['hello', 'world', 'hello',
+                         'everyone', 'hello', 'sun'*100]*10))
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_18](textual.assets/widget_18.gif)
+
+当然，这种借助其他容器组件的方法很简单，但要是能实现线性刷新的同时，组件本身就支持滚动显示就更好了。
+
+这个时候，就需要请出`ScrollView`组件（使用`from textual.scroll_view import ScrollView`导入，完整用法参考[官网文档](https://textual.textualize.io/api/scroll_view/#textual.scroll_view.ScrollView)）。
+
+通过继承`ScrollView`组件，就可以让自定义组件支持滚动显示。
+
+但是，在将组件改造之前，需要先了解一下Textual中滚动显示内容的原理。
+
+`ScrollView`组件有一个`virtual_size` 属性（`Size`类型，一个可以表示几何元素的宽度高度的命名元组，有`width`和`height`两个属性），表示实际完整内容的大小，远大于组件能展示的大小。因此，滚动显示内容，实际上是把组件能展示的大小当做窗口，移动这个窗口而已。默认这个窗口就在完整内容的左上角，当滚动显示时，这个窗口会向下向右移动，就能会产生一个偏移坐标`scroll_offset`（`Offset`类型的命名元组），用来表示窗口相对于完整内容的原点，各个方向上移动了多少距离。对应关系可以参考下图：
 
 ![widget_17](textual.assets/widget_17.png)
 
+因此，想要让上面自定义组件支持滚动显示，光是将被继承类从`Widget`改成`ScrollView`可不够，还要正确设置`virtual_size` 属性，以及让原本是针对固定大小组件设计的代码，考虑到滚动显示之后产生的偏移。
 
+`virtual_size` 属性很好设置，上面容器版代码中，计算了真实内容的大小，只需将两个值构建为`Size`对象即可：
 
+```python3
+self.virtual_size = Size(
+    width = len(max(self.content, key=len)),
+    height = len(self.content)
+)
+```
 
+至于滚动显示的偏移带来的影响，细细思考的话就会发现，真正影响的只有`render_line`方法。前面代码中，获取到的鼠标位置是相对于组件原点的位置，刷新的区域也是基于组件原点而已。因此，局部刷新的代码完全不需要动。
 
-[Strip](https://textual.textualize.io/api/strip/#textual.strip.Strip) objects are immutable, so methods will return a new Strip rather than modifying the original.
+但是，线性渲染的方法是基于组件原点的坐标系，假如内容已经滚动显示，这时的线性渲染得到坐标应该加上偏移坐标，才是真实渲染内容的坐标。要是不加偏移坐标的话，就会变成内容完全不动。
+
+思路就是这样，下面开始改造每一处需要添加偏移坐标的代码。
+
+首先是获取偏移坐标。拆包组件的`scroll_offset`属性，就能得到偏移坐标的X坐标和Y坐标：
+
+```python3
+scroll_x, scroll_y = self.scroll_offset
+```
+
+因为线性渲染的起点变化，组件Y坐标的起点要变成偏移之后实际内容的Y坐标，所以要给传入的Y坐标加上Y方向的偏移。而原本判断鼠标位置Y坐标来决定是否将鼠标位置下内容的样式改变的代码，也不能忘了加上偏移。代码如下：
+
+```python3
+y += scroll_y
+blue = self.get_component_rich_style("MyWidget--mouse-on-line") if y == (self.mouse_pos.y + scroll_y) else None
+```
+
+最关键的部分来了，构建条对象的代码要如何修改。
+
+原本判断鼠标位置X坐标的代码，加上X方向的偏移，这个没什么难点。但是，实际内容已经横向滚动之后，想要让渲染的内容随着X方向的移动，从偏移处开始渲染，那就要使用数组切片，将段对象列表的偏移位置前的部分去掉，使得偏移位置的段对象成为每个条对象中X方向上的第一个段对象：
+
+```python3
+Strip(
+    segments=[
+        Segment(
+            text=item,
+            style=(index == (self.mouse_pos.x + scroll_x) and blue)
+            or (red if y % 2 == 0 else green)
+        )
+        for index, item in enumerate(self.content[y])
+    ][scroll_x:]
+)
+```
+
+当然，条对象还支持使用`crop`方法（完整用法参考[官网文档](https://textual.textualize.io/api/strip/#textual.strip.Strip.crop)）裁剪条对象，生成新的条对象。该方法的两个参数分别表示起始位置和结束位置，只需将偏移坐标的X坐标、偏移坐标的X坐标加上组件宽度分别传入，也能实现同样的效果：
+
+```python3
+Strip(
+    segments=[
+        Segment(
+            text=item,
+            style=(index == (self.mouse_pos.x + scroll_x) and blue)
+            or (red if y % 2 == 0 else green)
+        )
+        for index, item in enumerate(self.content[y])
+    ]
+).crop(scroll_x, scroll_x + self.size.width)
+```
+
+完事具备，将上面的代码组成完整代码，结果如下：
 
 ```python3
 from textual.app import App
@@ -9698,30 +9905,35 @@ class MyWidget(ScrollView):
     def __init__(self, content: list = None):
         super().__init__()
         self.content = content if content else []
-        self.virtual_size = Size(len(max(self.content,key=len)),len(self.content))
-        
+        self.virtual_size = Size(
+            width=len(max(self.content, key=len)),
+            height=len(self.content)
+        )
+
     def on_mouse_move(self, e: events.MouseMove):
-        self.mouse_pos = e.offset+self.scroll_offset
+        self.mouse_pos = e.offset
 
     def watch_mouse_pos(self, old_pos: Offset, new_pos: Offset):
-        old_region = Region(old_pos.x, old_pos.y, 1, 1).translate(-self.scroll_offset)
-        new_region = Region(new_pos.x, new_pos.y, 1, 1).translate(-self.scroll_offset)
+        old_region = Region(old_pos.x, old_pos.y, 1, 1)
+        new_region = Region(new_pos.x, new_pos.y, 1, 1)
         self.refresh(old_region)
         self.refresh(new_region)
 
     def render_line(self, y: int):
         scroll_x, scroll_y = self.scroll_offset
-        y += scroll_y 
+        y += scroll_y
         if y < len(self.content):
             red = self.get_component_rich_style("MyWidget--red-line")
             green = self.get_component_rich_style("MyWidget--green-line")
             blue = self.get_component_rich_style(
-                "MyWidget--mouse-on-line") if y == self.mouse_pos.y else None
+                "MyWidget--mouse-on-line") if y == (self.mouse_pos.y + scroll_y) else None
             return Strip(
                 segments=[
-                    Segment(text=item, style=(index == self.mouse_pos.x and blue)
-                            or (red if y % 2 == 0 else green)
-                            )
+                    Segment(
+                        text=item,
+                        style=(index == (self.mouse_pos.x + scroll_x) and blue)
+                        or (red if y % 2 == 0 else green)
+                    )
                     for index, item in enumerate(self.content[y])
                 ]
             ).crop(scroll_x, scroll_x + self.size.width)
@@ -9731,7 +9943,9 @@ class MyWidget(ScrollView):
 class MyApp(App):
     def on_mount(self):
         self.widgets = [
-            MyWidget(['hello', 'world', 'hello', 'everyone', 'hello', 'sun'*100]*10),
+            MyWidget(
+                content=['hello', 'world', 'hello',
+                         'everyone', 'hello', 'sun'*100]*10),
         ]
         self.mount_all(self.widgets)
 
@@ -9740,15 +9954,15 @@ if __name__ == '__main__':
     app.run()
 ```
 
+![widget_18](textual.assets/widget_18.gif)
 
-
-
-
-以下几个内置的组件也是使用了线性渲染，如果读者有兴趣，可以研究一下它们的源代码，本教程就不做过多展开：
+学习完线性渲染的教程之后，要是还觉得意犹未尽，可以看俺以下几个内置的组件，它们也是使用了线性渲染：
 
 -   [DataTable](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_data_table.py)
 -   [RichLog](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_rich_log.py)
 -   [Tree](https://github.com/Textualize/textual/blob/main/src/textual/widgets/_tree.py)
+
+如果读者有兴趣，可以点开它们的源代码，研究一下官方是怎么处理组件的交互，本教程就不做过多展开了。
 
 #### 3.2.4 屏幕
 

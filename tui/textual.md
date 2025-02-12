@@ -9966,6 +9966,256 @@ if __name__ == '__main__':
 
 #### 3.2.4 屏幕
 
+##### 3.2.4.1 什么是屏幕
+
+教程直到现在一直都没有详细介绍过屏幕组件，但很多示例中又离不开。这也带来了一些难以解释的问题：
+
+-   为什么要在屏幕组件下挂载组件？
+-   屏幕组件有什么用？
+
+想要解释屏幕组件的作用，需要先了解屏幕组件的特性。不同于一般的组件可以设置大小，屏幕组件始终填满当前终端，其大小也就终端的大小。虽然一个程序可以像拥有多个组件一样有多个屏幕，但每次只能并且必须激活一个屏幕。所以，程序至少要有一个屏幕组件，这也是为什么默认在不创建额外屏幕组件的情况下，程序里挂载的组件，都是挂载到默认的屏幕组件下。
+
+Textual为什么要设计一个屏幕组件呢？原来，Textual为了方便实现多任务切换或者多窗口的效果，专门设计了保存组件布局的屏幕组件。这样的话，切换当前屏幕时，可以呈现出一个程序显示不同界面布局的效果。
+
+##### 3.2.4.2 创建与注册屏幕
+
+想要使用自定义的屏幕组件很简单，创建时只需继承`Screen`类（使用`from textual.screen import Screen`导入），这个自定义屏幕类就基本可以像自定义的`App`子类一样使用：挂载组件，设计样式等。
+
+代码很简单，代码中使用的动作`'screen.dismiss'`可以将当前屏幕关闭（完整介绍参考[官网文档](https://textual.textualize.io/api/screen/#textual.screen.Screen.action_dismiss)）：
+
+```python3
+from textual.screen import Screen
+from textual.widgets import Static,Button
+
+class Welcome(Screen):
+    def on_mount(self):
+        self.widgets = [
+            Static('Welcome'),
+            Button('Exit',action='screen.dismiss')    
+        ]
+        self.mount_all(self.widgets)
+```
+
+看起来确实和创建`App`子类很像，不过，想要让当前程序使用自定义的屏幕组件，还是需要在真正的`App`子类中进行。
+
+最简单的加载方法是调用`App`子类实例的`push_screen`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.push_screen)）：给该方法传入自定义屏幕组件类的实例对象，就可以让当前程序使用该屏幕组件。
+
+完整代码如下：
+
+```python3
+from textual.app import App
+from textual.screen import Screen
+from textual.widgets import Static,Button
+
+class Welcome(Screen):
+    def on_mount(self):
+        self.widgets = [
+            Static('Welcome'),
+            Button('Exit',action='screen.dismiss')
+        ]
+        self.mount_all(self.widgets)
+        
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Static('App'),
+        ]
+        self.mount_all(self.widgets)
+        self.push_screen(Welcome())
+        
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+这样就实现了一个简单的欢迎屏幕：
+
+![screen_1](textual.assets/screen_1.gif)
+
+除了给`push_screen`方法传入自定义屏幕组件类的实例，还可以给该方法传入注册好的屏幕组件的名字。只需在`App`子类内定义`SCREENS`类变量，该变量对应的是一个字典，字典的键就是字符串类型的屏幕组件名字，可以随意定义；键对应的值是可调用类型的任意对象，该对象在执行时返回屏幕组件实例（可以是类名，也可以将屏幕组件当做lambda表达式或者函数的返回值）。定义好字典，对应名字的屏幕组件就会自动注册，可以在后面使用屏幕组件时使用字符串名字。
+
+这样，就可以给`push_screen`方法传入注册好的屏幕组件的名字：
+
+```python3
+from textual.app import App
+from textual.screen import Screen
+from textual.widgets import Static,Button
+
+class Welcome(Screen):
+    def on_mount(self):
+        self.widgets = [
+            Static('Welcome'),
+            Button('Exit',action='screen.dismiss')  
+        ]
+        self.mount_all(self.widgets)
+        
+class MyApp(App):
+    SCREENS = {'welcome':Welcome}
+    def on_mount(self):
+        self.widgets = [
+            Static('App'),
+        ]
+        self.mount_all(self.widgets)
+        self.push_screen('welcome')
+        
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+这就是静态注册的方法，想要动态注册、取消注册的话，可以看看下一节介绍的内容。
+
+##### 3.2.4.3 使用屏幕——安装与卸载
+
+虽然屏幕组件不注册也能使用，但注册之后可以更方便有序地使用，就好像组件的布局是已经确定和设计好的，而不是全部为动态加载一样。
+
+说到动态加载，就不得不提到挂载组件的方法`mount`。该方法可以让组件在需要的时候出现在屏幕中。
+
+其实屏幕也支持类似的挂载方法，那就是安装方法——`install_screen`方法。这样，即便屏幕名字没有定义在`SCREENS`类变量中，可以使用该方法动态注册。该方法支持两个必需的参数：
+
+-   `screen`参数，屏幕组件类或者屏幕组件类的实例均可，表示要注册的屏幕组件。
+-   `name`参数，字符串类型，表示该屏幕组件注册的屏幕名字。注意，准备注册的屏幕名字不能与之前注册的屏幕名字重复。
+
+注意，每个屏幕组件类、屏幕名字只能注册一次，不能将一个屏幕组件类、屏幕名字注册多次。比如，已经使用`self.install_screen(screen=Welcome,name='welcome')`注册之后，即使使用不同的屏幕名字注册，比如`self.install_screen(screen=Welcome,name='welcome2')`，也会报错。因为后面的卸载方法可以使用类名卸载，所以这里的类名或者屏幕名字都是其独特性判断的依据，都会被判断为同一个屏幕组件。但是，在`SCREENS`类变量中注册则没有此限制，可以使用不同的屏幕名字注册同一个组件类，在卸载时会有问题，后面将细讲。
+
+如果想要用同一屏幕组件类正确注册多个名字，可以在注册时用屏幕组件类的实例代替屏幕组件类，比如：
+
+```python3
+SCREENS = {'welcome':lambda :Welcome()}
+# 或者
+self.install_screen(screen=Welcome(),name='welcome')
+```
+
+但这样在卸载时只能传入屏幕名字才能成功卸载，具体可以看卸载时的注意事项，这里就不展开介绍。
+
+安装方法的完整代码如下：
+
+```python3
+from textual.app import App
+from textual.screen import Screen
+from textual.widgets import Static,Button
+
+class Welcome(Screen):
+    def on_mount(self):
+        self.widgets = [
+            Static('Welcome'),
+            Button('Exit',action='screen.dismiss')   
+        ]
+        self.mount_all(self.widgets)
+        
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Static('App'),
+        ]
+        self.mount_all(self.widgets)
+        self.install_screen(screen=Welcome,name='welcome')
+        self.push_screen('welcome')
+        
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+有安装就有卸载，卸载方法是`uninstall_screen`方法，只需传入已经注册的名字或者自定义屏幕类的类名（一般不推荐），就可以卸载对应的屏幕组件。卸载方法会在成功卸载时返回屏幕名字，不成功返回`None`。已经放入屏幕堆叠中的屏幕（用前面介绍过的方法类比的话，可以理解为使用了`push_screen`方法显示的屏幕组件，下一节会细讲屏幕堆叠）不能卸载，可能会触发异常。
+
+需要注意的是，如果屏幕组件在注册（`SCREENS`类变量或者`install_screen`方法）时，名字对应的屏幕组件使用的不是屏幕组件类，而是屏幕组件类的实例，比如下面代码中所示的注册代码：
+
+```python3
+SCREENS = {'welcome':lambda :Welcome()}
+# 或者
+self.install_screen(screen=Welcome(),name='welcome')
+```
+
+这样的话，使用卸载方法时，只能传入屏幕名字`self.uninstall_screen('welcome')`，不然会卸载失败（返回`None`）。
+
+还有就是前面提到卸载已经放入屏幕堆叠会触发异常，但在上面提到的情况下，给卸载方法传入屏幕组件类则不会触发异常。不过，即使没有触发异常，不推荐这样操作。
+
+假如在注册屏幕组件时的类变量中，使用不同屏幕名字注册了同一个屏幕组件类，比如这样：
+
+```python3
+SCREENS = {'welcome':Welcome,'welcome2':Welcome,'welcome3':Welcome}
+```
+
+虽然注册时候不会出问题，但在卸载时，如果是给卸载方法传入了自定义屏幕类的类名，则会按照字典的顺序，卸载第一个没有放入屏幕堆叠的屏幕，并不会卸载所有同类的屏幕组件类。
+
+因此，非常建议读者在使用卸载方法时，尽量使用屏幕名字，不推荐使用自定义屏幕类的类名，这样可以避免卸载失败和产生不可预期的结果（没有正常触发异常或者没有按照预期正确卸载屏幕组件）。
+
+##### 3.2.4.4 使用屏幕——屏幕堆叠
+
+
+
+
+
+
+
+
+
+使用屏幕——屏幕透明度
+
+
+
+
+
+使用屏幕——模态屏幕（模态窗口）
+
+
+
+```python3
+from textual.app import App
+from textual.screen import ModalScreen
+from textual.widgets import Static,Button
+from textual.containers import Middle
+
+class Welcome(ModalScreen):
+    CSS = '''
+    Welcome {
+        align: center middle;
+    }
+    Middle {
+        border: solid yellow;
+        height: auto;
+    }
+   '''
+    def on_mount(self):
+        self.widgets = [
+            Middle(
+                Static('Welcome'),
+                Button('Exit',action='screen.dismiss')  
+            ) 
+        ]
+        self.mount_all(self.widgets)
+        
+class MyApp(App):
+    SCREENS = {'welcome':Welcome}
+    def on_mount(self):
+        self.widgets = [
+            Static('App'),
+        ]
+        self.mount_all(self.widgets)
+        self.push_screen('welcome')
+        
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+
+
+
+
+使用屏幕——返回数据
+
+
+
+
+
+使用屏幕——模式
+
+
+
+使用屏幕——屏幕事件
+
 
 
 
@@ -10010,6 +10260,12 @@ Header = HeaderWithIcon
 ```
 
 
+
+#### 3.2.7 测试
+
+
+
+https://textual.textualize.io/guide/testing/#testing
 
 
 

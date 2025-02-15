@@ -8050,7 +8050,7 @@ if __name__ == '__main__':
 
 ![worker_2](textual.assets/worker_2.gif)
 
-`work`参数除了可以传入上面示例中的可执行类型，也可以传入可等待类型，即异步函数的执行结果：
+`work`参数除了可以传入上面示例中的可调用类型，也可以传入可等待类型，即异步函数的执行结果：
 
 ```python3
 from textual.app import App
@@ -8202,7 +8202,7 @@ if __name__ == '__main__':
 
 `run_worker`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.run_worker)）支持以下参数：
 
--   `work`参数，可执行类型或可等待类型，表示工人对象要执行的操作。该参数可以通过位置、关键字传入，`run_worker`方法的所有参数都可以这样传入。
+-   `work`参数，可调用类型或可等待类型，表示工人对象要执行的操作。该参数可以通过位置、关键字传入，`run_worker`方法的所有参数都可以这样传入。
 -   `name`参数，字符串类型，表示工人对象的名字，常用于调试、标识工人对象。
 -   `group`参数，字符串类型，表示工人对象所属的分组，默认为`'default'`。此参数主要配合`exclusive`参数使用，设置`exclusive`参数为`True`之后，运行新的工人对象时，会撤销同分组中正在运行的其他工人对象。
 -   `description`参数，字符串类型，一般指工人对象的描述。也可以用于存储一些字符串内容，可以通过修改工人对象的`description`属性的值来修改。
@@ -8213,7 +8213,7 @@ if __name__ == '__main__':
 
 `work`装饰器（完整介绍参考[官网文档](https://textual.textualize.io/api/work/)）支持以下参数：
 
--   `method`参数，可执行类型或可等待类型，表示工人对象要执行的操作。如果是使用常规装饰器语法（`@work`），此参数不能显式传入，只能是被装饰的函数。想要给此参数传入值，可以使用装饰器的展开表达方式，比如`get_result = work(get_result)`。
+-   `method`参数，可调用类型或可等待类型，表示工人对象要执行的操作。如果是使用常规装饰器语法（`@work`），此参数不能显式传入，只能是被装饰的函数。想要给此参数传入值，可以使用装饰器的展开表达方式，比如`get_result = work(get_result)`。
 -   `name`参数，字符串类型，表示工人对象的名字，常用于调试、标识工人对象。本参数以及后续的参数只能通过关键字传入。使用装饰器的展开表达方式的话，很好理解如何传入本参数以及后续的参数。但是，如果是常规的装饰器语法，想要传入本参数以及后续的参数，则需要在原本的装饰器之后，使用类似创建对象传参的方式传入，比如`@work(name='worker_1')`，这样得到的装饰器依然是有效的装饰器，后面被装饰的函数可以被`method`参数正常接收。
 -   `group`参数，字符串类型，表示工人对象所属的分组，默认为`'default'`。此参数主要配合`exclusive`参数使用，设置`exclusive`参数为`True`之后，运行新的工人对象时，会撤销同分组中正在运行的其他工人对象。
 -   `exit_on_error`参数，布尔类型，表示当工人对象执行的操作发生异常时，是否退出整个程序，默认为`True`。如果设置为`False`的话，程序不会退出，但不会继续执行发生异常之后的部分。
@@ -9975,7 +9975,7 @@ if __name__ == '__main__':
 
 想要解释屏幕组件的作用，需要先了解屏幕组件的特性。不同于一般的组件可以设置大小，屏幕组件始终填满当前终端，其大小也就终端的大小。虽然一个程序可以像拥有多个组件一样有多个屏幕，但每次只能并且必须激活一个屏幕。所以，程序至少要有一个屏幕组件，这也是为什么默认在不创建额外屏幕组件的情况下，程序里挂载的组件，都是挂载到默认的屏幕组件下。
 
-Textual为什么要设计一个屏幕组件呢？原来，Textual为了方便实现多任务切换或者多窗口的效果，专门设计了保存组件布局的屏幕组件。这样的话，切换当前屏幕时，可以呈现出一个程序显示不同界面布局的效果。
+Textual为什么要设计一个屏幕组件呢？原来，Textual为了方便实现多任务切换或者多窗口的效果，专门设计了保存组件布局的屏幕组件。这样的话，切换当前屏幕时，可以呈现出一个程序显示不同界面布局的效果。实际上，后面会介绍的命令面板，就是使用屏幕组件实现的。
 
 ##### 3.2.4.2 创建与注册屏幕
 
@@ -10143,23 +10143,125 @@ SCREENS = {'welcome1':Welcome,'welcome2':Welcome,'welcome3':Welcome}
 
 ##### 3.2.4.4 使用屏幕——屏幕堆叠
 
+本节的名字中，提到了一个新名词——屏幕堆叠，那是Textual程序内部维护、用来处理多个屏幕组件的对象，以便于同时存在多个屏幕组件时，正确处理屏幕切换的逻辑。假如把屏幕当成一张纸，这个屏幕堆叠就好像把一堆纸摞起来，只能看见最上面的纸（不绝对，如果学了后面的屏幕透明度，可以让当前屏幕的背景变透明），只能在最上面的纸上写写画画。
 
+和在系统中切换、创建多个窗口相比，Textual处理屏幕组件的方式有一点不同，下面就针对每种操作屏幕组件的方法，一一讲解。
 
+`push_screen`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.push_screen)）和`app.push_screen`动作可以在当前屏幕上叠加一个新的屏幕，新的屏幕会被放在最上面，原先在下面的屏幕会保留，如下图所示：
 
+![screen_2](textual.assets/screen_2.png)
 
+前面使用此方法显示自定义的屏幕，实际上是把自定义的屏幕叠加到默认屏幕之上。需要注意的是，本方法只能在原有的屏幕堆叠上增加新的屏幕，没法将已经在堆叠中的屏幕抽出来放到上面。
 
+`pop_screen`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.pop_screen)）和`app.pop_screen`动作可以将屏幕堆叠最上方的屏幕移除，并激活被移除屏幕下的屏幕，作用如下图所示：
 
+![screen_3](textual.assets/screen_3.png)
 
+此方法不需要参数，只能移除最上面的屏幕。如果被移除的屏幕没有注册，移除之后，被移除的屏幕将被永久删除，一些在屏幕中保存的数据、状态也不会保留。
 
-使用屏幕——屏幕透明度
+`switch_screen`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.switch_screen)）和`app.switch_screen`动作可以将屏幕堆叠最上方的屏幕移除，替换为指定的屏幕，作用如下图所示：
 
+![screen_4](textual.assets/screen_4.png)
 
+因为涉及到移除，因此移除时与`pop_screen`方法一样，被移除的屏幕将被永久删除，一些在屏幕中保存的数据、状态也不会保留。
 
+##### 3.2.4.5 使用屏幕——屏幕透明度与模态屏幕（模态窗口）
 
+如果在`App`子类中，使用CSS给`Screen`类的背景颜色设定了透明度，则可以透过最上面的屏幕，看到下面屏幕的组件：
 
-使用屏幕——模态屏幕（模态窗口）
+```python3
+from textual.app import App
+from textual.screen import Screen
+from textual.widgets import Static,Button
+from textual.containers import Middle
 
+class Welcome(Screen):
+    CSS = '''
+    Welcome {
+        align: center middle;
+    }
+    Middle {
+        border: solid yellow;
+        height: auto;
+    }
+   '''
+    def on_mount(self):
+        self.widgets = [
+            Middle(
+                Static('Welcome'),
+                Button('Exit',action='screen.dismiss')  
+            ) 
+        ]
+        self.mount_all(self.widgets)
+        
+class MyApp(App):
+    SCREENS = {'welcome':Welcome}
+    CSS = '''
+    Screen {
+        background: $background 60%;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Static('App'),
+        ]
+        self.mount_all(self.widgets)
+        self.push_screen('welcome')
+        
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
+![screen_5](textual.assets/screen_5.png)
+
+不过，虽然能看到下面屏幕的组件，但实际上可以操作的依然只有当前屏幕的组件。这个情况看上去就好像Windows窗口中常用的模态窗口：一种强制在当前屏幕显示的窗口，虽然能看到下面的窗口，但只有当前窗口可以操作。
+
+在Textual中，通过设置屏幕的背景透明度可以实现类似效果，但上面代码的效果会影响到每个自定义屏幕组件。要想让一个屏幕组件成为独立的模态组件，而不影响其他屏幕组件，则要把样式放到屏幕组件类内部：
+
+```python3
+from textual.app import App
+from textual.screen import Screen
+from textual.widgets import Static,Button
+from textual.containers import Middle
+
+class Welcome(Screen):
+    CSS = '''
+    Welcome {
+        align: center middle;
+    }
+    Middle {
+        border: solid yellow;
+        height: auto;
+    }
+    Welcome {
+        background: $background 60%;
+    }
+   '''
+    def on_mount(self):
+        self.widgets = [
+            Middle(
+                Static('Welcome'),
+                Button('Exit',action='screen.dismiss')  
+            ) 
+        ]
+        self.mount_all(self.widgets)
+        
+class MyApp(App):
+    SCREENS = {'welcome':Welcome}
+    def on_mount(self):
+        self.widgets = [
+            Static('App'),
+        ]
+        self.mount_all(self.widgets)
+        self.push_screen('welcome')
+        
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+但是，上面的代码并非真的实现了一个效果和模态窗口一样的屏幕——模态屏幕，只是看起来像而已。想要真正实现一个模态屏幕，还是要使用Textual内部定义好的`ModalScreen`（使用`from textual.screen import ModalScreen`导入）：
 
 ```python3
 from textual.app import App
@@ -10200,31 +10302,517 @@ if __name__ == '__main__':
     app.run()
 ```
 
+那么问题来了：前面修改屏幕背景透明度模拟的模态屏幕，和这个真正的模态屏幕相比，有什么区别？
+
+区别在于，如果安装、注册、创建屏幕时全不屏幕组件类的实例。那么，使用真正的模态屏幕时，在当前屏幕堆叠中只能同时存在一个模态屏幕，模拟的模态屏幕则没有此限制。
+
+因此，在这种情况下，需要使用一些检查代码来确保当前屏幕堆叠中只能同时存在一个同类的模态屏幕：
+
+```python3
+from textual.app import App
+from textual.screen import Screen
+from textual.screen import ModalScreen
+from textual.widgets import Static,Button
+from textual.containers import Middle
+
+class WelcomeModal(ModalScreen):
+    CSS = '''
+    WelcomeModal {
+        align: center middle;
+    }
+    Middle {
+        border: solid yellow;
+        height: auto;
+    }
+   '''
+    def on_mount(self):
+        self.widgets = [
+            Middle(
+                Static('Welcome'),
+                Button('Exit',action='screen.dismiss')  
+            ) 
+        ]
+        self.mount_all(self.widgets)
+
+class Welcome(Screen):
+    CSS = '''
+    Welcome {
+        align: center middle;
+    }
+    Middle {
+        border: solid yellow;
+        height: auto;
+    }
+   '''
+    def on_mount(self):
+        self.widgets = [
+            Middle(
+                Static('Welcome'),
+                Button('Exit',action='screen.dismiss')  
+            ) 
+        ]
+        self.mount_all(self.widgets)
+        
+class MyApp(App):
+    SCREENS = {'welcome':Welcome,'welcome_modal':WelcomeModal}
+    def key_q(self):
+        self.push_screen('welcome')
+    def key_w(self):
+        if any(isinstance(screen,WelcomeModal) for screen in self.screen_stack):
+            return
+        self.push_screen('welcome_modal')
+    def on_mount(self):
+        self.widgets = [
+            Static('App'),
+        ]
+        self.mount_all(self.widgets)
+        
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+代码中，使用`q`键创建普通屏幕，使用`w`键创建模态屏幕。这段代码就是检查代码：
+
+```python3
+if any(isinstance(screen,WelcomeModal) for screen in self.screen_stack):
+    return
+```
+
+如果不检查就重复创建模态屏幕，会引起`RecursionError: maximum recursion depth exceeded`异常，并导致程序退出。
+
+##### 3.2.4.6 使用屏幕——返回数据
+
+一般来说，使用模态窗口时，主要是为了让用户专注于模态窗口的内容，让用户做出必要的选择，程序根据用户的选择得到相应的数据。因此，只是创建模态屏幕，不能得到用户选择的数据，而是修改全局变量来传递数据的话，模态屏幕用起来就没那么顺手了。
+
+为了解决数据传递的问题，就需要引入新的参数和功能。不过，在学习之前，先来构建一下场景。为了避免无关的代码影响学习，这里只创建了模态屏幕组件类。当在程序中按下`w`键，会弹出一个模态屏幕，询问用户要切换到什么身份——普通用户还是管理员。同时，为了方便用户不想切换身份而直接退出，还在模态屏幕组件类内添加了一个按下`esc`键关闭屏幕的按键响应。完整代码如下：
+
+```python3
+from textual.app import App
+from textual.screen import ModalScreen
+from textual.widgets import Static,Button
+from textual.containers import Middle
+
+class SwitchUser(ModalScreen):
+    CSS = '''
+    SwitchUser {
+        align: center middle;
+    }
+    Middle {
+        border: solid yellow;
+        height: auto;
+    }
+   '''
+    def on_mount(self):
+        self.widgets = [
+            Middle(
+                Static('SwitchUser'),
+                Button('Admin',action='screen.dismiss'),
+                Button('Guest',action='screen.dismiss'),
+            ) 
+        ]
+        self.mount_all(self.widgets)
+    def key_escape(self):
+        self.dismiss()
+        
+class MyApp(App):
+    SCREENS = {'switch_user':SwitchUser}
+    def key_w(self):
+        if any(isinstance(screen,SwitchUser) for screen in self.screen_stack):
+            return
+        self.push_screen('switch_user')
+    def on_mount(self):
+        self.widgets = [
+            Static('Hello,user!'),
+        ]
+        self.mount_all(self.widgets)
+        
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+在模态屏幕组件类中，设计了两个按钮，分别对应着要切换的身份。但是，上面的代码中，两个按钮执行的动作是一样的，因此，切换功能实际上没有真的实现。
+
+想要让切换身份的功能有效，必须要让两个按钮点击之后、模态屏幕返回的数据不同。这就不得不介绍一下`dismiss`方法（完整用法参考[官网文档](https://textual.textualize.io/api/screen/#textual.screen.Screen.dismiss)）的参数`result`（默认为`None`）。在使用`dismiss`方法退出屏幕时，可以给此方法传入任意值，该值就会成为屏幕的返回数据。
+
+模态屏幕组件类的代码修改如下：
+
+```python3
+class SwitchUser(ModalScreen):
+    CSS = '''
+    SwitchUser {
+        align: center middle;
+    }
+    Middle {
+        border: solid yellow;
+        height: auto;
+    }
+   '''
+    def on_mount(self):
+        self.widgets = [
+            Middle(
+                Static('SwitchUser'),
+                Button('Admin',action='screen.dismiss("admin")'),
+                Button('Guest',action='screen.dismiss("guest")'),
+            ) 
+        ]
+        self.mount_all(self.widgets)
+    def key_escape(self):
+        self.dismiss()
+```
+
+模态屏幕组件类代码完成，接下来就是到`App`子类里，接收并处理返回数据。
+
+想要接收返回数据，需要先学习一下`push_screen`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.push_screen)）的所有参数。前面只是使用了该方法的第一个参数，然而，该方法的第二个参数，也一样有用。
+
+`push_screen`方法支持三个参数：
+
+-   `screen`参数，屏幕组件类或者屏幕组件类的实例均可，表示要叠加在当前屏幕堆叠最上面的屏幕组件。
+-   `callback`参数，可调用类型，表示屏幕组件在调用`dismiss`方法关闭之后，调用该参数所表示的函数，并将`dismiss`方法的`result`参数传给该函数。
+-   `wait_for_dismiss`参数，布尔类型，默认为`False`。当此参数为`False`时，表示使用`await`异步等待`push_screen`方法，得到的是屏幕加载完毕；当此参数为`True`时，表示使用`await`异步等待`push_screen`方法，得到的是`dismiss`方法的`result`参数的值。注意，此参数只有在让工人对象运行`push_screen`方法（或者工人对象运行的函数中运行`push_screen`方法）时才能设置为`True`。
+
+根据上面参数的作用，想要实现需要的效果，只需给`push_screen`方法的`callback`参数，传入一个接收返回数据的函数，并在函数中处理返回数据即可。`App`子类的代码修改如下：
+
+```python3
+class MyApp(App):
+    SCREENS = {'switch_user':SwitchUser}
+    user_type = 'user'
+    
+    def key_w(self):
+        if any(isinstance(screen,SwitchUser) for screen in self.screen_stack):
+            return
+        
+        def update(result=None):
+            self.user_type = result or self.user_type
+            self.query_one(Static).update(f'Hello,{self.user_type}!')
+            
+        self.push_screen(screen='switch_user',callback=update)
+    def on_mount(self):
+        self.widgets = [
+            Static('Hello,user!'),
+        ]
+        self.mount_all(self.widgets)
+```
+
+![screen_6](textual.assets/screen_6.gif)
+
+当然，如果不想使用`callback`参数，想要将`wait_for_dismiss`参数设置为`True`，让`push_screen`方法直接返回数据，则需要将`push_screen`方法放到工人运行的函数中。修改很简单，只需用`work`装饰上层的`key_w`函数。`App`子类的代码修改如下：
+
+```python3
+from textual import work
+
+class MyApp(App):
+    SCREENS = {'switch_user':SwitchUser}
+    user_type = 'user'
+    
+    @work
+    async def key_w(self):
+        if any(isinstance(screen,SwitchUser) for screen in self.screen_stack):
+            return
+        
+        def update(result=None):
+            self.user_type = result or self.user_type
+            self.query_one(Static).update(f'Hello,{self.user_type}!')
+            
+        update(await self.push_screen(screen='switch_user',wait_for_dismiss=True))
+```
+
+其实，一般实现上面代码的效果，不需要单独修改`wait_for_dismiss`参数。因为参数为`True`的话，必须放到工人对象中运行，与参数为`False`时的代码不一样。因此，遇到类似情况时，可以使用`push_screen_wait`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.push_screen_wait)）代替`push_screen`方法，无需特别关注`wait_for_dismiss`参数：
+
+```python3
+from textual import work
+class MyApp(App):
+    SCREENS = {'switch_user':SwitchUser}
+    user_type = 'user'
+    
+    @work
+    async def key_w(self):
+        if any(isinstance(screen,SwitchUser) for screen in self.screen_stack):
+            return
+        
+        def update(result=None):
+            self.user_type = result or self.user_type
+            self.query_one(Static).update(f'Hello,{self.user_type}!')
+            
+        update(await self.push_screen_wait(screen='switch_user'))
+```
+
+##### 3.2.4.7 使用屏幕——模式
+
+使用屏幕堆叠固然方便，切换屏幕也很容易。但是，有些时候用户需要不止是一个屏幕堆叠，而是多个屏幕堆叠。换句话说，用户想要记录下好几个屏幕堆叠。可是，Textual实现的屏幕堆叠只有一个，如何才能实现？
+
+其实，可以换个思路理解上面的问题。用户需要的多个屏幕堆叠，可以用屏幕堆叠中的屏幕排序代替。多个屏幕堆叠，就是保存不同的屏幕排序。假如在切换虚拟的屏幕堆叠时，把当前屏幕堆叠中的屏幕排序记录下来；当切换屏幕堆叠时，重复之前的操作，然后把之前保存的排序恢复，这样不就间接实现了多个屏幕堆叠？
+
+思路有了，但先别急着实现，因为Textual考虑到这种情况，已经内置了此功能——模式。
+
+什么是模式？
+
+就上面提到的问题而言，模式可以理解为独立的屏幕堆叠。当一个模式激活时，当前的屏幕堆叠的屏幕排序是独立的。切换模式之后，之前模式中屏幕堆叠的屏幕排序会被保存，在新模式中操作的屏幕堆叠不会影响其他模式。正如下图所示，通过创建多个模式，可以得到多个独立的屏幕堆叠。
+
+![screen_7](textual.assets/screen_7.png)
+
+注册模式和注册屏幕类似，可以使用同样类型字典的类变量`MODES`（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.MODES)），也可以使用注册方法`add_mode`（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.add_mode)）。对应的，模式也有卸载方法`remove_mode`（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.remove_mode)）和切换方法`switch_mode`（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.switch_mode)）。
+
+因为默认程序至少显示一个屏幕，因此，注册模式时，需要给模式名绑定一个基础屏幕，当做当前模式的屏幕堆叠中最下面的屏幕。和默认屏幕一样，即使切换了模式，也不能将最后一个屏幕——也就是基础屏幕移除，否则会触发异常。
+
+和注册屏幕有点不同的是，注册模式时，可以使用屏幕名当做模式对应的基础屏幕。比如，在类变量`MODES`中，代码可以这样写：
+
+```python3
+class MyApp(App):
+    SCREENS = {
+        'ScreenA': lambda: ModeScreen('ScreenA'),
+        'ScreenB': lambda: ModeScreen('ScreenB'),
+        'ScreenC': lambda: ModeScreen('ScreenC')
+    }
+    MODES = {
+    	'ScreenA': 'ScreenA',
+        'ScreenB': lambda: ModeScreen('ScreenB'),
+        'ScreenC': ModeScreen,
+    }
+```
+
+对应的，注册方法`add_mode`也可以同样操作。
+
+注册方法`add_mode`支持两个参数：
+
+-   `mode`参数，字符串类型，表示要注册的模式的名字。
+-   `base_screen`参数，表示模式对应的基础屏幕。该参数可以是字符串类型，对应已经注册的屏幕名字；也可以是可调用类型的任意对象，该对象在执行时返回屏幕组件实例（可以是类名，也可以将屏幕组件当做lambda表达式或者函数的返回值）。该参数的类型实际上也是类变量`MODES`中，字典键（模式名）对应的值（基础屏幕）所支持的类型。
+
+那上面例子里注册的三种模式，使用注册方法代替的话，就是这样的：
+
+```python3
+class MyApp(App):
+    SCREENS = {
+        'ScreenA': lambda: ModeScreen('ScreenA'),
+        'ScreenB': lambda: ModeScreen('ScreenB'),
+        'ScreenC': lambda: ModeScreen('ScreenC')
+    }
+    def on_mount(self):
+        self.add_mode('ScreenA', 'ScreenA')
+        self.add_mode('ScreenB', lambda: ModeScreen('ScreenB'))
+        self.add_mode('ScreenC', ModeScreen)
+```
+
+卸载方法`remove_mode`和切换方法`switch_mode`都只支持传入字符串类型的模式名，其中切换方法有对应的动作，可以通过`app.switch_mode({模式名})`执行。
+
+下面将提供一个整合模式基本用法的示例，实现模式切换、在非默认模式中操作屏幕的功能。读者可以研究示例代码，在熟悉屏幕操作的前提下，进一步理解模式的基本操作方法。
+
+需要重点注意的是，代码中为了防止移除各个模式中的默认屏幕，设计了一个参数，禁用了默认屏幕中的关闭屏幕的按钮。读者可以尝试一下，没有这个参数的话，会发生什么异常。
+
+```python3
+from textual.app import App
+from textual.screen import Screen
+from textual.widgets import Static, Button
+from textual.containers import Horizontal, Vertical
 
 
+class ModeScreen(Screen):
+    def __init__(self, screen_name=None, base_screen=False):
+        super().__init__()
+        self.screen_name = screen_name
+        self.base_screen = base_screen
+
+    def on_mount(self):
+        self.widgets = [
+            Static(self.screen_name or 'no name'),
+            Horizontal(
+                Vertical(
+                    Button('switch_mode ScreenA',
+                           action='app.switch_mode("ScreenA")'),
+                    Button('switch_mode ScreenB',
+                           action='app.switch_mode("ScreenB")'),
+                    Button('switch_mode ScreenC',
+                           action='app.switch_mode("ScreenC")'),
+                    Button('switch_mode default',
+                           action=f'app.switch_mode("{self.app.DEFAULT_MODE}")')
+                ),
+                Vertical(
+                    Button('Push ScreenA', action='app.push_screen("ScreenA")'),
+                    Button('Push ScreenB', action='app.push_screen("ScreenB")'),
+                    Button('Push ScreenC', action='app.push_screen("ScreenC")'),
+                    Button('Close', action='screen.dismiss',
+                           disabled=self.base_screen).focus()
+                ),
+            )
+        ]
+        self.mount_all(self.widgets)
 
 
-使用屏幕——返回数据
+class MyApp(App):
+    SCREENS = {
+        'ScreenA': lambda: ModeScreen('ScreenA'),
+        'ScreenB': lambda: ModeScreen('ScreenB'),
+        'ScreenC': lambda: ModeScreen('ScreenC')
+    }
+    DEFAULT_MODE = 'default'
+    MODES = {
+        'ScreenA': lambda: ModeScreen('ScreenA', True),
+        'ScreenB': lambda: ModeScreen('ScreenB', True),
+        'ScreenC': lambda: ModeScreen('ScreenC', True),
+        DEFAULT_MODE: lambda: App.get_default_screen(MyApp)
+    }
+
+    def on_mount(self):
+        self.widgets = [
+            Static('Default screen'),
+            Horizontal(
+                Vertical(
+                    Button('switch_mode ScreenA',
+                           action='app.switch_mode("ScreenA")'),
+                    Button('switch_mode ScreenB',
+                           action='app.switch_mode("ScreenB")'),
+                    Button('switch_mode ScreenC',
+                           action='app.switch_mode("ScreenC")'),
+                )
+            )
+        ]
+        self.mount_all(self.widgets)
 
 
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
+![screen_8](textual.assets/screen_8.gif)
 
+##### 3.2.4.8 使用屏幕——屏幕事件
 
-使用屏幕——模式
+当屏幕被挂起（屏幕上面被放置了新的屏幕或者通过模式切换让当前屏幕不再是当前屏幕）时，会触发屏幕挂起事件（`ScreenSuspend`，完整介绍参考[官网文档](https://textual.textualize.io/events/screen_suspend/)）。对应的，当屏幕恢复（原本处于挂起状态的屏幕变成当前屏幕），会触发屏幕恢复事件（`ScreenResume`，完整介绍参考[官网文档](https://textual.textualize.io/events/screen_resume/)）。这两个事件都是不冒泡的事件，想要监听它们的话，需要在组件类内部定义对应的监听函数，代码如下：
 
+```python3
+from textual.app import App
+from textual.screen import Screen
+from textual.widgets import Static, Button
+from textual.containers import Horizontal, Vertical
+from textual import events
 
+class ModeScreen(Screen):
+    def __init__(self, screen_name=None, base_screen=False):
+        super().__init__()
+        self.screen_name = screen_name
+        self.base_screen = base_screen
 
-使用屏幕——屏幕事件
+    def on_mount(self):
+        self.widgets = [
+            Static(self.screen_name or 'no name'),
+            Horizontal(
+                Vertical(
+                    Button('switch_mode ScreenA',
+                           action='app.switch_mode("ScreenA")'),
+                    Button('switch_mode ScreenB',
+                           action='app.switch_mode("ScreenB")'),
+                    Button('switch_mode ScreenC',
+                           action='app.switch_mode("ScreenC")'),
+                    Button('switch_mode default',
+                           action=f'app.switch_mode("{self.app.DEFAULT_MODE}")')
+                ),
+                Vertical(
+                    Button('Push ScreenA', action='app.push_screen("ScreenA")'),
+                    Button('Push ScreenB', action='app.push_screen("ScreenB")'),
+                    Button('Push ScreenC', action='app.push_screen("ScreenC")'),
+                    Button('Close', action='screen.dismiss',
+                           disabled=self.base_screen).focus()
+                ),
+            )
+        ]
+        self.mount_all(self.widgets)
+    def on_screen_suspend(self,e:events.ScreenSuspend):
+        self.notify(f'{self.screen_name} posts ScreenSuspend')
+    def on_screen_resume(self,e:events.ScreenResume):
+        self.notify(f'{self.screen_name} posts ScreenResume')
 
+class MyApp(App):
+    SCREENS = {
+        'ScreenA': lambda: ModeScreen('ScreenA'),
+        'ScreenB': lambda: ModeScreen('ScreenB'),
+        'ScreenC': lambda: ModeScreen('ScreenC')
+    }
+    DEFAULT_MODE = 'default'
+    MODES = {
+        'ScreenA': lambda: ModeScreen('ScreenA', True),
+        'ScreenB': lambda: ModeScreen('ScreenB', True),
+        'ScreenC': lambda: ModeScreen('ScreenC', True),
+        DEFAULT_MODE: lambda: App.get_default_screen(MyApp)
+    }
 
+    def on_mount(self):
+        self.widgets = [
+            Static('Default screen'),
+            Horizontal(
+                Vertical(
+                    Button('switch_mode ScreenA',
+                           action='app.switch_mode("ScreenA")'),
+                    Button('switch_mode ScreenB',
+                           action='app.switch_mode("ScreenB")'),
+                    Button('switch_mode ScreenC',
+                           action='app.switch_mode("ScreenC")'),
+                )
+            )
+        ]
+        self.mount_all(self.widgets)
 
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
+代码中通过监听对应的屏幕事件，将对应的操作通知出去。读者可以在对应的监听函数中执行其他操作，用法很简单，这里就不做展开了。
 
 #### 3.2.5 动画
 
+虽然Textual是一个TUI框架，但还是提供了一定的动画效果。此外，如果读者需要手动播放动画，还可以使用`App`类、组件类、样式属性的动画方法——`animate`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.animate)）。
 
+`animate`方法支持以下参数：
 
+-   `attribute`参数，字符串类型，表示要执行动画方法的对象的属性名。在执行动画方法时，会修改该属性的值。
 
+-   `value`参数，浮点类型或动画类型（实现了`blend`方法的类，动画方法会把目标值和动画进度传给该方法，该方法返回当前值），表示执行动画后，属性的目标值，Textual会根据属性的当前值和目标值进行计算，并采用指定的缓动函数曲线（完整的缓动函数曲线参考[官网文档](https://easings.net/zh-cn)），实现动画效果。
+
+-   `final_value`参数，任意对象，表示动画执行完毕后，前面`attribute`参数指定属性最终修改为何值。从本参数开始，参数只能通过关键字传入，不能通过位置传入。
+
+-   `duration`参数，浮点类型或者整数类型，表示动画持续多少秒，取值范围为非负非0的数。注意，此参数和`speed`参数至少需要传入一个，否则会报错。
+
+-   `speed`参数，浮点类型或者整数类型，表示动画播放的速度，单位是百分比，取值范围为非负非0的数。注意，此参数和`duration`参数至少需要传入一个，否则会报错。
+
+-   `delay`参数，浮点类型或者整数类型，表示动画延迟多少秒之后播放，默认为`0.0`，取值范围为非负非0的数。
+
+-   `easing`参数，字符串类型，表示动画效果，也就是动画使用的缓动函数曲线，默认值是`"in_out_cubic"`。可以对照[官网文档](https://easings.net/zh-cn)，从`['none', 'round', 'linear', 'in_sine', 'in_out_sine', 'out_sine', 'in_quad', 'in_out_quad', 'out_quad', 'in_cubic', 'in_out_cubic', 'out_cubic', 'in_quart', 'in_out_quart', 'out_quart', 'in_quint', 'in_out_quint', 'out_quint', 'in_expo', 'in_out_expo', 'out_expo', 'in_circ', 'in_out_circ', 'out_circ', 'in_back', 'in_out_back', 'out_back', 'in_elastic', 'in_out_elastic', 'out_elastic', 'in_bounce', 'in_out_bounce', 'out_bounce']`选择合适的动画效果。
+
+-   `on_complete`参数，可调用类型，表示动画完成时执行什么操作。
+
+-   `level`参数，字符串类型，表示该动画效果属于什么等级。Textual支持的动画等级由低到高依次为`"none"`、`"basic"`、`"full"`，可以设置常量模块中的`TEXTUAL_ANIMATIONS`（完整介绍参考[官网文档](https://textual.textualize.io/api/constants/#textual.constants.TEXTUAL_ANIMATIONS)）为其中之一，来决定程序默认显示的动画等级，高于该等级的动画不会播放。设置默认动画等级的代码如下：
+
+    ```python3
+    from textual import constants
+    constants.TEXTUAL_ANIMATIONS = 'basic'
+    ```
+
+下面的示例展示了组件类的`offset`属性和屏幕组件的样式`'background'`分别播放动画的效果：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.geometry import Offset
+
+class MyApp(App):
+    def on_mount(self):
+        self.box = Button('Box')
+        self.mount(self.box)
+        self.box.animate('offset', value=Offset(100, 0), duration=2, delay=2,
+                on_complete=lambda: setattr(self.query_one(Button), 'label', 'ok'))
+        self.screen.styles.animate('background', value='pink', duration=2,
+                on_complete=lambda: setattr(self.query_one(Button), 'label', 'moving'))
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+注意，动画方法不支持异步，因此多个动画方法实际上是同时开始的。为了确保动画的先后顺序，代码中给按钮的动画添加了延迟。读者可以添加更多样式的动画，看看动画效果。
+
+![animate_1](textual.assets/animate_1.gif)
 
 #### 3.2.6 命令面板
 

@@ -5812,6 +5812,37 @@ Footer
 
 Header
 
+
+
+给`Header`添加参数来隐藏`icon`：
+
+```python3
+from textual.widgets import Header
+from textual.widgets._header import HeaderTitle, HeaderClock, HeaderClockSpace, HeaderIcon
+
+class HeaderWithIcon(Header):
+    def __init__(self, show_clock: bool = False, show_icon: bool = True, *, name: str | None = None, id: str | None = None, classes: str | None = None, icon: str | None = None, time_format: str | None = None):
+        super().__init__(show_clock, name=name, id=id, classes=classes, icon=icon, time_format=time_format)
+        self._show_icon = show_icon
+        self.header_icon = HeaderIcon()
+        self.header_icon.visible = self._show_icon    
+
+    def compose(self):
+        self.header_icon.data_bind(Header.icon)
+        yield self.header_icon
+        yield HeaderTitle()
+        yield (
+            HeaderClock().data_bind(Header.time_format)
+            if self._show_clock
+            else HeaderClockSpace()
+        )
+Header = HeaderWithIcon
+```
+
+1
+
+
+
 Input
 
 ListItem
@@ -10816,38 +10847,425 @@ if __name__ == '__main__':
 
 #### 3.2.6 命令面板
 
+在Textual程序中，如果按下`ctrl+p`的话，会弹出一个快捷执行命令的命令面板，官方称之为调色板。
 
+![palette_1](textual.assets/palette_1.png)
 
+可以看到，命令面板的主体是一个输入框，下面是一个列表。输入框是一个搜索框，可以输入关键字，输入后自动搜索，下面的列表会展示搜索结果。列表则展示着匹配的搜索结果或者默认提供的命令，点击列表中的选项，程序会执行对应的命令。
 
-
-快捷命令面板
-
-给`Header`添加参数来隐藏`icon`：
+当然，除了使用快捷键，默认点击页眉（作用类似于标题栏）左边的图标也能也能打开命令面板：
 
 ```python3
+from textual.app import App
 from textual.widgets import Header
-from textual.widgets._header import HeaderTitle, HeaderClock, HeaderClockSpace, HeaderIcon
 
-class HeaderWithIcon(Header):
-    def __init__(self, show_clock: bool = False, show_icon: bool = True, *, name: str | None = None, id: str | None = None, classes: str | None = None, icon: str | None = None, time_format: str | None = None):
-        super().__init__(show_clock, name=name, id=id, classes=classes, icon=icon, time_format=time_format)
-        self._show_icon = show_icon
-        self.header_icon = HeaderIcon()
-        self.header_icon.visible = self._show_icon    
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+        ]
+        self.mount_all(self.widgets)
 
-    def compose(self):
-        self.header_icon.data_bind(Header.icon)
-        yield self.header_icon
-        yield HeaderTitle()
-        yield (
-            HeaderClock().data_bind(Header.time_format)
-            if self._show_clock
-            else HeaderClockSpace()
-        )
-Header = HeaderWithIcon
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
 ```
 
+![palette_2](textual.assets/palette_2.png)
 
+##### 3.2.6.1 自定义命令面板——`get_system_commands`生成器
+
+可以看到，在默认没有添加任何相关代码的情况下，命令面板中已经提供了几个可用的命令，那些都是Textual内部定义的命令。但是，如果想要添加一些自定义的命令或者使用自定义的命令替换命令面板中显示的内容，该如何操作？
+
+首先，想要修改命令面板中显示的、可供使用的命令，需要在`App`子类中定义`get_system_commands`函数（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.get_system_commands)）。该函数除了第一个参数是表示实例对象的`self`之外，还接收一个`screen`参数，该参数表示命令面板所覆盖的屏幕。其实，命令面板本质上是一个模态屏幕，唤起命令面板，实际上是在当前屏幕上叠加了命令面板这个模态屏幕。因此，可以在方法内使用`screen`参数代替之前的屏幕，执行一些操作。
+
+`get_system_commands`函数是一个生成器，生成器的每个元素都是`SystemCommand`命名元组（使用`from textual.app import SystemCommand`导入，完整参数介绍参考[官网文档](https://textual.textualize.io/api/app/#textual.app.SystemCommand)），一个元素对应一个命令。
+
+`SystemCommand`命名元组拥有以下成员：
+
+-   `title`参数，字符串类型，表示命令的标题，其内容可被关键字搜索。
+-   `help`参数，字符串类型，表示命令的解释内容，也就是图片中的浅色文字。
+-   `callback`参数，可调用类型，表示点击该命令执行的操作。
+-   `discover`参数，布尔类型，表示在不输入关键字搜索时，是否在下面显示，默认为`True`。
+
+在了解了自定义命令的全部基础之后，下面就进入实战：
+
+```python3
+from textual.app import App, SystemCommand
+from textual.widgets import Header
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+        ]
+        self.mount_all(self.widgets)
+
+    def get_system_commands(self, screen):
+        yield SystemCommand(title='退出',help='退出程序',callback=self.exit,discover=True)
+
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![palette_3](textual.assets/palette_3.png)
+
+可以看到，简单定义了`get_system_commands`函数之后，就在命令面板中显示了自定义的命令。不过，这里有一个小问题：在定义自定义命令的时候，并没有把Textual内部定义的命令一并生成（`yield`），这也就导致了只有自定义的命令，没有内部定义的命令。这里可以添加一行代码`yield from super().get_system_commands(screen)`，调用父类的方法之后，把内部定义的命令生成出来，就能实现增加自定义命令的效果，而不是替换。
+
+##### 3.2.6.2 自定义命令面板——`COMMANDS`类变量和`Provider`类
+
+除了定义`get_system_commands`生成器来增改命令，还可以在`App`子类中定义类变量[`COMMANDS`](https://textual.textualize.io/api/app/#textual.app.App.COMMANDS)，更加彻底地定义命令面板。
+
+类变量`COMMANDS`是一个集合，每个元素均为`Provider`类（使用`from textual.command import Provider`导入，完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.Provider)）的子类（比如[`SystemCommandsProvider`](https://textual.textualize.io/api/system_commands_source/#textual.system_commands.SystemCommandsProvider)类），用法上比较复杂，但也支持更多功能。
+
+`Provider`类是一个抽象类，其中的`search`方法是抽象方法，也就是说，在继承`Provider`类实现子类时，必须实现`search`方法。`search`方法是在命令面板的输入框输入文字时，搜索时调用的方法、该方法额外接收一个`query`参数，表示当前输入框的内容。
+
+在完整前，先把必要的方法内写上`pass`，看一下使用`COMMANDS`类变量的基本代码：
+
+```python3
+from textual.app import App
+from textual.widgets import Header
+from textual.command import Provider
+
+class UserCommand(Provider):
+    async def search(self, query):
+        pass
+
+class MyApp(App):
+    COMMANDS = {UserCommand}
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+上面的代码没有实现任何功能，但结构上除了`App`子类里的`on_mount`方法外缺一不可。当然，如果想要扩展命令面板的内容而不是替换，要将包含`Provider`子类的集合与默认命令的集合`App.COMMANDS`合并，比如`COMMANDS = {UserCommand} | App.COMMANDS`。
+
+下面正式开始完整实现`Provider`子类，先导入必要的类：
+
+```python3
+from textual.app import App, SystemCommand
+from textual.command import Hit, DiscoveryHit, Provider
+```
+
+`SystemCommand`类不是必须的，但这里为了方便构建基本数据，借用Textual内部已经定义好的命名元组。`Hit`类和`DiscoveryHit`类分别是`search`方法和`discover`方法返回数据类对象，如果只是实现必要的`search`方法，则不需要导入`DiscoveryHit`类。
+
+`Provider`类提供了四个可以在子类中覆盖的方法：`startup`方法、`search`方法、`discover`方法、`shutdown`方法。只有`search`方法是必须实现的，其他方法都是可选的。四个方法都应该是是异步（使用`async def`定义）的，但不强制要求。
+
+具体每个方法的用法如下：
+
+-   `startup`方法（完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.Provider.startup)），打开命令面板时执行此方法。此方法的效果有点像`__init__`方法，但`__init__`方法需要严格接收`screen`参数和`match_style`参数，并传给父类的初始化方法；此方法不接收额外的参数，也不需要调用父类方法，用起来比较简单。
+-   `search`方法（完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.Provider.search)），在命令面板的输入框内输入内容时执行此方法。程序会把输入框的内容传给此方法的第一个参数。此方法根据传入的内容进行搜索，并生成（`yield`）结果（`Hit`数据类对象），显示在输入框下面的列表中。没错，此方法实际上是个生成器。但是，此方法搜索匹配代码比较复杂，这不展开介绍，下面会基于实际代码讲解。
+-   `discover`方法（完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.Provider.discover)），打开命令面板后，没有在输入框输入任何内容之前，程序会调用此方法。此方法生成（`yield`）结果（`DiscoveryHit`数据类对象），显示在输入框下面的列表中。此方法没有`search`方法的匹配代码，只需判断哪些命令需要默认显示即可（就像判断上一节中`SystemCommand`命名元组的`discover`参数）。因此，用法上和`search`方法类似，下面会基于实际代码一并讲解。
+-   `shutdown`方法（完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.Provider.shutdown)），关闭命令面板时执行此方法。如果有些资源需要在关闭命令面板时释放（比如打开的文件），可以在此方法中执行释放方法。
+
+因为`search`方法和`discover`方法的实现有些复杂，下面将在上面示例的基础上，进一步实现这两个方法，并详细解释代码。话不多说，直接进入正题。
+
+导入所有必需的类之后，完整代码如下：
+
+```python3
+from textual.app import App, SystemCommand
+from textual.widgets import Header
+from textual.command import Hit, DiscoveryHit, Provider
+
+class UserCommand(Provider):
+    async def search(self, query):
+        pass
+
+class MyApp(App):
+    COMMANDS = {UserCommand}
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+接下来就是`UserCommand`类内补全没有实现的方法和代码，其余部分无需变动。
+
+首先要做的，就是添加一些自定义的命令，以便于后面搜索、展示时使用。
+
+实现`startup`方法，并创建好包含所有命令的容器：
+
+```python3
+class UserCommand(Provider):
+    async def startup(self):
+        self.commands = [
+            SystemCommand(title='Quit',help='退出程序',callback=self.app.exit,discover=True),
+            SystemCommand(title='Bell',help='响一声',callback=self.app.bell,discover=True),
+            SystemCommand(title='Print',help='没啥效果',callback=print,discover=True),
+        ]
+    async def search(self, query):
+        pass
+```
+
+需要注意的是，因为这里的`self`指的是`UserCommand`类对象，想要调用`App`子类实例的方法，需要访问`self`的`app`属性，即`self.app`才行。
+
+接下来要做的，就是在`search`方法内实现搜索指定字段，并生成（`yield`）对应结果（`Hit`数据类对象）。
+
+搜索的话，可以使用`in`关键字，来判断输入内容是否在每个命令的`title`成员中：
+
+```python3
+async def search(self, query):
+    for command in self.commands:
+        title = command.title
+        if query in title:
+            yield Hit()
+```
+
+至于结果，像上面这样返回空对象肯定不行。因此，需要先了解一下`Hit`数据类对象的参数中要用的几个参数（完整的参数介绍参考[官网文档](https://textual.textualize.io/api/command/#textual.command.Hit)），再决定如何构建对象：
+
+-   `score`参数，浮点类型，表示匹配的分数，输入的内容与目标内容越匹配，分数应该越高，这样才能让匹配程度高的结果显示在上面。
+-   `match_display`参数，Rich的可渲染类型，表示该搜索结果对应标题的部分所显示的内容。
+-   `command`参数，可调用类型，表示点击该搜索结果执行什么操作。
+-   `help`参数，字符串类型，表示该搜索结果对应的解释文字。
+
+了解完参数，问题也随之而来：如何确定匹配分数？
+
+其实，使用`in`关键字未免过于粗糙，先不说不支持忽略大小写，光是让匹配程度越高的结果越靠前这一项，就需要不少额外的代码。好在`Provider`类提供了`matcher`方法（完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.Provider.matcher)），传入要搜索的内容，可以返回`Matcher`对象。给`Matcher`对象的`match`方法（完整用法参考[官网文档](https://textual.textualize.io/api/fuzzy_matcher/#textual.fuzzy.Matcher.match)）传入用于匹配的内容，可以返回匹配分数，正是构建结果对象所需要的。
+
+这样的话，构建对象的代码就可以这样写：
+
+```python3
+class UserCommand(Provider):
+    async def startup(self):
+        self.commands = [
+            SystemCommand(title='Quit',help='退出程序',callback=self.app.exit,discover=True),
+            SystemCommand(title='Bell',help='响一声',callback=self.app.bell,discover=True),
+            SystemCommand(title='Print',help='没啥效果',callback=print,discover=True),
+        ]
+    async def search(self, query):
+        matcher = self.matcher(query)
+        for command in self.commands:
+            title = command.title
+            score = matcher.match(title)
+            if score > 0:
+                yield Hit(
+                    score=score,
+                    match_display=matcher.highlight(title),
+                    command=command.callback,
+                    help=command.help
+                )
+```
+
+给`Matcher`对象的`highlight`方法传入用于匹配的内容，将会返回加了下划线的搜索内容的可渲染对象，可以让结果更直观。
+
+![palette_4](textual.assets/palette_4.png)
+
+实现`discover`方法与实现`search`方法类似，只是取消了匹配搜索内容的部分，不需要获取匹配分数。但是增加了对`discover`成员（如果有的话，或者有类似作用的成员）的判断，还需要把返回的`Hit`数据类对象替换为`DiscoveryHit`数据类对象。
+
+`DiscoveryHit`数据类对象（完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.DiscoveryHit)）支持以下参数（部分参数），参数名略有不同，需要注意：
+
+-   `display`参数，Rich的可渲染类型，表示该结果对应标题的部分所显示的内容。
+-   `command`参数，可调用类型，表示点击该结果执行什么操作。
+-   `help`参数，字符串类型，表示该结果对应的解释文字。
+
+根据数据类对象的区别，代码上基本结构差不多，去掉了匹配的代码之后，将`if`之后的条件改成对`discover`成员的判断，最后就是将`Hit`数据类对象替换为`DiscoveryHit`数据类对象：
+
+```python3
+class UserCommand(Provider):
+    async def startup(self):
+        self.commands = [
+            SystemCommand(title='Quit',help='退出程序',callback=self.app.exit,discover=True),
+            SystemCommand(title='Bell',help='响一声',callback=self.app.bell,discover=True),
+            SystemCommand(title='Print',help='没啥效果',callback=print,discover=True),
+        ]
+    async def search(self, query):
+        matcher = self.matcher(query)
+        for command in self.commands:
+            title = command.title
+            score = matcher.match(title)
+            if score > 0:
+                yield Hit(
+                    score=score,
+                    match_display=matcher.highlight(title),
+                    command=command.callback,
+                    help=command.help
+                )
+    async def discover(self):
+        for command in self.commands:
+            title = command.title
+            discover = command.discover
+            if discover:
+                yield DiscoveryHit(
+                    display=title,
+                    command=command.callback,
+                    help=command.help
+                )
+```
+
+结果很完美：
+
+![palette_5](textual.assets/palette_5.png)
+
+除了`App`子类外，其实屏幕类也支持`COMMANDS`类变量。在自定义屏幕组件类添加`COMMANDS`类变量，会在`App`子类已有的命令基础上增加自定义的命令：
+
+```python3
+from textual.app import App,SystemCommand
+from textual.widgets import Header,Button
+from textual.command import Hit, DiscoveryHit, Provider
+from textual.screen import Screen
+
+class UserCommand(Provider):
+    async def startup(self):
+        self.commands = [
+            SystemCommand(title='Quit',help='退出程序',callback=self.app.exit,discover=True),
+            SystemCommand(title='Bell',help='响一声',callback=self.app.bell,discover=True),
+            SystemCommand(title='Print',help='没啥效果',callback=print,discover=True),
+        ]
+    async def search(self, query):
+        matcher = self.matcher(query)
+        for command in self.commands:
+            title = command.title
+            score = matcher.match(title)
+            if score > 0:
+                yield Hit(
+                    score=score,
+                    match_display=matcher.highlight(title),
+                    command=command.callback,
+                    help=command.help
+                )
+    async def discover(self):
+        for command in self.commands:
+            title = command.title
+            discover = command.discover
+            if discover:
+                yield DiscoveryHit(
+                    display=title,
+                    command=command.callback,
+                    help=command.help
+                )
+
+class Welcome(Screen):
+    COMMANDS = {UserCommand}
+    TITLE = 'Welcome'
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+            Button('Exit',action='screen.dismiss')  
+        ]
+        self.mount_all(self.widgets)
+
+class MyApp(App):
+    SCREENS = {'welcome':Welcome}
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+            Button('open welcome screen ',
+                           action='app.push_screen("welcome")'),
+        ]
+        self.mount_all(self.widgets)
+        self.push_screen('welcome')
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![palette_6](textual.assets/palette_6.png)
+
+如果读者厌倦了在自定义屏幕组件类中自定义命令面板也需要自己定义`Provider`子类，可以试试Textual提供的简化类——`SimpleProvider`类（完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.SimpleProvider)）和`SimpleCommand`类（完整用法参考[官网文档](https://textual.textualize.io/api/command/#textual.command.SimpleCommand)）。注意，屏幕类不支持`get_system_commands`生成器。
+
+`SimpleProvider`类的第一个参数是用于显示命令面板的屏幕，第二个参数是包含了多个简化命令的列表，其中每个元素都是`SimpleCommand`类实例。
+
+`SimpleCommand`类的三个参数分别是命令的名字（用于搜索）、命令的解释文字（描述命令是做什么的）、命令主体（点击时执行什么操作）。
+
+因为不需要实现子类，因此可以直接实例化使用，以下是核心代码：
+
+```python3
+class Welcome(Screen):
+    TITLE = 'Welcome'
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+            Button('Exit',action='screen.dismiss')  
+        ]
+        self.mount_all(self.widgets)
+        self.COMMANDS = {
+            SimpleProvider(
+                screen=self,
+                commands=[
+                    SimpleCommand(name='Quit', help_text='退出程序',
+                                  callback=self.app.exit),
+                    SimpleCommand(name='Bell', help_text='响一声',
+                                  callback=self.app.bell),
+                    SimpleCommand(name='Print', help_text='没啥效果',
+                                  callback=print),
+                ]
+            )
+        }
+```
+
+完整代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Header,Button
+from textual.command import SimpleCommand, SimpleProvider
+from textual.screen import Screen
+
+
+class Welcome(Screen):
+    TITLE = 'Welcome'
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+            Button('Exit',action='screen.dismiss')  
+        ]
+        self.mount_all(self.widgets)
+        self.COMMANDS = {
+            SimpleProvider(
+                screen=self,
+                commands=[
+                    SimpleCommand(name='Quit', help_text='退出程序',
+                                  callback=self.app.exit),
+                    SimpleCommand(name='Bell', help_text='响一声',
+                                  callback=self.app.bell),
+                    SimpleCommand(name='Print', help_text='没啥效果',
+                                  callback=print),
+                ]
+            )
+        }
+
+class MyApp(App):
+    SCREENS = {'welcome':Welcome}
+    def on_mount(self):
+        self.widgets = [
+            Header(),
+            Button('open welcome screen ',
+                           action='app.push_screen("welcome")'),
+        ]
+        self.mount_all(self.widgets)
+        self.push_screen('welcome')
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![palette_7](textual.assets/palette_7.png)
+
+##### 3.2.6.3 自定义命令面板——其他类变量
+
+除了设置`COMMANDS`类变量来自定义命令面板的内容，还有可以设置`ENABLE_COMMAND_PALETTE`的值来决定是否启用命令面板，以及设置`COMMAND_PALETTE_BINDING`的值来设定启动命令面板的快捷键
+
+示例如下：
+
+```python3
+ENABLE_COMMAND_PALETTE = False # 禁用命令面板
+COMMAND_PALETTE_BINDING = "ctrl+backslash" # 使用 ctrl+\ 来启动命令面板
+```
 
 #### 3.2.7 测试
 

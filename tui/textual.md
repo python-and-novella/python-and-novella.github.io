@@ -2471,11 +2471,13 @@ Static {
 
 前面的章节中介绍了DOM，也介绍了CSS的选择器。选择器可以在CSS中很方便地给符合条件的组件设置样式，是个非常有用的功能。当然，除了设置样式，在Python中还能使用选择器语法筛选、查找组件，方便对那些没有赋值给变量的无名组件，设置样式或者执行其他操作。
 
-需要注意的是，下面提到的`'query'`开头的查询方法都是`App`类、`Screen`类、组件的方法，只有在`App`的子类内使用时才能正确查询。不在`App`的子类内查询，是没法读取DOM的，也没法返回正确的结果。查询方法的完整用法可以参考[官网文档](https://textual.textualize.io/api/dom_node/)，教程中只介绍基本用法。
+需要注意的是，下面提到的'query'开头的查询方法都是`App`类、`Screen`类、组件的方法，只有对应的实例对象才能调用查询方法。
+
+查询方法的完整用法可以参考[官网文档](https://textual.textualize.io/api/dom_node/)，教程中只介绍基本用法。
 
 ##### 2.2.7.1 `query`方法
 
-`query`方法可以查询符合条件的组件，如果没有传入选择器，则返回调用对象的所有子组件（其实是`DOMQuery`对象，一个可迭代对象，具体见[官网文档](https://textual.textualize.io/api/query/#textual.css.query.DOMQuery)，后面会细讲）。以代码为例，调用`query`方法的是`self`，即`App`子类。根据前面介绍的文档对象模型，`App`子类下是`Screen`，`Screen`下是子类内创建的各个组件。因此，代码中使用迭代方法将查询的结果再次输出到`Screen`里新增的静态文本中时，就可以看到App子类下的所有组件：
+`query`方法可以查询符合条件的组件，如果没有传入选择器，则返回调用对象的所有子组件（其实是`DOMQuery`对象，一个可迭代对象，具体见[官网文档](https://textual.textualize.io/api/query/#textual.css.query.DOMQuery)，后面会细讲）。以代码为例，调用`query`方法的是`self.screen`，即`Screen`组件。根据前面介绍的文档对象模型，`App`子类下是`Screen`组件，`Screen`组件下是子类内创建的各个组件。因此，代码中使用迭代方法将查询的结果再次输出到`Screen`组件里新增的静态文本中时，就可以看到`App`子类下的所有组件：
 
 ```python3
 from textual.app import App
@@ -2485,7 +2487,7 @@ class MyApp(App):
     def on_mount(self):
         self.widgets = [ Static('one'),Static('two'),Button('three')]
         self.mount_all(self.widgets)
-        for widget in self.query():
+        for widget in self.screen.query():
             self.mount(Static(str(widget)))
 
 if __name__ == '__main__':
@@ -2495,7 +2497,7 @@ if __name__ == '__main__':
 
 ![query](textual.assets/query.png)
 
-如果传入选择器语法给`query`方法，则会得到符合选择器语法的结果：
+如果传入选择器语法给`query`方法，则会在子级中查找符合选择器语法的结果（点击查看效果）：
 
 ```python3
 from textual.app import App
@@ -2505,6 +2507,8 @@ class MyApp(App):
     def on_mount(self):
         self.widgets = [ Static('one'),Static('two'),Button('three')]
         self.mount_all(self.widgets)
+        
+    def on_click(self):
         for widget in self.query('Static'):
             self.mount(Static(str(widget)))
 
@@ -2584,11 +2588,13 @@ if __name__ == '__main__':
 
 ##### 2.2.7.2 其他query方法
 
-除了强大的`query`方法，Textual还提供了一些细化的查询方法。不同于`query`方法返回`DOMQuery`对象，支持比较规整的子方法，这些细化的查询方法适用于特定场景，有的返回的是具体组件，不需要迭代；有的只查询直接子级，不会返回全部子级。读者可以按需选用，也可以`query`方法全解决。
+除了强大的`query`方法，Textual还提供了一些细化的查询方法。不同于`query`方法返回`DOMQuery`对象，支持比较规整的子方法，这些细化的查询方法适用于特定场景，有的返回的是具体组件，不需要迭代；有的只查询直接子级，不会返回全部子级；还有的可以查询父级。读者可以按需选用，也可以`query`方法全解决。
 
 [`query_one`方法](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.query_one)：
 
-和`query`方法一样使用选择器语法来筛选组件，只是该方法如其名，只会返回一个结果。哪怕能匹配到多个，也只返回第一个结果，因此，方法返回的是组件，不是可迭代的`DOMQuery`对象。需要注意的是，不同于`query`方法，此方法如果找不到结果会报错，所以不能省略选择器或者传入空字符串。
+和`query`方法一样使用选择器语法来筛选组件，只是该方法如其名，只会返回一个结果。哪怕能匹配到多个，也只返回第一个结果，因此，方法返回的是组件，不是可迭代的`DOMQuery`对象。
+
+需要注意的是，不同于`query`方法，此方法如果找不到结果会报错，所以不能省略选择器或者传入空字符串。
 
 第一个参数除了用选择器语法字符串之外，还可以使用组件的类名，比如`self.query_one(Static)`。
 
@@ -2596,7 +2602,7 @@ if __name__ == '__main__':
 
 `query_one`方法当然也可以，只不过，`query_one`方法不需要调用`results`子方法，而是传入第二个参数即可。比如`self.query_one('.yes',Static)`。
 
-示例代码如下：
+示例代码如下，点击查看效果：
 
 ```python3
 from textual.app import App
@@ -2610,6 +2616,7 @@ class MyApp(App):
             Button('three'),
             Button('four',classes='yes')]
         self.mount_all(self.widgets)
+    def on_click(self):
         self.query_one('.yes',Static).styles.color = 'red'
 
 if __name__ == '__main__':
@@ -2623,7 +2630,7 @@ if __name__ == '__main__':
 
 和`query_one`方法几乎一样，只是`query_exactly_one`方法的选择器语法只能匹配一个结果，一旦匹配得到多个结果就会报错。其他的报错和参数支持情况一样。
 
-示例代码如下：
+示例代码如下，点击查看效果：
 
 ```python3
 from textual.app import App
@@ -2637,6 +2644,7 @@ class MyApp(App):
             Button('three'),
             Button('four',classes='yes')]
         self.mount_all(self.widgets)
+    def on_click(self):
         self.query_exactly_one('.yes&Static',Static).styles.color = 'red'
 
 if __name__ == '__main__':
@@ -2648,7 +2656,11 @@ if __name__ == '__main__':
 
 [`query_children`方法](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.query_children)：
 
-`query_children`方法用法和`query`方法基本一样，唯一不同的是，`query_children`方法只能查询调用该方法的组件的直接子级（即文档对象模型中组件的对外箭头，直接指向的其他组件）。所以，下面的示例中，调用该方法的不是`self`，而是`self.screen`（屏幕组件）：
+`query_children`方法用法和`query_one`方法基本一样，但`query_children`方法只能查询调用者严格意义上的直接子级。
+
+和`query_one`方法不同的是，该方法返回的是`DOMQuery`对象而不是具体组件，所以，那些`DOMQuery`对象支持的方法一样可以用。
+
+需要注意的是，如果调用者是`App`子类实例，则严格意义上的直接子级只有`Screen`组件。所以，下面的示例中，调用该方法的不是`self`，而是`self.screen`（屏幕组件），点击查看效果：
 
 ```python3
 from textual.app import App
@@ -2662,6 +2674,7 @@ class MyApp(App):
             Button('three'),
             Button('four',classes='yes')]
         self.mount_all(self.widgets)
+    def on_click(self):
         for static in self.screen.query_children('.yes').results(Static):
             static.styles.color = 'red'
         for static in self.screen.query_children(Static).filter('.yes'):
@@ -2674,7 +2687,42 @@ if __name__ == '__main__':
 
 ![query_5](textual.assets/query_5.png)
 
-因为该方法返回的是`DOMQuery`对象，那些`DOMQuery`对象支持的方法一样可以用。
+[`query_ancestor`方法](https://textual.textualize.io/api/dom_node/#textual.dom.DOMNode.query_ancestor)：
+
+有查询子级的方法，就有查询父级的方法，`query_ancestor`方法就是用来查询父级的。该方法可以按照顺序（由近到远）查询调用者的所有父级组件，并返回第一个符合匹配条件的组件。
+
+`query_ancestor`方法接收的参数类型和返回的结果类型与`query_one`方法一样，这里就不再赘述。
+
+示例代码如下，点击查看效果：
+
+```python3
+from textual.app import App
+from textual.widgets import Static
+from textual.containers import Container
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Container(
+                Container(
+                    Static('one'),
+                    classes='a'
+                ),
+                classes='b'
+            )
+        ]
+        self.mount_all(self.widgets)
+    def on_click(self):
+        static = self.query_one(Static)
+        static.query_ancestor('.a').styles.border = ('solid', 'red')
+        static.query_ancestor('.b').styles.border = ('solid', 'green')
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![query_6](textual.assets/query_6.png)
 
 #### 2.2.8 布局
 
@@ -4757,9 +4805,9 @@ if __name__ == '__main__':
 
 ##### 2.2.11.1 创建动作函数
 
-创建动作函数没有什么特别，只是函数名上需要使用'action_'为前缀，只有这样，前缀之后的内容才能用在快捷键绑定和嵌入链接中。
+创建动作函数没有什么特别，只是函数名上需要使用'action_'为前缀，只有这样，前缀之后的内容才能用在快捷键绑定和动作链接中。
 
-和普通函数一样，动作函数虽然是以'action_'为前缀，但其依然可以当作普通函数使用。只是普通函数不能像动作函数一样用于快捷键绑定和嵌入链接中。下面的示例就展示了动作函数当作普通函数使用时，与普通函数一样：
+和普通函数一样，动作函数虽然是以'action_'为前缀，但其依然可以当作普通函数使用。只是普通函数不能像动作函数一样用于快捷键绑定和动作链接中。下面的示例就展示了动作函数当作普通函数使用时，与普通函数一样：
 
 ```python3
 from datetime import datetime
@@ -4924,9 +4972,9 @@ if __name__ == '__main__':
     app.run()
 ```
 
-##### 2.2.11.5 使用动作函数——嵌入链接
+##### 2.2.11.5 使用动作函数——动作链接
 
-在介绍嵌入链接前，先看示例代码：
+在介绍动作链接前，先看示例代码：
 
 ```python3
 from datetime import datetime
@@ -4951,9 +4999,9 @@ if __name__ == '__main__':
 
 ![action_4](textual.assets/action_4.png)
 
-示例中，静态文本的部分文字变得像网页中的超链接一样可以点击，这种可以点击的文字就叫嵌入链接。嵌入链接可以在任何文字中创建，哪怕是已经支持点击的按钮也可以创建嵌入链接。
+示例中，静态文本的部分文字变得像网页中的超链接一样可以点击，这种可以点击的文字就叫动作链接。动作链接可以在任何文字中创建，哪怕是已经支持点击的按钮也可以创建动作链接。
 
-嵌入链接也是执行动作的一种方式，就好像HTML标签语言，Textual的文本可以使用类似的标记标签（功能源自Rich框架，完整用法参考[官网文档](https://rich.readthedocs.io/en/latest/markup.html)）。不过，Textual对标记标签进行了扩展，使得原本只是改变文本样式的标记标签可以点击。
+Textual的文本中可以使用markup标签（后面会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式），动作链接就是其中执行动作的一种标签。
 
 在下面的代码中，字符串内的`[b]`相当于HTML中的`<b>`标签，因此，标签需要对应的闭合标签，才能让配对的标签之间的内容变成对应的样式：
 
@@ -4963,9 +5011,9 @@ Static('[b]click[/b] [@click=app.now("Time is")]me[/] to update time')
 
 同样的，`[@click=app.now("Time is")]me[/]`中也有配对的标签，不过此标签是一个可以点击的标签，就好像HTML中的超链接一样，其中的`@click`就是接收鼠标点击操作的意思，与之类似的还有`@mouse.up`、`@mouse.down`，则分别接收鼠标按键抬起、按下的操作。标签内的等号之后，对应的就是鼠标点击时执行的动作，也就是真正使用动作函数的部分。这里使用的执行动作的语法与`run_action`中支持的语法一致，就不详细介绍了。
 
-不过需要注意的是，嵌入链接不是组件，没法获取焦点，与获取焦点有关的动作或者事件，嵌入链接本身并不支持；而静态文本和部分组件也不能获取焦点，点击其中的嵌入链接不会让其获得焦点。因此，嵌入链接中的`focused`命名空间不是指嵌入链接所在的组件，依然是焦点实际所在的组件。
+不过需要注意的是，动作链接不是组件，没法获取焦点，与获取焦点有关的动作或者事件，动作链接本身并不支持；而静态文本和部分组件也不能获取焦点，点击其中的动作链接不会让其获得焦点。因此，动作链接中的`focused`命名空间不是指动作链接所在的组件，依然是焦点实际所在的组件。
 
-说一个与动作无关的内容，那就是嵌入链接的样式。嵌入链接是Textual的特性功能，不能与Rich框架的标记标签混用，也就是说不支持通过标记标签改变嵌入链接的样式（比如颜色）。如果想要改变某个组件内的嵌入链接的样式，只能通过CSS（完整文档参考[官网](https://textual.textualize.io/styles/links/)）修改。嵌入链接主要支持以下样式：
+说一个与动作无关的内容，那就是动作链接的样式。动作链接的颜色是不支持通过其他标签修改。如果想要改变某个组件内的动作链接的颜色，只能通过CSS（完整文档参考[官网](https://textual.textualize.io/styles/links/)）修改。动作链接主要支持以下样式：
 
 | 样式类型                                                     | 含义                                                      |
 | :----------------------------------------------------------- | :-------------------------------------------------------- |
@@ -4976,7 +5024,7 @@ Static('[b]click[/b] [@click=app.now("Time is")]me[/] to update time')
 | [`link-style`](https://textual.textualize.io/styles/links/link_style/) | 链接文本上的文本样式，比如设置`underline`就是添加下划线。 |
 | [`link-style-hover`](https://textual.textualize.io/styles/links/link_style_hover/) | 鼠标悬停在链接文本上时的文本样式。                        |
 
-下面的示例演示了如何修改嵌入链接的文本颜色：
+下面的示例演示了如何修改动作链接的文本颜色：
 
 ```python3
 from datetime import datetime
@@ -5349,8 +5397,6 @@ if __name__ == '__main__':
 
 静态文本组件是最简单的文本显示组件，这也是为什么第一节内容中会使用该组件显示文本内容。该组件的完整用法可以参考[官网文档](https://textual.textualize.io/widgets/label/)。
 
-临时需要注意的是，官方虽然在`main`分支修复了`markup`参数失效的问题，但1.0.0版本没有包含此修复，下面的演示是使用同等效果的代码（使用`from rich.markup import escape`导入`escape`方法，用此方法转义markup标签，让标签不被解析）代替，而不是实际的示例代码。如果想要参数有效，可以自己基于`main`分支构建Python包，或者使用已经构建好的包（[下载地址](https://github.com/python-and-novella/textual/releases/tag/1.0.0-dev)，使用`pdm run pip install --force-reinstall {textual包的地址}`来强制安装）。后续官方会发布此修复，如果不是着急使用，请耐心等待官方更新，或者使用示例中的替代方法。
-
 静态文本组件支持以下参数：
 
 -   `content`参数，Rich的可渲染类型（包括Python的字符串类型）或者支持可视化类型（实现了`visualize`方法并且该方法返回可渲染对象的类），表示静态文本显示的内容。一般的可渲染类型就不必多说，除了常规的字符串，更多是使用Rich的可渲染类型来包装、修饰的内容，这里就不写例子了。对于支持可视化类型的例子，这里简单写一个：
@@ -5446,13 +5492,13 @@ if __name__ == '__main__':
 
     ![static_2](textual.assets/static_2.png)
 
--   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（语法参考Rich的[文档](https://rich.readthedocs.io/en/latest/markup.html)），默认为`True`，即解析。如果不需要解析，可以使用Rich框架的`escape`方法（使用`from rich.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
+-   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（后面会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式），默认为`True`，即解析。如果不需要解析，可以使用`escape`方法（使用`from textual.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
 
     ```python3
     from textual.app import App
     from textual.widgets import Static
-    from rich.markup import escape
     from textual.containers import Container
+    from textual.markup import escape
     
     class MyApp(App):
         def on_mount(self):
@@ -5633,13 +5679,13 @@ if __name__ == '__main__':
 
     ![static_2](textual.assets/static_2.png)
 
--   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（语法参考Rich的[文档](https://rich.readthedocs.io/en/latest/markup.html)），默认为`True`，即解析。如果不需要解析，可以使用Rich框架的`escape`方法（使用`from rich.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
+-   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（后面会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式），默认为`True`，即解析。如果不需要解析，可以使用`escape`方法（使用`from textual.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
 
     ```python3
     from textual.app import App
     from textual.widgets import Label
-    from rich.markup import escape
     from textual.containers import Container
+    from textual.markup import escape
     
     class MyApp(App):
         def on_mount(self):
@@ -5976,18 +6022,18 @@ Textual的日志类型包括这几类（下节会介绍如何输出这几类日�
 
 介绍输出特定类型的日志信息之前，先说说如何输出日志到console。
 
-在Textual中，想要输出日志到console，除了上节中使用的Python的`print`函数，还可以使用支持Rich框架可渲染对象的`log`对象和虽然不支持可渲染对象但兼容标准日志模块`logging`的`TextualHandler`对象。
+在Textual中，想要输出日志到console，除了上节中使用的Python的`print`函数，还可以使用支持可渲染对象的`log`对象和虽然不支持可渲染对象但兼容标准日志模块`logging`的`TextualHandler`对象。
 
 `log`对象有子方法，也支持直接调用（该对象是实现了`__call__`方法的`Logger`类的实例，所以可以当函数一样调用），先说简单直的直接调用，子方法下面细讲。调用`log`对象的方式有两种：
 
--   直接单独调用，使用`from textual import log`导入，完整用法参考[官网文档](https://textual.textualize.io/api/logger/#textual.log)，导入之后调用即可。支持输出字符串、变量、关键字参数（直接给方法传入任意关键字和值）、Rich框架的可渲染对象等，比如：
+-   直接单独调用，使用`from textual import log`导入，完整用法参考[官网文档](https://textual.textualize.io/api/logger/#textual.log)，导入之后调用即可。支持输出字符串、变量、关键字参数（直接给方法传入任意关键字和值）、可渲染对象等，比如：
 
     ```python3
     def action_debug(self):
         log("Hello, World")  # 输出字符串
         log(locals())  # 输出局部变量
         log(children=self.children, pi=3.141592)  # 输出关键字和值
-        log(self.tree)  # 输出Rich框架的可渲染对象
+        log(self.tree)  # 输出可渲染对象
     ```
 
 -   调用组件类和App类的`log`对象，无需单独导入，直接调用即可，`log`对象就是实例对象的子属性。支持输出的内容和上面的调用方式一样，完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.log)。代码上基本没有区别，只是独立调用的代码变成实例对象的子属性而已：
@@ -5997,7 +6043,7 @@ Textual的日志类型包括这几类（下节会介绍如何输出这几类日�
         self.log("Hello, World")  # 输出字符串
         self.log(locals())  # 输出局部变量
         self.log(children=self.children, pi=3.141592)  # 输出关键字和值
-        self.log(self.tree)  # 输出Rich框架的可渲染对象
+        self.log(self.tree)  # 输出可渲染对象
     ```
 
 完整的示例如下：
@@ -6018,7 +6064,7 @@ class MyApp(App):
         log("Hello, World")  # 输出字符串
         log(locals())  # 输出局部变量
         log(children=self.children, pi=3.141592)  # 输出关键字和值
-        log(self.tree)  # 输出Rich框架的可渲染对象
+        log(self.tree)  # 输出可渲染对象
 
 if __name__ == '__main__':
     app = MyApp()
@@ -6040,7 +6086,7 @@ class MyApp(App):
         self.log("Hello, World")  # 输出字符串
         self.log(locals())  # 输出局部变量
         self.log(children=self.children, pi=3.141592)  # 输出关键字和值
-        self.log(self.tree)  # 输出Rich框架的可渲染对象
+        self.log(self.tree)  # 输出可渲染对象
 
 if __name__ == '__main__':
     app = MyApp()
@@ -6065,7 +6111,7 @@ logging.basicConfig(
 )
 ```
 
-完成基本配置之后，就可以调用`logging`提供的日志方法，输出指定的日志信息到console中。千万别忘了，`logging`的日志方法不支持Rich框架的可渲染对象，不要用`logging`提供的日志方法输出这类对象。
+完成基本配置之后，就可以调用`logging`提供的日志方法，输出指定的日志信息到console中。千万别忘了，`logging`的日志方法不支持可渲染对象，不要用`logging`提供的日志方法输出这类对象。
 
 完整代码如下：
 
@@ -6343,7 +6389,7 @@ if __name__ == '__main__':
 
 -   `result`参数，支持任何对象，传给该参数的对象会变成`run`方法的返回值，比如`result = app.run()`，这里的`result`的值对应的就是传给该参数的对象。
 -   `return_code`参数，只支持整数，表示程序退出时的状态，在POSIX标准中，程序退出时的返回值为`0`表示正常退出，其他值表示异常退出。需要注意的是，给该参数传入非零整数，并不会让Python程序按照此标准返回对应的值，还需要使用`sys.exit(app.return_code)`来将该参数传给Python程序。其中`app.return_code`——`App`子类实例的`return_code`属性就是该参数的值。
--   `message`参数，支持Rich框架的可渲染对象（Python的字符串也是），用于在Textual程序退出之后，在终端输出内容。Textual程序退出之后不会独占终端输出，所以该参数的值可以正常输出到终端。
+-   `message`参数，支持可渲染对象（Python的字符串也是），用于在Textual程序退出之后，在终端输出内容。Textual程序退出之后不会独占终端输出，所以该参数的值可以正常输出到终端。
 
 完整示例如下：
 
@@ -6918,7 +6964,7 @@ if __name__ == '__main__':
 
 把反应性属性当成普通属性使用没有任何区别，反而更繁琐。但是，如果简单自定义一个组件，并在组件中定义一个反应性属性，然后在组件的`render`方法中使用反应性属性，效果就不一样了。一旦反应性属性的值变化，其所在的组件会自动刷新显示，不需要像上面示例一样手动调用刷新显示文本的代码（`Static`组件的`update`方法可以设置组件的显示文字）。
 
-下面的代码中，通过继承`Widget`类（不具备任何功能的基础组件类）来实现一个自定义组件。自定义组件的方法后面会细讲，这里主要用来展示反应性属性在自定义中的效果。并且需要注意的是，只有在`render`方法中，反应性属性才会触发自动刷新。如果是前面那种继承Textual中现有组件的自定义组件方法，则需要覆盖原本实现好的`render`方法，可能会导致意外的问题。所以，这里是继承`Widget`类。在`render`方法中，返回Rich框架的可刷新对象，Textual就会将其处理为该组件的实际显示效果。当然，这里主要是展示反应性属性的特性，就只返回一个字符串，字符串中嵌入了反应性属性。
+下面的代码中，通过继承`Widget`类（不具备任何功能的基础组件类）来实现一个自定义组件。自定义组件的方法后面会细讲，这里主要用来展示反应性属性在自定义中的效果。并且需要注意的是，只有在`render`方法中，反应性属性才会触发自动刷新。如果是前面那种继承Textual中现有组件的自定义组件方法，则需要覆盖原本实现好的`render`方法，可能会导致意外的问题。所以，这里是继承`Widget`类。在`render`方法中，返回可渲染对象，Textual就会将其处理为该组件的实际显示效果。当然，这里主要是展示反应性属性的特性，就只返回一个字符串，字符串中嵌入了反应性属性。
 
 完整代码如下：
 
@@ -8977,13 +9023,13 @@ if __name__ == '__main__':
 
 顺便多说一句，其实`App`子类也像自定义组件一样支持`DEFAULT_CSS`类变量和`DEFAULT_CLASSES`类变量。只不过`App`子类示例本身不是可以显示的组件，其实际显示的主体对应的是DOM节点中子级的`Screen`组件。因此，其应用的样式类实际上没有效果，`DEFAULT_CLASSES`类变量也没什么用。至于`DEFAULT_CSS`，效果上和`CSS`一样，但其优先级比`CSS`低，一般用于设置没有加载外部CSS文件时或者加载失败时的默认样式。
 
-##### 3.2.3.4 设计自定义组件——嵌入链接与文本美化
+##### 3.2.3.4 设计自定义组件——动作链接与文本美化
 
-嵌入链接其实前面介绍过，这里简单复习一下。
+动作链接其实前面介绍过，这里简单复习一下。
 
-任何自定义组件中显示的文本，只要没有禁用标记标签解析或者使用Rich框架的`escape`方法（使用`from rich.markup import escape`导入）转义，其中的标记标签（相关用法参考[markup标签](https://rich.readthedocs.io/en/latest/markup.html)和[Rich样式](https://rich.readthedocs.io/en/latest/style.html#styles)）都会被解析。其中，`[@click={action}]...[/]`看起来像是markup标签但其作用类似HTML的超链接标签，就是嵌入链接。
+任何自定义组件中显示的文本，只要没有禁用标记标签解析或者使用`escape`方法（使用`from textual.markup import escape`导入）转义，其中的markup标签（后面会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式）都会被解析。其中，`[@click={action}]...[/]`使用了'@'当做开头且作用类似HTML的超链接标签，就是动作链接。
 
-需要注意的是，嵌入链接是Textual的特性功能，不能与Rich框架的标记标签混用，也就是说不支持通过标记标签改变嵌入链接的样式（比如颜色）。如果想要改变某个组件内的嵌入链接的样式，只能通过CSS（完整文档参考[官网](https://textual.textualize.io/styles/links/)）修改。嵌入链接主要支持以下样式：
+需要注意的是，动作链接的颜色是不支持通过其他标签修改。如果想要改变某个组件内的动作链接的颜色，只能通过CSS（完整文档参考[官网](https://textual.textualize.io/styles/links/)）修改。动作链接主要支持以下样式：
 
 | 样式类型                                                     | 含义                                                      |
 | :----------------------------------------------------------- | :-------------------------------------------------------- |
@@ -8994,7 +9040,7 @@ if __name__ == '__main__':
 | [`link-style`](https://textual.textualize.io/styles/links/link_style/) | 链接文本上的文本样式，比如设置`underline`就是添加下划线。 |
 | [`link-style-hover`](https://textual.textualize.io/styles/links/link_style_hover/) | 鼠标悬停在链接文本上时的文本样式。                        |
 
-下面的示例演示了如何在自定义组件中使用嵌入链接和标记标签：
+下面的示例演示了如何在自定义组件中使用动作链接和其他标签：
 
 ```python3
 from textual.app import App
@@ -9118,7 +9164,7 @@ if __name__ == '__main__':
 
 ##### 3.2.3.7 设计自定义组件——可渲染对象
 
-`render`方法通过返回可渲染对象（渲染协议说明参考Rich的[文档](https://rich.readthedocs.io/en/latest/protocol.html)），借助Rich更加接近底层的自定义能力，可以实现更高自由度的定制。
+`render`方法通过返回可渲染对象，借助更加接近底层的自定义能力，可以实现更高自由度的定制。
 
 比如，可以使用Rich的`Panel`（[官网文档](https://rich.readthedocs.io/en/latest/panel.html)），绘制出一个带圆角边框的静态文本组件：
 
@@ -11267,7 +11313,318 @@ ENABLE_COMMAND_PALETTE = False # 禁用命令面板
 COMMAND_PALETTE_BINDING = "ctrl+backslash" # 使用 ctrl+\ 来启动命令面板
 ```
 
-#### 3.2.7 测试
+#### 3.2.7 可渲染对象
+
+前面提了很多次可渲染对象，一直没有系统性讲解。本教程接近尾声之际，官方更新了2.0.0版本，并补全了这部分[文档](https://textual.textualize.io/guide/content/#content)，于是在这里也加上这部分内容。
+
+##### 3.2.7.1 markup标签
+
+字符串也是可渲染对象，但如果只是讲字符串的使用，未免也太小瞧正在看本文的读者，也属实没有必要。因此，本节要讲的是，那些用嵌在字符串中的markup标签。也就是前面提到很多次，也用了很多次的，但就是没有专门讲过的markup标签。
+
+不过，在正式学习之前，需要先了解一下随2.0.0版本更新，Textual新增的markup标签验证工具，使用下面的命令行启动：
+
+```shell
+python -m textual.markup
+```
+
+界面如下：
+
+![content_1](textual.assets/content_1.png)
+
+在Markup的输入框中输入包含markup标签的文本，Output区域就会渲染之后的文字。右上角的输入框可以输入JSON格式的变量映射，比如：
+
+```json
+{
+    "name":"Python"
+}
+```
+
+就能在Markup区使用该变量，比如`[i]Hello $name`：
+
+![content_2](textual.assets/content_2.png)
+
+变量的使用会在后面细讲，前面只需了解此工具的基本用法。
+
+markup标签很像HTML标签，如果将HTML的角括号替换为中括号，markup标签的一般格式如下：
+
+```
+[bold]Hello[/bold],World!
+```
+
+对应HTML中表示元素的内容，在markup标签中，表示的是样式。
+
+与HTML标签一样，markup标签也有闭合的要求，上面示例中的`[/bold]`就是`[bold]`对应的闭合标签。当然，如果想要简单一些，使用`[/]`可以闭合最近的标签，具体原则可以参考括号的配对原则：
+
+```
+[red][bold]Hello[/] and [/]World!
+```
+
+![content_3](textual.assets/content_3.png)
+
+markup标签支持的格式样式如下：
+
+| 样式全称    | 缩写 | 作用                 |
+| :---------- | :--- | :------------------- |
+| `bold`      | `b`  | 文字变为**粗体**     |
+| `dim`       | `d`  | 文字变暗淡           |
+| `italic`    | `i`  | 文字变为*斜体*       |
+| `underline` | `u`  | 文字增加下划线       |
+| `strike`    | `s`  | 文字增加~~删除线~~   |
+| `reverse`   | `r`  | 文字颜色与背景色交换 |
+
+除了在markup标签中使用样式的全称，还可以使用缩写：
+
+```
+[b]Hello[/b],World!
+```
+
+对于同一段文字需要同时应用不同样式，除了以下这种比较复杂的嵌套：
+
+```
+[d][b][i]Hello[/][/][/],World!
+```
+
+还可以在一个中括号内同时填入使用空格间隔的多个样式，当单个标签使用（顺序不严格要求）：
+
+```
+[d b i]Hello[/b d i],World!
+```
+
+闭合标签也可以使用自动闭合标签：
+
+```
+[d b i]Hello[/],World!
+```
+
+![content_4](textual.assets/content_4.png)
+
+除了不同样式可以组合使用之外，每个样式前还可以添加`not`，得到一个组合标签，表示撤销该样式：
+
+```
+[d b i]Hello[not i not b not d],World!
+```
+
+除了格式样式，markup标签还支持设置字体颜色。前面颜色章节提到的颜色名、量化的颜色表示、带透明度的颜色表示都可以使用：
+
+```
+[#f00 80%]Hello[/],World!
+```
+
+![content_5](textual.assets/content_5.png)
+
+如果把颜色的表示与`on`组合使用，则表示设置背景颜色：
+
+```
+[on #f00 80%]Hello[/],World!
+```
+
+![content_6](textual.assets/content_6.png)
+
+当然，字体颜色和背景颜色可以同时使用：
+
+```
+[yellow on #f00 80%]Hello[/],World!
+```
+
+![content_7](textual.assets/content_7.png)
+
+`auto`是一种特殊的颜色，表示在对比度最大时，显示为黑色或白色的颜色：
+
+```
+[auto on #f00 80%]Hello[/],World!
+```
+
+![content_8](textual.assets/content_8.png)
+
+CSS变量（比如前面章节中的基础色变量）也能在标签中使用：
+
+```
+[auto on $error]Hello[/],World!
+```
+
+![content_9](textual.assets/content_9.png)
+
+和HTML类似，在markup标签中，也可以创建超链接，使用`link=`，后接双引号包裹的目标链接，就可以创建出点击文字跳转到指定网页的超链接：
+
+```
+[link="https://baidu.com"]Hello[/],World!
+```
+
+![content_10](textual.assets/content_10.png)
+
+需要注意的是，如果不使用自动闭合标签，超链接的闭合标签是`[/link]`，不包含`=`：
+
+```
+[link="https://baidu.com"]Hello[/link],World!
+```
+
+和超链接类似，如将`link`替换为`@click`，后面双引号包裹的目标链接换成不需要双引号包裹的动作，那超链接就变成了动作链接。点击该链接就会执行对应的动作：
+
+```
+[@click=app.bell]Hello[/],World!
+```
+
+需要注意的是，如果不使用自动闭合标签，动作链接的闭合标签是`[/@click=]`，包含`=`：
+
+```
+[@click=app.bell]Hello[/@click=],World!
+```
+
+颜色、样式与超链接标签组合时，需要把超链接标签放到最后才能生效：
+
+```
+[blue on white link="https://baidu.com"]Hello[/],World!
+```
+
+![content_11](textual.assets/content_11.png)
+
+虽然前面说过动作链接的颜色不能通过标签修改，但格式和背景色还是可以修改的，用法和超链接一样，需要将格式、背景色的标签放在动作链接标签前面：
+
+```
+[on blue i @click=app.bell]Hello[/],World!
+```
+
+![content_12](textual.assets/content_12.png)
+
+虽然默认Textual渲染markup标签，但难免有原样输出内容而不希望渲染的时候。这时，可以使用`escape`方法（使用`from textual.markup import escape`导入）转义无需渲染的内容：
+
+```python3
+from textual.app import App
+from textual.widgets import Static
+from textual.markup import escape
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [ 
+                Static(escape('[on blue i @click=app.bell]Hello[/],World')),
+            ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![content_13](textual.assets/content_13.png)
+
+##### 3.2.7.2 `Content`类
+
+markup标签支持的样式丰富，但在Textual内部，这些字符串最终是被转化为`Content`类对象（使用`from textual.content import Content`导入，完整介绍参考[官网文档](https://textual.textualize.io/api/content/#textual.content.Content)）。
+
+本节内容在一般情况下不需要专门学习，Textual内部已经处理好了。如果读者在扩展基础功能（比如自定义组件）时想要实现类似自带组件的效果，可以了解一下`Content`类的相关用法。
+
+一般使用 `Content`类实例化时，是渲染markup标签的：
+
+```python3
+from textual.app import App
+from textual.widgets import Static
+from textual.content import Content
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [ 
+                Static(Content('[on blue i @click=app.bell]Hello[/],World')),
+            ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+想要渲染markup标签，则要使用类方法`from_markup`：
+
+```python3
+from textual.app import App
+from textual.widgets import Static
+from textual.content import Content
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [ 
+                Static(Content.from_markup('[on blue i @click=app.bell]Hello[/],World')),
+            ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+虽然前面介绍自定义组件时，使用包含变量的f-string来当做`render`方法的返回值，并没有明显问题。但是，该方法默认是渲染markup标签的，如果变量中包含了可以解析的markup标签，那字符串就会因此异常：
+
+```python3
+from textual.app import App
+from textual.widgets import Static
+from textual.content import Content
+
+class MyApp(App):
+    def on_mount(self):
+        name = '[red]Hello[/]'
+        self.widgets = [ 
+                Static(Content.from_markup(f'[i]{name}[/],World')),
+            ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![content_14](textual.assets/content_14.png)
+
+这个时候，渲染还是不渲染都不是正确的结果。
+
+为了解决这个问题，`from_markup`方法支持模板字符串（完整介绍参考[官网文档](https://docs.python.org/zh-cn/3.13/library/string.html#template-strings)），可以使用模板字符串来代替常规的f-string中添加变量，然后以关键字参数的形式传入模板名对应的变量，完成变量映射：
+
+```python3
+from textual.app import App
+from textual.widgets import Static
+from textual.content import Content
+
+class MyApp(App):
+    def on_mount(self):
+        name_s = '[red]Hello[/]'
+        self.widgets = [ 
+                Static(Content.from_markup(f'[i]$name[/],World',name=name_s)),
+            ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![content_15](textual.assets/content_15.png)
+
+这里的变量映射，在上一小节中，对应的就是验证工具右上角的输入区域，只不过验证工具内使用的是JSON格式（只能使用双引号，也只能映射字符串和基本数据类型，不能映射其他变量）：
+
+![content_16](textual.assets/content_16.png)
+
+##### 3.2.7.3 Rich的可渲染对象
+
+Rich框架在终端能显示的对象也是可渲染对象，所以，也能用在Textual中支持可渲染对象的参数中：
+
+```python3
+from textual.app import App
+from textual.widgets import Static
+from rich.panel import Panel
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [ 
+                Static(Panel('Hello World',expand=False,height=3)),
+            ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![widget_7](textual.assets/widget_7.png)
+
+#### 3.2.8 测试
 
 
 

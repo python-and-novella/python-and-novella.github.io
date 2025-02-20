@@ -4729,6 +4729,8 @@ Textual支持以下基本鼠标事件：
 -   `ctrl`属性，布尔类型，表示在当前鼠标事件发生时，`ctrl`键是否被按下，`True`表示被按下。
 -   `style`属性，Rich框架的`Style`类实例，表示鼠标下内容的Rich样式（Textual基于Rich框架，因此终端显示样式就是Rich样式，该样式主要指颜色、字体等内容）。
 
+在Textual 2.1.0中，基本鼠标事件新增了`pointer_x`属性、`pointer_y`属性、`pointer_screen_x`属性、`pointer_screen_y`属性，分别为`x`属性、`y`属性、`screen_x`属性、`screen_y`属性的取整前的原始属性（浮点类型）。
+
 Textual提供的鼠标事件繁多，除了`Click`事件前面有过使用，其他事件基本没有示例。这里只提供`MouseMove`事件的示例，其余事件的用法，读者可以参考教程自行摸索，这里就不一一介绍了。示例中，通过将`MouseMove`事件的`screen_offset`属性，通过样式接口赋予给原本位置在`(0,0)`的静态文本的`offset`属性，实现了静态文本跟随鼠标的效果。同时，`MouseMove`事件的消息参数也会原本展示在`RichLog`中：
 
 ```python3
@@ -4748,6 +4750,7 @@ class MyApp(App):
     def on_mouse_move(self, e: events.MouseMove):
         self.query_one(RichLog).write(e)
         self.query_one(Static).offset = e.screen_offset
+        # 如果静态文本的位置不是(0,0)，则使用 self.query_one(Static).absolute_offset = e.screen_offset
 
 if __name__ == '__main__':
     app = MyApp()
@@ -6593,7 +6596,7 @@ if __name__ == '__main__':
 
 -   `mouse`参数，布尔类型，表示是否开启程序的鼠标支持。默认为`True`，即程序默认支持鼠标。
 
--   `size`参数，整数元组类型，表示程序启动时的显示大小（即整个`Screen`组件的大小），拖动终端时会让显示大小重新调整。元组只有两个元素，第一个元素表示显示的宽度，第二个元素表示显示的高度。
+-   `size`参数，整数元组类型，表示程序启动时的显示大小（即整个`Screen`组件的大小），拖动终端时会让显示大小重新调整。元组只有两个元素，第一个元素表示显示的宽度（字符数），第二个元素表示显示的高度（字符数）。
 
 -   `auto_pilot`参数，可调用类型，表示程序在开始运行之后，执行的自动化操作。传给该参数的函数会被传入一个`Pilot`类型的对象（`from textual.pilot import Pilot`导入，支持的操作参考[官网文档](https://textual.textualize.io/api/pilot/)）作为参数，并在函数内部定义一系列使用该对象的自动化操作，主要用于自动化测试。通常该参数的基本用法如下（非完整代码，只展示该参数相关的部分）：
 
@@ -6602,8 +6605,7 @@ if __name__ == '__main__':
     
     async def auto_pilot(pilot:Pilot):
         await pilot.pause() # 必须等pilot就位
-        # 可以用 await pilot.wait_for_animation() 
-        # 或者 await pilot.wait_for_scheduled_animations()
+        # 可以用 await pilot.wait_for_scheduled_animations()
         for _ in range(9):
             await pilot.pause(0.5) # 两次点击之间最好暂停0.5秒以上，避免丢失操作
             await pilot.click('#plus') # 点击id为plus的组件
@@ -6613,8 +6615,9 @@ if __name__ == '__main__':
             
     app.run(headless=True,auto_pilot=auto_pilot) # pilot支持无头模式
     ```
+    
 
-    在常量模块中，有一个与该参数有关的常量——`constants.PRESS`，该常量为字符串类型，表示当`auto_pilot`为`None`时模拟的按键，比如`constants.PRESS = 'ctrl+c,ctrl+v'`。
+在常量模块中，有一个与该参数有关的常量——`constants.PRESS`，该常量为字符串类型，表示当`auto_pilot`为`None`时模拟的按键，比如`constants.PRESS = 'ctrl+c,ctrl+v'`。
 
 `auto_pilot`参数的完整示例代码如下：
 
@@ -11626,13 +11629,354 @@ if __name__ == '__main__':
 
 #### 3.2.8 测试
 
+前面在介绍`run`方法的参数`auto_pilot`时，说过此参数主要用于自动化测试，本节将聚焦于一般开发者不太重视的环节——测试，对应的是官网这部分[内容](https://textual.textualize.io/guide/testing/#testing)。
+
+如果读者觉得编写程序不需要浪费时间做自动化测试，那本节完全不用学习。
+
+但是，任何事情没有绝对。在完成程序之后，进行充分的测试，有助于及时发现潜在的问题。使用自动化测试则可以减少手动测试需要的时间，更快完成测试。所以，对于追求代码质量、有测试习惯的开发者，有必要好好学习一下本节内容。
+
+##### 3.2.8.1 测试前的准备
+
+在正式学习之前，建议先安装一下必要自动化测试工具和插件。
+
+使用`pip`安装：
+
+```
+pip install pytest pytest-asyncio pytest-textual-snapshot
+```
+
+或者使用`pdm`添加：
+
+```
+pdm add pytest pytest-asyncio pytest-textual-snapshot
+```
+
+Textual不强制要求测试工具必须是pytest，如果读者熟悉其他测试框架也可以使用，本节则以比较流行的pytest框架为例，讲解Textual提供的测试接口的用法，读者可以按需在其他测试框架中变通。
+
+Textual程序支持异步测试，但不是说必须使用异步测试。想要对Textual程序执行异步测试的话，可以使用`pytest-asyncio`插件提供的装饰器——`@pytest.mark.asyncio`装饰每个测试来显式标明异步测试；也可以pytest的配置文件中添加`asyncio_mode = auto`或者运行`pytest`命令时使用`--asyncio-mode=auto`来自动检测需要异步运行的测试。
+
+除了准备测试工具，还需要准备的就是测试文件。
+
+可能读者不太熟悉pytest框架，但也没关系，本节内容不需要读者熟悉pytest框架，主要介绍的是Textual框架提供的测试接口。因此，这里简单说一下pytest的约定俗成的规则。
+
+在运行`pytest`命令时，pytest框架会检查当前目录下是否存在'test\_'开头的python源代码文件（`.py`），如果存在，则认为这样的文件是测试文件，框架会运行该文件中定义的'test'开头的函数、定义在'Test'开头的类内的'test'开头的函数。为了让测试函数、测试类的名字更加规则，建议使用'test\_'当作测试函数的前缀，使用'Test_'当作测试类的前缀。
+
+假定被测试的Textual程序在`myapp.py`内，那么，可以在同目录下创建`test_myapp.py`当作测试文件。
+
+为了方便查看程序的测试效果，这里简单设计了一个被测试的程序，`myapp.py`内容如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+from textual.color import Color
+
+class MyApp(App):
+    BINDINGS = [
+        ('r', 'app.rgb("red")'),
+        ('g', 'app.rgb("green")'),
+        ('b', 'app.rgb("blue")'),
+    ]
+    def on_mount(self):
+        self.widgets = [
+            Button('red', id='red', action='app.rgb("red")'),
+            Button('green', id='green', action='app.rgb("green")'),
+            Button('blue', id='blue', action='app.rgb("blue")'),
+        ]
+        self.mount_all(self.widgets)
+    def action_rgb(self, color: str = None):
+        if color:
+            self.screen.styles.background = Color.parse(color)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+点击按钮或者按下`r`、`g`、`b`键，屏幕的背景颜色会切换为红、绿、蓝。
+
+![test_1](textual.assets/test_1.png)
+
+##### 3.2.8.2 测试文件的基本结构
+
+在Python中，可以在开发时使用断言（`assert`）检查特定对象是否为预期的结果。pytest则是使用断言（`assert`）当作测试的检查工具。因此，编写测试，实际上就是编写能够覆盖问题点的断言语句。
+
+但这也引出两个问题：断言不在程序内的话，如何使用断言检查程序内对象的情况？Textual是个TUI框架，很多操作需要用户交互，该如何模拟？
+
+这就不得不提Textual程序的测试文件的基本组成。首先，要从被测试的程序文件内导入`App`子类；然后，将子类实例化之后再运行。这样就有`App`子类的示例对象了。同时，为了方便模拟操作，运行方法使用的是返回（完整用法参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot)）的`run_test`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.run_test)），而不是`run`方法。
+
+运行`run_test`方法之后，此方法会返回一个`Pilot`对象，这是一个可以自动化操作程序的机器人，可以模拟用户的操作，以便于测试程序的交互结果。这时，使用异步上下文管理器（`async with`），就可以创建出自动化操作的完整过程。因为涉及到异步操作，测试时需要开启异步测试支持，本节使用的是命令行`pytest --asyncio-mode=auto`，读者可以根据需求和上节的介绍，选择合适的方式。
+
+以下是一份简单的测试代码，读者可以将其保存到`test_myapp.py`中，然后在同级目录下运行`pytest --asyncio-mode=auto`，或者指定文件名运行`pytest --asyncio-mode=auto .\test_myapp.py`，并查看输出的结果：
+
+```python3
+from .myapp import MyApp
+from textual.color import Color
+
+async def test_myapp_keys():
+    app = MyApp()
+    async with app.run_test() as pilot:
+        await pilot.press('r')
+        assert app.screen.styles.background == Color.parse('red')
+        await pilot.press('g')
+        assert app.screen.styles.background == Color.parse('green')
+        await pilot.press('b')
+        assert app.screen.styles.background == Color.parse('blue')
+        await pilot.press('x')
+        assert app.screen.styles.background == Color.parse('blue')
+
+async def test_myapp_buttons():
+    app = MyApp()
+    async with app.run_test() as pilot:
+        await pilot.click('#red')
+        assert app.screen.styles.background == Color.parse('red')
+        await pilot.click('#green')
+        assert app.screen.styles.background == Color.parse('green')
+        await pilot.click('#blue')
+        assert app.screen.styles.background == Color.parse('blue')
+```
+
+![test_2](textual.assets/test_2.png)
+
+代码中涉及到`Pilot`对象的操作，下节会详细讲解，这里主要是学习测试代码的基本结构。
+
+读者如果学习过前面介绍的`run`方法参数`auto_pilot`，就会发现这里的测试代码和那里介绍的代码很像，没错，当时介绍`auto_pilot`参数时，就说过此参数主要用于自动化测试，参数相关的`Pilot`对象和这里的`Pilot`对象是一样的。
+
+因此，如果没有安装pytest框架，或者不想在外面单独测试，可以定义一个类似的异步函数（`Pilot`对象由参数提供，不需要使用`async with`），把上面的测试代码复制到函数内，这样就实现了集成测试（这里的意思是测试集成到正常程序内，不是测试方法中子功能完成后，与主程序一起联合测试）：
+
+```python3
+
+from textual.app import App
+from textual.widgets import Button
+from textual.color import Color
 
 
-https://textual.textualize.io/guide/testing/#testing
+class MyApp(App):
+    BINDINGS = [
+        ('r', 'app.rgb("red")'),
+        ('g', 'app.rgb("green")'),
+        ('b', 'app.rgb("blue")'),
+    ]
 
+    def on_mount(self):
+        self.widgets = [
+            Button('red', id='red', action='app.rgb("red")'),
+            Button('green', id='green', action='app.rgb("green")'),
+            Button('blue', id='blue', action='app.rgb("blue")'),
+        ]
+        self.mount_all(self.widgets)
 
+    def action_rgb(self, color: str = None):
+        if color:
+            self.screen.styles.background = Color.parse(color)
 
+from textual.pilot import Pilot
 
+async def test_myapp(pilot:Pilot):
+    await pilot.wait_for_animation()
+    await pilot.press('r')
+    assert app.screen.styles.background == Color.parse('red')
+    await pilot.press('g')
+    assert app.screen.styles.background == Color.parse('green')
+    await pilot.press('b')
+    assert app.screen.styles.background == Color.parse('blue')
+    await pilot.press('x')
+    assert app.screen.styles.background == Color.parse('blue')
+    await pilot.click('#red')
+    assert app.screen.styles.background == Color.parse('red')
+    await pilot.click('#green')
+    assert app.screen.styles.background == Color.parse('green')
+    await pilot.click('#blue')
+    assert app.screen.styles.background == Color.parse('blue')
+    pilot.app.exit(0)
+
+if __name__ == '__main__':
+    TEST = True
+    app = MyApp()
+    app.run(auto_pilot=test_myapp if TEST else None)
+```
+
+当`TEST`为`True`是，运行上面的程序，会自动进行测。如果代码没有问题，程序退出时，终端的输出就是干净的。假如代码有问题，终端就会输出报错。
+
+##### 3.2.8.3 自动化操作——`Pilot`对象的方法
+
+上一节中，展示了使用`Pilot`对象模拟用户操作的简单示例。本节将进一步深入`Pilot`对象支持的操作，详细介绍`Pilot`对象提供的方法。
+
+为了方便演示效果，本节的示例代码没有放在测试文件中，而是集成到普通的Textual程序中。
+
+`wait_for_animation`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.wait_for_animation)），此方法会等待当前正在播放的动画结束。
+
+`wait_for_scheduled_animations`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.wait_for_scheduled_animations)），此方法会等待当前正在播放和准备播放的动画结束。
+
+`pause`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.pause)），此方法会让`Pilot`对象等待CPU空闲，可以传入一个浮点小数，则会在延迟指定秒数之后再等待CPU空闲。
+
+`press`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.press)），此方法可以模拟按键操作，给该方法传入表示按键的字符串，比如`pilot.press('r')`，`Pilot`对象则会按下对应按键。除了单一按键，还可以传入组合键，只需在字符串内使用`+`连接即可，比如`pilot.press('ctrl+c')`。也可以传入多个字符串，表示接连按下指定的按键，比如`pilot.press('r','ctrl+c')`。
+
+需要注意的是，使用`press`方法模拟连续按下多个按键时，每次操作之间是没有间隔的，但依然可以确保上次操作是完成的。稳妥起见，还是不建议连续的按键操作间隔太短，可以使用`pause`方法作为中间的间隔：
+
+```python3
+
+from textual.app import App
+from textual.widgets import Button
+from textual.color import Color
+
+class MyApp(App):
+    BINDINGS = [
+        ('r', 'app.rgb("red")'),
+        ('g', 'app.rgb("green")'),
+        ('b', 'app.rgb("blue")'),
+    ]
+    def on_mount(self):
+        self.widgets = [
+            Button('red', id='red', action='app.rgb("red")'),
+            Button('green', id='green', action='app.rgb("green")'),
+            Button('blue', id='blue', action='app.rgb("blue")'),
+        ]
+        self.mount_all(self.widgets)
+    def action_rgb(self, color: str = None):
+        if color:
+            self.screen.styles.background = Color.parse(color)
+
+from textual.pilot import Pilot
+
+async def test_myapp(pilot:Pilot):
+    await pilot.wait_for_animation()
+    await pilot.pause(0.5)
+    await pilot.press('r')
+    await pilot.pause(0.5)
+    await pilot.press('g')
+    await pilot.pause(0.5)
+    await pilot.press('b')
+
+if __name__ == '__main__':
+    TEST = True
+    app = MyApp()
+    app.run(auto_pilot=test_myapp if TEST else None)
+```
+
+`click`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.click)）可以模拟鼠标左键（主要键）单击操作。该方法支持以下参数：
+
+-   `widget`参数，表示要点击的组件，和查询方法的语法一样，支持字符串选择器或者组件类。如果留空，则表示点击屏幕组件。
+-   `offset`参数，两个元素的整数元组，表示点击终端的哪个位置。比如`(1,4)`，表示点击X坐标为1、Y坐标为4的位置。
+-   `shift`参数，布尔类型，表示点击时是否同时按下`shift`键，默认为`False`。
+-   `meta`参数，布尔类型，表示点击时是否同时按下`meta`键（Win下对应的`alt`键），默认为`False`。
+-   `control`参数，布尔类型，表示点击时是否同时按下`ctrl`键，默认为`False`。
+-   `times`参数，整数类型，表示点击多少次，默认为`1`。
+
+需要注意的是，执行了`wait_for_animation`方法之后，不能立刻执行`click`方法，需要等待CPU空闲才行。但执行了`wait_for_scheduled_animations`方法之后可以立刻执行`click`方法。下面的模拟双击、三击、鼠标左键按下、鼠标左键抬起同样受此规则约束。
+
+`double_click`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.double_click)）可以模拟鼠标左键（主要键）双击操作，没有`times`参数，其余参数与`click`方法一致。
+
+`triple_click`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.triple_click)）可以模拟鼠标左键（主要键）三击操作，没有`times`参数，其余参数与`click`方法一致。
+
+`hover`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.hover)）可以模拟鼠标悬停。该方法支持与`click`方法相同的`widget`参数和`offset`参数。
+
+`mouse_down`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.mouse_down)）可以模拟鼠标左键（主要键）按下（不抬起来），支持的参数与`double_click`方法相同。
+
+`mouse_up`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.mouse_up)）可以模拟鼠标左键（主要键）抬起（不包括按下的过程，点击操作是按下、抬起的完整过程，因此不会触发点击事件），支持的参数与`double_click`方法相同。
+
+`exit`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.exit)）可以模拟程序退出。注意，此方法支持一个`result`参数，含义同`app.exit`的`result`参数，并且必须给此参数传值，否则会报错。如果想不传入参数就退出程序，可以使用`Pilot`对象的`app`成员的`exit`方法，此方法不传值也能使用。
+
+`resize_terminal`方法（完整介绍参考[官网文档](https://textual.textualize.io/api/pilot/#textual.pilot.Pilot.resize_terminal)）模拟调整终端的大小（仅支持无头模式，设置无头模式参考下一节）。此方法支持整数类型的`width`参数和`height`参数，表示终端调整到什么宽度和高度。
+
+##### 3.2.8.4 自动化操作——`run_test`方法的参数
+
+上一节最后的部分提到无头模式，关于启用无头模式的方法，需要了解一下`run_test`方法（完整用法参考[官网文档](https://textual.textualize.io/api/app/#textual.app.App.run_test)）支持的参数：
+
+-   `headless`参数，布尔类型，表示是否开启无头模式。所谓无头模式，即不在终端输出内容的模式，但程序的组件依然可以通过编程交互。不同与`run`方法默认是当正常程序运行，`run_test`方法默认是执行自动化测试，因此，该参数默认为`True`，即开启。
+-   `size`参数，整数元组类型，表示程序启动时的显示大小（即整个`Screen`组件的大小），拖动终端时会让显示大小重新调整。元组只有两个元素：第一个元素表示显示的宽度（字符数），默认为`80`,；第二个元素表示显示的高度（字符数），默认为`24`。
+-   `tooltips`参数，布尔类型，表示是否显示组件触发的工具提示，默认为`False`。
+-   `notifications`参数，布尔类型，表示是否显示操作触发的通知，默认为`False`。
+-   `message_hook`参数，可调用类型，表示当程序内有消息传递时，将此消息作为参数传递给该参数代表的方法，就像一个消息钩子一样。默认为`None`，即没有消息钩子。
+
+##### 3.2.8.5 使用快照比较`snap_compare`
+
+除了使用pytest执行命令行输出测试结果的常规测试之外，在安装`pytest-textual-snapshot`插件之后，可以在测试文件中使用`snap_compare`关键字，创建Textual程序执行状态的快照比较。
+
+所谓快照，就是截图，但一般的截图不好比较，因此Textual创建了插件，可以把截图保存为svg格式，用于比较不同测试批次的快照。
+
+将`test_myapp.py`的内容修改如下，然后运行`pytest`命令：
+
+```python3
+def test_myapp(snap_compare):
+    assert snap_compare("./myapp.py")
+```
+
+代码中的`snap_compare`由插件提供，给该方法传入被测试程序的路径，插件就会将程序运行的界面截图，并判断该截图是否与先前运行的结果一致，返回判断结果。使用断言关键字，可以让pytest框架识别到比较的结果。
+
+如果是第一次运行快照比较，通常会得到测试失败的结果：
+
+![test_3](textual.assets/test_3.png)
+
+点击箭头处链接，或者在测试文件所在目录下寻找`snapshot_report.html`，使用浏览器打开，可以查看快照比较的结果。其中左边的快照是当前测试的快照，右边表示历史快照，也就是正确的快照。该结果只在测试失败时生成，但第一次运行时比较特殊，因为之前没有保存下来的快照，所以运行测试时，比较结果自然不同。
+
+![test_4](textual.assets/test_4.png)
+
+如果此时结果中的截图符合预期，则可以使用`pytest --snapshot-update`更新程序快照，将此快照保存，作为正确的结果。之后再运行`pytest`命令时，如果结果一致，就不会测试失败，也不会生成新的结果了。
+
+当然，如果想了解出现问题时的结果，可以将被测试的程序修改一下（仅限本示例，后续代码请将修改处复原）：
+
+```python3
+
+from textual.app import App
+from textual.widgets import Button
+from textual.color import Color
+
+class MyApp(App):
+    BINDINGS = [
+        ('r', 'app.rgb("red")'),
+        ('g', 'app.rgb("green")'),
+        ('b', 'app.rgb("blue")'),
+    ]
+
+    def on_mount(self):
+        self.widgets = [
+            Button('r', id='red', action='app.rgb("red")'),# 'red'改为'r'
+            Button('green', id='green', action='app.rgb("green")'),
+            Button('blue', id='blue', action='app.rgb("blue")'),
+        ]
+        self.mount_all(self.widgets)
+
+    def action_rgb(self, color: str = None):
+        if color:
+            self.screen.styles.background = Color.parse(color)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+再运行`pytest`命令，并查看结果：
+
+![test_5](textual.assets/test_5.png)
+
+如果程序的界面比较复杂，可以点击箭头所示的开关，这样右边表示正确结果的快照就只显示差异内容，不显示完整内容。
+
+使用`snap_compare`时，可以传入以下参数：
+
+-   `app`参数，字符串类型或者`PurePath`类型（来自标准库`pathlib`）或者`App`子类，此参数是必需的。如果传入的是字符串或者`PurePath`类的实例，测试框架会将其当做文件路径，直接运行该文件并截图；如果传入的是`App`子类的实例，则会直接运行该实例的`run`方法，并截图。
+
+-   `press`参数，字符串列表，表示在运行目标程序时，模拟按下的按键。列表中的每个字符串表示按下一次按键（支持组合键）。
+
+-   `terminal_size`参数，整数元组类型，表示程序启动时的显示大小（即整个`Screen`组件的大小），拖动终端时会让显示大小重新调整。元组只有两个元素：第一个元素表示显示的宽度（字符数），默认为`80`,；第二个元素表示显示的高度（字符数），默认为`24`。
+
+-   `run_before`参数，可调用类型，表示在截图之前，被测试程序执行的自动化操作。传给该参数的函数会被传入一个`Pilot`类型的对象（`from textual.pilot import Pilot`导入，支持的操作参考[官网文档](https://textual.textualize.io/api/pilot/)）作为参数，并在函数内部定义一系列使用该对象的自动化操作。可以看出，此参数实际上和`run`方法的`auto_pilot`参数一样。因此，如果截图时需要前置操作，可以给该参数传入模拟自动化的函数：
+
+    ```python3
+    from .myapp import MyApp
+    from textual.pilot import Pilot
+    
+    async def control_myapp(pilot: Pilot):
+        await pilot.wait_for_animation()
+        await pilot.press('b')
+    
+    def test_myapp(snap_compare):
+        app = MyApp()
+        assert snap_compare(app, run_before=control_myapp)
+    ```
+
+    如果当前快照是符合预期的正确快照，可以使用`pytest --snapshot-update`更新历史快照：
+
+    ![test_6](textual.assets/test_6.png)
 
 ### 3.3 高阶组件（慢慢更新，三天一个组件）
 

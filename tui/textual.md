@@ -140,7 +140,7 @@ class MyApp(App):
 app = MyApp()
 ```
 
-改动后的代码将`app = MyApp()`移动到最左端的缩进，同时去掉了对`__name__ == "__main__"`的判断和`app.run()`，这就意味着，该Python源代码文件在当作模块导入（`from . import myapp`）时，不会运行`app.run()`，同时可以导入`app`和`MyApp`这两个模块的成员。
+改动后的代码将`app = MyApp()`移动到最左端的缩进，同时去掉了对`__name__ == '__main__'`的判断和`app.run()`，这就意味着，该Python源代码文件在当作模块导入（`from . import myapp`）时，不会运行`app.run()`，同时可以导入`app`和`MyApp`这两个模块的成员。
 
 接下来，新建文件夹`test`，将`myapp.py`放到`test`文件夹，并在文件夹中创建空白的`__init__.py`文件，用于表明test是个包。那么，将得到以下文件结构：
 
@@ -5391,554 +5391,6 @@ if __name__ == '__main__':
     app = MyApp()
     app.run()
 ```
-
-### 2.3 常用组件
-
-本节主要介绍常用组件及其的常用功能、示例，更多用法和介绍参考[官网完整文档](https://textual.textualize.io/widgets/)。
-
-#### 2.3.1 `Static`静态文本
-
-静态文本组件是最简单的文本显示组件，这也是为什么第一节内容中会使用该组件显示文本内容。该组件的完整用法可以参考[官网文档](https://textual.textualize.io/widgets/label/)。
-
-静态文本组件支持以下参数：
-
--   `content`参数，Rich的可渲染类型（包括Python的字符串类型）或者支持可视化类型（实现了`visualize`方法并且该方法返回可渲染对象的类），表示静态文本显示的内容。一般的可渲染类型就不必多说，除了常规的字符串，更多是使用Rich的可渲染类型来包装、修饰的内容，这里就不写例子了。对于支持可视化类型的例子，这里简单写一个：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Static
-    
-    class RichText:
-        def __init__(self,text):
-            self._text = text
-        def visualize(self):
-            from rich.text import Text
-            return Text.from_markup(self._text)
-    
-    class MyApp(App):
-        def on_mount(self):
-            self.widgets = [
-                Static(content=RichText('Hello World'))
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    此参数是位置参数，即可以不用指定参数名直接传入。后面的几个参数均为关键字参数，必须指定参数名才能传入。
-
--   `expand`参数，布尔类型，表示当内容的宽度小于容器的宽度时，是否扩展内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让静态文本组件的宽度正好等于容器的宽度：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Static
-    from textual.containers import Container
-    
-    class MyApp(App):
-        CSS = '''
-        Static {
-            border: solid yellow;
-            width: auto;
-        }
-        Container {
-            border: solid green;
-            width: 25;
-        }
-        '''
-        def on_mount(self):
-            self.widgets = [
-                Container(
-                Static(content='Hello World',expand=True)
-                )
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![static_1](textual.assets/static_1.png)
-
--   `shrink`参数，布尔类型，表示当内容的宽度大于容器的宽度时，是否收缩内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让静态文本组件的宽度正好等于容器的宽度：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Static
-    from textual.containers import Container
-    
-    class MyApp(App):
-        CSS = '''
-        Static {
-            border: solid yellow;
-            width: auto;
-        }
-        Container {
-            border: solid green;
-            width: 10;
-        }
-        '''
-        def on_mount(self):
-            self.widgets = [
-                Container(
-                Static(content='Hello World',shrink=True)
-                )
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![static_2](textual.assets/static_2.png)
-
--   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（后面会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式），默认为`True`，即解析。如果不需要解析，可以使用`escape`方法（使用`from textual.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Static
-    from textual.containers import Container
-    from textual.markup import escape
-    
-    class MyApp(App):
-        def on_mount(self):
-            self.widgets = [
-                Container(
-                Static(content='[red]Hello[/] World'),
-                Static(content='[red]Hello[/] World',markup=False),
-                Static(content=escape('[red]Hello[/] World')),
-                )
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![static_3](textual.assets/static_3.png)
-
--   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
-
--   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
-
--   `classes`参数，字符串类型，表示组件的样式类。
-
--   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。处于禁用状态的组件除了不能响应用户的操作（静态文本组件默认没有响应动作），还会显示为伪类设计的样式（静态文本组件没有设计禁用时的伪类样式）。如果想区分静态文本组件是否被禁用，可以参考下面的示例代码：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Static
-    
-    class MyApp(App):
-        CSS = '''
-        Static:disabled {
-            border:solid yellow;
-            color: $link-color 50%;
-        }
-        '''
-        def on_mount(self):
-            self.widgets = [
-                Static(content='[red]Hello[/] World'),
-                Static(content='[red]Hello[/] World',disabled=True)
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![static_4](textual.assets/static_4.png)
-
-静态文本组件支持以下属性：
-
--   `renderable`属性，表示静态文本组件显示的内容，可以在组件创建后，使用此属性获取显示的内容。如果想要更新静态文本组件的内容，请使用`update`方法。
-
-静态文本组件支持以下方法：
-
--   `update`方法，用于更新静态文本组件显示的内容。该方法只有一个`content`参数，支持的类型和用法同静态文本组件的`content`参数。
-
-#### 2.3.2 `Label`文本标签
-
-继承自静态文本组件，但比静态文本组件多了一个参数`variant`，并且默认的位置参数名改成了`renderable`。该组件的完整用法可以参考[官网文档](https://textual.textualize.io/widgets/label/)。大部分时候，文本标签组件和静态文本组件的用法、显示接近，只不过文本标签组件的额外参数让文本标签组件比静态文本组件的显示效果更丰富。
-
-文本标签组件支持以下参数：
-
--   `renderable`参数，Rich的可渲染类型（包括Python的字符串类型）或者支持可视化类型（实现了`visualize`方法并且该方法返回可渲染对象的类），表示静态文本显示的内容。一般的可渲染类型就不必多说，除了常规的字符串，更多是使用Rich的可渲染类型来包装、修饰的内容，这里就不写例子了。对于支持可视化类型的例子，这里简单写一个：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Label
-    
-    class RichText:
-        def __init__(self,text):
-            self._text = text
-        def visualize(self):
-            from rich.text import Text
-            return Text.from_markup(self._text)
-    
-    class MyApp(App):
-        def on_mount(self):
-            self.widgets = [
-                Label(renderable=RichText('Hello World'))
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    此参数是位置参数，即可以不用指定参数名直接传入。后面的几个参数均为关键字参数，必须指定参数名才能传入。
-
--   `variant`参数，字符串类型，表示文本标签组件预设的显示效果。默认为`None`，即没有显示效果，可以将该参数设置为`["success", "error", "warning", "primary", "secondary", "accent"]`中的任意一个，切换显示效果（实际上是给组件添加对应名字的样式类）。示例如下：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Label
-    
-    class MyApp(App):
-        def on_mount(self):
-            self.widgets = [
-                Label(renderable=f'Hello World from {name}',variant=name) 
-                for name in [None,"success", "error", "warning", "primary", "secondary", "accent"]
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![label_1](textual.assets/label_1.png)
-
--   `expand`参数，布尔类型，表示当内容的宽度小于容器的宽度时，是否扩展内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让文本标签组件的宽度正好等于容器的宽度：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Label
-    from textual.containers import Container
-    
-    class MyApp(App):
-        CSS = '''
-        Label {
-            border: solid yellow;
-            width: auto;
-        }
-        Container {
-            border: solid green;
-            width: 25;
-        }
-        '''
-        def on_mount(self):
-            self.widgets = [
-                Container(
-                Label(renderable='Hello World',expand=True)
-                )
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![static_1](textual.assets/static_1.png)
-
--   `shrink`参数，布尔类型，表示当内容的宽度大于容器的宽度时，是否收缩内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让文本标签组件的宽度正好等于容器的宽度：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Label
-    from textual.containers import Container
-    
-    class MyApp(App):
-        CSS = '''
-        Label {
-            border: solid yellow;
-            width: auto;
-        }
-        Container {
-            border: solid green;
-            width: 10;
-        }
-        '''
-        def on_mount(self):
-            self.widgets = [
-                Container(
-                Label(renderable='Hello World',shrink=True)
-                )
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![static_2](textual.assets/static_2.png)
-
--   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（后面会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式），默认为`True`，即解析。如果不需要解析，可以使用`escape`方法（使用`from textual.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Label
-    from textual.containers import Container
-    from textual.markup import escape
-    
-    class MyApp(App):
-        def on_mount(self):
-            self.widgets = [
-                Container(
-                Label(renderable='[red]Hello[/] World'),
-                Label(renderable='[red]Hello[/] World',markup=False),
-                Label(renderable=escape('[red]Hello[/] World')),
-                )
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![static_3](textual.assets/static_3.png)
-
--   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
-
--   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
-
--   `classes`参数，字符串类型，表示组件的样式类。
-
--   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。处于禁用状态的组件除了不能响应用户的操作（文本标签组件默认没有响应动作），还会显示为伪类设计的样式（文本标签组件没有设计禁用时的伪类样式）。如果想区分文本标签组件是否被禁用，可以参考下面的示例代码：
-
-    ```python3
-    from textual.app import App
-    from textual.widgets import Label
-    
-    class MyApp(App):
-        CSS = '''
-        Label:disabled {
-            border:solid yellow;
-            color: $link-color 50%;
-        }
-        '''
-        def on_mount(self):
-            self.widgets = [
-                Label(renderable='[red]Hello[/] World'),
-                Label(renderable='[red]Hello[/] World',disabled=True)
-            ]
-            self.mount_all(self.widgets)
-    
-    if __name__ == '__main__':
-        app = MyApp()
-        app.run()
-    ```
-
-    ![static_4](textual.assets/static_4.png)
-
-文本标签组件支持以下属性：
-
--   `renderable`属性，表示文本标签组件显示的内容，可以在组件创建后，使用此属性获取显示的内容。如果想要更新文本标签组件的内容，请使用`update`方法。
-
-文本标签组件支持以下方法：
-
--   `update`方法，用于更新文本标签组件显示的内容。该方法只有一个`content`参数，支持的类型和用法同文本标签组件的`renderable`参数。
-
-#### 2.3.3 `Pretty`美化文本
-
-
-
-https://textual.textualize.io/widgets/pretty/
-
-
-
-```python3
-from textual.app import App
-from textual.widgets import Pretty
-
-class MyApp(App):
-    def on_mount(self):
-        self.widgets = [
-            Pretty(object=self)
-        ]
-        self.mount_all(self.widgets)
-
-if __name__ == '__main__':
-    app = MyApp()
-    app.run()
-```
-
-
-
-
-
-#### 2.3.4 `Link`超链接
-
-
-
-https://textual.textualize.io/widgets/link/
-
-
-
-
-
-#### 2.3.5 `Digits`数码显示
-
-
-
-https://textual.textualize.io/widgets/digits/
-
-
-
-#### 2.3.x `Button`按钮
-
-
-
-https://textual.textualize.io/widgets/button/
-
-
-
-简单示例
-
-一般创建按钮的方法，
-
-成功、警告、错误三个按钮还有类方法来创建
-
-
-
-参数
-
-
-
-属性（含反应性属性）
-
-
-
-消息名及消息属性
-
-
-
-快捷键及作用
-
-
-
-子组件的样式类
-
-
-
-方法
-
-
-
-特别需要注意的内容
-
-
-
-
-
-其他常用组件
-
-
-
-
-
-Checkbox
-
-Collapsible
-
-ContentSwitcher
-
-DataTable
-
-DirectoryTree
-
-Footer
-
-Header
-
-
-
-给`Header`添加参数来隐藏`icon`：
-
-```python3
-from textual.widgets import Header
-from textual.widgets._header import HeaderTitle, HeaderClock, HeaderClockSpace, HeaderIcon
-
-class HeaderWithIcon(Header):
-    def __init__(self, show_clock: bool = False, show_icon: bool = True, *, name: str | None = None, id: str | None = None, classes: str | None = None, icon: str | None = None, time_format: str | None = None):
-        super().__init__(show_clock, name=name, id=id, classes=classes, icon=icon, time_format=time_format)
-        self._show_icon = show_icon
-        self.header_icon = HeaderIcon()
-        self.header_icon.visible = self._show_icon    
-
-    def compose(self):
-        self.header_icon.data_bind(Header.icon)
-        yield self.header_icon
-        yield HeaderTitle()
-        yield (
-            HeaderClock().data_bind(Header.time_format)
-            if self._show_clock
-            else HeaderClockSpace()
-        )
-Header = HeaderWithIcon
-```
-
-1
-
-
-
-Input
-
-ListItem
-
-ListView
-
-LoadingIndicator
-
-Log
-
-MarkdownViewer
-
-Markdown
-
-MaskedInput
-
-OptionList
-
-Placeholder
-
-ProgressBar
-
-RadioButton
-
-RadioSet
-
-RichLog
-
-Rule
-
-Select
-
-SelectionList
-
-Switch
-
-TabbedContent
-
-Tabs
-
-TextArea
-
-Toast
-
-Tree
-
-
 
 ## 3 高阶技巧
 
@@ -11978,10 +11430,1279 @@ if __name__ == '__main__':
 
     ![test_6](textual.assets/test_6.png)
 
-### 3.3 高阶组件（慢慢更新，三天一个组件）
+## 4 组件一览（慢慢更新，一周大约三个组件）
+
+### 4.1 常用组件
+
+本节主要介绍常用组件及其的常用功能、示例，更多用法和介绍参考[官网完整文档](https://textual.textualize.io/widgets/)。
+
+#### 2.3.1 内容展示组件
+
+内容展示组件常用于展示内容，一般不需要用户主动交互。
+
+##### 2.3.1.1 `Static`静态文本组件
+
+静态文本组件是最简单的文本显示组件，这也是为什么第一节内容中会使用该组件显示文本内容。该组件的完整用法可以参考[官网文档](https://textual.textualize.io/widgets/label/)。
+
+静态文本组件支持以下参数：
+
+-   `content`参数，可渲染类型或者支持可视化类型（实现了`visualize`方法并且该方法返回可渲染对象的类），表示静态文本显示的内容。一般的可渲染类型就不必多说，除了常规的字符串，更多是使用Rich的可渲染类型来包装、修饰的内容，这里就不写例子了。对于支持可视化类型的例子，这里简单写一个：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    
+    class RichText:
+        def __init__(self,text):
+            self._text = text
+        def visualize(self):
+            from rich.text import Text
+            return Text.from_markup(self._text)
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Static(content=RichText('Hello World'))
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    此参数是位置参数，即可以不用指定参数名直接传入。后面的几个参数均为关键字参数，必须指定参数名才能传入。
+
+-   `expand`参数，布尔类型，表示当内容的宽度小于容器的宽度时，是否扩展内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让静态文本组件的宽度正好等于容器的宽度：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    from textual.containers import Container
+    
+    class MyApp(App):
+        CSS = '''
+        Static {
+            border: solid yellow;
+            width: auto;
+        }
+        Container {
+            border: solid green;
+            width: 25;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Static(content='Hello World',expand=True)
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_1](textual.assets/static_1.png)
+
+-   `shrink`参数，布尔类型，表示当内容的宽度大于容器的宽度时，是否收缩内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让静态文本组件的宽度正好等于容器的宽度：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    from textual.containers import Container
+    
+    class MyApp(App):
+        CSS = '''
+        Static {
+            border: solid yellow;
+            width: auto;
+        }
+        Container {
+            border: solid green;
+            width: 10;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Static(content='Hello World',shrink=True)
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_2](textual.assets/static_2.png)
+
+-   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式），默认为`True`，即解析。如果不需要解析，可以使用`escape`方法（使用`from textual.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    from textual.containers import Container
+    from textual.markup import escape
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Static(content='[red]Hello[/] World'),
+                Static(content='[red]Hello[/] World',markup=False),
+                Static(content=escape('[red]Hello[/] World')),
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_3](textual.assets/static_3.png)
+
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
+-   `classes`参数，字符串类型，表示组件的样式类。
+
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。处于禁用状态的组件除了不能响应用户的操作（静态文本组件默认没有响应动作），还会显示为伪类设计的样式（静态文本组件没有设计禁用时的伪类样式）。如果想区分静态文本组件是否被禁用，可以参考下面的示例代码：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Static
+    
+    class MyApp(App):
+        CSS = '''
+        Static:disabled {
+            border:solid yellow;
+            color: $link-color 50%;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Static(content='[red]Hello[/] World'),
+                Static(content='[red]Hello[/] World',disabled=True)
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_4](textual.assets/static_4.png)
+
+静态文本组件支持以下属性：
+
+-   `renderable`属性，表示静态文本组件显示的内容，可以在组件创建后，使用此属性获取显示的内容。如果想要更新静态文本组件的内容，请使用`update`方法。
+
+静态文本组件支持以下方法：
+
+-   `update`方法，用于更新静态文本组件显示的内容。该方法只有一个`content`参数，支持的类型和用法同静态文本组件的`content`参数。
+
+##### 2.3.1.2 `Label`文本标签组件
+
+继承自静态文本组件，但比静态文本组件多了一个参数`variant`，并且默认的位置参数名改成了`renderable`。该组件的完整用法可以参考[官网文档](https://textual.textualize.io/widgets/label/)。大部分时候，文本标签组件和静态文本组件的用法、显示接近，只不过文本标签组件的额外参数让文本标签组件比静态文本组件的显示效果更丰富。
+
+文本标签组件支持以下参数：
+
+-   `renderable`参数，可渲染类型或者支持可视化类型（实现了`visualize`方法并且该方法返回可渲染对象的类），表示静态文本显示的内容。一般的可渲染类型就不必多说，除了常规的字符串，更多是使用Rich的可渲染类型来包装、修饰的内容，这里就不写例子了。对于支持可视化类型的例子，这里简单写一个：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    
+    class RichText:
+        def __init__(self,text):
+            self._text = text
+        def visualize(self):
+            from rich.text import Text
+            return Text.from_markup(self._text)
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Label(renderable=RichText('Hello World'))
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    此参数是位置参数，即可以不用指定参数名直接传入。后面的几个参数均为关键字参数，必须指定参数名才能传入。
+
+-   `variant`参数，字符串类型，表示文本标签组件预设的显示效果。默认为`None`，即没有显示效果，可以将该参数设置为`["success", "error", "warning", "primary", "secondary", "accent"]`中的任意一个，切换显示效果（实际上是给组件添加对应名字的样式类）。示例如下：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Label(renderable=f'Hello World from {name}',variant=name) 
+                for name in [None,"success", "error", "warning", "primary", "secondary", "accent"]
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![label_1](textual.assets/label_1.png)
+
+-   `expand`参数，布尔类型，表示当内容的宽度小于容器的宽度时，是否扩展内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让文本标签组件的宽度正好等于容器的宽度：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    from textual.containers import Container
+    
+    class MyApp(App):
+        CSS = '''
+        Label {
+            border: solid yellow;
+            width: auto;
+        }
+        Container {
+            border: solid green;
+            width: 25;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Label(renderable='Hello World',expand=True)
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_1](textual.assets/static_1.png)
+
+-   `shrink`参数，布尔类型，表示当内容的宽度大于容器的宽度时，是否收缩内容的宽度来填满整个容器的宽度，默认为`False`。以下面的代码为例，将此参数设置为`True`，可以让文本标签组件的宽度正好等于容器的宽度：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    from textual.containers import Container
+    
+    class MyApp(App):
+        CSS = '''
+        Label {
+            border: solid yellow;
+            width: auto;
+        }
+        Container {
+            border: solid green;
+            width: 10;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Label(renderable='Hello World',shrink=True)
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_2](textual.assets/static_2.png)
+
+-   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（后面会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式），默认为`True`，即解析。如果不需要解析，可以使用`escape`方法（使用`from textual.markup import escape`导入）转义，或者将此参数设置为`False`。示例如下：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    from textual.containers import Container
+    from textual.markup import escape
+    
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Container(
+                Label(renderable='[red]Hello[/] World'),
+                Label(renderable='[red]Hello[/] World',markup=False),
+                Label(renderable=escape('[red]Hello[/] World')),
+                )
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_3](textual.assets/static_3.png)
+
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
+-   `classes`参数，字符串类型，表示组件的样式类。
+
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。处于禁用状态的组件除了不能响应用户的操作（文本标签组件默认没有响应动作），还会显示为伪类设计的样式（文本标签组件没有设计禁用时的伪类样式）。如果想区分文本标签组件是否被禁用，可以参考下面的示例代码：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Label
+    
+    class MyApp(App):
+        CSS = '''
+        Label:disabled {
+            border:solid yellow;
+            color: $link-color 50%;
+        }
+        '''
+        def on_mount(self):
+            self.widgets = [
+                Label(renderable='[red]Hello[/] World'),
+                Label(renderable='[red]Hello[/] World',disabled=True)
+            ]
+            self.mount_all(self.widgets)
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    ![static_4](textual.assets/static_4.png)
+
+文本标签组件支持以下属性：
+
+-   `renderable`属性，表示文本标签组件显示的内容，可以在组件创建后，使用此属性获取显示的内容。如果想要更新文本标签组件的内容，请使用`update`方法。
+
+文本标签组件支持以下方法：
+
+-   `update`方法，用于更新文本标签组件显示的内容。该方法只有一个`content`参数，支持的类型和用法同文本标签组件的`renderable`参数。
+
+##### 2.3.1.3 `Pretty`美化文本组件
+
+如果觉得需要手动设置文本的颜色或者样式来让文本内容变得美观有点费事，那可以试试美化文本组件，完整用法可以参考[官网文档](https://textual.textualize.io/widgets/pretty/)。美化文本组件会自动选择合适的语法高亮来显示文本，支持任何可以转化为字符串的对象。
+
+美化文本组件支持以下参数：
+
+-   `object`参数，任意对象，表示组件要显示的内容。组件显示时会将对象转化为字符串，因此，不支持转化为字符串的对象不能显示。
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
+-   `classes`参数，字符串类型，表示组件的样式类。
+
+简单用法如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Pretty
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Pretty(object=self)
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![pretty_1](textual.assets/pretty_1.png)
+
+美化文本组件支持以下方法：
+
+-   `update`方法，用于更新美化文本组件显示的内容。该方法只有一个`object`参数，支持的类型和用法同美化文本组件的`object`参数。因为没有修改显示内容的属性，因此只能使用此方法修改显示内容。
+
+##### 2.3.1.4 `Digits`数码显示组件
+
+数码显示组件可以让被显示的内容呈现出类似数码管效果的样式，完整用法参考[官网文档](https://textual.textualize.io/widgets/digits/)。
+
+数码显示组件支持以下参数：
+
+-   `value`参数，字符串类型，表示显示出来的文字内容，其中只有`".0123456789+-^x:ABCDEF$£€()"`中的字符会被数码化，其余字符则是正常原样显示。
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+-   `classes`参数，字符串类型，表示组件的样式类。
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+数码显示组件支持以下属性：
+
+-   `value`属性，表示数码显示组件显示的内容，可以在组件创建后，使用此属性获取显示的内容。如果想要更新数码显示组件的内容，请使用`update`方法。
+
+数码显示组件支持以下方法：
+
+-   `update`方法，用于更新数码显示组件显示的内容。该方法只有一个`value`参数，支持的类型和用法同数码显示组件的`value`参数。
+
+示例如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Digits
+
+DIGITS = ".0123456789+-^x:ABCDEF$£€()"
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Digits(DIGITS)
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![digits_1](textual.assets/digits_1.png)
+
+如果觉得终端的数显效果不够明显，可以在样式中添加`text-style:bold;`，使用粗体样式：
+
+```python3
+from textual.app import App
+from textual.widgets import Digits
+
+DIGITS = ".0123456789+-^x:ABCDEF$£€()"
+
+class MyApp(App):
+    CSS = '''
+    .digits {
+        text-style:bold;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Digits(DIGITS),
+            Digits(DIGITS,classes='digits')
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![digits_2](textual.assets/digits_2.png)
+
+当然，数码显示组件最好的用途就是用来显示数字内容，比如时间：
+
+```python3
+from textual.app import App
+from textual.widgets import Digits
+from datetime import datetime
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Digits(''),
+        ]
+        self.mount_all(self.widgets)
+        self.update_clock()
+        self.set_interval(1, self.update_clock)
+       
+    def update_clock(self):
+        clock = datetime.now().time()
+        self.query_one(Digits).update(f"{clock:%T}")
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![digits_3](textual.assets/digits_3.png)
+
+##### 2.3.1.5 `Log`日志组件
+
+因为Textual是个TUI框架，默认会独占终端的日志输出。如果想要在Textual程序中显示那些原本显示在终端的日志信息，可以使用日志组件，完整用法参考[官网文档](https://textual.textualize.io/widgets/log/)。
+
+组件支持以下参数：
+
+-   `highlight`参数，布尔类型，表示是否启用语法高亮，默认为`False`。语法高亮可以让显示在日志组件中的特定格式的文本使用别的颜色显示，比如时间。
+-   `max_lines`参数，整数类型，表示日志组件最多显示多少行，默认为`None`即没有限制。超过最大行数之后，增加新的内容会让最早显示的内容被顶掉。
+-   `auto_scroll`参数，布尔类型，表示当组件所显示的内容超出组件的可视大小时，是否自动滚动到最下面来确保最新的内容可以立刻看到。该参数默认为`True`。
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+-   `classes`参数，字符串类型，表示组件的样式类。
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+组件支持以下属性（部分常用，非全部）：
+
+-   `max_lines`属性， 含义同`max_lines`参数。
+-   `auto_scroll`属性，含义同`auto_scroll`参数。
+-   `line_count`属性，表示组件当前的内容一共多少行。
+-   `lines`属性，表示组件当前的内容。注意，该属性是个字符串数组。
+-   `highlight`属性，同`highlight`参数。虽然该属性不是反应性属性，但设置该属性可以实时生效并刷新显示。
+
+组件支持以下反应性属性：
+
+-   `max_lines`属性， 含义同`max_lines`参数。
+-   `auto_scroll`属性，含义同`auto_scroll`参数。
+
+反应性属性用起来和一般的属性类似，但修改反应性属性会触发组件的显示刷新，高阶技巧中会单独介绍反应性属性。如果读者暂时不想了解太多有关反应性属性的细节，只需记住修改反应性属性会触发组件的显示刷新即可。
+
+组件支持以下方法（部分常用，非全部）：
+
+-   `clear`方法，清除组件当前的内容并刷新显示。
+-   `write`方法，将内容写入组件的当前行。注意，上次写入的内容中没有换行，那么本次写入的内容会写入同一行。
+-   `write_line`方法，先换行，然后将内容写入组件的当前行。注意，本方法虽然是先换行再写入，但写入的内容不包括换行的话，本方法执行完之后，下次写入如果不是先换行，下次写入的内容依然在本行。本方法支持一个参数`line`，字符串类型，表示要写入的内容。
+-   `write_lines`方法，将一个元素为字符串的可迭代对象写入组件，写入每个元素时，先换行再写入。本方法支持两个参数：
+    -   `lines`参数，元素为字符串的可迭代类型，表示要写入的内容。注意，如果传给该参数的只是一个字符串，在迭代拆分前，`highlight`参数为`True`时，会先将其高亮，之后再迭代。
+    -   `scroll_end`参数，布尔类型，默认为`None`，表示是否在写入所有内容后滚动到最下面。如果没有传入参数，或者值为默认的`None`，则根据`auto_scroll`参数的值决定是否滚动到最下面。
+
+代码示例如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Log
+from datetime import datetime
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Log(highlight=True),
+        ]
+        self.mount_all(self.widgets)
+        self.query_one(Log).write_line(f'{datetime.now()} Booting...')
+    def on_ready(self):
+        self.query_one(Log).write_line(f'{datetime.now()} All is ready.')
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![log_widget_1](textual.assets/log_widget_1.png)
+
+##### 2.3.1.6 `RichLog`美化日志组件
+
+日志组件支持的，美化日志组件也支持，那Textual为何还要添加一个新的同类组件呢？其实，美化日志组件除了支持字符串，还支持任意可渲染对象，而且美化日志组件可以自定义的的部分更多，完整用法参考[官网文档](https://textual.textualize.io/widgets/rich_log/)。
+
+在正式介绍美化日志组件之前，先用一个与日志组件对比的例子，简单了解一下美化日志组件的特点：
+
+```python3
+from textual.app import App
+from textual.widgets import Log,RichLog
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Log(highlight=True),
+            RichLog()
+        ]
+        self.mount_all(self.widgets)
+
+    def on_ready(self):
+        self.query_one(Log).write(f'{self}')
+        self.query_one(RichLog).write(self)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![richlog_1](textual.assets/richlog_1.png)
+
+从上面的图片可以发现，输出相同内容的情况下，日志组件需要将被输出的对象转化为字符串并开启语法高亮，美化日志组件则可以一气呵成。注意，虽然美化日志组件也有语法高亮开关，但输出内容为非字符串时，语法高亮是自动开启的。
+
+组件支持以下参数：
+
+-   `max_lines`参数，整数类型，表示组件最多显示多少行，默认为`None`即没有限制。超过最大行数之后，增加新的内容会让最早显示的内容被顶掉。
+-   `min_width`参数，整数类型，表示使用组件的`write`方法输出内容时，没有给`write`方法的`width`参数传值时，默认传给`width`参数的值，也可以理解为组件输出内容的最小宽度。该参数默认为`78`。
+-   `wrap`参数，布尔类型，表示是否启用自动换行，默认为`False`。自动换行就是每行输出的内容超出组件可显示的宽度时，是否将该行换行显示。需要注意的事，每次换行会使总行数增加一行，最终总行数不超过组件可显示的最大行数。
+-   `highlight`参数，布尔类型，表示是否启用语法高亮，默认为`False`。语法高亮可以让显示在组件中的特定格式的文本使用别的颜色显示，比如时间。此参数仅在组件需要显示字符串时有效，如果直接显示非字符串类型的可渲染对象，则自动给被显示的对象启用语法高亮，且不受`highlight`参数和`highlight`属性的影响。
+-   `markup`参数，布尔类型，表示是否解析文本内容中的markup标签（会有专门章节介绍，这里可以简单理解为类似HTML标签的一种格式），默认为`False`，即不解析。
+-   `auto_scroll`参数，布尔类型，表示当组件所显示的内容超出组件的可视大小时，是否自动滚动到最下面来确保最新的内容可以立刻看到。该参数默认为`True`。
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+-   `classes`参数，字符串类型，表示组件的样式类。
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+组件支持以下属性（部分常用，非全部）：
+
+-   `max_lines`属性， 含义同`max_lines`参数。
+-   `min_width`属性，含义同`min_width`参数。
+-   `auto_scroll`属性，含义同`auto_scroll`参数。
+-   `wrap`属性，含义同`wrap`参数。
+-   `markup`属性，含义同`markup`参数。
+-   `lines`属性，表示组件当前的内容。注意，该属性是个条对象数组。
+-   `highlight`属性，同`highlight`参数。
+
+组件支持以下反应性属性：
+
+-   `max_lines`属性， 含义同`max_lines`参数。
+-   `min_width`属性，含义同`min_width`参数。
+-   `highlight`属性，同`highlight`参数。
+-   `wrap`属性，含义同`wrap`参数。
+-   `markup`属性，含义同`markup`参数。
+
+组件支持以下方法（部分常用，非全部）：
+
+-   `clear`方法，清除组件当前的内容并刷新显示。
+
+-   `write`方法，在组件中写入新的内容。因为组件支持可渲染对象，而可渲染对象可能跨多行，因此组件默认将每次写入的内容当成整体处理。而且组件没有单独的写入后换行的方法，只需一个`write`方法即可。该方法支持以下参数：
+
+    -   `content`参数，可渲染类型，表示要写入的内容，支持任何可渲染对象。
+
+    -   `width`参数，整数类型，表示本次写入内容的宽度，默认为`None`，表示与`min_width`参数一致。
+
+    -   `expand`参数，布尔类型，表示当内容的宽度小于组件的宽度时，是否允许内容可扩展的宽度等于整个组件的宽度，默认为`False`。如果指定了`width`参数，则此参数会被忽略。此参数主要作用于Rich的可渲染对象，比如下面的`Panel`：
+
+        ```python3
+        from textual.app import App
+        from textual.widgets import RichLog
+        from rich.panel import Panel
+        
+        class MyApp(App):
+            CSS = '''
+            RichLog {
+                border: solid yellow;
+                width: 100;
+            }
+            '''
+            def on_mount(self):
+                self.widgets = [
+                    RichLog(min_width=1)
+                ]
+                self.mount_all(self.widgets)
+            def on_ready(self):
+                self.query_one(RichLog).write(Panel('Hello World',expand=True,height=3),expand=True)
+        
+        if __name__ == '__main__':
+            app = MyApp()
+            app.run()
+        ```
+
+        只有设置美化日志组件的`expand`参数为`True`时，`Panel`才能填满整个组件：
+
+        ![richlog_2](textual.assets/richlog_2.png)
+
+    -   `shrink`参数，布尔类型，表示当原本内容的宽度大于组件的宽度时，是否收缩内容的宽度至组件的宽度，默认为`True`。如果指定了`width`参数，则此参数会被忽略。以下为该参数设置为`False`的示例，读者可以与该参数为`True`的结果对比一下：
+
+        ```python3
+        from textual.app import App
+        from textual.widgets import RichLog
+        from rich.panel import Panel
+        
+        class MyApp(App):
+            CSS = '''
+            RichLog {
+                border: solid yellow;
+                width: 100;
+            }
+            '''
+            def on_mount(self):
+                self.widgets = [
+                    RichLog(min_width=1)
+                ]
+                self.mount_all(self.widgets)
+            def on_ready(self):
+                self.query_one(RichLog).write(Panel('Hello World'*10,height=3),shrink=False)
+        
+        if __name__ == '__main__':
+            app = MyApp()
+            app.run()
+        ```
+
+        ![richlog_3](textual.assets/richlog_3.png)
+
+    -   `scroll_end`参数，布尔类型，默认为`None`，表示是否在写入所有内容后滚动到最下面。如果没有传入参数，或者值为默认的`None`，则根据`auto_scroll`参数的值决定是否滚动到最下面。
+
+    -   `animate`参数，布尔类型，表示写入内容太多且需要滚动时，是否启用滚动动画，默认为`False`，即直接滚动，没有动画过渡。
+
+##### 2.3.1.7 `Rule`分隔线组件
+
+如果两个组件挨着太近，需要一条分隔线当做它们之间的边界，可以试试分隔线组件，完整用法参考[官网文档](https://textual.textualize.io/widgets/rule/)。
+
+组件支持以下参数：
+
+-   `orientation`参数，字符串类型，表示分隔线的方向，仅支持`["horizontal","vertical"]`中的值，默认为`"horizontal"`，即水平。
+-   `line_style`参数，字符串类型，表示分隔线的风格，仅支持`["ascii","blank","dashed","double","heavy","hidden","none","solid","thick"]`中的值，默认为`"solid"`。
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+-   `classes`参数，字符串类型，表示组件的样式类。
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+组件支持以下属性：
+
+-   `orientation`属性， 含义同`orientation`参数。
+-   `line_style`属性，含义同`line_style`参数。
+
+组件支持以下反应性属性：
+
+-   `orientation`属性， 含义同`orientation`参数。
+-   `line_style`属性，含义同`line_style`参数。
+
+组件类支持以下方法：
+
+-   `horizontal`方法，该方法为类方法，调用此方法会生成一个水平方向的分隔线组件。方法支持以下参数：
+    -   `line_style`参数，字符串类型，表示分隔线的风格，仅支持`["ascii","blank","dashed","double","heavy","hidden","none","solid","thick"]`中的值，默认为`"solid"`。
+    -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+    -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+    -   `classes`参数，字符串类型，表示组件的样式类。
+    -   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+-   `vertical`方法，该方法为类方法，调用此方法会生成一个垂直方向的分隔线组件。方法支持以下参数：
+    -   `line_style`参数，字符串类型，表示分隔线的风格，仅支持`["ascii","blank","dashed","double","heavy","hidden","none","solid","thick"]`中的值，默认为`"solid"`。
+    -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+    -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+    -   `classes`参数，字符串类型，表示组件的样式类。
+    -   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+示例代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button, Rule
+from textual.containers import Vertical
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Vertical(
+                Button(),
+                Rule(),
+                Button()
+            )
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![rule_1](textual.assets/rule_1.png)
+
+##### 2.3.1.8 `Collapsible`可折叠组件
+
+一般来说，终端的空间有限，如果有些界面的内容需要较多的组件，全部在终端中展示出来不太美观。这时，就可以使用可折叠组件（完整用法参考[官网文档](https://textual.textualize.io/widgets/collapsible/)）当作默认不需要优先展示内容的容器。
+
+组件支持以下参数：
+
+-   `*children`参数，组件类型，表示展开组件的下拉显示区域后，区域内所包含的组件。注意，`*`表明此参数是不支持关键字传入的自动解包参数，即该参数不支持关键字传入，但可以使用解包或者位置参数的形式传入，并且此参数后面的其他参数全是关键字参数。后面的其他容器类组件的第一个参数都是这样的参数，请读着务必理解。
+
+    解包（具体用法参考[官网文档](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#unpacking-argument-lists)）传入的话，示例如下：
+
+    ```python3
+    Collapsible(
+    	*(Static('World'),Static('World'),Static('World'))
+    )
+    ```
+
+    也可以简单一些，以位置参数形式传入：
+
+    ```python3
+    Collapsible(
+    	Static('World'),Static('World'),Static('World')
+    )
+    ```
+
+-   `title`参数，字符串类型，表示组件没展开时主体部位显示出来的文字，默认为`'Toggle'`。
+
+-   `collapsed`参数，布尔类型，表示组件是否折叠，默认为`True`。
+
+-   `collapsed_symbol`参数，字符串类型，表示组件最左边用来表明组件当前为折叠状态的文字，默认为`'▶'`。
+
+-   `expanded_symbol`参数，字符串类型，表示组件最左边用来表明组件当前为展开状态的文字，默认为`'▼'`。
+
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
+-   `classes`参数，字符串类型，表示组件的样式类。
+
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+组件支持以下属性：
+
+-   `collapsed`属性， 含义同`collapsed`参数。
+-   `title`属性，含义同`title`参数。
+
+组件支持以下反应性属性：
+
+-   `collapsed`属性， 含义同`collapsed`参数。
+-   `title`属性，含义同`title`参数。
+
+组件支持以下消息：
+
+-   `Toggled`消息，当组件的展开状态切换时触发，该消息支持以下属性：
+    -   `collapsible`属性，表示触发该消息的可折叠组件。
+    -   `control`属性，同`collapsible`属性。
+-   `Collapsed`消息，当组件的展开状态变为折叠时触发，支持的属性同`Toggled`消息。
+-   `Expanded`消息，当组件的展开状态变为展开时触发，支持的属性同`Toggled`消息。
+
+组件支持以下快捷键：
+
+-   `enter`键，切换组件的展开状态。
+
+示例如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Collapsible, Static
+
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Collapsible(
+                Static('World'),
+                title='Hello',
+                collapsed=False,
+                collapsed_symbol='关',
+                expanded_symbol='开',
+            )
+        ]
+        self.mount_all(self.widgets)
+
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![collapsible_1](textual.assets/collapsible_1.png)
+
+可折叠组件虽然是个内容展示组件，但其参数特性和用途上更接近容器。不过，Textual并没有将容器归为组件，而是归到了单独的容器模块，具体可以参考前面介绍布局的章节。
+
+说到布局，就不得不提布局章节介绍过的`with`关键字用法。同样的，可折叠组件也支持使用`with`关键字——上下文管理器的语法。
+
+还是同样的效果，使用上下文管理器语法的话，需要先转换为`compose`方法中创建组件的结构：
+
+```python3
+from textual.app import App
+from textual.widgets import Collapsible, Static
+
+
+class MyApp(App):
+    def compose(self):
+        yield Collapsible(
+            Static('World'),
+            title='Hello',
+            collapsed=False,
+            collapsed_symbol='关',
+            expanded_symbol='开',
+        )
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+使用上下文管理器的话，就不需要给`children`参数传入组件，只需在上下文中使用`yield`生成即可：
+
+```python3
+from textual.app import App
+from textual.widgets import Collapsible, Static
+
+
+class MyApp(App):
+    def compose(self):
+        with Collapsible(
+            title='Hello',
+            collapsed=False,
+            collapsed_symbol='关',
+            expanded_symbol='开',
+        ):
+            yield Static('World')
+
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![collapsible_1](textual.assets/collapsible_1.png)
+
+不管是直接将被包含的组件传给`children`参数，还是使用上下文管理器，都可以使用Python 3.8开始引入的赋值表达式（海象运算符），实现一步添加并命名被包含的组件（下面两个多行注释对应`compose`方法的用法）：
+
+```python3
+from textual.app import App
+from textual.widgets import Collapsible, Static
+
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Collapsible(
+                static:=Static('World'),
+                title='Hello',
+                collapsed=False,
+                collapsed_symbol='关',
+                expanded_symbol='开',
+            )
+        ]
+        self.mount_all(self.widgets)
+        static.update('Hi')
+
+    """ def compose(self):
+        yield Collapsible(
+            static:=Static('World'),
+            title='Hello',
+            collapsed=False,
+            collapsed_symbol='关',
+            expanded_symbol='开',
+        )
+        static.update('Hi') """
+
+    """ def compose(self):
+        with Collapsible(
+            title='Hello',
+            collapsed=False,
+            collapsed_symbol='关',
+            expanded_symbol='开',
+        ):
+            yield (static:=Static('World'))
+            static.update('Hi') """
+
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![collapsible_2](textual.assets/collapsible_2.png)
+
+#### 2.3.2 常用交互组件
+
+本节将介绍几个常用的交互组件，在程序开发设计时常使用下面几个组件与用户交互。当然，需要用户交互的组件不限于以下几个，为了方便理解，其他交互组件可能在其他分类中，读者可以自行探索。
+
+##### 2.3.2.1 `Link`超链接组件
+
+超链接组件可以创建一个点击之后跳转到到指定链接的超链接，完整用法参考[官网文档](https://textual.textualize.io/widgets/link/)。
+
+超链接组件支持以下参数：
+
+-   `text`参数，字符串类型，表示显示出来的文字内容。
+-   `url`参数，字符串类型，表示跳转的链接。
+
+-   `tooltip`参数，可渲染类型，表示鼠标悬停在组件上时显示出来的工具提示。
+
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
+-   `classes`参数，字符串类型，表示组件的样式类。
+
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+超链接组件支持以下属性：
+
+-   `text`属性，用途同`text`参数。
+-   `url`属性，用途同`url`参数。
+
+超链接组件支持以下反应性属性：
+
+-   `text`属性，用途同`text`参数。
+-   `url`属性，用途同`url`参数。
+
+超链接组件支持以下快捷键：
+
+-   `enter`键，直接打开链接。
+
+超链接组件不同于前面的文本展示组件，该组件可以获得焦点。因此，当组件获得焦点时，组件内部的快捷键会优先响应。比如上面提到的内部快捷键`enter`键，在组件获得焦点时，按下`enter`键会直接打开链接，和点击一样。
+
+不过，Textual 2.1.0版本（含此版本）之前的版本，超链接组件内部的快捷键绑定有小问题，需要添加额外的修复代码。当然，此修复代码也可用于修改该组件的快捷键：
+
+```python3
+from textual.app import App
+from textual.widgets import Link,Static
+
+# 临时修复代码
+class Link(Link):
+    BINDINGS = [('enter', 'open_link', 'Open link')]
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Link(text='Click me',url='https://baidu.com',tooltip='Visit Baidu'),
+            Link(text='Click me',url='https://baidu.com',tooltip='Visit Baidu'),
+            Static(content='[link="https://baidu.com"]Click me[/link]')
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+读者可以使用`tab`键切换焦点到指定的超链接组件或者直接点击对应的超链接组件，然后打开对应的链接。
+
+除了使用超链接组件，在一般的文本中使用markup标签（比如`'[link="https://baidu.com"]Click me[/link]'`，具体完整用法参考可渲染对象章节），也能嵌入超链接，不过二者的用法略有不同。超链接组件点击直接跳转，markup标签超链接需要遵循终端的规则，按下`ctrl`键的同时点击才能访问：
+
+```python3
+from textual.app import App
+from textual.widgets import Link,Static
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Link(text='Click me',url='https://baidu.com',tooltip='Visit Baidu'),
+            Static(content='[link="https://baidu.com"]Click me[/link]')
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+##### 2.3.2.3 `Button`按钮组件
+
+不管是什么样的UI框架，按钮几乎都是不可或缺的组件，Textual中也一样。虽然前面学习基础的时候已经用了好几次按钮，但还是有必要完整介绍按钮组件。当然，比教程更完整的内容，可以到[官网](https://textual.textualize.io/widgets/button/)查看。
+
+组件支持以下参数：
+
+-   `label`参数，字符串类型或者Rich的Text类型（完整用法参考[官网文档](https://rich.readthedocs.io/en/latest/text.html)），表示显示在按钮上的内容。
+-   `variant`参数，字符串类型，表示按钮的外观变种名。Textual预先定义了几种按钮外观，可以通过设置此参数直接修改按钮外观。此参数仅支持`['default', 'primary', 'success', 'warning', 'error']`中的值，默认为`'default'`。
+-   `action`参数，字符串类型，表示点击按钮时执行的动作。注意，如果动作没有显式标明命名空间，按钮执行动作时，默认的命名空间是其父容器。从此参数开始，只能使用关键字传入。
+-   `tooltip`参数，可渲染类型，表示鼠标悬停在组件上时显示出来的工具提示。
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+-   `classes`参数，字符串类型，表示组件的样式类。
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+组件支持以下属性：
+
+-   `label`属性，用途同`label`参数。
+-   `variant`属性，用途同`variant`参数。
+-   `active_effect_duration`属性，表示按下按钮之后的按钮按压动画的持续时间，单位为秒，默认为`0.2`。
+
+组件支持以下反应性属性：
+
+-   `label`属性，用途同`label`参数。
+-   `variant`属性，用途同`variant`参数。
+
+组件支持以下消息：
+
+-   `Pressed`消息，当组件被按下（点击）且组件没有给`action`参数传值时触发，该消息支持以下属性：
+    -   `button`属性，表示触发该消息的组件。
+    -   `control`属性，同`button`属性。
+
+组件支持以下快捷键：
+
+-   `enter`键，模拟按下（点击）组件。
+
+组件支持以下实例方法：
+
+-   `press`方法，用于模拟按下（点击）组件。
+-   `action_press`方法，同`press`方法，但此方法主要是为了注册动作`'press'`。
+
+除了上面提到的实例方法，组件支持以下类方法：
+
+-   `success`方法，生成一个`variant`参数为`'success'`的组件。此方法支持以下参数：
+    -   `label`参数，字符串类型或者Rich的Text类型（完整用法参考[官网文档](https://rich.readthedocs.io/en/latest/text.html)），表示显示在按钮上的内容。
+    -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+    -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+    -   `classes`参数，字符串类型，表示组件的样式类。
+    -   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+-   `warning`方法，生成一个`variant`参数为`'warning'`的组件。支持的参数同`success`方法。
+-   `error`方法，生成一个`variant`参数为`'error'`的组件。支持的参数同`success`方法。
+
+示例代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Button('Click me',action='notify("You clicked!")')
+        ]
+        self.mount_all(self.widgets)
+    
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![button_1](textual.assets/button_1.gif)
+
+需要特别注意的是，如果想要尝试设置按钮的宽度和高度为自动，让按钮的空间占用没那么大，得到的结果肯定不是预期的结果。因为按钮默认的CSS中，影响宽度的样式有`min-width: 16`，影响高度的样式有`border-top: tall $surface-lighten-1`和`border-bottom: tall $surface-darken-1`。因此，需要设置`min-width: 0`和`border: none`才能让按钮的空间占用变成真的自动。
+
+完整代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Button
+
+
+class MyApp(App):
+    CSS = '''
+    .min-button {
+        min-width: 0;
+        border: none;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Button('Click me'),
+            Button('Click me',classes='min-button')
+        ]
+        self.mount_all(self.widgets)
+    
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+对比效果如图：
+
+![button_2](textual.assets/button_2.png)
+
+##### 2.3.2.3 `Input`输入框组件
+
+
+
+
+
+
+
+#### 2.3.3 开关切换类组件
+
+开关切换类组件常用于通过交互修改布尔类型的值，和日常中的开关一样。虽然`Collapsible`可折叠组件有类似开关的效果（`collapsed`反应性属性表示是否展开），但可折叠组件通常用于内容展示，故不归为开关切换类。
+
+##### 2.3.3.1 `Switch`切换开关组件
+
+
+
+RadioButton单选按钮组件（这里介绍单用，后面会介绍当单选用的时候的例子）
+
+
+
+Checkbox复选框组件
+
+
+
+
+
+
+
+#### 2.3.4 复合组件
+
+
+
+Header页眉组件
+
+隐藏Header的HeaderIcon
+
+```python3
+from textual.app import App
+from textual.widgets import Header
+
+class MyApp(App):
+    CSS = '''
+    Header {
+        HeaderIcon {
+            visibility: hidden;
+        }
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Header()
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+
+
+Footer页脚组件
+
+
+
+#### 2.3.5 功能组件
+
+Toast通知组件
+
+
+
+
+
+### 4.2 其他组件
 
 本节主要介绍常用组件之外的组件及其的功能、示例，更多用法和介绍参考[官网完整文档](https://textual.textualize.io/widgets/)。当然，也会补充一下常用组件的特殊用法、示例。
 
 （根据使用频率、难易程度调整先后顺序）
 
-#### 3.3.1 `Sparkline`火花线
+
+
+状态指示组件
+
+LoadingIndicator
+
+ProgressBar进度条
+
+Placeholder
+
+
+
+内容展示
+
+ListView 和 ListItem
+
+
+
+Tree树形视图
+
+DataTable数据表
+
+`Sparkline`火花线
+
+2.3.1.7 `Markdown`标记文本组件
+
+MarkdownViewer（Markdown的增强版）
+
+TextArea 文本区域
+
+DirectoryTree目录树
+
+
+
+选择类
+
+RadioSet 单选集 和 RadioButton 单选按钮
+
+Select下拉选择框
+
+SelectionList多选列表
+
+OptionList单选选项（选项不太明显，只有回车或者点击时是选择的，上下方向键不是）
+
+
+
+多层内容类
+
+ContentSwitcher
+
+Tabs 和 Tab
+
+TabbedContent和TabPane（像是上面两个结合到一起）
+
+
+
+扩展交互组件
+
+MaskedInput

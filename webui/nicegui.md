@@ -3790,6 +3790,77 @@ with button:
 ui.run(native=True)
 ```
 
+#### 3.9.15 `ui.slide_item`（2025.03.04更新）
+
+`ui.slide_item`实现了类似滑动解锁一样操作，可以在空间有限的情况下，四向滑动，进入不同的子控件中。实现源自于Quasar的[QSlideItem](https://quasar.dev/vue-components/slide-item/)。
+
+依照惯例，先看一下示例：
+
+```python3
+from nicegui import ui
+
+with ui.list().props('bordered'), ui.slide_item(
+        text='Main',
+        on_slide=lambda e: ui.notify(f'Slide: {e.side}')
+).classes('w-64') as slide_item:
+    with slide_item.left(text='left'):
+        ui.button(text='reset', on_click=slide_item.reset)
+    with slide_item.right():
+        ui.button(text='reset', on_click=slide_item.reset)
+    with slide_item.top(text='top', on_slide=slide_item.reset, color='red'):
+        ...
+    with slide_item.action(side='bottom', text='bottom', on_slide=slide_item.reset, color='red'):
+        ...
+
+ui.run(native=True)
+```
+
+![ui_slide_item_1](nicegui.assets/ui_slide_item_1.gif)
+
+看完了示例，接下来开始介绍`ui.slide_item`的交互原理。实际上，`ui.slide_item`可以看作是类似轮播图的万向非自动版。当用户滑动时，控件显示的内容会切换为来向的子控件，如下图所示，箭头表示滑动方向，用户滑动之后，对应的子控件会根据滑动方向而进入主显示区：
+
+![ui_slide_item_2](nicegui.assets/ui_slide_item_2.png)
+
+同样的，每个子控件也是一个容器，除了传入参数直接显示文字之外，还可以继续添加其他控件到内部。
+
+了解了交互原理之后，下面正式介绍一下参数和方法。
+
+`ui.slide_item`支持以下参数：
+
+`text`参数，字符串类型，表示显示在控件内的文字。在实际使用时，可以不使用此参数，直接进入default slot，自定义控件内的内容。
+
+`on_slide`参数，可调用类型，当滑动切换到对应的子控件时执行的操作。该操作接收一个消息参数，消息参数的字符串类型属性`slide`表示滑动的方向。
+
+相比于参数的简单，`ui.slide_item`支持的方法就复杂了一点。
+
+`left`方法、`right`方法、`top`方法、`bottom`方法本质上是一样的，就是对应左、右、上、下四个方向上的子控件，因此参数也是一样：
+
+`text`参数，同`ui.slide_item`的`text`参数。
+
+`on_slide`参数，同`ui.slide_item`的`on_slide`参数。
+
+`color`参数，字符串类型或者`None`，表示子控件的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+
+`left`方法、`right`方法、`top`方法、`bottom`方法其实是对`action`方法的包装，返回的是`action`方法的执行结果。`action`方法除了支持这些方法的参数之外，还支持字符串类型参数`slide`，表示子控件对应的方向，该参数仅支持`['left','right','top','bottom']`中的值，参数位置在`text`参数前。
+
+此外，需要注意的是，切换到对应子控件之后，需要调用`reset`方法才能从子控件返回：
+
+```python3
+from nicegui import ui
+
+with ui.list().props('bordered'):
+    with ui.slide_item() as slide_item:
+        ui.item('Slide me')
+        with slide_item.left(color='blue'):
+            ui.item('Left')
+        with slide_item.right(color='purple'):
+            ui.item('Right')
+
+ui.button('Reset', on_click=slide_item.reset)
+
+ui.run(native=True)
+```
+
 ### 3.10 其他常用控件
 
 #### 3.10.1 `ui.dropdown_button`
@@ -4655,6 +4726,40 @@ ui.upload(on_upload=lambda e: ui.notify(f'Uploaded {e.name}')).classes('max-w-fu
 
 ui.run(native=True)
 ```
+
+#### 3.10.19 `ui.rating`（2025.03.04更新）
+
+`ui.rating`是一个打分的交互组件，实现源于Quasar的[QRating](https://quasar.dev/vue-components/rating)。先看示例：
+
+```python3
+from nicegui import ui
+
+ui.rating(value=4)
+
+ui.run(native=True)
+```
+
+![ui_rating_1](nicegui.assets/ui_rating_1.png)
+
+可以点击对应的星级，来确定最终的评分。
+
+`ui.rating`支持以下参数：
+
+`value`参数，浮点类型，表示初始的分值。
+
+`max`参数，整数类型，表示最多的分值，同时也是显示在组件中评分图标的个数，默认为`5`。
+
+`icon`参数，字符串类型，表示没有选定的评分图标，默认为`'star'`。
+
+`icon_selected`参数，字符串类型，表示选定之后的评分图标，默认同`icon`参数。
+
+`icon_half`参数，字符串类型，表示半分的评分图标，默认同`icon`参数。
+
+`color`参数，字符串类型或者`None`，表示评分图标的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+
+`size`参数，表示评分图标的大小，字符串类型，采用CSS语法的大小表示方式。
+
+`on_change`参数，可调用类型，表示评分改变时执行的操作，可以使用lambda表达式，也可以使用函数名。
 
 ### 3.11 多媒体控件的使用技巧
 
@@ -7675,6 +7780,111 @@ ui.run()
 -   `enter`方法，进入全屏状态。
 -   `exit`方法，退出全屏状态。
 -   `toggle`方法，切换全屏状态。
+
+#### 2.12.0版本新增：`ui.rating`和`ui.slide_item`——打分和滑动“解锁”
+
+`ui.rating`是一个打分的交互组件，实现源于Quasar的[QRating](https://quasar.dev/vue-components/rating)。先看示例：
+
+```python3
+from nicegui import ui
+
+ui.rating(value=4)
+
+ui.run(native=True)
+```
+
+![ui_rating_1](nicegui.assets/ui_rating_1.png)
+
+可以点击对应的星级，来确定最终的评分。
+
+`ui.rating`支持以下参数：
+
+`value`参数，浮点类型，表示初始的分值。
+
+`max`参数，整数类型，表示最多的分值，同时也是显示在组件中评分图标的个数，默认为`5`。
+
+`icon`参数，字符串类型，表示没有选定的评分图标，默认为`'star'`。
+
+`icon_selected`参数，字符串类型，表示选定之后的评分图标，默认同`icon`参数。
+
+`icon_half`参数，字符串类型，表示半分的评分图标，默认同`icon`参数。
+
+`color`参数，字符串类型或者`None`，表示评分图标的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+
+`size`参数，表示评分图标的大小，字符串类型，采用CSS语法的大小表示方式。
+
+`on_change`参数，可调用类型，表示评分改变时执行的操作，可以使用lambda表达式，也可以使用函数名。
+
+`ui.rating`的用法很简单，也没有需要特别注意的地方，需要重点学习的是`ui.slide_item`。
+
+`ui.slide_item`实现了类似滑动解锁一样操作，可以在空间有限的情况下，四向滑动，进入不同的子控件中。实现源自于Quasar的[QSlideItem](https://quasar.dev/vue-components/slide-item/)。
+
+依照惯例，先看一下示例：
+
+```python3
+from nicegui import ui
+
+with ui.list().props('bordered'), ui.slide_item(
+        text='Main',
+        on_slide=lambda e: ui.notify(f'Slide: {e.side}')
+).classes('w-64') as slide_item:
+    with slide_item.left(text='left'):
+        ui.button(text='reset', on_click=slide_item.reset)
+    with slide_item.right():
+        ui.button(text='reset', on_click=slide_item.reset)
+    with slide_item.top(text='top', on_slide=slide_item.reset, color='red'):
+        ...
+    with slide_item.action(side='bottom', text='bottom', on_slide=slide_item.reset, color='red'):
+        ...
+
+ui.run(native=True)
+```
+
+![ui_slide_item_1](nicegui.assets/ui_slide_item_1.gif)
+
+看完了示例，接下来开始介绍`ui.slide_item`的交互原理。实际上，`ui.slide_item`可以看作是类似轮播图的万向非自动版。当用户滑动时，控件显示的内容会切换为来向的子控件，如下图所示，箭头表示滑动方向，用户滑动之后，对应的子控件会根据滑动方向而进入主显示区：
+
+![ui_slide_item_2](nicegui.assets/ui_slide_item_2.png)
+
+同样的，每个子控件也是一个容器，除了传入参数直接显示文字之外，还可以继续添加其他控件到内部。
+
+了解了交互原理之后，下面正式介绍一下参数和方法。
+
+`ui.slide_item`支持以下参数：
+
+`text`参数，字符串类型，表示显示在控件内的文字。在实际使用时，可以不使用此参数，直接进入default slot，自定义控件内的内容。
+
+`on_slide`参数，可调用类型，当滑动切换到对应的子控件时执行的操作。该操作接收一个消息参数，消息参数的字符串类型属性`slide`表示滑动的方向。
+
+相比于参数的简单，`ui.slide_item`支持的方法就复杂了一点。
+
+`left`方法、`right`方法、`top`方法、`bottom`方法本质上是一样的，就是对应左、右、上、下四个方向上的子控件，因此参数也是一样：
+
+`text`参数，同`ui.slide_item`的`text`参数。
+
+`on_slide`参数，同`ui.slide_item`的`on_slide`参数。
+
+`color`参数，字符串类型或者`None`，表示子控件的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+
+`left`方法、`right`方法、`top`方法、`bottom`方法其实是对`action`方法的包装，返回的是`action`方法的执行结果。`action`方法除了支持这些方法的参数之外，还支持字符串类型参数`slide`，表示子控件对应的方向，该参数仅支持`['left','right','top','bottom']`中的值，参数位置在`text`参数前。
+
+此外，需要注意的是，切换到对应子控件之后，需要调用`reset`方法才能从子控件返回：
+
+```python3
+from nicegui import ui
+
+with ui.list().props('bordered'):
+    with ui.slide_item() as slide_item:
+        ui.item('Slide me')
+        with slide_item.left(color='blue'):
+            ui.item('Left')
+        with slide_item.right(color='purple'):
+            ui.item('Right')
+
+ui.button('Reset', on_click=slide_item.reset)
+
+ui.run(native=True)
+```
 
 ## 4 具体示例【随时更新】
 

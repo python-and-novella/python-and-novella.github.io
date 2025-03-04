@@ -11948,6 +11948,7 @@ if __name__ == '__main__':
 -   `line_count`属性，表示组件当前的内容一共多少行。
 -   `lines`属性，表示组件当前的内容。注意，该属性是个字符串数组。
 -   `highlight`属性，同`highlight`参数。虽然该属性不是反应性属性，但设置该属性可以实时生效并刷新显示。
+-   `highlighter`属性，当组件启用语法高亮时，设置此属性可以定义语法高亮方案。默认此属性为[`ReprHighlighter`](https://rich.readthedocs.io/en/stable/reference/highlighter.html#rich.highlighter.ReprHighlighter)对象。
 
 组件支持以下反应性属性：
 
@@ -12042,6 +12043,7 @@ if __name__ == '__main__':
 -   `markup`属性，含义同`markup`参数。
 -   `lines`属性，表示组件当前的内容。注意，该属性是个条对象数组。
 -   `highlight`属性，同`highlight`参数。
+-   `highlighter`属性，当组件启用语法高亮时，设置此属性可以定义语法高亮方案。默认此属性为[`ReprHighlighter`](https://rich.readthedocs.io/en/stable/reference/highlighter.html#rich.highlighter.ReprHighlighter)对象。
 
 组件支持以下反应性属性：
 
@@ -12131,7 +12133,7 @@ if __name__ == '__main__':
 
 组件支持以下参数：
 
--   `orientation`参数，字符串类型，表示分隔线的方向，仅支持`["horizontal","vertical"]`中的值，默认为`"horizontal"`，即水平。
+-   `orientation`参数，字符串类型，表示分隔线的方向，仅支持`["horizontal","vertical"]`中的值（分别是水平、垂直），默认为`"horizontal"`，即水平。
 -   `line_style`参数，字符串类型，表示分隔线的风格，仅支持`["ascii","blank","dashed","double","heavy","hidden","none","solid","thick"]`中的值，默认为`"solid"`。
 -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
 -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
@@ -12469,8 +12471,8 @@ if __name__ == '__main__':
 
 组件支持以下参数：
 
--   `label`参数，字符串类型或者Rich的Text类型（完整用法参考[官网文档](https://rich.readthedocs.io/en/latest/text.html)），表示显示在按钮上的内容。
--   `variant`参数，字符串类型，表示按钮的外观变种名。Textual预先定义了几种按钮外观，可以通过设置此参数直接修改按钮外观。此参数仅支持`['default', 'primary', 'success', 'warning', 'error']`中的值，默认为`'default'`。
+-   `label`参数，字符串类型或者Rich的`Text`类型（完整用法参考[官网文档](https://rich.readthedocs.io/en/latest/text.html)），表示显示在按钮上的内容。
+-   `variant`参数，字符串类型，表示按钮的外观变种名。Textual预先定义了几种按钮外观，可以通过设置此参数直接修改按钮外观。此参数仅支持`['default','primary','success','warning','error']`中的值（分别是默认外观、一般外观、表示成功的外观、表示警告的外观、表示错误的外观），默认为`'default'`。
 -   `action`参数，字符串类型，表示点击按钮时执行的动作。注意，如果动作没有显式标明命名空间，按钮执行动作时，默认的命名空间是其父容器。从此参数开始，只能使用关键字传入。
 -   `tooltip`参数，可渲染类型，表示鼠标悬停在组件上时显示出来的工具提示。
 -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
@@ -12507,7 +12509,7 @@ if __name__ == '__main__':
 除了上面提到的实例方法，组件支持以下类方法：
 
 -   `success`方法，生成一个`variant`参数为`'success'`的组件。此方法支持以下参数：
-    -   `label`参数，字符串类型或者Rich的Text类型（完整用法参考[官网文档](https://rich.readthedocs.io/en/latest/text.html)），表示显示在按钮上的内容。
+    -   `label`参数，字符串类型或者Rich的`Text`类型（完整用法参考[官网文档](https://rich.readthedocs.io/en/latest/text.html)），表示显示在按钮上的内容。
     -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
     -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
     -   `classes`参数，字符串类型，表示组件的样式类。
@@ -12570,11 +12572,257 @@ if __name__ == '__main__':
 
 ##### 2.3.2.3 `Input`输入框组件
 
+除了点击之类的交互，输入数据也是常见的用户交互，因此，输入框组件也是常用的交互组件，完整用法可以参考[官网文档](https://textual.textualize.io/widgets/input/)。
 
+组件支持以下参数：
 
+-   `value`参数，字符串类型，表示没有输入之前，输入框内的内容。
 
+-   `placeholder`参数，字符串类型，表示输入框内没有内容时，以浅色显示的提示文字，也称占位文字。
 
+-   `password`参数，布尔类型，表示是否启用输入框的密码模式（输入的内容不显示为明文，而是圆点），默认为`False`。
 
+-   `highlighter`参数，Rich的`Highlighter`类型（完整用法参考[官网文档](https://rich.readthedocs.io/en/latest/highlighting.html)），设置此参数为语法高亮对象之后，在输入框内输入的内容会被高亮。比如`Input(highlighter=ReprHighlighter())`，这里设置的就是美化日志组件默认的语法高亮对象（使用`from rich.highlighter import ReprHighlighter`导入），就可以实现和美化日志一样的语法高亮。
+
+-   `restrict`参数，字符串类型，设置此参数可以让输入框内只能输入指定的内容，此时，此参数表示的就是正则表达式，只有被正则表达式正确匹配的内容才能输入。比如，想要限制输入框内只能输入0和1，就可以这样设置：`Input(restrict=r'[01]*')`。
+
+    注意，因为设置此参数之后，从没有内容到输入任何内容之间都会被正则表达式限制，因此正则表达式需要匹配输入过程中的所有内容。比如上面限制输入内容的代码，如果想要限制输入0和1的最大长度（字符数）为9位，就不能只匹配目标长度`[01]{9}`，而是要包括输入目标长度之前的所有长度`Input(restrict=r'[01]{0,9}')`。
+
+    另外，从此参数开始，只能使用关键字传入。
+
+-   `type`参数，字符串类型，表示输入内容的类型限制。不同于虽然强大但需要写正则表达式的`restrict`参数的限制，此参数只是限制输入的类型，因此有预先定义好的几种值，用起来比较简单。此参数仅支持`['integer','number','text']`中的值（分别是整数、小数和不限制内容类型的文本），默认为`'text'`。
+
+-   `max_length`参数，整数类型，表示输入内容的最大长度（字符数）。
+
+-   `suggester`参数，`Suggester`类型（完整用法参考[官网文档](https://textual.textualize.io/api/suggester/#textual.suggester.Suggester)），表示在输入框输入内容时，提供自动补全的对象。定义自动补全类需要继承自`Suggester`类（使用`from textual.suggester import Suggester`导入），并实现异步的`get_suggestion`方法。`get_suggestion`方法使用`value`参数接收当前输入的内容（也就是组件的`value`属性），并返回基于参数值查询之后的字符串结果。以下是简单的示例：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Input
+    from textual.suggester import Suggester
+    
+    class InputSuggester(Suggester):
+        async def get_suggestion(self, value):
+            return value if '.' in value else value+'.py'
+        
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Input(suggester=InputSuggester()),
+            ]
+            self.mount_all(self.widgets)
+        
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    当输入任意内容时，程序会基于现有规则返回提示之后的完整内容，但当前未输入的内容会呈浅色显示。此时可以按一下右方向键，组件会自动补全剩余内容：
+
+    ![input_1](textual.assets/input_1.png)
+
+-   `validators`参数，`Validator`类型（完整用法参考[官网文档](https://textual.textualize.io/api/validation/#textual.validation.Validator)）或者元素为`Validator`类型的可迭代对象，表示在输入框输入内容时，验证输入内容的验证对象。定义验证类需要继承自`Validator`类（使用`from textual.validation import Validator`导入），并实现`validate`方法。`validate`方法使用`value`参数接收当前输入的内容（也就是组件的`value`属性），并返回验证的结果（[`ValidationResult`类型对象](https://textual.textualize.io/api/validation/#textual.validation.ValidationResult)，但可以返回[`success`方法](https://textual.textualize.io/api/validation/#textual.validation.Validator.success)和[`failure`方法](https://textual.textualize.io/api/validation/#textual.validation.Validator.failure)的执行结果来简化）。示例如下：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Input
+    from textual.validation import Validator
+    
+    class InputValidator(Validator):
+        def validate(self, value):
+            return self.success() if '.' not in value else self.failure('"." should not be included.')
+        
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Input(validators=InputValidator('"." should not be included.')),
+            ]
+            self.mount_all(self.widgets)
+    
+        def on_input_changed(self,e:Input.Changed):
+            if fail_res:=e.validation_result.failure_descriptions:
+                self.notify(f'{fail_res[0]}')
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+    示例中，给验证对象传入字符串或者在调用`failure`方法时传入字符串，会成为验证失败的提示文字，也就是验证对象的`failure_description`属性。同时，该提示文字也会成为组件消息的`validation_result`属性的`failure_descriptions`子属性的元素。注意，`validation_result`属性的`failure_descriptions`子属性仅在验证方法输出失败时才会有效，因此示例中特地添加了检查代码。
+
+    ![input_2](textual.assets/input_2.png)
+
+-   `validate_on`参数，元素为字符串类型（仅支持`['blur','changed','submitted']`中的值，分别表示组件失去焦点、组件的内容变化和提交）的可迭代对象，表示在添加验证对象之后，需要在什么时候验证输入的内容。默认不设置时是`None`，表示在组件失去焦点、组件的内容变化和提交时都会触发验证。如果设置了此参数，则表示在指定的时机触发验证。
+
+-   `valid_empty`参数，布尔类型，表示已经设置验证对象的情况下，当没有输入任何内容（`value`属性为`None`）时，是否认为此时的值是有效的且不需要验证，默认为`False`，即不输入任何内容也需要验证。注意，当参数为`True`，即认为`value`属性为`None`不需要验证时，消息的`validation_result`属性会在不输入任何内容时变为`None`，此时不能直接访问`failure_descriptions`子属性，会报错，需要添加额外的检查代码避免这种情况。比如下面示例中`on_input_changed`方法的定义中，就添加了额外的检查代码。此外，读者可以修改`valid_empty`参数的值，观察执行结果：
+
+    ```python3
+    from textual.app import App
+    from textual.widgets import Input
+    from textual.validation import Validator
+    
+    class InputValidator(Validator):
+        def validate(self, value):
+            return self.success() if value else self.failure('Please input something.')
+        
+    class MyApp(App):
+        def on_mount(self):
+            self.widgets = [
+                Input(validators=InputValidator(),valid_empty=True),
+            ]
+            self.mount_all(self.widgets)
+    
+        def on_input_changed(self,e:Input.Changed):
+            if e.input.valid_empty:
+                return
+            elif fail_res:=e.validation_result.failure_descriptions:
+                self.notify(f'{fail_res[0]}')
+    
+    if __name__ == '__main__':
+        app = MyApp()
+        app.run()
+    ```
+
+-   `select_on_focus`参数，布尔类型，表示当组件获得焦点时，是否自动选择输入框内的全部内容。
+
+-   `tooltip`参数，可渲染类型，表示鼠标悬停在组件上时显示出来的工具提示。
+
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
+-   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
+-   `classes`参数，字符串类型，表示组件的样式类。
+
+-   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
+
+组件支持以下属性（常用，非全部）：
+
+-   `content_width`属性，表示含光标的内容宽度。注意，为了防止光标，内容宽度会比实际内容的宽度多1。
+-   `cursor_screen_offset`属性，表示光标在屏幕坐标系中的位置。
+-   `cursor_position`属性，表示当前光标位置，默认为`0`。可以设置此属性的值来移动光标。
+-   `is_valid`属性，表示当前内容是否通过了验证。注意，如果组件没有设置验证对象，此属性则一直为`True`。
+-   `selected_text`属性，表示输入框内被选中的内容。
+-   `selection`属性，表示输入框内当前选中内容的光标范围。该属性是命名元组，包含`start`和`end`两个成员，分别代表想要选中目标内容的开始光标位置和结束光标位置。
+-   `cursor_blink`属性，表示是否启用光标闪烁，默认为`True`。
+-   `value`属性，同`value`参数。
+-   `placeholder`属性，同`placeholder`参数。
+-   `password`属性，同`password`参数。
+-   `restrict`属性，同`restrict`参数。
+-   `type`属性，同`type`参数。
+-   `max_length`属性，同`max_length`参数。
+-   `valid_empty`属性，同`valid_empty`参数。
+-   `validate_on`属性，同`validate_on`参数。
+
+组件支持以下反应性属性：
+
+-   `cursor_blink`属性，表示是否启用光标闪烁，默认为`True`。
+-   `value`属性，同`value`参数。
+-   `cursor_position`属性，表示当前光标位置，默认为`0`。可以设置此属性的值来移动光标。
+-   `placeholder`属性，同`placeholder`参数。
+-   `password`属性，同`password`参数。
+-   `restrict`属性，同`restrict`参数。
+-   `type`属性，同`type`参数。
+-   `max_length`属性，同`max_length`参数。
+-   `valid_empty`属性，同`valid_empty`参数。
+
+在自定义组件的章节中，提到了`COMPONENT_CSS`，可以让使用线性渲染的组件更方便地应用CSS样式。在输入框组件中， 也提供了这样的子组件样式类。组件支持以下子组件样式类：
+
+-   `input--cursor`类，光标使用的样式类。
+-   `input--placeholder`类，占位文字使用的样式类。
+-   `input--suggestion`类，自动补全文字使用的样式类。
+-   `input--selection`类，被选中文字使用的样式类。
+
+如果想要设置光标的颜色为红色，可以这样写代码：
+
+```python3
+from textual.app import App
+from textual.widgets import Input
+    
+class MyApp(App):
+    CSS = '''
+    .input--cursor {
+        background: red;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            Input(),
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![input_3](textual.assets/input_3.png)
+
+组件支持以下消息：
+
+-   `Changed`消息，当输入框的内容改变时触发，该消息支持以下属性：
+    -   `input`属性，表示触发该消息的组件。
+    -   `control`属性，同`input`属性。
+    -   `validation_result`属性，表示输入内容的验证结果。在设置`validators`参数之后，此属性会变成非`None`值，可以获取到验证的结果。
+    -   `value`属性，表示组件当前输入的内容。
+-   `Submitted`消息，当输入框的内容改提交（按下`enter`键或者执行`action_submit`方法）时触发，该消息支持的属性同`Changed`消息。
+-   `Blurred`消息，当输入框失去焦点时触发，该消息支持的属性同`Changed`消息。
+
+组件支持以下快捷键：
+
+-   `left`键，将光标向左移动一个字符。
+-   `shift+left`键，将光标向左移动一个字符并选择光标经过的内容。
+-   `ctrl+left`键，将光标移动到左边单词的词头位置。
+-   `right`键，将光标向右移动一个字符。
+-   `ctrl+shift+left`键，将光标移动到左边单词的词头位置并选择这个单词。
+-   `shift+right`键，将光标向右移动一个字符并选择光标经过的内容。
+-   `ctrl+right`键，将光标移动到右边下一个单词的词头位置。
+-   `backspace`键，删掉光标左边的字符。
+-   `ctrl+shift+right`键，将光标移动到右边单词的下一个单词的词头位置并选择右边单词。
+-   `home`键或`ctrl+a`键，移动光标到输入框开头的位置。
+-   `end`键或`ctrl+e`键，移动光标到输入框末尾的位置。
+-   `shift+home`键，移动光标到输入框开头的位置，并选择光标之前位置到输入框开头之间的内容。
+-   `shift+end`键，移动光标到输入框末尾的位置，并选择光标之前位置到输入框末尾之间的内容。
+-   `delete`键或`ctrl+d`键，删掉光标右边的字符。
+-   `enter`键，提交输入框的内容，即触发`submitted`消息并将输入框的内容传给该消息的额外参数。
+-   `ctrl+w`键，删掉光标左边的单词。
+-   `ctrl+u`键，删掉光标左边的所有内容。
+-   `ctrl+f`键，删掉光标右边的单词。
+-   `ctrl+k`键，删掉光标右边的所有内容。
+-   `ctrl+x`键，剪切被选择的内容。
+-   `ctrl+c`键，复制被选择的内容。
+-   `ctrl+v`键，将剪贴板的内容粘贴到输入框内。
+
+组件支持以下实例方法：
+
+-   `action_copy`方法，复制当前选择的内容。
+-   `action_cursor_left`方法，将光标向左移动一个字符。该方法还支持一个布尔类型的参数`select`，表示移动光标的同时是否选择内容，默认为`False`。
+-   `action_cursor_left_word`方法，将光标移动到左边单词的词头位置。该方法还支持一个布尔类型的参数`select`，表示移动光标的同时是否选择内容，默认为`False`。
+-   `action_cursor_righ`方法，将光标向右移动一个字符。该方法还支持一个布尔类型的参数`select`，表示移动光标的同时是否选择内容，默认为`False`。
+-   `action_cursor_right_word`方法，将光标移动到右边下一个单词的词头位置。该方法还支持一个布尔类型的参数`select`，表示移动光标的同时是否选择内容，默认为`False`。
+-   `action_cut`方法，剪切被选择的内容。
+-   `action_delete_left`方法，删掉光标左边的字符。
+-   `action_delete_left_all`方法，删掉光标左边的所有内容。
+-   `action_delete_left_word`方法，删掉光标左边的单词。
+-   `action_delete_right`方法，删掉光标右边的字符。
+-   `action_delete_right_all`方法，删掉光标右边的所有内容。
+-   `action_delete_right_word`方法，删掉光标右边的单词。
+-   `action_end`方法，移动光标到输入框末尾的位置。该方法还支持一个布尔类型的参数`select`，表示移动光标的同时是否选择内容，默认为`False`。
+-   `action_home`方法，移动光标到输入框开头的位置。该方法还支持一个布尔类型的参数`select`，表示移动光标的同时是否选择内容，默认为`False`。
+-   `action_paste`方法，将剪贴板的内容粘贴到输入框内。
+-   `action_submit`方法，提交输入框的内容，即触发`submitted`消息并将输入框的内容传给该消息的额外参数。
+-   `clear`方法，清除输入框的内容。
+-   `delete`方法，删除输入框指定区间的内容。该方法使用时必须传入两个参数：
+    -   `start`参数，整数类型，表示区间开始的位置。
+    -   `end`参数，整数类型，表示区间结束的位置。
+-   `delete_selection`方法，删除当前选择的内容。
+-   `insert`方法，在指定位置插入指定内容。该方法使用时必须传入两个参数：
+    -   `text`参数，字符串类型，表示要插入的内容。
+    -   `index`参数，整数类型，表示插入内容的位置。
+-   `insert_text_at_cursor`方法，在光标位置插入指定内容。该方法必须传入一个字符串类型的参数`text`，表示要插入的内容。
+-   `replace`方法，替换指定区间的内容为指定内容。该方法使用时必须传入三个参数：
+    -   `text`参数，字符串类型，表示要替换的内容。
+    -   `start`参数，整数类型，表示区间开始的位置。
+    -   `end`参数，整数类型，表示区间结束的位置。
 
 #### 2.3.3 开关切换类组件
 
@@ -12584,13 +12832,47 @@ if __name__ == '__main__':
 
 
 
-RadioButton单选按钮组件（这里介绍单用，后面会介绍当单选用的时候的例子）
+https://textual.textualize.io/widgets/switch/
 
 
 
-Checkbox复选框组件
+##### 2.3.3.2 `Checkbox`复选框组件和`RadioButton`单选按钮组件
+
+相比于切换开关，自带文本标签
+
+https://textual.textualize.io/widgets/checkbox/
 
 
+
+
+
+https://textual.textualize.io/widgets/radiobutton/
+
+`RadioButton`单选按钮组件用起来几乎和复选框一样，但更多是当单选用，这里可以当作简单的开关
+
+（这里介绍单用，后面会介绍当单选用的时候的例子）
+
+
+
+让两种开关变得一样的示例：
+
+```python3
+from textual.app import App
+from textual.widgets import RadioButton,Checkbox
+    
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Checkbox(label='select'),
+            RadioButton(label='select'),
+        ]
+        self.mount_all(self.widgets)
+        self.query_one(RadioButton).BUTTON_INNER = 'X'
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
 
 

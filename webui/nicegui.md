@@ -259,7 +259,7 @@ ui.run(native=True)
 
 对图形界面有基础的理解之后，下面就可以根据NiceGUI与基础概念的对应，进一步理解NiceGUI的设计理念。
 
-在`Hello World!`示例中，使用了导入语句`from nicegui import ui`导入了`ui`，顾名思义，ui就是用户界面，这也是NiceGUI调用控件的模块，也可以调用布局。具体的控件和布局用法可以参考下一节[NiceGUI中不得不学的功能](#2.3 NiceGUI中不得不学的功能)，下一节将选取一些NiceGUI中常用、不好理解的功能重点讲解。
+在`Hello World!`示例中，使用了导入语句`from nicegui import ui`导入了`ui`，顾名思义，`ui`就是用户界面，这也是NiceGUI调用控件的模块，也可以调用布局。具体的控件和布局用法可以参考下一节[NiceGUI中不得不学的功能](#2.3 NiceGUI中不得不学的功能)，下一节将选取一些NiceGUI中常用、不好理解的功能重点讲解。
 
 因为NiceGUI是基于Quasar这个Web框架做的Python调用绑定，因此，NiceGUI的交互部分，很大程度与Web结合。在Web设计中，基于CSS实现的美化效果，基于JavaScript的event做的事件响应，都能在NiceGUI中看到。所以，如果用好NiceGUI，对Web三件套HTML、CSS、JavaScript的学习不可避免。此外，因为NiceGUI与Quasar这个Web框架的深度集成的关系，Quasar中的属性、slot、事件也需要掌握，才能让交互设计更加得心应手。
 

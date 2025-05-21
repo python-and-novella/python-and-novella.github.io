@@ -209,7 +209,9 @@ ft.app(target=main)
 
 除了使用`flet run main.py`来运行程序，还可以省略`run`，直接使用`flet main.py`来运行。注意，这种省略方式仅限指定了目录（等于运行指定目录下的`main.py`）或者文件名（即使是`main.py`也要写上）的情况下使用，且支持`-d`和`-r`选项。
 
-### 2.1 Flet的`Hello World`
+### 2.1 认识Flet程序
+
+#### 2.1.1 Flet的`Hello World`
 
 大部分编程语言、框架都是从最简单的`Hello World`程序开始，Flet也不例外：
 
@@ -234,27 +236,21 @@ ft.app(target=main)
 
 ![hello_world_1](flet.assets/hello_world_1.png)
 
-### 2.2 Flet程序的基本概念
-
-本节主要内容参考自 https://flet.dev/docs/getting-started/ 。
-
-对于Flet程序来说，基础方面没有特别需要注意的地方，大部分需要学习的也就是具体控件的用法，这也是Flet框架广受欢迎的原因。
-
-#### 2.2.1 图形界面的基础概念
+#### 2.1.2 基础概念
 
 在正式学习Flet的基础之前，需要先对图形界面有个基础的理解。
 
 一般来说，搭建图形界面需要理解三个概念：控件、布局、交互。
 
-##### 2.2.1.1 控件
+##### 2.1.2.1 控件
 
 控件是搭建图形界面的基本元素，就像是盖房子用的砖、门、窗等最小搭建单位。控件通常是图形界面框架提供、直接可用的。如果使用过程中发现基本元素不够，可以结合布局功能，用基本元素组合出新的控件。
 
-##### 2.2.1.2 布局
+##### 2.1.2.2 布局
 
 布局是排布控件的方式，就像是房屋的基本框架。用砖可以铺地，也可以垒墙，对于砖而言，墙或是地，就是布局。控件是横向排列还是竖向排列，是像网格一样一一对应，还是大控件套着小控件，都是由布局控制。大部分图形程序框架提供的布局类似，除了基本的几种布局之外，部分图形程序框架还提供额外的组合布局。
 
-##### 2.2.1.3 交互
+##### 2.1.2.3 交互
 
 交互是图形界面的重中之重，也是一个程序最难的部分。论难度的话，前面的控件和布局的学习只是对照文档，按图索骥，交互则需要身经百战，不断积累经验。
 
@@ -264,9 +260,7 @@ ft.app(target=main)
 
 此外，基于图形界面框架的特性，后端的处理逻辑以及数据的传递也是交互的一部分。在函数内，对于控件的控制，如何做到符合要求，毕竟有的框架、编程语言不支持没有定义或者声明函数就调用，而有的语言不支持声明函数。如果需要让控件显示的文本与另一个控件的文本一致，如何处理数据同步过程也需要技巧。
 
-##### 2.2.1.4 Flet与基础概念的对应
-
-对图形界面有基础的理解之后，下面就可以根据Flet与基础概念的对应，进一步理解Flet的设计理念。
+##### 2.1.2.4 Flet程序的对应
 
 在`Hello World`示例中，使用了导入语句`import flet as ft`导入了`flet`，`flet`包含大部分控件（部分开头大写的类）、功能（全小写函数和非控件的类），可以快速使用控件创建界面。当然，布局控件也是控件，这也是大多数现代GUI框架的设计思路。所以，使用相关布局时，无需单独导入。
 
@@ -274,7 +268,7 @@ ft.app(target=main)
 
 在交互方面，Flet采用的是类似网页端的事件响应机制，使用'on_'开头方法响应对应的事件，开发者需要设置对应方法需要执行的操作。
 
-#### 2.2.2 Flet程序的基本组成
+##### 2.1.2.5 Flet程序的基本组成
 
 在`Hello World`示例中，若是严格区分的话，一个Flet程序的源代码主要由两部分组成：
 
@@ -293,7 +287,13 @@ ft.app(target=main)
 
 -   `ft.app(target=main)`使用主要入口函数，进入Flet程序的事件循环中，一旦程序退出，该函数就会自动跳出循环。如果该行代码下面还有内容的话，Python就会继续执行下去。
 
-#### 2.2.3 添加控件
+### 2.2 基础技巧
+
+本节主要内容参考自 https://flet.dev/docs/getting-started/ 。
+
+对于Flet程序来说，基础方面没有特别需要注意的地方，大部分需要学习的也就是具体控件的用法，这也是Flet框架广受欢迎的原因。
+
+#### 2.2.1 添加控件
 
 本节主要内容参考自 https://flet.dev/docs/getting-started/flet-controls 。
 
@@ -430,7 +430,7 @@ ft.app(target=main)
 
 需要注意的是，部分 Material  风格的控件同时也是自适应控件，也就是说，将其`adaptive`参数设置为`True`的话，当程序识别到主机为苹果系统时，将自动转换为 Cupertino 风格控件（仅限词根相同的控件）。
 
-#### 2.2.4 异步与后台任务
+#### 2.2.2 异步与后台任务
 
 本节主要内容参考自 https://flet.dev/docs/getting-started/async-apps 。
 
@@ -690,62 +690,362 @@ async def main(page: ft.Page):
 ft.app(target=main)
 ```
 
-#### 2.2.5 颜色（更新中）
+#### 2.2.3 颜色与主题
+
+##### 2.2.3.1 颜色
 
 本节主要内容参考自 https://flet.dev/docs/reference/colors 。
 
-
-
-（以下内容暂定，等待打磨、校核）
-
 在Flet中，需要设置颜色的地方（控件的前景色和背景色等），支持以下几种颜色的表达方式：
 
--   名字
--   成员
--   量化表达
--   颜色对象
+-   颜色名字（大小写均可），比如`'red'`。支持的名字参考`flet.Colors`和`flet.CupertinoColors`的源码。注意，`flet.CupertinoColors`表示的是Cupertino风格使用的颜色，部分颜色存在缺失（该风格不使用）。
+-   颜色枚举对象成员，比如`flet.Colors.red`。这种表达方式比较推荐，不像颜色名字需要记忆，此方法可以借助开发工具的自动提示，可以简单搜索所需的颜色。
+-   量化表达的RGB颜色，比如`'#FF0000'`和`'0xFF0000'`。前缀有'#'、'0x'两种，后接六位十六进制数字（大小写均可）表达的RGB颜色，格式为`RRGGBB`。
+-   颜色对象（不推荐），比如`flet.Colors('red')`。给颜色枚举类传入支持的颜色名字（要求小写且必须是类内有的名字），就和使用颜色枚举对象成员一样。
 
-
-
-给颜色设置透明度的话，有以下几种方式：
-
--   表示颜色的字符串中，使用英文逗号分隔，后接小数表示的透明度
--   使用包含透明度的量化表达
--   静态方法`with_opacity`，需要同时表明颜色。
-
-
-
-（颜色名字，颜色成员，颜色的量化表达，透明度等，）
-
-
+以下为示例：
 
 ```python3
 import flet as ft
 
 def main(page: ft.Page):
     page.add(
-        *[ft.Button(text=f'{color} Button',bgcolor=color) 
-          for color in ['red','RED','','',ft.Colors.RED,ft.Colors('red')] ]
+        *[ft.Button(text=f'{color} Button', bgcolor=color)
+            for color in [
+                'red',
+                'RED',
+                ft.Colors.RED,
+                '#FF0000',
+                '0xFF0000',
+                ft.Colors(ft.Colors.RED.name.lower())
+            ]
+        ]
     )
-    page.add(
-        *[ft.Button(text=f'{color} Button',bgcolor=color) 
-          for color in ['red,0.5','RED','','',ft.Colors.RED,ft.Colors.with_opacity(0.5,'red')] ]
-    )
-    
+
 ft.app(target=main)
 ```
 
+![color_1](flet.assets/color_1.png)
+
+量化表示的颜色可以自由控制颜色深度，但是用起来要求对颜色有一定理解。好在其他颜色表达方式（依据的是颜色枚举对象成员）也提供了几种预置的颜色深度表达方式，可以快速控制颜色深度：
+
+-   直接在颜色名字后加数字，表示对应的深度，支持`50/100/200/300/400/500/600/700/800/900`，其中`500`表示与无数字后缀一样的深度，小于500的表示颜色变浅，大于500表示颜色变深。比如`'red100'`。
+-   颜色名字加'accent'是另一种加深颜色的方式。加了后缀之后，该颜色会稍微变深一些，用于区分同前缀颜色，表示强调。当然，这种稍微加深一些的颜色同样支持后面再加数字，控制不同级别的深度，不过仅支持`100/200/400/700`。比如`'redaccent100'`。
+-   颜色枚举对象成员同样支持上面两种深度控制方式，但成员名字需要使用下划线间隔后缀，比如`flet.Colors.RED_ACCENT_100`。
+
+以下为示例：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.add(
+        *[ft.Button(text=f'{color} Button', bgcolor=color)
+            for color in [
+                'red100',
+                ft.Colors.RED_100,
+                'redaccent100',
+                ft.Colors.RED_ACCENT_100
+            ]
+        ]
+    )
 
 
+ft.app(target=main)
+```
+
+![color_2](flet.assets/color_2.png)
+
+颜色深度看上去像是控制了颜色的透明度，但与透明度不一样，透明度有单独的设置方式。给颜色设置透明度的话，有以下几种方式：
+
+-   在表示颜色的字符串中，使用英文逗号分隔，后接小数表示的透明度，比如`'red100,0.5'`。
+-   使用包含透明度的量化表达，格式与前面量化表达的RGB颜色类似，只不过这里的格式是格式为`AARRGGBB`，前两位是十六进制表示的透明度，`00`为完全透明，`ff`为完全不透明，比如`'#80ffcdd2'`表示50%的透明度。
+-   `flet.Colors`类和`flet.CupertinoColors`类的静态方法`with_opacity`接收一个表示透明度的参数`opacity`，但使用此方法时，需要同时给第二个表示颜色的参数`color`传入颜色，比如`flet.Colors.with_opacity(0.5,'red100')`。
+
+示例如下：
+
+```python3
+import flet as ft
 
 
-#### 2.2.x （待定）
+def main(page: ft.Page):
+    page.add(
+        *[ft.Button(text=f'{color} Button', bgcolor=color)
+            for color in [
+                'red100,0.5',
+                '#80ffcdd2',
+                ft.Colors.with_opacity(0.5,'red100')
+            ]
+        ]
+    )
+
+ft.app(target=main)
+```
+
+![color_3](flet.assets/color_3.png)
+
+##### 2.2.3.2 主题
+
+本节主要内容参考自 https://flet.dev/docs/cookbook/theming 。
+
+如果每个控件都不使用默认的颜色的话，每个控件都设置一次颜色总归是麻烦。因此，使用主题功能设置默认的颜色是最方便的。
+
+以下为示例：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.theme = ft.Theme(color_scheme_seed=ft.Colors.GREEN)
+    page.dark_theme = ft.Theme(color_scheme_seed=ft.Colors.RED)
+    page.add(
+        ft.Button('Button')
+    )
+
+ft.app(target=main)
+```
+
+![theme_1](flet.assets/theme_1.png)
+
+在Flet中，主题有两种风格：明亮风格，同时也是默认的风格；黑暗风格，也可以称之为夜间模式、深色风格、深色模式。示例中的程序因为跟随系统使用了深色模式，因此只有黑暗风格的主题生效。默认情况下，Flet程序使用的主题风格跟随系统，但可以通过设置`theme_mode`参数或属性来决定使用什么主题风格。
+
+`theme_mode`参数或属性支持以下类型的值：
+
+-   字符串类型，仅支持`['system',light','dark']`，分别对应跟随系统、明亮风格、黑暗风格。
+-   主题模式枚举对象（`flet.ThemeMode`）成员，比如`flet.ThemeMode.LIGHT`。
+
+以下为示例：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.theme = ft.Theme(color_scheme_seed=ft.Colors.GREEN)
+    page.dark_theme = ft.Theme(color_scheme_seed=ft.Colors.RED)
+    page.theme_mode = ft.ThemeMode.LIGHT # 或者 'light'
+    
+    page.add(
+        ft.Button('Button'),
+        ft.Container(
+            ft.Button(text=f'Button'),
+            theme=ft.Theme(color_scheme_seed=ft.Colors.BLUE),
+            dark_theme=ft.Theme(color_scheme_seed=ft.Colors.YELLOW),
+            theme_mode='dark'
+        )
+    )
+
+ft.app(target=main)
+```
+
+![theme_4](flet.assets/theme_4.png)
+
+在学习如何创建主题之前，需要对上面的示例进行解惑，顺便讲一讲如何使用主题以及主题的生效范围。
+
+可以看到，虽然设置`theme_mode`参数或属性之后，让程序的主题风格不再跟随系统，但也出现了两种风格同时存在的问题。其实，这并不是问题，而是主题的生效范围不同，导致控件优先使用的主题也存在不同。
+
+使用主题时，生效的范围不同，使用的方法也有所不同：
+
+-   全局生效。设置`page`的`theme`属性（明亮风格的主题）、`dark_theme`属性（黑暗风格的主题），则所有显示在页面中的控件都使用设定的主题。
+-   局部生效。设置容器控件的`theme`参数或属性（明亮风格的主题）、`dark_theme`参数或属性（黑暗风格的主题），并同时设置容器控件的`theme_mode`参数或属性，则所有显示在容器中的控件都使用设定的主题，而非全局生效的主题。如果不设置容器控件的`theme_mode`参数或属性，则表示容器控件使用全局生效的主题。
+
+以下为示例：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.theme = ft.Theme(color_scheme_seed=ft.Colors.GREEN)
+    page.dark_theme = ft.Theme(color_scheme_seed=ft.Colors.RED)
+    
+    page.add(
+        ft.Button('Button'),
+        ft.Container(
+            ft.Button(text=f'Button'),
+            theme = ft.Theme(color_scheme_seed=ft.Colors.BLUE),
+            dark_theme = ft.Theme(color_scheme_seed=ft.Colors.YELLOW),
+            theme_mode='dark'
+        )
+    )
+
+ft.app(target=main)
+```
+
+![theme_5](flet.assets/theme_5.png)
+
+除了主题的颜色，控件本身一般也能设置颜色，这时就存在优先级的问题。对于一般的控件来说，其使用的颜色的优先级顺序如下：控件设置的颜色 > 局部生效的主题颜色 > 全局生效的主题颜色。
+
+不过，凡事都有例外，控件的颜色（或者主题）生效情况也是。以下是部分存在特例的控件：
+
+-   `flet.FilledButton`控件没有`bgcolor`参数，因为该控件的背景颜色取决于其所属的父级控件使用的主题的主要颜色。
+
+说完使用主题之前，再来说说如何创建主题。使用`flet.Theme`类创建主题对象，即可自定义主题。
+
+`flet.Theme`类支持以下参数（仅介绍常用的部分参数，完整介绍可以参考[官网文档](https://flet.dev/docs/reference/types/theme/)）：
+
+-   `color_scheme_seed`参数，字符串类型或者颜色枚举对象成员，表示用于计算主题其他颜色的种子颜色。
+
+-   `font_family`参数，字符串类型，表示主题中文字使用的字体。以下为示例：
+
+    ```python3
+    import flet as ft
+    
+    def main(page: ft.Page):
+        page.theme = ft.Theme(
+            color_scheme_seed='red',
+            elevated_button_theme=ft.ElevatedButtonTheme(bgcolor='green'),
+            font_family='KaiTi',
+        )
+        page.dark_theme = ft.Theme(color_scheme_seed='red')
+        page.theme_mode = 'light'
+    
+        page.add(
+            ft.Button('Button按钮'),
+            ft.Text('Text文字'),
+        )
+    
+    ft.app(target=main)
+    ```
+
+    ![theme_3](flet.assets/theme_3.png)
+
+-   `use_material3`参数，布尔类型，表示控件是否使用 Material  Design 3 风格，默认为`True`。为`False`的话使用 Material  Design 2 风格。以下为对比示例：
+
+    ```python3
+    import flet as ft
+    
+    
+    def main(page: ft.Page):
+        page.theme_mode = 'light'
+    
+        page.add(
+            ft.Container(
+                ft.Button('Button按钮'),
+                theme=ft.Theme(
+                    use_material3=True
+                ),
+                theme_mode='light'
+            ),
+            ft.Container(
+                ft.Button('Button按钮'),
+                theme=ft.Theme(
+                    use_material3=False
+                ),
+                theme_mode='light'
+            )
+        )
+    
+    
+    ft.app(target=main)
+    ```
+
+    ![theme_6](flet.assets/theme_6.png)
+
+-   `color_scheme`参数，颜色方案类型，表示主题的颜色方案。不同于`color_scheme_seed`参数是自动生成主题的颜色风格，该参数可以准确指定主题的特定颜色。比如，下面的示例中准确指定了主要色（其他相关的颜色会自动生成），与自动生成主题的颜色风格对比，得到的主题更接近想要的结果：
+
+    ```python3
+    import flet as ft
+    
+    
+    def main(page: ft.Page):
+        page.theme_mode = 'light'
+    
+        page.add(
+            ft.Container(
+                ft.Button('Button按钮'),
+                theme=ft.Theme(
+                    color_scheme_seed='green',
+                ),
+                theme_mode='light'
+            ),
+            ft.Container(
+                ft.Button('Button按钮'),
+                theme=ft.Theme(
+                    color_scheme=ft.ColorScheme(primary='green'),
+                ),
+                theme_mode='light'
+            )
+        )
+    
+    
+    ft.app(target=main)
+    ```
+
+    ![theme_7](flet.assets/theme_7.png)
+
+对于后缀为'_theme'的参数，表示的是对应控件使用的子主题，同时设置这类参数的话，对应控件将使用对应值表示的子主题，而不是主题。比如：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.theme = ft.Theme(
+        color_scheme_seed='red',
+        elevated_button_theme=ft.ElevatedButtonTheme(bgcolor='green')
+    )
+    page.dark_theme = ft.Theme(color_scheme_seed='red')
+    page.theme_mode = 'light'
+
+    page.add(
+        ft.Button('Button按钮'),
+        ft.OutlinedButton('Button按钮'),
+    )
+
+ft.app(target=main)
+```
+
+![theme_2](flet.assets/theme_2.png)
+
+需要注意的是，部分子主题对应的控件不是可以单独使用的控件。比如：
+
+-   `ScrollBar`控件，用在`flet.Page`、`flet.View`、`flet.Column`、`flet.Row`、`flet.ListView`、`flet.GridView`等内容可以滚动的控件中，表示显示出来的滚动条，无法单独使用。
+
+对于后缀为'_color'的参数，表示的是部分控件内容使用的主题颜色，而非控件本身的主题颜色。比如，仅在标记文本控件显示GitHub风格的Markdown文本，且文本中包含复选框时，复选框才会使用`primary_color`参数表示的颜色：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.theme_mode = 'light'
+
+    page.add(
+        ft.Container(
+            ft.Markdown(
+            '- [x] Check it!',
+            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+        ),
+            theme=ft.Theme(
+                color_scheme_seed='green',
+                primary_color='red',
+            ),
+            theme_mode='light'
+        ),
+        ft.Container(
+            ft.Button(
+            '- [x] Check it!',
+        ),
+            theme=ft.Theme(
+                color_scheme_seed='green',
+                primary_color='red',
+            ),
+            theme_mode='light'
+        ),
+    )
 
 
+ft.app(target=main)
+```
 
-### 2.3 基础技巧（随时补充）
+![theme_8](flet.assets/theme_8.png)
 
-本节主要介绍那些新手需要但三言两语就能说清的基础技巧。
+#### 2.2.4 xx（待定）
+
+（随时补充中……）
+
+### 2.3 其他基础技巧
+
+本节主要介绍那些经常使用但三言两语就能说清的基础技巧。
+
+#### 2.3.1 定时器
 
 Flet官方目前没有添加定时器功能，不过，单独实现一个也并非难事。
 
@@ -906,6 +1206,8 @@ ft.app(target=main)
 
 ![timer_1](flet.assets/timer_1.gif)
 
+#### 2.3.2 关闭窗口
+
 Flet是一个GUI框架，在开发桌面程序中，经常会设计无边框程序。启用无边框也就意味着没有了常规的关闭按钮，无法正常关闭窗口。此时，就需要用到关闭窗口的方法：`close`方法和`destroy`方法。启用无边框和关闭窗口的方法均是`page.window`的属性、方法，具体可以参考 https://flet.dev/docs/reference/types/window/ 。
 
 以下为启用无边框的同时，添加了关闭窗口按钮的示例：
@@ -925,7 +1227,27 @@ ft.app(target=main)
 
 ![frameless_1](flet.assets/frameless_1.png)
 
-（随时补充中……）
+#### 2.3.3 使用图标
+
+控件中可以设置图标的参数或属性，均支持字符串或者图标枚举对象成员（完整用法参考 https://flet.dev/docs/reference/icons ），示例如下：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.add(
+        ft.Button('主页',icon='home'),
+        ft.Button('主页',icon=ft.Icons.HOME),
+    )
+
+ft.app(target=main)
+```
+
+![icon_1](flet.assets/icon_1.png)
+
+#### 2.3.4 xx（待定）
+
+
 
 ## 3 具体控件（更新中）
 
@@ -933,13 +1255,17 @@ ft.app(target=main)
 
 Flet提供了大量美观的控件，接下来，根据分类情况，具体学习每个控件。
 
-注意，不是所用控件、方法都支持在桌面平台使用，对于不支持桌面平台的部分，示例代码仅供参考，请读者在实际使用时根据报错自行修正。
+注意，不是所用控件、方法都支持在桌面平台使用，对于不支持桌面平台的部分，示例代码仅供参考，请读者在实际使用时根据报错自行修正。部分控件的示例可能涉及到后面才会学习的高阶技巧，如果遇到不好理解的代码，可以暂时搁置，待学习了高阶技巧之后再回来学习这部分内容。
+
+相关功能的完整用法可以参考官方的API手册 https://flet.dev/docs/reference/ 。
 
 ### 3.1 布局
 
 本节主要内容参考自 https://flet.dev/docs/controls/layout 。
 
+#### 3.1.1 卡片控件
 
+本节主要内容参考自 https://flet.dev/docs/controls/card 。
 
 
 
@@ -947,7 +1273,9 @@ Flet提供了大量美观的控件，接下来，根据分类情况，具体学�
 
 ## 4 高阶技巧与实例（更新中）
 
-除了基础知识和具体的控件用法之外，想要让Flet程序随心所欲，还需要学会一些其他技巧。当然，每个技巧都有具体、可运行的实例代码。
+除了基础知识和具体的控件用法之外，想要让Flet程序符合需求，还需要学会一些其他技巧。当然，每个技巧都有具体、可运行的实例代码。
+
+相关功能的完整用法可以参考官方的API手册 https://flet.dev/docs/reference/ 。
 
 ### 4.1 自定义控件
 
@@ -996,10 +1324,11 @@ ft.app(target=main)
 
 views相当于路径（NiceGUI的page，fastapi的路由），SPA应用
 
-本节主要内容参考自 https://flet.dev/docs/getting-started/navigation-and-routing
+本节主要内容参考自 https://flet.dev/docs/getting-started/navigation-and-routing 。
 
 
 
-### 4.3 主题
+### 4.3 快捷键
 
-本节主要内容参考自 https://flet.dev/docs/cookbook/theming 。
+本节主要内容参考自 https://flet.dev/docs/cookbook/keyboard-shortcuts 。
+

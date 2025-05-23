@@ -1298,7 +1298,6 @@ class MyButton(ft.Button):
 
 def main(page: ft.Page):
 
-    # Material风格
     button = MyButton(text='Material dialog')
     dialog = ft.AlertDialog(
                 title=ft.Text('Hello'),

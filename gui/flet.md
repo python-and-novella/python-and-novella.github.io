@@ -12,7 +12,7 @@ Flet是一个基于Flutter框架的GUI框架，就像基于Qt框架的PySide一�
 
 ### 1.1 uv的简短教程（同时也是基础环境的准备过程）
 
-不同于其他框架的教程，本教程将使用一个新的环境管理工具——[uv](https://docs.astral.sh/uv/#uv)，管理开发环境。
+不同于其他框架的教程，本教程将使用一个新的环境管理工具——uv（ https://docs.astral.sh/uv/#uv ），管理开发环境。
 
 pdm已经够快够简单了，为什么还要用uv？
 
@@ -22,7 +22,7 @@ pdm已经够快够简单了，为什么还要用uv？
 
 可以看到，尽管pdm比pip快将近60%，但uv的速度还是瞬间完成。
 
-了解了uv的优点，接下来开始学习使用uv的常用操作（完整的操作可以学习[官网文档](https://docs.astral.sh/uv/#uv)，这里仅学习初始化、管理开发环境的必要操作）。
+了解了uv的优点，接下来开始学习使用uv的常用操作（完整的操作可以学习官网文档 https://docs.astral.sh/uv/#uv ，这里仅学习初始化、管理开发环境的必要操作）。
 
 #### 1.1.1 初始化项目
 
@@ -266,13 +266,13 @@ ft.app(target=main)
 
 需要注意的是，Flet的控件是通过修改属性来修改显示的内容，但在修改了属性之后，不会立刻刷新显示，而是需要等下次触发刷新或者手动调用`update`方法主动触发刷新，才能让控件的内容变动生效。
 
-在交互方面，Flet采用的是类似网页端的事件响应机制，使用'on_'开头方法响应对应的事件，开发者需要设置对应方法需要执行的操作。
+在交互方面，Flet采用的是类似网页端的事件响应机制，'on_'开头方法或属性会响应对应的事件，开发者需要设置对应方法或属性为需要执行的操作。
 
 ##### 2.1.2.5 Flet程序的基本组成
 
 在`Hello World`示例中，若是严格区分的话，一个Flet程序的源代码主要由两部分组成：
 
--   定义的`main`函数是程序的主要入口，该函数接收一个`Page`类型参数，表示程序的主页面，所有的控件和布局都是挂载在主页面下：
+-   定义的`main`函数是程序的主要入口，该函数接收一个`Page`类型参数，表示程序的主页面，所有的控件和布局都是挂载在主页面（简化模型，其实还有一个视图，高阶技巧中会单独详细介绍）下：
 
     ```shell
     Page
@@ -297,7 +297,9 @@ ft.app(target=main)
 
 本节主要内容参考自 https://flet.dev/docs/getting-started/flet-controls 。
 
-默认情况下，控件都是直接挂载到主页面（本质上也是个控件，但是主页面是最顶层的控件）下（后面的视图是间接挂载）。想要给主页面添加控件，有两种方式：
+默认情况下，控件都是直接挂载到主页面（本质上也是个控件，但是主页面是最顶层的控件）下。注意，这里的说法是简化的，其实控件是挂载到页面的默认视图下，属于间接挂载。这里为了方便理解，所以省略了视图一级。在后面高阶技巧中会单独讲解视图的用法，在此之前请读者忽略掉视图的存在，有助于快速理解基础。
+
+想要给主页面添加控件，有两种方式：
 
 -   调用`add`方法添加。
 -   设置主页面的`controls`属性（列表类型）。
@@ -880,7 +882,7 @@ ft.app(target=main)
 
 说完使用主题之前，再来说说如何创建主题。使用`flet.Theme`类创建主题对象，即可自定义主题。
 
-`flet.Theme`类支持以下参数（仅介绍常用的部分参数，完整介绍可以参考[官网文档](https://flet.dev/docs/reference/types/theme/)）：
+`flet.Theme`类支持以下参数（仅介绍常用的部分参数，完整介绍可以参考 https://flet.dev/docs/reference/types/theme/ ）：
 
 -   `color_scheme_seed`参数，字符串类型或者颜色枚举对象成员，表示用于计算主题其他颜色的种子颜色。
 
@@ -995,9 +997,9 @@ ft.app(target=main)
 
 ![theme_2](flet.assets/theme_2.png)
 
-需要注意的是，部分子主题对应的控件不是可以单独使用的控件。比如：
+需要注意的是，部分子主题对应的控件是不可以单独使用的控件。比如：
 
--   `ScrollBar`控件，用在`flet.Page`、`flet.View`、`flet.Column`、`flet.Row`、`flet.ListView`、`flet.GridView`等内容可以滚动的控件中，表示显示出来的滚动条，无法单独使用。
+-   `scrollbar_theme`主题对应的是`ScrollBar`控件，用在`flet.Page`、`flet.View`、`flet.Column`、`flet.Row`、`flet.ListView`、`flet.GridView`等内容可以滚动的控件中，表示显示出来的滚动条，无法单独使用。
 
 对于后缀为'_color'的参数，表示的是部分控件内容使用的主题颜色，而非控件本身的主题颜色。比如，仅在标记文本控件显示GitHub风格的Markdown文本，且文本中包含复选框时，复选框才会使用`primary_color`参数表示的颜色：
 
@@ -1247,7 +1249,7 @@ ft.app(target=main)
 
 #### 2.3.4 xx（待定）
 
-
+（随时补充中……）
 
 ## 3 具体控件（更新中）
 
@@ -1281,9 +1283,7 @@ Flet提供了大量美观的控件，接下来，根据分类情况，具体学�
 
 本节主要内容参考自 https://flet.dev/docs/getting-started/custom-controls 。
 
-(这部分放到进阶，不能当做基础内容)
-
-
+虽然Flet内置了不少控件，但控件的功能总有不满意的时候，这时，就可以通过继承原本的控件类来扩展控件的功能：
 
 ```python3
 import flet as ft
@@ -1294,36 +1294,535 @@ class MyButton(ft.Button):
         self.bgcolor = ft.Colors.ORANGE_300
         self.color = ft.Colors.GREEN_800
         self.text = text
-        self.on_click = on_click
+        self.on_click = lambda e:(on_click(e) if on_click else self._click())
+    def _click(self):
+        import flet
+        self.page.open(
+            flet.AlertDialog(
+                title=ft.Text('Message'),
+                content=ft.Text(f'{self.text} was clicked.')
+            )
+        )
 
 def main(page: ft.Page):
+    page.add(MyButton('MyButton'))
 
-    button = MyButton(text='Material dialog')
-    dialog = ft.AlertDialog(
-                title=ft.Text('Hello'),
-                content=ft.Text('Hello World')
-            )
-    def open_dialog(e):
-        page.open(dialog)
+ft.app(target=main)
+```
 
-    button.on_click = open_dialog
-    page.controls.append(button)
+![custom_control_1](flet.assets/custom_control_1.gif)
 
-    # 更新页面的显示
+需要注意的是，继承了控件类之后，必须先在初始化方法中调用一次父类的初始化方法（`super().__init__()`），才能正常使用控件、设置控件的属性。
+
+除了上面这种单个自定义控件，还可以通过继承容器类控件，实现包含多个控件的复合自定义控件：
+
+```python3
+import flet as ft
+
+class EditText(ft.Row):
+    def __init__(self, text, on_click = None):
+        import flet as ft
+        super().__init__()
+        self.text_view = ft.Text(text)
+        self.text_edit = ft.TextField(text,visible=False)
+        self.edit_button = ft.IconButton(icon=ft.Icons.EDIT, on_click=self.edit)
+        self.save_button = ft.IconButton(
+            visible=False, icon=ft.Icons.SAVE, on_click=self.save
+        )
+        self.controls = [
+            self.text_view,
+            self.text_edit,
+            self.edit_button,
+            self.save_button,
+        ]
+    def edit(self, e):
+        self.edit_button.visible = False
+        self.save_button.visible = True
+        self.text_view.visible = False
+        self.text_edit.visible = True
+        self.update()
+
+    def save(self, e):
+        self.edit_button.visible = True
+        self.save_button.visible = False
+        self.text_view.visible = True
+        self.text_edit.visible = False
+        self.text_view.value = self.text_edit.value
+        self.update()
+
+def main(page: ft.Page):
+    page.add(EditText('Hello'))
+
+ft.app(target=main)
+```
+
+![custom_control_2](flet.assets/custom_control_2.gif)
+
+在自定义控件类中定义下面的生命周期方法，即可在指定的时机执行特定代码：
+
+-   `build`方法，在控件创建并分配了`self.page`后执行。
+-   `did_mount`方法，在控件被添加到页面（通常是主页面）并分配了`uid`属性后执行。执行顺序在`build`方法后。
+-   `will_unmount`方法，在控件从页面（通常是主页面）中移除前执行。
+-   `before_update`方法，在控件执行`update`方法前执行（控件初始化时，会在执行了`build`方法后执行一次`update`方法）。注意，不能在此方法内执行`update`方法，会导致无限循环。
+
+以下为展示生命周期方法执行顺序的示例：
+
+```python3
+import flet as ft
+
+class EditText(ft.Row):
+    def __init__(self, text, on_click = None):
+        import flet as ft
+        super().__init__()
+        self.text_view = ft.Text(text)
+        self.text_edit = ft.TextField(text,visible=False)
+        self.edit_button = ft.IconButton(icon=ft.Icons.EDIT, on_click=self.edit)
+        self.save_button = ft.IconButton(
+            visible=False, icon=ft.Icons.SAVE, on_click=self.save
+        )
+        self.controls = [
+            self.text_view,
+            self.text_edit,
+            self.edit_button,
+            self.save_button,
+        ]
+    def edit(self, e):
+        self.edit_button.visible = False
+        self.save_button.visible = True
+        self.text_view.visible = False
+        self.text_edit.visible = True
+        self.update()
+
+    def save(self, e):
+        self.edit_button.visible = True
+        self.save_button.visible = False
+        self.text_view.visible = True
+        self.text_edit.visible = False
+        self.text_view.value = self.text_edit.value
+        self.update()
+
+    def build(self):
+        print('build is called.')
+
+    def did_mount(self):
+        print('did_mount is called.')
+
+    def will_unmount(self):
+        print('will_unmount is called.')
+
+    def before_update(self):
+        print('before_update is called.')
+
+def main(page: ft.Page):
+    import time
+    page.add(c1 := EditText('Hello'))
+    time.sleep(1)
+    page.remove(c1)
+
+ft.app(target=main)
+```
+
+输出结果为：
+
+```shell
+build is called.
+before_update is called.
+did_mount is called.
+will_unmount is called.
+```
+
+在自定义控件类中定义`is_isolated`方法并返回布尔值，即可表明该控件是否为隔离控件。所谓隔离控件，即控件的父级控件调用`update`方法时，不会更新控件的子级控件，最多更新控件本身。如果想要更新控件的子级控件，只能调用控件的`update`方法。看上去就好像`update`方法的传递过程在隔离控件这里中断了，因此称该控件为隔离控件。
+
+以下为隔离控件的示例：
+
+```python3
+import flet as ft
+
+class EditText(ft.Row):
+    def __init__(self, text, on_click = None):
+        import flet as ft
+        super().__init__()
+        self.text_view = ft.Text(text)
+        self.text_edit = ft.TextField(text,visible=False)
+        self.edit_button = ft.IconButton(icon=ft.Icons.EDIT, on_click=self.edit)
+        self.save_button = ft.IconButton(
+            visible=False, icon=ft.Icons.SAVE, on_click=self.save
+        )
+        self.controls = [
+            self.text_view,
+            self.text_edit,
+            self.edit_button,
+            self.save_button,
+        ]
+        
+    def is_isolated(self) -> bool:
+        return True
+    
+    def edit(self, e):
+        self.edit_button.visible = False
+        self.save_button.visible = True
+        self.text_view.visible = False
+        self.text_edit.visible = True
+        self.update()
+
+    def save(self, e):
+        self.edit_button.visible = True
+        self.save_button.visible = False
+        self.text_view.visible = True
+        self.text_edit.visible = False
+        self.text_view.value = self.text_edit.value
+        self.update()
+
+def main(page: ft.Page):
+    page.add(
+        c1 := EditText('Hello'),
+        c2 := EditText('Hello')
+    )
+    c1.controls[1].visible = True
+    c2.controls[1].visible = True
+    page.update()
+    c2.update()
+
+ft.app(target=main)
+```
+
+![custom_control_3](flet.assets/custom_control_3.png)
+
+可以看到，虽然两个控件都修改了子级控件的可见性，但使用主页面的`update`方法不会显示，只有使用控件的`update`方法才能显示。
+
+需要注意的是，如果`is_isolated`方法只是返回布尔值的话，就没办法动态修改隔离属性。此时可以将返回值改为与实例属性或者类属性：
+
+```python3
+import flet as ft
+
+class EditText(ft.Row):
+    def __init__(self, text, on_click = None):
+        import flet as ft
+        super().__init__()
+        self.text_view = ft.Text(text)
+        self.text_edit = ft.TextField(text,visible=False)
+        self.edit_button = ft.IconButton(icon=ft.Icons.EDIT, on_click=self.edit)
+        self.save_button = ft.IconButton(
+            visible=False, icon=ft.Icons.SAVE, on_click=self.save
+        )
+        self.controls = [
+            self.text_view,
+            self.text_edit,
+            self.edit_button,
+            self.save_button,
+        ]
+        self.isolated = True
+    
+    def is_isolated(self) -> bool:
+        return self.isolated
+    
+    def edit(self, e):
+        self.edit_button.visible = False
+        self.save_button.visible = True
+        self.text_view.visible = False
+        self.text_edit.visible = True
+        self.update()
+
+    def save(self, e):
+        self.edit_button.visible = True
+        self.save_button.visible = False
+        self.text_view.visible = True
+        self.text_edit.visible = False
+        self.text_view.value = self.text_edit.value
+        self.update()
+
+def main(page: ft.Page):
+    page.add(
+        c1 := EditText('Hello'),
+        c2 := EditText('Hello')
+    )
+    c1.controls[1].visible = True
+    c2.controls[1].visible = True
+    c1.isolated = False
     page.update()
 
 ft.app(target=main)
+```
+
+![custom_control_4](flet.assets/custom_control_4.png)
+
+### 4.2 视图与路由
+
+本节主要内容参考自 https://flet.dev/docs/getting-started/navigation-and-routing 。
+
+前面的教程一直是使用`page.add`来添加控件，看上去像是控件都是直接挂载在主页面下，其实，在控件和主页面之间，还存在一个一直没有刻意关注过的视图：
+
+```shell
+Page
+└─ View
+      ├─ Button
+      └─ Button
+```
+
+`page`的`views`属性是一个包含所有视图的列表，通过访问该属性，就可以发现视图的存在：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.add(
+        ft.Button('Button1')
+    )
+    page.add(
+        ft.Button('Button2')
+    )
+    page.update()
+
+    print(page.views[0].controls)
+
+ft.app(target=main)
+```
+
+这时，可以在终端看到以下输出内容（已经格式化）：
+
+```python3
+[
+    Button(
+        text='Button1', 
+        style='{"padding":{},"side":{},"shape":{},"text_style":{}}'
+    ), 
+    Button(
+        text='Button2', 
+        style='{"padding":{},"side":{},"shape":{},"text_style":{}}'
+    )
+]
+```
+
+这就是`views`属性中第一个视图包含的控件，也正是添加给`page`的控件。因此，之前章节中添加的控件，实际上全是添加给了主页面下的默认视图。而不是主页面。当然，这不是说前面故意不讲，而是视图的用法比较复杂，除非是想实现单页面应用（SPA），没必要使用视图以及路由。只是简单构建一个图像程序的话，忽略视图的存在，反而更简单一些。
+
+不过，存在即合理，既然有视图这个功能，那就有用武之地，接下来详细说一说视图。
+
+正如前面所介绍的那样，视图是挂载在主页面之下，保存在`views`属性中。视图就像是一张纸，`views`属性就是一叠纸，只有在最上面的纸可见，下面的纸都会被遮住，视图就有这样特性。
+
+视图如何使用可以参考视图控件的介绍，其实视图控件那一节已经给过示例（对于视图控件的参数、属性、方法不熟悉的话，可以回顾一下），但没有细说视图的完整用法，这里就再写一个示例：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    page.views.append(
+        ft.View(
+            '/index',
+        	[ft.Button('Button')]
+        )
+    )
+    page.views.append(
+        ft.View(
+            '/index2',
+        	[ft.Button('Button2')]
+        )
+    )
+    page.update()
+    
+ft.app(target=main)
+```
+
+此时，只能看到最上面的视图的内容：
+
+![navi_1](flet.assets/navi_1.png)
+
+需要注意的是，虽然视图和主页面都有一个类似路径一样的路由参数或属性——`route`，但主页面切换路径并不会关联切换视图，因为目前视图的路由参数并非Flet框架在使用（以后说不定会变），想要让路径变化与视图关联，则需要单独设置主页面的路由切换响应函数`on_route_change`，让主页面的路由与视图的路由关联，并通过`go`方法切换路径：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    # 视图信息
+    views = {
+        '/page1':{
+            'title':'Page1',
+            'button':'Go Home',
+            'target':'/',
+        },
+        '/':{
+            'title':'Home',
+            'button':'Go Page1',
+            'target':'/page1',
+        },
+
+    }
+
+    def route_change(route:ft.RouteChangeEvent):
+        view = views.get(route.route)
+        if view:
+            route.page.views.clear()
+            route.page.views.append(
+                ft.View(
+        	        route.route,
+                	[
+                        ft.AppBar(title=ft.Text(view['title'])),
+                        ft.Button(
+                            view['button'],
+                            on_click=lambda e:page.go(view['target'])
+                        ),
+            		]
+        		)
+            )
+        route.page.update()
+
+    page.on_route_change = route_change
+    page.go('/')
+
+ft.app(target=main)
+```
+
+![navi_2](flet.assets/navi_2.gif)
+
+`go`方法可以设置主页面的`route`属性，并触发`route_change`事件。该方法支持以下参数：
+
+-   `route`参数，字符串类型，表示将主页面的`route`属性设置为什么。
+-   `skip_route_change_event`参数，布尔类型，表示是否跳过`route_change`事件的触发，默认为`False`。
+
+可能聪明的读者已经注意到，示例中每次切换路径，都创建了一个新的视图。那是因为，如果不是每次都清空`views`属性的话，在`views`属性中添加相同的对象会导致循环引用的问题。
+
+当然，如果改成先创建好视图，每次都清空后重复使用也是可以的：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    # 视图字典
+    views = {
+        '/':ft.View(
+        	'/',
+            [
+                ft.AppBar(title=ft.Text('Home')),
+                ft.Button(
+                    'Go Page1',
+                    on_click=lambda e:page.go('/page1')
+                ),
+            ]
+        ),
+        '/page1':ft.View(
+        	'/',
+            [
+                ft.AppBar(title=ft.Text('Page1')),
+                ft.Button(
+                    'Go Home',
+                    on_click=lambda e:page.go('/')
+                ),
+            ]
+        ),
+    }
+    def route_change(route:ft.RouteChangeEvent):
+        view = views.get(route.route)
+        if view:
+            route.page.views.clear()
+            route.page.views.append(
+                view
+            )
+        route.page.update()
+
+    page.on_route_change = route_change
+    page.go('/')
+
+ft.app(target=main)
+```
+
+也可以使用模板，批量生成视图：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    # 视图内容
+    view_names = [('/','Home','Page1','/page1'),('/page1','Page1','Home','/')]
+    # 基于视图内容，使用模板生成字典
+    views = {
+        name[0]:ft.View(
+        	name[0],
+            [
+                ft.AppBar(title=ft.Text(name[1])),
+                ft.Button(
+                    f'Go {name[2]}',
+                    on_click=lambda e,name=name:page.go(name[3])
+                ),
+            ]
+        ) for name in view_names
+    }
+    def route_change(route:ft.RouteChangeEvent):
+        view = views.get(route.route)
+        if view:
+            route.page.views.clear()
+            route.page.views.append(
+                view
+            )
+        route.page.update()
+
+    page.on_route_change = route_change
+    page.go('/')
+
+ft.app(target=main)
+```
+
+既然每次都创建新的视图，那清空`views`属性又有什么用呢？
+
+如果不清空的话，`views`属性就会包含先前打开的视图，就好像历史记录一样，这时，就可以通过点击顶部导航栏控件（也就是代码中的`AppBar`）的返回按钮，回到之前的视图：
+
+```python3
+import flet as ft
+
+def main(page: ft.Page):
+    # 视图信息
+    views = {
+        '/page1':{
+            'title':'Page1',
+            'button':'Go Home',
+            'target':'/',
+        },
+        '/':{
+            'title':'Home',
+            'button':'Go Page1',
+            'target':'/page1',
+        },
+
+    }
+
+    def route_change(route:ft.RouteChangeEvent):
+        view = views.get(route.route)
+        if view:
+            #route.page.views.clear()
+            route.page.views.append(
+                ft.View(
+        	        route.route,
+                	[
+                        ft.AppBar(title=ft.Text(view['title'])),
+                        ft.Button(
+                            view['button'],
+                            on_click=lambda e:page.go(view['target'])
+                        ),
+            		]
+        		)
+            )
+        route.page.update()
+
+    page.on_route_change = route_change
+    page.go('/')
+
+ft.app(target=main)
+```
+
+![navi_3](flet.assets/navi_3.png)
+
+但是，单单注释掉清空`views`属性的代码，返回按钮也只是显示出来，并不能完全正常工作。因为返回按钮只负责触发`view_pop`事件并让界面显示（前端）执行回到之前视图的操作，并不会处理`route`属性和`views`属性的数据（后端）。因此，需要在主页面的视图弹出响应函数`on_view_pop`中，处理一下这两个属性：
+
+```python3
 ```
 
 
 
 
 
-### 4.2 视图与路由
 
-views相当于路径（NiceGUI的page，fastapi的路由），SPA应用
 
-本节主要内容参考自 https://flet.dev/docs/getting-started/navigation-and-routing 。
+路由模板
+
+URL策略
 
 
 

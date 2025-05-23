@@ -1367,7 +1367,7 @@ ui.run(native=True)
 
 #### 2.3.7 事件和执行
 
-##### 2.3.7.1 通用事件
+##### 2.3.7.1 通用事件（2025.05.23更新）
 
 大部分控件都有预定义事件监听，比如，`ui.button`的`on_click`点击事件监听，在传参或者调用方法时定义。除了这种已经定义的事件监听，每个控件还支持通过`on`方法创建任意事件监听，比如使用`on`方法创建点击事件监听，也可以创建鼠标进入、离开的事件监听。正如下面的代码所示：
 
@@ -1381,6 +1381,55 @@ ui.button('D').on('mouseleave',lambda: ui.notify('You left the button D.'))
 
 ui.run(native=True)
 ```
+
+以下内容为随 NiceGUI 2.18.0 版本更新增加的`on`方法详解。
+
+`on`方法支持以下参数：
+
+-   `type`参数，字符串类型，表示监听什么事件。
+
+-   `handler`参数，可调用类型，表示服务器端的Python响应函数。响应函数接收一个表示事件对象的`events.GenericEventArguments`类型参数，该参数包含一个`args`属性。
+
+-   `arge`参数，`None`或者元素为字符串的序列或者元素为序列（元素为字符串）的单元素序列，表示客户端的哪些参数及其值会在执行响应函数时，会传给响应函数接收参数的`args`属性（字典形式）。如果为`None`的话，表示将客户端所有的参数传入响应函数接收参数的`args`属性。比如，可以检查客户端响应事件时，有没有按下其他功能键：
+
+    ```python3
+    from nicegui import ui
+    
+    button = ui.button('click')
+    button.on(
+        type='click', 
+        handler=lambda e: ui.notify(f'hello {e}'),
+        args=['ctrlKey','shiftKey','altKey'],
+        #或者[['ctrlKey','shiftKey','altKey']]
+    )
+    
+    ui.run(native=True)
+    ```
+
+-   `throttle`参数，浮点类型，表示事件之间的发生间隔，小于该间隔的事件不会重复处理（默认第一个和最后一个都会处理），该参数默认为`0.0`。从此参数开始，只能通过关键字传入。
+
+-   `leading_events`参数，布尔类型，事件发生间隔内的第一个事件发生时是否立即执行响应函数，默认为`True`。
+
+-   `trailing_events`参数，布尔类型，事件发生间隔内的最后一个事件发生后是否也要执行响应函数，默认为`True`。
+
+-   `js_handler`参数，字符串类型，表示客户端的JavaScript响应函数，默认为`'(...args) => emit(...args)'`。注意，如果JavaScript响应函数内不使用`emit`且与`handler`参数同时定义的话，`handler`参数表示的响应函数不会执行。而JavaScript响应函数内使用的`emit`方法，会把传给该方法的参数，传给`handler`参数表示的响应函数的接收参数的`args`属性。
+
+以下为示例代码：
+
+```python3
+from nicegui import ui
+
+button = ui.button('click')
+button.on(
+    type='click', 
+    handler=lambda e: ui.notify(f'hello {e.args}'),
+    js_handler='(e) => emit(123)'
+)
+
+ui.run(native=True)
+```
+
+注意，`handler`参数与`js_handler`参数同时使用的规则始于 NiceGUI 2.18.0 版本，之前版本只允许使用二者其一，不允许同时使用。
 
 ##### 2.3.7.2 常用事件`app.on_*`
 

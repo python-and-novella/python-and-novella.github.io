@@ -20,7 +20,7 @@ pdm已经够快够简单了，为什么还要用uv？
 
 ![uv_1](questionary.assets/uv_1.png)
 
-可以看到，尽管pdm比pip快将近60%，但uv的速度还是瞬间完成。
+可以看到，尽管pdm比pip快将近60%，但uv的速度还是快到几乎瞬间完成。
 
 了解了uv的优点，接下来开始学习使用uv的常用操作（完整的操作可以学习[官网文档](https://docs.astral.sh/uv/#uv)，这里仅学习初始化、管理开发环境的必要操作）。
 
@@ -663,62 +663,229 @@ questionary.checkbox(
 
 #### 2.2.8 `autocomplete`方法
 
-`autocomplete`方法，生成只能使用按键（`y`键和`n`键）直接回答（默认无需回车确认回答）确认与否的问题，常用于询问用户的同意与否。
+`autocomplete`方法，生成根据给定选项自动补全、同时也支持回答任何内容的问题。
 
+`autocomplete`方法支持以下参数：
 
+- `message`参数，字符串类型，表示问题的提示内容。
+- `choices`参数，元素为字符串类型的列表，每个元素都是自动补全后的内容，用户输入其包含的字符，就会弹出可补全的完整内容。
+- `default`参数，字符串类型，表示问题的默认回答。
+- `qmark`参数，字符串类型，表示显示在问题提示内容之前的内容，表示该提示内容属于问题，默认为`'?'`。
+- `completer`参数，`Completer`类型（使用`from prompt_toolkit.completion import Completer`导入），表示用于补全输入内容的自动补全对象，默认为`WordCompleter`（使用`from questionary.prompts.autocomplete import WordCompleter`导入），如果想实现自定义的补全对象，可以参考 https://python-prompt-toolkit.readthedocs.io/en/master/pages/asking_for_input.html#a-custom-completer ，这里不做展开。
+- `meta_information`参数，字典类型，表示补全内容的解释性信息。字典的键为`choices`参数中的元素，字典的值可以为任何类型。
+- `ignore_case`参数，布尔类型，表示是否忽略输入的内容的大小写，默认为`True`。
+- `match_middle`参数，布尔类型，表示是否全字匹配（即输入的内容在被匹配内容的中间也可以成功匹配），默认为`True`。
+- `complete_style`参数，字符串类型，仅支持`['COLUMN','MULTI_COLUMN','READLINE_LIKE']`中的值，表示自动补全内容使用什么风格显示（依次对应单列、多列、类似readline那种打印到终端）。也可以使用使用`CompleteStyle`枚举对象（`from prompt_toolkit.shortcuts.prompt import CompleteStyle`导入）代替。
+- `validate`参数，可调用类型，表示验证回答是否有效的方法。
+- `style`参数，`Style`类型（使用`from questionary import Style`导入），表示显示内容的样式。具体的语法可以参考后面进阶章节中的单独介绍。
+- `**kwargs`参数，表示其他不与上面参数重名、使用关键字方式传入的参数，会传给`PromptSession`对象（使用`from prompt_toolkit import PromptSession`导入），完整用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.shortcuts.PromptSession 这里不做展开介绍。
 
+示例如下：
 
+```python3
+import questionary
+
+questionary.autocomplete(
+    '请输入：',
+    ['a','ab','b','ba'],
+    meta_information={
+        'ab':'a and b'
+    }
+).ask()
+```
+
+#### 2.2.9 `press_any_key_to_continue`方法
+
+`press_any_key_to_continue`方法，生成要求用户按下任意按键才能继续的问题，但该问题不会返回任何内容。
+
+`press_any_key_to_continue`方法支持以下参数：
+
+- `message`参数，字符串类型，表示问题的提示内容。
+- `style`参数，`Style`类型（使用`from questionary import Style`导入），表示显示内容的样式。具体的语法可以参考后面进阶章节中的单独介绍。
+- `**kwargs`参数，表示其他不与上面参数重名、使用关键字方式传入的参数，会传给`PromptSession`对象（使用`from prompt_toolkit import PromptSession`导入），完整用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.shortcuts.PromptSession 这里不做展开介绍。
+
+#### 2.2.10 `print`方法
+
+Questionary提供了一个打印输出、不产生问题对象的方法——`print`，虽然名字和Python内置方法相同，但支持的参数不同。
+
+`print`支持以下参数：
+
+- `text`参数，字符串类型，表示要输出的内容。
+- `style`参数，`Style`类型（使用`from questionary import Style`导入），表示输出内容的样式。具体的语法可以参考后面进阶章节中的单独介绍。
 
 ### 2.3 表单生成方法
 
 表单对象由多个表单域组成，每个表单域对应一个问题，调用表单对象即可一次性询问多个问题的结果。和问题对象一样，表单类同样是内部类，也涉及到prompt_toolkit框架基础，因此本节只介绍表单对象的方法。至于生成表单对象，则改为使用简化的表单生成方法，而不是单独构建表单对象。
 
-表单生成方法支持以下参数：
-
-
+将问题对象以关键字方式传给表单生成方法`form`，即可得到表单对象，再调用表单对象的方法即可进入回答输入模式。
 
 表单对象支持以下方法：
 
+- `ask`方法，进入表单对象的回答输入模式，此时终端会依次显示每个问题地下定义好的提示内容，并等待用户输入回答，最后将用户输入的内容当作该方法的返回值（字典形式，键为问题对象对应的关键字，值为问题对应的回答）。该方法支持以下参数：
+  - `patch_stdout`参数，布尔类型，表示当终端中有其他线程在输出内容到stdout时，是否确保输出的内容始终在提示内容之上，而不是在提示内容的下面，默认为`False`。
+  - `kbi_msg`参数，字符串类型，表示当用户在回答问题前使用`ctrl`+`c`退出程序时，终端输出的提示内容用于表明这种退出情况。默认为`'\nCancelled by user\n'`。
+- `ask_async`方法，`ask`方法的异步版本，参数同`ask`方法，适合在异步函数中使用，可以使用异步等待来获取回答内容。
+- `unsafe_ask`方法，`ask`方法的不安全版本，此方法不会捕获用户使用`ctrl`+`c`退出程序的异常，而是直接让Python内部处理此异常。因此不支持`kbi_msg`参数，也不会输出自定义的提示内容。
+- `unsafe_ask_async`方法，`ask_async`方法的不安全版本，此方法不会捕获用户使用`ctrl`+`c`退出程序的异常，而是直接让Python内部处理此异常。因此不支持`kbi_msg`参数，也不会输出自定义的提示内容。
 
+示例如下：
 
-### 2.4 提示方法
+```python3
+import questionary
+
+answers = questionary.form(
+    first = questionary.confirm('是否确认？', default=True),
+    second = questionary.text('请输入答案：')
+).ask()
+
+print(answers)
+```
+
+![form_1](questionary.assets/form_1.png)
+
+### 2.4 提示方法（更新中）
 
 本节内容参考自  https://questionary.readthedocs.io/en/stable/pages/advanced.html#create-questions-from-dictionaries 。
 
+参数用法参考 https://questionary.readthedocs.io/en/stable/pages/api_reference.html#questionary.prompt 。
 
+提示（`prompt`）方法类似表单生成方法，可以基于字典或者元素为字典的列表，生成单个或者多个问题，并以字典形式返回所有问题的回答。
 
+`prompt`方法支持以下参数：
 
+- `questions`参数，字典类型或者元素为字典的列表，表示用于生成问题的问题配置。字典的键与问题配置的对应关系如下：
+  
+  - `'type'`键，必需键，值为字符串类型，表示问题的类型，不同的值对应不同的问题生成方法，具体参考下表：
+  
+    | 值                            | 对应的方法                      |
+    | ----------------------------- | ------------------------------- |
+    | `'autocomplete'`              | `autocomplete`方法              |
+    | `'confirm'`                   | `confirm`方法                   |
+    | `'text'`                      | `text`方法                      |
+    | `'select'`                    | `select`方法                    |
+    | `'rawselect'`                 | `rawselect`方法                 |
+    | `'password'`                  | `password`方法                  |
+    | `'checkbox'`                  | `checkbox`方法                  |
+    | `'path'`                      | `path`方法                      |
+    | `'press_any_key_to_continue'` | `press_any_key_to_continue`方法 |
+    | `'list'`                      | `select`方法                    |
+    | `'rawlist'`                   | `rawselect`方法                 |
+    | `'input'`                     | `text`方法                      |
+    | `'print'`                     | `print`方法                     |
+  
+  - `'name'`键，必需键，值为字符串类型，表示该问题的回答在`prompt`方法返回的字典中，对应哪个键。
+  
+  - `'message'`键，对应问题生成方法的`message`参数。
+  
+  - `'qmark'`键，对应问题生成方法的`qmark`参数。
+  
+  - `'default'`键，对应问题生成方法的`default`参数。如果该键的值为可调用类型，则表示值的调用结果对应问题生成方法的`default`参数。值有一个字典类型的必需参数，该参数接收的就是`prompt`方法的`answers`参数值。
+  
+  - `'choices'`键，对应问题生成方法的`choices`参数。如果该键的值为可调用类型，则表示值的调用结果对应问题生成方法的`choices`参数。值有一个字典类型的必需参数，该参数接收的就是`prompt`方法的`answers`参数值。
+  
+  - `'when'`键，值为可调用类型，表示当值的调用结果为`True`时才生成问题，类似`skip_if`方法，但含义相反。值有一个字典类型的必需参数，该参数接收的就是`prompt`方法的`answers`参数值。
+  
+  - `'validate'`键，对应问题生成方法的`validate`参数。
+  
+  - `'filter'`键，值为可调用类型，调用时，将每个问题的回答作为参数，返回值作为为该问题的实际回答，用于处理每个问题的回答。
+  
+  - 其余问题生成方法支持的参数（比如`style`参数、`**kwargs`参数支持的隐藏参数等），也可以通过创建相同名称的键的方式传入对应的值。
+  
+- `answers`参数，字典类型，表示方法返回的默认字典。注意，对于字典的键与问题配置中`'name'`键的值同名的，在回答完所有问题之后，这些键对应的值会被更新为实际回答的内容。
 
-参数用法参考 https://questionary.readthedocs.io/en/stable/pages/api_reference.html#questionary.prompt
+- `patch_stdout`参数，布尔类型，表示当终端中有其他线程在输出内容到stdout时，是否确保输出的内容始终在提示内容之上，而不是在提示内容的下面，默认为`False`。
 
+- `true_color`参数，布尔类型，表示是否启用24位真彩色颜色显示，默认为`False`。
 
+- `kbi_msg`参数，字符串类型，表示当用户在回答问题前使用`ctrl`+`c`退出程序时，终端输出的提示内容用于表明这种退出情况。默认为`'\nCancelled by user\n'`。
 
-提示（`prompt`）方法支持以下参数：
+- `**kwargs`参数，表示其他不与上面参数重名、使用关键字方式传入的参数，会传给每个问题生成方法。
 
-- `questions`参数，
-  - （字典支持的键）
+  需要注意的是，问题配置中的键优先生效，`'type'`键、`'name'`键是不可缺失的必需键，因此，只有除了`'type'`键、`'name'`键之外，问题配置中的没有的键（比如`'style'`键，对应`style`参数），才可以通过这种方法传给每个问题的生成方法。
 
+示例如下：
 
+```python3
+import questionary
 
+when = True
+answer = questionary.prompt(
+    {
+        'type': 'text',
+        'name': 'first',
+        'message': '请回答：',
+        'when': lambda _: when,
+        'default': 'Yes',
+        'filter':lambda e: e+'.',
+        'qmark':'问题1'
+    },
+    answers={
+        'first': None
+    },
+)
+print(answer['first'])
 
+```
 
-和前面介绍的不安全方法一样，提示方法也有不安全版本——`unsafe_prompt`。
+![prompt_1](questionary.assets/prompt_1.png)
 
+或者将部分参数传给`prompt`方法，效果也是一样的：
 
+```python3
+import questionary
 
+when = True
+answer = questionary.prompt(
+    {
+        'type': 'text',
+        'name': 'first',
+        'message': '请回答：',
+        'when': lambda _: when,
+        'default': 'Yes'
+    },
+    answers={
+        'first': None
+    },
+    filter=lambda e: e+'.',
+    qmark='问题1'
+)
+print(answer['first'])
+```
 
+亦或将其余参数作为字典传给`prompt`方法：
 
-### 2.5 输出
+```python3
+import questionary
 
+when = True
+answer = questionary.prompt(
+    {
+        'type': 'text',
+        'name': 'first',
+        'message': '请回答：',
+        'when': lambda _: when,
+        'default': 'Yes'
+    },
+    answers={
+        'first': None
+    },
+    **{
+        'filter':lambda e: e+'.',
+        'qmark':'问题1'
+    }
+)
+print(answer['first'])
+```
 
+不光提示方法支持传入字典，问题生成方法也可以传入字典，传给对应的参数：
 
-任意键
+```python3
+import questionary
 
+questionary.text(**{'message':'请回答：'}).ask()
+```
 
-
-打印输出
-
-
+和前面介绍的不安全版本的方法一样，提示方法也有不安全版本——`unsafe_prompt`，只是没有`kbi_msg`参数，其余参数均一致。
 
 ## 3 进阶
 
@@ -829,7 +996,7 @@ questionary.select(
 
 ![style_2](questionary.assets/style_2.png)
 
-`prompt`方法虽然官网API手册中没有`style`参数，但可以手动传入此参数，修改问题内容的样式：
+`prompt`方法修改问题内容的样式：
 
 ```python3
 import questionary
@@ -850,11 +1017,36 @@ questionary.prompt(
 )
 ```
 
+或者：
+
+```python3
+import questionary
+from questionary import Style
+
+questionary.prompt(
+    {
+        'type': 'confirm',
+        'name': 'question',
+        'message': '是否确认？',
+        'default': True,
+        'style':Style(
+            [
+                ('question', 'bg:red')
+            ]
+        )
+    }
+)
+```
+
+输出如下：
+
 ![style_3](questionary.assets/style_3.png)
 
 #### 3.1.3 自定义样式类
 
-除了默认的样式类，也可以创建自定义的样式类，然后在支持自定义样式类的地方（比如`Choice`类的`title`参数和`text`方法的`lexer`参数）使用自定义的样式类，格式为`'clasee:{自定义的样式类}'`。当然，这个地方也可以只使用样式字符串，或者组合使用基础样式和自定义的样式类。
+除了默认的样式类，也可以创建自定义的样式类，然后在支持自定义样式类的地方（比如`Choice`类的`title`参数和`text`方法的`lexer`参数）使用自定义的样式类，格式为`'class:{自定义的样式类}'`。当然，这个地方也可以只使用样式字符串，或者组合使用基础样式和自定义的样式类。
+
+组合多个自定义样式类时，可以使用`'class:{自定义的样式类1} class:{自定义的样式类2}'`这种格式。也可以使用英文句号连接两个样式类，组成新的样式类，当作单个样式类使用，比如`'class:{自定义的样式类1}.{自定义的样式类2}'`，效果是一样的。
 
 `Choice`类`title`参数的示例：
 
@@ -885,6 +1077,37 @@ question = questionary.select(
 question.ask()
 ```
 
+或者：
+
+```python3
+import questionary
+from questionary import Style,Choice
+
+questionary.prompt(
+    {
+        'type': 'select',
+        'name': 'question',
+        'message': '请选择答案：',
+        'choices':[
+            Choice(
+                title=[
+                    ('class:mystyle','A'),
+                    ('underline','.'),
+                    ('class:mystyle reverse','some texe'),
+                ]
+            )
+        ]
+    },
+    style=Style(
+        [
+            ('mystyle', 'bg:green bold'),
+        ]
+    )
+)
+```
+
+输出如下：
+
 ![style_4](questionary.assets/style_4.png)
 
 `text`方法`lexer`参数的示例：
@@ -908,6 +1131,8 @@ question.ask()
 ```
 
 ![style_5](questionary.assets/style_5.png)
+
+
 
 ## 4 后记
 

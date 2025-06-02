@@ -743,7 +743,7 @@ print(answers)
 
 ![form_1](questionary.assets/form_1.png)
 
-### 2.4 提示方法（更新中）
+### 2.4 提示方法
 
 本节内容参考自  https://questionary.readthedocs.io/en/stable/pages/advanced.html#create-questions-from-dictionaries 。
 

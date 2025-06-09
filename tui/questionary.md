@@ -1,5 +1,7 @@
 # Questionary的中文入门教程
 
+[toc]
+
 ## 0 前言
 
 [Questionary](https://questionary.readthedocs.io/en/stable/index.html)是一个交互式获取命令行输入内容的Python框架，用法简单高效，对于想要交互式获取命令行输入内容的开发需求，Questionary无疑是一个不错的选择。官方文档很简单，但本教程主要介绍基本用法，以及引出该框架的依赖，真正强大的底层工具——prompt_toolkit框架（同样是TUI开发框架）。
@@ -330,7 +332,7 @@ asyncio.run(main())
 
 ![async_1](questionary.assets/async_1.png)
 
-说完问题对象支持的方法，接下来说一下生成特定类型问题对象的快捷方法。
+说完问题对象支持的方法，接下来说一下生成特定类型问题对象的快捷方法（由Questionary直接提供，也可以导入后使用）。
 
 #### 2.2.1 `text`方法
 
@@ -717,7 +719,7 @@ Questionary提供了一个打印输出、不产生问题对象的方法——`pr
 
 表单对象由多个表单域组成，每个表单域对应一个问题，调用表单对象即可一次性询问多个问题的结果。和问题对象一样，表单类同样是内部类，也涉及到prompt_toolkit框架基础，因此本节只介绍表单对象的方法。至于生成表单对象，则改为使用简化的表单生成方法，而不是单独构建表单对象。
 
-将问题对象以关键字方式传给表单生成方法`form`，即可得到表单对象，再调用表单对象的方法即可进入回答输入模式。
+将问题对象以关键字方式传给表单生成方法`form`（由Questionary直接提供，也可以导入后使用），即可得到表单对象，再调用表单对象的方法即可进入回答输入模式。
 
 表单对象支持以下方法：
 
@@ -749,7 +751,7 @@ print(answers)
 
 参数用法参考 https://questionary.readthedocs.io/en/stable/pages/api_reference.html#questionary.prompt 。
 
-提示（`prompt`）方法类似表单生成方法，可以基于字典或者元素为字典的列表，生成单个或者多个问题，并以字典形式返回所有问题的回答。
+提示（`prompt`）方法（由Questionary直接提供，也可以导入后使用）类似表单生成方法，可以基于字典或者元素为字典的列表，生成单个或者多个问题，并以字典形式返回所有问题的回答。
 
 `prompt`方法支持以下参数：
 
@@ -918,16 +920,17 @@ API手册：https://questionary.readthedocs.io/en/stable/pages/api_reference.htm
 
 - 有'bg:'前缀的颜色表达式，表示内容的背景色。
 
-- 非颜色类的样式，有：
+- 内容格式，有：
 
   - `'bold'`，表示内容字体将变为粗体。
   - `'italic'`，表示内容字体将变为斜体。
   - `'underline'`，表示内容将添加下划线。
+  - `'strike'`，表示内容将添加删除线。
   - `'blink'`，表示内容将闪烁（仅部分终端支持，Windows自带终端不支持）。
   - `'reverse'`，表示内容的背景色与前景色相反。
   - `'hidden'`，表示内容隐藏。
-
-  给以上非颜色类的样式添加'no'前缀，则表示内容不使用上述样式，常用于组合基础样式与样式类时，撤销不需要的非颜色类的样式。
+  
+  给以上内容格式添加'no'前缀，则表示内容不使用上述样式，常用于组合基础样式与样式类时，撤销不需要的内容格式。
 
 示例如下：
 
@@ -1063,7 +1066,7 @@ choices = [
         title=[
             ('class:mystyle','A'),
             ('underline','.'),
-            ('class:mystyle reverse','some texe'),
+            ('class:mystyle reverse','some text'),
         ]
     )
 ]
@@ -1093,7 +1096,7 @@ questionary.prompt(
                 title=[
                     ('class:mystyle','A'),
                     ('underline','.'),
-                    ('class:mystyle reverse','some texe'),
+                    ('class:mystyle reverse','some text'),
                 ]
             )
         ]
@@ -1132,7 +1135,36 @@ question.ask()
 
 ![style_5](questionary.assets/style_5.png)
 
+在使用自定义样式类时，需要注意的是，prompt_toolkit框架将颜色名、内容格式名作为保留的样式类名，如果使用这些保留的样式类，在组合使用时，实际上生效的是这些名字对应的样式（颜色名对应的是前景色），而非自定义的样式：
 
+```python3
+import questionary
+from questionary import Style,Choice
+
+questionary.prompt(
+    {
+        'type': 'select',
+        'name': 'question',
+        'message': '请选择答案：',
+        'choices':[
+            Choice(
+                title=[
+                    ('class:red','A'),
+                    ('underline','.'),
+                    ('class:red reverse','some text'),
+                ]
+            )
+        ]
+    },
+    style=Style(
+        [
+            ('red', 'bg:green bold'),
+        ]
+    )
+)
+```
+
+![style_6](questionary.assets/style_6.png)
 
 ## 4 后记
 

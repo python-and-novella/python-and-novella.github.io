@@ -1,5 +1,7 @@
 # prompt_toolkit的中文入门教程
 
+[toc]
+
 ## 0 前言
 
 [prompt_toolkit](https://python-prompt-toolkit.readthedocs.io/en/stable/)是一个终端UI框架，可以交互式获取命令行输入内容、创建对话框、构建终端全屏程序、显示进度条等。用法简单高效，很适合搭建类似终端开发环境这种支持自动提示的交互式操作程序。官方文档虽然条理清晰，但内容不多也比较简单。因此，本教程将在官方文档的基础上，按照常规的入门学习顺序重新排序，并添加缺失的相关知识，梳理实际开发中可能遇到的问题，制作中文入门教程。
@@ -230,7 +232,9 @@ print_formatted_text(
 
 
 
+format方法
 
+Template类
 
 
 

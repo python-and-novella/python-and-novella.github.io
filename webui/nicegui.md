@@ -8607,7 +8607,7 @@ ui.button('Reset', on_click=slide_item.reset)
 ui.run(native=True)
 ```
 
-## 4 具体示例【随时更新】
+## 4 具体示例
 
 本节主要介绍常见问题，读者可以根据所属模块、函数查阅。
 

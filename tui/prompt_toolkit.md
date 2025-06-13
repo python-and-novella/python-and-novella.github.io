@@ -939,13 +939,44 @@ print_formatted_text(
 
 ### 2.2 输入
 
+相比于输出内容的简单，框架的输入功能就强大不少，不仅可以实现提示内容和输出一样支持样式和语法高亮，还支持响应按键输入、自动提示并完成输入内容。
+
+本节内容原文参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html 。
 
 
-https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html
+
+
+
+
+
+（梳理输入功能的学习顺序，尽量做到由简到难，逐步提高难度，最后讲杂项）
+
+（所有涉及到的方法、类，都要详细介绍其参数、属性、方法）
+
+
+
+```python3
+from prompt_toolkit import prompt
+
+text = prompt('请输入任何内容：')
+print(f'输入的内容是: {text}')
+```
+
+
+
+（按键绑定也放到这里 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/key_bindings.html ）
+
+
 
 
 
 ### 2.3 对话框
+
+
+
+
+
+
 
 
 
@@ -1011,36 +1042,47 @@ https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.ht
 
 
 
+以下为基础理论部分：
+
+渲染管线，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/rendering_pipeline.html
+
+渲染流程，用于学习UIControl和Content，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/rendering_flow.html
+
+应用程序的架构，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/architecture.html
+
+
+
+
+
 `Application`类支持以下参数：
 
 - 
 
 
 
+必须要讲解的、相关的具体内容：
+
 样式（对齐、内边距、外边距在布局中，边框在部件中），布局（各类容器），控件、部件，定时器，后台任务，
 
 
 
-已知知识点如下：
+异步事件循环放到这里 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/asyncio.html
 
-- 两种使用方式：响应式（直接输出），应用式（进入应用的消息循环）
-- print_formatted_text可以渲染带格式的文本对象，也可以当做普通的print方法使用（但print方法不支持渲染带格式的文本对象）：https://python-prompt-toolkit.readthedocs.io/en/stable/pages/printing_text.html
-- 在终端输出、获取输入，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html
-- 对话框，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/dialogs.html
-- 进度条，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/progress_bars.html
-- 全屏应用，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/full_screen_apps.html
+异步事件循环补充输入钩子，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/input_hooks.html
 
 
 
+定时器，https://github.com/prompt-toolkit/python-prompt-toolkit/blob/main/examples/prompts/clock-input.py
+
+后台运行任务，非线程安全（https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.application.Application.create_background_task）
 
 
-扩展知识点：
 
-- 样式的语法，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/styling.html
-- 快捷键，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/key_bindings.html
-- 后台运行任务，非线程安全（https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.application.Application.create_background_task）
-- 异步事件循环，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/asyncio.html
-- 定时器，https://github.com/prompt-toolkit/python-prompt-toolkit/blob/main/examples/prompts/clock-input.py
+
+
+
+
+只提供widgets，layout和其他controls，这部分需要查看手册和官方示例，挖掘API中widgets提供的组件。
 
 
 
@@ -1050,19 +1092,234 @@ https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.ht
 
 ## 4 进阶知识
 
-本章将对照 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/index.html 中除了基础知识介绍过内容外的其余内容，并补充一些官方手册中有但官方教程没写的内容，然后适当调整顺序，使其更有条理。
+本章将对照 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/index.html 中除了基础知识介绍过内容外的其余内容，并补充一些官方手册中有但官方教程没写的内容。
+
+
+
+状态过滤器，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/filters.html
+
+单元测试，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/unit_testing.html
+
+
+
+
+
+按钮的中文修复补丁：
+
+```python3
+# 修复问题的按钮补丁
+from prompt_toolkit.widgets import Button
+from prompt_toolkit.formatted_text import StyleAndTextTuples
+from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
+from prompt_toolkit.utils import get_cwidth
+from typing import Callable
+
+class Button(Button):
+    def __init__(
+        self,
+        text: str,
+        handler: Callable[[], None] | None = None,
+        width: int = 12,
+        left_symbol: str = "<",
+        right_symbol: str = ">",
+    ):
+        # 如果想要将一个中文字符当作一个终端字符的宽度处理，加入下面这行，反之不要加
+        width += (get_cwidth(text) - len(text))
+        super().__init__(text, handler, width, left_symbol, right_symbol)
+    def _get_text_fragments(self) -> StyleAndTextTuples:
+        width = self.width - (
+            get_cwidth(self.left_symbol) + get_cwidth(self.right_symbol)
+        ) + (
+            len(self.text) - get_cwidth(self.text)
+        )
+        text = (f"{{:^{max(0,width)}}}").format(self.text)
+
+        def handler(mouse_event: MouseEvent) -> None:
+            if (
+                self.handler is not None
+                and mouse_event.event_type == MouseEventType.MOUSE_UP
+            ):
+                self.handler()
+
+        return [
+            ("class:button.arrow", self.left_symbol, handler),
+            ("[SetCursorPosition]", ""),
+            ("class:button.text", text, handler),
+            ("class:button.arrow", self.right_symbol, handler),
+        ]
+```
+
+
+
+
+
+结合对话框等使用按钮的其他功能的对比示例：
+
+```python3
+# 有问题的原始示例
+from prompt_toolkit.shortcuts import message_dialog
+
+message_dialog(
+    title='简单对话框',
+    text='回车或者点击确认',
+    ok_text='中文确认按钮'
+).run()
+
+# 修复问题的按钮补丁
+from prompt_toolkit.widgets import Button
+from prompt_toolkit.formatted_text import StyleAndTextTuples
+from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
+from prompt_toolkit.utils import get_cwidth
+from typing import Callable
+
+class Button(Button):
+    def __init__(
+        self,
+        text: str,
+        handler: Callable[[], None] | None = None,
+        width: int = 12,
+        left_symbol: str = "<",
+        right_symbol: str = ">",
+    ):
+        # 如果想要将一个中文字符当作一个终端字符的宽度处理，加入下面这行，反之不要加
+        width += (get_cwidth(text) - len(text))
+        super().__init__(text, handler, width, left_symbol, right_symbol)
+    def _get_text_fragments(self) -> StyleAndTextTuples:
+        width = self.width - (
+            get_cwidth(self.left_symbol) + get_cwidth(self.right_symbol)
+        ) + (
+            len(self.text) - get_cwidth(self.text)
+        )
+        text = (f"{{:^{max(0,width)}}}").format(self.text)
+
+        def handler(mouse_event: MouseEvent) -> None:
+            if (
+                self.handler is not None
+                and mouse_event.event_type == MouseEventType.MOUSE_UP
+            ):
+                self.handler()
+
+        return [
+            ("class:button.arrow", self.left_symbol, handler),
+            ("[SetCursorPosition]", ""),
+            ("class:button.text", text, handler),
+            ("class:button.arrow", self.right_symbol, handler),
+        ]
+
+# 基于按钮补丁实现创建对话框的方法
+from prompt_toolkit.widgets import Label,Dialog
+from prompt_toolkit.application import Application,get_app
+from prompt_toolkit.layout import Layout
+from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+from prompt_toolkit.key_binding.defaults import load_key_bindings
+from prompt_toolkit.styles import BaseStyle
+from prompt_toolkit.formatted_text import AnyFormattedText
+
+def message_dialog(
+    title: AnyFormattedText = "",
+    text: AnyFormattedText = "",
+    ok_text: str = "Ok",
+    style: BaseStyle | None = None,
+) -> Application[None]:
+    dialog = Dialog(
+        title=title,
+        body=Label(text=text, dont_extend_height=True),
+        buttons=[Button(text=ok_text, handler=lambda :get_app().exit())],
+        with_background=True,
+    )
+    bindings = KeyBindings()
+    bindings.add("tab")(focus_next)
+    bindings.add("s-tab")(focus_previous)
+
+    return Application(
+        layout=Layout(dialog),
+        key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+        mouse_support=True,
+        style=style,
+        full_screen=True,
+    )
+
+# 使用修复后的方法创建对话框
+message_dialog(
+    title='简单对话框',
+    text='回车或者点击确认',
+    ok_text='中文确认按钮'
+).run()
+```
+
+
+
+
+
+(补充说明)
+
+```python3
+# 其他类型的对话框需要参照源码重新实现
+# 或者单独在模块开头添加按钮补丁
+# 或者修改按钮的源码
+# 参照"yes_no_dialog","button_dialog","input_dialog","message_dialog","radiolist_dialog","checkboxlist_dialog","progress_dialog"的源码都重新实现一下
+```
+
+
+
+
+
+所有内置对话框的重新实现：
+
+- message_dialog
+
+  ```python3
+  # 下面放按钮补丁
+  ...
+  # 基于按钮补丁实现创建对话框的方法-message_dialog
+  from prompt_toolkit.widgets import Label,Dialog
+  from prompt_toolkit.application import Application,get_app
+  from prompt_toolkit.layout import Layout
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  from prompt_toolkit.key_binding.defaults import load_key_bindings
+  from prompt_toolkit.styles import BaseStyle
+  from prompt_toolkit.formatted_text import AnyFormattedText
+  
+  def message_dialog(
+      title: AnyFormattedText = "",
+      text: AnyFormattedText = "",
+      ok_text: str = "Ok",
+      style: BaseStyle | None = None,
+  ) -> Application[None]:
+      dialog = Dialog(
+          title=title,
+          body=Label(text=text, dont_extend_height=True),
+          buttons=[Button(text=ok_text, handler=lambda :get_app().exit())],
+          with_background=True,
+      )
+      bindings = KeyBindings()
+      bindings.add("tab")(focus_next)
+      bindings.add("s-tab")(focus_previous)
+  
+      return Application(
+          layout=Layout(dialog),
+          key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+          mouse_support=True,
+          style=style,
+          full_screen=True,
+      )
+  ```
+
+- input_dialog
+
+- yes_no_dialog
+
+- button_dialog
+
+  
 
 
 
 
 
 
-
-只提供widgets？layout和其他controls是否划归本章节，还是在基础里学习？
-
-
-
-（这部分需要查看手册和官方示例，挖掘API中widgets提供的组件）
 
 
 

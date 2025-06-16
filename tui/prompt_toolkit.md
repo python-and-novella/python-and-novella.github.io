@@ -943,28 +943,425 @@ print_formatted_text(
 
 本节内容原文参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html 。
 
+#### 2.2.1 输入会话
 
-
-
-
-
-
-（梳理输入功能的学习顺序，尽量做到由简到难，逐步提高难度，最后讲杂项）
-
-（所有涉及到的方法、类，都要详细介绍其参数、属性、方法）
-
-
+使用的`PromptSession`类（使用`from prompt_toolkit import PromptSession`或者`from prompt_toolkit.shortcuts import PromptSession`或者`from prompt_toolkit.shortcuts.prompt import PromptSession`导入）创建实例对象，再调用示例对象的`prompt`方法，是获取用户输入的基本方式：
 
 ```python3
-from prompt_toolkit import prompt
+from prompt_toolkit import PromptSession
 
-text = prompt('请输入任何内容：')
-print(f'输入的内容是: {text}')
+session = PromptSession()
+
+result = session.prompt('请输入任何内容：')
+print(f'输入的内容是: {result}')
 ```
+
+`PromptSession`类支持以下参数：
+
+- `message`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数，方法返回使用列表作为参数构建的`FormattedText`对象）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示用户输入时的提示内容（显示在要输入的内容最前面，提示用户需要输入什么）。
+
+- `multiline`参数，布尔类型或者`Filter`类型（`Filter`类为基类，一般使用的是`Condition`类，过滤器对象在当作函数调用时返回布尔值。看作是过滤器用法在后面细讲，这里仅提供示例），表示是否允许多行输入，多行输入时，使用`alt + enter`键或者先按`esc`键再按`enter`键才能确认输入，默认为`False`。以下为示例：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.filters import Condition
+  
+  # 对象用法
+  # is_multiline = Condition(lambda :True)
+  
+  # 装饰器用法
+  @Condition
+  def is_multiline():
+      return True
+  
+  session = PromptSession(multiline=is_multiline)
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_1](prompt_toolkit.assets/input_1.png)
+
+  从此参数开始，仅能通过关键字传入。
+
+- `wrap_lines`参数，布尔类型或者`Filter`类型，表示一行输入的内容超过终端宽度时是否将剩余内容换行显示（仅显示换行，输入的内容不添加换行），默认为`True`。
+
+- `is_password`参数，布尔类型或者`Filter`类型，表示输入的内容是否以密文形式显示（输入内容的显示为`'*'`），默认为`False`。以下为示例：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  
+  session = PromptSession(is_password=True)
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_2](prompt_toolkit.assets/input_2.png)
+
+- `vi_mode`参数，布尔类型，表示是否使用`VI`的操作模式（快捷键和输入模式），默认为`False`。
+
+- `editing_mode`参数，`EditingMode`类型（枚举类型，使用`from prompt_toolkit.enums import EditingMode`导入），表示输入时的操作模式，默认为`EditingMode.EMACS`，即使用`EMACS`的操作模式。注意，如果设置`vi_mode`参数为`True`，则此参数及相关属性会被设置为`EditingMode.VI`，优先级高于`editing_mode`参数。
+
+- `complete_while_typing`参数，布尔类型或者`Filter`类型，表示是否在输入时主动弹出（无需额外使用`tab`键）自动补全（根据输入的内容弹出与之匹配的选项，可以选择任意选项来自动补全输入的内容，无需手动输入全部内容，`completer`参数会详细介绍用法），默认为`True`。
+
+- `validate_while_typing`参数，布尔类型或者`Filter`类型，表示是否在输入时自动验证输入的内容（`validator`参数会详细介绍用法），默认为`True`。
+
+- `enable_history_search`参数，布尔类型或者`Filter`类型，表示在输入时，是否可以使用上下方向键，以当前输入的内容作为开头，搜索输入历史，使用匹配到的结果补全当前内容，默认为`False`。注意，此参数不能与`complete_while_typing`参数同时设置为`True`，因为二者都使用上下方向键作为快捷键。如果同时设置，则`complete_while_typing`参数相当于设置为`False`。
+
+- `search_ignore_case`参数，布尔类型或者`Filter`类型，表示通过搜索模式（操作模式为`VI`时，进入搜索模式的快捷键为命令状态下的`/`键和`?`键；操作模式为`EMACS`时，进入搜索模式的的快捷键为`ctrl + s`键）搜索输入历史时（结果包含关键字即可，不限制开头为关键字），是否忽略大小写，默认为`False`。
+
+- `lexer`参数，`Lexer`类型，表示输入内容显示时使用的语法高亮方案。
+
+  `Lexer`类（使用`from prompt_toolkit.lexers import Lexer`导入）为基类，使用时需要实现`lex_document`方法，如果不想实现此方法可以使用内部实现的子类：`SimpleLexer`类（将所有输入的内容设定为指定样式）或者`DynamicLexer`类（传入一个调用后返回`Lexer`类型对象的可调用对象）。示例如下：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.lexers import SimpleLexer,DynamicLexer
+  
+  session = PromptSession(
+      lexer=SimpleLexer('red'),
+      # lexer=DynamicLexer(lambda :SimpleLexer('red')),
+      multiline=True
+  )
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_3](prompt_toolkit.assets/input_3.png)
+
+  当然，实现语法高亮方案需要一定的基础，如果是使用`pygments`的语法高亮方案（比如`PythonLexer`），则简单不少，只需使用`PygmentsLexer`类（使用`from prompt_toolkit.lexers import PygmentsLexer`导入）包装一下`pygments`的语法高亮方案即可：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from pygments.lexers.python import PythonLexer
+  from prompt_toolkit.lexers import PygmentsLexer
+  
+  session = PromptSession(
+      lexer=PygmentsLexer(PythonLexer),
+      multiline=True
+  )
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_4](prompt_toolkit.assets/input_4.png)
+
+- `enable_system_prompt`参数，布尔类型或者`Filter`类型，表示是否允许进入系统命令执行模式，默认为`False`。使用`esc + !`键或者`meta + !`键（Windows中，`alt`键对应`meta`键）可以暂时执行系统命令：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  
+  session = PromptSession(
+      enable_system_prompt=True,
+      # 使用 esc+! 或者 meta+!(Windows系统是alt+!) 进入系统命令模式
+  )
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_5](prompt_toolkit.assets/input_5.png)
+
+- `enable_suspend`参数，布尔类型或者`Filter`类型，表示是否可以按下`ctrl + z`键来暂时挂起当前程序（Windows不支持），默认为`False`。
+
+- `enable_open_in_editor`参数，布尔类型或者`Filter`类型，表示进入编辑模式时，是否使用外部编辑器编辑要输入的内容，默认为`False`。操作模式为`VI`时，进入编辑模式的快捷键为命令状态下的`v`键；操作模式为`EMACS`时，进入编辑模式的的快捷键为按下`ctrl + x`键之后再按`ctrl + e`键。注意，默认使用外部编辑器时，会依据以下顺序寻找可以使用的命令：
+
+  - 环境变量`VISUAL`。
+  - 环境变量`EDITOR`。
+  - `/usr/bin/editor`。
+  - `/usr/bin/nano`。
+  - `/usr/bin/pico`。
+  - `/usr/bin/vi`。
+  - `/usr/bin/emacs`。
+
+  因为Windows默认没有后面几个Unix类系统的路径，使用需要通过设置环境变量来添加支持通过命令行调用的编辑器，以系统自带的记事本为例：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  import os
+  
+  os.environ['VISUAL'] = 'notepad'
+  os.environ['EDITOR'] = 'notepad'
+  
+  session = PromptSession(
+      enable_open_in_editor=True,
+  )
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  运行时，按下`ctrl + x`键之后再按`ctrl + e`键，会弹出记事本，此时在记事本中输入内容（注意，仅支持单行内容，想要输入多行内容需要设置`multiline`参数为`True`）之后，再保存当前输入的内容，最后退出记事本。那么，在记事本中保存的内容就会成为输入的内容。
+
+- `validator`参数，`Validator`类型（使用`from prompt_toolkit.validation import Validator`导入），表示验证输入内容是否有效的验证对象。有两种方式创建验证对象：
+
+  - 实现`Validator`类，并创建类的对象。需要实现`validate`方法，该方法接收`Document`类型参数，该参数的`text`属性即为输入的内容。`validate`方法触发`ValidationError`异常时，表示输入的内容无效，`ValidationError`异常对象的`message`参数为验证无效时的提示信息。
+
+    示例如下：
+
+    ```python3
+    from prompt_toolkit import PromptSession
+    
+    from prompt_toolkit.validation import Validator, ValidationError
+    from prompt_toolkit.document import Document
+    
+    class MyValidator(Validator):
+        def validate(self,document:Document):
+            if document.text != 'ok':
+                raise ValidationError(
+                    cursor_position=len(document.text),
+                    message='仅支持输入\'ok\'',            
+                )
+    
+    session = PromptSession(
+        validator=MyValidator()
+    )
+    result = session.prompt('请输入任何内容：')
+    print(f'输入的内容是: {result}')
+    ```
+
+    ![input_6](prompt_toolkit.assets/input_6.png)
+
+  - 使用`Validator`类的类方法`from_callable`，基于可调用对象创建验证对象。这种方式比实现`Validator`类简单，可调用对象返回布尔值，为`True`表示内容有效，为`False`表示内容无效。`from_callable`方法的`error_message`参数为验证无效时的提示信息。
+
+    示例如下：
+
+    ```python3
+    from prompt_toolkit import PromptSession
+    from prompt_toolkit.validation import Validator
+    
+    session = PromptSession(
+        validator=Validator.from_callable(
+            validate_func=lambda text:text == 'ok',
+            error_message='仅支持输入\'ok\''
+        )
+    )
+    result = session.prompt('请输入任何内容：')
+    print(f'输入的内容是: {result}')
+    ```
+
+    ![input_6](prompt_toolkit.assets/input_6.png)
+
+- `completer`参数，`Completer`类型，表示根据当前输入内容自动补全（也可以使用`tab`键弹出所有可以补全的内容）的自动补全对象。有两种方式创建自动补全对象：
+
+  - 实现`Completer`类，并创建类的对象。需要实现`get_completions`方法，该方法接收`Document`类型参数，该参数的`text`属性即为输入的内容；该方法返回元素为`Completion`类型对象的可迭代对象。每次触发自动补全，都会调用一次`get_completions`方法。
+
+    示例如下：
+
+    ```python3
+    from prompt_toolkit import PromptSession
+    from prompt_toolkit.completion import Completer,Completion
+    from prompt_toolkit.document import Document
+    
+    class MyCompleter(Completer):
+        def __init__(self,words):
+            self.words = words
+        def get_completions(
+            self, document: Document, complete_event
+        ):
+            return [ 
+                Completion(
+                    text=word,
+                    start_position=-len(document.text)
+                ) 
+                for word in self.words 
+                if word.startswith(document.text)
+            ]
+    
+    mycompleter = MyCompleter(['123','abc','甲乙丙'])
+    
+    session = PromptSession(
+        completer=mycompleter
+    )
+    result = session.prompt('请输入任何内容：')
+    print(f'输入的内容是: {result}')
+    ```
+
+    ![input_7](prompt_toolkit.assets/input_7.gif)
+
+  - 使用`prompt_toolkit.completion`模块提供的内置类（以'Completer'为后缀的类）创建自动补全对象。以`WordCompleter`类为例，实现同样的效果，代码简单不少：
+
+    ```python3
+    from prompt_toolkit import PromptSession
+    from prompt_toolkit.completion import WordCompleter
+    
+    mycompleter = WordCompleter(['123','abc','甲乙丙'])
+    session = PromptSession(
+        completer=mycompleter
+    )
+    result = session.prompt('请输入任何内容：')
+    print(f'输入的内容是: {result}')
+    ```
+
+    ![input_7](prompt_toolkit.assets/input_7.gif)
+
+- `complete_in_thread`参数，布尔类型，表示是否在独立的线程中运行自动补全对象，默认为`False`。如果生成自动补全的原则比较复杂，生成的结果比较多，最好将此参数设置为`True`，避免自动补全时卡死界面显示。
+
+- `reserve_space_for_menu`参数，整数类型，设置了`completer`参数且`complete_style`参数不为`CompleteStyle.READLINE_LIKE`时，该参数表示允许的终端最小高度，默认为`8`。如果终端高度小于该值，该方法将提示用户`'Window too small...'`。
+
+- `complete_style`参数，`CompleteStyle`类型（枚举类型，使用`from prompt_toolkit.shortcuts.prompt import CompleteStyle`或者`from prompt_toolkit.shortcuts import CompleteStyle`导入，仅支持三个成员：`COLUMN`、`MULTI_COLUMN`、`READLINE_LIKE`）或者字符串类型（仅支持`['COLUMN','MULTI_COLUMN','READLINE_LIKE']`中的值），表示自动补全内容使用什么风格显示（依次对应单列、多列、类似`readline`那种打印到终端），默认为`CompleteStyle.COLUMN`。
+
+  以下为对比（来自《Questionary的中文入门教程》）：
+
+  ![questionary_1](prompt_toolkit.assets/questionary_1.png)
+
+- `auto_suggest`参数，`AutoSuggest`类型，表示自动建议对象。自动建议与自动补全类似，但自动建议仅在当前行显示，只在输入时触发（删除内容不触发），只显示一个结果，使用右方向键补全当前内容。
+
+  `AutoSuggest`类（使用`from prompt_toolkit.auto_suggest import AutoSuggest`导入）为抽象类，使用时需要实现`AutoSuggest`类，并创建类的对象。实现`AutoSuggest`类需要实现`get_suggestion`方法，该方法接收两个参数：`Buffer`类型的`buffer`和`Document`类型的`document`。方法返回`Suggestion`类型的对象，表示补全的内容（在已输入内容后追加）。每次触发自动建议，都会调用一次`get_suggestion`方法。以下为示例：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.auto_suggest import AutoSuggest,Suggestion
+  from prompt_toolkit.buffer import Buffer
+  from prompt_toolkit.document import Document
+  
+  class MyAutoSuggest(AutoSuggest):
+      def get_suggestion(self, buffer: Buffer, document: Document):
+          suggestions = ['123','abc','甲乙丙']
+          text = document.text
+          for suggestion in suggestions:
+              if suggestion.startswith(text):
+                  return Suggestion(suggestion[len(text):])
+  
+  session = PromptSession(
+      auto_suggest=MyAutoSuggest()
+  )
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_8](prompt_toolkit.assets/input_8.png)
+
+  `prompt_toolkit.auto_suggest`模块也提供几个内置类（大部分是以'AutoSuggest'为后缀的类），这里推荐使用`AutoSuggestFromHistory`类，该类可以基于输入的历史记录生成建议：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+  
+  session = PromptSession(
+      auto_suggest=AutoSuggestFromHistory()
+  )
+  while True:
+      result = session.prompt('请输入任何内容：')
+      print(f'输入的内容是: {result}')
+  ```
+
+  ![input_9](prompt_toolkit.assets/input_9.png)
+
+- `style`参数，`Style`类型，表示提示内容的样式。示例如下：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.styles import Style
+  
+  session = PromptSession(
+      style=Style([('prompt','red')])
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_10](prompt_toolkit.assets/input_10.png)
+
+  注意，想要设置输入内容的样式，需要设置`lexer`参数。但是，部分内容使用的样式类依然支持通过`style`参数设置：
+
+  - `rprompt`类，`rprompt`参数对应的内容使用的样式类。
+
+  - `bottom-toolbar`类，
+
+  - `bottom-toolbar.text`类，
+
+  - `aborting`类，
+
+  - `exiting`类，
+
+  - `prompt`类，`message`参数对应的内容使用的样式类。
+
+  - `prompt-continuation`类，`continuation`参数对应的内容使用的样式类。
+
+  - `arg-toolbar`类，输入模式为多行输入，进入输入重复指定字符模式时，所有提示内容使用的样式类。
+
+    按下`alt + {数字}`键会进入输入重复指定字符模式，再按下数字键会接着之前的数字，表示要重复多少次；然后再按下非数字键的任意可打印字符键，表示重复什么字符。`backspace`键或者`esc`键可以退出该模式。
+
+  - `arg-toolbar.text`类，输入模式为多行输入，进入输入重复指定字符模式时，表示重复多少次的内容部分使用的样式类。
+
+  - `prompt.arg`类，输入模式为单行输入，进入输入重复指定字符模式时，所有提示内容使用的样式类。
+
+  - `prompt.arg.text`类，输入模式为单行输入，进入输入重复指定字符模式时，表示重复多少次的内容部分使用的样式类。
+
+- `style_transformation`参数，
+
+- `swap_light_and_dark_colors`参数，
+
+- `color_depth`参数，
+
+- `cursor`参数，
+
+- `include_default_pygments_style`参数，
+
+- `history`参数，`History`类型，
+
+- `clipboard`参数，
+
+- 
+
+`PromptSession`类支持以下属性：
+
+- `message`属性，同`message`参数。
+
+`PromptSession`类支持以下方法：
+
+- 
+- `prompt`方法支持以下参数：
+  - 
 
 
 
 （按键绑定也放到这里 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/key_bindings.html ）
+
+
+
+
+
+#### 2.2.2 输入方法
+
+除了先创建一个会话对象，每次获取用户输入前调用会话对象的`prompt`方法，框架也提供了功能相同但可以直接使用的`prompt`方法（使用`from prompt_toolkit import prompt`或者`from prompt_toolkit.shortcuts import prompt`或者`from prompt_toolkit.shortcuts.prompt import prompt`导入），使用该方法会让代码更简单（方便程度堪比Python内置的`input`方法）：
+
+```python3
+from prompt_toolkit import prompt
+
+result = prompt('请输入任何内容：')
+print(f'输入的内容是: {result}')
+```
+
+`prompt`方法支持的参数和会话对象的`prompt`方法基本相同，只是多了一个关键字参数——`history`（含义同`PromptSession`类的`history`参数）。
+
+虽然直接调用`prompt`方法和调用会话对象的`prompt`方法的效果基本一样，但直接调用`prompt`方法还是有一些不足：
+
+- 需要每次调用时传入`history`参数来确保历史记录的连续性。
+- 如果其他参数非默认值时，无论是否有变化，都需要重复传入。
+
+相比之下，调用会话对象的`prompt`方法就没有上面的问题，因为`history`参数只在创建会话对象时传入，在同一会话对象中共享。如果其他参数没有变化，调用会话对象的`prompt`方法时无需重复传入。如果其他参数有变化，调用会话对象的`prompt`方法时只需传入发生变化的参数即可，变化的参数（属性）会在同一会话对象中共享，影响之后调用会话对象`prompt`方法时的表现。
+
+
+
+
+
+`confirm`方法
+
+`create_confirm_session`方法，
+
+
+
+#### 2.2.3 异步输入
+
+
+
+https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html#prompt-in-an-asyncio-application
+
+
+
+https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html#reading-keys-from-stdin-one-key-at-a-time-but-without-a-prompt
 
 
 
@@ -1097,6 +1494,30 @@ print(f'输入的内容是: {text}')
 
 
 状态过滤器，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/filters.html
+
+
+
+```python3
+from prompt_toolkit import PromptSession
+from prompt_toolkit.filters import Condition
+
+# 对象用法
+# is_multiline = Condition(lambda :True)
+
+# 装饰器用法
+@Condition
+def is_multiline():
+    return True
+
+session = PromptSession(multiline=is_multiline)
+
+result = session.prompt('请输入任何内容：')
+print(f'输入的内容是: {result}')
+```
+
+
+
+
 
 单元测试，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/unit_testing.html
 
@@ -1325,11 +1746,13 @@ message_dialog(
 
 
 
-## 5 具体实例（随时更新）
+## 5 拾遗
 
-本章主要根据实际问题，提供对应问题的解决实例
+本章主要根据实际问题，提供对应问题的解决实例，并补充前面没有覆盖的内容。
 
+### 5.1 （待定）
 
+（标题要简略概括主要内容）
 
 
 

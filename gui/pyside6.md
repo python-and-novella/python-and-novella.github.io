@@ -1,4 +1,4 @@
-# PySide6拾遗
+# PySide6学习笔记
 
 ## 0 前言
 
@@ -6,11 +6,11 @@ PySide6各类教程已经有很多，笔者就不班门弄斧了。不过，框�
 
 ## 1 基础篇
 
-本章主要介绍那些完成基础GUI程序时遇到的难点。
+本章主要介绍那些学习基础功能时遇到的难点。
 
 ### 1.1 安装PySide6
 
-学习的第一步就是安装库。不过，官方提供了不少相关的库，但并非所有的库都是必需的。以下面的虚拟环境为例，笔者添加了官方提供的相关库，其依赖关系如下（使用`uv tree`生成）：
+学习的第一步就是安装库。不过，官方提供了不少相关的库，但并非所有的库都是必需的。以下面的虚拟环境（使用环境管理工具UV创建）为例，笔者添加了官方提供的相关库，其依赖关系如下（使用`uv tree`生成）：
 
 ```shell
 pyside6-uv-app v0.1.0
@@ -29,9 +29,9 @@ pyside6-uv-app v0.1.0
     └── shiboken6 v6.9.1
 ```
 
-项目下主动添加的库为：`pyside6`、`pyside6-examples`、`shiboken6-generator`。其中，添加了`pyside6`之后，会自动安装相关的依赖，此时就可以开始学习，无需额外安装其他相关库。当然，其他的库也有用处，只是刚开始学习的时候不一定需要。`pyside6-examples`是官方编写的示例程序，可在`pyside6_uv_app\.venv\Lib\site-packages\PySide6\examples`中找到。`shiboken6-generator`是绑定生成器，只有涉及到绑定（基于C++头文件生成Python的接口）Qt或者C++程序的接口时，才需要这个库。
+项目下主动添加的库为：`pyside6`、`pyside6-examples`、`shiboken6-generator`。其中，添加了`pyside6`之后，会自动安装相关的依赖，此时就可以开始学习，无需额外安装其他相关库。当然，其他的库也有用处，只是刚开始学习的时候不一定需要。`pyside6-examples`是官方编写的示例程序，可在`pyside6_uv_app\.venv\Lib\site-packages\PySide6\examples`中找到。`shiboken6-generator`是绑定生成器，只有涉及到绑定Qt或者C++程序的接口（基于C++头文件生成Python的接口）时，才需要这个库。
 
-需要注意的是，在使用`uv`管理虚拟环境时，单独移除`pyside6-examples`会导致`pyside6`的`__init__.py`丢失，需要使用`uv sync --reinstall`重新安装。
+需要注意的是，在使用UV管理虚拟环境时，单独移除`pyside6-examples`会导致`pyside6`的`__init__.py`丢失，可使用`uv sync --reinstall`重新安装所有库来解决此问题。
 
 ### 1.2 PySide6的模块（暂定）
 
@@ -61,6 +61,28 @@ https://doc.qt.io/qtforpython-6/py-modindex.html
 
 
 
+![mainwindow_1](pyside6.assets/mainwindow_1.png)
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMainWindow,
+    QDialog,
+)
+
+app = QApplication()
+
+window = QWidget()
+window = QMainWindow()
+window = QDialog()
+
+window.resize(400,300)
+
+window.show()
+app.exec()
+```
+
 
 
 
@@ -72,3 +94,6 @@ https://doc.qt.io/qtforpython-6/py-modindex.html
 ## 3 实例篇
 
 本章主要介绍那些实现实际项目需求时遇到的难点。
+
+
+

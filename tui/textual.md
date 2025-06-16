@@ -4042,7 +4042,7 @@ if __name__ == '__main__':
 -   如冒泡的定义所讲，将消息的`bubble`属性设置为`False`。
 -   消息的`stop`子方法可以防止消息冒泡，`stop`方法的完整用法可以参考[官网文档](https://textual.textualize.io/api/message/#textual.message.Message.stop)。
 
-两种方法的示例如下，通过在`ButtonA`的消息响应函数中防止消息冒泡，让`MyApp`中的响应函数不在响应`ButtonA`的消息：
+两种方法的示例如下，通过在`ButtonA`的消息响应函数中防止消息冒泡，让`MyApp`中的响应函数不再响应`ButtonA`的消息：
 
 设置消息的`bubble`属性：
 

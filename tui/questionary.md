@@ -480,7 +480,7 @@ asyncio.run(main())
 
   注意，此参数并不会验证用户输入的内容，还允许用户手动输入其他值，即使输入的值被此参数验证之后返回为`False`（只是不显示在自动补全中）。如果想要让自动补全与允许值的表现一致，最好同时使用此参数和`validate`参数。
 
-- `complete_style`参数，字符串类型，仅支持`['COLUMN','MULTI_COLUMN','READLINE_LIKE']`中的值，表示自动补全内容使用什么风格显示（依次对应单列、多列、类似readline那种打印到终端）。也可以使用使用`CompleteStyle`枚举对象（`from prompt_toolkit.shortcuts.prompt import CompleteStyle`导入）代替。
+- `complete_style`参数，字符串类型，仅支持`['COLUMN','MULTI_COLUMN','READLINE_LIKE']`中的值，表示自动补全内容使用什么风格显示（依次对应单列、多列、类似readline那种打印到终端）。也可以使用`CompleteStyle`枚举对象（`from prompt_toolkit.shortcuts.prompt import CompleteStyle`导入）代替。
 
   示例如下：
 
@@ -534,7 +534,7 @@ asyncio.run(main())
 
   - `shortcut_key`参数，字符串类型或者布尔类型或者`None`，表示可以快捷选择该选项的快捷键。仅当`select`方法的`use_shortcuts`参数为`True`时才可以使用，并且会在选项显示的内容前显示`'{快捷键})'`，表明选项对应的快捷键。
 
-    当该参数为`None`或者`True`时，表示该选项使用自动生成的快捷键。对于同一个问题，程序按照选项的顺序，将支持快捷键且使用使用自动生成快捷键的选项，依次分配`1`到`9`和`0`的数字键再接`a`到`z`的英文字母键，一共36个快捷键。
+    当该参数为`None`或者`True`时，表示该选项使用自动生成的快捷键。对于同一个问题，程序按照选项的顺序，将支持快捷键且使用自动生成快捷键的选项，依次分配`1`到`9`和`0`的数字键再接`a`到`z`的英文字母键，一共36个快捷键。
 
     当该参数为字符串类型的单个数字或者字母时，表示该选项使用指定按键为快捷键。但是，在设置`j`键、`k`键时，需要设置`select`方法的`use_jk_keys`参数为`False`。
 
@@ -677,7 +677,7 @@ questionary.checkbox(
 - `meta_information`参数，字典类型，表示补全内容的解释性信息。字典的键为`choices`参数中的元素，字典的值可以为任何类型。
 - `ignore_case`参数，布尔类型，表示是否忽略输入的内容的大小写，默认为`True`。
 - `match_middle`参数，布尔类型，表示是否全字匹配（即输入的内容在被匹配内容的中间也可以成功匹配），默认为`True`。
-- `complete_style`参数，字符串类型，仅支持`['COLUMN','MULTI_COLUMN','READLINE_LIKE']`中的值，表示自动补全内容使用什么风格显示（依次对应单列、多列、类似readline那种打印到终端）。也可以使用使用`CompleteStyle`枚举对象（`from prompt_toolkit.shortcuts.prompt import CompleteStyle`导入）代替。
+- `complete_style`参数，字符串类型，仅支持`['COLUMN','MULTI_COLUMN','READLINE_LIKE']`中的值，表示自动补全内容使用什么风格显示（依次对应单列、多列、类似readline那种打印到终端）。也可以使用`CompleteStyle`枚举对象（使用`from prompt_toolkit.shortcuts.prompt import CompleteStyle`导入）代替。
 - `validate`参数，可调用类型，表示验证回答是否有效的方法。
 - `style`参数，`Style`类型（使用`from questionary import Style`导入），表示显示内容的样式。具体的语法可以参考后面进阶章节中的单独介绍。
 - `**kwargs`参数，表示其他不与上面参数重名、使用关键字方式传入的参数，会传给`PromptSession`对象（使用`from prompt_toolkit import PromptSession`导入），完整用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.shortcuts.PromptSession 这里不做展开介绍。

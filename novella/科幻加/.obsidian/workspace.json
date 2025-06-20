@@ -4,22 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "c01ed57b55a0b37c",
+        "id": "c11f4e0e28b252f8",
         "type": "tabs",
         "children": [
           {
-            "id": "5cebafd930209f02",
+            "id": "77f6c3487da2a48c",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "星际故事.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "星际故事"
+              "title": "新标签页"
             }
           }
         ]
@@ -133,11 +128,10 @@
   "left-ribbon": {
     "hiddenItems": {
       "switcher:打开快速切换": false,
-      "command-palette:打开命令面板": false,
-      "spreadsheets:New Spreadsheet": false
+      "command-palette:打开命令面板": false
     }
   },
-  "active": "5cebafd930209f02",
+  "active": "77f6c3487da2a48c",
   "lastOpenFiles": [
     "001.md",
     "Untitled.sheet",

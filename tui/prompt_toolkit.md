@@ -68,7 +68,7 @@ app.run()
 
 ![app_1](prompt_toolkit.assets/app_1.gif)
 
-## 2 基础知识（响应式）
+## 2 基础知识（响应式）（更新中）
 
 本章主要依照官网基础部分，并适当调整部分内容的难易程度、结构，增加了简洁易懂的示例代码。涉及到类、方法的具体参数的含义和用途，可以参考后面章节中模块API的详细介绍。
 
@@ -897,7 +897,7 @@ for color_depth in [
 
 ![style_8](prompt_toolkit.assets/style_8.png)
 
-不仅`print_formatted_text`方法有`color_depth`参数，框架中还有不少方法、类支持该参数，若是需要修改一个程序中所有显示内容的颜色深度（颜色位数），每个方法都设置一次`color_depth`参数难免有些麻烦。这时，可以设置环境变量`PROMPT_TOOLKIT_COLOR_DEPTH`为对应的字符串值，就能强制所有框架程序使用指定的颜色深度（颜色位数），或者在程序内单独设置环境变量，这样的话，该程序的所有输出内容都会使用指定的颜色深度（颜色位数）：
+不仅`print_formatted_text`方法有`color_depth`参数，框架中还有不少方法、类也支持该参数，若是需要修改一个程序中所有显示内容的颜色深度（颜色位数），每个方法都设置一次`color_depth`参数难免有些麻烦。这时，可以设置环境变量`PROMPT_TOOLKIT_COLOR_DEPTH`为对应的字符串值，就能强制所有框架程序使用指定的颜色深度（颜色位数），或者在程序内单独设置环境变量，这样的话，该程序的所有输出内容都会使用指定的颜色深度（颜色位数）：
 
 ```python3
 from prompt_toolkit import print_formatted_text
@@ -937,7 +937,7 @@ print_formatted_text(
 
 ![style_9](prompt_toolkit.assets/style_9.png)
 
-### 2.2 输入
+### 2.2 输入（更新中）
 
 相比于输出内容的简单，框架的输入功能就强大不少，不仅可以实现提示内容和输出一样支持样式和语法高亮，还支持响应按键输入、自动提示并完成输入内容。
 
@@ -945,7 +945,7 @@ print_formatted_text(
 
 #### 2.2.1 输入会话
 
-使用的`PromptSession`类（使用`from prompt_toolkit import PromptSession`或者`from prompt_toolkit.shortcuts import PromptSession`或者`from prompt_toolkit.shortcuts.prompt import PromptSession`导入）创建实例对象，再调用示例对象的`prompt`方法，是获取用户输入的基本方式：
+使用的`PromptSession`类（使用`from prompt_toolkit import PromptSession`或者`from prompt_toolkit.shortcuts import PromptSession`或者`from prompt_toolkit.shortcuts.prompt import PromptSession`导入）创建实例对象，再调用示例对象的`prompt`方法（方法支持的参数与`PromptSession`类基本相同，该方法用于进入输入模式，显示提示内容，并返回用户输入的内容），是获取用户输入的基本方式：
 
 ```python3
 from prompt_toolkit import PromptSession
@@ -958,7 +958,7 @@ print(f'输入的内容是: {result}')
 
 `PromptSession`类支持以下参数：
 
-- `message`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数，方法返回使用列表作为参数构建的`FormattedText`对象）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示用户输入时的提示内容（显示在要输入的内容最前面，提示用户需要输入什么）。
+- `message`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示用户输入时的提示内容（显示在要输入的内容最前面，提示用户需要输入什么）。
 
 - `multiline`参数，布尔类型或者`Filter`类型（`Filter`类为基类，一般使用的是`Condition`类，过滤器对象在当作函数调用时返回布尔值。看作是过滤器用法在后面细讲，这里仅提供示例），表示是否允许多行输入，多行输入时，使用`alt + enter`键或者先按`esc`键再按`enter`键才能确认输入，默认为`False`。以下为示例：
 
@@ -1194,7 +1194,7 @@ print(f'输入的内容是: {result}')
 
     ![input_7](prompt_toolkit.assets/input_7.gif)
 
-- `complete_in_thread`参数，布尔类型，表示是否在独立的线程中运行自动补全对象，默认为`False`。如果生成自动补全的原则比较复杂，生成的结果比较多，最好将此参数设置为`True`，避免自动补全时卡死界面显示。
+- `complete_in_thread`参数，布尔类型，表示是否在独立的线程中运行自动补全对象，默认为`False`。如果生成自动补全的原则比较复杂，生成结果比较耗时，最好将此参数设置为`True`，使用独立的线程运行自动补全对象，避免自动补全时卡死界面显示。
 
 - `reserve_space_for_menu`参数，整数类型，设置了`completer`参数且`complete_style`参数不为`CompleteStyle.READLINE_LIKE`时，该参数表示允许的终端最小高度，默认为`8`。如果终端高度小于该值，该方法将提示用户`'Window too small...'`。
 
@@ -1267,13 +1267,13 @@ print(f'输入的内容是: {result}')
 
   - `rprompt`类，`rprompt`参数对应的内容使用的样式类。
 
-  - `bottom-toolbar`类，
+  - `bottom-toolbar`类，`bottom_toolbar`参数对应的内容所属的底部工具栏使用的样式类。注意，此样式类默认包含`'reverse'`样式，所以设置前景色实际会渲染为背景色。可以在设置样式类为自定义样式时额外添加`'noreverse'`样式取消`'reverse'`样式，或者将背景色设置为想要设置的前景色。
 
-  - `bottom-toolbar.text`类，
+  - `bottom-toolbar.text`类，`bottom_toolbar`参数对应的内容部分（不是整个底部工具栏）使用的样式类。注意，此样式类同时使用`bottom-toolbar`类的样式，如果`bottom-toolbar`类没有取消`'reverse'`样式，此样式类默认包含`'reverse'`样式。
 
-  - `aborting`类，
+  - `aborting`类，按`ctrl + c`键强制退出时，正在执行的代码在终端显示的内容使用的样式类会改为该样式类。
 
-  - `exiting`类，
+  - `exiting`类，当前需要输入内容时，按`ctrl + d`键输入EOF标志会正常退出，此时正在执行的代码在终端显示的内容使用的样式类会改为该样式类。
 
   - `prompt`类，`message`参数对应的内容使用的样式类。
 
@@ -1283,49 +1283,403 @@ print(f'输入的内容是: {result}')
 
     按下`alt + {数字}`键会进入输入重复指定字符模式，再按下数字键会接着之前的数字，表示要重复多少次；然后再按下非数字键的任意可打印字符键，表示重复什么字符。`backspace`键或者`esc`键可以退出该模式。
 
-  - `arg-toolbar.text`类，输入模式为多行输入，进入输入重复指定字符模式时，表示重复多少次的内容部分使用的样式类。
+  - `arg-toolbar.text`类，输入模式为多行输入，进入输入重复指定字符模式时，表示重复多少次的内容部分使用的样式类。注意，此样式类同时使用`arg-toolbar`类的样式。
 
   - `prompt.arg`类，输入模式为单行输入，进入输入重复指定字符模式时，所有提示内容使用的样式类。
 
-  - `prompt.arg.text`类，输入模式为单行输入，进入输入重复指定字符模式时，表示重复多少次的内容部分使用的样式类。
+  - `prompt.arg.text`类，输入模式为单行输入，进入输入重复指定字符模式时，表示重复多少次的内容部分使用的样式类。注意，此样式类同时使用`prompt.arg`类的样式。
 
-- `style_transformation`参数，
+- `style_transformation`参数，`StyleTransformation`类型（`prompt_toolkit.styles`模块提供了'StyleTransformation'为后缀的内置类），表示输出时如何转换样式。示例如下：
 
-- `swap_light_and_dark_colors`参数，
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.styles import ReverseStyleTransformation
+  
+  session = PromptSession(
+      style_transformation=ReverseStyleTransformation()
+  )
+  
+  result = session.prompt(message='请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
 
-- `color_depth`参数，
+  ![input_11](prompt_toolkit.assets/input_11.png)
 
-- `cursor`参数，
+- `swap_light_and_dark_colors`参数，布尔类型或者`Filter`类型，表示是否切换当前显示内容的颜色为该颜色适用于另一种终端背景色的颜色，默认为`False`。部分颜色都有对应的适用终端背景色（浅色风格或者深色风格），该参数设置为`True`之后，原本对应浅色风格终端背景色的颜色，会变成对应深色风格终端背景色的颜色。以下为对比示例;
 
-- `include_default_pygments_style`参数，
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.styles import Style
+  
+  for color in ['purple','green']:
+      PromptSession(
+          '请输入任何内容：',
+          swap_light_and_dark_colors=True,
+          style=Style([('prompt',f'{color}')]),
+      ).prompt()
+      PromptSession(
+          '请输入任何内容：',
+          swap_light_and_dark_colors=False,
+          style=Style([('prompt',f'{color}')]),
+      ).prompt()
+      PromptSession(
+          '请输入任何内容：',
+          swap_light_and_dark_colors=True,
+          style=Style([('prompt',f'bg:{color}')]),
+      ).prompt()
+      PromptSession(
+          '请输入任何内容：',
+          swap_light_and_dark_colors=False,
+          style=Style([('prompt',f'bg:{color}')]),
+      ).prompt()
+  ```
 
-- `history`参数，`History`类型，
+  ![input_12](prompt_toolkit.assets/input_12.png)
 
-- `clipboard`参数，
+- `color_depth`参数，`ColorDepth`类型或者字符串类型，表示输出内容的颜色深度（具体用法可以参考前面的内容）。
 
-- 
+- `cursor`参数，`CursorShape`类型或者`CursorShapeConfig`类型，表示输入时光标的形状。
+
+  `CursorShape`类为枚举类，支持以下成员：
+
+  - `BLOCK`，表示光标形状为方块。
+  - `BEAM`，表示光标形状为分隔线`'|'`。
+  - `UNDERLINE`，表示光标形状为下划线。
+  - `BLINKING_BLOCK`，表示光标形状为闪烁的方块（仅部分终端支持）。
+  - `BLINKING_BEAM`，表示光标形状为闪烁的分隔线（仅部分终端支持）。
+  - `BLINKING_UNDERLINE`，表示光标形状为闪烁的下划线（仅部分终端支持）。
+
+  `CursorShapeConfig`类为抽象类，使用时需要该类的`get_cursor_shape`方法，该方法返回`CursorShape`类的成员。该参数说到底接收的还是`CursorShape`类型的值，因此`CursorShapeConfig`类的用法这里不做展开，仅提供一个简单的示例（使用`prompt_toolkit.cursor_shapes`模块提供的`SimpleCursorShapeConfig`类）：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.cursor_shapes import CursorShape,SimpleCursorShapeConfig
+  
+  session = PromptSession(
+      cursor=SimpleCursorShapeConfig(CursorShape.BEAM)
+      # 效果与 cursor=CursorShape.BEAM 相同
+  )
+  
+  result = session.prompt(message='请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+- `include_default_pygments_style`参数，布尔类型或者`Filter`类型，如果设置了`lexer`参数，此参数表示是否启用`lexer`参数生成的样式，默认为`True`。因为`lexer`参数生成的样式，比`style`参数设置为`pygments`主题对应的样式对象优先生效。想要让代码显示主题对应的样式，必须将此参数设置为`False`。以下为示例：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from pygments.lexers.python import PythonLexer
+  from prompt_toolkit.lexers import PygmentsLexer
+  from prompt_toolkit.styles.pygments import style_from_pygments_cls
+  from pygments.styles import get_style_by_name
+  
+  style = style_from_pygments_cls(get_style_by_name('monokai'))
+  session = PromptSession(
+      lexer=PygmentsLexer(PythonLexer),
+      style=style,
+      include_default_pygments_style=False
+  )
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  session = PromptSession(
+      lexer=PygmentsLexer(PythonLexer),
+      style=style,
+      include_default_pygments_style=True
+  )
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_13](prompt_toolkit.assets/input_13.png)
+
+- `history`参数，`History`类型，表示当前会话对象的输入历史，默认为`None`，即`InMemoryHistory()`，会将每次输入的内容存入内容，程序重启后重置。也可以使用`prompt_toolkit.history`模块提供的其他历史记录类（以为'History'后缀，如`FileHistory`类，是将历史记录存入文件）：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.history import InMemoryHistory,FileHistory
+  
+  session = PromptSession(
+      # history=InMemoryHistory(['123','abc']),
+      history=FileHistory(f'{__file__}.his')
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+- `clipboard`参数，`Clipboard`类型，表示输入内容时，存放临时数据的命令行剪贴板，默认为`None`，即`InMemoryClipboard()`。注意，这里的命令行剪贴板与系统剪贴板数据不互通，且粘贴命令行剪贴板数据的快捷键不是系统的`ctrl + v`键，而是对应操作模式的快捷键（`EMACS`操作模式下为`ctrl + y`键；`VI`下操作模式下，需要先按`esc`键进入命令模式，再按`p`键粘贴）。以下为示例：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.clipboard import InMemoryClipboard,ClipboardData
+  
+  session = PromptSession(
+      clipboard=InMemoryClipboard(ClipboardData('hello')),
+  )
+  
+  # 可以使用下面的方法修改命令行剪贴板的内容
+  # session.clipboard.set_text('hello')
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  注意，想要修改命令行剪贴板的数据，除了修改该参数或者`clipboard`属性为新的命令行剪贴板对象，还可以使用命令行剪贴板的`set_data`方法或者`set_text`方法。
+
+- `prompt_continuation`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型（接收三个整数类型的参数，分别为表示第一行提示内容的宽度`prompt_width`、第一行为`0`行的行号`line_number`、本行内容太长且`wrap_lines`参数为`True`导致换行后的换行次数`wrap_count`），表示当`multiline`参数为`True`时，从第二行开始每行开头显示的内容，用于表明还能继续输入，输入过程并未结束。示例如下：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  
+  session = PromptSession(
+      prompt_continuation=lambda w,l,c:f'{w=},{l=},{c=}: ',
+      multiline=True,
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_14](prompt_toolkit.assets/input_14.png)
+
+- `rprompt`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示在右侧的提示内容。示例如下：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  
+  session = PromptSession(
+      rprompt='右侧的提示内容'
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_15](prompt_toolkit.assets/input_15.png)
+
+- `bottom_toolbar`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示在底部的提示内容。示例如下：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  
+  session = PromptSession(
+      bottom_toolbar='底部的提示内容'
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_16](prompt_toolkit.assets/input_16.png)
+
+- `mouse_support`参数，布尔类型或者`Filter`类型，表示是否启用鼠标支持（可以使用鼠标点击的方式移动光标，并支持一些鼠标的点击操作，与后面介绍的应用程序有关），默认为`False`。
+
+- `input_processors`参数，元素为`Processor`类型的列表，表示输入内容的处理器。该参数默认不需要任何值，内部已经对该参数做好了处理。如果要使用该参数，一般在需要修改密文形式的显示字符时，才不得不使用该参数：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.layout.processors import PasswordProcessor
+  
+  session = PromptSession(
+      input_processors=[PasswordProcessor('密')]
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_17](prompt_toolkit.assets/input_17.png)
+
+  注意，如果使用了`PasswordProcessor`，`is_password`参数相当于设置为`True`。
+
+  该参数最终传给了`BufferControl`控件，如果想要了解该参数的更多用途，可以参考该控件的文档 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.BufferControl ，或者后面的相关教程，这里不做展开。
+
+- `placeholder`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数，方法返回使用列表作为参数构建的`FormattedText`对象）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示没输入之前显示的占位内容。示例如下：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  
+  session = PromptSession(
+      placeholder='xxx-xxx-xxx'
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_18](prompt_toolkit.assets/input_18.png)
+
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。自定义快捷键需要实现`KeyBindingsBase`类，会比较复杂，这里推荐使用内置类`KeyBindings`（使用`from prompt_toolkit.key_binding import KeyBindings`导入，如果想要实现`KeyBindingsBase`类，建议参考`KeyBindings`类的源码或者继承该类），该类的实例支持`add`方法，该方法接收表示快捷键的字符串，并返回一个装饰器，可用于装饰该快捷键对应的操作。示例如下：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.application import run_in_terminal
+  from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+  
+  bindings = KeyBindings()
+  
+  @bindings.add('c-q')
+  def ctrl_q_handler(event:KeyPressEvent):
+      run_in_terminal(lambda :print(event.key_sequence[0].key))
+  
+  session = PromptSession(
+      key_bindings=bindings
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  ![input_19](prompt_toolkit.assets/input_19.png)
+
+  代码中使用了`run_in_terminal`方法间接运行`print`方法，那是因为直接使用`print`方法的话，输出的内容会以当前光标位置为起点，跟在要输入的内容后，但实际上输入的内容不包含输出的内容，容易引起误解；但是，使用`run_in_terminal`方法间接运行`print`方法，框架会将输出的内容重定位到提示内容的上方，不会跟在要输入的内容后。
+
+  `add`方法的完整用法和快捷键绑定的更多基础参见后面按键输入章节的介绍，这里不做展开。
+
+- `erase_when_done`参数，布尔类型，表示当程序正常退出时，是否清除输出方法（`print`方法、`print_formatted_text`方法等）输出的内容，默认为`False`。
+
+- `tempfile_suffix`参数，字符串类型或者返回字符串的可调用类型，表示当`enable_open_in_editor`参数为`True`时，使用外部编辑打开的临时文件的后缀，默认为`'.txt'`。
+
+- `tempfile`参数，字符串类型或者返回字符串的可调用类型，表示当`enable_open_in_editor`参数为`True`时，使用外部编辑打开的临时文件的文件名（不含后缀），默认为随机生成。
+
+- `refresh_interval`参数，浮点类型，表示每隔多少秒刷新一次显示，默认为`0`，即不自动刷新。
+
+- `input`参数，`Input`类型，表示获取输入内容的对象，一般不需要设置或者修改。
+
+- `output`参数，`Output`类型，表示内容输出的对象，一般不需要设置或者修改。
+
+- `interrupt_exception`参数，`BaseException`类及其子类，当使用`ctrl + c`键强制退出时触发什么异常，默认为`KeyboardInterrupt`。
+
+- `eof_exception`参数，`BaseException`类及其子类，当使用`ctrl + d`键输入EOF标志之后正常退出时触发什么异常，默认为`EOFError`。
 
 `PromptSession`类支持以下属性：
 
 - `message`属性，同`message`参数。
+- `multiline`属性，同`multiline`参数。
+- `wrap_lines`属性，同`wrap_lines`参数。
+- `is_password`属性，同`is_password`参数。
+- `editing_mode`属性，同`editing_mode`参数。
+- `complete_while_typing`属性，同`complete_while_typing`参数。
+- `validate_while_typing`属性，同`validate_while_typing`参数。
+- `enable_history_search`属性，同`enable_history_search`参数。
+- `search_ignore_case`属性，同`search_ignore_case`参数。
+- `lexer`属性，同`lexer`参数。
+- `enable_system_prompt`属性，同`enable_system_prompt`参数。
+- `enable_suspend`属性，同`enable_suspend`参数。
+- `enable_open_in_editor`属性，同`enable_open_in_editor`参数。
+- `validator`属性，同`validator`参数。
+- `completer`属性，同`completer`参数。
+- `complete_in_thread`属性，同`complete_in_thread`参数。
+- `reserve_space_for_menu`属性，同`reserve_space_for_menu`参数。
+- `complete_style`属性，同`complete_style`参数。
+- `auto_suggest`属性，同`auto_suggest`参数。
+- `style`属性，同`style`参数。
+- `style_transformation`属性，同`style_transformation`参数。
+- `swap_light_and_dark_colors`属性，同`swap_light_and_dark_colors`参数。
+- `color_depth`属性，同`color_depth`参数。
+- `cursor`属性，同`cursor`参数。
+- `include_default_pygments_style`属性，同`include_default_pygments_style`参数。
+- `history`属性，同`history`参数。
+- `clipboard`属性，同`clipboard`参数。
+- `prompt_continuation`属性，同`prompt_continuation`参数。
+- `rprompt`属性，同`rprompt`参数。
+- `bottom_toolbar`属性，同`bottom_toolbar`参数。
+- `mouse_support`属性，同`mouse_support`参数。
+- `input_processors`属性，同`input_processors`参数。
+- `placeholder`属性，同`placeholder`参数。
+- `key_bindings`属性，同`key_bindings`参数。
+- `tempfile_suffix`属性，同`tempfile_suffix`参数。
+- `tempfile`属性，同`tempfile`参数。
+- `refresh_interval`属性，同`refresh_interval`参数。
+- `input`属性，同`input`参数。
+- `output`属性，同`output`参数。
+- `interrupt_exception`属性，同`interrupt_exception`参数。
+- `eof_exception`属性，同`eof_exception`参数。
+- `app`属性，`Application`类型，表示运行输入会话的应用程序（相关概念和用法将在后面应用程序章节详细介绍，这里不做展开）。
+- `layout`属性，`Layout`类型，表示应用程序的使用的布局（相关概念和用法将在后面应用程序章节详细介绍，这里不做展开）。
+- `default_buffer`属性，`Buffer`类型，表示获取输入的缓冲对象（相关用法可以参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.buffer ），该对象最终用于构建`BufferControl`控件，成为应用程序中获取输入的控件。
+- `search_buffer`属性，`Buffer`类型，表示用于搜索指定内容的缓冲对象，该对象最终用于构建`BufferControl`控件，成为应用程序中显示搜索结果的控件。
 
 `PromptSession`类支持以下方法：
 
-- 
-- `prompt`方法支持以下参数：
-  - 
-
-
-
-（按键绑定也放到这里 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/key_bindings.html ）
-
-
-
-
+- `prompt`方法用于进入输入模式，同时也支持一些参数（不完全与`PromptSession`类相同），可以覆盖输入会话的同名属性、参数，并影响后续使用同一会话的情况。该方法支持的参数有三种类型：
+  
+  - 可通过位置传入的`message`参数，与`PromptSession`类的同名参数含义相同，默认为`None`，即不改变同名属性的值。
+  
+  - 仅支持通过关键字传入的参数，但与`PromptSession`类的同名参数含义相同，默认均为`None`，即不改变同名属性的值。包括：
+  
+    - `editing_mode`参数。
+    - `refresh_interval`参数。
+    - `vi_mode`参数。
+    - `lexer`参数。
+    - `completer`参数。
+    - `complete_in_thread`参数。
+    - `is_password`参数。
+    - `key_bindings`参数。
+    - `bottom_toolbar`参数。
+    - `style`参数。
+    - `color_depth`参数。
+    - `cursor`参数。
+    - `include_default_pygments_style`参数。
+    - `style_transformation`参数。
+    - `swap_light_and_dark_colors`参数。
+    - `rprompt`参数。
+    - `multiline`参数。
+    - `prompt_continuation`参数。
+    - `wrap_lines`参数。
+    - `enable_history_search`参数。
+    - `search_ignore_case`参数。
+    - `complete_while_typing`参数。
+    - `validate_while_typing`参数。
+    - `complete_style`参数。
+    - `auto_suggest`参数。
+    - `validator`参数。
+    - `clipboard`参数。
+    - `mouse_support`参数。
+    - `input_processors`参数。
+    - `placeholder`参数。
+    - `reserve_space_for_menu`参数。
+    - `enable_system_prompt`参数。
+    - `enable_suspend`参数。
+    - `enable_open_in_editor`参数。
+    - `tempfile_suffix`参数。
+    - `tempfile`参数。
+  
+  - 仅支持通过关键字传入的参数，但`PromptSession`类无同名参数。包括：
+  
+    - `default`参数，字符串类型或者`Document`类型，表示在用户没有输入任何内容时的默认内容，默认为`''`。
+  
+    - `accept_default`参数，布尔类型，表示是否禁止用户改变默认内容，默认为`False`，即允许改变。如果此参数为`True`，则会跳过输入过程，直接将`default`参数的值作为结果返回。
+  
+    - `pre_run`参数，可调用类型，表示在进入输入模式前执行的操作，默认为`None`。
+  
+    - `set_exception_handler`参数，布尔类型，表示进入输入模式后触发异常时，是否先切换屏幕（可以理解为保留当前终端的状态并新开了一个虚拟的终端处理输入、输出）再输出异常信息，然后按`enter`键可以退出当前屏幕，并回到显示提示内容的输入模式，该参数默认为`True`。如果该参数为`False`，则触发异常时不会切换屏幕，直接在当前终端输出异常信息，此时依然处于输入模式，可以继续输入内容，无需额外按`enter`键来回到显示提示内容的输入模式。
+  
+    - `handle_sigint`参数，布尔类型，表示是否处理发送给当前程序的SIGNAL信号（Unix概念，且仅在主线程生效，即`in_thread`参数为`True`时无法生效），默认为`True`。
+  
+    - `in_thread`参数，布尔类型，表示是否在单独的线程中运行，默认为`False`。
+  
+    - `inputhook`参数，`InputHook`类型（一个接收`InputHookContext`类型参数的可调用类型，相关文档参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/input_hooks.html），表示输入钩子，默认为`None`。所谓输入钩子，就是在输入模式下循环运行并在完成输入后退出循环的函数。示例如下：
+  
+      ```python3
+      from prompt_toolkit import PromptSession
+      from prompt_toolkit.patch_stdout import patch_stdout
+      
+      session = PromptSession()
+      
+      def inputhook(inputhook_context):
+          print('inputhooking')
+          
+      with patch_stdout():
+          result = session.prompt('请输入任何内容：',inputhook=inputhook,in_thread=True)
+          print(f'输入的内容是: {result}')
+      ```
+  
+- `prompt_async`方法则是`prompt`方法的异步版本，但是不支持`in_thread`参数和`inputhook`参数。
 
 #### 2.2.2 输入方法
 
-除了先创建一个会话对象，每次获取用户输入前调用会话对象的`prompt`方法，框架也提供了功能相同但可以直接使用的`prompt`方法（使用`from prompt_toolkit import prompt`或者`from prompt_toolkit.shortcuts import prompt`或者`from prompt_toolkit.shortcuts.prompt import prompt`导入），使用该方法会让代码更简单（方便程度堪比Python内置的`input`方法）：
+除了先创建一个会话对象、每次获取用户输入前调用会话对象的`prompt`方法之外，框架也提供了功能相同、可以直接使用、并且直接返回输入内容的`prompt`方法（使用`from prompt_toolkit import prompt`或者`from prompt_toolkit.shortcuts import prompt`或者`from prompt_toolkit.shortcuts.prompt import prompt`导入），使用该方法会让代码更简单（方便程度堪比Python内置的`input`方法）：
 
 ```python3
 from prompt_toolkit import prompt
@@ -1343,17 +1697,29 @@ print(f'输入的内容是: {result}')
 
 相比之下，调用会话对象的`prompt`方法就没有上面的问题，因为`history`参数只在创建会话对象时传入，在同一会话对象中共享。如果其他参数没有变化，调用会话对象的`prompt`方法时无需重复传入。如果其他参数有变化，调用会话对象的`prompt`方法时只需传入发生变化的参数即可，变化的参数（属性）会在同一会话对象中共享，影响之后调用会话对象`prompt`方法时的表现。
 
+`prompt`方法在原有输入会话的基础上简化不少，`confirm`方法（使用`from prompt_toolkit.shortcuts import confirm`或者`from prompt_toolkit.shortcuts.prompt import confirm`导入）则做到了更加简单。该方法仅允许按下`y`键或者`n`键表示是否，用于询问用户一些只能表示是否的问题，并返回对应的布尔值。
+
+`confirm`方法支持以下参数：
+
+- `message`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示提示内容，默认为`'Confirm?'`。
+- `suffix`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示提示内容后的后缀提示内容，一般用于提示用户如何输入（按什么按键），默认为`' (y/n) '`。
+
+与`confirm`方法作用相同的`create_confirm_session`方法，则返回的是会话对象，使用时需要调用会话对象的`prompt`方法才行。此外，`create_confirm_session`方法的`message`参数没有默认值，使用时必须传入有效值才不会报错。另外，调用的`prompt`方法和前面介绍的会话对象的`prompt`方法支持的参数一样，可以在调用时传入参数，修改会话对象的属性。
+
+以下为示例：
+
+```python3
+from prompt_toolkit.shortcuts.prompt import confirm
+from prompt_toolkit.shortcuts import create_confirm_session
 
 
+confirm([('red','是否确认？')],[('green',' 按y键或n键 ')])
+create_confirm_session([('red','是否确认？')]).prompt()
+```
 
+![input_20](prompt_toolkit.assets/input_20.png)
 
-`confirm`方法
-
-`create_confirm_session`方法，
-
-
-
-#### 2.2.3 异步输入
+#### 2.2.3 异步输入（更新中）
 
 
 
@@ -1367,7 +1733,245 @@ https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.ht
 
 
 
-### 2.3 对话框
+#### 2.2.4 按键输入（快捷键绑定）
+
+这里的按键输入不是说输入什么内容需要按什么键，而是指响应快捷键。因此，可以输出内容的按键不能被定义为快捷键。
+
+前面介绍`key_bindings`参数时简单写了一个绑定快捷键的示例，不过，绑定快捷键的基础部分内容不少，所以当时没有展开介绍。但是，快捷键绑定很重要，后面其他带有`key_bindings`参数的功能也会用到快捷键绑定，为了避免读者不熟悉快捷键而导致相关功能无法使用，特将这部分内容放在这一节，后续如果遇到快捷键绑定的基础，均首先引用本节。如果是基础部分需要补充的，则根据实际情况补充。若是读者需要学习快捷键相关的进阶知识，在后续的进阶知识章节中，将会进一步深入快捷键的使用，介绍不太常用的技巧。
+
+本节部分内容参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/key_bindings.html 。
+
+##### 2.2.4.1 直接绑定响应函数
+
+先简单回顾一下前面的示例：
+
+```python3
+from prompt_toolkit import PromptSession
+from prompt_toolkit.application import run_in_terminal
+from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+
+bindings = KeyBindings()
+
+@bindings.add('c-q')
+def ctrl_q_handler(event:KeyPressEvent):
+    run_in_terminal(lambda :print(event.key_sequence[0].key))
+
+session = PromptSession(
+    key_bindings=bindings
+)
+
+result = session.prompt('请输入任何内容：')
+print(f'输入的内容是: {result}')
+```
+
+可以看到，`add`方法就是绑定快捷键的主要方法，该方法返回的装饰器可以将被装饰的函数添加为快捷键的响应函数，但`add`方法的用法不止这么简单。
+
+`add`方法支持以下参数：
+
+- `*keys`参数，`Keys`类型或者字符串类型，表示要绑定的快捷键，支持同时绑定多个快捷键。如果同时绑定多个快捷键，存在两种情况，对应的含义也有所不同：
+
+  - 一次传入多个值，表示需要按照顺序、连续按这些值对应的快捷键才会触发对应的操作，即绑定为序列快捷键：
+
+    ```python3
+    from prompt_toolkit import PromptSession
+    from prompt_toolkit.application import run_in_terminal
+    from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+    
+    bindings = KeyBindings()
+    
+    # 需要依次按下 ctrl+q 、ctrl+w
+    @bindings.add('c-q','c-w')
+    def ctrl_q_handler(event:KeyPressEvent):
+        run_in_terminal(lambda :print(event))
+    
+    session = PromptSession(
+        key_bindings=bindings
+    )
+    
+    result = session.prompt('请输入任何内容：')
+    print(f'输入的内容是: {result}')
+    ```
+
+  - 使用装饰器装饰一个已经被装饰器装饰的函数，则表示任意一个快捷键都会触发该操作，即绑定为并列快捷键：
+
+    ```python3
+    from prompt_toolkit import PromptSession
+    from prompt_toolkit.application import run_in_terminal
+    from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+    
+    bindings = KeyBindings()
+    
+    # ctrl+q 或 ctrl+w 都可以
+    @bindings.add('c-q')
+    @bindings.add('c-w')
+    def ctrl_q_handler(event:KeyPressEvent):
+        run_in_terminal(lambda :print(event))
+    
+    session = PromptSession(
+        key_bindings=bindings
+    )
+    
+    result = session.prompt('请输入任何内容：')
+    print(f'输入的内容是: {result}')
+    ```
+
+  `Keys`类是枚举类，可以直接使用其成员表示对应的快捷键，比如：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.application import run_in_terminal
+  from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+  from prompt_toolkit.keys import Keys
+  
+  bindings = KeyBindings()
+  
+  @bindings.add(Keys.ControlQ)
+  def ctrl_q_handler(event:KeyPressEvent):
+      run_in_terminal(lambda :print(event.key_sequence[0].key))
+  
+  session = PromptSession(
+      key_bindings=bindings
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  也可以使用成员对应的字符串表示快捷键（和最开始的示例一样）：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  from prompt_toolkit.application import run_in_terminal
+  from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+  from prompt_toolkit.keys import Keys
+  
+  bindings = KeyBindings()
+  
+  @bindings.add(Keys.ControlQ.value)
+  def ctrl_q_handler(event:KeyPressEvent):
+      run_in_terminal(lambda :print(event.key_sequence[0].key))
+  
+  session = PromptSession(
+      key_bindings=bindings
+  )
+  
+  result = session.prompt('请输入任何内容：')
+  print(f'输入的内容是: {result}')
+  ```
+
+  框架支持、所有可以自定义的快捷键可以在`ALL_KEYS`中找到（字符串类型的表示方式）：
+
+  ```python3
+  from prompt_toolkit.keys import ALL_KEYS
+  print(ALL_KEYS)
+  ```
+
+  输出结果为：
+
+  ```python3
+  ['escape', 's-escape', 'c-@', 'c-a', 'c-b', 'c-c', 'c-d', 'c-e', 'c-f', 'c-g', 'c-h', 'c-i', 'c-j', 'c-k', 'c-l', 'c-m', 'c-n', 'c-o', 'c-p', 'c-q', 'c-r', 'c-s', 'c-t', 'c-u', 'c-v', 'c-w', 'c-x', 'c-y', 'c-z', 'c-1', 'c-2', 'c-3', 'c-4', 'c-5', 'c-6', 'c-7', 'c-8', 'c-9', 'c-0', 'c-s-1', 'c-s-2', 'c-s-3', 'c-s-4', 'c-s-5', 'c-s-6', 'c-s-7', 'c-s-8', 'c-s-9', 'c-s-0', 'c-\\', 'c-]', 'c-^', 'c-_', 'left', 'right', 'up', 'down', 'home', 'end', 'insert', 'delete', 'pageup', 'pagedown', 'c-left', 'c-right', 'c-up', 'c-down', 'c-home', 'c-end', 'c-insert', 'c-delete', 'c-pageup', 'c-pagedown', 's-left', 's-right', 's-up', 's-down', 's-home', 's-end', 's-insert', 's-delete', 's-pageup', 's-pagedown', 'c-s-left', 'c-s-right', 'c-s-up', 'c-s-down', 'c-s-home', 'c-s-end', 'c-s-insert', 'c-s-delete', 'c-s-pageup', 'c-s-pagedown', 's-tab', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19', 'f20', 'f21', 'f22', 'f23', 'f24', 'c-f1', 'c-f2', 'c-f3', 'c-f4', 'c-f5', 'c-f6', 'c-f7', 'c-f8', 'c-f9', 'c-f10', 'c-f11', 'c-f12', 'c-f13', 'c-f14', 'c-f15', 'c-f16', 'c-f17', 'c-f18', 'c-f19', 'c-f20', 'c-f21', 'c-f22', 'c-f23', 'c-f24', '<any>', '<scroll-up>', '<scroll-down>', '<cursor-position-response>', '<vt100-mouse-event>', '<windows-mouse-event>', '<bracketed-paste>', '<sigint>', '<ignore>']
+  ```
+
+  注意，字符串中，'-'表示的是前后两个按键同时按下，'c'表示的是`ctrl`键，'s'表示的是`shift`键，'\\\\'表示的是`\`键，'<'和'>'包含的按键不是指具体某个按键，而是特定多个按键、触发特定事件的按键等特殊情况（这些特例以及如何定义`alt`键与其他键的组合快捷键会在后续的进阶知识章节中介绍，这里不做展开）。
+
+- `filter`参数，布尔类型或者`Filter`类型，表示该快捷键是否激活，默认为`True`。从此参数开始，仅能通过关键字传入。
+
+- `eager`参数，布尔类型或者`Filter`类型，表示当该快捷键与序列快捷键的第一个键相同时，是否覆盖序列快捷键（会导致序列快捷键失效，一般不用设置该参数），默认为`False`。
+
+- `is_global`参数，布尔类型或者`Filter`类型，表示快捷键是否为全局生效，默认为`False`。所谓全局生效指的是快捷键不是绑定到当前控件，而是绑定到控件所属的容器，这样的话，同一容器内的其他控件也能使用该快捷键（容器、控件等相关概念可以参考后面的章节）。在前面介绍的内容中，使用快捷键的功能如果明确了属性是共享的，则快捷键是共享的；如果属性不是共享的，则该参数无论怎么设置都不会导致快捷键共享。
+
+- `save_before`参数，接收一个`KeyPressEvent`参数、返回布尔值的可调用类型，用于表示响应快捷键之前是否需要保存当前缓冲，默认为`(lambda e: True)`。
+
+- `record_in_macro`参数，布尔类型或者`Filter`类型，表示在录制宏（框架程序的操作模式为`VI`或者`EMACS`都可以录制按键操作的过程，即宏）时，是否包括当前快捷键，默认为`True`。
+
+##### 2.2.4.2 使用绑定对象
+
+除了使用`add`方法一步到位完成快捷键绑定，还可以使用绑定对象，只是操作上比一步到位多一些步骤：
+
+```python3
+from prompt_toolkit import PromptSession
+from prompt_toolkit.application import run_in_terminal
+from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+from prompt_toolkit.key_binding.key_bindings import Binding
+
+bindings = KeyBindings()
+
+def ctrl_q_handler(event:KeyPressEvent):
+    run_in_terminal(lambda :print(event))
+
+binding = Binding(('c-q',),ctrl_q_handler)
+bindings.bindings.append(binding)
+
+session = PromptSession(
+    key_bindings=bindings
+)
+
+result = session.prompt('请输入任何内容：')
+print(f'输入的内容是: {result}')
+```
+
+`Binding`类（使用`from prompt_toolkit.key_binding.key_bindings import Binding`导入）支持以下参数：
+
+- `keys`参数，元素为`Keys`类型或者字符串类型的元组，表示要绑定的快捷键。
+- `handler`参数，接收一个`KeyPressEvent`参数、返回任意值或者可异步等待对象的可调用类型（支持异步），表示快捷键对应的响应函数。
+- `filter`参数，同`add`方法的同名参数。
+- `eager`参数，同`add`方法的同名参数。
+- `is_global`参数，同`add`方法的同名参数。
+- `save_before`参数，同`add`方法的同名参数。
+- `record_in_macro`参数，同`add`方法的同名参数。
+
+`Binding`类支持以下属性：
+
+- `keys`属性，同`keys`参数。
+- `handler`属性，同`handler`参数。
+- `filter`属性，同`filter`参数。
+- `eager`属性，同`eager`参数。
+- `is_global`属性，同`is_global`参数。
+- `save_before`属性，同`save_before`参数。
+- `record_in_macro`属性，同`record_in_macro`参数。
+
+`Binding`类支持以下方法：
+
+- `call`方法，执行`handler`参数的值，相当于模拟按下该绑定对象的对应按键（只是创建绑定对象的话没有具体的对应按键，后面才介绍如何分配）。该方法支持以下必需参数：
+  - `event`参数，`KeyPressEvent`类型，表示按键按下的事件。实际使用时不需要构建虚假的事件，一般是在其他事件响应函数中使用`call`方法，将其他事件响应函数的`KeyPressEvent`类型对象传给此参数即可。
+
+除了手动创建`Binding`类的实例，还可以使用`key_binding`方法（使用`from prompt_toolkit.key_binding.key_bindings import key_binding`导入）可以将任意函数转换为绑定对象（此时未分配快捷键），不过这样转化出来的绑定对象不包含快捷键，还要设置其`keys`属性。或者使用`add`方法将其与指定快捷键绑定（这样使用会导致其`keys`属性失效）：
+
+```python3
+from prompt_toolkit import PromptSession
+from prompt_toolkit.application import run_in_terminal
+from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+from prompt_toolkit.key_binding.key_bindings import key_binding
+
+bindings = KeyBindings()
+
+@key_binding(filter=True)
+def ctrl_q_handler(event:KeyPressEvent):
+    run_in_terminal(lambda :print(event))
+
+ctrl_q_handler.keys = ('c-q',)
+bindings.bindings.append(ctrl_q_handler)
+
+# 使用 add 方法添加的话，就keys属性就不会生效了
+# bindings.add('c-q')(ctrl_q_handler)
+
+session = PromptSession(
+    key_bindings=bindings
+)
+
+result = session.prompt('请输入任何内容：')
+print(f'输入的内容是: {result}')
+```
+
+`key_binding`方法支持以下参数：
+
+- `filter`参数，同`add`方法的同名参数。
+- `eager`参数，同`add`方法的同名参数。
+- `is_global`参数，同`add`方法的同名参数。
+- `save_before`参数，同`add`方法的同名参数。
+- `record_in_macro`参数，同`add`方法的同名参数。
+
+### 2.3 对话框（更新中）
 
 
 
@@ -1377,11 +1981,17 @@ https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.ht
 
 
 
-### 2.4 进度条
+### 2.4 进度条（更新中）
 
 
 
-## 3 应用程序的基础知识
+
+
+
+
+
+
+## 3 基础知识（应用式）（更新中）
 
 除了前面直接执行、直接输出的使用方式之外，框架还支持一种类似应用程序的使用方式。在正式介绍之前，需要先区分一下框架程序的两种使用方式：
 
@@ -1429,7 +2039,7 @@ https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.ht
 
 本章将介绍应用式框架程序所涉及的基础知识。涉及到类、方法的具体参数的含义和用途，可以参考后面章节中模块API的详细介绍。
 
-### 3.1 基本结构
+### 3.1 基本结构（更新中）
 
 正如本章开头所介绍的那样，一个完整的应用式框架程序通常由以下几部分组成：
 
@@ -1487,11 +2097,11 @@ https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.ht
 
 
 
-## 4 进阶知识
+## 4 进阶知识（更新中）
 
 本章将对照 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/index.html 中除了基础知识介绍过内容外的其余内容，并补充一些官方手册中有但官方教程没写的内容。
 
-
+### 4.1 状态过滤器（更新中）
 
 状态过滤器，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/filters.html
 
@@ -1519,7 +2129,33 @@ print(f'输入的内容是: {result}')
 
 
 
+### 4.2 快捷键绑定的其他技巧（更新中）
+
+按键绑定的进阶 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/key_bindings.html 
+
+
+
+
+
 单元测试，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/unit_testing.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 5 拾遗（持续更新中）
+
+本章主要根据实际问题，提供对应问题的解决实例，并补充前面没有覆盖的内容。按时间顺序更新，不限制内容所属分类，但章节标题会概括主要内容。
+
+### 5.1 按钮的中文修复补丁（更新中）
 
 
 
@@ -1734,25 +2370,7 @@ message_dialog(
 
 - button_dialog
 
-  
 
-
-
-
-
-
-
-
-
-
-
-## 5 拾遗
-
-本章主要根据实际问题，提供对应问题的解决实例，并补充前面没有覆盖的内容。
-
-### 5.1 （待定）
-
-（标题要简略概括主要内容）
 
 
 

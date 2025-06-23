@@ -937,7 +937,7 @@ print_formatted_text(
 
 ![style_9](prompt_toolkit.assets/style_9.png)
 
-### 2.2 输入（更新中）
+### 2.2 输入
 
 相比于输出内容的简单，框架的输入功能就强大不少，不仅可以实现提示内容和输出一样支持样式和语法高亮，还支持响应按键输入、自动提示并完成输入内容。
 
@@ -1719,23 +1719,69 @@ create_confirm_session([('red','是否确认？')]).prompt()
 
 ![input_20](prompt_toolkit.assets/input_20.png)
 
-#### 2.2.3 异步输入（更新中）
+#### 2.2.3 异步输入相关的扩展用法
 
+如果与异步方法配合使用，则必须要使用对应方法的异步版本（没有的话则用功能相同的异步方法）。
 
+以`asyncio`框架为例：
 
-https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html#prompt-in-an-asyncio-application
+```python3
+from prompt_toolkit import PromptSession
+from prompt_toolkit.patch_stdout import patch_stdout
+import asyncio
 
+session = PromptSession()
 
+async def wait_for_answer(): 
+    with patch_stdout():
+        result = await session.prompt_async('请输入任何内容：')
+        await asyncio.sleep(3)
+        print(f'输入的内容是: {result}')
 
-https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html#reading-keys-from-stdin-one-key-at-a-time-but-without-a-prompt
+asyncio.run(wait_for_answer())
+```
 
+`patch_stdout`不是必须的，但使用该方法提供的上下文可以屏蔽其他协程的输出，避免覆盖掉提示内容。
 
+与异步相关的还有一种特殊的用法（具体参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/asking_for_input.html#reading-keys-from-stdin-one-key-at-a-time-but-without-a-prompt ，这里只提供示例，不做展开），就是使用直接读取按键输入的原生输入模式，结合异步的事件循环，可以实现对按键输入的响应：
 
+```python3
+import asyncio
+from prompt_toolkit.input import create_input
+from prompt_toolkit.keys import Keys
 
+async def main():
+    done = asyncio.Event()
+    input = create_input()
+    # 每输入一个有效的按键指令都会调用一次响应函数，没有参数；因此只能访问创建好的输入流对象的方法、属性。
+    def keys_ready():
+        for key_press in input.read_keys():
+            if key_press.key == Keys.ControlC:
+                # 将事件循环的完成标志设置为True
+                done.set()
+            elif key_press.key == 'w':
+                # 当按下w键时，执行下面的操作
+                print('Hello World')
+            else:
+                print(key_press.key)
+    # 进入获取原生输入的模式，此时程序不再执行按键的响应函数，比如ctrl+d
+    with input.raw_mode():
+        # 激活当前输入流并进入该输入流的上下文中，可以使用当前输入流的数据
+        # 这里给attach方法传入了每次输入完成时的响应函数，每输入一个有效的按键指令都会调用一次响应函数
+        with input.attach(input_ready_callback=keys_ready):
+            # 进入事件循环中，当事件循环的完成标志为True时退出循环
+            await done.wait()
 
-#### 2.2.4 按键输入（快捷键绑定）
+asyncio.run(main())
+```
 
-这里的按键输入不是说输入什么内容需要按什么键，而是指响应快捷键。因此，可以输出内容的按键不能被定义为快捷键。
+![input_21](prompt_toolkit.assets/input_21.png)
+
+当然，这种响应操作很底层，但也比较费事，如果想要简单、可扩展，推荐使用下节讲到的快捷键绑定，
+
+#### 2.2.4 按键输入的另一种形式——快捷键绑定
+
+按键输入除了按什么键输入什么内容之外，还可以定义快捷键。不过在框架中，可以输出内容的按键不能被定义为快捷键这一点与上一节的按键响应有点区别。
 
 前面介绍`key_bindings`参数时简单写了一个绑定快捷键的示例，不过，绑定快捷键的基础部分内容不少，所以当时没有展开介绍。但是，快捷键绑定很重要，后面其他带有`key_bindings`参数的功能也会用到快捷键绑定，为了避免读者不熟悉快捷键而导致相关功能无法使用，特将这部分内容放在这一节，后续如果遇到快捷键绑定的基础，均首先引用本节。如果是基础部分需要补充的，则根据实际情况补充。若是读者需要学习快捷键相关的进阶知识，在后续的进阶知识章节中，将会进一步深入快捷键的使用，介绍不太常用的技巧。
 
@@ -1971,21 +2017,862 @@ print(f'输入的内容是: {result}')
 - `save_before`参数，同`add`方法的同名参数。
 - `record_in_macro`参数，同`add`方法的同名参数。
 
-### 2.3 对话框（更新中）
+### 2.3 对话框
 
+框架不仅支持纯文字形式的交互，内部还提供了一系列的控件。一般来说，想要使用这些控件，需要构建布局，并启动应用程序，比较麻烦。但是，为了方便使用，框架的`prompt_toolkit.shortcuts`模块实现了一系列可以快速使用图形化控件的方法，生成全屏显示的对话框的方法就是其中一种。
 
+本节主要参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/dialogs.html 。
 
+#### 2.3.1 生成对话框的方法
 
+生成对话框的方法并不会直接显示对话框，而是返回`Application`对象，需要运行该对象的`run`方法才会显示。如果对话框支持输入内容、选择的话，`run`方法还会返回输入、选择的结果。当然，和`Application`对象一样，调用`run`方法显示对话框时，也可以给`run`方法传入一些参数，具体参数的含义可以参考后面有关`Application`对象的内容，这里不做展开。
 
+`message_dialog`方法可以生成显示信息的对话框。该方法支持以下参数：
 
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示标题，默认为`''`。
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示主要内容，默认为`''`。
+- `ok_text`参数，字符串类型，表示确认按钮的文本，默认为`'Ok'`。
+- `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
 
+示例如下：
 
+```python3
+from prompt_toolkit.shortcuts import message_dialog
+
+dialog = message_dialog(
+    title='信息',
+    text='一条简短的信息\n可以显示多行内容',
+)
+dialog.run()
+```
+
+![dialog_1](prompt_toolkit.assets/dialog_1.png)
+
+`input_dialog`方法可以生成带输入框的对话框，获取用户输入的内容。该方法支持以下参数：
+
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示标题，默认为`''`。
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示主要内容，一般是表达对话框需要用户输入什么，默认为`''`。
+- `ok_text`参数，字符串类型，表示确认按钮的文本，默认为`'Ok'`。
+- `cancel_text`参数，字符串类型，表示取消按钮的文本，默认为`'Cancel'`。
+- `completer`参数，`Completer`类型，表示根据当前输入内容自动补全（也可以使用`tab`键弹出所有可以补全的内容）的自动补全对象，默认为`None`。
+- `validator`参数，`Validator`类型（使用`from prompt_toolkit.validation import Validator`导入），表示验证输入内容是否有效的验证对象。
+- `password`参数，布尔类型或者`Filter`类型，表示输入的内容是否以密文形式显示（输入内容的显示为`'*'`），默认为`False`。
+- `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
+- `default`参数，字符串类型，表示在用户没有输入任何内容时的默认内容，默认为`''`。
+
+示例如下：
+
+```python3
+from prompt_toolkit.shortcuts import input_dialog
+
+dialog = input_dialog(
+    title='输入',
+    text='请在输入框内输入任意内容',
+)
+result = dialog.run()
+print(f'输入的内容为 {result}')
+```
+
+![dialog_2](prompt_toolkit.assets/dialog_2.png)
+
+`yes_no_dialog`方法可以生成仅允许用户选择是否的对话框。该方法支持以下参数：
+
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示标题，默认为`''`。
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示主要内容，一般是表达对话框需要用户输入什么，默认为`''`。
+- `yes_text`参数，字符串类型，表示“是”按钮的文本，默认为`'Yes'`。
+- `no_text`参数，字符串类型，表示“否”按钮的文本，默认为`'No'`。
+- `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
+
+示例如下：
+
+```python3
+from prompt_toolkit.shortcuts import yes_no_dialog
+
+dialog = yes_no_dialog(
+    title='选择',
+    text='是否？',
+)
+result = dialog.run()
+print(f'选择的是 {result}')
+```
+
+![dialog_3](prompt_toolkit.assets/dialog_3.png)
+
+`button_dialog`方法与`yes_no_dialog`方法类似，都可以生成允许用户点击按钮来选择的对话框。不同的是，`button_dialog`方法可以自定义按钮数量和其代表的值。该方法支持以下参数：
+
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示标题，默认为`''`。
+
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示主要内容，一般是表达对话框需要用户输入什么，默认为`''`。
+
+- `buttons`参数，元素为元组的列表，表示对话框包含的按钮，默认为`[]`。
+
+  元组的第一个元素为字符串类型，表示按钮显示的内容；元组的第二个元素为任意类型，表示点击按钮之后返回的值。
+
+- `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
+
+示例如下：
+
+```python3
+from prompt_toolkit.shortcuts import button_dialog
+
+dialog = button_dialog(
+    title='选择',
+    text='可以点击任意按钮',
+    buttons=[
+        ('Yes',True),
+        ('No',False),
+        ('Maybe','maybe'),
+    ]
+)
+result = dialog.run()
+print(f'选择的是 {result}')
+```
+
+![dialog_4](prompt_toolkit.assets/dialog_4.png)
+
+`button_dialog`方法受限于空间，没法添加更多的按钮，如果想要让用户从更多的选项中选择一个，可以使用`radiolist_dialog`方法生成选项纵向排布的单选对话框。该方法支持以下参数：
+
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示标题，默认为`''`。
+
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示主要内容，一般是表达对话框需要用户输入什么，默认为`''`。
+
+- `ok_text`参数，字符串类型，表示确认按钮的文本，默认为`'Ok'`。
+
+- `cancel_text`参数，字符串类型，表示取消按钮的文本，默认为`'Cancel'`。
+
+- `values`参数，元素为元组、无重复元素的有序可迭代对象，表示对话框包含的选项，默认为`None`。
+
+  元组的第一个元素为任意类型，表示选项对应的值；元组的第二个元素为字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示选项显示的内容。
+
+- `default`参数，任意类型，表示在用户没有选择任何选项的默认选择的选项，默认为`None`。
+
+- `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
+
+示例如下：
+
+```python3
+from prompt_toolkit.shortcuts import radiolist_dialog
+
+dialog = radiolist_dialog(
+    title='单选',
+    text='只能最多选择一个选项',
+    values=[
+        ('1',[('green','Yes')]),
+        ('2',[('red','No')]),
+        ('3','Maybe'),
+    ]
+)
+result = dialog.run()
+print(f'选择的是 {result}')
+```
+
+![dialog_5](prompt_toolkit.assets/dialog_5.png)
+
+`checkboxlist_dialog`方法与`radiolist_dialog`方法类似，都可以生成允许用户从多个选项中选择部分选项的对话框。不同的是，`checkboxlist_dialog`方法生成的选项可以多选的对话框。该方法支持以下参数：
+
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示标题，默认为`''`。
+
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示主要内容，一般是表达对话框需要用户输入什么，默认为`''`。
+
+- `ok_text`参数，字符串类型，表示确认按钮的文本，默认为`'Ok'`。
+
+- `cancel_text`参数，字符串类型，表示取消按钮的文本，默认为`'Cancel'`。
+
+- `values`参数，元素为元组、无重复元素的有序可迭代对象，表示对话框包含的选项，默认为`None`。
+
+  元组的第一个元素为任意类型，表示选项对应的值；元组的第二个元素为字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示选项显示的内容。
+
+- `default_values`参数，元素为任意类型、无重复元素的有序可迭代对象，表示在用户没有选择任何选项的默认选择的选项，默认为`None`。
+
+- `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
+
+示例如下：
+
+```python3
+from prompt_toolkit.shortcuts import checkboxlist_dialog
+
+dialog = checkboxlist_dialog(
+    title='单选',
+    text='可以选择多个选项',
+    values=[
+        ('1',[('green','Yes')]),
+        ('2',[('red','No')]),
+        ('3','Maybe'),
+    ],
+    default_values=[
+        '2',
+        '3'
+    ]
+)
+result = dialog.run()
+print(f'选择的是 {result}')
+```
+
+![dialog_6](prompt_toolkit.assets/dialog_6.png)
+
+最后再补充一个显示进度条对话框的方法——`progress_dialog`。因为进度条功能还在开发中，后续更新很有可能导致相关功能产生变动，这里仅作为前瞻性的扩展学习。
+
+`progress_dialog`方法支持以下参数：
+
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示标题，默认为`''`。
+
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示主要内容，一般是表达对话框需要用户输入什么，默认为`''`。
+
+- `run_callback`参数，可调用类型，用于更新进度条和进度条上面的日志信息。
+
+  该参数的值接收两个可调用类型的参数，分别用于更新进度条的当前进度和在日志信息中添加一条新的日志信息，具体用法参考下面的示例。
+
+  需要注意的是，当前版本下，该参数只能是同步函数，不能为异步函数。
+
+- `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
+
+因为方法的内部实现依赖异步框架`asyncio`的事件循环，因此只能使用`run_sync`方法显示对话框。需要使用异步函数包装`run_sync`方法，间接运行`run_sync`方法。示例如下：
+
+```python3
+from prompt_toolkit.shortcuts import progress_dialog
+import asyncio
+import time
+
+def update_progress(set_progress_percent,add_log_text):
+    for i in range(101):
+        set_progress_percent(i)
+        add_log_text(f'当前进度为 {i} %\n')
+        time.sleep(0.1)
+
+async def main():
+    await progress_dialog(
+        title='进度条',
+        text='显示一个进度条',
+        run_callback=update_progress,
+    ).run_async()
+
+asyncio.run(main())
+```
+
+![dialog_7](prompt_toolkit.assets/dialog_7.gif)
+
+#### 2.3.2 美化对话框
+
+美化对话框很简单，就和前面介绍的支持`style`参数的方法一样，给创建对话框的方法，传入样式对象即可：
+
+```python3
+from prompt_toolkit.shortcuts import message_dialog
+from prompt_toolkit.styles import Style
+
+style = Style(
+    [
+        ('dialog','bg:red'),
+        ('label','bg:green')
+    ]
+)
+
+dialog = message_dialog(
+    title='信息',
+    text='一条简短的信息\n可以显示多行内容',
+    style=style
+)
+dialog.run()
+```
+
+![dialog_8](prompt_toolkit.assets/dialog_8.png)
+
+##### 2.3.2.1 对话框、阴影和整个终端背景的样式类
+
+先看示例：
+
+```python3
+from prompt_toolkit.shortcuts import message_dialog
+from prompt_toolkit.styles import Style
+
+style = Style(
+    [
+        ('dialog','bg:red'),
+        ('dialog.body','green bg:black'),
+        ('shadow dialog','bg:blue')
+    ]
+)
+
+message_dialog(
+    title='信息',
+    text='一条简短的信息\n可以显示多行内容',
+    style=style
+).run()
+```
+
+![dialog_9](prompt_toolkit.assets/dialog_9.png)
+
+`'dialog'`样式类，整个终端背景使用的样式类，仅支持背景颜色。
+
+`'dialog.body'`样式类，对话框内所有内容使用的样式类，支持字体颜色、背景颜色、内容格式。因为对话框内使用的内容继承了该样式，一般不建议设置除了背景颜色之外的其他样式，具体内容使用其他样式类设置即可。
+
+`'shadow dialog'`样式类，对话框的阴影使用的样式类，仅支持背景颜色。注意，设置此样式类必须是二者组合，单独设置`'shadow'`样式类是不能生效的，因为阴影控件继承了`'dialog'`样式类，`'dialog'`样式类的背景颜色优先生效。但是，`'shadow'`样式类的格式样式可以单独生效。
+
+##### 2.3.2.2 对话框边框、标题的样式类
+
+先看示例：
+
+```python3
+from prompt_toolkit.shortcuts import message_dialog
+from prompt_toolkit.styles import Style
+
+style = Style(
+    [
+        ('frame','green'),
+        ('frame.label','blue bg:yellow'),
+    ]
+)
+
+message_dialog(
+    title='信息',
+    text='一条简短的信息\n可以显示多行内容',
+    style=style
+).run()
+```
+
+![dialog_10](prompt_toolkit.assets/dialog_10.png)
+
+`'frame'`样式类，对话框边框使用的样式类。
+
+`'frame.label'`样式类，对话框标题（属于边框的一部分）使用的样式类。
+
+需要注意的是，对话框标题和主要内容都是使用标签控件作为内容显示的载体，如果是设置`'label'`样式类，则会影响标题和主要内容。对于只想修改主要内容的样式的情况，最好不要通过这里的样式类来设置，而是直接设置主要内容为带格式的文本。
+
+##### 2.3.2.3 相关控件的样式类
+
+对话框标题和主要内容都是使用标签控件作为内容显示的载体，相关内容使用`'label'`样式类。
+
+对话框内所有的按钮控件都使用`'button'`样式类，处于激活状态的按钮控件使用`'button button.focused'`样式类（只设置`'button.focused'`样式类的话，`'button'`样式类、`'button.text'`样式类、`'button.arrow'`样式类优先生效），按钮控件的文本使用`'button.text'`样式类，文本两边的角括号使用`'button.arrow'`样式类。
+
+对话框内的输入框和显示日志的文本区域都使用`'text-area'`样式类。
+
+对话框内的进度条控件中，非当前进度部分使用`'progress-bar'`样式类，当前进度部分使用`'progress-bar.used'`样式类。
+
+对话框内的单选列表控件中，整个控件使用`'radio-list'`样式类，每个选项使用`'radio'`样式类，光标所在的选项使用`'radio-selected'`样式类，处于选定状态的选项使用`'radio-checked'`样式类（但光标处于该选项时，`'radio-selected'`样式类优先生效）。
+
+对话框内的多选列表控件中，整个控件使用`'checkbox-list'`样式类，每个选项使用`'checkbox'`样式类，光标所在的选项使用`'checkbox-selected'`样式类，处于选定状态的选项使用`'checkbox-checked'`样式类（但光标处于该选项时，`'checkbox-selected'`样式类优先生效）。
+
+#### 2.3.3 按钮的中文修复补丁
+
+对话框或其他使用按钮控件的地方，一旦按钮控件中包含中文等非一个字符宽度的字符，按钮控件显示会出现异常：
+
+```python3
+from prompt_toolkit.shortcuts import message_dialog
+
+dialog = message_dialog(
+    title='信息',
+    text='一条简短的信息\n可以显示多行内容',
+    ok_text='确认'
+)
+dialog.run()
+```
+
+![dialog_11](prompt_toolkit.assets/dialog_11.png)
+
+想要让按钮控件显示中文的同时不会缺失字符，可以使用下面的添加了中文修复补丁的按钮控件代替原本的按钮控件（放在导入按钮控件的代码后，使用按钮控件的代码前）：
+
+```python3
+# 修复问题的按钮补丁
+from prompt_toolkit.widgets import Button
+from prompt_toolkit.formatted_text import StyleAndTextTuples
+from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
+from prompt_toolkit.utils import get_cwidth
+from typing import Callable
+
+class Button(Button):
+    def __init__(
+        self,
+        text: str,
+        handler: Callable[[], None] | None = None,
+        width: int = 12,
+        left_symbol: str = '<',
+        right_symbol: str = '>',
+    ):
+        # 如果想要将一个中文字符当作一个终端字符的宽度处理，加入下面这行，反之不要加
+        width += (get_cwidth(text) - len(text))
+        super().__init__(text, handler, width, left_symbol, right_symbol)
+    def _get_text_fragments(self) -> StyleAndTextTuples:
+        # 修改的部分
+        width = self.width - (
+            get_cwidth(self.left_symbol) + get_cwidth(self.right_symbol)
+        ) + (
+            len(self.text) - get_cwidth(self.text)
+        )
+        text = (f'{{:^{max(0,width)}}}').format(self.text)
+        # 修改的部分结束
+        def handler(mouse_event: MouseEvent) -> None:
+            if (
+                self.handler is not None
+                and mouse_event.event_type == MouseEventType.MOUSE_UP
+            ):
+                self.handler()
+
+        return [
+            ('class:button.arrow', self.left_symbol, handler),
+            ('[SetCursorPosition]', ''),
+            ('class:button.text', text, handler),
+            ('class:button.arrow', self.right_symbol, handler),
+        ]
+```
+
+对比示例如下：
+
+```python3
+# 有问题的原始示例
+from prompt_toolkit.shortcuts import message_dialog
+
+message_dialog(
+    title='简单对话框',
+    text='回车或者点击确认',
+    ok_text='中文确认按钮'
+).run()
+
+# 修复问题的按钮补丁
+from prompt_toolkit.widgets import Button
+from prompt_toolkit.formatted_text import StyleAndTextTuples
+from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
+from prompt_toolkit.utils import get_cwidth
+from typing import Callable
+
+class Button(Button):
+    def __init__(
+        self,
+        text: str,
+        handler: Callable[[], None] | None = None,
+        width: int = 12,
+        left_symbol: str = '<',
+        right_symbol: str = '>',
+    ):
+        # 如果想要将一个中文字符当作一个终端字符的宽度处理，加入下面这行，反之不要加
+        width += (get_cwidth(text) - len(text))
+        super().__init__(text, handler, width, left_symbol, right_symbol)
+    def _get_text_fragments(self) -> StyleAndTextTuples:
+        # 修改的部分
+        width = self.width - (
+            get_cwidth(self.left_symbol) + get_cwidth(self.right_symbol)
+        ) + (
+            len(self.text) - get_cwidth(self.text)
+        )
+        text = (f'{{:^{max(0,width)}}}').format(self.text)
+        # 修改的部分结束
+        def handler(mouse_event: MouseEvent) -> None:
+            if (
+                self.handler is not None
+                and mouse_event.event_type == MouseEventType.MOUSE_UP
+            ):
+                self.handler()
+
+        return [
+            ('class:button.arrow', self.left_symbol, handler),
+            ('[SetCursorPosition]', ''),
+            ('class:button.text', text, handler),
+            ('class:button.arrow', self.right_symbol, handler),
+        ]
+
+# 基于按钮补丁实现创建对话框的方法
+from prompt_toolkit.widgets import Label,Dialog
+from prompt_toolkit.application import Application,get_app
+from prompt_toolkit.layout import Layout
+from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+from prompt_toolkit.key_binding.defaults import load_key_bindings
+from prompt_toolkit.styles import BaseStyle
+from prompt_toolkit.formatted_text import AnyFormattedText
+
+def message_dialog(
+    title: AnyFormattedText = '',
+    text: AnyFormattedText = '',
+    ok_text: str = 'Ok',
+    style: BaseStyle | None = None,
+) -> Application[None]:
+    bindings = KeyBindings()
+    bindings.add('tab')(focus_next)
+    bindings.add('s-tab')(focus_previous)
+    return Application(
+        layout=Layout(
+            Dialog(
+                title=title,
+                body=Label(text=text, dont_extend_height=True),
+                buttons=[Button(text=ok_text, handler=lambda :get_app().exit())],
+                with_background=True,
+            )
+        ),
+        key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+        mouse_support=True,
+        style=style,
+        full_screen=True,
+    )
+
+# 使用修复后的方法创建对话框
+message_dialog(
+    title='简单对话框',
+    text='回车或者点击确认',
+    ok_text='中文确认按钮'
+).run()
+```
+
+![dialog_12](prompt_toolkit.assets/dialog_12.png)
+
+![dialog_13](prompt_toolkit.assets/dialog_13.png)
+
+需要注意的是，前面提到的所有生成对话框的方法都要重新实现一遍才能使用最新的按钮，不然的话，中文显示还是会有问题。下面将提供所有方法的修改版本，可以放在代码开头，作为临时方案。当然，如果嫌麻烦，可以直接修改按钮控件的源码，这个是最简单的。但是，如果官方没有解决此问题或者不考虑解决此问题的话，每次更新都会导致问题重新出现。因此，使用临时方案是比较稳妥的操作。
+
+所有对话框生成方法的重新实现：
+
+- `message_dialog`方法的修复版本：
+
+  ```python3
+  # 下面放按钮补丁
+  ...
+  # 基于按钮补丁实现创建对话框的方法-message_dialog
+  from prompt_toolkit.widgets import Label,Dialog
+  from prompt_toolkit.application import Application,get_app
+  from prompt_toolkit.layout import Layout
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  from prompt_toolkit.key_binding.defaults import load_key_bindings
+  from prompt_toolkit.styles import BaseStyle
+  from prompt_toolkit.formatted_text import AnyFormattedText
+  
+  def message_dialog(
+      title: AnyFormattedText = '',
+      text: AnyFormattedText = '',
+      ok_text: str = 'Ok',
+      style: BaseStyle | None = None,
+  ) -> Application[None]:
+      bindings = KeyBindings()
+      bindings.add('tab')(focus_next)
+      bindings.add('s-tab')(focus_previous)
+      return Application(
+          layout=Layout(
+              Dialog(
+                  title=title,
+                  body=Label(text=text, dont_extend_height=True),
+                  buttons=[Button(text=ok_text, handler=lambda :get_app().exit())],
+                  with_background=True,
+              )
+          ),
+          key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+          mouse_support=True,
+          style=style,
+          full_screen=True,
+      )
+  ```
+
+- `input_dialog`方法的修复版本：
+
+  ```python3
+  # 下面放按钮补丁
+  ...
+  # 基于按钮补丁实现创建对话框的方法-input_dialog
+  from prompt_toolkit.widgets import Label,Dialog,TextArea,ValidationToolbar
+  from prompt_toolkit.application import Application,get_app
+  from prompt_toolkit.layout import Layout
+  from prompt_toolkit.layout.containers import HSplit
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  from prompt_toolkit.key_binding.defaults import load_key_bindings
+  from prompt_toolkit.styles import BaseStyle
+  from prompt_toolkit.formatted_text import AnyFormattedText
+  from prompt_toolkit.completion import Completer
+  from prompt_toolkit.validation import Validator
+  from prompt_toolkit.filters import FilterOrBool
+  from prompt_toolkit.layout.dimension import Dimension
+  
+  def input_dialog(
+      title: AnyFormattedText = '',
+      text: AnyFormattedText = '',
+      ok_text: str = 'OK',
+      cancel_text: str = 'Cancel',
+      completer: Completer | None = None,
+      validator: Validator | None = None,
+      password: FilterOrBool = False,
+      style: BaseStyle | None = None,
+      default: str = '',
+  ) -> Application[str]:
+      bindings = KeyBindings()
+      bindings.add('tab')(focus_next)
+      bindings.add('s-tab')(focus_previous)
+      return Application(
+          layout=Layout(
+              Dialog(
+                  title=title,
+                  body=HSplit(
+                      [
+                          Label(text=text, dont_extend_height=True),
+                          textfield := TextArea(
+                              text=default,
+                              multiline=False,
+                              password=password,
+                              completer=completer,
+                              validator=validator,
+                              accept_handler=lambda buf:get_app().layout.focus(ok_button) or True,
+                          ),
+                          ValidationToolbar(),
+                      ],
+                      padding=Dimension(preferred=1, max=1),
+                  ),
+                  buttons=[
+                      ok_button:=Button(
+                          text=ok_text, 
+                          handler=lambda textfield=textfield:get_app().exit(
+                              result=textfield.text
+                          )
+                      ), 
+                      Button(
+                          text=cancel_text, handler=lambda :get_app().exit()
+                      )
+                  ],
+                  with_background=True,
+              )
+          ),
+          key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+          mouse_support=True,
+          style=style,
+          full_screen=True,
+      )
+  ```
+
+- `yes_no_dialog`方法的修复版本：
+
+  ```python3
+  # 下面放按钮补丁
+  ...
+  # 基于按钮补丁实现创建对话框的方法-yes_no_dialog
+  from prompt_toolkit.widgets import Label,Dialog
+  from prompt_toolkit.application import Application,get_app
+  from prompt_toolkit.layout import Layout
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  from prompt_toolkit.key_binding.defaults import load_key_bindings
+  from prompt_toolkit.styles import BaseStyle
+  from prompt_toolkit.formatted_text import AnyFormattedText
+  
+  def yes_no_dialog(
+      title: AnyFormattedText = '',
+      text: AnyFormattedText = '',
+      yes_text: str = 'Yes',
+      no_text: str = 'No',
+      style: BaseStyle | None = None,
+  ) -> Application[bool]:
+      bindings = KeyBindings()
+      bindings.add('tab')(focus_next)
+      bindings.add('s-tab')(focus_previous)
+      return Application(
+          layout=Layout(
+              Dialog(
+                  title=title,
+                  body=Label(text=text, dont_extend_height=True),
+                  buttons=[
+                      Button(
+                          text=yes_text, 
+                          handler=lambda :get_app().exit(result=True)
+                      ),
+                      Button(
+                          text=no_text, 
+                          handler=lambda :get_app().exit(result=False)
+                      ),
+                  ],
+                  with_background=True,
+              )
+          ),
+          key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+          mouse_support=True,
+          style=style,
+          full_screen=True,
+      )
+  ```
+
+- `button_dialog`方法的修复版本：
+
+  ```python3
+  # 下面放按钮补丁
+  ...
+  # 基于按钮补丁实现创建对话框的方法-button_dialog
+  from prompt_toolkit.widgets import Label,Dialog
+  from prompt_toolkit.application import Application,get_app
+  from prompt_toolkit.layout import Layout
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  from prompt_toolkit.key_binding.defaults import load_key_bindings
+  from prompt_toolkit.styles import BaseStyle
+  from prompt_toolkit.formatted_text import AnyFormattedText
+  from typing import TypeVar
+  import functools
+  
+  _T = TypeVar('_T')
+  
+  def button_dialog(
+      title: AnyFormattedText = '',
+      text: AnyFormattedText = '',
+      buttons: list[tuple[str, _T]] = [],
+      style: BaseStyle | None = None,
+  ) -> Application[_T]:
+      bindings = KeyBindings()
+      bindings.add('tab')(focus_next)
+      bindings.add('s-tab')(focus_previous)
+      return Application(
+          layout=Layout(
+              Dialog(
+                  title=title,
+                  body=Label(text=text, dont_extend_height=True),
+                  buttons=[
+                      Button(
+                          text=t, 
+                          handler=functools.partial(
+                              lambda v:get_app().exit(result=v), 
+                              v
+                          )
+                      )
+                      for t, v in buttons
+                  ],
+                  with_background=True,
+              )
+          ),
+          key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+          mouse_support=True,
+          style=style,
+          full_screen=True,
+      )
+  ```
+
+- `radiolist_dialog`方法的修复版本：
+
+  ```python3
+  # 下面放按钮补丁
+  ...
+  # 基于按钮补丁实现创建对话框的方法-radiolist_dialog
+  from prompt_toolkit.widgets import Label,Dialog,RadioList
+  from prompt_toolkit.layout.containers import HSplit
+  from prompt_toolkit.application import Application,get_app
+  from prompt_toolkit.layout import Layout
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  from prompt_toolkit.key_binding.defaults import load_key_bindings
+  from prompt_toolkit.styles import BaseStyle
+  from prompt_toolkit.formatted_text import AnyFormattedText
+  from typing import TypeVar,Sequence
+  
+  _T = TypeVar('_T')
+  
+  def radiolist_dialog(
+      title: AnyFormattedText = '',
+      text: AnyFormattedText = '',
+      ok_text: str = 'Ok',
+      cancel_text: str = 'Cancel',
+      values: Sequence[tuple[_T, AnyFormattedText]] | None = None,
+      default: _T | None = None,
+      style: BaseStyle | None = None,
+  ) -> Application[_T]:
+      bindings = KeyBindings()
+      bindings.add('tab')(focus_next)
+      bindings.add('s-tab')(focus_previous)
+      return Application(
+          layout=Layout(
+              Dialog(
+                  title=title,
+                  body=HSplit(
+                      [
+                          Label(text=text, dont_extend_height=True), 
+                          radio_list := RadioList(
+                              values=values or [] ,
+                              default=default
+                          )
+                      ],
+                      padding=1,
+                  ),
+                  buttons=[
+                      Button(
+                          text=ok_text, handler=lambda :get_app().exit(result=radio_list.current_value)
+                      ),
+                      Button(
+                          text=cancel_text, handler=lambda :get_app().exit()
+                      ),
+                  ],
+                  with_background=True,
+              )
+          ),
+          key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+          mouse_support=True,
+          style=style,
+          full_screen=True,
+      )
+  ```
+
+- `checkboxlist_dialog`方法的修复版本：
+
+  ```python3
+  # 下面放按钮补丁
+  ...
+  # 基于按钮补丁实现创建对话框的方法-checkboxlist_dialog
+  from prompt_toolkit.widgets import Label,Dialog,CheckboxList
+  from prompt_toolkit.layout.containers import HSplit
+  from prompt_toolkit.application import Application,get_app
+  from prompt_toolkit.layout import Layout
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  from prompt_toolkit.key_binding.defaults import load_key_bindings
+  from prompt_toolkit.styles import BaseStyle
+  from prompt_toolkit.formatted_text import AnyFormattedText
+  from typing import TypeVar,Sequence
+  
+  _T = TypeVar('_T')
+  
+  def checkboxlist_dialog(
+      title: AnyFormattedText = '',
+      text: AnyFormattedText = '',
+      ok_text: str = 'Ok',
+      cancel_text: str = 'Cancel',
+      values: Sequence[tuple[_T, AnyFormattedText]] | None = None,
+      default_values: Sequence[_T] | None = None,
+      style: BaseStyle | None = None,
+  ) -> Application[list[_T]]:
+      bindings = KeyBindings()
+      bindings.add('tab')(focus_next)
+      bindings.add('s-tab')(focus_previous)
+      return Application(
+          layout=Layout(
+              Dialog(
+                  title=title,
+                  body=HSplit(
+                      [
+                          Label(
+                              text=text, 
+                              dont_extend_height=True
+                          ), 
+                          cb_list := CheckboxList(
+                              values=values or [],
+                              default_values=default_values
+                          )
+                      ],
+                      padding=1,
+                  ),
+                  buttons=[
+                      Button(
+                          text=ok_text, 
+                          handler=lambda :get_app().exit(
+                              result=cb_list.current_values
+                          )
+                      ),
+                      Button(
+                          text=cancel_text, 
+                          handler=lambda :get_app().exit()
+                      ),
+                  ],
+                  with_background=True,
+              )
+          ),
+          key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+          mouse_support=True,
+          style=style,
+          full_screen=True,
+      )
+  ```
 
 ### 2.4 进度条（更新中）
 
+因为进度条功能还在开发中，后续更新很有可能导致相关功能产生变动，这里仅作为前瞻性的扩展学习。
 
-
-
+https://python-prompt-toolkit.readthedocs.io/en/stable/pages/progress_bars.html
 
 
 
@@ -2154,221 +3041,6 @@ print(f'输入的内容是: {result}')
 ## 5 拾遗（持续更新中）
 
 本章主要根据实际问题，提供对应问题的解决实例，并补充前面没有覆盖的内容。按时间顺序更新，不限制内容所属分类，但章节标题会概括主要内容。
-
-### 5.1 按钮的中文修复补丁（更新中）
-
-
-
-
-
-按钮的中文修复补丁：
-
-```python3
-# 修复问题的按钮补丁
-from prompt_toolkit.widgets import Button
-from prompt_toolkit.formatted_text import StyleAndTextTuples
-from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
-from prompt_toolkit.utils import get_cwidth
-from typing import Callable
-
-class Button(Button):
-    def __init__(
-        self,
-        text: str,
-        handler: Callable[[], None] | None = None,
-        width: int = 12,
-        left_symbol: str = "<",
-        right_symbol: str = ">",
-    ):
-        # 如果想要将一个中文字符当作一个终端字符的宽度处理，加入下面这行，反之不要加
-        width += (get_cwidth(text) - len(text))
-        super().__init__(text, handler, width, left_symbol, right_symbol)
-    def _get_text_fragments(self) -> StyleAndTextTuples:
-        width = self.width - (
-            get_cwidth(self.left_symbol) + get_cwidth(self.right_symbol)
-        ) + (
-            len(self.text) - get_cwidth(self.text)
-        )
-        text = (f"{{:^{max(0,width)}}}").format(self.text)
-
-        def handler(mouse_event: MouseEvent) -> None:
-            if (
-                self.handler is not None
-                and mouse_event.event_type == MouseEventType.MOUSE_UP
-            ):
-                self.handler()
-
-        return [
-            ("class:button.arrow", self.left_symbol, handler),
-            ("[SetCursorPosition]", ""),
-            ("class:button.text", text, handler),
-            ("class:button.arrow", self.right_symbol, handler),
-        ]
-```
-
-
-
-
-
-结合对话框等使用按钮的其他功能的对比示例：
-
-```python3
-# 有问题的原始示例
-from prompt_toolkit.shortcuts import message_dialog
-
-message_dialog(
-    title='简单对话框',
-    text='回车或者点击确认',
-    ok_text='中文确认按钮'
-).run()
-
-# 修复问题的按钮补丁
-from prompt_toolkit.widgets import Button
-from prompt_toolkit.formatted_text import StyleAndTextTuples
-from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
-from prompt_toolkit.utils import get_cwidth
-from typing import Callable
-
-class Button(Button):
-    def __init__(
-        self,
-        text: str,
-        handler: Callable[[], None] | None = None,
-        width: int = 12,
-        left_symbol: str = "<",
-        right_symbol: str = ">",
-    ):
-        # 如果想要将一个中文字符当作一个终端字符的宽度处理，加入下面这行，反之不要加
-        width += (get_cwidth(text) - len(text))
-        super().__init__(text, handler, width, left_symbol, right_symbol)
-    def _get_text_fragments(self) -> StyleAndTextTuples:
-        width = self.width - (
-            get_cwidth(self.left_symbol) + get_cwidth(self.right_symbol)
-        ) + (
-            len(self.text) - get_cwidth(self.text)
-        )
-        text = (f"{{:^{max(0,width)}}}").format(self.text)
-
-        def handler(mouse_event: MouseEvent) -> None:
-            if (
-                self.handler is not None
-                and mouse_event.event_type == MouseEventType.MOUSE_UP
-            ):
-                self.handler()
-
-        return [
-            ("class:button.arrow", self.left_symbol, handler),
-            ("[SetCursorPosition]", ""),
-            ("class:button.text", text, handler),
-            ("class:button.arrow", self.right_symbol, handler),
-        ]
-
-# 基于按钮补丁实现创建对话框的方法
-from prompt_toolkit.widgets import Label,Dialog
-from prompt_toolkit.application import Application,get_app
-from prompt_toolkit.layout import Layout
-from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
-from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
-from prompt_toolkit.key_binding.defaults import load_key_bindings
-from prompt_toolkit.styles import BaseStyle
-from prompt_toolkit.formatted_text import AnyFormattedText
-
-def message_dialog(
-    title: AnyFormattedText = "",
-    text: AnyFormattedText = "",
-    ok_text: str = "Ok",
-    style: BaseStyle | None = None,
-) -> Application[None]:
-    dialog = Dialog(
-        title=title,
-        body=Label(text=text, dont_extend_height=True),
-        buttons=[Button(text=ok_text, handler=lambda :get_app().exit())],
-        with_background=True,
-    )
-    bindings = KeyBindings()
-    bindings.add("tab")(focus_next)
-    bindings.add("s-tab")(focus_previous)
-
-    return Application(
-        layout=Layout(dialog),
-        key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-        mouse_support=True,
-        style=style,
-        full_screen=True,
-    )
-
-# 使用修复后的方法创建对话框
-message_dialog(
-    title='简单对话框',
-    text='回车或者点击确认',
-    ok_text='中文确认按钮'
-).run()
-```
-
-
-
-
-
-(补充说明)
-
-```python3
-# 其他类型的对话框需要参照源码重新实现
-# 或者单独在模块开头添加按钮补丁
-# 或者修改按钮的源码
-# 参照"yes_no_dialog","button_dialog","input_dialog","message_dialog","radiolist_dialog","checkboxlist_dialog","progress_dialog"的源码都重新实现一下
-```
-
-
-
-
-
-所有内置对话框的重新实现：
-
-- message_dialog
-
-  ```python3
-  # 下面放按钮补丁
-  ...
-  # 基于按钮补丁实现创建对话框的方法-message_dialog
-  from prompt_toolkit.widgets import Label,Dialog
-  from prompt_toolkit.application import Application,get_app
-  from prompt_toolkit.layout import Layout
-  from prompt_toolkit.key_binding.key_bindings import KeyBindings, merge_key_bindings
-  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
-  from prompt_toolkit.key_binding.defaults import load_key_bindings
-  from prompt_toolkit.styles import BaseStyle
-  from prompt_toolkit.formatted_text import AnyFormattedText
-  
-  def message_dialog(
-      title: AnyFormattedText = "",
-      text: AnyFormattedText = "",
-      ok_text: str = "Ok",
-      style: BaseStyle | None = None,
-  ) -> Application[None]:
-      dialog = Dialog(
-          title=title,
-          body=Label(text=text, dont_extend_height=True),
-          buttons=[Button(text=ok_text, handler=lambda :get_app().exit())],
-          with_background=True,
-      )
-      bindings = KeyBindings()
-      bindings.add("tab")(focus_next)
-      bindings.add("s-tab")(focus_previous)
-  
-      return Application(
-          layout=Layout(dialog),
-          key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-          mouse_support=True,
-          style=style,
-          full_screen=True,
-      )
-  ```
-
-- input_dialog
-
-- yes_no_dialog
-
-- button_dialog
 
 
 

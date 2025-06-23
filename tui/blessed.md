@@ -11,3 +11,12 @@ Blessed是一个更低级的TUI框架。说它低级并不是说功能不够强�
 
 
 ## 2 基础知识
+
+
+
+
+
+## 3 拾遗
+
+API手册：https://blessed.readthedocs.io/en/latest/api.html
+

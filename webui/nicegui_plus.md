@@ -72,13 +72,9 @@ ui.button('shutdown',on_click=app.shutdown)
 ui.run(native=True)
 ```
 
+## 3 允许Native Mode的NiceGUI程序弹出下载对话框
 
-
-
-
-1，在native mode下，`ui.download`不能下载怎么办？
-
-因为pywebview默认不允许网页弹出下载，需要使用`app.native.settings['ALLOW_DOWNLOADS'] = True`修改pywebview的配置，代码如下：
+默认情况下，在以Native Mode运行的NiceGUI程序中，`ui.download`是不能下载的，这是pywebview框架（Native Mode的依赖）默认的安全配置，这时需要使用`app.native.settings['ALLOW_DOWNLOADS'] = True`来修改pywebview的安全配置，代码如下：
 
 ```python3
 from nicegui import ui, app
@@ -88,6 +84,8 @@ ui.button("Download", on_click=lambda: ui.download(b'Demo text','demo_file.txt')
 
 ui.run(native=True)
 ```
+
+
 
 2，如何让native mode运行在QT的QtWebEngine中？
 

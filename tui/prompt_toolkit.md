@@ -2868,17 +2868,216 @@ message_dialog(
       )
   ```
 
-### 2.4 进度条（更新中）
+### 2.4 进度条
 
-因为进度条功能还在开发中，后续更新很有可能导致相关功能产生变动，这里仅作为前瞻性的扩展学习。
+因为进度条功能还在开发中，后续更新很有可能导致相关功能产生变动，这里仅作为前瞻性的扩展学习。本节主要参考自 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/progress_bars.html 。
 
-https://python-prompt-toolkit.readthedocs.io/en/stable/pages/progress_bars.html
+除了前面介绍过的进度条对话框，框架还提供另一种简单的进度条——`ProgressBar`。
 
+`ProgressBar`类（使用`from prompt_toolkit.shortcuts import ProgressBar`或者`from prompt_toolkit.shortcuts.progress_bar.base import ProgressBar`导入）的实例对象提供了一个上下文环境，在该上下文环境中，可以使用该示例对象包装其他可迭代对象，将其转换为进度条计数器对象，迭代计数器对象的同时，会显示一个进度条：
 
+```python3
+from prompt_toolkit.shortcuts import ProgressBar
+import time
 
+with ProgressBar() as pb:
+    for i in pb(range(100)):
+        time.sleep(0.1)
+```
 
+![progress_bar_1](prompt_toolkit.assets/progress_bar_1.png)
 
-## 3 基础知识（应用式）（更新中）
+`ProgressBar`类支持以下参数（参数情况会随着开发过程变动，具体以实际版本为准）：
+
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示在进度条上方的标题，默认为`None`。
+
+  示例如下：
+
+  ```python3
+  from prompt_toolkit.shortcuts import ProgressBar
+  import time
+  
+  with ProgressBar(
+      title='当前进度为 0 %'
+  ) as pb:
+      for i in pb(range(100)):
+          pb.title = f'当前进度为 {i+1} %'
+          time.sleep(0.1)
+  ```
+
+  ![progress_bar_2](prompt_toolkit.assets/progress_bar_2.png)
+
+- `formatters`参数，元素为`Formatter`类型、无重复元素的有序可迭代对象，表示进度条显示的信息，默认为`create_default_formatters`方法（使用`from prompt_toolkit.shortcuts.progress_bar.formatters import create_default_formatters`导入）返回的结果。
+
+  想要定义进度条显示的信息，需要从`prompt_toolkit.shortcuts.progress_bar.formatters`模块中导入必要的信息格式类；也可以手动实现`Formatter`类（使用`from prompt_toolkit.shortcuts.progress_bar.formatters import Formatter`导入，需要实现`format`方法，具体如何实现可以参考信息格式类，这里不做展开介绍）。
+
+  模块包含的信息格式类如下：
+
+  - `Text`类，显示自定义内容。该类支持以下参数：
+
+    - `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示的内容。
+    - `style`参数，`Style`类型，表示内容的样式。
+
+  - `Label`类，显示计数器对象的`label`属性（可以在调用`__call__`方法时分配该属性的值）。该类支持以下参数：
+
+    - `width`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示使用多少宽度显示`label`属性。
+
+    - `suffix`参数，字符串类型，表示添加在`label`属性后、额外显示的内容，默认为`''`。
+
+      需要注意的是，`label`属性部分使用`'label'`样式类，而`suffix`参数部分则没有样式类。
+
+  - `Percentage`类，显示当前进度的百分比。
+
+  - `Bar`类，显示一条会随着进度变化发生改变的进度条。该类支持以下参数：
+
+    - `start`参数，宽度为1的字符，显示进度条之前、表示进度条开始位置的字符，默认为`'['`。
+    - `end`参数，宽度为1的字符，显示进度条之后、表示进度条结束位置的字符，默认为`']'`。
+    - `sym_a`参数，宽度为1的字符，表示进度条已完成部分，默认为`'='`。
+    - `sym_b`参数，宽度为1的字符，表示进度条当前位置，默认为`'>'`。
+    - `sym_c`参数，宽度为1的字符，表示进度条未完成部分，默认为`' '`。
+    - `unknown`参数，宽度为1的字符，当总进度未知、进度条依然进行时，进度条当前位置的字符会被替换为该参数，并在整个进度条中滚动，默认为`'#'`。
+
+  - `Progress`类，以分数形式显示当前进度。
+
+  - `TimeElapsed`类，显示完成当前进度使用了多少时间。
+
+  - `TimeLeft`类，显示完成剩余进度还需要多少时间。
+
+  - `IterationsPerSecond`类，显示每秒完成多少步（迭代计数器对象时，每个元素算作一步）。
+
+  - `SpinningWheel`类，显示一个类似加载动画的可变化字符。
+
+  - `SpinningWheel`类，可以将其他信息格式类显示的内容转换为颜色随时间变化、整体为渐变色的内容。该类支持以下参数：
+
+    - `formatter`参数，`Formatter`类型，表示要转换的内容。
+
+- `bottom_toolbar`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示在进度条下方的底部工具栏，默认为`None`，即不显示底部工具栏。
+
+- `style`参数，`Style`类型，表示进度条的样式。
+
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
+
+- `cancel_callback`参数，可调用类型，表示当按`ctrl + c`时执行的操作。
+
+  也可以在上下文中设置同名属性，具体取决于相关操作会不会导致异常。比如：
+
+  ```python3
+  from prompt_toolkit.shortcuts.progress_bar.base import ProgressBar
+  import time
+  
+  with ProgressBar() as pb:
+      pb.cancel_callback=exit
+      for i in (p:=pb(range(500))):
+          time.sleep(0.1)
+  ```
+
+  在参数中设置的话会导致相关的异步循环卡死，所以是设置`cancel_callback`属性。
+
+- `file`参数，`TextIO`类型，目前未使用该参数。
+
+- `color_depth`参数，`ColorDepth`类型或者字符串类型，表示输出内容的颜色深度（具体用法可以参考前面的内容）。
+
+- `output`参数，`Output`类型，表示内容输出的对象，一般不需要设置或者修改。
+
+- `input`参数，`Input`类型，表示获取输入内容的对象，一般不需要设置或者修改。
+
+`ProgressBar`类支持以下属性：
+
+- `title`属性，同`title`参数。
+- `formatters`属性，同`formatters`参数。
+- `bottom_toolbar`属性，同`bottom_toolbar`参数。
+- `style`属性，同`style`参数。
+- `key_bindings`属性，同`key_bindings`参数。
+- `cancel_callback`属性，同`cancel_callback`参数。
+- `color_depth`属性，同`color_depth`参数。
+- `output`属性，同`output`参数。
+- `input`属性，同`input`参数。
+- `counters`属性，元素为`ProgressBarCounter`类型的列表，存储了当前进度对象中所有的计数器对象（如果计数器对象的`remove_when_done`属性为`True`，则只包含正在进行的计数器对象）。
+- `app`属性，`Application`类型，表示运行进度条的应用程序（相关概念和用法将在后面应用程序章节详细介绍，这里不做展开）。
+
+`ProgressBar`类支持以下方法：
+
+- `__call__`方法，此方法创建并返回一个计数器对象，同时将该计数器对象添加至`ProgressBar`对象的`counters`属性中。
+
+  该方法支持以下参数：
+
+  - `data`参数，任意可迭代类型，用于转换为计数器对象的迭代数据。
+  - `label`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，显示在最前面、表明该计数器对象用途的简要说明。
+  - `remove_when_done`参数，布尔类型，表示当前计数器对象完成时，是否从`ProgressBar`对象的`counters`属性中移除计数器对象，默认为`False`。
+  - `total`参数，整数类型，表示计数器对象一共多少步，默认为`None`，即自动计算`data`参数的长度。注意，此参数不一定等于`data`参数的长度，但不一致的话，会导致进度条显示异常（比如进行到一半直接跳转为完成）。
+
+- `invalidate`方法，重新绘制进度条相关的内容，在内容显示错乱时使用。
+
+因为`ProgressBar`类的`__call__`方法主要是为了创建`ProgressBarCounter`对象、将其添加至`ProgressBar`对象的`counters`属性中并返回，所以这里单独说一下`ProgressBarCounter`类（使用`from prompt_toolkit.shortcuts.progress_bar.base import ProgressBarCounter`导入）。
+
+`ProgressBarCounter`类支持以下参数：
+
+- `progress_bar`参数，`ProgressBar`类型，表示计数器对象所属的`ProgressBar`对象，在计数器对象进行、完成时，会修改`ProgressBar`对象的`counters`属性，刷新`ProgressBar`对象的显示。
+- `data`参数，任意可迭代类型，表示用于迭代的数据。
+- `label`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，显示在最前面、表明该计数器对象用途的简要说明。
+- `remove_when_done`参数，布尔类型，表示当前计数器对象完成时，是否从`ProgressBar`对象的`counters`属性中移除计数器对象，默认为`False`。
+- `total`参数，整数类型，表示计数器对象一共多少步，默认为`None`，即自动计算`data`参数的长度。注意，此参数不一定等于`data`参数的长度，但不一致的话，会导致进度条显示异常（比如进行到一半直接跳转为完成）。
+
+`ProgressBarCounter`类支持以下属性：
+
+- `progress_bar`属性，同`progress_bar`参数。
+- `data`属性，同`data`参数。
+- `label`属性，同`label`参数。
+- `remove_when_done`属性，同`remove_when_done`参数。
+- `total`属性，同`total`参数。
+- `start_time`属性，表示开始时间。
+- `stop_time`属性，表示结束时间。
+- `items_completed`属性，表示完成了几步。
+- `done`属性，表示是否完成。
+- `stopped`属性，表示是否停止。
+- `percentage`属性，表示完成的百分比。
+- `time_elapsed`属性，表示使用的时间。
+- `time_left`属性，表示剩余的时间。
+
+以下示例展示了两种等效的代码，只是前一种使用`ProgressBarCounter`类分步实现：
+
+```python3
+from prompt_toolkit.shortcuts.progress_bar.base import ProgressBar,ProgressBarCounter
+import time
+
+with ProgressBar() as pb:
+    p = ProgressBarCounter(pb,range(100),'hello')
+    p.progress_bar
+    pb.counters.append(p)
+    for i in p:
+        time.sleep(0.1)
+        
+with ProgressBar() as pb:
+    for i in pb(range(100),'hello'):
+        time.sleep(0.1)
+```
+
+想要同时显示多个进度条，需要在单独的线程中迭代各自的计数器对象或者进入各自的上下文环境：
+
+```python3
+from prompt_toolkit.shortcuts.progress_bar.base import ProgressBar
+import time
+import threading
+
+with ProgressBar() as pb:
+    def task_1():
+        for _ in pb(range(100),'task1'):
+            time.sleep(0.1)
+    def task_2():
+        for _ in pb(range(80),'task2'):
+            time.sleep(0.1)
+    
+    tasks = [
+        threading.Thread(target=task_1),
+        threading.Thread(target=task_2),
+    ]
+    for task in tasks:
+        task.start()
+    for task in tasks:
+        task.join()
+```
+
+## 3 应用程序（应用式）（更新中）
 
 除了前面直接执行、直接输出的使用方式之外，框架还支持一种类似应用程序的使用方式。在正式介绍之前，需要先区分一下框架程序的两种使用方式：
 

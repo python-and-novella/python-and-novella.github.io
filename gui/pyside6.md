@@ -33,7 +33,7 @@ pyside6-uv-app v0.1.0
 
 需要注意的是，在使用UV管理虚拟环境时，单独移除`pyside6-examples`会导致`pyside6`的`__init__.py`丢失，可使用`uv sync --reinstall`重新安装所有库来解决此问题。
 
-### 1.2 PySide6的模块（暂定）
+### 1.2 PySide6的中的命名规则（暂定）
 
 （内容待定）
 
@@ -46,6 +46,12 @@ PySide6各个模块的功能和用途
 ```
 
 https://doc.qt.io/qtforpython-6/py-modindex.html
+
+
+
+
+
+Qt开头的是模块，Q开头（不含Qt开头）的是类，命名采用大驼峰规则，即每个字段的首字母大写，直接连接每个字段。
 
 
 

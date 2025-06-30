@@ -68,9 +68,9 @@ app.run()
 
 ![app_1](prompt_toolkit.assets/app_1.gif)
 
-## 2 基础知识（响应式）（更新中）
+## 2 基础知识（响应式）
 
-本章主要依照官网基础部分，并适当调整部分内容的难易程度、结构，增加了简洁易懂的示例代码。涉及到类、方法的具体参数的含义和用途，可以参考后面章节中模块API的详细介绍。
+本章主要介绍命令式（响应式，直接执行、直接输出，代码简单）显示终端UI的基础知识。
 
 ### 2.1 输出
 
@@ -1407,7 +1407,7 @@ print(f'输入的内容是: {result}')
   print(f'输入的内容是: {result}')
   ```
 
-- `clipboard`参数，`Clipboard`类型，表示输入内容时，存放临时数据的命令行剪贴板，默认为`None`，即`InMemoryClipboard()`。注意，这里的命令行剪贴板与系统剪贴板数据不互通，且粘贴命令行剪贴板数据的快捷键不是系统的`ctrl + v`键，而是对应操作模式的快捷键（`EMACS`操作模式下为`ctrl + y`键；`VI`下操作模式下，需要先按`esc`键进入命令模式，再按`p`键粘贴）。以下为示例：
+- `clipboard`参数，`Clipboard`类型，表示输入内容时，存放临时数据的命令行剪贴板，默认为`None`，即`InMemoryClipboard()`。注意，这里的命令行剪贴板与系统剪贴板数据不互通，且粘贴命令行剪贴板数据的快捷键不是系统的`ctrl + v`键，而是对应操作模式的快捷键（`EMACS`操作模式下为`ctrl + y`键；`VI`操作模式下，需要先按`esc`键进入命令模式，再按`p`键粘贴）。以下为示例：
 
   ```python3
   from prompt_toolkit import PromptSession
@@ -1543,6 +1543,20 @@ print(f'输入的内容是: {result}')
 - `tempfile`参数，字符串类型或者返回字符串的可调用类型，表示当`enable_open_in_editor`参数为`True`时，使用外部编辑打开的临时文件的文件名（不含后缀），默认为随机生成。
 
 - `refresh_interval`参数，浮点类型，表示每隔多少秒刷新一次显示，默认为`0`，即不自动刷新。
+
+  这里的自动刷新仅限`message`参数（或者属性）为可调用类型时，才会触发自动刷新，比如：
+
+  ```python3
+  from prompt_toolkit import PromptSession
+  import datetime
+  session = PromptSession(
+      refresh_interval=1
+  )
+  
+  session.prompt(
+      lambda :f'{datetime.datetime.now()}'
+  )
+  ```
 
 - `input`参数，`Input`类型，表示获取输入内容的对象，一般不需要设置或者修改。
 
@@ -1812,6 +1826,28 @@ print(f'输入的内容是: {result}')
 
 可以看到，`add`方法就是绑定快捷键的主要方法，该方法返回的装饰器可以将被装饰的函数添加为快捷键的响应函数，但`add`方法的用法不止这么简单。
 
+因为装饰器可以先定义函数，再分步装饰，上面的示例也可以这样写：
+
+```python3
+from prompt_toolkit import PromptSession
+from prompt_toolkit.application import run_in_terminal
+from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+
+bindings = KeyBindings()
+
+def ctrl_q_handler(event:KeyPressEvent):
+    run_in_terminal(lambda :print(event.key_sequence[0].key))
+
+bindings.add('c-q')(ctrl_q_handler)
+
+session = PromptSession(
+    key_bindings=bindings
+)
+
+result = session.prompt('请输入任何内容：')
+print(f'输入的内容是: {result}')
+```
+
 `add`方法支持以下参数：
 
 - `*keys`参数，`Keys`类型或者字符串类型，表示要绑定的快捷键，支持同时绑定多个快捷键。如果同时绑定多个快捷键，存在两种情况，对应的含义也有所不同：
@@ -1852,6 +1888,30 @@ print(f'输入的内容是: {result}')
     @bindings.add('c-w')
     def ctrl_q_handler(event:KeyPressEvent):
         run_in_terminal(lambda :print(event))
+    
+    session = PromptSession(
+        key_bindings=bindings
+    )
+    
+    result = session.prompt('请输入任何内容：')
+    print(f'输入的内容是: {result}')
+    ```
+    
+    因为装饰器可以先定义函数，再分步装饰，上面的示例也可以这样写：
+    
+    ```python3
+    from prompt_toolkit import PromptSession
+    from prompt_toolkit.application import run_in_terminal
+    from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+    
+    bindings = KeyBindings()
+    
+    def ctrl_q_handler(event:KeyPressEvent):
+        run_in_terminal(lambda :print(event))
+    
+    # ctrl+q 或 ctrl+w 都可以
+    bindings.add('c-q')(ctrl_q_handler)
+    bindings.add('c-w')(ctrl_q_handler)
     
     session = PromptSession(
         key_bindings=bindings
@@ -2979,7 +3039,7 @@ with ProgressBar() as pb:
 
 - `output`参数，`Output`类型，表示内容输出的对象，一般不需要设置或者修改。
 
-- `input`参数，`Input`类型，表示获取输入内容的对象，一般不需要设置或者修改。
+- ` input`参数，`Input`类型，表示获取输入内容的对象，一般不需要设置或者修改。
 
 `ProgressBar`类支持以下属性：
 
@@ -3086,7 +3146,7 @@ with ProgressBar() as pb:
 - 应用式。这种方式则和响应式的立即响应不同，需要提前定义`Application`实例，包括布局、样式、内容、事件响应等，最后执行实例的`run`方法进入事件循环，就和GUI、Web程序常用的使用方式一样。以下为框架程序的应用式示例：
 
   ```python3
-  from prompt_toolkit import Application
+  from prompt_toolkit.application import Application
   
   app = Application()
   
@@ -3098,7 +3158,8 @@ with ProgressBar() as pb:
   为了让应用式程框架程序具备基本的交互功能，以下示例对上一个示例进行了补充，添加了一些后面的知识，读者可以提前了解一下，这里暂不具体介绍：
 
   ```python3
-  from prompt_toolkit import Application
+  from prompt_toolkit.application import Application
+  # 也可以使用 from prompt_toolkit import Application
   from prompt_toolkit.layout import Layout
   from prompt_toolkit.widgets import Button
   
@@ -3116,66 +3177,565 @@ with ProgressBar() as pb:
   
   app.run()
   ```
-
+  
   ![app_1](prompt_toolkit.assets/app_1.gif)
 
 响应式适合嵌入其他框架编写的程序中，用于在终端中与用户交互，一般不会破坏其他框架的功能。
 
 应用式则适合使用框架编写TUI程序，构建程序的主要界面，接管终端大部分的交互功能；使用其他框架时，只能使用不破坏事件循环、界面显示的功能（通常不输出内容，在单独的协程、线程、进程中执行）。
 
-本章将介绍应用式框架程序所涉及的基础知识。涉及到类、方法的具体参数的含义和用途，可以参考后面章节中模块API的详细介绍。
+### 3.1 基础知识
 
-### 3.1 基本结构（更新中）
+#### 3.1.1 基本结构
 
 正如本章开头所介绍的那样，一个完整的应用式框架程序通常由以下几部分组成：
 
-- 
+- 创建`Application`实例，这是一个应用程序的基础，所有的布局、事件都是以此为核心来构建。
+- 创建并分配布局，布局可以在提前创建，并在创建`Application`实例时分配，也可以在创建完`Application`实例后，再分配布局（布局中有些事件、交互需要使用`Application`实例，因此需要先有`Application`实例）。
+- 运行`Application`示例的`run`方法（或者异步版本的`run_async`方法），创建完`Application`实例、布局，完成布局的分配之后，不运行`Application`实例的话，布局是不会显示，事件也没有对应的消息循环去触发、处理。和很多GUI、Web框架的设计思路类似，`run`方法是一个无限循环的函数，触发的消息、事件，以及对应的处理函数，都会在该循环函数内处理、执行，这是一个经典的UI框架功能。
 
+虽然前面的示例中划分为三部分，但`Application`实例可以使用`get_app`方法获取，简单的布局也可以在分配时直接创建，运行`Application`示例的`run`方法也可以在创建`Application`实例时运行，因此前面的示例可以进一步简化，让三部分变成一体：
 
+```python3
+from prompt_toolkit.application import Application, get_app
+from prompt_toolkit.layout import Layout
+from prompt_toolkit.widgets import Button
 
+Application(
+    layout=Layout(
+        Button(
+            'close app',
+            lambda: get_app().exit()
+        )
+    ),
+    full_screen=True,
+    mouse_support=True,
+).run()
+```
 
+#### 3.1.2 `Application`类
 
-以下为基础理论部分：
-
-渲染管线，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/rendering_pipeline.html
-
-渲染流程，用于学习UIControl和Content，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/rendering_flow.html
-
-应用程序的架构，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/architecture.html
-
-
-
-
+在一个应用程序中，`Application`类无疑是最重要的基础，因此，本节将详细介绍一下`Application`类的用法。完整的用法可以参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.application.Application。
 
 `Application`类支持以下参数：
 
-- 
+- `layout`参数，`Layout`类型，表示应用程序的根布局。需要注意的是，该参数的值必须是`Layout`类实例（相应的，`Layout`类只能用于`Layout`类型的参数），尽管`Layout`类是容器类控件的一种，但不能成为其他容器类的子控件。
+
+- `style`参数，`Style`类型，表示应用程序的样式。
+
+- `include_default_pygments_style`参数，布尔类型或者`Filter`类型，如果内容包含`Lexer`类相关对象，此参数表示是否启用`Lexer`类生成的样式，默认为`True`。
+
+- `style_transformation`参数，`StyleTransformation`类型（`prompt_toolkit.styles`模块提供了'StyleTransformation'为后缀的内置类），表示输出时如何转换样式。
+
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
+
+  需要注意的是，默认情况下，应用程序没有`tab`键切换焦点的功能，需要主动设置该参数才行：
+
+  ```python3
+  from prompt_toolkit.application import Application, get_app
+  from prompt_toolkit.layout import Layout
+  from prompt_toolkit.widgets import Button
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  
+  bindings = KeyBindings()
+  bindings.add('tab')(focus_next)
+  bindings.add('s-tab')(focus_previous)
+  
+  Application(
+      layout=Layout(
+          Button(
+              'close app',
+              lambda: get_app().exit()
+          )
+      ),
+      full_screen=True,
+      mouse_support=True,
+      key_bindings=bindings
+  ).run()
+  ```
+
+- `clipboard`参数，`Clipboard`类型，表示输入内容时，存放临时数据的命令行剪贴板，默认为`None`，即`InMemoryClipboard()`。注意，这里的命令行剪贴板与系统剪贴板数据不互通，且粘贴命令行剪贴板数据的快捷键不是系统的`ctrl + v`键，而是对应操作模式的快捷键（`EMACS`操作模式下为`ctrl + y`键；`VI`操作模式下，需要先按`esc`键进入命令模式，再按`p`键粘贴）。
+
+- `full_screen`参数，布尔类型，表示是否以全屏形式（将整个终端作为可用区域，而非只是根据内容大小占据终端）运行应用程序，默认为`False`。
+
+- `color_depth`参数，`ColorDepth`类型或者字符串类型或者调用之后返回前面两种类型对象的可调用类型，表示输出内容的颜色深度（具体用法可以参考前面的内容）。
+
+- `mouse_support`参数，布尔类型或者`Filter`类型，表示是否启用鼠标支持（可以使用鼠标点击的方式移动光标，并支持一些鼠标的点击操作，与后面介绍的应用程序有关），默认为`False`。
+
+- `enable_page_navigation_bindings`参数，布尔类型或者`Filter`类型或者`None`，表示是否启用`page up`键之类的翻页快捷键。
+
+- `paste_mode`参数，布尔类型或者`Filter`类型，表示程序是否处于粘贴模式，默认为`False`。此参数一般不需要特别设置，不处于粘贴模式时，支持多行输入的控件，会在换行时自动对齐上一行的缩进，在行首添加相同数量的空格，而不是粘贴模式那种在换行后直接将光标放置于行首。
+
+- `editing_mode`参数，`EditingMode`类型（枚举类型，使用`from prompt_toolkit.enums import EditingMode`导入），表示输入时的操作模式，默认为`EditingMode.EMACS`，即使用`EMACS`的操作模式。
+
+- `erase_when_done`参数，布尔类型，表示当程序正常退出时，是否清除输出方法（`print`方法、`print_formatted_text`方法等）输出的内容，默认为`False`。
+
+- `reverse_vi_search_direction`参数，布尔类型或者`Filter`类型，表示是否反转`VI`操作模式下搜索命令对应的方向（默认`/`是向前搜索，`?`是向后搜索），默认为`False`。
+
+- `min_redraw_interval`参数，浮点类型或者整数类型，表示刷新显示的最小时间间隔，单位秒。
+
+- `max_render_postpone_time`参数，浮点类型或者整数类型，表示推迟渲染的时间，即显示的内容需要占用较多CPU和时间准备，实际显示时不会在要求渲染时立刻开始渲染，而是等待一段时间，才开始渲染，避免内容没有准备好就开始显示。该参数默认为`0.01`，单位秒。
+
+- `refresh_interval`参数，浮点类型，表示每隔多少秒刷新一次显示，默认为`0`，即不自动刷新。仅当控件显示的内容为可调用类型时，才会触发自动刷新。
+
+- `terminal_size_polling_interval`参数，浮点类型或者整数类型，表示查询终端尺寸变化的最小时间间隔，该参数默认为`0.5`，单位秒。
+
+- `cursor`参数，`CursorShape`类型或者`CursorShapeConfig`类型，表示输入时光标的形状。
+
+- `on_reset`参数，接收`Application`类实例本身作为参数的可调用类型，表示当调用`reset`方法时执行的操作。
+
+- `on_invalidate`参数，接收`Application`类实例本身作为参数的可调用类型，表示当调用`invalidate`方法时执行的操作。
+
+- `before_render`参数，接收`Application`类实例本身作为参数的可调用类型，表示渲染内容之前执行的操作。
+
+- `after_render`参数，接收`Application`类实例本身作为参数的可调用类型，表示渲染内容之后执行的操作。
+
+- `input`参数，`Input`类型，表示获取输入内容的对象，一般不需要设置或者修改。
+
+- `output`参数，`Output`类型，表示内容输出的对象，一般不需要设置或者修改。
+
+`Application`类支持以下属性：
+
+- `layout`属性，同`layout`参数。
+
+- `style`属性，同`style`参数。
+
+- `style_transformation`属性，同`style_transformation`参数。
+
+- `key_bindings`属性，同`key_bindings`参数。
+
+- `clipboard`属性，同`clipboard`参数。
+
+- `full_screen`属性，同`full_screen`参数。
+
+- `color_depth`属性，同`color_depth`参数。
+
+- `mouse_support`属性，同`mouse_support`参数。
+
+- `enable_page_navigation_bindings`属性，同`enable_page_navigation_bindings`参数。
+
+- `paste_mode`属性，同`paste_mode`参数。
+
+- `editing_mode`属性，同`editing_mode`参数。
+
+- `erase_when_done`属性，同`erase_when_done`参数。
+
+- `reverse_vi_search_direction`属性，同`reverse_vi_search_direction`参数。
+
+- `min_redraw_interval`属性，同`min_redraw_interval`参数。
+
+- `max_render_postpone_time`属性，同`max_render_postpone_time`参数。
+
+- `refresh_interval`属性，同`refresh_interval`参数。
+
+- `terminal_size_polling_interval`属性，同`terminal_size_polling_interval`参数。
+
+- `cursor`属性，同`cursor`参数。
+
+- `on_reset`属性，同`on_reset`参数。需要注意的是，该属性不能与同名参数一样直接设置为可调用对象，而是要设置为`Event`对象（使用`from prompt_toolkit.utils import Event`导入），`Event`对象的`sender`参数为`Application`实例，`handler`参数的值同`on_reset`参数。示例如下：
+
+  ```python3
+  from prompt_toolkit.utils import Event
+  
+  app.on_reset = Event(app,lambda app:...)
+  ```
+
+- `on_invalidate`属性，同`on_invalidate`参数。相关注意事项参考`on_reset`属性。
+
+- `before_render`属性，同`before_render`参数。相关注意事项参考`on_reset`属性。
+
+- `after_render`属性，同`after_render`参数。相关注意事项参考`on_reset`属性。
+
+- `input`属性，同`input`参数。
+
+- `output`属性，同`output`参数。
+
+- `current_buffer`属性，当`layout`属性的`current_control`属性为`BufferControl`对象时，该属性表示`BufferControl`对象的`buffer`属性。
+
+- `current_search_state`属性，当`layout`属性的`current_control`属性为`BufferControl`对象时，该属性表示`BufferControl`对象的`search_state`属性。
+
+- `invalidated`属性，布尔类型，当应用程序显示内容需要重绘时，该属性会变为`True`。
+
+- `is_running`属性，布尔类型，当应用程序运行`run`方法（或者异步版本的`run_async`方法）时，该属性会变为`True`。通常由框架内部处理、使用此属性。
+
+- `loop`属性，`AbstractEventLoop`类型，表示运行应用程序的异步事件循环，一般可以使用`asyncio.get_running_loop()`获取。通常由框架内部处理、使用此属性。
+
+- `future`属性，`Future`类型，表示异步任务相关的属性，一般可以使用`asyncio.get_running_loop().create_future()`创建。通常由框架内部处理、使用此属性。
+
+- `is_done`属性，`future`属性存在的话，调用其`done`方法来获取任务是否已经完成。通常由框架内部处理、使用此属性。
+
+- `context`属性，`contextvars.Context`类型，表示运行时实例相关的上下文。通常由框架内部处理、使用此属性。
+
+- `emacs_state`属性，表示记录`EMACS`操作模式相关状态的对象。
+
+- `vi_state`属性，表示记录`VI`操作模式相关状态的对象。
+
+- `exit_style`属性，可在调用`exit`方法时指定，主要在输入会话中，该属性被指定为`'class:aborting'`（对应`ctrl + c`键退出）和`'class:exiting'`（对应`ctrl + d`键退出），具体参考输入会话的用法。
+
+- `key_processor`属性，表示应用程序的按键处理器，可以通过调用`feed`方法来模拟按键。比如：
+
+  ```python3
+  from prompt_toolkit.key_binding.key_processor import KeyPress
+  from prompt_toolkit.keys import Keys
+  
+  # 模拟退格键
+  app.key_processor.feed(KeyPress(Keys.Backspace))
+  ```
+
+- `pre_run_callables`属性，元素为可调用类型的列表，用于存放在应用程序运行之前执行的操作。
+
+- `quoted_insert`属性，布尔类型，表示应用程序是否处于引用插入模式。
+
+- `render_counter`属性，整数类型，渲染计数器，每渲染一次，该计数器加一。
+
+- `renderer`属性，用于渲染内容的渲染器，如果设置为自定义的渲染器，务必确保`output`参数与该属性的原`output`属性一致。
+
+- `timeoutlen`属性，对于组合快捷键和只是使用组合快捷键第一个键的单独快捷键，按下第一个键之后一定时间（该属性的值）内按下第二个键，则被当作组合快捷键处理，超时则被当作单独快捷键处理。该属性默认为`1`。
+
+- `ttimeoutlen`属性，想要在特定终端类型识别`esc`键，需要在发现`\x1b`终端序列之后，一定时间（该属性的值）内没有其他终端序列，才能被识别为`esc`键，才能正确处理与`esc`键组合的终端序列。该属性默认为`0.5`。
+
+`Application`类支持以下方法：
+
+- `cpr_not_supported_callback`方法，当终端不支持光标位置请求时自动调用，输出一条警告内容。
+
+- `run`方法，运行应用程序，渲染、显示其内容。该方法支持以下参数：
+
+  - `pre_run`参数，可调用类型，表示在运行应用程序前执行的操作，默认为`None`。
+  - `set_exception_handler`参数，布尔类型，表示进入输入模式后触发异常时，是否先切换屏幕（可以理解为保留当前终端的状态并新开了一个虚拟的终端处理输入、输出）再输出异常信息，然后按`enter`键可以退出当前屏幕，并回到显示提示内容的输入模式，该参数默认为`True`。如果该参数为`False`，则触发异常时不会切换屏幕，直接在当前终端输出异常信息。
+  - `handle_sigint`参数，布尔类型，表示是否处理发送给当前程序的SIGNAL信号（Unix概念，且仅在主线程生效，即`in_thread`参数为`True`时无法生效），默认为`True`。
+  - `in_thread`参数，布尔类型，表示是否在单独的线程中运行应用程序，默认为`False`。
+  - `inputhook`参数，`InputHook`类型（一个接收`InputHookContext`类型参数的可调用类型，相关文档参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/input_hooks.html），表示输入钩子，默认为`None`。所谓输入钩子，就是应用程序运行时循环运行并在应用程序退出后退出循环的函数。
+
+- `run_async`方法，`run`方法的异步版本。该方法支持以下参数：
+
+  - `pre_run`参数，可调用类型，表示在运行应用程序前执行的操作，默认为`None`。
+  - `set_exception_handler`参数，布尔类型，表示进入输入模式后触发异常时，是否先切换屏幕（可以理解为保留当前终端的状态并新开了一个虚拟的终端处理输入、输出）再输出异常信息，然后按`enter`键可以退出当前屏幕，并回到显示提示内容的输入模式，该参数默认为`True`。如果该参数为`False`，则触发异常时不会切换屏幕，直接在当前终端输出异常信息。
+  - `handle_sigint`参数，布尔类型，表示是否处理发送给当前程序的SIGNAL信号，默认为`True`。
+  - `slow_callback_duration`参数，浮点类型，表示asyncio的事件循环耗时超过指定时间之后，框架将显示一个超时警告，该参数默认为`0.5`。一般不需要修改该参数，除非系统比较慢，会导致事件循环耗时增加，可以增大该参数的值，避免不必要的警告。
+
+- `exit`方法，退出正在运行的应用程序。注意，只有应用程序运行时才能执行此方法，否则会报错。该方法支持以下参数：
+
+  - `result`参数，任意类型，表示`run`方法或者`run_async`方法的返回值，默认为`None`。
+  - `exception`参数，`BaseException`类型，用于触发非正常退出的异常，默认为`None`。
+  - `style`参数，`Style`类型，用于指定`exit_style`属性。
+
+- `invalidate`方法，重绘应用程序显示的内容。
+
+- `reset`方法，复位应用程序。
+
+- `get_used_style_strings`方法，获取应用程序当前所有内容使用的样式，以列表形式返回。
+
+- `print_text`方法，在光标所在位置输出带格式的文本。该方法支持以下参数：
+
+  - `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示要输出的内容。
+  - `style`参数，`Style`类型，表示内容的样式。
+
+- `create_background_task`方法，在后台运行异步任务。该方法支持以下参数：
+
+  - `coroutine`参数，`Coroutine`类型，表示要运行的异步任务。
+
+  示例如下：
+
+  ```python3
+  from prompt_toolkit.application import Application, get_app
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  
+  bindings = KeyBindings()
+  bindings.add('tab')(focus_next)
+  bindings.add('s-tab')(focus_previous)
+  
+  import asyncio
+  
+  async def task():
+      await asyncio.sleep(3)
+      get_app().exit()
+  
+  app = Application(
+      layout=Layout(
+          HSplit([
+              Button(
+                  'run task',
+                  lambda: app.create_background_task(coroutine=task())
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),])
+      ),
+      mouse_support=True,
+      full_screen=True,
+      key_bindings=bindings
+  )
+  
+  app.run()
+  ```
+
+- `cancel_and_wait_for_background_tasks`方法，取消所有后台运行的异步任务。注意，此方法同样为异步方法，需要通过支持运行异步方法的方式来运行此方法。
+
+  示例如下：
+
+  ```python3
+  from prompt_toolkit.application import Application, get_app
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings
+  from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
+  
+  bindings = KeyBindings()
+  bindings.add('tab')(focus_next)
+  bindings.add('s-tab')(focus_previous)
+  
+  import asyncio
+  
+  async def task():
+      await asyncio.sleep(3)
+      get_app().exit()
+  
+  app = Application(
+      layout=Layout(
+          HSplit([
+              Button(
+                  'run task',
+                  lambda: app.create_background_task(coroutine=task())
+              ),
+              Button(
+                  'cancel task',
+                  lambda: app.create_background_task(app.cancel_and_wait_for_background_tasks())
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),])
+      ),
+      mouse_support=True,
+      full_screen=True,
+      key_bindings=bindings
+  )
+  
+  app.run()
+  ```
+
+- `run_system_command`方法，临时隐藏当前应用程序，使用子进程运行系统命令，并在当前终端输出结果，继续按下`enter`键可以回到应用程序中。该方法支持以下参数：
+
+  - `command`参数，字符串类型，表示要运行的命令。
+  - `wait_for_enter`参数，布尔类型，表示是否需要按下`enter`键才能回到应用程序，默认为`True`。
+  - `display_before_text`参数，符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示在输出命令执行结果之前额外输出的内容。
+  - `wait_text`参数，字符串类型，表示在输出命令执行结果之后，提示如何回到应用程序的文字，默认为`'Press ENTER to continue...'`。
+
+  注意，该方法为异步方法，仅限支持异步方法的运行方式。以下为示例，使用快捷键绑定的方式运行，快捷键为`ctrl + q`键：
+
+  ```python3
+  from prompt_toolkit.application import Application, get_app
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,Label
+  from prompt_toolkit.key_binding.key_bindings import KeyBindings
+  
+  bindings = KeyBindings()
+  @bindings.add('c-q')
+  async def c_q(event):
+      await get_app().run_system_command(
+          command='dir',
+          wait_for_enter=True,
+          display_before_text='运行dir命令的结果是：\n',
+          wait_text='按下enter键回到应用程序...'
+      )
+  
+  app = Application(
+      layout=Layout(
+          HSplit([
+              Label('按下ctrl+q来运行dir命令'),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),])
+      ),
+      mouse_support=True,
+      full_screen=True,
+      key_bindings=bindings,
+  )
+  
+  app.run()
+  ```
+
+  ![app_2](prompt_toolkit.assets/app_2.png)
+
+- `suspend_to_background`方法，挂起当前进程（需要系统支持，Windows不知此）。该方法支持以下参数：
+
+  - `suspend_group`参数，布尔类型，表示是否挂起整个进程组（即包含子进程），默认为`True`。
+
+以下为异步运行的示例：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout
+from prompt_toolkit.widgets import Button
+
+layout = Layout(
+    Button(
+        'close app',
+        lambda :app.exit()
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+import asyncio
+asyncio.run(app.run_async())
+# 或者 asyncio.get_event_loop().run_until_complete(app.run_async())
+```
+
+### 3.2 具体控件（更新中）
+
+控件按能不能将其他控件当作内容来划分的话，可以分为两类：容器类和内容类。
+
+其中，容器类控件就是可以将其他控件当作内容，且本身不提供内容的控件。而内容类控件一般只能将特定对象（如字符串、带格式的文本）当作内容，本身可以显示内容。
+
+布局的本质是容器，也算是一种控件；而与之不同的，则是另一些只用于显示内容的控件。因此，本节将所有控件分为两类：可以包装其他控件的控件，也就是容器类控件；只是用于显示内容、不能包装其他控件的控件，称之为内容类控件。
+
+#### 3.2.1 容器类控件（更新中）
+
+##### 3.2.1.1 `Layout`控件
+
+
+
+https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.Layout
+
+
+
+prompt_toolkit.layout 模块
+
+
+
+
+
+
+
+Window控件
+
+
+
+HSplit
+
+VSplit
+
+
+
+FloatContainer
+
+ConditionalContainer
+
+DynamicContainer
+
+
+
+ScrollablePane
+
+prompt_toolkit.widgets 模块
+
+  Frame
+
+  Shadow
+
+
+
+#### 3.2.2 内容类控件（更新中）
+
+
+
+prompt_toolkit.widgets 模块
+
+
+
+base:
+
+Box
+
+  Button
+
+  Checkbox
+
+  CheckboxList,
+
+
+
+  HorizontalLine
+
+  Label
+
+  ProgressBar,
+
+  RadioList
+
+
+
+  TextArea
+
+  VerticalLine
+
+
+
+Dialog
+
+MenuContainer, MenuItem
+
+
+
+UIControl类
+
+toolbar:
+
+ArgToolbar,
+
+  CompletionsToolbar,
+
+  FormattedTextToolbar,
+
+  SearchToolbar,
+
+  SystemToolbar,
+
+  ValidationToolbar,
+
+
+
+prompt_toolkit.layout 模块
+
+FormattedTextControl
+
+BufferControl
+
+
+
+
 
 
 
 必须要讲解的、相关的具体内容：
 
-样式（对齐、内边距、外边距在布局中，边框在部件中），布局（各类容器），控件、部件，定时器，后台任务，
-
-
-
-异步事件循环放到这里 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/asyncio.html
-
-异步事件循环补充输入钩子，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/input_hooks.html
-
-
-
-定时器，https://github.com/prompt-toolkit/python-prompt-toolkit/blob/main/examples/prompts/clock-input.py
-
-后台运行任务，非线程安全（https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.application.Application.create_background_task）
-
-
-
-
-
-
+外边距在布局中，边框在部件中，布局（各类容器），控件、部件，
 
 只提供widgets，layout和其他controls，这部分需要查看手册和官方示例，挖掘API中widgets提供的组件。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3186,6 +3746,12 @@ with ProgressBar() as pb:
 ## 4 进阶知识（更新中）
 
 本章将对照 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/index.html 中除了基础知识介绍过内容外的其余内容，并补充一些官方手册中有但官方教程没写的内容。
+
+
+
+
+
+
 
 ### 4.1 状态过滤器（更新中）
 
@@ -3240,6 +3806,32 @@ print(f'输入的内容是: {result}')
 ## 5 拾遗（持续更新中）
 
 本章主要根据实际问题，提供对应问题的解决实例，并补充前面没有覆盖的内容。按时间顺序更新，不限制内容所属分类，但章节标题会概括主要内容。
+
+### 5.1 设置终端窗口的标题
+
+
+
+set_title 设置终端窗口的标题，来自 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.shortcuts
+
+
+
+
+
+get_app
+
+get_app_or_none
+
+get_app_session
+
+get_cwidth
+
+get_bell_environment_variable
+
+get_term_environment_variable
+
+
+
+
 
 
 

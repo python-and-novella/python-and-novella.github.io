@@ -1,4 +1,4 @@
-# NiceGUI拾遗
+# NiceGUI拾遗（2025）
 
 ## 0 为什么要写这个系列
 
@@ -85,11 +85,9 @@ ui.button("Download", on_click=lambda: ui.download(b'Demo text','demo_file.txt')
 ui.run(native=True)
 ```
 
+## 4 让Native Mode的NiceGUI程序使用QT的QtWebEngine作为运行时
 
-
-2，如何让native mode运行在QT的QtWebEngine中？
-
-默认情况下，如果Windows系统安装了Webview2，native mode优先采用Webview2当作浏览器运行时，哪怕Python添加了QT6相关的包（PyQT6、PySide6）。如果想要native mode采用QtWebEngine当做浏览器运行时，需要手动指定PyWebview的Web engine（参考文档见[官方](https://pywebview.flowrl.com/guide/web_engine.html)），代码如下：
+默认情况下，如果Windows系统安装了Webview2，哪怕添加了QT6相关的Python包（PyQT6、PySide6），以Native Mode运行的NiceGUI程序还是优先采用Webview2当作浏览器运行时。如果想要以Native Mode运行的NiceGUI程序采用QtWebEngine当做浏览器运行时，需要手动指定pywebview框架的Web engine（参考文档见 https://pywebview.flowrl.com/guide/web_engine.html），代码如下：
 
 ```python3
 from nicegui import ui, app
@@ -111,11 +109,11 @@ ui.run(native=True)
 
 使用QtWebEngine当做浏览器运行时，窗口图标默认为Windows默认图标，而不是Python的图标，可以像代码中一样，使用`app.native.start_args['icon'] = 'favicon.ico'`指定，路径默认为源代码同目录，可以使用相对路径或者绝对路径。
 
-3，如何让native mode运行时使用固定版本或者非系统自带的Webview2？
+## 5 让Native Mode的NiceGUI程序使用固定版本或者非系统自带的Webview2作为运行时
 
-默认情况下，如果Windows系统安装了Webview2，native mode优先采用系统的Webview2当作浏览器运行时。但是，系统的Webview2更新很快，而且是自动进行，若是开发的程序与最新版Webview2不兼容或者想要避免系统Webview2版本更新导致的潜在问题，则可以设置环境变量`WEBVIEW2_BROWSER_EXECUTABLE_FOLDER`为指定版本Webview2解压之后的路径，让native mode运行时使用固定版本Webview2。
+默认情况下，如果Windows系统安装了Webview2，以Native Mode运行的NiceGUI程序优先采用系统的Webview2当作浏览器运行时。但是，系统的Webview2更新很快，而且是自动更新，若是开发的程序与最新版Webview2不兼容或者想要避免系统Webview2版本更新导致的潜在问题，则可以设置环境变量`WEBVIEW2_BROWSER_EXECUTABLE_FOLDER`为指定版本Webview2解压之后的路径，让native mode运行时使用固定版本Webview2。
 
-固定版本Webview2可以到[Webview2官网](https://developer.microsoft.com/zh-cn/microsoft-edge/webview2)下载，本解决方案参考自[微软开发者文档](https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#details-about-the-fixed-version-runtime-distribution-mode)。
+固定版本Webview2可以到Webview2官网（https://developer.microsoft.com/zh-cn/microsoft-edge/webview2）下载，本解决方案参考自微软开发者文档（https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#details-about-the-fixed-version-runtime-distribution-mode）。
 
 代码如下：
 
@@ -128,23 +126,15 @@ os.environ['WEBVIEW2_BROWSER_EXECUTABLE_FOLDER'] = str(pathlib.Path(__file__).pa
 ui.run(native=True)
 ```
 
-这里是将固定版本Webview2解压之后，将包含可执行文件`msedgewebview2.exe`的文件夹放到源代码的同级目录中，读者在实际使用时可以自行变换路径。
+这里是将固定版本Webview2解压之后，将包含可执行文件`msedgewebview2.exe`的文件夹（文件夹名字为`'Microsoft.WebView2.FixedVersionRuntime.135.0.3179.98.x64'`）放到源代码的同级目录中，读者在实际使用时可以自行变换路径。
 
+## 6 修改网站在标题栏的logo（也就是favicon）
 
+修改`ui.run()`的默认参数`favicon`为自己logo的地址（图片地址，注意图片的格式要求）或者字符（仅支持单个字符，可以是汉字或者emoji），例如：`ui.run(favicon='🚀')`。
 
+## 7 为什么有时候创建在`ui.refreshable`装饰的函数内的控件不会刷新？
 
-
-1，网站在标题栏的logo是NiceGUI的logo，如何指定为自己的logo？
-
-修改`ui.run()`的默认参数`favicon`为自己logo的地址或者emoji字符`🚀`，例如：`ui.run(favicon='🚀')`。
-
-
-
-
-
-
-
-1，为什么有时候创建在`ui.refreshable`装饰的函数内的控件不会刷新？
+有的读者在使用`ui.refreshable`装饰器的时候，遇到了一个奇怪的问题，这里分享一下，那就是创建在`ui.refreshable`装饰的函数内的控件不会刷新。
 
 以下面代码为例：
 
@@ -191,11 +181,11 @@ ui.button('refresh1',on_click=time_box.refresh)
 ui.run(native=True)
 ```
 
-### 4.4 `ui.button`
+## 8 使用TailWindCSS样式定义按钮颜色
 
-1，想要在定义之后修改按钮的颜色，但是`bg-*`的TailWindCSS样式没有用，怎么实现？
+如果想要在定义按钮之后修改按钮的颜色，却发现`bg-*`的TailWindCSS样式没有用，该如何解决？
 
-按钮的默认颜色由Quasar控制，而Quasar的颜色应用使用最高优先级的`!important`，TailWindCSS的颜色样式默认比这个低，所以无法成功。如果想修改颜色，可以修改按钮的`color`属性。或者使用`!bg-*`来强制应用。代码如下：
+按钮的默认颜色由Quasar控制，而Quasar的颜色样式使用了最高优先级的`!important`，TailWindCSS的颜色样式默认比这个低，所以无法成功。如果想修改颜色，可以修改按钮的`color`属性。或者使用`!bg-*`来强制应用。代码如下：
 
 ```python3
 from nicegui import ui
@@ -209,9 +199,9 @@ ui.run(native=True)
 
 注意：Quasar的颜色体系和TailWindCSS的颜色体系不同。Quasar中，使用`color-[1-14]`来表示颜色，数字表示颜色程度，可选。TailWindCSS中，使用`type-color-[50-950]`表示颜色，type为功能类别，数字表示颜色程度，可选。需要注意代码中不同方式使用的颜色体系。
 
-2，不擅长CSS的话，怎么用`ui.button`实现一个 Floating Action Button？
+## 9 在不使用CSS情况下实现一个 Floating Action Button
 
-Floating Action Button是特定最小尺寸的圆角按钮，如果熟悉CSS样式的话，可以将普通的按钮改成类似样式，但是，`ui.button`自带一个`fab`属性（`props`），可以一步完成，省去调整CSS的过程，代码如下：
+Floating Action Button可以简单理解为只有图标的圆形按钮，如果熟悉CSS样式的话，可以将普通的按钮改成类似样式，但是，`ui.button`自带一个`fab`属性（`props`），可以一步完成，这就省去调整CSS的过程，代码如下：
 
 ```python3
 from nicegui import ui
@@ -220,6 +210,12 @@ ui.button(icon='home', on_click=lambda: ui.notify('home')).props('fab')
 
 ui.run(native=True)
 ```
+
+
+
+
+
+## （未完待续）
 
 3，如何实现按钮点击后才执行特定操作？
 
@@ -241,6 +237,8 @@ async def index():
 ui.run()
 ```
 
+
+
 4，如何实现嵌入按钮的图标，点击图标并不触发按钮的点击事件？
 
 使用JavaScript中对应事件的`stopPropagation()`方法阻止事件穿透即可。
@@ -258,7 +256,7 @@ with ui.button('Item').classes('w-96') as button:
 ui.run(native=True)
 ```
 
-### 4.5 `ui.page`
+
 
 1，如何通过传参的形式动态修改页面内容？
 
@@ -279,7 +277,7 @@ ui.link('Water', '/icon/water_drop?amount=3')
 ui.run()
 ```
 
-### 4.6 `ui.stepper`
+
 
 1，如何使用其他控件模拟`ui.step`？
 
@@ -397,8 +395,6 @@ with ui.card(),ui.row():
 ui.run(native=True)
 ```
 
-### 4.7 `ui.icon`
-
 1，想用自定义的LOGO图片（SVG格式）当图标行不行？
 
 可以，使用`'img:path/to/some_image.png'`这样的语法（适用于`ui.icon`控件或者其他支持`icon`参数的控件），比如`'img:https://cdn.quasar.dev/logo-v2/svg/logo.svg'`：
@@ -411,7 +407,7 @@ ui.button(text='LOGO',icon='img:https://cdn.quasar.dev/logo-v2/svg/logo.svg')
 ui.run(native=True)
 ```
 
-### 4.8 `ui.carousel`
+
 
 1，如何自定义轮播图的控制控件？
 
@@ -434,7 +430,7 @@ with ui.carousel(animated=True, arrows=True, navigation=True).props('height=180p
 ui.run(native=True)
 ```
 
-### 4.9 `ui.tree`
+
 
 1，如何实现点击树形图的文字部分也能展开子节点？
 
@@ -491,7 +487,7 @@ ui.tree([
 ui.run(native=True)
 ```
 
-### 4.10 `ui.video`
+
 
 1，如何获取视频播放的进度？
 
@@ -516,8 +512,6 @@ async def index():
 
 ui.run(native=True)
 ```
-
-
 
 
 
@@ -560,3 +554,5 @@ ui.run()
 （以上为2025年更新的部分）
 
 （以下为2026年更新的部分，2025年的将会存档（保存在nicegui_plus_2025.md）或者折叠起来）
+
+# NiceGUI拾遗（2026）

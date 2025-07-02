@@ -3603,45 +3603,487 @@ asyncio.run(app.run_async())
 
 ##### 3.2.1.1 `Layout`控件
 
+在所有的容器类控件中，`Layout`控件（使用`from prompt_toolkit.layout import Layout`或者`from prompt_toolkit.layout.layout import Layout`导入，完整用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.Layout ）是最特殊的，但凡应用程序需要显示内容，就必须要用该控件。此外，该控件仅能用作最顶层的根布局，不能是其他容器的子控件。
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout
+from prompt_toolkit.widgets import Button
+
+layout = Layout(
+    Button(
+        'close app',
+        lambda :app.exit()
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+`Layout`类支持以下参数：
+
+- `container`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示主要内容。
+- `focused_element`参数，字符串类型（`BufferControl`控件的`buffer.name`属性的值）或者`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型）或者`UIControl`类型（在高级控件中介绍，基类为`UIControl`类的控件），表示初始获得焦点的控件。
+
+`Layout`类支持以下属性：
+
+- `container`属性，同`container`参数。
+- `buffer_has_focus`属性，表示当前获得焦点的控件是不是`BufferControl`控件。
+- `current_buffer`属性，如果当前获得焦点的控件是`BufferControl`控件，则该属性表示`BufferControl`控件的`buffer`属性。
+- `current_control`属性，表示当前获得焦点的`UIControl`类型控件（其他非该类型的控件会被转换为该类型）。
+- `current_window`属性，表示当前获得焦点的`Window`类型控件。
+- `is_searching`属性，表示是否处于搜索模式。
+- `previous_control`属性，表示上一个`UIControl`类型控件。
+- `search_links`属性，表示以要搜索的`SearchBufferControl`控件为键，以实际包含的`BufferControl`控件为值的字典。
+- `search_target_buffer_control`属性，表示要搜索的目标`BufferControl`控件。
+- `visible_windows`属性，表示所有可见的`Window`控件。
+
+`Layout`类支持以下方法：
+
+- `find_all_controls`方法，返回所有`UIControl`类型控件。
+- `find_all_windows`方法，返回所有`Window`类型控件。
+- `focus`方法，让指定控件获得焦点。该方法支持以下参数：
+  - `value`参数，字符串类型（`BufferControl`控件的`buffer.name`属性的值）或者`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型）或者`UIControl`类型（在高级控件中介绍，基类为`UIControl`类的控件），表示获得焦点的控件。
+- `focus_last`方法，让最后一个控件获得焦点。
+- `focus_next`方法，让下一个控件获得焦点。
+- `focus_previous`方法，让前一个控件获得焦点。
+- `get_buffer_by_name`方法，通过名字获取指定`BufferControl`控件的`buffer`属性。该方法支持以下参数：
+  - `value`参数，字符串类型，表示`BufferControl`控件的`name`属性。
+- `get_focusable_windows`方法，获取所有在当前可见区域、可以获得焦点的`Window`控件。
+- `get_parent`方法，获取任意容器控件的父容器。支持以下参数：
+  - `container`参数，`Container`类型，表示要获取父容器的容器控件。注意，参数仅限父容器为非`Layout`控件的容器控件。
+- `get_visible_focusable_windows`方法，获取所有可见、可获得焦点的`Window`控件。
+- `reset`方法，复位控件。
+- `update_parents_relations`方法，更新所有控件的父子关系。
+- `walk`方法，遍历所有布局节点，返回元素为`Container`类型控件的生成器结果。
+- `walk_through_modal_area`方法，遍历所有在当前可见区域的容器节点，返回元素为`Container`类型控件的生成器结果。
+
+##### 3.2.1.2 `Window`控件
+
+在介绍`Layout`控件的时候，或多或少说到过`Window`控件，那么，`Window`控件（使用`from prompt_toolkit.layout import Window`或者`from prompt_toolkit.layout.containers import Layout`导入，完整用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.Window ）又有什么用呢？
+
+先说结论，该控件主要用于包装`UIControl`类型的控件，让其可以放在其他容器类控件中。另外，很多非`UIControl`类型的内容类控件，在渲染时也会转换为使用该控件包装的`UIControl`类型控件（比如`Button`控件会被转换为该控件包装的`FormattedTextControl`控件），因此，应用程序的渲染结果实际上就是由容器类控件和`UIControl`类型控件组成的界面。
+
+纸上得来终觉浅，那就用一个示例演示一下该控件的用法：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout,Window,FormattedTextControl
+from prompt_toolkit.mouse_events import MouseEvent,MouseEventType
+from prompt_toolkit.key_binding.key_bindings import KeyBindings
+
+def handler(e:MouseEvent):
+    if e.event_type == MouseEventType.MOUSE_UP:
+        app.exit()
+
+bindings = KeyBindings()
+@bindings.add(' ')
+@bindings.add('enter')
+def key_handler(_):
+    app.exit()
+
+layout = Layout(
+    w:=Window(
+        FormattedTextControl(
+            [
+                ('[SetCursorPosition]', ''),
+                ('red','close app',handler)
+            ],
+            key_bindings=bindings
+        ),
+        dont_extend_width=True,
+        dont_extend_height=True
+    ),
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+这是一个复刻了按钮功能、但是使用了`Window`控件的示例，可以点击文字或者按`enter`键、`space`键来退出程序。
+
+看起来有些复杂，对吧，那就简化一下，让其只显示文字，但是想要退出就只能强制结束程序了（关闭当前终端即可）：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout,Window,FormattedTextControl
+
+layout = Layout(
+    Window(
+        FormattedTextControl(
+            [
+                ('red','close app')
+            ],
+        ),
+    ),
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+如上面示例所表现的那样，`Window`控件的用法、用途很简单，使用伪代码表示的话，就是下面这种结构：
+
+```
+Window(
+	UIControl()
+)
+```
+
+`Window`类支持以下参数：
+
+- `content`参数，`UIControl`类型，表示被包装的`UIControl`类型控件。
+
+- `width`参数，整数类型或者`Dimension`类型或者返回前面类型的可调用类型，表示控件的宽度。`Dimension`类型可以定义最大最小值，还可以定义比重（份数）和优先大小，具体用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.Dimension。
+
+- `height`参数，整数类型或者`Dimension`类型或者返回前面类型的可调用类型，表示控件的高度。
+
+- `z_index`参数，整数类型，表示控件的Z轴坐标。在共同的显示区域中，Z轴坐标大的控件可以遮蔽Z轴坐标小的控件。
+
+- `dont_extend_width`参数，布尔类型或者`Filter`类型，表示当`width`参数没有设置时，控件的实际宽度是否与内容宽度一致，默认为`False`，即控件宽度会扩展至可用的最大宽度。
+
+- `dont_extend_height`参数，布尔类型或者`Filter`类型，表示当`height`参数没有设置时，控件的实际宽度高否与内容高度一致，默认为`False`，即控件高度会扩展至可用的最大高度。
+
+- `ignore_content_width`参数，布尔类型或者`Filter`类型，表示计算控件宽度时，是否忽略`content`参数的内容的宽度，默认为`False`。
+
+- `ignore_content_height`参数，布尔类型或者`Filter`类型，表示计算控件高度时，是否忽略`content`参数的内容的高度，默认为`False`。
+
+- `left_margins`参数，元素为`Margin`类型、无重复元素的有序可迭代对象，表示左边栏的内容。支持的边栏可以参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#margins。以下为简单的示例：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, Window,FormattedTextControl
+  from prompt_toolkit.widgets import Button
+  from prompt_toolkit.layout.margins import NumberedMargin
+  
+  layout = Layout(
+      HSplit(
+          [
+              Window(
+                  FormattedTextControl('H\ne\nl\nl\no'),
+                  left_margins=[NumberedMargin()]
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![window_1](prompt_toolkit.assets/window_1.png)
+
+- `right_margins`参数，元素为`Margin`类型、无重复元素的有序可迭代对象，表示右边栏的内容。
+
+- `scroll_offsets`参数，`ScrollOffsets`类型（使用`from prompt_toolkit.layout.containers import ScrollOffsets`导入），表示当内容可以滚动时，为了确保光标到边界的距离不小于该参数的值，程序会自动滚动内容，来满足该参数的值。
+
+- `allow_scroll_beyond_bottom`参数，布尔类型或者`Filter`类型，表示当内容可以滚动时，如果光标到达底部，是否额外显示空白行来满足滚动的要求（要求光标居中，确保阅读体验），默认为`False`。
+
+- `wrap_lines`参数，布尔类型或者`Filter`类型，表示是否开启自动换行，默认为`False`。
+
+- `get_vertical_scroll`参数，参数为`Window`类型、返回整数类型的可调用类型，表示当内容可以滚动时，获取当前可见区域是垂直方向滚动滚动了多少行的方法。
+
+- `get_horizontal_scroll`参数，参数为`Window`类型、返回整数类型的可调用类型，表示当内容可以滚动时，获取当前可见区域是水平方向滚动滚动了多少列的方法。
+
+- `always_hide_cursor`参数，布尔类型或者`Filter`类型，表示是否始终隐藏光标，默认为`False`。
+
+- `cursorline`参数，布尔类型或者`Filter`类型，光标所在行的内容是否添加下划线，默认为`False`。
+
+- `cursorcolumn`参数，布尔类型或者`Filter`类型，光标所在列的内容是否高亮，默认为`False`。
+
+- `colorcolumns`参数，元素为`ColorColumn`类型（使用`from prompt_toolkit.layout.containers import ColorColumn`导入）的列表或者调用之后返回同样类型列表的可调用类型，表示具体哪一列的内容使用什么样式。以下为示例：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, Window,FormattedTextControl
+  from prompt_toolkit.widgets import Button
+  from prompt_toolkit.layout.containers import ColorColumn
+  
+  layout = Layout(
+      HSplit(
+          [
+              Window(
+                  FormattedTextControl('HH\nee\nll\nll\noo'),
+                  colorcolumns=[
+                      ColorColumn(0,'red'),
+                      ColorColumn(1,'green')
+                  ]
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![window_2](prompt_toolkit.assets/window_2.png)
+
+- `align`参数，`WindowAlign`枚举对象（使用`from prompt_toolkit.layout.containers import WindowAlign`导入）的成员或者调用之后返回同样类型的可调用类型，表示内容的对齐方向。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, Window,FormattedTextControl
+  from prompt_toolkit.widgets import Button
+  from prompt_toolkit.layout.containers import WindowAlign
+  
+  layout = Layout(
+      HSplit(
+          [
+              Window(
+                  FormattedTextControl('HH\nee\nll\nll\noo'),
+                  align=WindowAlign.RIGHT
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![window_3](prompt_toolkit.assets/window_3.png)
+
+- `style`参数，字符串类型或者调用之后返回同样类型的可调用类型，表示内容的样式。
+
+- `char`参数，字符串类型或者调用之后返回同样类型的可调用类型，表示用于填充空白区域的字符串，默认为`None`。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, Window,FormattedTextControl
+  from prompt_toolkit.widgets import Button
+  from prompt_toolkit.layout.containers import WindowAlign
+  
+  layout = Layout(
+      HSplit(
+          [
+              Window(
+                  FormattedTextControl('HH\nee\nll\nll\noo'),
+                  char='~'
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![window_4](prompt_toolkit.assets/window_4.png)
+
+- `get_line_prefix`参数，可调用类型，表示获取行前缀的方法。该可调用对象接收两个整数类型参数，分别为不计算换行的第几行、本行在换行中的第几行；返回的结果为字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, Window,FormattedTextControl
+  from prompt_toolkit.widgets import Button
+  
+  layout = Layout(
+      HSplit(
+          [
+              Window(
+                  FormattedTextControl('HHhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\nee\nll\nll\noo'),
+                  get_line_prefix=lambda a,b:[('red',f'{a},{b}')],
+                  wrap_lines=True
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![window_5](prompt_toolkit.assets/window_5.png)
+
+`Window`类支持以下属性：
+
+- `align`属性，同`align`参数。
+- `allow_scroll_beyond_bottom`属性，同`allow_scroll_beyond_bottom`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `always_hide_cursor`属性，同`always_hide_cursor`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `char`属性，同`char`参数。
+- `colorcolumns`属性，同`colorcolumns`参数。
+- `content`属性，同`content`参数。
+- `cursorcolumn`属性，同`cursorcolumn`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `cursorline`属性，同`cursorline`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `dont_extend_height`属性，同`dont_extend_height`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `dont_extend_width`属性，同`dont_extend_width`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `get_horizontal_scroll`属性，同`get_horizontal_scroll`参数。
+- `get_line_prefix`属性，同`get_line_prefix`参数。
+- `get_vertical_scroll`属性，同`get_vertical_scroll`参数。
+- `height`属性，同`height`参数。
+- `ignore_content_height`属性，同`ignore_content_height`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `ignore_content_width`属性，同`ignore_content_width`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `left_margins`属性，同`left_margins`参数。
+- `right_margins`属性，同`right_margins`参数。
+- `scroll_offsets`属性，同`scroll_offsets`参数。
+- `style`属性，同`style`参数。
+- `width`属性，同`width`参数。
+- `wrap_lines`属性，同`wrap_lines`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `z_index`属性，同`z_index`参数。
+
+`Window`类支持以下方法：
+
+- `get_key_bindings`方法，获取被包装的`UIControl`类型控件绑定的快捷键。
+- `preferred_height`方法，获取在指定宽度和最大可用高度的情况下的最佳控件高度。该方法支持以下参数：
+  - `width`参数，整数类型，表示指定的宽度。
+  - `max_available_height`参数，整数类型，表示最大可用高度。
+- `preferred_width`方法，获取在最大可用宽度的情况下的最佳控件宽度。该方法支持以下参数：
+  - `max_available_width`参数，整数类型，表示最大可用宽度。
+- `reset`方法，复位控件。
+
+##### 3.2.1.3 `HSplit`控件和`VSplit`控件
+
+`HSplit`控件和`VSplit`控件的参数、方法、属性都一样，只不过前者在子控件之间添加水平分隔（子控件为垂直排布），后者在子控件之间添加垂直分隔（子控件为水平排布）。因此，本节将二者合并到一节来介绍。
+
+本节参考的原文如下：
+
+`HSplit`控件：https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.HSplit
+
+`VSplit`控件：https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.VSplit
+
+使用下面的代码导入（二选一）：
+
+```python3
+from prompt_toolkit.layout import HSplit,VSplit
+from prompt_toolkit.layout.containers import HSplit,VSplit
+```
+
+示例如下：
+
+```python3
+```
 
 
-https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.Layout
+
+控件支持以下参数：
+
+- 
+
+控件支持以下属性：
+
+- 
+
+控件支持以下方法：
+
+- 
 
 
 
-prompt_toolkit.layout 模块
+
+
+##### 3.2.1.4 `FloatContainer`控件
+
+
+
+控件支持以下参数：
+
+- 
+
+控件支持以下属性：
+
+- 
+
+控件支持以下方法：
+
+- 
 
 
 
 
 
-
-
-Window控件
-
-
-
-HSplit
-
-VSplit
+##### 3.2.1.5 `ConditionalContainer`控件
 
 
 
-FloatContainer
+控件支持以下参数：
 
-ConditionalContainer
+- 
 
-DynamicContainer
+控件支持以下属性：
+
+- 
+
+控件支持以下方法：
+
+- 
+
+
 
 
 
 ScrollablePane
+
+
 
 prompt_toolkit.widgets 模块
 
   Frame
 
   Shadow
+
+Box
 
 
 
@@ -3651,87 +4093,29 @@ prompt_toolkit.widgets 模块
 
 prompt_toolkit.widgets 模块
 
+  Label 
 
-
-base:
-
-Box
-
-  Button
-
-  Checkbox
-
-  CheckboxList,
+ Button
 
 
 
   HorizontalLine
 
-  Label
+  VerticalLine
 
-  ProgressBar,
+
 
   RadioList
+
+  Checkbox
+
+  CheckboxList
 
 
 
   TextArea
 
-  VerticalLine
-
-
-
-Dialog
-
-MenuContainer, MenuItem
-
-
-
-UIControl类
-
-toolbar:
-
-ArgToolbar,
-
-  CompletionsToolbar,
-
-  FormattedTextToolbar,
-
-  SearchToolbar,
-
-  SystemToolbar,
-
-  ValidationToolbar,
-
-
-
-prompt_toolkit.layout 模块
-
-FormattedTextControl
-
-BufferControl
-
-
-
-
-
-
-
-必须要讲解的、相关的具体内容：
-
-外边距在布局中，边框在部件中，布局（各类容器），控件、部件，
-
-只提供widgets，layout和其他controls，这部分需要查看手册和官方示例，挖掘API中widgets提供的组件。
-
-
-
-
-
-
-
-
-
-
+  ProgressBar
 
 
 
@@ -3746,12 +4130,6 @@ BufferControl
 ## 4 进阶知识（更新中）
 
 本章将对照 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/index.html 中除了基础知识介绍过内容外的其余内容，并补充一些官方手册中有但官方教程没写的内容。
-
-
-
-
-
-
 
 ### 4.1 状态过滤器（更新中）
 
@@ -3793,11 +4171,37 @@ print(f'输入的内容是: {result}')
 
 
 
+### 4.3 高级控件（更新中）
 
 
 
 
 
+Dialog
+
+
+
+from prompt_toolkit.widgets.menus 
+
+MenuContainer, MenuItem
+
+
+
+
+
+toolbar（部分）:
+
+  FormattedTextToolbar,
+
+  SystemToolbar
+
+
+
+prompt_toolkit.layout 模块
+
+FormattedTextControl
+
+BufferControl
 
 
 
@@ -3815,8 +4219,6 @@ set_title 设置终端窗口的标题，来自 https://python-prompt-toolkit.rea
 
 
 
-
-
 get_app
 
 get_app_or_none
@@ -3825,81 +4227,10 @@ get_app_session
 
 get_cwidth
 
-get_bell_environment_variable
-
-get_term_environment_variable
 
 
 
 
 
 
-
-
-
-API文档目录（仅做参考，写完删除）
-
-框架的API文档很全面，提供的功能也很多，但并非所有的功能都有对应的教程和示例。为了方便读者理解框架的各个模块，本节先简单总结一下API手册各个部分对应哪一类功能，后面在详细解释这一部分（模块）具体功能的参数。
-
-API文档目录如下：
-
-- 应用程序部分，对应`application`模块，这一部分主要为应用式框架程序中`Application`对象相关的类和功能。
-
-  原文为 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.application 。
-
-- 带格式的文本部分，
-
-  原文为 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.formatted_text 。
-
-- 缓冲，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.buffer
-
-- 选择，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.selection
-
-- 剪贴板，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.clipboard
-
-- 自动补全，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.completion
-
-- 文档对象，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.document
-
-- 枚举变量，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.enums
-
-- 历史记录，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.history
-
-- 按键对象，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.keys
-
-- 样式对象，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.styles
-
-- 快捷功能（内部实现，直接可用的组件、功能、控件、方法、类等），https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.shortcuts
-
-- 验证模块，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.validation
-
-- 自动建议（有点像自动补全，需要写一下区别），https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.auto_suggest
-
-- 渲染对象，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.renderer
-
-- 语法高亮方案，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.lexers
-
-- 布局，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.layout
-
-- 容器，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#containers
-
-- 控件，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#controls
-
-- 其他（无法准确归类的杂项），https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#other
-
-- 组件（部件），https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.widgets
-
-- 过滤器，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.filters
-
-- 按键绑定，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.key_binding
-
-- 事件循环，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.eventloop
-
-- 输入，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.input
-
-- 输出，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.output
-
-- 数据结构，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#data-structures
-
-- 标准输出的补丁，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.patch_stdout
 

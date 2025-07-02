@@ -67,6 +67,8 @@ Qt开头的是模块，Q开头（不含Qt开头）的是类，命名采用大驼
 
 
 
+（下面的图片用表格重新写一下）
+
 ![mainwindow_1](pyside6.assets/mainwindow_1.png)
 
 ```python3
@@ -86,6 +88,149 @@ window = QDialog()
 window.resize(400,300)
 
 window.show()
+app.exec()
+```
+
+
+
+
+
+三种Application：
+
+```python3
+# 继承关系为：
+# QCoreApplication -> QGuiApplication -> QApplication
+# 因此，QApplication不仅可以运行QtWidgets程序，也可以运行QtQucik程序
+# QCoreApplication只能运行控制台程序，不能运行GUI程序
+
+# 无GUI的控制台程序示例
+from PySide6.QtWidgets import (
+    QApplication,
+)
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QCoreApplication,QTimer
+
+app = QCoreApplication()
+QTimer.singleShot(1000,lambda :print('app is running'))
+QTimer.singleShot(2000,lambda :print('app is still running'))
+QTimer.singleShot(3000,app.quit)
+app.exec()
+```
+
+
+
+
+
+
+
+信号与槽
+
+
+
+
+
+消息与事件
+
+
+
+窗口的关闭事件：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMessageBox,
+    QPushButton
+)
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QWidget(windowIcon=QIcon.fromTheme(QIcon.ThemeIcon.ViewFullscreen))
+window.resize(400,300)
+window.show()
+window2 = QWidget(windowIcon=QIcon.fromTheme(QIcon.ThemeIcon.MediaTape))
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.alert(window,0))
+window2.show()
+
+window2.closeEvent = lambda e: e.accept() if QMessageBox.question(window2,'消息',"你确定要退出吗？", QMessageBox.Yes|QMessageBox.No, QMessageBox.No) == QMessageBox.Yes else e.ignore()
+
+app.exec()
+```
+
+
+
+
+
+QtQuick的基本示例：
+
+加载QML文件
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl
+from PySide6.QtQuick import QQuickView
+
+app = QGuiApplication()
+
+# main.qml 内容为：
+'''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: "green"
+
+    Text {
+        text: "Hello World"
+        anchors.centerIn: main
+    }
+}
+'''
+view = QQuickView(source=QUrl('./main.qml'))
+view.resize(200,200)
+view.setTitle('Main')
+view.show()
+
+app.exec()
+```
+
+加载QML字符串：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_src = '''
+import QtQuick
+import QtQuick.Controls
+
+ApplicationWindow {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: "green"
+
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+
 app.exec()
 ```
 

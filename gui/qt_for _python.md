@@ -1,14 +1,8 @@
-# PySide6学习笔记
+# Qt For Python 札记（2025版）
 
-## 0 前言
+Qt For Python （目前库名为PySide6）各类教程已经有很多，笔者就不班门弄斧了。不过，框架在使用过程中还是有不少难点，对于心急的初学者来说，很容易在找不到解决方法之后轻言放弃。因此，笔者将代入初学者的视角，将学习心得按照时间顺序一一记下，以便于有一定基础但囿于难点的读者按图索骥。
 
-PySide6各类教程已经有很多，笔者就不班门弄斧了。不过，框架在使用过程中还是有不少难点，对于心急的初学者来说，很容易在找不到解决方法之后轻言放弃。因此，笔者将代入初学者的视角，按照学习顺序记录一下使用过程中遇到的难点，并给出解释和解决方法，以便于有一定基础但囿于难点的读者按图索骥。
-
-## 1 基础篇
-
-本章主要介绍那些学习基础功能时遇到的难点。
-
-### 1.1 安装PySide6
+## 1 安装PySide6的注意事项
 
 学习的第一步就是安装库。不过，官方提供了不少相关的库，但并非所有的库都是必需的。以下面的虚拟环境（使用环境管理工具UV创建）为例，笔者添加了官方提供的相关库，其依赖关系如下（使用`uv tree`生成）：
 
@@ -33,7 +27,7 @@ pyside6-uv-app v0.1.0
 
 需要注意的是，在使用UV管理虚拟环境时，单独移除`pyside6-examples`会导致`pyside6`的`__init__.py`丢失，可使用`uv sync --reinstall`重新安装所有库来解决此问题。
 
-### 1.2 PySide6的中的命名规则（暂定）
+## 2 PySide6各个模块的主要用途和命名规则（更新中）
 
 （内容待定）
 
@@ -53,11 +47,19 @@ https://doc.qt.io/qtforpython-6/py-modindex.html
 
 Qt开头的是模块，Q开头（不含Qt开头）的是类，命名采用大驼峰规则，即每个字段的首字母大写，直接连接每个字段。
 
+(模块的主要功能和模块名的对应做个表格，具体类名不做详细介绍，具体用到的时候再说，也不一定完全详细介绍所有类，但后续主要是提供完整但清晰的相关示例，代码要求简短，如果可以的话，提供截图和动画)
 
 
 
 
-### 1.3 PySide6程序的基本结构
+
+## 3 PySide6程序的基本结构
+
+
+
+
+
+简单说一下程序由那几部分组成，内容不多，主要时为了引出后面三种主窗口、消息机制、QtQuick程序，这里是打一下基础。可能需要制作一些结构示意图（手绘风格）。
 
 
 
@@ -69,7 +71,7 @@ Qt开头的是模块，Q开头（不含Qt开头）的是类，命名采用大驼
 
 （下面的图片用表格重新写一下）
 
-![mainwindow_1](pyside6.assets/mainwindow_1.png)
+![mainwindow_1](qt_for _python.assets/mainwindow_1.png)
 
 ```python3
 from PySide6.QtWidgets import (
@@ -157,6 +159,16 @@ window2.closeEvent = lambda e: e.accept() if QMessageBox.question(window2,'消�
 
 app.exec()
 ```
+
+
+
+
+
+
+
+QML基础文档：
+
+https://doc.qt.io/qt-6/qmlreference.html
 
 
 
@@ -315,6 +327,7 @@ qml_file = QTemporaryFile()
 if qml_file.open():
     qml_file.write(qml_string.encode())
     qml_file.close()
+    # 或者使用 qml_file.flush() 写入磁盘文件
 
 view = QQuickView(source=QUrl.fromLocalFile(qml_file.fileName()))
 
@@ -585,6 +598,7 @@ qml_file = QTemporaryFile()
 if qml_file.open():
     qml_file.write(qml_string.encode())
     qml_file.close()
+    # 或者使用 qml_file.flush() 写入磁盘文件
 
 window = QQuickWidget(source=QUrl.fromLocalFile(qml_file.fileName()))
 
@@ -697,13 +711,22 @@ app.exec()
 
 
 
-## 2 进阶篇
-
-本章主要介绍那些完成功能丰富的GUI程序时遇到的难点。
-
-## 3 实例篇
-
-本章主要介绍那些实现实际项目需求时遇到的难点。
 
 
 
+
+# Qt For Python 札记（2026版）
+
+2025版在创作过程中添加了不少对之前内容的修正、补充，但还是未能做到内容正确、全面。对于之前内容错误、遗漏之处，2026年，笔者将继续本教程系列的更新。当然，基础、理论部分已经写了不少，除非Qt框架后续更新之后有变动，基础、理论部分不会有其他新内容了，只会补充遗漏、修正错误、扩展用法、衍生相关内容。
+
+## 1 （修正2025.13）
+
+原内容存在错误，修正错误。
+
+## 1 （补充2025.13）
+
+原内容不全面，补充内容。
+
+## 1 （扩展2025.13）
+
+从原内容想到的其他内容，虽然可以作为独立的内容写标题，但这部分内容确实是看完原内容才有了创作契机。

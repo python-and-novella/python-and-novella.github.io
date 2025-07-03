@@ -4339,43 +4339,200 @@ app.run()
 
 - `content`属性，同`content`参数。
 - `floats`属性，同`floats`参数。
-- 
+- `key_bindings`属性，同`key_bindings`参数。
+- `modal`属性，同`modal`参数。
+- `style`属性，同`style`参数。
+- `z_index`属性，同`z_index`参数。
 
 `FloatContainer`控件支持以下方法：
 
 - `get_children`方法，返回`content`属性与`floats`属性的合集。
 - `get_key_bindings`方法，返回`key_bindings`属性。
 - `is_modal`方法，返回`modal`属性。
-- 
+- `preferred_height`方法，获取在指定宽度和最大可用高度的情况下的最佳控件高度。该方法支持以下参数：
+  - `width`参数，整数类型，表示指定的宽度。
+  - `max_available_height`参数，整数类型，表示最大可用高度。
+- `preferred_width`方法，获取在最大可用宽度的情况下的最佳控件宽度。该方法支持以下参数：
+  - `max_available_width`参数，整数类型，表示最大可用宽度。
+- `reset`方法，复位控件。
 
 `Float`控件支持以下参数：
 
 - `content`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示控件的内容。
-- `top`参数，
-- `right`参数，
-- `bottom`参数，
-- `left`参数，
-- `width`参数，
-- `height`参数，
-- `xcursor`参数，
-- `ycursor`参数，
-- 
+
+- `top`参数，整数类型，表示控件的到`FloatContainer`控件顶部的距离。
+
+- `right`参数，整数类型，表示控件的到`FloatContainer`控件右边的距离。
+
+- `bottom`参数，整数类型，表示控件的到`FloatContainer`控件底部的距离。
+
+- `left`参数，整数类型，表示控件的到`FloatContainer`控件左边的距离。
+
+- `width`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的宽度。
+
+- `height`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的高度。
+
+- `xcursor`参数，布尔类型，表示控件的X坐标是否与光标一致（此时会略控件四个方向上到`FloatContainer`控件的距离），默认为`False`。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, VSplit, Window, FormattedTextControl, FloatContainer, Float
+  from prompt_toolkit.layout.containers import FloatContainer, Float
+  from prompt_toolkit.widgets import Button
+  
+  layout = Layout(
+      FloatContainer(
+          VSplit(
+              [
+                  Window(
+                      FormattedTextControl('Hello'),
+                      style='bg:blue'
+                  ),
+                  Window(
+                      FormattedTextControl('Hello'),
+                      style='bg:red'
+                  ),
+              ]
+          ),
+          floats=[
+              Float(
+                  VSplit(
+                      [
+                          Button(
+                              'close app',
+                              lambda: app.exit()
+                          ),
+                      ]
+                  ),
+                  top=1,
+                  xcursor=True
+              ),
+              Float(
+                  VSplit(
+                      [
+                          Button(
+                              'close app',
+                              lambda: app.exit()
+                          ),
+                      ]
+                  ),
+                  top=2,
+                  xcursor=True
+              )
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![float_2](prompt_toolkit.assets/float_2.png)
+
+- `ycursor`参数，布尔类型，表示控件的Y坐标是否与光标一致（此时会略控件四个方向上到`FloatContainer`控件的距离），默认为`False`。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, VSplit, Window, FormattedTextControl, FloatContainer, Float
+  from prompt_toolkit.layout.containers import FloatContainer, Float
+  from prompt_toolkit.widgets import Button
+  
+  layout = Layout(
+      FloatContainer(
+          VSplit(
+              [
+                  Window(
+                      FormattedTextControl('Hello'),
+                      style='bg:blue'
+                  ),
+                  Window(
+                      FormattedTextControl('Hello'),
+                      style='bg:red'
+                  ),
+              ]
+          ),
+          floats=[
+              Float(
+                  VSplit(
+                      [
+                          Button(
+                              'close app',
+                              lambda: app.exit()
+                          ),
+                      ]
+                  ),
+                  top=1,
+                  ycursor=True
+              ),
+              Float(
+                  VSplit(
+                      [
+                          Button(
+                              'close app',
+                              lambda: app.exit()
+                          ),
+                      ]
+                  ),
+                  top=2,
+                  ycursor=True
+              )
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![float_1](prompt_toolkit.assets/float_1.png)
+
+- `attach_to_window`参数，`Window`类型或者实现了`__pt_container__`方法（该方法返回`Window`对象）的类型，表示控件用于获取光标位置的`Window`对象。
+
+- `hide_when_covering_content`参数，布尔类型，表示当控件覆盖到`FloatContainer`控件的有效内容（有文字显示的内容）时，是否隐藏控件，默认为`False`。
+
+- `allow_cover_cursor`参数，布尔类型，表示在设置`ycursor`参数时，是否允许控件覆盖光标，默认为`False`。
+
+- `z_index`参数，整数类型，表示控件的Z轴坐标。在共同的显示区域中，Z轴坐标大的控件可以遮蔽Z轴坐标小的控件。
+
+- `transparent`参数，布尔类型，表示对于大小非内容实际大小的控件，是否将不包含内容的背景绘制为透明，默认为`False`。
 
 `Float`控件支持以下属性：
 
-- 
+- `allow_cover_cursor`属性，同`allow_cover_cursor`参数。
+- `attach_to_window`属性，同`attach_to_window`参数。
+- `bottom`属性，同`bottom`参数。
+- `content`属性，同`content`参数。
+- `height`属性，同`height`参数。
+- `hide_when_covering_content`属性，同`hide_when_covering_content`参数。
+- `left`属性，同`left`参数。
+- `right`属性，同`right`参数。
+- `top`属性，同`top`参数。
+- `transparent`属性，同`transparent`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `width`属性，同`width`参数。
+- `xcursor`属性，同`xcursor`参数。
+- `ycursor`属性，同`ycursor`参数。
+- `z_index`属性，同`z_index`参数。
 
 `Float`控件支持以下方法：
 
-- 
-
-
-
-
-
-
+- `get_height`方法，返回`height`属性。
+- `get_width`方法，返回`width`属性。
 
 ##### 3.2.1.5 `ConditionalContainer`控件
+
+
+
+
 
 
 

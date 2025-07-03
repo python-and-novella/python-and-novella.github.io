@@ -71,7 +71,7 @@ Qt开头的是模块，Q开头（不含Qt开头）的是类，命名采用大驼
 
 （下面的图片用表格重新写一下）
 
-![mainwindow_1](qt_for _python.assets/mainwindow_1.png)
+![mainwindow_1](qt_for_python.assets/mainwindow_1.png)
 
 ```python3
 from PySide6.QtWidgets import (

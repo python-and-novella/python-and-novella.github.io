@@ -4332,20 +4332,34 @@ app.run()
 - `floats`参数，元素为`Float`类型的列表，表示浮动内容。
 - `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`False`。
 - `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
-- `style`参数，
-- `z_index`参数，
+- `style`参数，字符串类型或者调用之后返回同样类型的可调用类型，表示内容的样式。
+- `z_index`参数，整数类型，表示控件的Z轴坐标。在共同的显示区域中，Z轴坐标大的控件可以遮蔽Z轴坐标小的控件。
 
 `FloatContainer`控件支持以下属性：
 
+- `content`属性，同`content`参数。
+- `floats`属性，同`floats`参数。
 - 
 
 `FloatContainer`控件支持以下方法：
 
+- `get_children`方法，返回`content`属性与`floats`属性的合集。
+- `get_key_bindings`方法，返回`key_bindings`属性。
+- `is_modal`方法，返回`modal`属性。
 - 
 
 `Float`控件支持以下参数：
 
-- `content`参数，
+- `content`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示控件的内容。
+- `top`参数，
+- `right`参数，
+- `bottom`参数，
+- `left`参数，
+- `width`参数，
+- `height`参数，
+- `xcursor`参数，
+- `ycursor`参数，
+- 
 
 `Float`控件支持以下属性：
 

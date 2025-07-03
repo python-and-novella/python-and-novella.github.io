@@ -153,7 +153,7 @@ window2.resize(400,300)
 QPushButton('click',window2).clicked.connect(lambda :app.alert(window,0))
 window2.show()
 
-window2.closeEvent = lambda e: e.accept() if QMessageBox.question(window2,'消息',"你确定要退出吗？", QMessageBox.Yes|QMessageBox.No, QMessageBox.No) == QMessageBox.Yes else e.ignore()
+window2.closeEvent = lambda e: e.accept() if QMessageBox.question(window2,'消息','你确定要退出吗？', QMessageBox.Yes|QMessageBox.No, QMessageBox.No) == QMessageBox.Yes else e.ignore()
 
 app.exec()
 ```
@@ -183,10 +183,10 @@ Rectangle {
     id: main
     width: 200
     height: 200
-    color: "green"
+    color: 'green'
 
     Text {
-        text: "Hello World"
+        text: 'Hello World'
         anchors.centerIn: main
     }
 }
@@ -216,10 +216,10 @@ Rectangle {
     id: main
     width: 200
     height: 200
-    color: "green"
+    color: 'green'
 
     Text {
-        text: "Hello World"
+        text: 'Hello World'
         anchors.centerIn: main
     }
 }
@@ -258,10 +258,10 @@ Rectangle {
     id: main
     width: 200
     height: 200
-    color: "green"
+    color: 'green'
 
     Text {
-        text: "Hello World"
+        text: 'Hello World'
         anchors.centerIn: main
     }
 }
@@ -275,6 +275,49 @@ view = QQuickView(source=QUrl.fromLocalFile(qml_file.name))
 # 删除临时文件
 import os
 os.remove(qml_file.name)
+# 或者 os.unlink(qml_file.name)
+
+view.resize(200,200)
+view.setTitle('Main')
+
+view.show()
+
+app.exec()
+```
+
+不想手动删除临时文件的话，可以使用`QTemporaryFile`：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl,QTemporaryFile
+from PySide6.QtQuick import QQuickView
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: 'green'
+
+    Text {
+        text: 'Hello World'
+        anchors.centerIn: main
+    }
+}
+'''
+# 将字符串写入临时文件，自动生成随机后缀，程序退出后自动删除
+# 可以指定临时文件的非随机部分名和路径，但要求路径所表示的文件夹已经存在，否则不能正常创建临时文件
+qml_file = QTemporaryFile()
+if qml_file.open():
+    qml_file.write(qml_string.encode())
+    qml_file.close()
+
+view = QQuickView(source=QUrl.fromLocalFile(qml_file.fileName()))
+
 
 view.resize(200,200)
 view.setTitle('Main')
@@ -309,7 +352,7 @@ ApplicationWindow {
         id: main
         width: 200
         height: 200
-        color: "green"
+        color: 'green'
 
         Text {
             text: 'Hello World'
@@ -345,7 +388,7 @@ ApplicationWindow {
         id: main
         width: 200
         height: 200
-        color: "green"
+        color: 'green'
 
         Text {
             text: 'Hello World'
@@ -371,6 +414,7 @@ from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQuickWidgets import QQuickWidget
 
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
 app = QApplication()
 
 # main.qml 内容为：
@@ -381,10 +425,10 @@ Rectangle {
     id: main
     width: 200
     height: 200
-    color: "green"
+    color: 'green'
 
     Text {
-        text: "Hello World"
+        text: 'Hello World'
         anchors.centerIn: main
     }
 }
@@ -425,10 +469,10 @@ Rectangle {
     id: main
     width: 200
     height: 200
-    color: "green"
+    color: 'green'
 
     Text {
-        text: "Hello World"
+        text: 'Hello World'
         anchors.centerIn: main
     }
 }
@@ -465,6 +509,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtQuickWidgets import QQuickWidget
 import tempfile
 
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
 app = QApplication()
 
 qml_string = '''
@@ -474,10 +519,10 @@ Rectangle {
     id: main
     width: 200
     height: 200
-    color: "green"
+    color: 'green'
 
     Text {
-        text: "Hello World"
+        text: 'Hello World'
         anchors.centerIn: main
     }
 }
@@ -491,6 +536,57 @@ window = QQuickWidget(source=QUrl.fromLocalFile(qml_file.name))
 # 删除临时文件
 import os
 os.remove(qml_file.name)
+# 或者 os.unlink(qml_file.name)
+
+window.resize(200,200)
+# QQuickWidget 不支持 view.setTitle('Main')
+window.setWindowTitle('Main')
+
+window.show()
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+不想手动删除临时文件的话，可以使用`QTemporaryFile`：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl,QTemporaryFile
+from PySide6.QtQuickWidgets import QQuickWidget
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+qml_string = '''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: 'green'
+
+    Text {
+        text: 'Hello World'
+        anchors.centerIn: main
+    }
+}
+'''
+
+# 将字符串写入临时文件，自动生成随机后缀，程序退出后自动删除
+# 可以指定临时文件的非随机部分名和路径，但要求路径所表示的文件夹已经存在，否则不能正常创建临时文件
+qml_file = QTemporaryFile()
+if qml_file.open():
+    qml_file.write(qml_string.encode())
+    qml_file.close()
+
+window = QQuickWidget(source=QUrl.fromLocalFile(qml_file.fileName()))
 
 window.resize(200,200)
 # QQuickWidget 不支持 view.setTitle('Main')
@@ -516,6 +612,7 @@ from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
 
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
 app = QApplication()
 
 # main.qml 内容为：
@@ -532,7 +629,7 @@ ApplicationWindow {
         id: main
         width: 200
         height: 200
-        color: "green"
+        color: 'green'
 
         Text {
             text: 'Hello World'
@@ -559,6 +656,7 @@ from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
 
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
 app = QApplication()
 
 qml_src = '''
@@ -574,7 +672,7 @@ ApplicationWindow {
         id: main
         width: 200
         height: 200
-        color: "green"
+        color: 'green'
 
         Text {
             text: 'Hello World'

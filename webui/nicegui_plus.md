@@ -132,6 +132,8 @@ ui.run(native=True)
 
 修改`ui.run()`的默认参数`favicon`为自己logo的地址（图片地址，注意图片的格式要求）或者字符（仅支持单个字符，可以是汉字或者emoji），例如：`ui.run(favicon='🚀')`。
 
+（来个图）
+
 ## 7 为什么有时候创建在`ui.refreshable`装饰的函数内的控件不会刷新？
 
 有的读者在使用`ui.refreshable`装饰器的时候，遇到了一个奇怪的问题，这里分享一下，那就是创建在`ui.refreshable`装饰的函数内的控件不会刷新。
@@ -197,11 +199,13 @@ ui.button('button').classes('!bg-red-700')
 ui.run(native=True)
 ```
 
+（来个图）
+
 注意：Quasar的颜色体系和TailWindCSS的颜色体系不同。Quasar中，使用`color-[1-14]`来表示颜色，数字表示颜色程度，可选。TailWindCSS中，使用`type-color-[50-950]`表示颜色，type为功能类别，数字表示颜色程度，可选。需要注意代码中不同方式使用的颜色体系。
 
 ## 9 在不使用CSS情况下实现一个 Floating Action Button
 
-Floating Action Button可以简单理解为只有图标的圆形按钮，如果熟悉CSS样式的话，可以将普通的按钮改成类似样式，但是，`ui.button`自带一个`fab`属性（`props`），可以一步完成，这就省去调整CSS的过程，代码如下：
+Floating Action Button可以简单理解为只有图标的圆形按钮，如果熟悉CSS样式的话，可以将普通的按钮改成类似样式，但是，`ui.button`自带一个`fab`属性（`props`），可以一步完成，这就省去了调整CSS的过程，代码如下：
 
 ```python3
 from nicegui import ui
@@ -211,7 +215,7 @@ ui.button(icon='home', on_click=lambda: ui.notify('home')).props('fab')
 ui.run(native=True)
 ```
 
-
+（来个图）
 
 
 

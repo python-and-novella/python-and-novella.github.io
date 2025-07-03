@@ -164,7 +164,9 @@ app.exec()
 
 QtQuick的基本示例：
 
-加载QML文件
+使用`QQuickView`：
+
+加载QML文件（使用`QQuickView`）：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
@@ -197,7 +199,131 @@ view.show()
 app.exec()
 ```
 
-加载QML字符串：
+加载QML字符串（使用`QQuickView`和`QQmlComponent`）：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl,QByteArray
+from PySide6.QtQuick import QQuickView
+from PySide6.QtQml import QQmlComponent
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: "green"
+
+    Text {
+        text: "Hello World"
+        anchors.centerIn: main
+    }
+}
+'''
+
+view = QQuickView()
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 给component加载qml字符串
+component.setData(QByteArray(qml_string.encode()),QUrl())
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+view.setContent(QUrl(), component, component.create())
+
+view.resize(200,200)
+view.setTitle('Main')
+
+view.show()
+
+app.exec()
+```
+
+加载QML字符串（写入临时文件，也兼容Qt中其他只能加载文件的地方）：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl
+from PySide6.QtQuick import QQuickView
+import tempfile
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: "green"
+
+    Text {
+        text: "Hello World"
+        anchors.centerIn: main
+    }
+}
+'''
+# 将字符串写入临时文件
+with tempfile.NamedTemporaryFile(delete=False) as qml_file:
+    qml_file.write(qml_string.encode())
+
+view = QQuickView(source=QUrl.fromLocalFile(qml_file.name))
+
+# 删除临时文件
+import os
+os.remove(qml_file.name)
+
+view.resize(200,200)
+view.setTitle('Main')
+
+view.show()
+
+app.exec()
+```
+
+使用`QQmlApplicationEngine`（加载文件和字符串都很简单，但默认不包括窗口，需要在QML中定义）：
+
+加载QML文件（使用`QQmlApplicationEngine`）：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+# main.qml 内容为：
+'''
+import QtQuick
+import QtQuick.Controls
+
+ApplicationWindow {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: "green"
+
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine(QUrl('./main.qml'))
+
+app.exec()
+```
+
+加载QML字符串（使用`QQmlApplicationEngine`生成窗口和窗口的内容）：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
@@ -230,6 +356,241 @@ ApplicationWindow {
 '''
 engine = QQmlApplicationEngine()
 engine.loadData(qml_src.encode('utf-8'),QUrl())
+
+app.exec()
+```
+
+在非QtQuick的程序中嵌入QtQuick组件：
+
+使用`QQuickWidget`（相当于`QQuickView`的平替，大部分功能兼容）：
+
+加载QML文件（使用`QQuickWidget`）：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQuickWidgets import QQuickWidget
+
+app = QApplication()
+
+# main.qml 内容为：
+'''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: "green"
+
+    Text {
+        text: "Hello World"
+        anchors.centerIn: main
+    }
+}
+'''
+
+window = QQuickWidget(source=QUrl('./main.qml'))
+
+window.resize(200,200)
+# QQuickWidget 不支持 view.setTitle('Main')
+window.setWindowTitle('Main')
+
+window.show()
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+加载QML字符串（使用`QQuickWidget`和`QQmlComponent`）：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl,QByteArray
+from PySide6.QtQuickWidgets import QQuickWidget
+from PySide6.QtQml import QQmlComponent
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+qml_string = '''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: "green"
+
+    Text {
+        text: "Hello World"
+        anchors.centerIn: main
+    }
+}
+'''
+
+window = QQuickWidget()
+# 使用view的engine创建component
+component = QQmlComponent(window.engine())
+# 给component加载qml字符串
+component.setData(QByteArray(qml_string.encode()),QUrl())
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+window.setContent(QUrl(), component, component.create())
+
+window.resize(200,200)
+# QQuickWidget 不支持 view.setTitle('Main')
+window.setWindowTitle('Main')
+
+window.show()
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+加载QML字符串（写入临时文件，也兼容Qt中其他只能加载文件的地方）：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQuickWidgets import QQuickWidget
+import tempfile
+
+app = QApplication()
+
+qml_string = '''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: "green"
+
+    Text {
+        text: "Hello World"
+        anchors.centerIn: main
+    }
+}
+'''
+# 将字符串写入临时文件
+with tempfile.NamedTemporaryFile(delete=False) as qml_file:
+    qml_file.write(qml_string.encode())
+
+window = QQuickWidget(source=QUrl.fromLocalFile(qml_file.name))
+
+# 删除临时文件
+import os
+os.remove(qml_file.name)
+
+window.resize(200,200)
+# QQuickWidget 不支持 view.setTitle('Main')
+window.setWindowTitle('Main')
+
+window.show()
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+使用`QQmlApplicationEngine`（加载文件和字符串都很简单，但默认不包括窗口，需要在QML中定义）：
+
+加载QML文件（使用`QQmlApplicationEngine`）：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QApplication()
+
+# main.qml 内容为：
+'''
+import QtQuick
+import QtQuick.Controls
+
+ApplicationWindow {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: "green"
+
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine(QUrl('./main.qml'))
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+加载QML字符串（使用`QQmlApplicationEngine`生成窗口和窗口的内容）：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QApplication()
+
+qml_src = '''
+import QtQuick
+import QtQuick.Controls
+
+ApplicationWindow {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: "green"
+
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
 
 app.exec()
 ```

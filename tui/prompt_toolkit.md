@@ -3853,7 +3853,7 @@ Window(
 
   ![window_2](prompt_toolkit.assets/window_2.png)
 
-- `align`参数，`WindowAlign`枚举对象（使用`from prompt_toolkit.layout.containers import WindowAlign`导入）的成员或者调用之后返回同样类型的可调用类型，表示内容的对齐方向。示例如下：
+- `align`参数，`WindowAlign`枚举对象（使用`from prompt_toolkit.layout.containers import WindowAlign`导入）的成员或者调用之后返回同样类型的可调用类型，表示内容的对齐方向，默认为`WindowAlign.LEFT`。示例如下：
 
   ```python3
   from prompt_toolkit import Application
@@ -4013,41 +4013,349 @@ from prompt_toolkit.layout.containers import HSplit,VSplit
 示例如下：
 
 ```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit, VSplit, Window, FormattedTextControl
+from prompt_toolkit.widgets import Button
+
+layout = Layout(
+    HSplit(
+        [
+            VSplit(
+                [
+                    Window(
+                        FormattedTextControl('Hello'),
+                        style='bg:blue'
+                    ),
+                    Window(
+                        FormattedTextControl('Hello'),
+                        style='bg:red'
+                    ),
+                ]
+            ),
+            VSplit(
+                [
+                    Button(
+                        'close app',
+                        lambda: app.exit()
+                    ),
+                    Button(
+                        'close app',
+                        lambda: app.exit()
+                    ),
+                ]
+            )
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
 ```
 
-
+![split_1](prompt_toolkit.assets/split_1.png)
 
 控件支持以下参数：
 
-- 
+- `children`参数，元素为`Container`类型、无重复元素的有序可迭代对象，表示容器内的控件。
+
+- `window_too_small`参数，`Container`类型，表示当终端尺寸太小，不足以显示某个控件时，显示的提示性内容。注意，由于容器类控件的特殊性，只有最顶层（为`Layout`控件的子控件时）的`HSplit`控件或者`VSplit`控件的`window_too_small`参数才会生效，同时，最顶层的`HSplit`控件或者`VSplit`控件的`height`参数和`width`参数不会生效（也不会触发该提示）。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, VSplit, Window, FormattedTextControl
+  from prompt_toolkit.widgets import Button
+  
+  layout = Layout(
+      HSplit(
+          [
+              VSplit(
+                  [
+                      Window(
+                          FormattedTextControl('Hello'),
+                          style='bg:blue'
+                      ),
+                      Window(
+                          FormattedTextControl('Hello'),
+                          style='bg:red'
+                      ),
+                  ],
+                  height=10
+              ),
+              VSplit(
+                  [
+                      Button(
+                          'close app',
+                          lambda: app.exit()
+                      ),
+                  ]
+              )
+          ],
+          window_too_small=Window(
+              FormattedTextControl('window too small'),
+              style='bg:green'
+          )
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  读者可以在运行时调小终端的高度，查看触发的结果。
+
+- `align`参数，`VerticalAlign`枚举对象（使用`from prompt_toolkit.layout.containers import VerticalAlign`导入）的成员或者调用之后返回同样类型的可调用类型，表示内容的对齐方向，默认为`VerticalAlign.JUSTIFY`。
+
+- `padding`参数，整数类型或者`Dimension`类型或者返回前面类型的可调用类型，表示容器的控件之间的距离，默认为`0`。
+
+- `padding_char`参数，字符串类型，表示容器的控件之间的填充字符，默认为`None`。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, VSplit, Window, FormattedTextControl
+  from prompt_toolkit.widgets import Button
+  
+  layout = Layout(
+      HSplit(
+          [
+              VSplit(
+                  [
+                      Window(
+                          FormattedTextControl('Hello'),
+                          style='bg:blue'
+                      ),
+                      Window(
+                          FormattedTextControl('Hello'),
+                          style='bg:red'
+                      ),
+                  ],
+                  padding=10,
+                  padding_char='x'
+              ),
+              VSplit(
+                  [
+                      Button(
+                          'close app',
+                          lambda: app.exit()
+                      ),
+                  ]
+              )
+          ],
+          window_too_small=Window(
+              FormattedTextControl('window too small'),
+              style='bg:green'
+          ),
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![split_2](prompt_toolkit.assets/split_2.png)
+
+- `padding_style`参数，字符串类型，表示容器的控件之间的填充字符的样式，默认为`''`。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit, VSplit, Window, FormattedTextControl
+  from prompt_toolkit.widgets import Button
+  
+  layout = Layout(
+      HSplit(
+          [
+              VSplit(
+                  [
+                      Window(
+                          FormattedTextControl('Hello'),
+                          style='bg:blue'
+                      ),
+                      Window(
+                          FormattedTextControl('Hello'),
+                          style='bg:red'
+                      ),
+                  ],
+                  padding=10,
+                  padding_char='x',
+                  padding_style='green'
+              ),
+              VSplit(
+                  [
+                      Button(
+                          'close app',
+                          lambda: app.exit()
+                      ),
+                  ]
+              )
+          ],
+          window_too_small=Window(
+              FormattedTextControl('window too small'),
+              style='bg:green'
+          ),
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![split_3](prompt_toolkit.assets/split_3.png)
+
+- `width`参数，整数类型或者`Dimension`类型或者返回前面类型的可调用类型，表示控件的宽度。`Dimension`类型可以定义最大最小值，还可以定义比重（份数）和优先大小，具体用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.Dimension。
+
+- `height`参数，整数类型或者`Dimension`类型或者返回前面类型的可调用类型，表示控件的高度。
+
+- `z_index`参数，整数类型，表示控件的Z轴坐标。在共同的显示区域中，Z轴坐标大的控件可以遮蔽Z轴坐标小的控件。
+
+- `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`False`。
+
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
+
+- `style`参数，字符串类型或者调用之后返回同样类型的可调用类型，表示内容的样式。
 
 控件支持以下属性：
 
-- 
+- `align`属性，同`align`参数。
+- `children`属性，同`children`参数。
+- `height`属性，同`height`参数。
+- `key_bindings`属性，同`key_bindings`参数。
+- `modal`属性，同`modal`参数。
+- `padding`属性，同`padding`参数。
+- `padding_char`属性，同`padding_char`参数。
+- `padding_style`属性，同`padding_style`参数。
+- `width`属性，同`width`参数。
+- `window_too_small`属性，同`window_too_small`参数。
+- `z_index`属性，同`z_index`参数。
 
 控件支持以下方法：
 
-- 
-
-
-
-
+- `get_children`方法，返回`children`属性。
+- `get_key_bindings`方法，返回`key_bindings`属性。
+- `is_modal`方法，返回`modal`属性。
+- `preferred_height`方法，获取在指定宽度和最大可用高度的情况下的最佳控件高度。该方法支持以下参数：
+  - `width`参数，整数类型，表示指定的宽度。
+  - `max_available_height`参数，整数类型，表示最大可用高度。
+- `preferred_width`方法，获取在最大可用宽度的情况下的最佳控件宽度。该方法支持以下参数：
+  - `max_available_width`参数，整数类型，表示最大可用宽度。
+- `reset`方法，复位控件。
 
 ##### 3.2.1.4 `FloatContainer`控件
 
+`FloatContainer`控件（使用`from prompt_toolkit.layout import FloatContainer,Float`或者`from prompt_toolkit.layout.containers import FloatContainer,Float`导入，完整用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.FloatContainer ）有两个表示不同区域的参数：表示背景的的`content`参数和表示在背景之上浮动的`floats`参数。二者的关系可以参考下图：
 
+![float_0](prompt_toolkit.assets/float_0.png)
 
-控件支持以下参数：
+通过修改`floats`参数中每个`Float`控件到特定方向的距离，可以让不同的浮动内容在特定位置上显示，属于位置比较自由的一种用法。
+
+先看示例：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit, VSplit, Window, FormattedTextControl, FloatContainer, Float
+from prompt_toolkit.layout.containers import FloatContainer, Float
+from prompt_toolkit.widgets import Button
+
+layout = Layout(
+    FloatContainer(
+        VSplit(
+            [
+                Window(
+                    FormattedTextControl('Hello'),
+                    style='bg:blue'
+                ),
+                Window(
+                    FormattedTextControl('Hello'),
+                    style='bg:red'
+                ),
+            ]
+        ),
+        floats=[
+            Float(
+                VSplit(
+                    [
+                        Button(
+                            'close app',
+                            lambda: app.exit()
+                        ),
+                    ]
+                ),
+                top=1
+            ),
+            Float(
+                VSplit(
+                    [
+                        Button(
+                            'close app',
+                            lambda: app.exit()
+                        ),
+                    ]
+                ),
+                top=2
+            )
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+![float_1](prompt_toolkit.assets/float_1.png)
+
+`FloatContainer`控件支持以下参数：
+
+- `content`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示背景内容。
+- `floats`参数，元素为`Float`类型的列表，表示浮动内容。
+- `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`False`。
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
+- `style`参数，
+- `z_index`参数，
+
+`FloatContainer`控件支持以下属性：
 
 - 
 
-控件支持以下属性：
+`FloatContainer`控件支持以下方法：
 
 - 
 
-控件支持以下方法：
+`Float`控件支持以下参数：
+
+- `content`参数，
+
+`Float`控件支持以下属性：
 
 - 
+
+`Float`控件支持以下方法：
+
+- 
+
+
 
 
 
@@ -4089,13 +4397,25 @@ Box
 
 #### 3.2.2 内容类控件（更新中）
 
+##### 3.2.2.1 `Label`控件
 
 
-prompt_toolkit.widgets 模块
 
-  Label 
+##### 3.2.2.2 `Button`控件
 
- Button
+
+
+##### 3.2.2.1 `Label`控件
+
+
+
+##### 3.2.2.1 `Label`控件
+
+
+
+##### 3.2.2.1 `Label`控件
+
+ 
 
 
 

@@ -51,6 +51,22 @@ Qt开头的是模块，Q开头（不含Qt开头）的是类，命名采用大驼
 
 
 
+模块支持的类：
+
+'QtCore', 
+
+https://doc.qt.io/qt-6/qtcore-module.html
+
+'QtGui', 
+
+https://doc.qt.io/qt-6/qtgui-module.html
+
+'QtWidgets', 
+
+https://doc.qt.io/qt-6/qtwidgets-module.html
+
+
+
 
 
 ## 3 PySide6程序的基本结构
@@ -63,9 +79,11 @@ Qt开头的是模块，Q开头（不含Qt开头）的是类，命名采用大驼
 
 
 
+基本结构 -> 三种Application -> 三种主窗口 -> 信号（类似于消息）与事件（类似于槽函数）-> QtQuick初体验
 
 
-### 1.4 三种主窗口
+
+三种主窗口
 
 
 
@@ -99,13 +117,25 @@ app.exec()
 
 三种Application：
 
+
+
 ```python3
 # 继承关系为：
 # QCoreApplication -> QGuiApplication -> QApplication
 # 因此，QApplication不仅可以运行QtWidgets程序，也可以运行QtQucik程序
 # QCoreApplication只能运行控制台程序，不能运行GUI程序
+```
 
-# 无GUI的控制台程序示例
+
+
+`QCoreApplication`的相关用法：
+
+官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QCoreApplication.html#more
+
+
+
+```python3
+# 控制台程序的简单示例
 from PySide6.QtWidgets import (
     QApplication,
 )
@@ -121,17 +151,106 @@ app.exec()
 
 
 
+```python3
+# 控制台程序的复杂示例
+import sys
+import threading
+from PySide6.QtCore import QCoreApplication,Signal,QObject
+
+# 定义输入内容接收器类，用于处理输入的内容，通过信号传递内容
+class input_receiver(QObject):
+    # 定义信号
+    signal = Signal(str)
+
+    def __init__(self):
+        super().__init__()
+        # 连接信号，把信号接收的内容传递给处理函数
+        self.signal.connect(self.handle_input)
+
+    # 处理输入内容的函数
+    def handle_input(self,data):
+        # 处理退出信号
+        if data.strip().lower() == 'exit':
+            QCoreApplication.quit()
+            return
+        print(f'输入的内容为：{data.strip()}')
+        print('请输入内容 (输入 exit 退出)：')
+
+# 创建输入内容接收器对象
+receiver = input_receiver()
+
+# 无限循环获取终端输入并发送信号
+def read_stdin():
+    while True:
+        line = sys.stdin.readline()
+        # 发送信号给输入内容接收器
+        receiver.signal.emit(line)
+
+# 必须在单独的线程中执行，否则没法正常执行Qt的消息循环
+thread = threading.Thread(target=read_stdin,daemon=True)
+thread.start()
+
+# 输出一次提示
+print('请输入内容 (输入 exit 退出)：')
+
+app = QCoreApplication()
+app.exec()
+```
+
+上面示例的变种：
+
+```python3
+import sys
+import threading
+from PySide6.QtCore import QCoreApplication,Signal,QObject
+
+# 定义输入内容接收器类，用于创建信号
+class input_receiver(QObject):
+    # 定义信号
+    signal = Signal(str)
+    def __init__(self):
+        super().__init__()
+
+# 创建输入内容接收器对象
+receiver = input_receiver()
+
+# 处理输入内容的函数
+def handle_input(data):
+    # 处理退出信号
+    if data.strip().lower() == 'exit':
+        QCoreApplication.quit()
+        return
+    print(f'输入的内容为：{data.strip()}')
+    print('请输入内容 (输入 exit 退出)：')
+
+# 连接信号，把信号接收的内容传递给处理函数
+receiver.signal.connect(handle_input)
+
+# 无限循环获取终端输入并发送信号
+def read_stdin():
+    while True:
+        line = sys.stdin.readline()
+        # 发送信号给输入内容接收器
+        receiver.signal.emit(line)
+
+# 必须在单独的线程中执行，否则没法正常执行Qt的消息循环
+thread = threading.Thread(target=read_stdin,daemon=True)
+thread.start()
+
+# 输出一次提示
+print('请输入内容 (输入 exit 退出)：')
+
+app = QCoreApplication()
+app.exec()
+```
 
 
 
 
-信号与槽
 
+信号（类似于消息）与事件（类似于槽函数）
 
-
-
-
-消息与事件
+为什么要混到一起讲？因为机制类似，但细节上不完全一样。
 
 
 
@@ -164,13 +283,31 @@ app.exec()
 
 
 
+QtQuick基础文档：
 
+https://doc.qt.io/qt-6/qtquick-index.html
 
 QML基础文档：
 
 https://doc.qt.io/qt-6/qmlreference.html
 
 
+
+基本类型：
+
+https://doc.qt.io/qt-6/qtquick-qmlmodule.html
+
+常用控件的基本类型：
+
+https://doc.qt.io/qt-6/qtquick-controls-qmlmodule.html
+
+对话框的基本类型：
+
+https://doc.qt.io/qt-6/qtquick-dialogs-qmlmodule.html
+
+QtQml的基本类型：
+
+https://doc.qt.io/qt-6/qtqml-qmlmodule.html
 
 
 
@@ -340,7 +477,7 @@ view.show()
 app.exec()
 ```
 
-使用`QQmlApplicationEngine`（加载文件和字符串都很简单，但默认不包括窗口，需要在QML中定义）：
+使用`QQmlApplicationEngine`加载文件和字符串都很简单，但不同于`QQuickView`，该控件默认不创建用于显示内容的主窗口，需要在QML中额外定义一个主窗口（`Window`或者`ApplicationWindow`都可以），并在主窗口的节点下挂载其他控件或者内容：
 
 加载QML文件（使用`QQmlApplicationEngine`）：
 
@@ -353,10 +490,9 @@ app = QGuiApplication()
 
 # main.qml 内容为：
 '''
-import QtQuick
-import QtQuick.Controls
+import QtQuick.Window
 
-ApplicationWindow {
+Window {
     visible: true
     title: 'Main'
     width: 200
@@ -389,10 +525,9 @@ from PySide6.QtQml import QQmlApplicationEngine
 app = QGuiApplication()
 
 qml_src = '''
-import QtQuick
-import QtQuick.Controls
+import QtQuick.Window
 
-ApplicationWindow {
+Window {
     visible: true
     title: 'Main'
     width: 200
@@ -415,6 +550,80 @@ engine.loadData(qml_src.encode('utf-8'),QUrl())
 
 app.exec()
 ```
+
+需要注意的是，在使用`QQmlApplicationEngine`的示例中，虽然只导入了`QtQuick.Window`模块，没有主动导入其他相关模块，但依然可以使用除了`Window`类型之外的其他类型，比如示例中的`Rectangle`类型和`Text`类型，这是因为在`QQmlApplicationEngine`或者`QQmlEngine`中，涉及到QML文件时，会自动注册`QtQuick`直属的类型（https://doc.qt.io/qt-6/qtquick-qmlmodule.html#object-types）和`QtQml`直属的类型（https://doc.qt.io/qt-6/qtqml-qmlmodule.html#object-types），这些类型无需手动导入`QtQuick`和`QtQml`即可使用。
+
+不过，`Window`类型只是在当前Qt版本（6.x）划分为`QtQuick`的直属类型，底层为了兼容旧版本（5.x）还是将其算作原来独立模块（`QtQuick.Window`）的类型，依然需要导入对应的模块才能使用，不会自动注册。不过，在当前Qt版本中，因为其被划分为`QtQuick`的直属类型，只是导入`QtQuick`模块的话也可以使用（相当于主动注册所有直属类型）。要验证的话也简单，将为了使用`Window`类型而不得不添加的导入语句改为`import QtQuick`，`Window`类型可以正常使用：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_src = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+
+app.exec()
+```
+
+以下为直接使用其他类型的示例：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_src = '''
+import QtQuick.Window
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: Qt.rgba(0, 0.5, 0, 1)
+        Text {
+            text: `${Application.name} (${Application.version})`
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+
+app.exec()
+```
+
+示例中，使用`Qt`的函数生成颜色对象，使用ES标准中的模板字符串（必须使用反引号包围，格式为`` `${变量}` ``）嵌入应用名称和应用版本。
 
 在非QtQuick的程序中嵌入QtQuick组件：
 
@@ -631,10 +840,9 @@ app = QApplication()
 
 # main.qml 内容为：
 '''
-import QtQuick
-import QtQuick.Controls
+import QtQuick.Window
 
-ApplicationWindow {
+Window {
     visible: true
     title: 'Main'
     width: 200
@@ -674,10 +882,9 @@ from PySide6.QtQml import QQmlApplicationEngine
 app = QApplication()
 
 qml_src = '''
-import QtQuick
-import QtQuick.Controls
+import QtQuick.Window
 
-ApplicationWindow {
+Window {
     visible: true
     title: 'Main'
     width: 200
@@ -710,6 +917,50 @@ app.exec()
 
 
 
+
+加载UI文件：
+
+```python3
+
+from PySide6.QtWidgets import QApplication,QWidget
+from PySide6.QtUiTools import QUiLoader
+
+# main.ui 文件内容如下：
+'''
+<?xml version='1.0' encoding='UTF-8'?>
+<ui version='4.0'>
+ <class>MainWindow</class>
+ <widget class='QWidget' name='MainWindow'>
+  <property name='geometry'>
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name='windowTitle'>
+   <string>Main</string>
+  </property>
+  <widget class='QPushButton' name='psf'>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+
+app = QApplication()
+# 基本结构，必须分成两步
+# window = QWidget()
+# window.show()
+# 导入UI文件的方法是一样的结构
+window = QUiLoader().load('main.ui')
+window.psf.setText('click')
+window.psf.clicked.connect(lambda:print('Clicked!'))
+window.show()
+app.exec()
+```
 
 
 

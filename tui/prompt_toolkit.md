@@ -4530,25 +4530,56 @@ app.run()
 
 ##### 3.2.1.5 `ConditionalContainer`控件
 
+`ConditionalContainer`控件（使用`from prompt_toolkit.layout import ConditionalContainer`或者`from prompt_toolkit.layout.containers import ConditionalContainer`导入）一般与状态过滤器（后面有单独的章节介绍，能做到程序运行时动态切换内容的显示状态）或者布尔类型的变量结合使用，可以实现`filter`参数的值控制其内容是否显示：
 
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, VSplit, ConditionalContainer
+from prompt_toolkit.widgets import Button
 
+# 变量的布尔值为True就会显示
+show = True
 
+layout = Layout(
+    VSplit(
+        [
+            ConditionalContainer(
+                Button('test'),
+                filter=show,
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
 
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,   
+)
 
+app.run()
+```
 
 控件支持以下参数：
 
-- 
+- `content`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示控件的内容。
+- `filter`参数，布尔类型或者`Filter`类型，表示是否显示控件。可以给该参数传入`Filter`类型的对象，实现动态控制控件的显示，具体用法参考状态过滤器的介绍。
 
 控件支持以下属性：
 
-- 
+- `content`属性，同`content`参数。
+- `filter`属性，同`filter`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
 
 控件支持以下方法：
 
+- `get_children`方法，返回`content`属性。
 - 
 
-
+##### 3.2.1.6 `ScrollablePane`控件
 
 
 
@@ -4612,7 +4643,11 @@ Box
 
 
 
+prompt_toolkit.layout 模块
 
+FormattedTextControl
+
+BufferControl
 
 
 
@@ -4622,33 +4657,289 @@ Box
 
 本章将对照 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/index.html 中除了基础知识介绍过内容外的其余内容，并补充一些官方手册中有但官方教程没写的内容。
 
-### 4.1 状态过滤器（更新中）
+### 4.1 状态过滤器
 
-状态过滤器，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/filters.html
+本节主要参考自 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/filters.html。
 
+前面介绍过不少支持`Filter`类型的参数，但一直没有详细介绍过`Filter`类型的值有何特别之处。说起来，`Filter`类型的值本质上和布尔值一样，但若是只是将其当作普通的布尔值，那就忽略了`Filter`类型的神奇之处。
 
+先借用前面的`ConditionalContainer`控件的示例，一步一步了解`Filter`类型与布尔类型的区别：
 
 ```python3
-from prompt_toolkit import PromptSession
-from prompt_toolkit.filters import Condition
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, VSplit, ConditionalContainer
+from prompt_toolkit.widgets import Button
 
-# 对象用法
-# is_multiline = Condition(lambda :True)
+show = True
 
-# 装饰器用法
-@Condition
-def is_multiline():
-    return True
+layout = Layout(
+    VSplit(
+        [
+            ConditionalContainer(
+                Button('test'),
+                filter=show,
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
 
-session = PromptSession(multiline=is_multiline)
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,   
+)
 
-result = session.prompt('请输入任何内容：')
-print(f'输入的内容是: {result}')
+app.run()
 ```
 
+上面的示例中，使用一个变量保存布尔值，这样就可以通过修改这个变量，改变`ConditionalContainer`控件的显示状态，设计上是这样的。但是，这里存在一个问题，一旦创建好了布局，程序开始运行，想要通过修改这个变量，改变`ConditionalContainer`控件的显示状态，是没法做到的：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, VSplit, ConditionalContainer
+from prompt_toolkit.widgets import Button
+
+show = True
+
+def update_show():
+    global show
+    show = False
+
+layout = Layout(
+    VSplit(
+        [
+            ConditionalContainer(
+                Button(
+                    'test',
+                    update_show
+                ),
+                filter=show,
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True, 
+)
+
+app.run()
+```
+
+按理来说，点击test按钮，`show`的值已经改变，test按钮应该隐藏，但实际上没有隐藏。
+
+以上都是使用布尔类型的情况，接下来，改用`Filter`类型试试。`Filter`类是抽象类，实际使用时要使用框架实现的子类`Condition`类（使用`from prompt_toolkit.filters import Condition`导入）。
+
+`Condition`类接受一个返回布尔值的可调用类型参数，用调用函数的方式调用`Condition`对象，结果和直接调用其参数一样，因此，`Condition`类也可以当成装饰器使用。示例如下：
+
+```python3
+from prompt_toolkit.filters import Condition
+
+show = True
+
+is_show = Condition(lambda:show)
+
+@Condition
+def is_show():
+    return show
+```
+
+创建好`Condition`对象之后，将该对象传给接收`Filter`类型的参数，就能做到每次点击之后，相关的`Condition`对象都会触发重新计算：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, VSplit, ConditionalContainer
+from prompt_toolkit.widgets import Button
+
+from prompt_toolkit.filters import Condition
+
+show = True
+
+@Condition
+def is_show():
+    return show
+
+# 简单函数也可以使用lambda表达式代替
+# is_show = Condition(lambda:show)
+
+def update_show():
+    global show
+    show = False
+
+layout = Layout(
+    VSplit(
+        [
+            ConditionalContainer(
+                Button(
+                    'test',
+                    update_show
+                ),
+                filter=is_show,
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,  
+)
+
+app.run()
+```
+
+这一次，点击test按钮之后，`show`的值发生改变，test按钮因为`ConditionalContainer`控件的特性而随之隐藏。
+
+除了会自动重新计算之外，`Condition`对象还支持以下运算符号：
+
+- `~`，单目运算符，表示取相反的结果。
+- `|`，双目运算符，表示计算两个对象的或运算结果。
+- `&`，双目运算符，表示计算两个对象的与运算结果。
+
+示例如下：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, VSplit, ConditionalContainer
+from prompt_toolkit.widgets import Button
+
+from prompt_toolkit.filters import Condition
+
+show = True
+
+@Condition
+def is_show():
+    return show
+
+# 简单函数也可以使用lambda表达式代替
+# is_show = Condition(lambda:show)
+
+def update_show():
+    global show
+    # 切换变量的布尔值
+    show = not show
+
+layout = Layout(
+    VSplit(
+        [
+            ConditionalContainer(
+                Button(
+                    'Hello',
+                    update_show
+                ),
+                filter=is_show,
+            ),
+            ConditionalContainer(
+                Button(
+                    'World',
+                    update_show
+                ),
+                # 取反之后，表示两个控件中只能同时显示其中一个
+                filter=~is_show,
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,  
+)
+
+app.run()
+```
+
+框架内部提供了不少`Condition`对象（由`prompt_toolkit.filters.app`模块提供），用于内部控件动态显示内容，当然，读者也可以在实际开发中使用这些`Condition`对象或者将其当作调用之后返回布尔值的函数：
+
+- `has_arg`
+- `has_completions`
+- [`has_focus`](https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.filters.app.has_focus)
+- `buffer_has_focus`
+- `has_selection`
+- `has_validation_error`
+- `is_aborting`
+- `is_done`
+- `is_read_only`
+- `is_multiline`
+- `renderer_height_is_known`
+- [`in_editing_mode`](https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.filters.app.in_editing_mode)
+- `in_paste_mode`
+- `vi_mode`
+- `vi_navigation_mode`
+- `vi_insert_mode`
+- `vi_insert_multiple_mode`
+- `vi_replace_mode`
+- `vi_selection_mode`
+- `vi_waiting_for_text_object_mode`
+- `vi_digraph_mode`
+- `emacs_mode`
+- `emacs_insert_mode`
+- `emacs_selection_mode`
+- `is_searching`
+- `control_is_searchable`
+- `vi_search_direction_reversed`
+
+示例如下：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, VSplit, ConditionalContainer
+from prompt_toolkit.widgets import Button
+
+from prompt_toolkit.filters.app import vi_mode,emacs_mode
+from prompt_toolkit.enums import EditingMode
 
 
+def update_mode():
+    app.editing_mode = EditingMode.EMACS
 
+layout = Layout(
+    VSplit(
+        [
+            ConditionalContainer(
+                Button(
+                    'change mode to EMACS',
+                    update_mode
+                ),
+                filter=vi_mode,
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+    editing_mode=EditingMode.VI    
+)
+
+app.run()
+```
 
 ### 4.2 快捷键绑定的其他技巧（更新中）
 
@@ -4656,13 +4947,13 @@ print(f'输入的内容是: {result}')
 
 
 
-
+### 4.3 单元测试（更新中）
 
 单元测试，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/unit_testing.html
 
 
 
-### 4.3 高级控件（更新中）
+### 4.4 高级控件（更新中）
 
 
 
@@ -4688,14 +4979,6 @@ toolbar（部分）:
 
 
 
-prompt_toolkit.layout 模块
-
-FormattedTextControl
-
-BufferControl
-
-
-
 
 
 ## 5 拾遗（持续更新中）
@@ -4710,13 +4993,7 @@ set_title 设置终端窗口的标题，来自 https://python-prompt-toolkit.rea
 
 
 
-get_app
 
-get_app_or_none
-
-get_app_session
-
-get_cwidth
 
 
 

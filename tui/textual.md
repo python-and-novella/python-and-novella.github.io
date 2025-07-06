@@ -13212,8 +13212,6 @@ if __name__ == '__main__':
 
 ![button_2](textual.assets/button_2.png)
 
-在Textual 3.2.0中，组件增加了反应性属性`compact`，通过设置此属性为`True`，即可让组件显示为非常紧凑的样式。除了按钮组件，后面要讲到的页脚组件、输入框组件、选项列表组件、单选集组件、下拉选择框组件、多选列表组件、模板化输入框组件、文本区域组件、复选框组件、单选按钮组件均支持反应性属性`compact`。
-
 ##### 4.1.2.3 `Input`输入框组件
 
 除了点击之类的交互，输入数据也是常见的用户交互，因此，输入框组件也是常用的交互组件，完整用法可以参考[官网文档](https://textual.textualize.io/widgets/input/)。
@@ -20087,7 +20085,9 @@ if __name__ == '__main__':
 
 ## 5 具体示例【随时更新】
 
-1，`Markdown`标记文本组件中的代码块默认不支持自动换行，如何修改为自动换行？
+### 5.1 将`Markdown`标记文本组件中的代码块修改为自动换行
+
+`Markdown`标记文本组件中的代码块默认不支持自动换行，如何修改为自动换行？
 
 因为`MarkdownFence`类的`_block`方法返回的`Syntax`对象默认没有启用自动换行，在源码中修改是最简单的：
 
@@ -20544,6 +20544,50 @@ if __name__ == '__main__':
     app = MyApp()
     app.run()
 ````
+
+### 5.2 版本速览——3.2.0版本、3.6.0版的新增内容
+
+在Textual 3.2.0中，组件增加了反应性属性`compact`，通过设置此属性为`True`，即可让组件显示为非常紧凑的样式。除了按钮组件，后面要讲到的页脚组件、输入框组件、选项列表组件、单选集组件、下拉选择框组件、多选列表组件、模板化输入框组件、文本区域组件、复选框组件、单选按钮组件均支持反应性属性`compact`，也都添加了对应的参数`compact`。
+
+在Textual 3.6.0中，文本区域组件增加了反应性属性`highlight_cursor_line`、对应的参数`highlight_cursor_line`（默认为`True`）。该参数、属性可以高亮光标所在行，对应的样式类为`text-area--cursor-line`。有了这个参数、属性之后，无需单独设置样式类，只需设置该参数、属性，即可禁用高亮光标所在行的行为。
+
+以文本区域组件为例，新增内容的示例如下：
+
+```python3
+from textual.app import App
+from textual.widgets import TextArea
+
+TEXT = '''\
+Hello
+World
+'''
+
+class MyApp(App):
+    CSS = '''
+    TextArea {
+        width: 12;
+        height: 5;
+    }
+    .text-area--cursor-line {
+      background: red;
+    }
+    '''
+    def on_mount(self):
+        self.widgets = [
+            TextArea(
+                TEXT,
+                highlight_cursor_line=False,
+                compact=True
+            )
+        ]
+        self.mount_all(self.widgets)
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![5_2_1](textual.assets/5_2_1.png)
 
 ## 后记
 

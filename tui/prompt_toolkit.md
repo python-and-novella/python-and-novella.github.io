@@ -4577,23 +4577,106 @@ app.run()
 控件支持以下方法：
 
 - `get_children`方法，返回`content`属性。
+- `preferred_height`方法，获取在指定宽度和最大可用高度的情况下的最佳控件高度。该方法支持以下参数：
+  - `width`参数，整数类型，表示指定的宽度。
+  - `max_available_height`参数，整数类型，表示最大可用高度。
+- `preferred_width`方法，获取在最大可用宽度的情况下的最佳控件宽度。该方法支持以下参数：
+  - `max_available_width`参数，整数类型，表示最大可用宽度。
+- `reset`方法，复位控件。
+
+##### 3.2.1.6 `ScrollablePane`控件（更新中）
+
+在正式介绍`ScrollablePane`控件之前，先来了解一下不使用`ScrollablePane`控件的话，效果如何。下面的代码中，使用了可以输入多行内容的`TextArea`控件，假如不停换行，直到输入的内容行数超过终端高度，效果会变成什么样呢？
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout,HSplit
+from prompt_toolkit.widgets import Button,TextArea
+
+layout = Layout(
+    HSplit(
+        [
+            TextArea(),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,   
+)
+
+app.run()
+```
+
+![scrollable_1](prompt_toolkit.assets/scrollable_1.png)
+
+可以看到，当输入的内容行数超过终端高度时，内容在滚动，但没有滚动条表明内容的滚动情况。使用`ScrollablePane`控件（使用`from prompt_toolkit.layout import ScrollablePane`或者`from prompt_toolkit.layout.scrollable_pane import ScrollablePane`导入）的话，就可以弥补这一缺点：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout,HSplit,ScrollablePane,to_container
+from prompt_toolkit.widgets import Button,TextArea
+
+layout = Layout(
+    HSplit(
+        [
+            ScrollablePane(
+                to_container(TextArea())
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,   
+)
+
+app.run()
+```
+
+![scrollable_2](prompt_toolkit.assets/scrollable_2.png)
+
+控件支持以下参数：
+
+- `content`参数，
+- `scroll_offsets`参数，
+- `keep_cursor_visible`参数，
+- `keep_focused_window_visible`参数，
+- `content`参数，
+- `content`参数，
+- `content`参数，
+
+控件支持以下属性：
+
 - 
 
-##### 3.2.1.6 `ScrollablePane`控件
+控件支持以下方法：
+
+- 
+
+##### 3.2.1.7 `Frame`控件
+
+  
+
+##### 3.2.1.8 `Shadow`控件
+
+  
+
+##### 3.2.1.9 `Box`控件
 
 
-
-ScrollablePane
-
-
-
-prompt_toolkit.widgets 模块
-
-  Frame
-
-  Shadow
-
-Box
 
 
 
@@ -4607,7 +4690,7 @@ Box
 
 
 
-##### 3.2.2.1 `Label`控件
+##### 3.2.2.3 `TextArea`控件
 
 
 
@@ -4619,27 +4702,17 @@ Box
 
  
 
-
-
   HorizontalLine
 
   VerticalLine
-
-
 
   RadioList
 
   Checkbox
 
-  CheckboxList
-
-
-
-  TextArea
+  CheckboxList  
 
   ProgressBar
-
-
 
 
 
@@ -4868,6 +4941,8 @@ app = Application(
 
 app.run()
 ```
+
+![filter_1](prompt_toolkit.assets/filter_1.gif)
 
 框架内部提供了不少`Condition`对象（由`prompt_toolkit.filters.app`模块提供），用于内部控件动态显示内容，当然，读者也可以在实际开发中使用这些`Condition`对象或者将其当作调用之后返回布尔值的函数：
 

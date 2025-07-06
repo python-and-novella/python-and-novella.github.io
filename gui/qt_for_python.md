@@ -1,5 +1,7 @@
 # Qt For Python 札记（2025版）
 
+## 0 为何而写
+
 Qt For Python （目前库名为PySide6）各类教程已经有很多，笔者就不班门弄斧了。不过，框架在使用过程中还是有不少难点，对于心急的初学者来说，很容易在找不到解决方法之后轻言放弃。因此，笔者将代入初学者的视角，将学习心得按照时间顺序一一记下，以便于有一定基础但囿于难点的读者按图索骥。
 
 ## 1 安装PySide6的注意事项
@@ -27,27 +29,21 @@ pyside6-uv-app v0.1.0
 
 需要注意的是，在使用UV管理虚拟环境时，单独移除`pyside6-examples`会导致`pyside6`的`__init__.py`丢失，可使用`uv sync --reinstall`重新安装所有库来解决此问题。
 
-## 2 PySide6各个模块的主要用途和命名规则（更新中）
+## 2 常用模块的主要用途和相关命名规则（更新中）
 
-（内容待定）
+PySide6（6.9.x）包含以下模块（参考https://doc.qt.io/qtforpython-6/py-modindex.html）：
 
-熟悉模块
+- `PySide6.Qt3DAnimation`，https://doc.qt.io/qtforpython-6/PySide6/Qt3DAnimation/index.html#module-PySide6.Qt3DAnimation
+- `PySide6.Qt3DCore`，https://doc.qt.io/qtforpython-6/PySide6/Qt3DCore/index.html#module-PySide6.Qt3DCore
+-   [`PySide6.Qt3DExtras`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DExtras/index.html#module-PySide6.Qt3DExtras)  [`PySide6.Qt3DInput`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DInput/index.html#module-PySide6.Qt3DInput)  [`PySide6.Qt3DLogic`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DLogic/index.html#module-PySide6.Qt3DLogic)  [`PySide6.Qt3DRender`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DRender/index.html#module-PySide6.Qt3DRender)  [`PySide6.QtAsyncio`](https://doc.qt.io/qtforpython-6/PySide6/QtAsyncio/index.html#module-PySide6.QtAsyncio)  [`PySide6.QtBluetooth`](https://doc.qt.io/qtforpython-6/PySide6/QtBluetooth/index.html#module-PySide6.QtBluetooth)  [`PySide6.QtConcurrent`](https://doc.qt.io/qtforpython-6/PySide6/QtConcurrent/index.html#module-PySide6.QtConcurrent)  [`PySide6.QtCore`](https://doc.qt.io/qtforpython-6/PySide6/QtCore/index.html#module-PySide6.QtCore)  [`PySide6.QtDBus`](https://doc.qt.io/qtforpython-6/PySide6/QtDBus/index.html#module-PySide6.QtDBus)  [`PySide6.QtDesigner`](https://doc.qt.io/qtforpython-6/PySide6/QtDesigner/index.html#module-PySide6.QtDesigner)  [`PySide6.QtGraphs`](https://doc.qt.io/qtforpython-6/PySide6/QtGraphs/index.html#module-PySide6.QtGraphs)  [`PySide6.QtGraphsWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtGraphsWidgets/index.html#module-PySide6.QtGraphsWidgets)  [`PySide6.QtGui`](https://doc.qt.io/qtforpython-6/PySide6/QtGui/index.html#module-PySide6.QtGui)  [`PySide6.QtHelp`](https://doc.qt.io/qtforpython-6/PySide6/QtHelp/index.html#module-PySide6.QtHelp)  [`PySide6.QtHttpServer`](https://doc.qt.io/qtforpython-6/PySide6/QtHttpServer/index.html#module-PySide6.QtHttpServer)  [`PySide6.QtLocation`](https://doc.qt.io/qtforpython-6/PySide6/QtLocation/index.html#module-PySide6.QtLocation)  [`PySide6.QtMultimedia`](https://doc.qt.io/qtforpython-6/PySide6/QtMultimedia/index.html#module-PySide6.QtMultimedia)  [`PySide6.QtMultimediaWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtMultimediaWidgets/index.html#module-PySide6.QtMultimediaWidgets)  [`PySide6.QtNetwork`](https://doc.qt.io/qtforpython-6/PySide6/QtNetwork/index.html#module-PySide6.QtNetwork)  [`PySide6.QtNetworkAuth`](https://doc.qt.io/qtforpython-6/PySide6/QtNetworkAuth/index.html#module-PySide6.QtNetworkAuth)  [`PySide6.QtNfc`](https://doc.qt.io/qtforpython-6/PySide6/QtNfc/index.html#module-PySide6.QtNfc)  [`PySide6.QtOpenGL`](https://doc.qt.io/qtforpython-6/PySide6/QtOpenGL/index.html#module-PySide6.QtOpenGL)  [`PySide6.QtOpenGLWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtOpenGLWidgets/index.html#module-PySide6.QtOpenGLWidgets)  [`PySide6.QtPdf`](https://doc.qt.io/qtforpython-6/PySide6/QtPdf/index.html#module-PySide6.QtPdf)  [`PySide6.QtPdfWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtPdfWidgets/index.html#module-PySide6.QtPdfWidgets)  [`PySide6.QtPositioning`](https://doc.qt.io/qtforpython-6/PySide6/QtPositioning/index.html#module-PySide6.QtPositioning)  [`PySide6.QtPrintSupport`](https://doc.qt.io/qtforpython-6/PySide6/QtPrintSupport/index.html#module-PySide6.QtPrintSupport)  [`PySide6.QtQml`](https://doc.qt.io/qtforpython-6/PySide6/QtQml/index.html#module-PySide6.QtQml)  [`PySide6.QtQuick`](https://doc.qt.io/qtforpython-6/PySide6/QtQuick/index.html#module-PySide6.QtQuick)  [`PySide6.QtQuick3D`](https://doc.qt.io/qtforpython-6/PySide6/QtQuick3D/index.html#module-PySide6.QtQuick3D)  [`PySide6.QtQuickControls2`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickControls2/index.html#module-PySide6.QtQuickControls2)  [`PySide6.QtQuickTest`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickTest/index.html#module-PySide6.QtQuickTest)  [`PySide6.QtQuickWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickWidgets/index.html#module-PySide6.QtQuickWidgets)  [`PySide6.QtRemoteObjects`](https://doc.qt.io/qtforpython-6/PySide6/QtRemoteObjects/index.html#module-PySide6.QtRemoteObjects)  [`PySide6.QtScxml`](https://doc.qt.io/qtforpython-6/PySide6/QtScxml/index.html#module-PySide6.QtScxml)  [`PySide6.QtSensors`](https://doc.qt.io/qtforpython-6/PySide6/QtSensors/index.html#module-PySide6.QtSensors)  [`PySide6.QtSerialBus`](https://doc.qt.io/qtforpython-6/PySide6/QtSerialBus/index.html#module-PySide6.QtSerialBus)  [`PySide6.QtSerialPort`](https://doc.qt.io/qtforpython-6/PySide6/QtSerialPort/index.html#module-PySide6.QtSerialPort)  [`PySide6.QtSpatialAudio`](https://doc.qt.io/qtforpython-6/PySide6/QtSpatialAudio/index.html#module-PySide6.QtSpatialAudio)  [`PySide6.QtSql`](https://doc.qt.io/qtforpython-6/PySide6/QtSql/index.html#module-PySide6.QtSql)  [`PySide6.QtStateMachine`](https://doc.qt.io/qtforpython-6/PySide6/QtStateMachine/index.html#module-PySide6.QtStateMachine)  [`PySide6.QtSvg`](https://doc.qt.io/qtforpython-6/PySide6/QtSvg/index.html#module-PySide6.QtSvg)  [`PySide6.QtSvgWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtSvgWidgets/index.html#module-PySide6.QtSvgWidgets)  [`PySide6.QtTest`](https://doc.qt.io/qtforpython-6/PySide6/QtTest/index.html#module-PySide6.QtTest)  [`PySide6.QtTextToSpeech`](https://doc.qt.io/qtforpython-6/PySide6/QtTextToSpeech/index.html#module-PySide6.QtTextToSpeech)  [`PySide6.QtUiTools`](https://doc.qt.io/qtforpython-6/PySide6/QtUiTools/index.html#module-PySide6.QtUiTools)  [`PySide6.QtWebChannel`](https://doc.qt.io/qtforpython-6/PySide6/QtWebChannel/index.html#module-PySide6.QtWebChannel)  [`PySide6.QtWebEngineCore`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineCore/index.html#module-PySide6.QtWebEngineCore)  [`PySide6.QtWebEngineQuick`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineQuick/index.html#module-PySide6.QtWebEngineQuick)  [`PySide6.QtWebEngineWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineWidgets/index.html#module-PySide6.QtWebEngineWidgets)  [`PySide6.QtWebSockets`](https://doc.qt.io/qtforpython-6/PySide6/QtWebSockets/index.html#module-PySide6.QtWebSockets)  [`PySide6.QtWebView`](https://doc.qt.io/qtforpython-6/PySide6/QtWebView/index.html#module-PySide6.QtWebView)  [`PySide6.QtWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html#module-PySide6.QtWidgets)  [`PySide6.QtXml`](https://doc.qt.io/qtforpython-6/PySide6/QtXml/index.html#module-PySide6.QtXml)
 
-PySide6各个模块的功能和用途
+模块很多，但不是所有模块都常用，其中，常用的模块为：
 
-```python3
-['QtCore', 'QtGui', 'QtWidgets', 'QtPrintSupport', 'QtSql', 'QtNetwork', 'QtTest', 'QtConcurrent', 'QtDBus', 'QtDesigner', 'QtXml', 'QtHelp', 'QtMultimedia', 'QtMultimediaWidgets', 'QtOpenGL', 'QtOpenGLWidgets', 'QtPdf', 'QtPdfWidgets', 'QtPositioning', 'QtLocation', 'QtNetworkAuth', 'QtNfc', 'QtQml', 'QtQuick', 'QtQuick3D', 'QtQuickControls2', 'QtQuickTest', 'QtQuickWidgets', 'QtRemoteObjects', 'QtScxml', 'QtSensors', 'QtSerialPort', 'QtSerialBus', 'QtStateMachine', 'QtTextToSpeech', 'QtCharts', 'QtSpatialAudio', 'QtSvg', 'QtSvgWidgets', 'QtDataVisualization', 'QtGraphs', 'QtGraphsWidgets', 'QtBluetooth', 'QtUiTools', 'QtAxContainer', 'QtWebChannel', 'QtWebEngineCore', 'QtWebEngineWidgets', 'QtWebEngineQuick', 'QtWebSockets', 'QtHttpServer', 'QtWebView', 'Qt3DCore', 'Qt3DRender', 'Qt3DInput', 'Qt3DLogic', 'Qt3DAnimation', 'Qt3DExtras', 'QtExampleIcons']
-```
-
-https://doc.qt.io/qtforpython-6/py-modindex.html
-
-
-
-
-
-Qt开头的是模块，Q开头（不含Qt开头）的是类，命名采用大驼峰规则，即每个字段的首字母大写，直接连接每个字段。
-
-(模块的主要功能和模块名的对应做个表格，具体类名不做详细介绍，具体用到的时候再说，也不一定完全详细介绍所有类，但后续主要是提供完整但清晰的相关示例，代码要求简短，如果可以的话，提供截图和动画)
+- QtCore
+- QtGui
+- QtWidgets
+- QtQuick
+- QtQml
 
 
 
@@ -65,13 +61,33 @@ https://doc.qt.io/qt-6/qtgui-module.html
 
 https://doc.qt.io/qt-6/qtwidgets-module.html
 
+https://doc.qt.io/qt-6/qtquick-module.html
+
+https://doc.qt.io/qt-6/qtqml-module.html
+
+
+
+命名规则总结：
+
+模块是Qt开头的，
+
+具体的类是Q开头（不含Qt开头），
+
+命名采用大驼峰规则，即每个字段的首字母大写，直接连接每个字段。
+
+Widgets结尾的模块提供了只能用于`QApplication`
 
 
 
 
-## 3 PySide6程序的基本结构
 
 
+
+## 3 Qt程序的基本结构和两种控件
+
+
+
+必须是，先创建程序类实例，再创建控件，最后运行程序类实例的循环方法
 
 
 
@@ -79,52 +95,27 @@ https://doc.qt.io/qt-6/qtwidgets-module.html
 
 
 
-基本结构 -> 三种Application -> 三种主窗口 -> 信号（类似于消息）与事件（类似于槽函数）-> QtQuick初体验
-
-
-
-三种主窗口
-
-
-
-（下面的图片用表格重新写一下）
-
-![mainwindow_1](qt_for_python.assets/mainwindow_1.png)
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QMainWindow,
-    QDialog,
-)
-
-app = QApplication()
-
-window = QWidget()
-window = QMainWindow()
-window = QDialog()
-
-window.resize(400,300)
-
-window.show()
-app.exec()
-```
+区分一下`QtQuick`与`QtWidgets`
 
 
 
 
 
-三种Application：
+## 4 Qt程序的三种程序类
+
+如上节所讲，每个Qt程序只允许同时运行一个程序类实例，同时，该程序类实例也决定了这个Qt程序是什么类型的程序。因为，不同的程序类，实现的功能也不一样：
+
+- `QCoreApplication`类，使用`from PySide6.QtCore import QCoreApplication`导入，不能运行任何GUI控件，只包含基本的事件循环机制，所以只能用于创建无GUI控件的控制台程序。
+- `QGuiApplication`类，继承自`QCoreApplication`类，使用`from PySide6.QtGui import QGuiApplication`导入，
+- `QApplication`类，继承自`QGuiApplication`类，使用`from PySide6.QtWidgets import QApplication`导入，
 
 
 
-```python3
-# 继承关系为：
-# QCoreApplication -> QGuiApplication -> QApplication
-# 因此，QApplication不仅可以运行QtWidgets程序，也可以运行QtQucik程序
-# QCoreApplication只能运行控制台程序，不能运行GUI程序
-```
+三者的继承关系为：`QCoreApplication -> QGuiApplication -> QApplication`。因此，继承关系也呼应了三者功能越来越强大的原因
+
+
+
+### 4.1 `QCoreApplication`类
 
 
 
@@ -136,9 +127,7 @@ app.exec()
 
 ```python3
 # 控制台程序的简单示例
-from PySide6.QtWidgets import (
-    QApplication,
-)
+from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QCoreApplication,QTimer
 
@@ -248,6 +237,86 @@ app.exec()
 
 
 
+
+
+### 4.3 `QApplication`类
+
+必须在创建QWidget控件之前创建QApplication实例
+
+
+
+## 5 `QtWidgets`的三种主窗口
+
+
+
+（下面的图片用表格重新写一下）
+
+
+
+
+
+![mainwindow_1](qt_for_python.assets/mainwindow_1.png)
+
+
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMainWindow,
+    QDialog,
+)
+
+app = QApplication()
+
+window = QWidget()
+window = QMainWindow()
+window = QDialog()
+
+window.resize(400,300)
+
+window.show()
+app.exec()
+```
+
+
+
+
+
+`QDialog`的模态显示：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog,
+)
+
+# 必须在创建QWidget控件之前创建QApplication实例
+app = QApplication()
+
+# 窗口1正常显示
+window = QDialog()
+window.setWindowTitle('窗口1')
+window.resize(400,300)
+window.show()
+
+# 窗口2模态显示
+window2=QDialog()
+window2.setWindowTitle('窗口2')
+window2.resize(400,300)
+window2.exec()
+
+app.exec()
+```
+
+
+
+
+
+## 6 `QtWidgets`的信号与事件
+
 信号（类似于消息）与事件（类似于槽函数）
 
 为什么要混到一起讲？因为机制类似，但细节上不完全一样。
@@ -281,7 +350,7 @@ app.exec()
 
 
 
-
+## 7 `QtQuick`的主窗口
 
 QtQuick基础文档：
 
@@ -609,9 +678,13 @@ Window {
         id: main
         width: 200
         height: 200
+        /*
+        Qt和Application都是自动注册，
+        无需手动注册。
+        */
         color: Qt.rgba(0, 0.5, 0, 1)
         Text {
-            text: `${Application.name} (${Application.version})`
+            text: `${Application.name} (${Application.version})` //模板字符串
             anchors.centerIn: main
         }
     }
@@ -623,9 +696,11 @@ engine.loadData(qml_src.encode('utf-8'),QUrl())
 app.exec()
 ```
 
-示例中，使用`Qt`的函数生成颜色对象，使用ES标准中的模板字符串（必须使用反引号包围，格式为`` `${变量}` ``）嵌入应用名称和应用版本。
+示例中，使用`Qt`的函数生成颜色对象，使用ES标准中的模板字符串（必须使用反引号包围，格式为`` `${变量}` ``）嵌入应用名称和应用版本。QML支持C语言风格的单行注释`//`和多行注释`/*……*/`。
 
-在非QtQuick的程序中嵌入QtQuick组件：
+
+
+## 8 `QtQuick`与`QtWidgets`混合使用
 
 使用`QQuickWidget`（相当于`QQuickView`的平替，大部分功能兼容）：
 
@@ -894,7 +969,6 @@ Window {
         width: 200
         height: 200
         color: 'green'
-
         Text {
             text: 'Hello World'
             anchors.centerIn: main
@@ -916,7 +990,7 @@ app.exec()
 
 
 
-
+## 9 `QtWidgets`的UI文件
 
 加载UI文件：
 
@@ -964,9 +1038,704 @@ app.exec()
 
 
 
+## 10 `QtQuick`的模块（草稿状态）
+
+除了直接导入QML文件这种使用QML文件的方式，还可以将QML文件包装为模块，通过导入模块的方式使用QML文件。
+
+### 10.1 创建模块
+
+要使用模块，需要先创建模块文件夹，将QML文件和`qmldir`文件放在模块文件夹中，并在`qmldir`文件中编写模块名和QML文件对应的类型名。`qmldir`文件的具体语法规则参考 https://doc.qt.io/qtforpython-6/overviews/qtqml-modules-qmldir.html。
+
+模块文件夹的目录结构如下：
+
+```shell
+App
+├── main.qml
+└── qmldir
+```
+
+`main.qml`文件的内容为：
+
+```js
+import QtQuick.Window
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: Qt.rgba(0, 0.5, 0, 1)
+        Text {
+            text: `${Application.name} (${Application.version})`
+            anchors.centerIn: main
+        }
+    }
+}
+```
+
+`qmldir`文件的内容为：
+
+```python3
+module App
+Main 1.0 main.qml
+```
+
+`qmldir`文件不支持注释，必须按照顺序，先写模块名定义，格式为`module {模块名}`，并且模块名必须与模块文件夹的名字一致。然后写类型定义，格式为`{类型名} {版本号} {对应的QML文件名}`。其中，类型名必须是合法的变量名，版本号只能为包含一个用于分隔版本含义的英文小数点、只有两段子版本号的合法版本号，对应的QML文件名可以使用相对路径（相对于`qmldir`文件），也可以直接不带路径前缀，表示与`qmldir`文件同目录。
+
+### 10.2 导入模块
+
+不同于使用普通QML文件只需加载，想要使用模块的QML文件，需要用正确的方式导入模块。
+
+导入之前，需要将模块所在的路径添加到可识别的导入路径中，有以下几种方法：
+
+- 设置环境变量`QML2_IMPORT_PATH`为模块文件夹所在的路径，即可识别到自定义的模块。
+
+  比如：
+
+  ```python3
+  # Python代码中，添加下面代码至创建Qt程序之前
+  import os
+  os.environ['QML2_IMPORT_PATH'] = './' # 可以使用相对路径和绝对路径
+  # PowerShell中的话，执行下面的命令（二选一）可以临时设置环境变量
+  $env:QML2_IMPORT_PATH='./'
+  Set-Item -Path Env:QML2_IMPORT_PATH -Value './'
+  # CMD中，执行下面的命令（二选一）可以临时设置环境变量
+  set QML2_IMPORT_PATH='./'
+  setx QML2_IMPORT_PATH './'
+  ```
+
+- 通过引擎对象（`QQuickView`对象、`QQuickWidget`对象的`engine`方法返回引擎对象，而`QQmlApplicationEngine`对象本身就是引擎对象）提供的方法添加模块所在的路径，即可识别到自定义的模块。方法有：
+
+  - 使用`setImportPathList`方法设置可识别的导入路径列表，但要包括原导入路径（使用`importPathList`方法获取）：
+
+    ```python3
+    engine.setImportPathList(
+        engine.importPathList()+[
+            './'
+        ]
+    )
+    ```
+
+  - 使用`addImportPath`方法添加模块所在的路径：
+
+    ```python3
+    engine.addImportPath('./')
+    ```
+
+设置好导入路径之后，导入模块的方法也是多种多样：
+
+- 在QML文件（或者QML字符串）中导入模块，但需要额外创建类型的实例：
+
+  ```python3
+  # QML文件或者字符串的内容为
+  '''
+  import App
+  Main {}
+  '''
+  ```
+
+- 使用引擎对象的`loadFromModule`方法导入模块，会自动创建类型的示例：
+
+  ```python3
+  engine.loadFromModule(
+      'App', # 模块名
+      'Main' # 类型名
+  )
+  ```
+
+完整示例如下：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+# main.qml 文件的内容为
+'''
+import QtQuick.Window
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: Qt.rgba(0, 0.5, 0, 1)
+        Text {
+            text: `${Application.name} (${Application.version})`
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+# qmldir 文件的内容为
+'''
+module App
+Main 1.0 main.qml
+'''
+
+qml_src = '''
+import App
+Main {}
+'''
+engine = QQmlApplicationEngine()
+engine.addImportPath('./') # 添加模块上一级的文件为导入路径
+# 两种导入方式，二选一即可，同时使用会创建两个窗口
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+engine.loadFromModule('App','Main')
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+
+
+### 10.3 模块的自定义属性
+
+如果只是和普通QML文件一样导入就用，那模块带来的复杂性纯属多余。既然要创建模块，自然要有不一样的地方。在创建模块时，可以在模块的QML文件中添加一些自定义的属性，内部关联使用这些自定义属性。这样就能在使用时，设置模块的自定义属性，快速创建由多种元素组合、相关属性遵循一定规则的复合控件，就像自定义了新的控件一样。
+
+在正式了解自定义属性之前，先看一下示例。
+
+将模块中`main.qml`文件的内容修改如下：
+
+```js
+import QtQuick.Window
+
+Window {
+    //别名属性
+    property alias my_text: text.text
+    //字符串类型的属性，无默认值
+    property string my_color
+    //字符串类型的属性，有默认值
+    property string my_title: 'Main'
+    //自定义属性结束
+    id: window
+    visible: true
+    title: my_title
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        //属性未传值的话使用 Qt.rgba(0, 0.5, 0, 1)
+        color: window.my_color || Qt.rgba(0, 0.5, 0, 1)
+        Text {
+            id: text
+            text: `${Application.name} (${Application.version})`
+            anchors.centerIn: main
+        }
+    }
+}
+```
+
+这样，原本只能直接使用的模块就多了三个自定义属性：`my_text`、`my_color`、`my_title`。
+
+自定义属性的相关语法可以参考 https://doc.qt.io/qt-6/qtqml-syntax-objectattributes.html。
+
+这里简单介绍一下示例中用到的部分语法。
+
+在控件的中括号内使用关键字`property`，可以创建自定义属性，格式为`property {类型} {属性名} : {默认值}`。如果没有默认值的话，则格式为`property {类型} {属性名}`。创建自定义属性时，属性名只能是小写开头。只有顶层控件的属性（含自定义属性）可以被外部访问，相当于模块的自定义属性，其他控件的属性（含自定义属性）无法被外部访问。
+
+创建好自定义属性之后，想要使用属性（自定义属性和原生属性都可以，`id`属性除外），则必须给对应控件设置`id`属性，通过`{属性所属控件的id}.{属性名}`的格式使用属性（自定义属性和原生属性都可以，`id`属性除外）。如果在同一控件内使用属性，则可以直接使用属性名，不用表明对应控件的`id`。
+
+对于频繁使用的属性（含自定义属性），可以使用`alias`类型，定义该属性的别名，格式为`property alias {属性名的别名} : {属性所属控件的id}.{属性名}`。如果省略属性名，比如`property alias {别名} : {属性所属控件的id}`，则别名可以当作控件的`id`来使用，此时`{别名}.{属性名}`相当于`{属性所属控件的id}.{属性名}`。
+
+顶层控件的属性（含自定义属性）能够被外部访问，相当于模块的自定义属性，在导入模块时可以将其设置为所需的值。
+
+以下为设置模块自定义属性的方法：
+
+- 在导入模块前，给用引擎对象的`setInitialProperties`方法传入字典可以提前设置模块的自定义属性：
+
+  ```python3
+  engine.setInitialProperties(
+      {
+          'my_text':'Hello',
+          'my_color':'red',
+          'my_title':'Hi'
+      }
+  )
+  ```
+
+- 在QML文件（或者QML字符串）中导入模块时，控件的创建代码可以同时设置模块的自定义属性：
+
+  ```python3
+  # QML文件或者字符串的内容为
+  '''
+  import App
+  Main {
+      my_text: 'Hello'
+      my_color: 'red'
+      my_title: 'Hi'
+  }
+  '''
+  ```
+
+完整示例如下：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+# main.qml 文件的内容为
+'''
+import QtQuick.Window
+
+Window {
+    //别名属性
+    property alias my_text: text.text
+    //字符串类型的属性，无默认值
+    property string my_color
+    //字符串类型的属性，有默认值
+    property string my_title: 'Main'
+    //自定义属性结束
+    id: window
+    visible: true
+    title: my_title
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        //属性未传值的话使用 Qt.rgba(0, 0.5, 0, 1)
+        color: window.my_color || Qt.rgba(0, 0.5, 0, 1)
+        Text {
+            id: text
+            text: `${Application.name} (${Application.version})`
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+# qmldir 文件的内容为
+'''
+module App
+Main 1.0 main.qml
+'''
+
+qml_src = '''
+import App
+Main {
+    my_text: 'Hello'
+    my_color: 'red'
+    my_title: 'Hi'
+}
+'''
+engine = QQmlApplicationEngine()
+engine.addImportPath('./') # 添加模块上一级的文件为导入路径
+# 在导入模块前执行，会影响两种导入方式
+engine.setInitialProperties(
+    {
+        'my_text':'Hello',
+        'my_color':'red',
+        'my_title':'Hi'
+    }
+)
+# 两种导入方式，二选一即可
+# engine.loadData(qml_src.encode('utf-8'),QUrl())
+engine.loadFromModule('App','Main')
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+
+
+## 11 在QML中使用Python对象
+
+想要在QML中使用Python对象，必须要先获取上下文对象（通过引擎对象的`rootContext`方法获取），然后在上下文对象中注册`Property`属性，才能在QML中使用该属性对应的Python对象。
+
+### 11.1 获取上下文对象
+
+`QQuickView`获取上下文对象（为了避免QML代码出错导致程序无法正常关闭，后面注册`Property`属性的示例不使用`QtQuick`程序，这里仅作为获取上下文对象的示例）：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl,QByteArray
+from PySide6.QtQuick import QQuickView
+from PySide6.QtQml import QQmlComponent
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: 'green'
+    Button {
+        text: 'Click'
+        width: 100
+        height: 30
+        anchors.centerIn: main
+        onClicked: {
+        //访问注册的属性
+            app.quit()
+        }
+    }
+}
+'''
+
+view = QQuickView()
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 给component加载qml字符串
+component.setData(QByteArray(qml_string.encode()),QUrl())
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+view.setContent(QUrl(), component, component.create())
+
+view.resize(200,200)
+view.setTitle('Main')
+
+view.show()
+
+# 获取上下文对象
+root = view.engine().rootContext()
+
+app.exec()
+```
+
+
+
+`QQuickWidget`获取上下文对象：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl,QByteArray
+from PySide6.QtQuickWidgets import QQuickWidget
+from PySide6.QtQml import QQmlComponent
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: 'green'
+    Button {
+        text: 'Click'
+        width: 100
+        height: 30
+        anchors.centerIn: main
+        onClicked: {
+        //访问注册的属性
+            app.quit()
+        }
+    }
+}
+'''
+
+window = QQuickWidget()
+# 使用view的engine创建component
+component = QQmlComponent(window.engine())
+# 给component加载qml字符串
+component.setData(QByteArray(qml_string.encode()),QUrl())
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+window.setContent(QUrl(), component, component.create())
+
+window.resize(200,200)
+# QQuickWidget 不支持 view.setTitle('Main')
+window.setWindowTitle('Main')
+
+window.show()
+
+# 获取上下文对象
+root = window.engine().rootContext()
+
+# 非QtQuick部分，避免QML代码出错，无法正常关闭
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+
+
+`QQmlApplicationEngine`获取上下文对象：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+qml_src = '''
+import QtQuick.Window
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Button {
+            text: 'Click'
+            width: 100
+            height: 30
+            anchors.centerIn: main
+            onClicked: {
+            //访问注册的属性
+                app.quit()
+            }
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+
+# 获取上下文对象
+root = engine.rootContext()
+
+# 非QtQuick部分，避免QML代码出错，无法正常关闭
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+
+
+### 11.2 注册`Property`属性
+
+使用上下文对象的`setContextObject`方法注册一个`QObject`的`Property`属性：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl,QObject,Property
+from PySide6.QtQml import QQmlApplicationEngine
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+qml_src = '''
+import QtQuick.Window
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Button {
+            text: 'Click'
+            width: 100
+            height: 30
+            anchors.centerIn: main
+            onClicked: {
+            //访问注册的属性
+                app.quit()
+            }
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+
+# 获取上下文对象
+root = engine.rootContext()
+
+# 直接注册该对象的属性（Property）到QML全局
+class Obj(QObject):
+    def __init__(self):
+        super().__init__()
+        self._app = app
+    app = Property(
+        object,
+        fget=lambda self:self._app,
+        fset=lambda self,value:setattr(self,'_app',app)
+    )
+root.setContextObject(Obj())
+
+# 非QtQuick部分，避免QML代码出错，无法正常关闭
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+
+
+使用上下文对象的`setContextProperty`方法一次注册一个`Property`属性为任意对象：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+qml_src = '''
+import QtQuick.Window
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Button {
+            text: 'Click'
+            width: 100
+            height: 30
+            anchors.centerIn: main
+            onClicked: {
+            //访问注册的属性
+                app.quit()
+            }
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+
+# 获取上下文对象
+root = engine.rootContext()
+
+# 一次注册一个属性（Property）到QML全局
+root.setContextProperty('app',app)
+
+# 非QtQuick部分，避免QML代码出错，无法正常关闭
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+
+
+使用上下文对象的`setContextProperties`方法一次注册多个`Property`属性为任意对象：
+
+```python3
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtQml import QQmlApplicationEngine,QQmlContext
+
+# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+qml_src = '''
+import QtQuick.Window
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Button {
+            text: 'Click'
+            width: 100
+            height: 30
+            anchors.centerIn: main
+            onClicked: {
+            //访问注册的属性
+                app.quit()
+            }
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_src.encode('utf-8'),QUrl())
+
+# 获取上下文对象
+root = engine.rootContext()
+
+# 使用PropertyPair类
+class PropertyPair(QQmlContext.PropertyPair):
+    def __init__(self,name:str,value:object):
+        super().__init__()
+        self.name = name
+        self.value = value
+
+# 一次注册多个属性（Property）到QML全局
+root.setContextProperties(
+    [
+        PropertyPair('app',app)
+    ]
+)
+
+# 非QtQuick部分，避免QML代码出错，无法正常关闭
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
 
 
 # Qt For Python 札记（2026版）
+
+## 0 为何而写
 
 2025版在创作过程中添加了不少对之前内容的修正、补充，但还是未能做到内容正确、全面。对于之前内容错误、遗漏之处，2026年，笔者将继续本教程系列的更新。当然，基础、理论部分已经写了不少，除非Qt框架后续更新之后有变动，基础、理论部分不会有其他新内容了，只会补充遗漏、修正错误、扩展用法、衍生相关内容。
 

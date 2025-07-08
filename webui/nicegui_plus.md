@@ -85,9 +85,9 @@ ui.button("Download", on_click=lambda: ui.download(b'Demo text','demo_file.txt')
 ui.run(native=True)
 ```
 
-## 4 让Native Mode的NiceGUI程序使用QT的QtWebEngine作为运行时
+## 4 让Native Mode的NiceGUI程序使用Qt的QtWebEngine作为运行时
 
-默认情况下，如果Windows系统安装了Webview2，哪怕添加了QT6相关的Python包（PyQT6、PySide6），以Native Mode运行的NiceGUI程序还是优先采用Webview2当作浏览器运行时。如果想要以Native Mode运行的NiceGUI程序采用QtWebEngine当做浏览器运行时，需要手动指定pywebview框架的Web engine（参考文档见 https://pywebview.flowrl.com/guide/web_engine.html），代码如下：
+默认情况下，如果Windows系统安装了Webview2，哪怕添加了Qt6相关的Python包（PyQT6、PySide6），以Native Mode运行的NiceGUI程序还是优先采用Webview2当作浏览器运行时。如果想要以Native Mode运行的NiceGUI程序采用QtWebEngine当做浏览器运行时，需要手动指定pywebview框架的Web engine（参考文档见 https://pywebview.flowrl.com/guide/web_engine.html），代码如下：
 
 ```python3
 from nicegui import ui, app
@@ -132,7 +132,7 @@ ui.run(native=True)
 
 修改`ui.run()`的默认参数`favicon`为自己logo的地址（图片地址，注意图片的格式要求）或者字符（仅支持单个字符，可以是汉字或者emoji），例如：`ui.run(favicon='🚀')`。
 
-（来个图）
+![2025_6_1](nicegui_plus.assets/2025_6_1.png)
 
 ## 7 为什么有时候创建在`ui.refreshable`装饰的函数内的控件不会刷新？
 
@@ -199,7 +199,7 @@ ui.button('button').classes('!bg-red-700')
 ui.run(native=True)
 ```
 
-（来个图）
+![2025_8_1](nicegui_plus.assets/2025_8_1.png)
 
 注意：Quasar的颜色体系和TailWindCSS的颜色体系不同。Quasar中，使用`color-[1-14]`来表示颜色，数字表示颜色程度，可选。TailWindCSS中，使用`type-color-[50-950]`表示颜色，type为功能类别，数字表示颜色程度，可选。需要注意代码中不同方式使用的颜色体系。
 
@@ -215,37 +215,43 @@ ui.button(icon='home', on_click=lambda: ui.notify('home')).props('fab')
 ui.run(native=True)
 ```
 
-（来个图）
+![2025_9_1](nicegui_plus.assets/2025_9_1.png)
 
+## 10 使用异步等待实现一次性的向导功能
 
-
-## （未完待续）
-
-3，如何实现按钮点击后才执行特定操作？
-
-使用异步等待。
+`ui.stepper`提供了功能完善的向导功能，但是，如果只是简单使用一次性、无需后退的向导功能，想要快速搭建的话，完全可以不用`ui.stepper`，按钮的`clicked`方法返回一个可以异步等待的对象，只有点击一次按钮，该异步对象才会完成一次。借助按钮的这个特性，可以只使用按钮，搭建一个一次性的向导页面：
 
 ```python3
 from nicegui import ui
 
 @ui.page('/')
 async def index():
-    b = ui.button('Step')
+    b = ui.button('Go')
     await b.clicked()
-    ui.label('One')
+    b.text = 'One'
     await b.clicked()
-    ui.label('Two')
+    b.text = 'Two'
     await b.clicked()
-    ui.label('Three')
+    b.text = 'Three'
+    await b.clicked()
+    b.text = 'Home'
+    # 设置点击按钮的功能为刷新页面，相当于重置上面已经点击的次数
+    b.on_click(ui.navigate.reload)
 
-ui.run()
+ui.run(native=True)
 ```
 
+![2025_10_1](nicegui_plus.assets/2025_10_1.gif)
 
+每次点击，按钮的文字都会改变，直到所有步骤完成，按钮的功能变成刷新页面，此时刷新页面就会重置之前的所有步骤，恢复到页面最初的状态。
 
-4，如何实现嵌入按钮的图标，点击图标并不触发按钮的点击事件？
+注意，因为涉及到异步，因此所有内容需要放在异步函数内，同时也只能在`ui.page`中使用异步等待。
 
-使用JavaScript中对应事件的`stopPropagation()`方法阻止事件穿透即可。
+## 11 点击嵌入按钮的图标时不触发按钮的点击事件
+
+如果在按钮的上下文中嵌入图标，给图标的点击事件设置单独的响应函数，点击图标的话，会同时触发按钮和图标的点击响应函数。这是因为HTML处理子级元素的事件时，会把该事件传播到父级元素中，同时触发父级元素的同类事件。
+
+解决方法也很简单，只需给子级元素的响应函数中，添加JavaScript代码，执行对应事件的`stopPropagation()`方法，来阻止事件的传播即可：
 
 ```python3
 from nicegui import ui
@@ -260,11 +266,13 @@ with ui.button('Item').classes('w-96') as button:
 ui.run(native=True)
 ```
 
+![2025_11_1](nicegui_plus.assets/2025_11_1.gif)
 
+## 12 通过URL给NiceGUI程序传参
 
-1，如何通过传参的形式动态修改页面内容？
+因为NiceGUI是基于FastAPI实现的，因此，FastAPI的参数注入（用法参考 https://fastapi.tiangolo.com/tutorial/path-params/ 、https://fastapi.tiangolo.com/tutorial/query-params/ 、https://fastapi.tiangolo.com/advanced/using-request-directly/ ）在NiceGUI程序中也能使用。
 
-使用参数注入，基于FastAPI的https://fastapi.tiangolo.com/tutorial/path-params/ 和 https://fastapi.tiangolo.com/tutorial/query-params/ 或者 https://fastapi.tiangolo.com/advanced/using-request-directly/ ，可以捕获url传入的参数，并用在Python程序中。
+直接在URL中的路径参数（路径中的部分字段即为参数的值，比如`/icon/star`），需要通过定义通配路径来捕获，比如`'/icon/{icon}'`。在英文问号之后的查询参数（需要显式指明参数和对应的值，比如`/icon/star?amount=5`），则会自动捕获。两种参数都可以在`ui.page`装饰的函数中创建同名参数后，在函数内部使用：
 
 ```python3
 from nicegui import ui
@@ -274,6 +282,7 @@ def icons(icon: str, amount: int = 1):
     ui.label(icon).classes('text-h3')
     with ui.row():
         [ui.icon(icon).classes('text-h3') for _ in range(amount)]
+        
 ui.link('Star', '/icon/star?amount=5')
 ui.link('Home', '/icon/home')
 ui.link('Water', '/icon/water_drop?amount=3')
@@ -563,8 +572,26 @@ ui.run()
 
 # NiceGUI拾遗（2026）
 
+## 0 2026版前言
+
+NiceGUI不断更新，开发时遇到的问题也层出不穷，学习更是温故而知新。因此，2026年，笔者将继续本教程系列的更新，沿袭2025版的目标，添补NiceGUI学习中欠缺的知识。
+
 ## 1 版本速览——x.x.x版本新增内容（多个小功能合并讲解）
 
 
 
 ## 2 版本速览——x.x.x版本新增xxx（具体的单个功能）
+
+
+
+## 1 （修正2025.13）
+
+原内容存在错误，修正错误。
+
+## 1 （补充2025.13）
+
+原内容不全面，补充内容。
+
+## 1 （扩展2025.13）
+
+从原内容想到的其他内容，虽然可以作为独立的内容写标题，但这部分内容确实是看完原内容才有了创作契机。

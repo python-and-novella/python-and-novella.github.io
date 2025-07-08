@@ -1,4 +1,4 @@
-# Qt For Python 札记（2025版）
+# Qt For Python 札记（2025）
 
 ## 0 为何而写
 
@@ -1038,7 +1038,7 @@ app.exec()
 
 
 
-## 10 `QtQuick`的模块（草稿状态）
+## 10 `QtQuick`的模块
 
 除了直接导入QML文件这种使用QML文件的方式，还可以将QML文件包装为模块，通过导入模块的方式使用QML文件。
 
@@ -1733,7 +1733,7 @@ app.exec()
 
 
 
-# Qt For Python 札记（2026版）
+# Qt For Python 札记（2026）
 
 ## 0 为何而写
 

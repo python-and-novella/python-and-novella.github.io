@@ -3800,7 +3800,7 @@ Window(
 
 - `right_margins`参数，元素为`Margin`类型、无重复元素的有序可迭代对象，表示右边栏的内容。
 
-- `scroll_offsets`参数，`ScrollOffsets`类型（使用`from prompt_toolkit.layout.containers import ScrollOffsets`导入），表示当内容可以滚动时，为了确保光标到边界的距离不小于该参数的值，程序会自动滚动内容，来满足该参数的值。
+- `scroll_offsets`参数，`ScrollOffsets`类型（使用`from prompt_toolkit.layout import ScrollOffsets`或者`from prompt_toolkit.layout.containers import ScrollOffsets`导入），表示当内容可以滚动时，为了确保光标到边界的距离不小于该参数的值，程序会自动滚动内容，来满足该参数的值。
 
 - `allow_scroll_beyond_bottom`参数，布尔类型或者`Filter`类型，表示当内容可以滚动时，如果光标到达底部，是否额外显示空白行来满足滚动的要求（要求光标居中，确保阅读体验），默认为`False`。
 
@@ -4584,7 +4584,7 @@ app.run()
   - `max_available_width`参数，整数类型，表示最大可用宽度。
 - `reset`方法，复位控件。
 
-##### 3.2.1.6 `ScrollablePane`控件（更新中）
+##### 3.2.1.6 `ScrollablePane`控件
 
 在正式介绍`ScrollablePane`控件之前，先来了解一下不使用`ScrollablePane`控件的话，效果如何。下面的代码中，使用了可以输入多行内容的`TextArea`控件，假如不停换行，直到输入的内容行数超过终端高度，效果会变成什么样呢？
 
@@ -4650,29 +4650,111 @@ app.run()
 
 控件支持以下参数：
 
-- `content`参数，
-- `scroll_offsets`参数，
-- `keep_cursor_visible`参数，
-- `keep_focused_window_visible`参数，
-- `content`参数，
-- `content`参数，
-- `content`参数，
+- `content`参数，`Container`类型，表示控件的内容。注意，此参数不同于其他控件的同名参数自动将实现了`__pt_container__`方法（该方法返回`Container`对象）的类型自动转换为`Container`类型，因此需要使用`to_container`方法（使用`from prompt_toolkit.layout import to_container`或者`from prompt_toolkit.layout.containers import to_container`导入）将其转换为`Container`类型。
+
+- `scroll_offsets`参数，`ScrollOffsets`类型（使用`from prompt_toolkit.layout import ScrollOffsets`或者`from prompt_toolkit.layout.containers import ScrollOffsets`导入），表示当内容可以滚动时，为了确保光标到边界的距离不小于该参数的值，程序会自动滚动内容，来满足该参数的值。
+
+- `keep_cursor_visible`参数，布尔类型或者`Filter`类型，表示是否通过滚动内容来确保光标始终在可见区域内容，默认为`True`。
+
+- `keep_focused_window_visible`参数，布尔类型或者`Filter`类型，表示是否通过滚动区域来确保光标在切换子控件的焦点之后让光标始终在可见区域内容，默认为`True`。
+
+  `keep_cursor_visible`参数为`True`时，包含该参数为`True`的效果。
+
+- `max_available_height`参数，整数类型，表示控件最大的高度，默认为`10000`。
+
+- `width`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的宽度。
+
+- `height`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的高度。
+
+- `show_scrollbar`参数，布尔类型或者`Filter`类型，表示是否显示滚动条，默认为`True`。
+
+- `display_arrows`参数，布尔类型或者`Filter`类型，表示是否显示滚动条中最上面和最下面的箭头，默认为`True`。
+
+- `up_arrow_symbol`参数，字符串类型（仅支持最多两个字符宽度的字符），表示滚动条中上面的箭头，默认为`'^'`。
+
+- `down_arrow_symbol`参数，字符串类型（仅支持最多两个字符宽度的字符），表示滚动条中下面的箭头，默认为`'v'`。
 
 控件支持以下属性：
 
-- 
+- `content`属性，同`content`参数。
+- `display_arrows`属性，同`display_arrows`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `down_arrow_symbol`属性，同`down_arrow_symbol`参数。
+- `height`属性，同`height`参数。
+- `keep_cursor_visible`属性，同`keep_cursor_visible`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `keep_focused_window_visible`属性，同`keep_focused_window_visible`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `max_available_height`属性，同`max_available_height`参数。
+- `scroll_offsets`属性，同`scroll_offsets`参数。
+- `show_scrollbar`属性，同`show_scrollbar`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `up_arrow_symbol`属性，同`up_arrow_symbol`参数。
+- `width`属性，同`width`参数。
 
 控件支持以下方法：
 
-- 
+- `get_children`方法，返回`content`属性。
+- `preferred_height`方法，获取在指定宽度和最大可用高度的情况下的最佳控件高度。该方法支持以下参数：
+  - `width`参数，整数类型，表示指定的宽度。
+  - `max_available_height`参数，整数类型，表示最大可用高度。
+- `preferred_width`方法，获取在最大可用宽度的情况下的最佳控件宽度。该方法支持以下参数：
+  - `max_available_width`参数，整数类型，表示最大可用宽度。
+- `reset`方法，复位控件。
 
 ##### 3.2.1.7 `Frame`控件
 
-  
+
+
+  （虽然是从widget中导入，但其用法更像容器控件，因此放在容器中介绍）
+
+
+
+综合三个容器控件的示例：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, Label, Frame, Shadow, Box
+from prompt_toolkit.styles import Style
+
+layout = Layout(
+    HSplit(
+        [
+            Box(
+                Shadow(
+                    Frame(
+                        Label('Hello')
+                    )
+                ),
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+    style=Style(
+        [
+            ('shadow', 'bg:green')
+        ]
+    )
+)
+
+app.run()
+```
+
+
+
+
 
 ##### 3.2.1.8 `Shadow`控件
 
   
+
+
 
 ##### 3.2.1.9 `Box`控件
 
@@ -4702,9 +4784,7 @@ app.run()
 
  
 
-  HorizontalLine
-
-  VerticalLine
+  HorizontalLine 和 VerticalLine
 
   RadioList
 

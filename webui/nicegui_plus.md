@@ -134,7 +134,7 @@ ui.run(native=True)
 
 ![2025_6_1](nicegui_plus.assets/2025_6_1.png)
 
-## 7 为什么有时候创建在`ui.refreshable`装饰的函数内的控件不会刷新？
+## 7 `ui.refreshable`刷新时不会刷新外部的控件或者元素
 
 有的读者在使用`ui.refreshable`装饰器的时候，遇到了一个奇怪的问题，这里分享一下，那就是创建在`ui.refreshable`装饰的函数内的控件不会刷新。
 
@@ -152,7 +152,7 @@ def time_box(container:ui.element):
 card1 = ui.card()
 time_box(card1)
 
-ui.button('refresh1',on_click=time_box.refresh)
+ui.button('refresh',on_click=time_box.refresh)
 
 ui.run(native=True)
 ```
@@ -161,7 +161,7 @@ ui.run(native=True)
 
 为什么？
 
-其实，`refreshable`方法相当于创建了一个可刷新的元素，并将方法内部创建的元素的父元素指定为可刷新元素。每次调用刷新方法，实际上是先清空可刷新元素，然后执行一遍方法内部创建元素的过程。但是，使用`with container`之后，接下来创建的元素的父元素是`container`，而不是可刷新元素，因此，每次调用刷新方法之后，方法内部创建的元素不会被清空，反而因为重新创建了一遍元素，`container`下的元素会多一个。
+其实，`refreshable`方法相当于创建了一个可刷新的元素，并将方法内部创建的元素的父元素指定为可刷新元素。每次调用刷新方法，实际上是先清空可刷新元素内部的元素，然后执行一遍方法内创建元素的过程。但是，使用`with container`之后，接下来创建的元素的父元素是`container`，而不是可刷新元素，此时创建的元素不属于可刷新元素的内部元素，而是外部元素。因此，每次调用刷新方法之后，方法中创建的元素非但不会被清空，反而因为执行一遍方法内创建元素的过程，`container`下的元素会多一个。
 
 如果想要实现借用已经创建的元素当容器，让内部元素可以刷新，就要在创建之前，模拟可刷新元素的清空操作：
 
@@ -178,7 +178,7 @@ def time_box(container:ui.element):
 card1 =ui.card()
 time_box(card1)
 
-ui.button('refresh1',on_click=time_box.refresh)
+ui.button('refresh',on_click=time_box.refresh)
 
 ui.run(native=True)
 ```
@@ -290,6 +290,8 @@ ui.link('Water', '/icon/water_drop?amount=3')
 ui.run()
 ```
 
+![2025_12_1](nicegui_plus.assets/2025_12_1.png)
+
 ## 13 使用其他控件模拟`ui.step`
 
 给任意控件增加`.props['name']`和`.props['title']`属性，该控件就能当作`ui.step`来使用：
@@ -373,7 +375,7 @@ ui.run(native=True)
 
 ## 15 给`icon`参数传入图片文件地址
 
-`icon`参数除了可以接收图标名字，还可以接收图片文件的地址，但是要在图片文件的地址前加上`'img:'`，用于表明图标将使用图片文件，比如`'img:https://cdn.quasar.dev/logo-v2/svg/logo.svg'`：
+`icon`参数除了可以接收图标名字，还可以接收图片文件（推荐使用SVG格式的矢量图）的地址，但是要在图片文件的地址前加上`'img:'`，用于表明图标将使用图片文件，比如`'img:https://cdn.quasar.dev/logo-v2/svg/logo.svg'`：
 
 ```python3
 from nicegui import ui
@@ -382,6 +384,8 @@ ui.button(text='LOGO',icon='img:https://cdn.quasar.dev/logo-v2/svg/logo.svg')
 
 ui.run(native=True)
 ```
+
+![2025_15_1](nicegui_plus.assets/2025_15_1.png)
 
 ## 16 自定义`ui.carousel`（轮播图）的控制控件
 

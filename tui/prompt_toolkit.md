@@ -4700,13 +4700,103 @@ app.run()
 
 ##### 3.2.1.7 `Frame`控件
 
+`Frame`控件（使用`from prompt_toolkit.widgets import Frame`导入）可以给其他控件添加一个边框：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, Label, Frame
+from prompt_toolkit.styles import Style
+
+layout = Layout(
+    HSplit(
+        [
+            Frame(
+                Label('Hello')
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+![frame_1](prompt_toolkit.assets/frame_1.png)
+
+控件支持以下参数：
+
+- `body`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示被包装的控件。
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示在上边框中间的标题。
+- `style`参数，字符串类型或者调用之后返回同样类型的可调用类型，表示内容的样式。
+- `width`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的宽度。
+- `height`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的高度。
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
+- `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`False`。
+
+控件支持以下属性：
+
+- `body`属性，同`body`参数。
+- `title`属性，同`title`参数。
+- `container`属性，表示控件输出的实际内容。
+
+##### 3.2.1.8 `Box`控件
+
+`Box`控件（使用`from prompt_toolkit.widgets import Box`导入）可以给其他控件添加一圈空白字符填充的边距：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, Label, Box
+
+layout = Layout(
+    HSplit(
+        [
+            Box(
+                Label('Hello'),
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+
+```
+
+![box_1](prompt_toolkit.assets/box_1.png)
+
+控件支持以下参数：
+
+- `body`参数，
 
 
-  （虽然是从widget中导入，但其用法更像容器控件，因此放在容器中介绍）
 
 
 
-综合三个容器控件的示例：
+
+
+##### 3.2.1.9 `Shadow`控件
+
+`Shadow`控件（使用`from prompt_toolkit.widgets import Shadow`导入）可以给其他控件添加阴影（一般与`Frame`控件、`Box`控件组合使用，同时需要给`Application`类的`style`参数传入定义了`shadow`样式类的样式对象）：  
 
 ```python3
 from prompt_toolkit import Application
@@ -4746,17 +4836,7 @@ app = Application(
 app.run()
 ```
 
-
-
-
-
-##### 3.2.1.8 `Shadow`控件
-
-  
-
-
-
-##### 3.2.1.9 `Box`控件
+![shadow_1](prompt_toolkit.assets/shadow_1.png)
 
 
 
@@ -5145,7 +5225,6 @@ toolbar（部分）:
 
 
 set_title 设置终端窗口的标题，来自 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.shortcuts
-
 
 
 

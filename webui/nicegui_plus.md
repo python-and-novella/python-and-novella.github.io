@@ -175,7 +175,7 @@ def time_box(container:ui.element):
     with container:
         ui.label(datetime.now())
 
-card1 =ui.card()
+card1 = ui.card()
 time_box(card1)
 
 ui.button('refresh',on_click=time_box.refresh)

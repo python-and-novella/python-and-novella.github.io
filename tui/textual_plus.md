@@ -548,7 +548,7 @@ if __name__ == '__main__':
 
 ![2025_3_1](textual_plus.assets/2025_3_1.png)
 
-代码很简单，没有什么特别。但是，如果使用`textual.getter`模块的`query_one`类，代码会简单一些：
+代码很简单，没有什么特别。但是，如果使用`textual.getter`模块的`query_one`类，代码会更简单一些：
 
 ```python3
 from textual.app import App

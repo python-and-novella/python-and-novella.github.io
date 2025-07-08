@@ -322,11 +322,9 @@ with ui.stepper(
 ui.run(native=True)
 ```
 
-## 14 将`ui.stepper`的控制按钮放置在外，如何识别第一步和最后一步？
+## 14 将`ui.stepper`的控制按钮外置
 
-遍历其中控件的`name`，或者直接指定中间变量存储第一步和最后一步的`name`，并绑定按钮的可见性或者使用`refreshable`装饰。
-
-
+除了在每一步中创建一组控制按钮，还可以在外面创建控制按钮。只不过，为了准确匹配第一步、最后一步和其他步骤中控制按钮的状态（第一步时只显示下一步按钮，中间步骤时显示上一步按钮、下一步按钮，最后一步只显示上一步按钮和完成按钮），需要将对应按钮的显示状态与相应步骤绑定：
 
 ```python3
 from nicegui import ui
@@ -367,11 +365,15 @@ ui.run(native=True)
 
 ```
 
+![2025_14_1](nicegui_plus.assets/2025_14_1.png)
 
+在上面的代码中，下一步按钮只会在当前步骤不是最后一步时显示。完成按钮和下一步按钮在相同位置，条件完全相反，因此，完成按钮只会在当前步骤是最后一步时显示。上一步按钮只会在当前步骤不是第一步时显示。
 
-1，想用自定义的LOGO图片（SVG格式）当图标行不行？
+判断当前步骤的方法很简单，`ui.stepper`的`value`属性表示当前步骤的名字，具体步骤对应的则是``props['name']`的值，二者相等时，就表示当前步骤为那一步。
 
-可以，使用`'img:path/to/some_image.png'`这样的语法（适用于`ui.icon`控件或者其他支持`icon`参数的控件），比如`'img:https://cdn.quasar.dev/logo-v2/svg/logo.svg'`：
+## 15 给`icon`参数传入图片文件地址
+
+`icon`参数除了可以接收图标名字，还可以接收图片文件的地址，但是要在图片文件的地址前加上`'img:'`，用于表明图标将使用图片文件，比如`'img:https://cdn.quasar.dev/logo-v2/svg/logo.svg'`：
 
 ```python3
 from nicegui import ui
@@ -381,11 +383,9 @@ ui.button(text='LOGO',icon='img:https://cdn.quasar.dev/logo-v2/svg/logo.svg')
 ui.run(native=True)
 ```
 
+## 16 自定义`ui.carousel`（轮播图）的控制控件
 
-
-1，如何自定义轮播图的控制控件？
-
-修改`'control'`slot（`add_slot('control')`），API参考 https://quasar.dev/vue-components/carousel#qcarouselcontrol-api 。
+使用`ui.carousel`的`'control'`slot（`add_slot('control')`，具体用法参考 https://quasar.dev/vue-components/carousel#qcarouselcontrol-api ），可以在`ui.carousel`上添加其他内容，比如与之关联的控制按钮：
 
 ```python3
 from nicegui import ui
@@ -398,74 +398,17 @@ with ui.carousel(animated=True, arrows=True, navigation=True).props('height=180p
     with ui.carousel_slide().classes('p-0'):
         ui.image('https://picsum.photos/id/32/270/180').classes('w-[270px]')
     with carousel.add_slot('control') ,ui.element('q-carousel-control').props('position="top-right"'):
-        ui.button('prev',on_click=carousel.previous)
-        ui.button('next',on_click=carousel.next)
+        ui.button('<',on_click=carousel.previous)
+        ui.button('>',on_click=carousel.next)
 
 ui.run(native=True)
 ```
 
+![2025_16_1](nicegui_plus.assets/2025_16_1.png)
 
+## 17 获取视频的播放进度
 
-1，如何实现点击树形图的文字部分也能展开子节点？
-
-可以在`on('click')`的响应操作中添加对当前节点是否展开的判断，然后展开、收起当前节点。
-
-简洁版：
-
-```python3
-from nicegui import ui
-
-# 调用JavaScript接口来展开、收起当前节点
-def expand_node_js(e):
-    if e.sender.props['selected'] in e.sender.props['expanded']:
-        e.sender.run_method('setExpanded',e.sender.props['selected'],False)
-    else:
-        e.sender.run_method('setExpanded',e.sender.props['selected'],True)
-
-ui.tree([
-    {'id': 'numbers', 'children': [{'id': '1'}, {'id': '2'}]},
-    {'id': 'letters', 'children': [{'id': 'A'}, {'id': 'B'}]},
-], label_key='id').classes('w-full').props('no-selection-unset').on('click',expand_node_js)
-
-
-# 调用Python接口展开、收起当前节点
-def expand_node_py(e):
-    if e.sender.props['selected'] in e.sender.props['expanded']:
-        e.sender.collapse([e.sender.props['selected']])
-    else:
-        e.sender.expand([e.sender.props['selected']])
-
-ui.tree([
-    {'id': 'numbers', 'children': [{'id': '1'}, {'id': '2'}]},
-    {'id': 'letters', 'children': [{'id': 'A'}, {'id': 'B'}]},
-], label_key='id').classes('w-full').props('no-selection-unset').on('click',expand_node_py )
-
-ui.run(native=True)
-```
-
-短小精悍防裁员版：
-
-```python3
-from nicegui import ui
-
-ui.tree([
-    {'id': 'numbers', 'children': [{'id': '1'}, {'id': '2'}]},
-    {'id': 'letters', 'children': [{'id': 'A'}, {'id': 'B'}]},
-], label_key='id').classes('w-full').props('no-selection-unset').on('click',lambda e:e.sender.run_method('setExpanded',e.sender.props['selected'],False if e.sender.props['selected'] in e.sender.props['expanded'] else True ))
-
-ui.tree([
-    {'id': 'numbers', 'children': [{'id': '1'}, {'id': '2'}]},
-    {'id': 'letters', 'children': [{'id': 'A'}, {'id': 'B'}]},
-], label_key='id').classes('w-full').props('no-selection-unset').on('click',lambda e:e.sender.collapse([e.sender.props['selected']]) if e.sender.props['selected'] in e.sender.props['expanded'] else e.sender.expand([e.sender.props['selected']]) )
-
-ui.run(native=True)
-```
-
-
-
-1，如何获取视频播放的进度？
-
-目前NiceGUI没有实现视频控件的`currentTime`属性，但是可以使用JavaScript代码获取，示例如下：
+目前NiceGUI没有实现视频控件的播放进度（`currentTime`）属性，想要获取视频的播放进度，只能使用JavaScript代码获取控件的`currentTime`属性，并使用定时器实时刷新相关的标签。示例如下：
 
 ```python3
 from nicegui import ui
@@ -487,9 +430,9 @@ async def index():
 ui.run(native=True)
 ```
 
+![2025_17_1](nicegui_plus.assets/2025_17_1.png)
 
-
-## x 版本速览——2.20.0版本新增自定义程序内报错的响应页面
+## 18 版本速览——2.20.0版本新增自定义程序内报错的响应页面
 
 NiceGUI 2.20.0 新增自定义程序内报错的响应页面。与HTTP报错的自定义响应页面不同，该响应页面需要程序内触发异常，只是触发HTTP的错误状态码（比如文件不存在的404），是不会显示该响应页面的。
 
@@ -507,7 +450,7 @@ def error_handler(exception: Exception) -> None:
 
 @ui.page('/')
 def index():
-    raise Exception('错误')
+    raise Exception('主动触发错误')
 
 # 自定义HTTP报错的响应页面
 from nicegui import ui, Client
@@ -522,6 +465,56 @@ def exception_handler_404(request:Request, exception: Exception):
 
 ui.run()
 ```
+
+![2025_18_1](nicegui_plus.assets/2025_18_1.png)
+
+## 19 版本速览——2.21.0版本新增允许使用其他基于VUE的前端UI框架
+
+是否厌倦了NiceGUI只能使用Quasar的控件，想要让NiceGUI使用其他UI的控件？
+
+NiceGUI 2.21.0 新增`app.config.vue_config_script`属性，该属性主要用于初始化VUE应用，可以给该属性追加其他基于VUE的框架的初始化代码，从而可以在NiceGUI程序中，通过`ui.element`使用其他框架的控件。
+
+以Element Plus框架（https://cn.element-plus.org/zh-CN/component/button.html）和Naive UI框架（https://www.naiveui.com/zh-CN/os-theme/components/button）为例，需要先使用`ui.add_body_html`添加框架所需的JavaScript文件和CSS文件，然后通过给`app.config.vue_config_script`追加初始化代码。
+
+推荐追加初始化代码，直接替换的话，需要添加原始的初始化代码：
+
+```javascript
+app.use(Quasar, {config: vue_config});
+Quasar.lang.set(Quasar.lang[language.replace('-', '')]);
+Quasar.Dark.set(dark === None ? "auto" : dark);
+```
+
+注意，该功能仅是实验性功能，不能确保NiceGUI默认使用的Quasar框架与其他基于VUE的框架百分比兼容，也无法保证使用其他框架之后，NiceGUI程序依然正常，请慎重使用该功能。
+
+完整示例如下：
+
+```python3
+from nicegui import ui,app
+
+ui.add_body_html('''
+    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
+    <script defer src="https://unpkg.com/element-plus"></script>
+    <script defer src="https://unpkg.com/naive-ui"></script>
+''')
+app.config.vue_config_script += '''
+    app.use(ElementPlus);
+    app.use(naive);
+'''
+
+with ui.element('el-button').props('type="primary"').on('click', lambda: ui.notify('Hi from ElementPlus')):
+    ui.html('Element Plus button')
+
+with ui.element('n-button').props('type="primary"').on('click', lambda: ui.notify('Hi from NaiveUI')):
+    ui.html('Naive UI button')
+
+ui.button('Quasar button', on_click=lambda: ui.notify('Hello from Quasar(NiceGUI)'))
+
+ui.run(native=True)
+```
+
+![2025_19_1](nicegui_plus.assets/2025_19_1.gif)
+
+## 20 （待定）
 
 
 

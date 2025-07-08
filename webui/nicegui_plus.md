@@ -6,7 +6,7 @@
 
 此外，《NiceGUI的中文入门教程》中的具体示例也会放在这里继续更新，并在标题中体现示例的主要用途。
 
-简而言之，本系列教程可以看作是《NiceGUI的中文入门教程》的续作，但是叙述上不再沿用系统性架构，而是采用类似于敏捷开发式叙述方式，随时补充新内容且不会在原始位置修改已发布的内容（但可能单开一节用于修订之前的内容）。
+简而言之，本系列教程可以看作是《NiceGUI的中文入门教程》的续作，但是叙述上不再沿用系统性架构，而是采用类似于敏捷开发的叙述方式，随时补充新内容且不会在原始位置修改已发布的内容（但可能单开一节用于修订之前的内容）。
 
 ## 1 使用环境变量配置NiceGUI程序
 
@@ -290,33 +290,29 @@ ui.link('Water', '/icon/water_drop?amount=3')
 ui.run()
 ```
 
+## 13 使用其他控件模拟`ui.step`
 
-
-1，如何使用其他控件模拟`ui.step`？
-
-给控件增加`.props["name"]`和`.props["title"]`即可。
+给任意控件增加`.props['name']`和`.props['title']`属性，该控件就能当作`ui.step`来使用：
 
 ```python3
 from nicegui import ui
 
 with ui.stepper(
     value='First',
-    on_value_change=lambda e: ui.notify(e.value),
-    keep_alive=True
 ).classes('w-full') as stepper:
-    with ui.card() as first:
-        first.props.update(dict(name='First', title='First step', icon='home'))
+    with ui.element('h1') as first:
+        first.props.update(dict(name='First', title='First step'))
         ui.label('Do it fisrt.')
         with ui.stepper_navigation(wrap=True):
             ui.button('Next', on_click=stepper.next)
-    with ui.card() as second:
-        second.props.update(dict(name='Second', title='Second step', icon='home'))
+    with ui.element('h3') as second:
+        second.props.update(dict(name='Second', title='Second step'))
         ui.label('Do it second.')
         with ui.stepper_navigation(wrap=True):
             ui.button('Next', on_click=stepper.next)
             ui.button('Back', on_click=stepper.previous).props('flat')
-    with ui.card() as last:
-        last.props.update(dict(name='last', title='Last step', icon='home'))
+    with ui.element('h5') as last:
+        last.props.update(dict(name='last', title='Last step'))
         ui.label('Do it last.')
         with ui.stepper_navigation(wrap=True):
             ui.button('Done', on_click=lambda: ui.notify(
@@ -326,61 +322,11 @@ with ui.stepper(
 ui.run(native=True)
 ```
 
-2，将`ui.stepper`的控制按钮放置在外，如何识别第一步和最后一步？
+## 14 将`ui.stepper`的控制按钮放置在外，如何识别第一步和最后一步？
 
 遍历其中控件的`name`，或者直接指定中间变量存储第一步和最后一步的`name`，并绑定按钮的可见性或者使用`refreshable`装饰。
 
-方法一：
 
-```python3
-from nicegui import ui
-
-def navigation_bar(stepper:ui.stepper=None,on_finish=None,container=None):
-    @ui.refreshable
-    def navigation():
-        with container or ui.element(),ui.row():
-            step_name_list = [i.props['name'] for i in stepper]
-            first_name = step_name_list[0]
-            is_first = stepper.value == first_name
-            is_not_first = not is_first
-            last_name = step_name_list[-1]
-            is_last = stepper.value == last_name
-            is_not_last = not is_last
-            next_btn = ui.button('Next', on_click=stepper.next)
-            next_btn.bind_visibility_from(locals(),'is_not_last')
-            last_btn = ui.button('Done')
-            last_btn.bind_visibility_from(locals(),'is_last')
-            if callable(on_finish):
-                if len(on_finish.__code__.co_varnames) == 0:
-                    last_btn.on_click(on_finish)
-                else:
-                    last_btn.on_click(lambda e:on_finish(e))
-            else:
-                last_btn.on_click(lambda: ui.notify('Done!', type='positive'))
-            back_btn = ui.button('Back', on_click=stepper.previous).props('flat')
-            back_btn.bind_visibility_from(locals(),'is_not_first')
-    if stepper:
-        navigation()
-    stepper.on_value_change(navigation.refresh)
-
-with ui.stepper(
-    value='First',
-    keep_alive=True
-).classes('w-full') as stepper:
-    with ui.step(name='First', title='First step', icon='home') as first:
-        ui.label('Do it fisrt.')
-    with ui.step(name='Second', title='Second step', icon='home') as second:
-        ui.label('Do it second.')
-    with ui.step(name='Last', title='Last step', icon='home') as last:
-        ui.label('Do it last.')
-
-with ui.card():
-    navigation_bar(stepper)
-
-ui.run(native=True)
-```
-
-方法二：
 
 ```python3
 from nicegui import ui
@@ -396,17 +342,32 @@ with ui.stepper(
     with ui.step(name='Last', title='Last step', icon='home') as last:
         ui.label('Do it last.')
 
-with ui.card(),ui.row():
+with ui.stepper_navigation():
     next_btn = ui.button('Next', on_click=stepper.next)
-    next_btn.bind_visibility_from(stepper,'value',lambda x:x!=last.props['name'])
+    next_btn.bind_visibility_from(
+        stepper,
+        'value',
+        lambda x: x != last.props['name']
+    )
     last_btn = ui.button('Done')
-    last_btn.bind_visibility_from(stepper,'value',lambda x:x==last.props['name'])
+    last_btn.bind_visibility_from(
+        stepper,
+        'value',
+        lambda x: x == last.props['name']
+    )
     last_btn.on_click(lambda: ui.notify('Done!', type='positive'))
     back_btn = ui.button('Back', on_click=stepper.previous).props('flat')
-    back_btn.bind_visibility_from(stepper,'value',lambda x:x!=first.props['name'])
+    back_btn.bind_visibility_from(
+        stepper,
+        'value',
+        lambda x: x != first.props['name']
+    )
 
 ui.run(native=True)
+
 ```
+
+
 
 1，想用自定义的LOGO图片（SVG格式）当图标行不行？
 
@@ -424,7 +385,7 @@ ui.run(native=True)
 
 1，如何自定义轮播图的控制控件？
 
-修改`'control'`slot（`add_slot('control')`），API参考[Quasar官网](https://quasar.dev/vue-components/carousel#qcarouselcontrol-api)。
+修改`'control'`slot（`add_slot('control')`），API参考 https://quasar.dev/vue-components/carousel#qcarouselcontrol-api 。
 
 ```python3
 from nicegui import ui

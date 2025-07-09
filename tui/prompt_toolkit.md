@@ -4786,7 +4786,8 @@ app.run()
 
 控件支持以下参数：
 
-- `body`参数，
+- `body`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示被包装的控件。
+- 
 
 
 
@@ -4837,6 +4838,18 @@ app.run()
 ```
 
 ![shadow_1](prompt_toolkit.assets/shadow_1.png)
+
+控件支持以下参数：
+
+- `body`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示被包装的控件。
+
+控件支持以下属性：
+
+
+
+控件支持以下方法：
+
+
 
 
 

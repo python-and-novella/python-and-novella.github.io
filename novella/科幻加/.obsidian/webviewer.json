@@ -1,7 +1,0 @@
-{
-  "openExternalURLs": true,
-  "enableAdblocking": true,
-  "customSearchEngine": "https://www.baidu.com/s?wd=%s&ie={inputEncoding}",
-  "searchEngine": "custom",
-  "homepage": "https://www.baidu.com/"
-}

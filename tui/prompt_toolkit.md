@@ -3599,7 +3599,7 @@ asyncio.run(app.run_async())
 
 布局的本质是容器，也算是一种控件；而与之不同的，则是另一些只用于显示内容的控件。因此，本节将所有控件分为两类：可以包装其他控件的控件，也就是容器类控件；只是用于显示内容、不能包装其他控件的控件，称之为内容类控件。
 
-#### 3.2.1 容器类控件（更新中）
+#### 3.2.1 容器类控件
 
 ##### 3.2.1.1 `Layout`控件
 
@@ -4787,17 +4787,30 @@ app.run()
 控件支持以下参数：
 
 - `body`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示被包装的控件。
-- 
+- `padding`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示内容的边距（优先满足上、下、左边距的值）。
+- `padding_left`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示内容的左边距。
+- `padding_right`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示内容的右边距。
+- `padding_top`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示内容的上边距。
+- `padding_bottom`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示内容的下边距。
+- `width`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的宽度。
+- `height`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的高度。
+- `style`参数，字符串类型或者调用之后返回同样类型的可调用类型，表示内容的样式。
+- `char`参数，字符串类型或者返回前面类型的可调用类型，表示填充空白区域的字符。
+- `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`False`。
 
+控件支持以下属性：
 
-
-
-
-
+- `container`属性，表示控件输出的实际内容。
+- `body`属性，同`body`参数。
+- `padding`属性，同`padding`参数。
+- `padding_left`属性，同`padding_left`参数。
+- `padding_right`属性，同`padding_right`参数。
+- `padding_top`属性，同`padding_top`参数。
+- `padding_bottom`属性，同`padding_bottom`参数。
 
 ##### 3.2.1.9 `Shadow`控件
 
-`Shadow`控件（使用`from prompt_toolkit.widgets import Shadow`导入）可以给其他控件添加阴影（一般与`Frame`控件、`Box`控件组合使用，同时需要给`Application`类的`style`参数传入定义了`shadow`样式类的样式对象）：  
+可以给其他控件添加阴影（一般与`Frame`控件、`Box`控件组合使用，同时需要给`Application`类的`style`参数传入定义了`shadow`样式类的样式对象）：  
 
 ```python3
 from prompt_toolkit import Application
@@ -4845,19 +4858,15 @@ app.run()
 
 控件支持以下属性：
 
-
-
-控件支持以下方法：
-
-
-
-
-
-
+- `container`属性，表示控件输出的实际内容。
 
 #### 3.2.2 内容类控件（更新中）
 
 ##### 3.2.2.1 `Label`控件
+
+`Label`控件（使用`from prompt_toolkit.widgets import Label`导入）
+
+
 
 
 

@@ -134,6 +134,24 @@ ui.run(native=True)
 
 ![2025_6_1](nicegui_plus.assets/2025_6_1.png)
 
+favicon为图片时有以下要求：
+
+- 像素不低于16x16。
+- 图片格式支持`.ico`、`.png`、`.jpg`、`.svg`、`.gif`。注意，这里指的是图片格式，并不是后缀，哪怕后缀不是这些格式，但图片本身是这些格式，依然可以。
+
+完整的favicon支持情况，可以参考 https://en.wikipedia.org/wiki/Favicon 。
+
+以下为使用图片文件的示例：
+
+```python3
+from nicegui import ui
+import pathlib
+
+ui.run(favicon=str(pathlib.Path(__file__).parent/'LOGO.png'))
+```
+
+![2025_6_2](nicegui_plus.assets/2025_6_2.png)
+
 ## 7 `ui.refreshable`刷新时不会刷新外部的控件或者元素
 
 有的读者在使用`ui.refreshable`装饰器的时候，遇到了一个奇怪的问题，这里分享一下，那就是创建在`ui.refreshable`装饰的函数内的控件不会刷新。

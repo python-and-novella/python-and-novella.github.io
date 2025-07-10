@@ -14003,8 +14003,8 @@ ToastRack {
 
 组件支持以下参数：
 
--   `*buttons`参数，单选按钮组件类型或者字符串类型，表示单选集组件中的选项。注意，如果选项不是单选按钮组件而是字符串的话，单选集组件会自动基于字符串创建单选按钮组件。从此参数开始，只能使用关键字传入。
--   `tooltip`参数，可渲染类型，表示鼠标悬停在组件上时显示出来的工具提示。
+-   `*buttons`参数，单选按钮组件类型或者字符串类型，表示单选集组件中的选项。注意，如果选项不是单选按钮组件而是字符串的话，单选集组件会自动基于字符串创建单选按钮组件。
+-   `tooltip`参数，可渲染类型，表示鼠标悬停在组件上时显示出来的工具提示。从此参数开始，只能使用关键字传入。
 -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
 -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
 -   `classes`参数，字符串类型，表示组件的样式类。
@@ -14258,8 +14258,8 @@ if __name__ == '__main__':
 
 选项列表组件支持以下参数：
 
--   `*content`参数，选项类（使用`from textual.widgets.option_list import Option`导入）或者可渲染类型或者`None`，表示选项列表组件所包含的选项。注意，如果传入的是可渲染类型，则会自动转换为选项类。如果传入的是`None`，则会转换为分隔符。从此参数开始，只能使用关键字传入。
--   `markup`参数，布尔类型，表示是否解析字符串类型选项中的Markup标签，默认为`True`。
+-   `*content`参数，选项类（使用`from textual.widgets.option_list import Option`导入）或者可渲染类型或者`None`，表示选项列表组件所包含的选项。注意，如果传入的是可渲染类型，则会自动转换为选项类。如果传入的是`None`，则会转换为分隔符。
+-   `markup`参数，布尔类型，表示是否解析字符串类型选项中的Markup标签，默认为`True`。从此参数开始，只能使用关键字传入。
 -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
 -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
 -   `classes`参数，字符串类型，表示组件的样式类。
@@ -14498,8 +14498,8 @@ if __name__ == '__main__':
 
 多选列表组件支持以下参数：
 
--   `*selections`参数，多选选项类（使用`from textual.widgets.selection_list import Selection`导入）或者元组，表示多选列表组件所包含的选项。注意，如果传入的是元组，则会自动转换为多选选项类。元组支持三元素或者两元素，分别对应着多选选项类的`prompt`参数、`value`参数、`initial_state`参数（可省略，省略的话默认该参数为`False`）。从此参数开始，只能使用关键字传入。
--   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+-   `*selections`参数，多选选项类（使用`from textual.widgets.selection_list import Selection`导入）或者元组，表示多选列表组件所包含的选项。注意，如果传入的是元组，则会自动转换为多选选项类。元组支持三元素或者两元素，分别对应着多选选项类的`prompt`参数、`value`参数、`initial_state`参数（可省略，省略的话默认该参数为`False`）。
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。从此参数开始，只能使用关键字传入。
 -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
 -   `classes`参数，字符串类型，表示组件的样式类。
 -   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
@@ -16905,20 +16905,44 @@ if __name__ == '__main__':
 
 标签页面板组件支持以下参数：
 
--   `title`参数，字符串类型或者Rich的[`Text`](https://rich.readthedocs.io/en/stable/reference/text.html#rich.text.Text)类型或者`Content`类型，表示标签页面板组件的标题，当被嵌入在标签页内容组件时，标签页内容组件会使用该组件的标题来生成多标签页中对应的页标签的内容。
--   `*children`参数，组件类型，表示标签页面板组件包含的内容。可传入多个值或者解包元素为组件类型的可迭代对象。从此参数开始，只能使用关键字传入。
--   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
--   `id`参数，字符串类型，表示组件的ID。当被嵌入在标签页内容组件时，标签页内容组件使用ID来切换、识别标签页面板组件，如果传入的标签页面板组件没有设置ID或者传入的不是标签页面板组件，组件会根据顺序给每个标签页面板组件（没有ID的和组件创建的）设置格式为`'tab-{从1开始的数字}'`的ID。如果需要编程方式切换、控制标签页面板组件，应当尽量手动设置ID。
+-   `title`参数，字符串类型或者Rich的[`Text`](https://rich.readthedocs.io/en/stable/reference/text.html#rich.text.Text)类型或者`Content`类型，表示标签页的标题。
+
+-   `*children`参数，组件类型，表示标签页面板组件包含的内容。可传入多个值或者解包元素为组件类型的可迭代对象。
+
+-   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。从此参数开始，只能使用关键字传入。
+
+-   `id`参数，字符串类型，表示组件的ID。当被嵌入在标签页内容组件时，标签页内容组件使用标签页的ID来切换、识别标签页面板组件，而组件的ID会覆盖自动生成的标签页的ID。
+
+    如果需要编程方式切换、控制标签页，应当尽量手动设置ID。
+
 -   `classes`参数，字符串类型，表示组件的样式类。
+
 -   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
 
 标签页内容组件支持以下参数：
 
--   `*titles`参数，字符串类型或者Rich的[`Text`](https://rich.readthedocs.io/en/stable/reference/text.html#rich.text.Text)类型或者`Content`类型，当标签页内容组件包含的内容组件不是标签页面板组件时，该组件会创建标签页面板组件，此时此参数的每个元素会按照顺序传给对应标签页面板组件的`title`参数。可传入多个值或者解包元素为指定类型的可迭代对象。从此参数开始，只能使用关键字传入。
--   `initial`参数，字符串类型，表示默认显示的标签页面板组件的ID。组件使用ID来切换、识别标签页面板组件，如果传入的标签页面板组件没有设置ID或者传入的不是标签页面板组件，组件会根据顺序给每个标签页面板组件（没有ID的和组件创建的）设置格式为`'tab-{从1开始的数字}'`的ID。
+-   `*titles`参数，字符串类型或者Rich的[`Text`](https://rich.readthedocs.io/en/stable/reference/text.html#rich.text.Text)类型或者`Content`类型，表示对应标签页的标题。可传入多个值或者解包元素为指定类型的可迭代对象。
+
+    注意，标签页的数量不可少于参数或者解包后参数的数量。
+
+    如果标签页数量比该参数的数量多，多出来的标签页的标题会被设置为自动生成的标题，格式为`'Tab {从1开始对应的标签页顺序}'`。
+
+    此外，如果标签页的内容为标签页面板组件，则对应标签页的标题会优先使用标签页面板组件`title`参数的值。
+
+-   `initial`参数，字符串类型，表示默认显示的标签页的ID。标签页内容组件使用标签页的ID来切换、识别标签页。
+
+    标签页内容组件会根据顺序给每个标签页生成格式为`'tab-{从1开始对应的标签页顺序}'`的ID。如果标签页的内容不是标签页面板组件，则会将其替换为创建的标签页面板组件（`title`参数为`'Tab {从1开始对应的标签页顺序}'`，`*children`参数为嵌入的组件，`id`参数为`'tab-{从1开始对应的标签页顺序}'`）。如果标签页的内容是标签页面板组件并且设置了`id`参数，则生成的对应ID会被替换为`id`参数的值。
+
+    比如，第二个标签页内容是没有设置`id`参数的标签页面板组件或者其他组件，那么，标签页的ID会被设置为`'tab-2'`；如果传入的标签页面板组件有`id`参数，那ID就从`'tab-2'`变为`id`参数的值。
+
+    从此参数开始，只能使用关键字传入。
+
 -   `name`参数，字符串类型，表示组件的名字，常用于调试时区分组件。
+
 -   `id`参数，字符串类型，表示组件的ID，主要用于样式中的ID选择器。
+
 -   `classes`参数，字符串类型，表示组件的样式类。
+
 -   `disabled`参数，布尔类型，表示组件是否处于被禁用状态，默认为`False`。
 
 标签页内容组件支持以下属性：
@@ -16988,49 +17012,96 @@ if __name__ == '__main__':
 
     -   `tab_id`参数，字符串类型，表示标签页面板组件的ID。
 
-前面说标签页内容组件没法在`on_mount`方法中使用。其实，也不是完全不行，需要打个补丁，但是这样会不兼容某些情况下标签页内容组件的用法。
+前面说标签页内容组件没法在`on_mount`方法中使用。其实，也不是完全不行，需要打个补丁，先看补丁代码：
 
-以下是包含补丁的示例：
+```python3
+# 补丁 TabbedContent
+from textual.widgets import TabbedContent,TabPane
+from textual.content import ContentType,Content
+from textual.widget import Widget
+class TabbedContent(TabbedContent):
+    def __init__(self,*children:list[TabPane|Widget]|list[ContentType], initial = '', name = None, id = None, classes = None, disabled = False):
+        super().__init__(initial=initial, name=name, id=id, classes=classes, disabled=disabled)
+        self.titles = []
+        if all(isinstance(child,Widget) for child in children):
+            self._tab_content = list(children)
+        elif all((isinstance(child,(Content,str)) or not child) for child in children):
+            self.titles = [(self.render_str(title) if title else None) for title in children]
+        else:
+            raise TypeError('Don\'t mix the type of children')
+```
+
+新的`TabbedContent`标签页内容组件将原本的`*titles`参数，升级为`*children`参数，参数类型变成字符串类型或者Rich的[`Text`](https://rich.readthedocs.io/en/stable/reference/text.html#rich.text.Text)类型或者`Content`类型或者`None`或者`TabPane`类型或者`Widget`类型。
+
+在`compose`方法中使用`TabbedContent`标签页内容组件时，要求`*children`参数为字符串类型或者Rich的[`Text`](https://rich.readthedocs.io/en/stable/reference/text.html#rich.text.Text)类型或者`Content`类型或者`None`，此时参数表示按照顺序对应的标签页面板组件的标题，如果参数为`None`或者没有对应的参数值，则会自动生成对应的标题，格式为`'Tab {从1开始对应的标签页顺序}'`。如果对应的标签页内容为标签页面板组件，则标签页面板组件的`title`参数会覆盖`*children`参数中对应的值或者自动生成的标题，标题为`title`参数的值。
+
+在`on_mount`方法中（或者不使用进入上下文的方式）使用`TabbedContent`标签页内容组件时，要求`*children`参数`TabPane`类型或者`Widget`类型，此时参数表示按照顺序对应的标签页内容，标签页内容组件会自动生成对应的标题（格式为`'Tab {从1开始对应的标签页顺序}'`）和ID（格式为`'tab-{从1开始对应的标签页顺序}'`）。如果对应的标签页内容为标签页面板组件，则标签页面板组件的`title`参数会覆盖对应的标题，标签页面板组件的`id`参数会覆盖对应的ID。
+
+注意，组件无法在初始化时自动判断使用方式，所以读者应该手动遵循对应使用方式时的参数类型要求。
+
+完整示例如下：
 
 ```python3
 from textual.app import App
 from textual.widgets import TabbedContent,TabPane,Static
 
-# patch TabbedContent
+# 补丁 TabbedContent
+from textual.widgets import TabbedContent,TabPane
+from textual.content import ContentType,Content
+from textual.widget import Widget
 class TabbedContent(TabbedContent):
-    def __init__(self,*children, titles = None, initial = "", name = None, id = None, classes = None, disabled = False):
-        self.titles = [self.render_str(title) for title in titles] if titles else []
-        super().__init__(*self.titles, initial=initial, name=name, id=id, classes=classes, disabled=disabled)
-        self._tab_content = list(children)
+    def __init__(self,*children:list[TabPane|Widget]|list[ContentType], initial = '', name = None, id = None, classes = None, disabled = False):
+        super().__init__(initial=initial, name=name, id=id, classes=classes, disabled=disabled)
+        self.titles = []
+        if all(isinstance(child,Widget) for child in children):
+            self._tab_content = list(children)
+        elif all((isinstance(child,(Content,str)) or not child) for child in children):
+            self.titles = [(self.render_str(title) if title else None) for title in children]
+        else:
+            raise TypeError('Don\'t mix the type of children')
 
 class MyApp(App):
-    # use TabbedContent in compose
+    # 在 compose 中使用 TabbedContent
     def compose(self):
-        with TabbedContent(titles=['Yes','No']):
-            yield Static('[green]Yes')
+        with TabbedContent('one','two','[yellow]three',None,initial='tab-3'):
+            yield TabPane(
+                    'Yes',
+                    Static('[green]Yes')
+                )
+            with TabPane(
+                    '[yellow]Yes2'
+                ):
+                yield Static('[yellow]Yes2')
             yield Static('[red]No')
-    # use TabbedContent in on_mount
-    """ def on_mount(self):
+            yield Static('[red]No')
+            yield Static('[red]No')
+            
+    #  在 on_mount 或者 on_ready 中使用 TabbedContent
+    def on_mount(self):
         self.widgets = [
             TabbedContent(
                 TabPane(
                     'Yes',
                     Static('[green]Yes')
                 ),
+                # 不可混用组件类型与（ContentType|None）类型
+                # Content('[red]Yes'),
                 TabPane(
                     'No',
                     Static('[red]No')
-                )
+                ),
+                Static('[yellow]Yes2'),
+                initial='tab-3'
             )
         ]
-        self.mount_all(self.widgets) """
+        self.mount_all(self.widgets)
 
 if __name__ == '__main__':
     app = MyApp()
     app.run()
 ```
 
-唯一受影响的是标签页内容组件的`titles`参数，只能使用关键字方式传入元素为字符串的列表，来给不是标签页面板组件的内容组件设置对应的标题。
+![tabs_3](textual.assets/tabs_3.png)
 
 #### 4.2.4 自由功能组件
 

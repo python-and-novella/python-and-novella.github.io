@@ -141,7 +141,7 @@ favicon为图片时有以下要求：
 
 完整的favicon支持情况，可以参考 https://en.wikipedia.org/wiki/Favicon 。
 
-以下为使用图片文件的示例：
+以下为使用图片文件（图片文件与源代码在同一目录下）的示例：
 
 ```python3
 from nicegui import ui

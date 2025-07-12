@@ -468,7 +468,7 @@ if __name__ == '__main__':
 
 ## 2 版本速览——3.2.0版本、3.6.0版本的新增内容
 
-在Textual 3.2.0中，组件增加了反应性属性`compact`，通过设置此属性为`True`，即可让组件显示为非常紧凑的样式。除了按钮组件，后面要讲到的页脚组件、输入框组件、选项列表组件、单选集组件、下拉选择框组件、多选列表组件、模板化输入框组件、文本区域组件、复选框组件、单选按钮组件均支持反应性属性`compact`，也都添加了对应的参数`compact`。
+在Textual 3.2.0中，组件增加了反应性属性`compact`，通过设置此属性为`True`，即可让组件显示为非常紧凑的样式。除了按钮组件，后面要讲到的页脚组件、输入框组件、选项列表组件、单选集组件、下拉选择框组件、多选列表组件、模板化输入框组件、文本区域组件、复选框组件、单选按钮组件均支持反应性属性`compact`，也都添加了对应的参数`compact`（模板化输入框组件没有此参数，只能通过属性设置）。
 
 在Textual 3.6.0中，文本区域组件增加了反应性属性`highlight_cursor_line`、对应的参数`highlight_cursor_line`（默认为`True`）。该参数、属性可以高亮光标所在行，对应的样式类为`text-area--cursor-line`。有了这个参数、属性之后，无需单独设置样式类，只需设置该参数、属性，即可禁用高亮光标所在行的行为。
 
@@ -517,7 +517,7 @@ if __name__ == '__main__':
 - `query_one`类，参数、效果类似组件的`query_one`方法。
 - `child_by_id`类，参数、效果类似组件的`get_child_by_id`方法。
 
-Textual为何要添加一个重复的功能呢？接下来，让笔者用代码演示一下新功能主要区别。
+Textual为何要添加一个重复的功能呢？接下来，让笔者用代码演示一下新功能主要优势。
 
 假如在代码中，创建了一个用于获取指定组件的属性（使用`property`装饰器装饰方法），用的是组件的`query_one`方法，那么代码如下：
 
@@ -767,6 +767,83 @@ if __name__ == '__main__':
     app = MyApp()
     app.run()
 ```
+
+## 4 版本速览——4.0.0版本的新增内容
+
+`MaskedInput`模板化输入框组件新增`compact`参数，之前版本是因为其继承自输入框组件，所以可以设置`compact`属性，现在终于可以通过参数设置了。
+
+`Markdown`标记文本组件新增`append`方法，通过此方法，可以在原有内容的基础上追加新的内容，就像AI回答问题那样。
+
+`append`方法是一个异步方法，接收一个字符串类型参数`markdown`，以下为点击之后追加当前时间的示例：
+
+```python3
+from textual.app import App
+from textual.widgets import Markdown
+
+TEXT = '''\
+### Hello
+**World**
+'''
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Markdown(TEXT)
+        ]
+        self.mount_all(self.widgets)
+    async def on_click(self,e):
+        from datetime import datetime
+        await self.query_one(Markdown).append(f'\n### {datetime.now()}')
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![2025_4_1](textual_plus.assets/2025_4_1.png)
+
+组件类（`Widget`类，所有组件的基类）新增`release_anchor`方法，可以通过编程方式释放固定的锚点。说到锚点，不得不说一下`anchor`方法（完整用法参见 https://textual.textualize.io/api/widget/#textual.widget.Widget.anchor）的用法，在4.0.0版本中，该方法的含义有不兼容的变动。
+
+`anchor`方法在4.0.0版本中，支持滚动内容的容器组件调用该方法之后，会将容器内的内容最后部分固定为始终可见，也就是固定锚点。此时，无论容器内的内容如何变动，内容会自动滚动，确保内容的最后部分始终可见，不会因为内容的增加而导致内容的最后部分出现在可见区域外。想要释放固定的锚点或者让内容停止自动滚动，可以手动滚动内容或者执行`release_anchor`方法。
+
+就以上面的示例为基础，演示一下`release_anchor`方法和`anchor`方法的作用。
+
+在下面的示例中，点击一下，会自动增加五行内容。如果按`q`键，屏幕的内容会固定锚点，再通过点击增加内容的话，内容会自动滚动，最后的内容将始终可见。手动滚动内容或者按`w`键，锚点会释放，再次点击之后增加的内容，将不会触发内容的自动滚动。
+
+示例代码如下：
+
+```python3
+from textual.app import App
+from textual.widgets import Markdown
+
+TEXT = '''\
+### Hello
+**World**
+'''
+
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Markdown(TEXT),
+        ]
+        self.mount_all(self.widgets)
+    async def on_click(self):
+        from datetime import datetime
+        import asyncio
+        for _ in range(5):
+            asyncio.sleep(1)
+            await self.query_one(Markdown).append(f'\n### {datetime.now()}')
+    def key_q(self):
+        self.screen.anchor()
+    def key_w(self):
+        self.screen.release_anchor()
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
+
+![2025_4_2](textual_plus.assets/2025_4_2.gif)
 
 
 

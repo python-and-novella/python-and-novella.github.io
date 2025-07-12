@@ -4662,9 +4662,9 @@ app.run()
 
 - `max_available_height`参数，整数类型，表示控件最大的高度，默认为`10000`。
 
-- `width`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的宽度。
+- `width`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的宽度。
 
-- `height`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的高度。
+- `height`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的高度。
 
 - `show_scrollbar`参数，布尔类型或者`Filter`类型，表示是否显示滚动条，默认为`True`。
 
@@ -4738,8 +4738,8 @@ app.run()
 - `body`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示被包装的控件。
 - `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示在上边框中间的标题。
 - `style`参数，字符串类型或者调用之后返回同样类型的可调用类型，表示内容的样式。
-- `width`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的宽度。
-- `height`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的高度。
+- `width`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的宽度。
+- `height`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的高度。
 - `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
 - `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`False`。
 
@@ -4792,8 +4792,8 @@ app.run()
 - `padding_right`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示内容的右边距。
 - `padding_top`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示内容的上边距。
 - `padding_bottom`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示内容的下边距。
-- `width`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的宽度。
-- `height`参数，整数类型或者调用之后返回同样类型的可调用类型，表示控件的高度。
+- `width`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的宽度。
+- `height`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的高度。
 - `style`参数，字符串类型或者调用之后返回同样类型的可调用类型，表示内容的样式。
 - `char`参数，字符串类型或者返回前面类型的可调用类型，表示填充空白区域的字符。
 - `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`False`。
@@ -4864,27 +4864,405 @@ app.run()
 
 ##### 3.2.2.1 `Label`控件
 
-`Label`控件（使用`from prompt_toolkit.widgets import Label`导入）
+`Label`控件（使用`from prompt_toolkit.widgets import Label`导入）用于显示简单的文字内容：
 
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, Label
 
+layout = Layout(
+    HSplit(
+        [
+            Label('Hello'),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
 
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
 
+app.run()
+```
+
+![label_1](prompt_toolkit.assets/label_1.png)
+
+控件支持以下参数：
+
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示控件的文字内容。
+- `style`参数，字符串类型，表示控件内容的样式。
+- `width`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的宽度。
+- `dont_extend_height`参数，布尔类型，表示控件的实际宽度高否与内容高度一致，默认为`True`。
+- `dont_extend_width`参数，布尔类型，表示当`width`参数没有设置时，控件的实际宽度否与内容宽度一致，默认为`False`，即控件会占用全部可用宽度。
+- `align`参数，`WindowAlign`枚举对象（使用`from prompt_toolkit.layout.containers import WindowAlign`导入）的成员或者调用之后返回同样类型的可调用类型，表示内容的对齐方向，默认为`WindowAlign.LEFT`。
+- `wrap_lines`参数，布尔类型或者`Filter`类型，表示是否开启自动换行，默认为`True`。
+
+控件支持以下属性：
+
+- `formatted_text_control`属性，表示用于显示文本的`FormattedTextControl`控件。
+- `text`属性，同`text`参数。
+- `window`属性，表示包装`FormattedTextControl`控件的`Window`控件。
 
 ##### 3.2.2.2 `Button`控件
 
+`Button`控件（使用`from prompt_toolkit.widgets import Button`导入）能够创建一个可以点击的按钮，也可以使用`enter`键或者`space`键模拟点击：
 
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button
+
+layout = Layout(
+    HSplit(
+        [
+            Button(
+                'Hello',
+                lambda :print('Hello')
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+![button_1](prompt_toolkit.assets/button_1.png)
+
+控件支持以下参数：
+
+- `text`参数，字符串类型，表示按钮上的文字。
+- `handler`参数，可调用类型，表示点击按钮执行的操作。
+- `width`参数，整数类型，表示整个按钮的宽度，默认为`12`。
+- `left_symbol`参数，字符串类型，表示按钮最左边的边界字符，默认为`'<'`。
+- `right_symbol`参数，字符串类型，表示按钮最右边的边界字符，默认为`'>'`。
+
+控件支持以下属性：
+
+- `control`属性，表示用于显示文本的`FormattedTextControl`控件。
+- `window`属性，表示包装`FormattedTextControl`控件的`Window`控件。
+- `text`属性，同`text`参数。
+- `handler`属性，同`handler`参数。
+- `width`属性，同`width`参数。
+- `left_symbol`属性，同`left_symbol`参数。
+- `right_symbol`属性，同`right_symbol`参数。
 
 ##### 3.2.2.3 `TextArea`控件
+
+`TextArea`控件（使用`from prompt_toolkit.widgets import TextArea`导入）可以创建一个输入框：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button,TextArea
+
+layout = Layout(
+    HSplit(
+        [
+            TextArea(
+                'Hello'
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+![textarea_1](prompt_toolkit.assets/textarea_1.png)
+
+控件支持以下参数：
+
+- `text`参数，字符串类型，表示输入框默认的内容。
+
+- `multiline`参数，布尔类型或者`Filter`类型，表示是否允许多行输入，默认为`True`。
+
+- `password`参数，布尔类型或者`Filter`类型，表示输入的内容是否以密文形式显示（输入内容的显示为`'*'`），默认为`False`。
+
+- `lexer`参数，`Lexer`类型，表示输入内容显示时使用的语法高亮方案。具体用法可以参考前面输入会话的用法，以下为示例：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,TextArea
+  
+  from pygments.lexers.python import PythonLexer
+  from prompt_toolkit.lexers import PygmentsLexer
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(
+                  'import os',
+                  lexer=PygmentsLexer(PythonLexer),
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+- `auto_suggest`参数，`AutoSuggest`类型，表示自动建议对象。具体用法可以参考前面输入会话的用法，以下为示例：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,TextArea
+  
+  from prompt_toolkit.auto_suggest import AutoSuggest,Suggestion
+  from prompt_toolkit.buffer import Buffer
+  from prompt_toolkit.document import Document
+  
+  class MyAutoSuggest(AutoSuggest):
+      def get_suggestion(self, buffer: Buffer, document: Document):
+          suggestions = ['123','abc','甲乙丙']
+          text = document.text
+          for suggestion in suggestions:
+              if suggestion.startswith(text):
+                  return Suggestion(suggestion[len(text):])
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(
+                  'Hello',
+                  auto_suggest=MyAutoSuggest()
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+- `completer`参数，`Completer`类型，表示根据当前输入内容自动补全（使用`tab`键触发）的自动补全对象。具体用法可以参考前面输入会话的用法，以下为示例：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,TextArea
+  
+  from prompt_toolkit.completion import Completer,Completion
+  from prompt_toolkit.document import Document
+  
+  class MyCompleter(Completer):
+      def __init__(self,words):
+          self.words = words
+      def get_completions(
+          self, document: Document, complete_event
+      ):
+          return [ 
+              Completion(
+                  text=word,
+                  start_position=-len(document.text)
+              ) 
+              for word in self.words 
+              if word.startswith(document.text)
+          ]
+  
+  mycompleter = MyCompleter(['123','abc','甲乙丙'])
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(
+                  '',
+                  completer=mycompleter
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+- `complete_while_typing`参数，布尔类型或者`Filter`类型，表示是否在输入的同时，后台运行生成自动补全内容的方法，对于生成自动补全内容比较多的方法，在后台运行可以避免主界面卡顿，该参数默认为`True`。
+
+- `validator`参数，`Validator`类型（使用`from prompt_toolkit.validation import Validator`导入），表示验证输入内容是否有效的验证对象。注意，不同于前面介绍的其他方法的`validator`参数，这里的验证对象不显示错误信息，但只有验证通过时才允许提交（单行模式按`enter`键提交当前行，多行模式按`alt + enter`键提交当前行）输入的内容：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,TextArea
+  
+  from prompt_toolkit.validation import Validator, ValidationError
+  from prompt_toolkit.document import Document
+  
+  class MyValidator(Validator):
+      def validate(self,document:Document):
+          if document.text != 'ok':
+              raise ValidationError(
+                  cursor_position=len(document.text),
+              )
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(
+                  '',
+                  validator=MyValidator(),
+                  accept_handler=lambda buffer:print('\naccepted!')
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![textarea_2](prompt_toolkit.assets/textarea_2.png)
+
+- `accept_handler`参数，可调用类型（接收一个`Buffer`类型的参数），表示提交（单行模式按`enter`键提交当前行，多行模式按`alt + enter`键提交当前行）输入的内容并通过验证时执行的操作。示例如下：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,TextArea
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(
+                  '',
+                  accept_handler=lambda buffer:print(f'\n输入的内容是：{buffer.text}')
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  ![textarea_3](prompt_toolkit.assets/textarea_3.png)
+
+- `history`参数，
+
+- `focusable`参数，
+
+- `focus_on_click`参数，
+
+- `wrap_lines`参数，
+
+- `read_only`参数，
+
+- `width`参数，
+
+- `height`参数，
+
+- `dont_extend_height`参数，
+
+- `dont_extend_width`参数，
+
+- `line_numbers`参数，
+
+- `get_line_prefix`参数，
+
+- `scrollbar`参数，
+
+- `style`参数，
+
+- `search_field`参数，
+
+- `preview_search`参数，
+
+- `prompt`参数，
+
+- `input_processors`参数，
+
+- `name`参数，
+
+
 
 
 
 ##### 3.2.2.1 `Label`控件
+
+
 
 
 
 ##### 3.2.2.1 `Label`控件
 
  
+
+
 
   HorizontalLine 和 VerticalLine
 

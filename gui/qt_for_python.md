@@ -29,61 +29,73 @@ pyside6-uv-app v0.1.0
 
 需要注意的是，在使用UV管理虚拟环境时，单独移除`pyside6-examples`会导致`pyside6`的`__init__.py`丢失，可使用`uv sync --reinstall`重新安装所有库来解决此问题。
 
-## 2 常用模块的主要用途和相关命名规则（更新中）
+## 2 常用模块和命名规则（更新中）
 
-PySide6（6.9.x）包含以下模块（参考https://doc.qt.io/qtforpython-6/py-modindex.html）：
+PySide6（6.9.x版本）提供了很多模块，但不是所有模块都常用，其中，常用（狭义概念）的模块为：
 
-- `PySide6.Qt3DAnimation`，https://doc.qt.io/qtforpython-6/PySide6/Qt3DAnimation/index.html#module-PySide6.Qt3DAnimation
-- `PySide6.Qt3DCore`，https://doc.qt.io/qtforpython-6/PySide6/Qt3DCore/index.html#module-PySide6.Qt3DCore
--   [`PySide6.Qt3DExtras`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DExtras/index.html#module-PySide6.Qt3DExtras)  [`PySide6.Qt3DInput`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DInput/index.html#module-PySide6.Qt3DInput)  [`PySide6.Qt3DLogic`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DLogic/index.html#module-PySide6.Qt3DLogic)  [`PySide6.Qt3DRender`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DRender/index.html#module-PySide6.Qt3DRender)  [`PySide6.QtAsyncio`](https://doc.qt.io/qtforpython-6/PySide6/QtAsyncio/index.html#module-PySide6.QtAsyncio)  [`PySide6.QtBluetooth`](https://doc.qt.io/qtforpython-6/PySide6/QtBluetooth/index.html#module-PySide6.QtBluetooth)  [`PySide6.QtConcurrent`](https://doc.qt.io/qtforpython-6/PySide6/QtConcurrent/index.html#module-PySide6.QtConcurrent)  [`PySide6.QtCore`](https://doc.qt.io/qtforpython-6/PySide6/QtCore/index.html#module-PySide6.QtCore)  [`PySide6.QtDBus`](https://doc.qt.io/qtforpython-6/PySide6/QtDBus/index.html#module-PySide6.QtDBus)  [`PySide6.QtDesigner`](https://doc.qt.io/qtforpython-6/PySide6/QtDesigner/index.html#module-PySide6.QtDesigner)  [`PySide6.QtGraphs`](https://doc.qt.io/qtforpython-6/PySide6/QtGraphs/index.html#module-PySide6.QtGraphs)  [`PySide6.QtGraphsWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtGraphsWidgets/index.html#module-PySide6.QtGraphsWidgets)  [`PySide6.QtGui`](https://doc.qt.io/qtforpython-6/PySide6/QtGui/index.html#module-PySide6.QtGui)  [`PySide6.QtHelp`](https://doc.qt.io/qtforpython-6/PySide6/QtHelp/index.html#module-PySide6.QtHelp)  [`PySide6.QtHttpServer`](https://doc.qt.io/qtforpython-6/PySide6/QtHttpServer/index.html#module-PySide6.QtHttpServer)  [`PySide6.QtLocation`](https://doc.qt.io/qtforpython-6/PySide6/QtLocation/index.html#module-PySide6.QtLocation)  [`PySide6.QtMultimedia`](https://doc.qt.io/qtforpython-6/PySide6/QtMultimedia/index.html#module-PySide6.QtMultimedia)  [`PySide6.QtMultimediaWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtMultimediaWidgets/index.html#module-PySide6.QtMultimediaWidgets)  [`PySide6.QtNetwork`](https://doc.qt.io/qtforpython-6/PySide6/QtNetwork/index.html#module-PySide6.QtNetwork)  [`PySide6.QtNetworkAuth`](https://doc.qt.io/qtforpython-6/PySide6/QtNetworkAuth/index.html#module-PySide6.QtNetworkAuth)  [`PySide6.QtNfc`](https://doc.qt.io/qtforpython-6/PySide6/QtNfc/index.html#module-PySide6.QtNfc)  [`PySide6.QtOpenGL`](https://doc.qt.io/qtforpython-6/PySide6/QtOpenGL/index.html#module-PySide6.QtOpenGL)  [`PySide6.QtOpenGLWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtOpenGLWidgets/index.html#module-PySide6.QtOpenGLWidgets)  [`PySide6.QtPdf`](https://doc.qt.io/qtforpython-6/PySide6/QtPdf/index.html#module-PySide6.QtPdf)  [`PySide6.QtPdfWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtPdfWidgets/index.html#module-PySide6.QtPdfWidgets)  [`PySide6.QtPositioning`](https://doc.qt.io/qtforpython-6/PySide6/QtPositioning/index.html#module-PySide6.QtPositioning)  [`PySide6.QtPrintSupport`](https://doc.qt.io/qtforpython-6/PySide6/QtPrintSupport/index.html#module-PySide6.QtPrintSupport)  [`PySide6.QtQml`](https://doc.qt.io/qtforpython-6/PySide6/QtQml/index.html#module-PySide6.QtQml)  [`PySide6.QtQuick`](https://doc.qt.io/qtforpython-6/PySide6/QtQuick/index.html#module-PySide6.QtQuick)  [`PySide6.QtQuick3D`](https://doc.qt.io/qtforpython-6/PySide6/QtQuick3D/index.html#module-PySide6.QtQuick3D)  [`PySide6.QtQuickControls2`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickControls2/index.html#module-PySide6.QtQuickControls2)  [`PySide6.QtQuickTest`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickTest/index.html#module-PySide6.QtQuickTest)  [`PySide6.QtQuickWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickWidgets/index.html#module-PySide6.QtQuickWidgets)  [`PySide6.QtRemoteObjects`](https://doc.qt.io/qtforpython-6/PySide6/QtRemoteObjects/index.html#module-PySide6.QtRemoteObjects)  [`PySide6.QtScxml`](https://doc.qt.io/qtforpython-6/PySide6/QtScxml/index.html#module-PySide6.QtScxml)  [`PySide6.QtSensors`](https://doc.qt.io/qtforpython-6/PySide6/QtSensors/index.html#module-PySide6.QtSensors)  [`PySide6.QtSerialBus`](https://doc.qt.io/qtforpython-6/PySide6/QtSerialBus/index.html#module-PySide6.QtSerialBus)  [`PySide6.QtSerialPort`](https://doc.qt.io/qtforpython-6/PySide6/QtSerialPort/index.html#module-PySide6.QtSerialPort)  [`PySide6.QtSpatialAudio`](https://doc.qt.io/qtforpython-6/PySide6/QtSpatialAudio/index.html#module-PySide6.QtSpatialAudio)  [`PySide6.QtSql`](https://doc.qt.io/qtforpython-6/PySide6/QtSql/index.html#module-PySide6.QtSql)  [`PySide6.QtStateMachine`](https://doc.qt.io/qtforpython-6/PySide6/QtStateMachine/index.html#module-PySide6.QtStateMachine)  [`PySide6.QtSvg`](https://doc.qt.io/qtforpython-6/PySide6/QtSvg/index.html#module-PySide6.QtSvg)  [`PySide6.QtSvgWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtSvgWidgets/index.html#module-PySide6.QtSvgWidgets)  [`PySide6.QtTest`](https://doc.qt.io/qtforpython-6/PySide6/QtTest/index.html#module-PySide6.QtTest)  [`PySide6.QtTextToSpeech`](https://doc.qt.io/qtforpython-6/PySide6/QtTextToSpeech/index.html#module-PySide6.QtTextToSpeech)  [`PySide6.QtUiTools`](https://doc.qt.io/qtforpython-6/PySide6/QtUiTools/index.html#module-PySide6.QtUiTools)  [`PySide6.QtWebChannel`](https://doc.qt.io/qtforpython-6/PySide6/QtWebChannel/index.html#module-PySide6.QtWebChannel)  [`PySide6.QtWebEngineCore`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineCore/index.html#module-PySide6.QtWebEngineCore)  [`PySide6.QtWebEngineQuick`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineQuick/index.html#module-PySide6.QtWebEngineQuick)  [`PySide6.QtWebEngineWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineWidgets/index.html#module-PySide6.QtWebEngineWidgets)  [`PySide6.QtWebSockets`](https://doc.qt.io/qtforpython-6/PySide6/QtWebSockets/index.html#module-PySide6.QtWebSockets)  [`PySide6.QtWebView`](https://doc.qt.io/qtforpython-6/PySide6/QtWebView/index.html#module-PySide6.QtWebView)  [`PySide6.QtWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html#module-PySide6.QtWidgets)  [`PySide6.QtXml`](https://doc.qt.io/qtforpython-6/PySide6/QtXml/index.html#module-PySide6.QtXml)
+- `QtCore`模块，包含Qt框架中与GUI功能无关的核心类（具体参考https://doc.qt.io/qt-6/qtcore-module.html）。
+- `QtGui`模块，包含Qt框架中与GUI功能相关的核心类（具体参考https://doc.qt.io/qt-6/qtgui-module.html）。
+- `QtWidgets`模块，包含创建传统控件（核心控件，扩展的控件位于独立的模块中）所需的类（具体参考https://doc.qt.io/qt-6/qtwidgets-module.html）。
+- `QtQuick`模块，包含创建新式控件（使用QML设计）所需的类（具体参考https://doc.qt.io/qt-6/qtquick-module.html）。
+- `QtQml`模块，提供了解析、处理QML所需的类（通常与`QtQuick`模块一起使用，具体参考https://doc.qt.io/qt-6/qtqml-module.html）。
 
-模块很多，但不是所有模块都常用，其中，常用的模块为：
+需要注意的是，不同开发目的所需的模块不尽相同，对于“常用”的理解也有所不同。这里的“常用”为狭义概念，是指创建简单桌面程序时必需的模块。如果涉及到其他功能（比如嵌入网页），则其他模块（与网页视图控件相关的模块）也会成为必需，因此常用的模块不是固定的几个模块，视具体情况而定。
 
-- QtCore
-- QtGui
-- QtWidgets
-- QtQuick
-- QtQml
+Qt框架作为成熟的GUI框架，模块、类的命名也是统一且整齐的：
 
+- 所有的命名均采用大驼峰规则，即每个字段的首字母大写，直接连接每个字段。
+- 所有模块都是'Qt'开头，后接表明模块用途的字段。
+- 所有的类都是'Q'开头，后接表明类含义的字段。
 
+PySide6（6.9.x版本）包含的所有模块（目录参考自 https://doc.qt.io/qtforpython-6/py-modindex.html）及相关信息参见下表：
 
-模块支持的类：
-
-'QtCore', 
-
-https://doc.qt.io/qt-6/qtcore-module.html
-
-'QtGui', 
-
-https://doc.qt.io/qt-6/qtgui-module.html
-
-'QtWidgets', 
-
-https://doc.qt.io/qt-6/qtwidgets-module.html
-
-https://doc.qt.io/qt-6/qtquick-module.html
-
-https://doc.qt.io/qt-6/qtqml-module.html
-
-
-
-命名规则总结：
-
-模块是Qt开头的，
-
-具体的类是Q开头（不含Qt开头），
-
-命名采用大驼峰规则，即每个字段的首字母大写，直接连接每个字段。
-
-Widgets结尾的模块提供了只能用于`QApplication`
+| 模块名          | 主要用途   | 文档链接                                                     |
+| --------------- | ---------- | ------------------------------------------------------------ |
+| `Qt3DAnimation` | 显示3D动画 | https://doc.qt.io/qtforpython-6/PySide6/Qt3DAnimation/index.html#module-PySide6.Qt3DAnimation |
+| `Qt3DCore`      |            | https://doc.qt.io/qtforpython-6/PySide6/Qt3DCore/index.html#module-PySide6.Qt3DCore |
+| `Qt3DExtras`    |            | https://doc.qt.io/qtforpython-6/PySide6/Qt3DExtras/index.html#module-PySide6.Qt3DExtras |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
+|                 |            |                                                              |
 
 
 
+，
+
+[] ()  
+
+[`PySide6.Qt3DInput`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DInput/index.html#module-PySide6.Qt3DInput)  [`PySide6.Qt3DLogic`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DLogic/index.html#module-PySide6.Qt3DLogic)  [`PySide6.Qt3DRender`](https://doc.qt.io/qtforpython-6/PySide6/Qt3DRender/index.html#module-PySide6.Qt3DRender)  [`PySide6.QtAsyncio`](https://doc.qt.io/qtforpython-6/PySide6/QtAsyncio/index.html#module-PySide6.QtAsyncio)  [`PySide6.QtBluetooth`](https://doc.qt.io/qtforpython-6/PySide6/QtBluetooth/index.html#module-PySide6.QtBluetooth)  [`PySide6.QtConcurrent`](https://doc.qt.io/qtforpython-6/PySide6/QtConcurrent/index.html#module-PySide6.QtConcurrent)  [`PySide6.QtCore`](https://doc.qt.io/qtforpython-6/PySide6/QtCore/index.html#module-PySide6.QtCore)  [`PySide6.QtDBus`](https://doc.qt.io/qtforpython-6/PySide6/QtDBus/index.html#module-PySide6.QtDBus)  [`PySide6.QtDesigner`](https://doc.qt.io/qtforpython-6/PySide6/QtDesigner/index.html#module-PySide6.QtDesigner)  [`PySide6.QtGraphs`](https://doc.qt.io/qtforpython-6/PySide6/QtGraphs/index.html#module-PySide6.QtGraphs)  [`PySide6.QtGraphsWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtGraphsWidgets/index.html#module-PySide6.QtGraphsWidgets)  [`PySide6.QtGui`](https://doc.qt.io/qtforpython-6/PySide6/QtGui/index.html#module-PySide6.QtGui)  [`PySide6.QtHelp`](https://doc.qt.io/qtforpython-6/PySide6/QtHelp/index.html#module-PySide6.QtHelp)  [`PySide6.QtHttpServer`](https://doc.qt.io/qtforpython-6/PySide6/QtHttpServer/index.html#module-PySide6.QtHttpServer)  [`PySide6.QtLocation`](https://doc.qt.io/qtforpython-6/PySide6/QtLocation/index.html#module-PySide6.QtLocation)  [`PySide6.QtMultimedia`](https://doc.qt.io/qtforpython-6/PySide6/QtMultimedia/index.html#module-PySide6.QtMultimedia)  [`PySide6.QtMultimediaWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtMultimediaWidgets/index.html#module-PySide6.QtMultimediaWidgets)  [`PySide6.QtNetwork`](https://doc.qt.io/qtforpython-6/PySide6/QtNetwork/index.html#module-PySide6.QtNetwork)  [`PySide6.QtNetworkAuth`](https://doc.qt.io/qtforpython-6/PySide6/QtNetworkAuth/index.html#module-PySide6.QtNetworkAuth)  [`PySide6.QtNfc`](https://doc.qt.io/qtforpython-6/PySide6/QtNfc/index.html#module-PySide6.QtNfc)  [`PySide6.QtOpenGL`](https://doc.qt.io/qtforpython-6/PySide6/QtOpenGL/index.html#module-PySide6.QtOpenGL)  [`PySide6.QtOpenGLWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtOpenGLWidgets/index.html#module-PySide6.QtOpenGLWidgets)  [`PySide6.QtPdf`](https://doc.qt.io/qtforpython-6/PySide6/QtPdf/index.html#module-PySide6.QtPdf)  [`PySide6.QtPdfWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtPdfWidgets/index.html#module-PySide6.QtPdfWidgets)  [`PySide6.QtPositioning`](https://doc.qt.io/qtforpython-6/PySide6/QtPositioning/index.html#module-PySide6.QtPositioning)  [`PySide6.QtPrintSupport`](https://doc.qt.io/qtforpython-6/PySide6/QtPrintSupport/index.html#module-PySide6.QtPrintSupport)  [`PySide6.QtQml`](https://doc.qt.io/qtforpython-6/PySide6/QtQml/index.html#module-PySide6.QtQml)  [`PySide6.QtQuick`](https://doc.qt.io/qtforpython-6/PySide6/QtQuick/index.html#module-PySide6.QtQuick)  [`PySide6.QtQuick3D`](https://doc.qt.io/qtforpython-6/PySide6/QtQuick3D/index.html#module-PySide6.QtQuick3D)  [`PySide6.QtQuickControls2`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickControls2/index.html#module-PySide6.QtQuickControls2)  [`PySide6.QtQuickTest`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickTest/index.html#module-PySide6.QtQuickTest)  [`PySide6.QtQuickWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtQuickWidgets/index.html#module-PySide6.QtQuickWidgets)  [`PySide6.QtRemoteObjects`](https://doc.qt.io/qtforpython-6/PySide6/QtRemoteObjects/index.html#module-PySide6.QtRemoteObjects)  [`PySide6.QtScxml`](https://doc.qt.io/qtforpython-6/PySide6/QtScxml/index.html#module-PySide6.QtScxml)  [`PySide6.QtSensors`](https://doc.qt.io/qtforpython-6/PySide6/QtSensors/index.html#module-PySide6.QtSensors)  [`PySide6.QtSerialBus`](https://doc.qt.io/qtforpython-6/PySide6/QtSerialBus/index.html#module-PySide6.QtSerialBus)  [`PySide6.QtSerialPort`](https://doc.qt.io/qtforpython-6/PySide6/QtSerialPort/index.html#module-PySide6.QtSerialPort)  [`PySide6.QtSpatialAudio`](https://doc.qt.io/qtforpython-6/PySide6/QtSpatialAudio/index.html#module-PySide6.QtSpatialAudio)  [`PySide6.QtSql`](https://doc.qt.io/qtforpython-6/PySide6/QtSql/index.html#module-PySide6.QtSql)  [`PySide6.QtStateMachine`](https://doc.qt.io/qtforpython-6/PySide6/QtStateMachine/index.html#module-PySide6.QtStateMachine)  [`PySide6.QtSvg`](https://doc.qt.io/qtforpython-6/PySide6/QtSvg/index.html#module-PySide6.QtSvg)  [`PySide6.QtSvgWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtSvgWidgets/index.html#module-PySide6.QtSvgWidgets)  [`PySide6.QtTest`](https://doc.qt.io/qtforpython-6/PySide6/QtTest/index.html#module-PySide6.QtTest)  [`PySide6.QtTextToSpeech`](https://doc.qt.io/qtforpython-6/PySide6/QtTextToSpeech/index.html#module-PySide6.QtTextToSpeech)  [`PySide6.QtUiTools`](https://doc.qt.io/qtforpython-6/PySide6/QtUiTools/index.html#module-PySide6.QtUiTools)  [`PySide6.QtWebChannel`](https://doc.qt.io/qtforpython-6/PySide6/QtWebChannel/index.html#module-PySide6.QtWebChannel)  [`PySide6.QtWebEngineCore`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineCore/index.html#module-PySide6.QtWebEngineCore)  [`PySide6.QtWebEngineQuick`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineQuick/index.html#module-PySide6.QtWebEngineQuick)  [`PySide6.QtWebEngineWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineWidgets/index.html#module-PySide6.QtWebEngineWidgets)  [`PySide6.QtWebSockets`](https://doc.qt.io/qtforpython-6/PySide6/QtWebSockets/index.html#module-PySide6.QtWebSockets)  [`PySide6.QtWebView`](https://doc.qt.io/qtforpython-6/PySide6/QtWebView/index.html#module-PySide6.QtWebView)  [`PySide6.QtWidgets`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html#module-PySide6.QtWidgets)  [`PySide6.QtXml`](https://doc.qt.io/qtforpython-6/PySide6/QtXml/index.html#module-PySide6.QtXml)
 
 
 
+
+
+读者在看完上面的表格之后，应该也发现了，除了`QtWidgets`模块，还有不少模块以'Widgets'为结尾。在使用这些模块时需要注意：`QtWidgets`模块包含的传统控件只能用于`QApplication`类实例（后面会介绍`QApplication`类的用法），而其他以'Widgets'结尾的模块包含的控件同样也只能用于`QApplication`类实例。
 
 ## 3 Qt程序的基本结构和两种控件
+
+
+
+使用PySIde6框架的Qt程序（后续简称Qt程序，如无特殊说明，本教程中的Qt程序均特指使用PySIde6框架的Python程序，而非使用C++编写、基于Qt框架开发的Qt程序）
+
+（写个简单的Hello world程序，引出Qt程序的基本结构）
 
 
 
@@ -1730,6 +1742,65 @@ window2.show()
 
 app.exec()
 ```
+
+
+
+
+
+
+
+
+
+## x 创作灵感（非正式内容）
+
+x.1 在富文本中插入表格但不显示表格的边框（引入问题的示例和前言重新写，相关文档和链接在重新组织语言之后适当插入）
+
+根据Qt官方bug报告：https://bugreports.qt.io/browse/QTBUG-132173
+和官方文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html#PySide6.QtGui.QTextTableFormat.setBorderCollapse
+qt 6.8之后，表格边框默认合并，所以不显示表格边框。
+
+代码：
+
+```python3
+from PySide6.QtWidgets import QApplication, QTextEdit
+from PySide6.QtGui import QTextTableFormat, QTextLength, QBrush, QColor,QTextFrameFormat
+from PySide6.QtCore import Qt
+import sys
+
+app = QApplication(sys.argv)
+
+editor = QTextEdit()
+editor.show()
+
+cursor = editor.textCursor()
+
+table_format = QTextTableFormat()
+table_format.setCellPadding(4)
+table_format.setCellSpacing(2)
+table_format.setBorder(2)  # 边框宽度
+table_format.setBorderBrush(QBrush(QColor('red')))  # 边框颜色为红色
+table_format.setBorderCollapse(False)# 6.8.x之前，borderCollapse()默认为False，后续版本默认为True（边框不显示）
+table_format.setBorderStyle(QTextFrameFormat.BorderStyle.BorderStyle_DotDotDash) # 修改边框的样式
+table_format.setAlignment(Qt.AlignmentFlag.AlignCenter)
+table_format.setColumnWidthConstraints([
+    QTextLength(QTextLength.PercentageLength, 33),
+    QTextLength(QTextLength.PercentageLength, 33),
+    QTextLength(QTextLength.PercentageLength, 34)
+])
+
+table = cursor.insertTable(3, 3, table_format)
+
+for row in range(3):
+    for col in range(3):
+        cell_cursor = table.cellAt(row, col).firstCursorPosition()
+        cell_cursor.insertText(f'Row {row+1}, Col {col+1}')
+
+sys.exit(app.exec())
+```
+
+
+
+
 
 
 

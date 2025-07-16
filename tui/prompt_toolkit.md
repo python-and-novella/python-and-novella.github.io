@@ -1392,7 +1392,7 @@ print(f'输入的内容是: {result}')
 
   ![input_13](prompt_toolkit.assets/input_13.png)
 
-- `history`参数，`History`类型，表示当前会话对象的输入历史，默认为`None`，即`InMemoryHistory()`，会将每次输入的内容存入内容，程序重启后重置。也可以使用`prompt_toolkit.history`模块提供的其他历史记录类（以为'History'后缀，如`FileHistory`类，是将历史记录存入文件）：
+- `history`参数，`History`类型，表示当前会话对象的输入历史，默认为`None`，即`InMemoryHistory()`，会将每次输入的内容存入内容，程序重启后重置。也可以使用`prompt_toolkit.history`模块提供的其他历史记录类（以'History'为后缀，如`FileHistory`类，是将历史记录存入文件）：
 
   ```python3
   from prompt_toolkit import PromptSession
@@ -2204,7 +2204,7 @@ print(f'选择的是 {result}')
 
   元组的第一个元素为任意类型，表示选项对应的值；元组的第二个元素为字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示选项显示的内容。
 
-- `default`参数，任意类型，表示在用户没有选择任何选项的默认选择的选项，默认为`None`。
+- `default`参数，任意类型，表示在用户没有选择任何选项时默认选择的选项，默认为`None`。
 
 - `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
 
@@ -2242,7 +2242,7 @@ print(f'选择的是 {result}')
 
   元组的第一个元素为任意类型，表示选项对应的值；元组的第二个元素为字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示选项显示的内容。
 
-- `default_values`参数，元素为任意类型、无重复元素的有序可迭代对象，表示在用户没有选择任何选项的默认选择的选项，默认为`None`。
+- `default_values`参数，元素为任意类型、无重复元素的有序可迭代对象，表示在用户没有选择任何选项时默认选择的选项，默认为`None`。
 
 - `style`参数，`Style`类型，表示对话框的样式，后面会详细介绍对话框支持的样式类。
 
@@ -5212,75 +5212,508 @@ app.run()
 
   ![textarea_3](prompt_toolkit.assets/textarea_3.png)
 
-- `history`参数，
+- `history`参数，`History`类型，表示当前会话对象的输入历史，默认为`None`，即`InMemoryHistory()`，会将每次输入的内容存入内容，程序重启后重置。也可以使用`prompt_toolkit.history`模块提供的其他历史记录类（以'History'为后缀，如`FileHistory`类，是将历史记录存入文件）：
 
-- `focusable`参数，
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,TextArea
+  from prompt_toolkit.history import InMemoryHistory,FileHistory
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(
+                  '',
+                  accept_handler=lambda buffer:print(f'\n输入历史是：{buffer.history.get_strings()}'),
+                  # history=InMemoryHistory(['123','abc']),
+                  history=FileHistory(f'{__file__}.his')
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
 
-- `focus_on_click`参数，
+- `focusable`参数，布尔类型或者`Filter`类型，表示控件是否可以获得焦点，默认为`True`。
 
-- `wrap_lines`参数，
+- `focus_on_click`参数，布尔类型或者`Filter`类型，表示控件是否可以通过点击获得焦点，默认为`False`。
 
-- `read_only`参数，
+- `wrap_lines`参数，布尔类型或者`Filter`类型，表示是否开启自动换行，默认为`True`。
 
-- `width`参数，
+- `read_only`参数，布尔类型或者`Filter`类型，表示控件的内容是否为只读，默认为`False`。
 
-- `height`参数，
+- `width`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的宽度。
 
-- `dont_extend_height`参数，
+- `height`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示控件的高度。
 
-- `dont_extend_width`参数，
+- `dont_extend_height`参数，布尔类型或者`Filter`类型，表示当`height`参数没有设置时，控件的实际宽度高否与内容高度一致，默认为`False`，即控件高度会扩展至可用的最大高度。
 
-- `line_numbers`参数，
+- `dont_extend_width`参数，布尔类型或者`Filter`类型，表示当`width`参数没有设置时，控件的实际宽度是否与内容宽度一致，默认为`False`，即控件宽度会扩展至可用的最大宽度。
 
-- `get_line_prefix`参数，
+- `line_numbers`参数，布尔类型，表示是否显示行号，默认为`False`。
 
-- `scrollbar`参数，
+- `get_line_prefix`参数，可调用类型，表示获取行前缀的方法。该可调用对象接收两个整数类型参数，分别为不计算换行的第几行、本行在换行中的第几行；返回的结果为字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型。
 
-- `style`参数，
+- `scrollbar`参数，布尔类型，表示是否滚动条，默认为`False`。
 
-- `search_field`参数，
+- `style`参数，字符串类型，表示控件内容的样式。
 
-- `preview_search`参数，
+- `search_field`参数，`SearchToolbar`类型（使用`from prompt_toolkit.widgets import SearchToolbar`或者`from prompt_toolkit.widgets.toolbars import SearchToolbar`导入，完整用法参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.widgets.SearchToolbar ），表示进入搜索模式（操作模式为`VI`时，进入搜索模式的快捷键为命令状态下的`/`键和`?`键；操作模式为`EMACS`时，进入搜索模式的的快捷键为`ctrl + s`键）之后显示的搜索工具栏。示例如下：
 
-- `prompt`参数，
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,TextArea,SearchToolbar
+  
+  t=SearchToolbar(
+      forward_search_prompt='输入关键字：'
+  )
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(
+                  '123',
+                  search_field=t,
+              ),
+              t,
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  from prompt_toolkit.enums import EditingMode
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
 
-- `input_processors`参数，
+  ![textarea_4](prompt_toolkit.assets/textarea_4.png)
 
-- `name`参数，
+- `preview_search`参数，布尔类型或者`Filter`类型，表示搜索时是否同时高亮搜索结果，默认为`True`。
+
+- `prompt`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示在所有内容前的提示内容（不算输入的内容）。
+
+- `input_processors`参数，元素为`Processor`类型的列表，表示输入内容的处理器。该参数默认不需要任何值，内部已经对该参数做好了处理。如果要使用该参数，一般在需要修改密文形式的显示字符时，才不得不使用该参数：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button,TextArea
+  from prompt_toolkit.layout.processors import PasswordProcessor
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(
+                  '123',
+                  input_processors=[PasswordProcessor('密')],
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  from prompt_toolkit.enums import EditingMode
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  
+  app.run()
+  ```
+
+  注意，如果使用了`PasswordProcessor`，`password`参数相当于设置为`True`。
+
+  该参数最终传给了`BufferControl`控件，如果想要了解该参数的更多用途，可以参考该控件的文档 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#prompt_toolkit.layout.BufferControl ，或者后面的相关教程，这里不做展开。
+
+- `name`参数，字符串类型，构建缓冲对象时的`name`参数（属性）的值，使用`Layout`类的`get_buffer_by_name`方法获取缓冲对象时会用到该参数（属性），该参数默认为`''`。
+
+控件支持以下属性：
+
+- `accept_handler`属性，同`accept_handler`参数。
+- `auto_suggest`属性，同`auto_suggest`参数。
+- `buffer`属性，`Buffer`类型，表示获取输入的缓冲对象（相关用法可以参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.buffer ），该对象最终用于构建`BufferControl`控件，成为控件中获取输入的缓冲控件。
+- `complete_while_typing`属性，同`complete_while_typing`参数。
+- `completer`属性，同`completer`参数。
+- `control`属性，表示用于获取输入的缓冲控件（`BufferControl`控件）。
+- `document`属性，表示缓冲对象的`document`属性。
+- `lexer`属性，同`lexer`参数。
+- `read_only`属性，同`read_only`参数。
+- `text`属性，表示缓冲对象的`text`属性。
+- `validator`属性，同`validator`参数。
+- `window`属性，表示包装缓冲控件（`BufferControl`控件）的`Window`控件。
+- `wrap_lines`属性，同`wrap_lines`参数。
+
+##### 3.2.2.4 `HorizontalLine`控件和`VerticalLine`控件
+
+`HorizontalLine`控件和`VerticalLine`控件（使用`from prompt_toolkit.widgets import HorizontalLine, VerticalLine`或者`from prompt_toolkit.widgets.base import HorizontalLine, VerticalLine`导入）用于配合`HSplit`控件或者`VSplit`控件，插入对应方向的分隔线：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit, VSplit
+from prompt_toolkit.widgets import Button, HorizontalLine, VerticalLine
+
+layout = Layout(
+    HSplit(
+        [
+            VSplit(
+                [
+                    Button(
+                        'test1',
+                    ),
+                    VerticalLine(),
+                    Button(
+                        'test2',
+                    ),
+                ]
+            ),
+            HorizontalLine(),
+            VSplit(
+                [
+                    Button(
+                        'test1',
+                    ),
+                    VerticalLine(),
+                    Button(
+                        'test2',
+                    ),
+                ]
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+![line_1](prompt_toolkit.assets/line_1.png)
+
+##### 3.2.2.5 `RadioList`控件
+
+`RadioList`控件（使用`from prompt_toolkit.widgets import RadioList`或者`from prompt_toolkit.widgets.base import RadioList`导入）可以显示一个单选列表，并通过`current_value`属性获取当前选择的值：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, RadioList
+
+layout = Layout(
+    HSplit(
+        [
+            r:=RadioList(
+                [
+                    (True,[('green','Yes')]),
+                    (False,[('red','No')])
+                ]
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+print(r.current_value)
+```
+
+![radio_list_1](prompt_toolkit.assets/radio_list_1.png)
+
+控件支持以下参数：
+
+- `values`参数，元素为元组、无重复元素的有序可迭代对象，表示控件包含的选项。
+
+  元组的第一个元素为任意类型，表示选项对应的值；元组的第二个元素为字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示选项显示的内容。
+
+- `default`参数，任意类型，表示在用户没有选择任何选项时默认选择的选项，默认为`None`。
+
+控件支持以下属性：
+
+- `checked_style`属性，字符串类型，表示被选择选项的选择区（选项内容前面的部分）的样式，默认为`'class:radio-checked'`。
+- `close_character`属性，字符串类型，表示被选择选项的选择区结尾字符，默认为`')'`。
+- `container_style`属性，字符串类型，表示`window`属性使用的样式，默认为`'class:radio-list'`。
+- `control`属性，表示用于显示文本的`FormattedTextControl`控件。
+- `current_value`属性，表示当前选择的选项的值。注意，仅限选择模式为单选（`multiple_selection`属性为`False`）时该属性才可以获取值。
+- `current_values`属性，表示当前选择的选项的值。注意，仅限选择模式为多选（`multiple_selection`属性为`True`）时该属性才可以获取值。并且，允许多选时，选择每个选项的顺序也会体现在该属性中，该属性的值的排列顺序就是选择的顺序。
+- `default_style`属性，字符串类型，表示选项内容的默认样式，默认为`'class:radio'`。
+- `multiple_selection`属性，布尔类型，表示控件的选择模式为单选（该属性为`False`）还是多选（该属性为`True`）。对于`RadioList`控件，该属性默认为`False`。
+- `open_character`属性，字符串类型，表示被选择选项的选择区开头字符，默认为`'('`。
+- `selected_style`属性，字符串类型，表示光标所在选项的选择区（选项内容前面的部分）的样式，默认为`'class:radio-selected'`。
+- `show_scrollbar`属性，布尔类型，表示是否显示滚动条（当高度不足以显示所有选项时，可以通过滚动条判断是否所有选项已经全部显示），默认为`True`。
+- `values`属性，同`values`参数。
+- `window`属性，表示包装`FormattedTextControl`控件的`Window`控件。
+
+#####  3.2.2.6 `CheckboxList`控件和`Checkbox`控件
+
+  `CheckboxList`控件（使用`from prompt_toolkit.widgets import CheckboxList`或者`from prompt_toolkit.widgets.base import CheckboxList`导入）可以显示一个多选列表，并通过`current_values`属性获取当前选择的值：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, CheckboxList
+
+layout = Layout(
+    HSplit(
+        [
+            c:=CheckboxList(
+                [
+                    (True,[('green','Yes')]),
+                    (False,[('red','No')])
+                ]
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+print(c.current_values)
+```
+
+![checkbox_list_1](prompt_toolkit.assets/checkbox_list_1.png)
+
+控件支持以下参数：
+
+- `values`参数，元素为元组、无重复元素的有序可迭代对象，表示控件包含的选项。
+
+  元组的第一个元素为任意类型，表示选项对应的值；元组的第二个元素为字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示选项显示的内容。
+
+- `default`参数，任意类型，表示在用户没有选择任何选项时默认选择的选项，默认为`None`。
+
+控件支持以下属性：
+
+- `checked_style`属性，字符串类型，表示被选择选项的选择区（选项内容前面的部分）的样式，默认为`'class:checkbox-checked'`。
+- `close_character`属性，字符串类型，表示被选择选项的选择区结尾字符，默认为`']'`。
+- `container_style`属性，字符串类型，表示`window`属性使用的样式，默认为`'class:checkbox-list'`。
+- `control`属性，表示用于显示文本的`FormattedTextControl`控件。
+- `current_value`属性，表示当前选择的选项的值。注意，仅限选择模式为单选（`multiple_selection`属性为`False`）时该属性才可以获取值。
+- `current_values`属性，表示当前选择的选项的值。注意，仅限选择模式为多选（`multiple_selection`属性为`True`）时该属性才可以获取值。并且，允许多选时，选择每个选项的顺序也会体现在该属性中，该属性的值的排列顺序就是选择的顺序。
+- `default_style`属性，字符串类型，表示选项内容的默认样式，默认为`'class:checkbox'`。
+- `multiple_selection`属性，布尔类型，表示控件的选择模式为单选（该属性为`False`）还是多选（该属性为`True`）。对于`CheckboxList`控件，该属性默认为`True`。
+- `open_character`属性，字符串类型，表示被选择选项的选择区开头字符，默认为`'['`。
+- `selected_style`属性，字符串类型，表示光标所在选项的选择区（选项内容前面的部分）的样式，默认为`'class:checkbox-selected'`。
+- `show_scrollbar`属性，布尔类型，表示是否显示滚动条（当高度不足以显示所有选项时，可以通过滚动条判断是否所有选项已经全部显示），默认为`True`。
+- `values`属性，同`values`参数。
+- `window`属性，表示包装`FormattedTextControl`控件的`Window`控件。
+
+`Checkbox`控件（使用`from prompt_toolkit.widgets import Checkbox`或者`from prompt_toolkit.widgets.base import Checkbox`导入）与`CheckboxList`控件功能相同，主要是为了兼容之前版本而特意保留。该控件为了兼容之前版本，在继承`CheckboxList`控件的基础上，做了以下改动：
+
+- 功能变为生成只有一个选项的多选（或者叫单选）列表。
+
+- 支持的参数变为：
+
+  - `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示选项显示的内容。
+
+    注意，在创建选项时，选项的值为`'value'`。
+
+  - `checked`参数，布尔类型，表示该选项是否为选择状态，默认为`False`。
+
+- `show_scrollbar`属性默认值变为`False`。
+
+- 增加`checked`属性，同`checked`参数。
+
+示例如下：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, Checkbox
+
+layout = Layout(
+    HSplit(
+        [
+            c:=Checkbox(
+            [('green','Yes')],
+            True
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+print(c.current_values)
+```
+
+##### 3.2.2.7 `ProgressBar`控件
+
+ `ProgressBar`控件（使用`from prompt_toolkit.widgets import ProgressBar`或者`from prompt_toolkit.widgets.base import ProgressBar`导入）可以显示一个进度条，并可以通过修改`percentage`属性修改当前进度：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, ProgressBar
+
+layout = Layout(
+    HSplit(
+        [
+            c:=ProgressBar(),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+c.percentage = 90
+app.run()
+```
+
+![progress_bar_3](prompt_toolkit.assets/progress_bar_3.png)
+
+控件支持以下属性：
+
+- `container`属性，表示显示进度条实际内容的容器控件。
+
+- `label`属性，`Label`类型，表示显示当前进度的`Label`控件，自动与`percentage`属性关联，控件的`text`属性为`'{当前进度}%'`，默认为`'60%'`。注意，因为控件的显示方式不同，默认该控件被进度条覆盖，无法正常显示。可以通过引用该属性，在其他位置显示该控件：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button, ProgressBar
+  
+  layout = Layout(
+      HSplit(
+          [
+              c:=ProgressBar(),
+              c.label,
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+  )
+  c.percentage = 90
+  app.run()
+  ```
+
+  ![progress_bar_4](prompt_toolkit.assets/progress_bar_4.png)
+
+- `percentage`属性，整数类型，范围为`1~100`，表示当前进度，默认为`60`。
+
+##### 3.2.2.8 `FormattedTextControl`控件
+
+ `FormattedTextControl`控件（使用`from prompt_toolkit.layout import FormattedTextControl`或者`from prompt_toolkit.layout.controls import FormattedTextControl`导入）是所有控件显示带格式文本时的包装控件，用于将支持的带格式文本参数渲染为标准的控件，但在使用时需要额外包装一个`Window`控件：
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit, FormattedTextControl, Window
+from prompt_toolkit.widgets import Button
+
+layout = Layout(
+    HSplit(
+        [
+            Window(
+                FormattedTextControl(
+                    [
+                        ('green','Hello')
+                    ]
+                )
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+![formatted_text_1](prompt_toolkit.assets/formatted_text_1.png)
+
+控件支持以下参数：
+
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示要渲染的内容。
+- `text`参数，
+- `text`参数，
+- `text`参数，
+- `text`参数，
+- `text`参数，
+- `text`参数，
 
 
 
 
 
-##### 3.2.2.1 `Label`控件
-
-
-
-
-
-##### 3.2.2.1 `Label`控件
-
- 
-
-
-
-  HorizontalLine 和 VerticalLine
-
-  RadioList
-
-  Checkbox
-
-  CheckboxList  
-
-  ProgressBar
-
-
-
-prompt_toolkit.layout 模块
-
-FormattedTextControl
-
-BufferControl
+##### 3.2.2.9 `BufferControl`控件
 
 
 
@@ -5596,11 +6029,17 @@ app.run()
 
 Dialog
 
+from prompt_toolkit.widgets.dialogs import Dialog
 
 
-from prompt_toolkit.widgets.menus 
+
+
 
 MenuContainer, MenuItem
+
+from prompt_toolkit.widgets.menus import MenuContainer, MenuItem
+
+
 
 
 
@@ -5616,17 +6055,39 @@ toolbar（部分）:
 
 
 
-## 5 拾遗（持续更新中）
+## 5 拾遗
 
 本章主要根据实际问题，提供对应问题的解决实例，并补充前面没有覆盖的内容。按时间顺序更新，不限制内容所属分类，但章节标题会概括主要内容。
 
-### 5.1 设置终端窗口的标题
+### 5.1 `prompt_toolkit.shortcuts`模块的其他功能
 
+`prompt_toolkit.shortcuts`模块除了提供前面介绍的方法，还有一些实用的方法（相关用法参考官网文档 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.shortcuts）：
 
+- `set_title`方法，使用`from prompt_toolkit.shortcuts import set_title`或者`from prompt_toolkit.shortcuts.utils import set_title`导入，用于设置终端窗口的标题。该方法支持以下参数：
 
-set_title 设置终端窗口的标题，来自 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/reference.html#module-prompt_toolkit.shortcuts
+  - `text`参数，字符串类型，表示终端窗口的标题。
 
+- `clear`方法，使用`from prompt_toolkit.shortcuts import clear`或者`from prompt_toolkit.shortcuts.utils import clear`导入，用于清除终端的内容。
 
+- `clear_title`方法，使用`from prompt_toolkit.shortcuts import clear_title`或者`from prompt_toolkit.shortcuts.utils import clear_title`导入，用于清除终端窗口的标题。
+
+- `print_container`方法，使用`from prompt_toolkit.shortcuts import print_container`或者`from prompt_toolkit.shortcuts.utils import print_container`导入，用于显示控件（不能交互）。该方法支持以下参数：
+
+  - `container`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型，表示主要内容。
+  - `file`参数，文件类型（实际上是文本输入输出流`TextIO`），表示输出内容写入到哪个文件，默认为`None`。
+  - `style`参数，Style`类型，表示输出内容的样式。
+  - `include_default_pygments_style`参数，布尔类型，表示显示的控件包含语法标志对象时，是否启用语法标志对象本身的样式，默认为`True`。
+
+  示例如下：
+
+  ```python3
+  from prompt_toolkit.widgets import Frame,Label
+  from prompt_toolkit.shortcuts import print_container
+  
+  print_container(Frame(Label('Hello')))
+  ```
+
+  
 
 
 

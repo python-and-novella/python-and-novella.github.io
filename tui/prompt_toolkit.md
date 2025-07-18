@@ -5809,7 +5809,7 @@ app.run()
   - `max_available_width`参数，整数类型，表示最大可用宽度。
 - `reset`方法，复位控件。
 
-## 4 进阶知识（更新中）
+## 4 进阶知识
 
 本章将对照 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/index.html 中除了基础知识介绍过内容外的其余内容，并补充一些官方手册中有但官方教程没写的内容。
 
@@ -6170,19 +6170,11 @@ print(f'绑定对象的快捷键是: {bindings1.bindings}')
 
 ![bindings_1](prompt_toolkit.assets/bindings_1.png)
 
-### 4.3 单元测试（更新中）
-
-单元测试，https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/unit_testing.html
-
-
-
-
-
-### 4.4 高级控件（更新中）
+### 4.3 高级控件
 
 高级控件一般由多个基本控件组合而成，可以快速实现复杂的界面要求。
 
-#### 4.4.1 `Dialog`控件
+#### 4.3.1 `Dialog`控件
 
 `Dialog`控件（使用`from prompt_toolkit.widgets.dialogs import Dialog`导入）用于创建一个对话框：
 
@@ -6270,7 +6262,7 @@ app.run()
 
 ![dialog_14](prompt_toolkit.assets/dialog_14.png)
 
-需要注意的是，如果按钮包含中文且与对话框组合使用时，需要使用针对中文添加了修复补丁的按钮才会准确显示（具体参考前面对话框相关章节）。
+需要注意的是，当按钮包含中文且与对话框组合使用时，需要使用针对中文添加了修复补丁的按钮才会准确显示（具体参考前面对话框相关章节）。
 
 控件支持以下参数：
 
@@ -6287,37 +6279,284 @@ app.run()
 - `container`属性，表示对话框最外面的容器控件，`with_background`参数的值不同，该属性对应的控件也不同（`Box`控件或者`Shadow`控件）。
 - `title`属性，同`title`参数。
 
-#### 4.4.2 `MenuContainer`控件和`MenuItem`控件（更新中）
+#### 4.3.2 `MenuContainer`控件
 
-MenuContainer, MenuItem
+`MenuContainer`控件（需要搭配`MenuItem`类，使用`from prompt_toolkit.widgets.menus import MenuContainer, MenuItem`导入）用于创建菜单：
 
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, Label, TextArea, Frame
 from prompt_toolkit.widgets.menus import MenuContainer, MenuItem
+from prompt_toolkit.layout.containers import Float
+
+# 修复问题的按钮补丁
+from prompt_toolkit.widgets import Button
+from prompt_toolkit.formatted_text import StyleAndTextTuples
+from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
+from prompt_toolkit.utils import get_cwidth
+from typing import Callable
+
+class Button(Button):
+    def __init__(
+        self,
+        text: str,
+        handler: Callable[[], None] | None = None,
+        width: int = 12,
+        left_symbol: str = '<',
+        right_symbol: str = '>',
+    ):
+        # 如果想要将一个中文字符当作一个终端字符的宽度处理，加入下面这行，反之不要加
+        width += (get_cwidth(text) - len(text))
+        super().__init__(text, handler, width, left_symbol, right_symbol)
+    def _get_text_fragments(self) -> StyleAndTextTuples:
+        # 修改的部分
+        width = self.width - (
+            get_cwidth(self.left_symbol) + get_cwidth(self.right_symbol)
+        ) + (
+            len(self.text) - get_cwidth(self.text)
+        )
+        text = (f'{{:^{max(0,width)}}}').format(self.text)
+        # 修改的部分结束
+        def handler(mouse_event: MouseEvent) -> None:
+            if (
+                self.handler is not None
+                and mouse_event.event_type == MouseEventType.MOUSE_UP
+            ):
+                self.handler()
+
+        return [
+            ('class:button.arrow', self.left_symbol, handler),
+            ('[SetCursorPosition]', ''),
+            ('class:button.text', text, handler),
+            ('class:button.arrow', self.right_symbol, handler),
+        ]
+
+menu = MenuContainer(
+    body=Frame(
+        HSplit(
+            [
+                Label('在下面输入内容：'),
+                t:=TextArea(line_numbers=True,focus_on_click=True),
+            ]
+        ),
+    ),
+    menu_items=[
+        MenuItem(
+            'File',
+            children=[
+                MenuItem('Open'),
+                MenuItem('-',disabled=True),
+                MenuItem('Exit',lambda: app.exit())
+            ],
+
+        )
+    ],
+    floats= [
+        Float(
+            Frame(
+                HSplit(
+                    [
+                        Button(
+                        '打开菜单',
+                            lambda: app.layout.focus(menu.window)
+                        ),
+                        Button(
+                            '关闭程序',
+                            lambda: app.exit()
+                        )
+                    ]
+                )
+            ),
+            top=12,
+            left=2
+        )
+    ]
+)
 
 
+layout = Layout(
+    menu,
+    focused_element=t
+)
 
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
 
+app.run()
+```
 
+![menu_1](prompt_toolkit.assets/menu_1.png)
 
+需要注意的是，当按钮包含中文且与菜单组合使用时，需要使用针对中文添加了修复补丁的按钮才会准确显示（具体参考前面对话框相关章节）。
 
+`MenuContainer`控件虽然可以生成菜单，但其本质上来说是一个容器类控件。在实际使用时，该控件插在`Layout`控件和其他内容之间。
 
+`MenuContainer`控件由三个子容器组成：
 
-#### 4.4.3 `FormattedTextToolbar`控件
+- `body`参数对应的子容器，可以像其他容器类控件一样存放控件，构成内容的主要区域。
+- `menu_items`参数对应的子容器，只能存放菜单内容。
+- `floats`参数对应子容器，可以像其他容器类控件一样存放控件，但该子容器的内容是浮动的，可以随意设定内容的位置。
 
-  FormattedTextToolbar,
+三个子容器的位置关系如下图所示：
 
+![menu_2](prompt_toolkit.assets/menu_2.png)
 
+控件支持以下参数：
 
+- `body`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型，表示主要区域的控件。
+- `menu_items`参数，元素为`MenuItem`类型的列表，表示菜单内容。
+- `floats`参数，元素为`Float`类型的列表，表示浮动内容。
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
 
+控件支持以下属性：
 
+- `body`属性，同`body`参数。
+- `container`属性，表示显示所有内容的容器控件。
+- `control`属性，表示用于显示菜单内容的`FormattedTextControl`控件。
+- `floats`属性，同`floats`参数。
+- `menu_items`属性，同`menu_items`参数。
+- `selected_menu`属性，表示当前打开的菜单的索引，用于判断菜单层级。
+- `window`属性，表示包装`FormattedTextControl`控件的`Window`控件。
 
+`MenuItem`类支持以下参数：
 
-#### 4.4.4 `SystemToolbar`控件
+- `text`参数，字符串类型，表示菜单项显示的文字，默认为`''`。当该参数为`'-'`时，该菜单项会变成一条分隔线。
+- `handler`参数，可调用类型，表示点击菜单项执行的操作，默认为`None`。
+- `children`参数，元素为`MenuItem`类型的列表，表示该菜单项的子菜单内容。
+- `shortcut`参数，字符串或者`Keys`类型，当前版本未定义功能。
+- `disabled`参数，布尔类型，表示是否禁用该菜单项。
 
-  SystemToolbar
+`MenuItem`类支持以下属性：
 
+- `text`属性，同`text`参数。
+- `handler`属性，同`handler`参数。
+- `children`属性，同`children`参数。
+- `shortcut`属性，同`shortcut`参数。
+- `disabled`属性，同`disabled`参数。
+- `selected_item`属性，表示当前打开的菜单的索引，用于判断菜单层级。
+- `width`属性，表示菜单的宽度（基于菜单内容计算，不可修改）。
 
+#### 4.3.3 `FormattedTextToolbar`控件
 
+`FormattedTextToolbar`控件（使用`from prompt_toolkit.widgets import FormattedTextToolbar`或者`from prompt_toolkit.widgets.toolbars import FormattedTextToolbar`导入）用法类似`FormattedTextControl`控件，只是`FormattedTextToolbar`控件不需要额外包装一个`Window`控件：
 
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit, FormattedTextControl, Window
+from prompt_toolkit.widgets import Button, FormattedTextToolbar
+
+layout = Layout(
+    HSplit(
+        [
+            FormattedTextToolbar(
+                'Hello'
+            ),
+            Window(
+                FormattedTextControl(
+                    'Hello'
+                ),
+                dont_extend_height=True
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+控件支持以下参数：
+
+- `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示要控件的内容。该参数会传给内部构建的`FormattedTextToolbar`控件。
+- `style`参数，字符串类型，表示内容的样式。
+- `**kw`参数，其余的关键字参数将全部传给内部构建的`FormattedTextToolbar`控件。
+
+#### 4.3.4 `SystemToolbar`控件
+
+`SystemToolbar`控件（使用`from prompt_toolkit.widgets import SystemToolbar`或者`from prompt_toolkit.widgets.toolbars import SystemToolbar`导入）可以临时隐藏当前应用程序，使用子进程运行系统命令，并在当前终端输出结果，继续按下`enter`键可以回到应用程序中： 
+
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, SystemToolbar
+
+layout = Layout(
+    HSplit(
+        [
+            SystemToolbar(
+                '请输入命令，回车执行：'
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+控件支持以下参数：
+
+- `prompt`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示显示最前面的提示内容，默认为`'Shell command: '`。
+
+- `enable_global_bindings`参数，布尔类型或者`Filter`类型，表示是否允许通过全局快捷键让该控件立刻获得焦点，默认为`True`。
+
+  全局快捷键，即先按`esc`键，再按`!`键；对于操作模式为`VI`时，按`esc`键只是用于进入命令模式，实际的全局快捷键为命令模式下按`!`键。对于操作模式为`VI`时，则只有可以接收输入的控件（比如`TextArea`控件）才能调用全局快捷键。
+
+  当该控件没有获得焦点时，该控件会自动隐藏，所以才有此参数的用武之地：
+
+  ```python3
+  from prompt_toolkit import Application
+  from prompt_toolkit.layout import Layout, HSplit
+  from prompt_toolkit.widgets import Button, SystemToolbar, TextArea
+  from prompt_toolkit.enums import EditingMode
+  
+  layout = Layout(
+      HSplit(
+          [
+              TextArea(),
+              Button('Fake Button'),
+              SystemToolbar(
+                  '请输入命令，回车执行：'
+              ),
+              Button(
+                  'close app',
+                  lambda: app.exit()
+              ),
+          ]
+      )
+  )
+  
+  app = Application(
+      layout=layout,
+      full_screen=True,
+      mouse_support=True,
+      editing_mode=EditingMode.VI
+  )
+  
+  app.run()
+  ```
 
 ## 5 拾遗
 

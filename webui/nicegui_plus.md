@@ -80,7 +80,7 @@ ui.run(native=True)
 from nicegui import ui, app
 
 app.native.settings['ALLOW_DOWNLOADS'] = True
-ui.button("Download", on_click=lambda: ui.download(b'Demo text','demo_file.txt'))
+ui.button('Download', on_click=lambda: ui.download(b'Demo text','demo_file.txt'))
 
 ui.run(native=True)
 ```
@@ -505,7 +505,7 @@ NiceGUI 2.21.0 新增`app.config.vue_config_script`属性，该属性主要用�
 ```javascript
 app.use(Quasar, {config: vue_config});
 Quasar.lang.set(Quasar.lang[language.replace('-', '')]);
-Quasar.Dark.set(dark === None ? "auto" : dark);
+Quasar.Dark.set(dark === None ? 'auto' : dark);
 ```
 
 注意，该功能仅是实验性功能，不能确保NiceGUI默认使用的Quasar框架与其他基于VUE的框架百分比兼容，也无法保证使用其他框架之后，NiceGUI程序依然正常，请慎重使用该功能。
@@ -516,9 +516,9 @@ Quasar.Dark.set(dark === None ? "auto" : dark);
 from nicegui import ui,app
 
 ui.add_body_html('''
-    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
-    <script defer src="https://unpkg.com/element-plus"></script>
-    <script defer src="https://unpkg.com/naive-ui"></script>
+    <link rel='stylesheet' href='//unpkg.com/element-plus/dist/index.css' />
+    <script defer src='https://unpkg.com/element-plus'></script>
+    <script defer src='https://unpkg.com/naive-ui'></script>
 ''')
 app.config.vue_config_script += '''
     app.use(ElementPlus);

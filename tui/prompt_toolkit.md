@@ -1509,7 +1509,7 @@ print(f'输入的内容是: {result}')
 
   ![input_18](prompt_toolkit.assets/input_18.png)
 
-- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。自定义快捷键需要实现`KeyBindingsBase`类，会比较复杂，这里推荐使用内置类`KeyBindings`（使用`from prompt_toolkit.key_binding import KeyBindings`导入，如果想要实现`KeyBindingsBase`类，建议参考`KeyBindings`类的源码或者继承该类），该类的实例支持`add`方法，该方法接收表示快捷键的字符串，并返回一个装饰器，可用于装饰该快捷键对应的操作。示例如下：
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。自定义快捷键需要实现`KeyBindingsBase`类，会比较复杂，这里推荐使用内置类`KeyBindings`（使用`from prompt_toolkit.key_binding import KeyBindings`或者`from prompt_toolkit.key_binding.key_bindings import KeyBindings`导入，如果想要实现`KeyBindingsBase`类，建议参考`KeyBindings`类的源码或者继承该类），该类的实例支持`add`方法，该方法接收表示快捷键的字符串，并返回一个装饰器，可用于装饰该快捷键对应的操作。示例如下：
 
   ```python3
   from prompt_toolkit import PromptSession
@@ -3137,7 +3137,7 @@ with ProgressBar() as pb:
         task.join()
 ```
 
-## 3 应用程序（应用式）（更新中）
+## 3 应用程序（应用式）
 
 除了前面直接执行、直接输出的使用方式之外，框架还支持一种类似应用程序的使用方式。在正式介绍之前，需要先区分一下框架程序的两种使用方式：
 
@@ -3591,7 +3591,7 @@ asyncio.run(app.run_async())
 # 或者 asyncio.get_event_loop().run_until_complete(app.run_async())
 ```
 
-### 3.2 具体控件（更新中）
+### 3.2 具体控件
 
 控件按能不能将其他控件当作内容来划分的话，可以分为两类：容器类和内容类。
 
@@ -3689,7 +3689,7 @@ def key_handler(_):
     app.exit()
 
 layout = Layout(
-    w:=Window(
+    Window(
         FormattedTextControl(
             [
                 ('[SetCursorPosition]', ''),
@@ -4860,7 +4860,7 @@ app.run()
 
 - `container`属性，表示控件输出的实际内容。
 
-#### 3.2.2 内容类控件（更新中）
+#### 3.2.2 内容类控件
 
 ##### 3.2.2.1 `Label`控件
 
@@ -5702,22 +5702,112 @@ app.run()
 控件支持以下参数：
 
 - `text`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示要渲染的内容。
-- `text`参数，
-- `text`参数，
-- `text`参数，
-- `text`参数，
-- `text`参数，
-- `text`参数，
+- `style`参数，字符串类型，表示内容的样式。
+- `focusable`参数，布尔类型或者`Filter`类型，表示控件是否可以获得焦点，默认为`False`。
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
+- `show_cursor`参数，布尔类型，当控件可以获得焦点时，表示是否显示光标，默认为`True`。
+- `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`False`。
+- `get_cursor_position`参数，可调用类型（返回`Point`类型的值，表示光标位置），表示获取光标位置的方法，默认为`None`，即内部实现的获取光标位置的方法。一般不需要修改此参数，如果需要修改，可以参考源码。
 
+控件支持以下属性：
 
+- `focusable`属性，同`focusable`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `get_cursor_position`属性，同`get_cursor_position`参数。
+- `key_bindings`属性，同`key_bindings`参数。
+- `modal`属性，同`modal`参数。
+- `show_cursor`属性，同`show_cursor`参数。
+- `style`属性，同`style`参数。
+- `text`属性，同`text`参数。
 
+控件支持以下方法：
 
+- `get_key_bindings`方法，返回`key_bindings`属性。
+- `is_focusable`方法，返回`focusable`属性。
+- `is_modal`方法，返回`modal`属性。
+- `preferred_height`方法，获取在指定宽度和最大可用高度的情况下的最佳控件高度。该方法支持以下参数：
+  - `width`参数，整数类型，表示指定的宽度。
+  - `max_available_height`参数，整数类型，表示最大可用高度。
+- `preferred_width`方法，获取在最大可用宽度的情况下的最佳控件宽度。该方法支持以下参数：
+  - `max_available_width`参数，整数类型，表示最大可用宽度。
+- `reset`方法，复位控件。
 
 ##### 3.2.2.9 `BufferControl`控件
 
+ `BufferControl`控件（使用`from prompt_toolkit.layout import BufferControl`或者`from prompt_toolkit.layout.controls import FormattedTextControl`导入）是支持输入的控件的基础控件，用于处理输入的内容，但在使用时需要额外包装一个`Window`控件：
 
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit, BufferControl, Window
+from prompt_toolkit.widgets import Button
 
+layout = Layout(
+    HSplit(
+        [
+            Window(
+                BufferControl()
+            ),
+            Button(
+                'close app',
+                lambda: app.exit()
+            ),
+        ]
+    )
+)
 
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+控件支持以下参数：
+
+- `buffer`参数，`Buffer`类型，表示获取输入的缓冲对象，默认为`None`，即自动创建缓冲对象。
+- `input_processors`参数，元素为`Processor`类型的列表，表示输入内容的处理器。
+- `include_default_input_processors`参数，布尔类型，表示是否额外添加默认的输入处理器，默认为`True`。默认的输入处理器为：
+  - `HighlightSearchProcessor`。
+  - `HighlightIncrementalSearchProcessor`。
+  - `HighlightSelectionProcessor`。
+  - `DisplayMultipleCursors`。
+- `lexer`参数，`Lexer`类型，表示输入内容显示时使用的语法高亮方案。
+- `preview_search`参数，布尔类型或者`Filter`类型，表示搜索时是否同时高亮搜索结果，默认为`False`。
+- `focusable`参数，布尔类型或者`Filter`类型，表示控件是否可以获得焦点，默认为`True`。
+- `search_buffer_control`参数，`SearchBufferControl`类型或者返回`SearchBufferControl`类型的可调用对象，表示用于获取`search_buffer`的`SearchBufferControl`控件，默认为`None`。
+- `menu_position`参数，返回整数的可调用类型，表示创建菜单的位置。
+- `focus_on_click`参数，布尔类型或者`Filter`类型，表示控件是否可以通过点击获得焦点，默认为`False`。
+- `key_bindings`参数，`KeyBindingsBase`类型，表示可用的自定义快捷键。
+
+控件支持以下属性：
+
+- `buffer`属性，同`buffer`参数。
+- `default_input_processors`属性，表示默认的输入处理器。
+- `focus_on_click`属性，同`focus_on_click`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `focusable`属性，同`focusable`参数。注意，作为属性，该属性已经转换为`Filter`类型，如果需要修改，也只能是`Filter`类型。
+- `include_default_input_processors`属性，同`include_default_input_processors`参数。
+- `input_processors`属性，同`input_processors`参数。
+- `key_bindings`属性，同`key_bindings`参数。
+- `lexer`属性，同`lexer`参数。
+- `menu_position`属性，同`menu_position`参数。
+- `preview_search`属性，同`preview_search`参数。
+- `search_buffer`属性，`Buffer`类型，表示用于搜索指定内容的缓冲对象，如果`search_buffer_control`属性不为`None`，则为`search_buffer_control`属性的`buffer`属性。
+- `search_buffer_control`属性，同`search_buffer_control`参数。
+- `search_state`属性，`SearchState`类型，如果`search_buffer_control`属性不为`None`，则为`search_buffer_control`属性的`searcher_search_state`属性。
+
+控件支持以下方法：
+
+- `get_key_bindings`方法，返回`key_bindings`属性。
+- `is_focusable`方法，返回`focusable`属性。
+- `move_cursor_down`方法，将光标向下移动一行。
+- `move_cursor_up`方法，将光标向上移动一行。
+- `preferred_height`方法，获取在指定宽度和最大可用高度的情况下的最佳控件高度。该方法支持以下参数：
+  - `width`参数，整数类型，表示指定的宽度。
+  - `max_available_height`参数，整数类型，表示最大可用高度。
+- `preferred_width`方法，获取在最大可用宽度的情况下的最佳控件宽度。该方法支持以下参数：
+  - `max_available_width`参数，整数类型，表示最大可用宽度。
+- `reset`方法，复位控件。
 
 ## 4 进阶知识（更新中）
 
@@ -6009,11 +6099,76 @@ app = Application(
 app.run()
 ```
 
-### 4.2 快捷键绑定的其他技巧（更新中）
+### 4.2 快捷键绑定的其他技巧
 
-按键绑定的进阶 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/key_bindings.html 
+前面介绍过快捷键绑定的基础知识，本节将继续介绍快捷键绑定的其他技巧。
+
+本节主要参考 https://python-prompt-toolkit.readthedocs.io/en/stable/pages/advanced_topics/key_bindings.html 。
+
+前面介绍的所有可以自定义的快捷键中，没有包含`alt`键的快捷键，是不是框架不支持`alt`键？非也，这是因为框架将按下`alt`键处理为按过`esc`键，也就是说，`alt + q`键，相当于先按`esc`键，在短时间内再按`q`键：
+
+```python3
+from prompt_toolkit import PromptSession
+from prompt_toolkit.application import run_in_terminal
+from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent
+
+bindings = KeyBindings()
+
+# 相当于 alt + q
+@bindings.add('escape','q')
+def key_handler(event:KeyPressEvent):
+    run_in_terminal(lambda :print(event))
+
+session = PromptSession(
+    key_bindings=bindings
+)
+
+result = session.prompt('请输入任何内容：')
+print(f'输入的内容是: {result}')
+```
+
+'<'和'>'包含的按键不是指具体某个按键，而是特定多个按键、触发特定事件的按键等特殊情况：
+
+- `<any>`，表示任意按键。
+- `<sigint>`，表示Unix系统中的中断信号。
+
+使用`add`方法可以给绑定对象添加新的快捷键，但如果不想修改原有的绑定对象，同时添加快捷键，则可以使用合并绑定对象的方法`merge_key_bindings`（使用`from prompt_toolkit.key_binding import merge_key_bindings`或者`from prompt_toolkit.key_binding.key_bindings import merge_key_bindings`导入），将另一个绑定对象与之合并，这样就不会影响原有的绑定对象：
+
+```python3
+from prompt_toolkit import PromptSession
+from prompt_toolkit.application import run_in_terminal
+from prompt_toolkit.key_binding import KeyBindings,KeyPressEvent,merge_key_bindings
 
 
+bindings1 = KeyBindings()
+
+@bindings1.add('c-q')
+def _(event:KeyPressEvent):
+    run_in_terminal(lambda :print('q'))
+
+bindings2 = KeyBindings()
+
+@bindings2.add('c-w')
+def _(event:KeyPressEvent):
+    run_in_terminal(lambda :print('w'))
+
+
+bindings = merge_key_bindings(
+    [
+        bindings1,
+        bindings2
+    ]
+)
+
+session = PromptSession(
+    key_bindings=bindings
+)
+
+result = session.prompt('请按 ctrl+q 或者 ctrl+w 测试快捷键')
+print(f'绑定对象的快捷键是: {bindings1.bindings}')
+```
+
+![bindings_1](prompt_toolkit.assets/bindings_1.png)
 
 ### 4.3 单元测试（更新中）
 
@@ -6021,19 +6176,118 @@ app.run()
 
 
 
+
+
 ### 4.4 高级控件（更新中）
 
+高级控件一般由多个基本控件组合而成，可以快速实现复杂的界面要求。
 
+#### 4.4.1 `Dialog`控件
 
+`Dialog`控件（使用`from prompt_toolkit.widgets.dialogs import Dialog`导入）用于创建一个对话框：
 
-
-Dialog
-
+```python3
+from prompt_toolkit import Application
+from prompt_toolkit.layout import Layout, HSplit
+from prompt_toolkit.widgets import Button, Label, TextArea
 from prompt_toolkit.widgets.dialogs import Dialog
 
+# 修复问题的按钮补丁
+from prompt_toolkit.widgets import Button
+from prompt_toolkit.formatted_text import StyleAndTextTuples
+from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
+from prompt_toolkit.utils import get_cwidth
+from typing import Callable
 
+class Button(Button):
+    def __init__(
+        self,
+        text: str,
+        handler: Callable[[], None] | None = None,
+        width: int = 12,
+        left_symbol: str = '<',
+        right_symbol: str = '>',
+    ):
+        # 如果想要将一个中文字符当作一个终端字符的宽度处理，加入下面这行，反之不要加
+        width += (get_cwidth(text) - len(text))
+        super().__init__(text, handler, width, left_symbol, right_symbol)
+    def _get_text_fragments(self) -> StyleAndTextTuples:
+        # 修改的部分
+        width = self.width - (
+            get_cwidth(self.left_symbol) + get_cwidth(self.right_symbol)
+        ) + (
+            len(self.text) - get_cwidth(self.text)
+        )
+        text = (f'{{:^{max(0,width)}}}').format(self.text)
+        # 修改的部分结束
+        def handler(mouse_event: MouseEvent) -> None:
+            if (
+                self.handler is not None
+                and mouse_event.event_type == MouseEventType.MOUSE_UP
+            ):
+                self.handler()
 
+        return [
+            ('class:button.arrow', self.left_symbol, handler),
+            ('[SetCursorPosition]', ''),
+            ('class:button.text', text, handler),
+            ('class:button.arrow', self.right_symbol, handler),
+        ]
 
+layout = Layout(
+    HSplit(
+        [
+            Dialog(
+                HSplit(
+                    [
+                        Label('在下面输入内容：'),
+                        TextArea(focus_on_click=True),
+                    ]
+                ),
+                title='发信息',
+                buttons=[
+                    Button(
+                        '发送'
+                    ),
+                    Button(
+                        '关闭程序',
+                        lambda: app.exit()
+                    )
+                ],
+            ),
+        ]
+    )
+)
+
+app = Application(
+    layout=layout,
+    full_screen=True,
+    mouse_support=True,
+)
+
+app.run()
+```
+
+![dialog_14](prompt_toolkit.assets/dialog_14.png)
+
+需要注意的是，如果按钮包含中文且与对话框组合使用时，需要使用针对中文添加了修复补丁的按钮才会准确显示（具体参考前面对话框相关章节）。
+
+控件支持以下参数：
+
+- `body`参数，`Container`类型或者实现了`__pt_container__`方法（该方法返回`Container`对象）的类型（后面介绍的内容类控件都是该类型），表示对话框的内容。注意，如果内容包含`Button`控件，则应当将其放入`buttons`参数中，或者将`with_background`参数设置为`True`，否则会导致布局错乱。
+- `title`参数，字符串类型、元素为元组的列表（同`FormattedText`对象的参数）、实现了`__pt_formatted_text__`方法的对象（即前面介绍的、可渲染为带格式文本的对象）、调用之后返回前面几种类型的可调用类型，表示标题，默认为`''`。
+- `buttons`参数，元素为`Button`控件、无重复元素的有序可迭代对象，表示对话框包含的按钮。
+- `modal`参数，布尔类型，表示控件是否为模态（如果为模态，则不会继承父容器的快捷键），默认为`True`。
+- `width`参数，整数类型、`Dimension`类型（使用`from prompt_toolkit.layout.dimension import Dimension`导入）、调用之后返回前面几种类型的可调用类型，表示对话框宽度。
+- `with_background`参数，布尔类型，表示是否在对话框外套一个`Box`控件，用于显示背景，默认为`False`。
+
+控件支持以下属性：
+
+- `body`属性，同`body`参数。
+- `container`属性，表示对话框最外面的容器控件，`with_background`参数的值不同，该属性对应的控件也不同（`Box`控件或者`Shadow`控件）。
+- `title`属性，同`title`参数。
+
+#### 4.4.2 `MenuContainer`控件和`MenuItem`控件（更新中）
 
 MenuContainer, MenuItem
 
@@ -6045,9 +6299,19 @@ from prompt_toolkit.widgets.menus import MenuContainer, MenuItem
 
 
 
-toolbar（部分）:
+
+
+#### 4.4.3 `FormattedTextToolbar`控件
 
   FormattedTextToolbar,
+
+
+
+
+
+
+
+#### 4.4.4 `SystemToolbar`控件
 
   SystemToolbar
 

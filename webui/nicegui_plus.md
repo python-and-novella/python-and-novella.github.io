@@ -538,7 +538,133 @@ ui.run(native=True)
 
 ![2025_19_1](nicegui_plus.assets/2025_19_1.gif)
 
-## 20 （待定）
+## 20 在Native Mode的NiceGUI程序中打开对话框（不使用JavaScript）
+
+在以Native Mode运行的NiceGUI程序中，除了使用JavaScript调用确认对话框、文件对话框，还可以基于pywebview，使用Python的接口调用这两种对话框。相比于使用JavaScript，直接使用Python的接口，操作更简单，支持的参数也更多。
+
+### 20.1 确认对话框
+
+使用`app.native.main_window.create_confirmation_dialog`方法即可创建确认对话框：
+
+```python3
+from nicegui import ui,app
+
+async def open_dialog():
+    # 确认对话框返回布尔值
+    result =  await app.native.main_window.create_confirmation_dialog(
+        title='选择',
+        message='是否继续'
+    )
+    ui.notify(result)
+
+ui.button('Open Dialog', on_click=open_dialog)
+
+ui.run(native=True)
+```
+
+![2025_20_1](nicegui_plus.assets/2025_20_1.png)
+
+`app.native.main_window.create_confirmation_dialog`方法支持以下参数：
+
+- `title`参数，字符串类型，表示对话框的标题。
+- `message`参数，字符串类型，表示对话框的内容。
+
+确认对话框会根据用户的选择返回布尔值，因此，需要使用异步等待获取返回值。
+
+### 20.2 文件择对话框
+
+使用`app.native.main_window.create_file_dialog`方法即可创建文件对话框：
+
+```python3
+from nicegui import ui,app
+
+async def open_dialog():
+    result =  await app.native.main_window.create_file_dialog()
+    ui.notify(result)
+
+ui.button('Open Dialog', on_click=open_dialog)
+
+ui.run(native=True)
+```
+
+![2025_20_2](nicegui_plus.assets/2025_20_2.png)
+
+`app.native.main_window.create_file_dialog`方法支持以下参数：
+
+- `dialog_type`参数，整数类型，表示文件对话框的类型，默认为`webview.OPEN_DIALOG`。仅支持`[10,20,30]`中的值，分别对应打开文件、打开目录、保存文件。其中保存文件并不会直接创建该文件，只是返回该文件的最终路径，后续需要基于此路径额外执行创建文件的过程，该方法并不负责创建文件。
+
+  除了直接使用整数表示文件对话框的类型，`webview`库还提供了三个预定义常量（也就是该参数默认值的用法），可以根据变量名判断出不同值的含义：
+
+  ```python3
+  OPEN_DIALOG = 10
+  FOLDER_DIALOG = 20
+  SAVE_DIALOG = 30
+  ```
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui,app
+  
+  async def open_dialog():
+      import webview
+      result =  await app.native.main_window.create_file_dialog(
+          dialog_type = webview.SAVE_DIALOG
+      )
+      ui.notify(result)
+  
+  ui.button('Open Dialog', on_click=open_dialog)
+  
+  ui.run(native=True)
+  ```
+
+- `directory`参数，字符串类型，表示文件对话框的初始路径，默认为`''`，取决于上次打开文件对话框时的路径。
+
+  注意，该参数不支持`r`前缀修饰字符串，也不支持斜杠`'/'`作为路径分隔，仅支持反斜杠`'\'`作为路径分隔，并且为了避免转义导致误解，需要使用双反斜杠代替单反斜杠。比如：
+
+  ```python3
+  from nicegui import ui,app
+  
+  async def open_dialog():
+      result =  await app.native.main_window.create_file_dialog(
+          directory='E:\\'
+      )
+      ui.notify(result)
+  
+  ui.button('Open Dialog', on_click=open_dialog)
+  
+  ui.run(native=True)
+  ```
+
+- `allow_multiple`参数，布尔类型，表示是否允许选择多个文件（按住`ctrl`键可以同时选择多个，仅限打开文件、打开目录），默认为`False`
+
+- `save_filename`参数，字符串类型，表示保存文件时的默认文件名，默认为`''`。
+
+- `file_types`参数，元素为字符串类型的元组，表示默认允许的文件后缀（仅限打开文件、保存文件）。
+
+  在对话框的文件类型下拉框中，元组的每个元素表示一个文件类型选项。而每个元素对应的字符串，其格式为`'{文件类型的简短描述，支持空格} (*.{文件后缀1};*.{文件后缀2};...)'`。一个文件类型选项相当于一个文件格式筛选器，字符串中，英文括号内的文件后缀就是被筛选出来的文件后缀（支持多个，如果只筛选单个文件后缀，则不能添加英文分号）
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui,app
+  
+  async def open_dialog():
+      result =  await app.native.main_window.create_file_dialog(
+          file_types=('Python File (*.py)','CPP File (*.cpp)')
+      )
+      ui.notify(result)
+  
+  ui.button('Open Dialog', on_click=open_dialog)
+  
+  ui.run(native=True)
+  ```
+
+  ![2025_20_3](nicegui_plus.assets/2025_20_3.png)
+
+文件对话框会根据用户的选择返回文件路径，因此，需要使用异步等待获取返回值。
+
+## x （待定）
 
 
 

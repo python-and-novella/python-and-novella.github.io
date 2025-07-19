@@ -110,53 +110,73 @@ PySide6（6.9.x版本）包含的所有模块（目录参考自 https://doc.qt.i
 
 读者在看完上面的表格之后，应该也发现了，除了`QtWidgets`模块，还有不少模块以'Widgets'为结尾。在使用这些模块时需要注意：`QtWidgets`模块包含的传统控件只能用于`QApplication`类实例（后面会介绍`QApplication`类的用法），而其他以'Widgets'结尾的模块包含的控件同样也只能用于`QApplication`类实例。
 
-## 3 Qt程序的基本结构和两种控件（更新中）
+## 3 Qt程序的基本结构
 
+以下为一个简单的Hello World程序示例：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+# 必须且只能有一个程序类实例
+app = QApplication()
+# 创建主窗口（可以省略）
+window = QWidget()
+# 调整主窗口大小
+window.resize(400,300)
+# 添加控件，指定父控件（不指定的话会额外创建一个窗口）
+label = QLabel('Hello World',window)
+# 显示主窗口（创建之后默认是隐藏的）
+window.show()
+# 执行程序类实例的无限循环方法（程序正常退出的话自动退出循环），开启事件循环
+app.exec()
+```
 
-使用PySIde6框架的Qt程序（后续简称Qt程序，如无特殊说明，本教程中的Qt程序均特指使用PySIde6框架的Python程序，而非使用C++编写、基于Qt框架开发的Qt程序）
+![2025_3_1](qt_for_python.assets/2025_3_1.png)
 
-（写个简单的Hello world程序，引出Qt程序的基本结构）
+接下来，就以上面的示例为样本，介绍一下Qt程序的基本构成。
 
+对于使用PySIde6框架创建的Qt程序（后续简称Qt程序，如无特殊说明，本教程中的Qt程序均特指使用PySIde6框架的Python程序，而非使用C++编写、基于Qt框架开发的Qt程序）来说，通常由这几部分组成：
 
+- 程序类实例。和很多Python框架类似，Qt程序需要创建一个程序类实际例，相当于主程序，相关的功能（控件、逻辑、消息循环等）都是围绕这个程序类实际例构建。需要注意的是，每个Qt程序和每个Python文件中只允许创建、运行一个程序类实例，且必须在添加控件前创建，否则会报错。
 
-必须是，先创建程序类实例，再创建控件，最后运行程序类实例的循环方法
+- 需要显示的控件和相关交互逻辑。创建完程序类实例之后，就可以创建需要显示的控件。一般来说，需要先创建主窗口，再创建其他控件。不过，主窗口从继承关系上来说的话，也算控件的一种（具体关系参考后面的章节），所以，可以统一归为控件。
 
+  注意，创建好主窗口之后不会立刻显示，需要调用`show`方法才能显示。
 
+  创建主窗口时无需指定父控件，因为主窗口比较特殊，程序显示的第一个窗口。
 
-简单说一下程序由那几部分组成，内容不多，主要时为了引出后面三种主窗口、消息机制、QtQuick程序，这里是打一下基础。可能需要制作一些结构示意图（手绘风格）。
+  除主窗口外的第一个控件创建时要指定父控件为主窗口，才能在主窗口中显示。否则的话，需要调用控件的`show`方法，此时控件会创建新的窗口，显示在新的窗口中。
 
+  主窗口只能添加一个控件为子控件，这个控件通常是布局控件，想要显示更多控件的话，应当在布局控件中添加更多布局控件或者其他控件。不过，主窗口的子控件没有类型限制，示例中为了避免太复杂，使用的是非布局控件。
 
+- 程序类实例的循环方法。创建好主窗口和其他控件，并调用`show`方法之后，这些控件还不能立刻显示，因为程序类实例还没有真正运行起来，只有调用程序类实例的循环方法——`exec`方法或者`exec_`方法（旧版本只能使用该方法）之后，程序类实例才算是运行状态。进入运行状态之后，Qt程序的消息、信号等才会进入相关循环，触发对应的交互逻辑。
 
-区分一下QtWidgets程序（使用传统控件）与QtQuick程序（使用新式控件）
+上面的基本构成指的是QtWidgets程序，QtQuick程序的基本构成与之相同，但控件使用不完全相同，等后续介绍QtQuick程序时再做分辨。
 
+说起QtWidgets程序和QtQuick程序，这里顺便区分一下二者。
 
+在Qt程序中，控件有两种类型：传统控件（使用C++设计的类似原生的控件）和新式控件（使用QML设计的类似网页的控件）。与之对应的程序也有两种：QtWidgets程序和QtQuick程序。其中，QtQuick程序只能使用新式控件，QtWidgets程序除了可以使用传统控件外，还可以使用特殊的传统控件包装新式控件，间接实现使用新式控件。
 
+关于QtWidgets程序和QtQuick程序的知识后续会详细介绍，这里只需记住二者的关系和基本区别即可。当然，不太理解也没有关系，后面在遇到二者容易混淆、搭配使用的情况时，还会通过其他内容分析二者的区别，读者不必急于现在理解。
 
+## 4 Qt程序的三种程序类（更新中）
 
-## 4 Qt程序的三种程序类
-
-如上节所讲，每个Qt程序只允许同时运行一个程序类实例，同时，该程序类实例也决定了这个Qt程序是什么类型的程序。因为，不同的程序类，实现的功能也不一样：
+如上节所讲，每个Qt程序只允许创建、运行一个程序类实例，同时，该程序类实例也决定了这个Qt程序是什么类型的程序。因为，不同的程序类，实现的功能也不一样：
 
 - `QCoreApplication`类，使用`from PySide6.QtCore import QCoreApplication`导入，不能运行任何GUI控件，只包含基本的事件循环机制，所以只能用于创建无GUI控件的控制台程序。
-- `QGuiApplication`类，继承自`QCoreApplication`类，使用`from PySide6.QtGui import QGuiApplication`导入，
-- `QApplication`类，继承自`QGuiApplication`类，使用`from PySide6.QtWidgets import QApplication`导入，
+- `QGuiApplication`类，继承自`QCoreApplication`类，使用`from PySide6.QtGui import QGuiApplication`导入，--（参考上一条）
+- `QApplication`类，继承自`QGuiApplication`类，使用`from PySide6.QtWidgets import QApplication`导入，--（参考上一条）
 
+三者的继承关系为：`QCoreApplication -> QGuiApplication -> QApplication`。同时，继承关系也是三者的功能一个比一个强大的原因。
 
+### 4.1 `QCoreApplication`类（更新中）
 
-三者的继承关系为：`QCoreApplication -> QGuiApplication -> QApplication`。因此，继承关系也呼应了三者功能越来越强大的原因
+`QCoreApplication`类的完整用法可以参考官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QCoreApplication.html#more 。
 
-
-
-### 4.1 `QCoreApplication`类
-
-
-
-`QCoreApplication`的相关用法：
-
-官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QCoreApplication.html#more
-
-
+以下为使用`QCoreApplication`类的简单示例：
 
 ```python3
 # 控制台程序的简单示例
@@ -171,7 +191,9 @@ QTimer.singleShot(3000,app.quit)
 app.exec()
 ```
 
+（截图）
 
+以下为使用`QCoreApplication`类的复杂示例：
 
 ```python3
 # 控制台程序的复杂示例
@@ -219,7 +241,9 @@ app = QCoreApplication()
 app.exec()
 ```
 
-上面示例的变种：
+（截图）
+
+上面示例可以将相关功能从自定义类中剥离，进一步简化：
 
 ```python3
 import sys
@@ -266,27 +290,33 @@ app = QCoreApplication()
 app.exec()
 ```
 
+### 4.2 `QGuiApplication`类（更新中）
+
+`QGuiApplication`类的完整用法可以参考官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QGuiApplication.html#more 。
+
+以下为使用`QGuiApplication`类的简单示例：
+
+
+
+### 4.3 `QApplication`类（更新中）
+
+`QApplication`类的完整用法可以参考官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QApplication.html#more 。
+
+以下为使用`QApplication`类的简单示例：
 
 
 
 
 
-
-### 4.3 `QApplication`类
-
-必须在创建QWidget控件之前创建QApplication实例
+## 5 QtWidgets的三种主窗口（更新中）
 
 
 
-## 5 QtWidgets的三种主窗口
+（引言需要想一想）
 
 
 
 （下面的图片用表格重新写一下）
-
-
-
-
 
 ![mainwindow_1](qt_for_python.assets/mainwindow_1.png)
 

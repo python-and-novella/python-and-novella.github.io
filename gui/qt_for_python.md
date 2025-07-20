@@ -148,11 +148,13 @@ app.exec()
 
   创建主窗口时无需指定父控件，因为主窗口比较特殊，程序显示的第一个窗口。
 
-  除主窗口外的第一个控件创建时要指定父控件为主窗口，才能在主窗口中显示。否则的话，需要调用控件的`show`方法，此时控件会创建新的窗口，显示在新的窗口中。
+  除主窗口外的第一个控件创建时要指定父控件为主窗口，才能在主窗口中显示。如果第一个控件的创建在运行主窗口的`show`方法之后或者没有指定父控件或者没有父控件为主窗口，则需要调用控件的`show`方法，控件才能显示。此时，控件会创建新的窗口，显示在新的窗口中。
 
   主窗口只能添加一个控件为子控件，这个控件通常是布局控件，想要显示更多控件的话，应当在布局控件中添加更多布局控件或者其他控件。不过，主窗口的子控件没有类型限制，示例中为了避免太复杂，使用的是非布局控件。
 
-- 程序类实例的循环方法。创建好主窗口和其他控件，并调用`show`方法之后，这些控件还不能立刻显示，因为程序类实例还没有真正运行起来，只有调用程序类实例的循环方法——`exec`方法或者`exec_`方法（旧版本只能使用该方法）之后，程序类实例才算是运行状态。进入运行状态之后，Qt程序的消息、信号等才会进入相关循环，触发对应的交互逻辑。
+  此外，主窗口不是必须的，但又不能没有。直接创建非主窗口控件也可以，不会引起报错，此时非主窗口控件相当于主窗口，可以执行一些主窗口的功能（比如修改窗口标题）。这部分内容不太理解的话，可以在后面介绍主窗口的章节中再次学习，这里不做太详细的展开。
+
+- 程序类实例的循环方法。创建好主窗口和其他控件，并调用`show`方法之后，这些控件还不能正常显示，因为程序类实例还没有进入循环运行状态，控件只会闪一下，然后程序就自动结束了。想要让程序循环运行，需要调用程序类实例的循环方法——`exec`方法或者`exec_`方法（旧版本只能使用该方法），程序类实例才会进入循环运行状态。进入循环运行状态之后，Qt程序的消息、信号等才会进入相关循环，触发对应的交互逻辑。
 
 上面的基本构成指的是QtWidgets程序，QtQuick程序的基本构成与之相同，但控件使用不完全相同，等后续介绍QtQuick程序时再做分辨。
 
@@ -162,17 +164,17 @@ app.exec()
 
 关于QtWidgets程序和QtQuick程序的知识后续会详细介绍，这里只需记住二者的关系和基本区别即可。当然，不太理解也没有关系，后面在遇到二者容易混淆、搭配使用的情况时，还会通过其他内容分析二者的区别，读者不必急于现在理解。
 
-## 4 Qt程序的三种程序类（更新中）
+## 4 Qt程序的三种程序类
 
 如上节所讲，每个Qt程序只允许创建、运行一个程序类实例，同时，该程序类实例也决定了这个Qt程序是什么类型的程序。因为，不同的程序类，实现的功能也不一样：
 
-- `QCoreApplication`类，使用`from PySide6.QtCore import QCoreApplication`导入，不能运行任何GUI控件，只包含基本的事件循环机制，所以只能用于创建无GUI控件的控制台程序。
-- `QGuiApplication`类，继承自`QCoreApplication`类，使用`from PySide6.QtGui import QGuiApplication`导入，--（参考上一条）
-- `QApplication`类，继承自`QGuiApplication`类，使用`from PySide6.QtWidgets import QApplication`导入，--（参考上一条）
+- `QCoreApplication`类，使用`from PySide6.QtCore import QCoreApplication`导入，不能创建任何GUI控件，只包含基本的事件循环机制，所以只能用于创建无GUI控件的控制台程序。
+- `QGuiApplication`类，继承自`QCoreApplication`类，使用`from PySide6.QtGui import QGuiApplication`导入，可以创建新式控件，包含QtQuick程序所需的全部功能，通常用于创建QtQuick程序。后面所说的QtQuick程序，通常是狭义上的QtQuick程序，是指程序类实例为`QGuiApplication`类实例的Qt程序。
+- `QApplication`类，继承自`QGuiApplication`类，使用`from PySide6.QtWidgets import QApplication`导入，可以创建传统控件和新式控件，通常用于创建QtWidgets程序，但也可以创建支持广义上的QtQuick程序（同时具备QtWidgets程序的功能）。不过，为了与狭义上的QtQuick程序作出区分，后面所说的QtWidgets程序，是指程序类实例为`QApplication`类实例的Qt程序。
 
 三者的继承关系为：`QCoreApplication -> QGuiApplication -> QApplication`。同时，继承关系也是三者的功能一个比一个强大的原因。
 
-### 4.1 `QCoreApplication`类（更新中）
+### 4.1 `QCoreApplication`类
 
 `QCoreApplication`类的完整用法可以参考官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QCoreApplication.html#more 。
 
@@ -191,7 +193,7 @@ QTimer.singleShot(3000,app.quit)
 app.exec()
 ```
 
-（截图）
+![2025_4_1](qt_for_python.assets/2025_4_1.png)
 
 以下为使用`QCoreApplication`类的复杂示例：
 
@@ -241,7 +243,7 @@ app = QCoreApplication()
 app.exec()
 ```
 
-（截图）
+![2025_4_2](qt_for_python.assets/2025_4_2.png)
 
 上面示例可以将相关功能从自定义类中剥离，进一步简化：
 
@@ -290,73 +292,264 @@ app = QCoreApplication()
 app.exec()
 ```
 
-### 4.2 `QGuiApplication`类（更新中）
+### 4.2 `QGuiApplication`类
 
 `QGuiApplication`类的完整用法可以参考官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QGuiApplication.html#more 。
 
-以下为使用`QGuiApplication`类的简单示例：
+以下为使用`QGuiApplication`类的简单示例（QML等相关内容后续章节会介绍）：
 
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl,QByteArray
+from PySide6.QtQuick import QQuickView
+from PySide6.QtQml import QQmlComponent
 
+app = QGuiApplication()
+qml_string = '''
+import QtQuick
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: 'green'
 
-### 4.3 `QApplication`类（更新中）
+    Text {
+        text: 'Hello World'
+        anchors.centerIn: main
+    }
+}
+'''
+view = QQuickView()
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 给component加载qml字符串
+component.setData(QByteArray(qml_string.encode()),QUrl())
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+view.setContent(QUrl(), component, component.create())
+view.resize(200,200)
+view.setTitle('Main')
+view.show()
+app.exec()
+```
+
+![2025_4_3](qt_for_python.assets/2025_4_3.png)
+
+### 4.3 `QApplication`类
 
 `QApplication`类的完整用法可以参考官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QApplication.html#more 。
 
 以下为使用`QApplication`类的简单示例：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+# 必须且只能有一个程序类实例
+app = QApplication()
+# 创建主窗口（可以省略）
+window = QWidget()
+# 调整主窗口大小
+window.resize(400,300)
+# 添加控件，指定父控件（不指定的话会额外创建一个窗口）
+label = QLabel('Hello World',window)
+# 显示主窗口（创建之后默认是隐藏的）
+window.show()
+# 执行程序类实例的无限循环方法（程序正常退出的话自动退出循环），开启事件循环
+app.exec()
+```
 
+![2025_3_1](qt_for_python.assets/2025_3_1.png)
 
+## 5 QtWidgets程序的三种主窗口控件（更新中）
 
+### 5.1 主要内容
 
-## 5 QtWidgets的三种主窗口（更新中）
+前面介绍Qt程序的基本结构时，说过主窗口不是必须的但又不能没有，听起来有点自相矛盾。其实，想要理解也不难，那就要说说本章要介绍的主窗口控件。
 
+前面介绍Qt程序的基本结构时，说主窗口算控件的一种，其实指的是用于产生主窗口的三种主窗口控件，分别是`QWidget`控件、`QDialog`控件、`QMainWindow`控件，它们与其他控件的区别是，对于一个窗口来说，只能创建一个。但它们又和其他控件的区别没那么大，因为从根上说，除了`QWidget`控件本身就是`QWidget`类，其他控件的基类都是`QWidget`类，所以`QWidget`控件具备的部分功能，所有控件都有。
 
+因此，这么来看的话，主窗口的自相矛盾特性就很好解释了。
 
-（引言需要想一想）
+只要创建控件，都有主窗口控件之一——`QWidget`控件的功能，相当于无论如何都有主窗口（控件），所以主窗口（控件）是始终存在的。而其他控件从另一方面论证的话，又不算主窗口控件，所以主窗口（控件）又不是必须的。
 
+当然，真要是较真的话，一个Qt程序不创建任何控件（真正意义上的没有主窗口）也可以运行，但是因为没有主窗口，所以不显示主窗口，没法正常点击结束，只能通过任务管理器（Windows系统，Linux系统通过命令）强制结束，这种状态的Qt程序是不能正常使用的。
 
+除了主窗口控件与其他控件有所区别，三种主窗口控件之间也有区别：
 
-（下面的图片用表格重新写一下）
+- `QWidget`控件，`QWidget`类是所有控件的基类，可以说其他控件都是基于`QWidget`控件实现的。因此，该控件主要用于创建简单的窗口或者通用控件。如果需要给窗口增加工具栏、菜单栏、状态栏，则需要手动添加（默认`QWidget`控件不包括）。此外，想要让窗口变为模态窗口（只允许当前窗口获得焦点，符合要求的其他窗口不能获得焦点，除非关闭当前窗口）的话，只能使用`setWindowModality`方法（仅支持应用级模态`Qt.WindowModality.ApplicationModal`）手动设置窗口的模态：
 
-![mainwindow_1](qt_for_python.assets/mainwindow_1.png)
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+  )
+  from PySide6.QtCore import Qt
+  
+  app = QApplication()
+  
+  # 窗口1正常显示
+  window = QWidget()
+  window.setWindowTitle('窗口1')
+  window.resize(400,300)
+  window.show()
+  # 窗口2模态显示
+  window2 = QWidget()
+  window2.resize(300,200)
+  window2.setWindowTitle('窗口2')
+  window2.setWindowModality(Qt.WindowModality.ApplicationModal)
+  window2.show()
+  
+  app.exec()
+  ```
 
-对于`QtWidgets`来说，主窗口其实不是必需的，只有控件的话也可以显示，因为所有的控件都是`QWidget`的子类。
+- `QDialog`控件，该控件的基类是`QWidget`类，生成的窗口只有关闭按钮，没有最大化、最小化按钮，一般用于创建简单的对话框，很多对话框控件也是通过继承`QDialog`类实现的。当然，对话框一般不需要工具栏、菜单栏、状态栏，自然也不包括。不同于`QWidget`控件只能手动设置窗口的模态，该控件还支持通过`exec`方法显示窗口（同时进入无限循环，阻止后续代码的运行），此时的窗口为模态窗口（其模态为窗口级模态`Qt.WindowModality.WindowModal`）：
 
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QDialog,
+  )
+  
+  app = QApplication()
+  
+  # 窗口1正常显示
+  window = QDialog()
+  window.setWindowTitle('窗口1')
+  window.resize(400,300)
+  window.show()
+  
+  # 窗口2模态显示
+  window2=QDialog(window)
+  window2.setWindowTitle('窗口2')
+  window2.resize(300,200)
+  window2.exec()
+  
+  # 不关闭窗口2的话，窗口3不显示
+  window3=QDialog(window)
+  window3.setWindowTitle('窗口3')
+  window3.resize(300,200)
+  window3.show()
+  
+  app.exec()
+  ```
 
+  如上面的代码所示，`QDialog`控件与`QWidget`控件不同，可以在创建时设置父控件，组成父子关系，让父子窗口同时显示（`QWidget`控件不支持这样操作）。关于应用级模态与窗口级模态的区别，以及不同父子关系对模态影响，可以参考本节的扩展内容，这里受限于篇幅不做展开。
+
+- `QMainWindow`控件，该控件的基类是`QWidget`类，生成的窗口功能丰富，包含工具栏、菜单栏、状态栏（需要手动添加内容），一般用作程序的主窗口（适用于不想额外创建工具栏、菜单栏、状态栏的情况）。虽然该控件也支持`setWindowModality`方法，但不建议设置为模态窗口。以下为在状态栏中添加控件的示例：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QMainWindow,
+      QPushButton
+  )
+  
+  app = QApplication()
+  
+  window = QMainWindow()
+  window.resize(400,300)
+  window.setWindowTitle('MainWindow')
+  window.statusBar().addWidget(QPushButton('Hello'))
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_5_1](qt_for_python.assets/2025_5_1.png)
+
+三种主窗口控件的直观对比可以参考下面的表格：
+
+|                        | `QWidget`                                   | `QDialog`                                | `QMainWindow`                    |
+| ---------------------- | ------------------------------------------- | ---------------------------------------- | -------------------------------- |
+| 继承关系               | 所有控件的基类                              | 继承自`QWidget`                          | 继承自`QWidget`                  |
+| 用途                   | 简单窗口、通用控件                          | 对话框                                   | 功能丰富的主窗口                 |
+| 工具栏、菜单栏、状态栏 | 需要手动实现                                | 一般不添加                               | 内置                             |
+| 模态支持               | 需要手动实现（通过`setWindowModality`方法） | 内置（通过`exec`方法）                   | 不推荐用于模态                   |
+| 中心区域               | 无                                          | 无                                       | 有（通过`setCentralWidget`方法） |
+| 衍生控件               | `QPushButton`等基础控件                     | `QFileDialog`、`QMessageBox`等对话框控件 | 无                               |
+
+### 5.2 扩展内容
+
+#### 5.2.1 调用控件的`show`方法之前
+
+在运行主窗口的`show`方法之前创建控件，需要指定控件的父控件为主窗口，这样创建出来控件才会显示在主窗口中。但是，在`show`方法之后创建的控件，则需要额外调用控件的`show`方法才能显示。
+
+没有指定父控件为主窗口的控件都不属于主窗口，这样的控件显示（调用控件的`show`方法）时会额外创建一个窗口，并显示在新窗口中。
+
+示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
-    QMainWindow,
-    QDialog,
+    QLabel
 )
 
 app = QApplication()
 
 window = QWidget()
-window = QMainWindow()
-window = QDialog()
-
 window.resize(400,300)
-
+window.setWindowTitle('主窗口')
 window.show()
+
+# 在主窗口的show方法之后创建控件，需要调用控件的show方法才能显示
+
+# 标签1的父控件为window，所以显示在主窗口中
+label1 = QLabel('标签1',window)
+label1.show()
+# 标签2没有父控件，所以会自动创建新窗口
+label2 = QLabel('标签2')
+label2.resize(400,300)
+label2.setWindowTitle('新窗口')
+label2.show()
+
 app.exec()
 ```
 
+![2025_5_2](qt_for_python.assets/2025_5_2.png)
+
+#### 5.2.2 应用级模态与窗口级模态的区别（更新中）
+
+既然应用级模态与窗口级模态都能做到只允许当前窗口获得焦点，让符合要求的其他窗口不能获得焦点，除非关闭当前窗口，那为什么还要设计为两种模态，而不是合并为一种？存在即合理，既然有两种模态，肯定在用法上有所不同。
+
+先说应用级模态。
+
+（合并简化下面的内容，结论就是应用级模态功能很明确，并且不影响模态窗口的子窗口）
+
+如果主窗口之外的其余窗口是使用`QWidget`控件创建，那么，不同窗口之间的关系就很简单，
 
 
 
+如果主窗口之外的其余窗口是使用`QDialog`控件创建，那么，不同窗口之间的关系就没那么简单了，
 
-`QDialog`的模态显示：
+
+
+无论其余窗口是否使用`QDialog`控件创建，不同窗口之间的关系无论是否简单，应用级模态的功能都很统一
+
+
+
+应用级模态使用QWidget（全是兄弟窗口）和QDialog（带父子、兄弟关系的窗口）都演示一遍，
+
+
+
+（窗口级模态的功能需要基于一定的父子关系生效，并且不影响模态窗口的子窗口）
+
+窗口级模态使用QDialog（带父子、兄弟关系的窗口）演示，主要表现不同父子关系、兄弟关系的窗口的受影响情况，不使用exec方法显示窗口（因为会阻止后续代码的执行），而是使用setWindowModality方法设置窗口的模态为窗口级模态，并在最后执行模态窗口的show方法（避免干扰其他窗口的显示），这样就可以直观看出窗口级模态的特点
+
+
+
+（模态只影响父窗口以及所有父窗口的兄弟（？），父窗口兄弟的子窗口（？），需要捋一下模态的影响链）
+
+
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
 )
+from PySide6.QtCore import Qt
 
-# 必须在创建QWidget控件之前创建QApplication实例
 app = QApplication()
 
 # 窗口1正常显示
@@ -365,28 +558,34 @@ window.setWindowTitle('窗口1')
 window.resize(400,300)
 window.show()
 
-# 窗口2模态显示
-window2=QDialog()
+# 窗口2正常显示
+window2=QDialog(window)
 window2.setWindowTitle('窗口2')
-window2.resize(400,300)
-window2.exec()
+window2.resize(300,200)
+window2.show()
+
+# 窗口3正常显示
+window3=QDialog(window)
+window3.setWindowTitle('窗口3')
+window3.resize(200,100)
+window3.show()
+
+# 窗口4正常显示
+window4=QDialog(window)
+window4.setWindowTitle('窗口4')
+window4.resize(100,50)
+window4.show()
 
 app.exec()
 ```
 
 
 
+#### 5.2.3 `QApplication`类的`alert`方法（更新中）
 
+（介绍功能，优化示例）
 
-## 6 QtWidgets的信号与事件
-
-信号（类似于消息）与事件（类似于槽函数）
-
-为什么要混到一起讲？因为机制类似，但细节上不完全一样。
-
-
-
-窗口的关闭事件：
+`QApplication`类的`alert`方法（与多窗口有关）：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -406,6 +605,71 @@ window2.resize(400,300)
 QPushButton('click',window2).clicked.connect(lambda :app.alert(window,0))
 window2.show()
 
+app.exec()
+```
+
+
+
+
+
+## 6 QtWidgets程序的信号与事件（更新中）
+
+
+
+（构思引言，详细研究一下差别，以及类似、相通的地方）
+
+信号（类似于消息）与事件（类似于槽函数）
+
+为什么要混到一起讲？因为机制类似，但细节上不完全一样。（参考1 https://www.cnblogs.com/keleman/p/18066032）
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.resize(400,300)
+button = QPushButton('click',window)
+
+# 信号，支持连接多个槽
+button.clicked.connect(lambda :print('button is clicked'))
+button.clicked.connect(lambda :print('button is clicked2'))
+# 事件，只能同时分配一个响应函数，且会覆盖同类信号
+# button.mousePressEvent = lambda e:print('mouse is pressed')
+# button.mousePressEvent = lambda e:print('mouse is pressed2')
+
+window.show()
+app.exec()
+```
+
+
+
+
+
+给窗口的关闭事件添加关闭对话框（事件的接受与忽略）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMessageBox,
+    QPushButton
+)
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QWidget(windowIcon=QIcon.fromTheme(QIcon.ThemeIcon.ViewFullscreen))
+window.resize(400,300)
+window.show()
+window2 = QWidget(windowIcon=QIcon.fromTheme(QIcon.ThemeIcon.MediaTape))
+window2.resize(400,300)
+window2.show()
+
 window2.closeEvent = lambda e: e.accept() if QMessageBox.question(window2,'消息','你确定要退出吗？', QMessageBox.Yes|QMessageBox.No, QMessageBox.No) == QMessageBox.Yes else e.ignore()
 
 app.exec()
@@ -413,7 +677,9 @@ app.exec()
 
 
 
-## 7 QtQuick的两种主窗口
+## 7 QtQuick程序的两种主窗口控件
+
+
 
 QtQuick基础文档：
 
@@ -763,7 +1029,60 @@ app.exec()
 
 
 
-## 8 QtQuick与QtWidgets混合使用
+## 8 在QtWidgets程序中使用QtQuick程序的控件
+
+1 原来的可以直接使用
+
+```python3
+from PySide6.QtCore import QUrl,QByteArray
+from PySide6.QtQuick import QQuickView
+from PySide6.QtQml import QQmlComponent
+from PySide6.QtWidgets import QApplication,QWidget,QPushButton
+
+# 包含QtWidgets程序控件只能使用QApplication，不能使用QGuiApplication
+app = QApplication()
+
+qml_string = '''
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: 'green'
+
+    Text {
+        text: 'Hello World'
+        anchors.centerIn: main
+    }
+}
+'''
+
+view = QQuickView()
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 给component加载qml字符串
+component.setData(QByteArray(qml_string.encode()),QUrl())
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+view.setContent(QUrl(), component, component.create())
+
+view.resize(200,200)
+view.setTitle('Main')
+
+view.show()
+
+# 非QtQuick部分
+window2 = QWidget()
+window2.resize(400,300)
+QPushButton('click',window2).clicked.connect(lambda :app.quit())
+window2.show()
+
+app.exec()
+```
+
+
+
+2 特定的只能在QtWidgets程序中使用
 
 使用`QQuickWidget`（相当于`QQuickView`的平替，大部分功能兼容）：
 
@@ -774,7 +1093,7 @@ from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQuickWidgets import QQuickWidget
 
-# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
+# 包含QtWidgets程序控件只能使用QApplication，不能使用QGuiApplication
 app = QApplication()
 
 # main.qml 内容为：
@@ -1053,7 +1372,7 @@ app.exec()
 
 
 
-## 9 QtWidgets的UI文件
+## 9 QtWidgets程序的UI文件
 
 加载UI文件：
 
@@ -1107,7 +1426,7 @@ app.exec()
 
 
 
-## 10 QtQuick的模块
+## 10 QtQuick程序的模块
 
 除了直接导入QML文件这种使用QML文件的方式，还可以将QML文件包装为模块，通过导入模块的方式使用QML文件。
 

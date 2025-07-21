@@ -362,7 +362,7 @@ app.exec()
 
 ![2025_3_1](qt_for_python.assets/2025_3_1.png)
 
-## 5 QtWidgets程序的三种主窗口控件（更新中）
+## 5 QtWidgets程序的三种主窗口控件
 
 ### 5.1 主要内容
 
@@ -378,7 +378,7 @@ app.exec()
 
 除了主窗口控件与其他控件有所区别，三种主窗口控件之间也有区别：
 
-- `QWidget`控件，`QWidget`类是所有控件的基类，可以说其他控件都是基于`QWidget`控件实现的。因此，该控件主要用于创建简单的窗口或者通用控件。如果需要给窗口增加工具栏、菜单栏、状态栏，则需要手动添加（默认`QWidget`控件不包括）。此外，想要让窗口变为模态窗口（只允许当前窗口获得焦点，符合要求的其他窗口不能获得焦点，除非关闭当前窗口）的话，只能使用`setWindowModality`方法（仅支持应用级模态`Qt.WindowModality.ApplicationModal`）手动设置窗口的模态：
+- `QWidget`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html#PySide6.QtWidgets.QWidget），`QWidget`类是所有控件的基类，可以说其他控件都是基于`QWidget`控件实现的。因此，该控件主要用于创建简单的窗口或者通用控件。如果需要给窗口增加工具栏、菜单栏、状态栏，则需要手动添加（默认`QWidget`控件不包括）。此外，想要让窗口变为模态窗口（只允许当前窗口获得焦点，符合要求的其他窗口不能获得焦点，除非关闭当前窗口）的话，只能使用`setWindowModality`方法（仅支持应用级模态`Qt.WindowModality.ApplicationModal`）手动设置窗口的模态：
 
   ```python3
   from PySide6.QtWidgets import (
@@ -404,7 +404,7 @@ app.exec()
   app.exec()
   ```
 
-- `QDialog`控件，该控件的基类是`QWidget`类，生成的窗口只有关闭按钮，没有最大化、最小化按钮，一般用于创建简单的对话框，很多对话框控件也是通过继承`QDialog`类实现的。当然，对话框一般不需要工具栏、菜单栏、状态栏，自然也不包括。不同于`QWidget`控件只能手动设置窗口的模态，该控件还支持通过`exec`方法显示窗口（同时进入无限循环，阻止后续代码的运行），此时的窗口为模态窗口（其模态为窗口级模态`Qt.WindowModality.WindowModal`）：
+- `QDialog`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDialog.html#PySide6.QtWidgets.QDialog），该控件的基类是`QWidget`类，生成的窗口只有关闭按钮，没有最大化、最小化按钮，一般用于创建简单的对话框，很多对话框控件也是通过继承`QDialog`类实现的。当然，对话框一般不需要工具栏、菜单栏、状态栏，自然也不包括。不同于`QWidget`控件只能手动设置窗口的模态，该控件还支持通过`exec`方法显示窗口（同时进入无限循环，阻止后续代码的运行），此时的窗口为模态窗口（其模态为窗口级模态`Qt.WindowModality.WindowModal`）：
 
   ```python3
   from PySide6.QtWidgets import (
@@ -437,7 +437,7 @@ app.exec()
 
   如上面的代码所示，`QDialog`控件与`QWidget`控件不同，可以在创建时设置父控件，组成父子关系，让父子窗口同时显示（`QWidget`控件不支持这样操作）。关于应用级模态与窗口级模态的区别，以及不同父子关系对模态影响，可以参考本节的扩展内容，这里受限于篇幅不做展开。
 
-- `QMainWindow`控件，该控件的基类是`QWidget`类，生成的窗口功能丰富，包含工具栏、菜单栏、状态栏（需要手动添加内容），一般用作程序的主窗口（适用于不想额外创建工具栏、菜单栏、状态栏的情况）。虽然该控件也支持`setWindowModality`方法，但不建议设置为模态窗口。以下为在状态栏中添加控件的示例：
+- `QMainWindow`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow），该控件的基类是`QWidget`类，生成的窗口功能丰富，包含工具栏、菜单栏、状态栏（需要手动添加内容），一般用作程序的主窗口（适用于不想额外创建工具栏、菜单栏、状态栏的情况）。虽然该控件也支持`setWindowModality`方法，但不建议设置为模态窗口。以下为在状态栏中添加控件的示例：
 
   ```python3
   from PySide6.QtWidgets import (
@@ -471,7 +471,7 @@ app.exec()
 
 ### 5.2 扩展内容
 
-#### 5.2.1 调用控件的`show`方法之前
+#### 5.2.1 控件与主窗口
 
 在运行主窗口的`show`方法之前创建控件，需要指定控件的父控件为主窗口，这样创建出来控件才会显示在主窗口中。但是，在`show`方法之后创建的控件，则需要额外调用控件的`show`方法才能显示。
 
@@ -509,108 +509,179 @@ app.exec()
 
 ![2025_5_2](qt_for_python.assets/2025_5_2.png)
 
-#### 5.2.2 应用级模态与窗口级模态的区别（更新中）
+#### 5.2.2 应用级模态与窗口级模态的区别
 
-既然应用级模态与窗口级模态都能做到只允许当前窗口获得焦点，让符合要求的其他窗口不能获得焦点，除非关闭当前窗口，那为什么还要设计为两种模态，而不是合并为一种？存在即合理，既然有两种模态，肯定在用法上有所不同。
+既然应用级模态与窗口级模态都能做到只允许当前窗口获得焦点，那为什么还要设计为两种模态，而不是合并为一种？存在即合理，既然有两种模态，肯定在用法上有所不同。接下来，就通过使用`setWindowModality`方法设置窗口的模态，看一下二者的区别。
 
-先说应用级模态。
+先说应用级模态。无论其余窗口是使用`QDialog`控件创建，还是使用`QWidget`控件创建（只能创建为主窗口的兄弟窗口），也无论其余窗口的父子关系有多复杂，只要不是模态窗口及其子窗口，在关闭（或者隐藏）模态窗口之前，都不能获得焦点。
 
-（合并简化下面的内容，结论就是应用级模态功能很明确，并且不影响模态窗口的子窗口）
+需要注意的是，对于主窗口以及其他与主窗口同级的兄弟窗口，如果全部关闭的话，程序会直接结束，哪怕它们的子窗口还存在或者处于显示状态。
 
-如果主窗口之外的其余窗口是使用`QWidget`控件创建，那么，不同窗口之间的关系就很简单，
-
-
-
-如果主窗口之外的其余窗口是使用`QDialog`控件创建，那么，不同窗口之间的关系就没那么简单了，
-
-
-
-无论其余窗口是否使用`QDialog`控件创建，不同窗口之间的关系无论是否简单，应用级模态的功能都很统一
-
-
-
-应用级模态使用QWidget（全是兄弟窗口）和QDialog（带父子、兄弟关系的窗口）都演示一遍，
-
-
-
-（窗口级模态的功能需要基于一定的父子关系生效，并且不影响模态窗口的子窗口）
-
-窗口级模态使用QDialog（带父子、兄弟关系的窗口）演示，主要表现不同父子关系、兄弟关系的窗口的受影响情况，不使用exec方法显示窗口（因为会阻止后续代码的执行），而是使用setWindowModality方法设置窗口的模态为窗口级模态，并在最后执行模态窗口的show方法（避免干扰其他窗口的显示），这样就可以直观看出窗口级模态的特点
-
-
-
-（模态只影响父窗口以及所有父窗口的兄弟（？），父窗口兄弟的子窗口（？），需要捋一下模态的影响链）
-
-
+示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
+    QWidget,
+    QPushButton
 )
 from PySide6.QtCore import Qt
 
 app = QApplication()
 
 # 窗口1正常显示
-window = QDialog()
+window = QWidget()
 window.setWindowTitle('窗口1')
 window.resize(400,300)
+window.move(100,100)
 window.show()
 
-# 窗口2正常显示
+# 窗口2（窗口1的子窗口）模态显示
 window2=QDialog(window)
 window2.setWindowTitle('窗口2')
-window2.resize(300,200)
+window2.resize(400,300)
+window2.move(200,200)
+# 设置为应用级模态
+window2.setWindowModality(Qt.WindowModality.ApplicationModal)
+# 隐藏窗口2
+QPushButton('hide me',window2).clicked.connect(lambda:window2.hide())
 window2.show()
 
-# 窗口3正常显示
+# 窗口3（窗口1的子窗口，窗口2的兄弟窗口）正常显示
 window3=QDialog(window)
 window3.setWindowTitle('窗口3')
-window3.resize(200,100)
+window3.resize(400,300)
+window3.move(300,300)
 window3.show()
 
-# 窗口4正常显示
-window4=QDialog(window)
+# 窗口4（窗口2的子窗口）正常显示
+window4=QDialog(window2)
 window4.setWindowTitle('窗口4')
-window4.resize(100,50)
+window4.resize(400,300)
+window4.move(400,400)
 window4.show()
+
+# 窗口5（窗口1的兄弟窗口）正常显示
+window5=QWidget()
+window5.setWindowTitle('窗口5')
+window5.resize(400,300)
+window5.move(500,500)
+window5.show()
 
 app.exec()
 ```
 
+再说窗口级模态。无论其余窗口是使用`QDialog`控件创建，还是使用`QWidget`控件创建（只能创建为主窗口的兄弟窗口），也无论其余窗口的父子关系有多复杂，只要与模态窗口的任一父窗口有父子关系，并且不是模态窗口及其子窗口，在关闭（或者隐藏）模态窗口之前，都不能获得焦点。
 
-
-#### 5.2.3 `QApplication`类的`alert`方法（更新中）
-
-（介绍功能，优化示例）
-
-`QApplication`类的`alert`方法（与多窗口有关）：
+示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
+    QDialog,
     QWidget,
-    QMessageBox,
     QPushButton
 )
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt
 
 app = QApplication()
-window = QWidget(windowIcon=QIcon.fromTheme(QIcon.ThemeIcon.ViewFullscreen))
+
+# 窗口1正常显示
+window = QWidget()
+window.setWindowTitle('窗口1')
 window.resize(400,300)
+window.move(100,100)
 window.show()
-window2 = QWidget(windowIcon=QIcon.fromTheme(QIcon.ThemeIcon.MediaTape))
+
+# 窗口2（窗口1的子窗口）模态显示
+window2=QDialog(window)
+window2.setWindowTitle('窗口2')
 window2.resize(400,300)
-QPushButton('click',window2).clicked.connect(lambda :app.alert(window,0))
+window2.move(200,200)
+# 设置为窗口级模态
+window2.setWindowModality(Qt.WindowModality.WindowModal)
+# 隐藏窗口2
+QPushButton('hide me',window2).clicked.connect(lambda:window2.hide())
 window2.show()
+
+# 窗口3（窗口1的子窗口，窗口2的兄弟窗口）正常显示
+window3=QDialog(window)
+window3.setWindowTitle('窗口3')
+window3.resize(400,300)
+window3.move(300,300)
+window3.show()
+
+# 窗口4（窗口2的子窗口）正常显示
+window4=QDialog(window2)
+window4.setWindowTitle('窗口4')
+window4.resize(400,300)
+window4.move(400,400)
+window4.show()
+
+# 窗口5（窗口1的兄弟窗口）正常显示
+window5=QWidget()
+window5.setWindowTitle('窗口5')
+window5.resize(400,300)
+window5.move(500,500)
+window5.show()
 
 app.exec()
 ```
 
+可能看完代码和描述还是有点不太清楚，没关系，两个示例使用了相同的窗口父子关系，只是模态不同，接下来看看窗口的父子关系图：
 
+![2025_5_3](qt_for_python.assets/2025_5_3.png)
 
+当窗口2的模态为应用级模态时，除了窗口4是窗口2的子窗口，不受任何模态的影响，窗口1、窗口3、窗口5都与窗口2同属于一个程序类实例（应用程序），所以，在关闭（或者隐藏）窗口2之前，不能获得焦点。
 
+![2025_5_4](qt_for_python.assets/2025_5_4.png)
+
+当窗口2的模态为窗口级模态时，除了窗口4是窗口2的子窗口，不受任何模态的影响之外，窗口5与窗口2没有相同的父窗口（无限向上追溯，与窗口本身或者父窗口存在父子关系就算），也不受影响。窗口1、窗口3都与窗口2有相同的父窗口（无限向上追溯，与窗口本身或者父窗口存在父子关系就算），所以，在关闭（或者隐藏）窗口2之前，不能获得焦点。
+
+![2025_5_5](qt_for_python.assets/2025_5_5.png)
+
+#### 5.2.3 高亮主窗口或者其兄弟窗口
+
+上节提到主窗口也可以有兄弟窗口，这里顺便再说一个与之相关的功能，那就是`QApplication`类的`alert`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QApplication.html#PySide6.QtWidgets.QApplication.alert）。该方法可以高亮并闪烁当前没有获得焦点的主窗口或者其兄弟窗口，只有当地获得焦点时或者到一定时间后才会停止高亮和闪烁。
+
+具体参数可以参考上面的文档链接，以下为示例：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+
+# 窗口1正常显示
+window = QWidget()
+window.setWindowTitle('窗口1')
+window.resize(400,300)
+window.move(100,100)
+window.show()
+
+# 窗口2（窗口1的兄弟窗口）正常显示
+window2=QDialog()
+window2.setWindowTitle('窗口2')
+window2.resize(400,300)
+window2.move(200,200)
+QPushButton('高亮主窗口',window2).clicked.connect(lambda:app.alert(window,3000))
+window2.show()
+
+# 窗口3（窗口1的兄弟窗口）正常显示
+window3=QDialog()
+window3.setWindowTitle('窗口3')
+window3.resize(400,300)
+window3.move(300,300)
+QPushButton('高亮主窗口的兄弟窗口',window3).clicked.connect(lambda:app.alert(window2,3000))
+window3.show()
+
+app.exec()
+```
 
 ## 6 QtWidgets程序的信号与事件（更新中）
 
@@ -633,6 +704,7 @@ from PySide6.QtWidgets import (
 
 app = QApplication()
 window = QWidget()
+window.setWindowTitle('信号与事件')
 window.resize(400,300)
 button = QPushButton('click',window)
 
@@ -677,7 +749,7 @@ app.exec()
 
 
 
-## 7 QtQuick程序的两种主窗口控件
+## 7 QtQuick程序的两种主窗口控件（更新中）
 
 
 
@@ -2127,7 +2199,7 @@ app.exec()
 
 
 
-## 12 `QTextEdit`的用法
+## 12 `QTextEdit`的用法（更新中）
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
 

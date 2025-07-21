@@ -465,7 +465,7 @@ app.exec()
 | 继承关系               | 所有控件的基类                              | 继承自`QWidget`                          | 继承自`QWidget`                  |
 | 用途                   | 简单窗口、通用控件                          | 对话框                                   | 功能丰富的主窗口                 |
 | 工具栏、菜单栏、状态栏 | 需要手动实现                                | 一般不添加                               | 内置                             |
-| 模态支持               | 需要手动实现（通过`setWindowModality`方法） | 内置（通过`exec`方法）                   | 不推荐用于模态                   |
+| 模态支持               | 需要手动实现（通过`setWindowModality`方法） | 内置（通过`exec`方法）                   | 不推荐使用模态                   |
 | 中心区域               | 无                                          | 无                                       | 有（通过`setCentralWidget`方法） |
 | 衍生控件               | `QPushButton`等基础控件                     | `QFileDialog`、`QMessageBox`等对话框控件 | 无                               |
 
@@ -685,15 +685,26 @@ app.exec()
 
 ## 6 QtWidgets程序的信号与事件（更新中）
 
+在Qt框架中，有两套类似但不完全相同的消息系统：信号系统和事件系统。消息系统可以让开发者定义用户执行不同的操作时，如何响应对应的操作。
 
+从两套消息系统的实例代码看，二者有很多相似之处，都能定义指定动作的响应函数。但是，这并不是说二者是重复的，信号可以让多个响应函数响应同一动作，而事件可以给信号没有的动作添加响应函数。简而言之，二者既有相同相似之处，又能互补了对方的不足，并非重复制造轮子，都是Qt框架中不可或缺的部分。
 
-（构思引言，详细研究一下差别，以及类似、相通的地方）
+### 6.1 信号
 
-信号（类似于消息）与事件（类似于槽函数）
+Qt框架中，独创的概念就是信号机制。所谓信号，就是执行指定动作时，控件内部会同时执行一次`emit`方法，这个动作就会发出一次信号。将信号与槽函数（可以理解为响应函数）连接（通过`connect`方法）之后，每次发出该信号时，槽函数就会执行一次。
 
-为什么要混到一起讲？因为机制类似，但细节上不完全一样。（参考1 https://www.cnblogs.com/keleman/p/18066032）
+接下来，通过示例学习一下信号相关的操作。
 
+首先，一个控件通常支持多个信号，具体支持那些信号，需要查询对应的API手册或者文档。以`QPushButton`控件为例，该控件继承自`QAbstractButton`控件，其支持的信号可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#signals 。
 
+从文档中可知，该控件支持以下信号：
+
+- [`clicked`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#PySide6.QtWidgets.QAbstractButton.clicked)信号，控件被点击（鼠标按键按下、弹起的完整过程）后发出的信号。
+- [`pressed`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#PySide6.QtWidgets.QAbstractButton.pressed)信号，鼠标按键在控件上按下后发出的信号。
+- [`released`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#PySide6.QtWidgets.QAbstractButton.released)信号，鼠标按键在控件上弹起后发出的信号。
+- [`toggled`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#PySide6.QtWidgets.QAbstractButton.toggled)信号，具备两种状态的控件切换状态（可由`setChecked`方法触发）后发出的信号。
+
+就以`clicked`信号为例，调用信号的`connect`方法，给该方法传入可调用类型的对象（比如lambda表达式或者函数），即可设定按钮被点击之后的响应函数（可以设定多个响应函数）：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -711,41 +722,375 @@ button = QPushButton('click',window)
 # 信号，支持连接多个槽
 button.clicked.connect(lambda :print('button is clicked'))
 button.clicked.connect(lambda :print('button is clicked2'))
-# 事件，只能同时分配一个响应函数，且会覆盖同类信号
-# button.mousePressEvent = lambda e:print('mouse is pressed')
-# button.mousePressEvent = lambda e:print('mouse is pressed2')
 
 window.show()
 app.exec()
 ```
 
+![2025_6_1](qt_for_python.assets/2025_6_1.png)
 
-
-
-
-给窗口的关闭事件添加关闭对话框（事件的接受与忽略）：
+信号通常与槽函数连接，使用`Slot`装饰器（使用`from PySide6.QtCore import Slot`导入）修饰函数，该函数会变成槽函数（槽函数的具体用法这里不做展开，等后续再介绍相关内容时展开），不过与直接使用函数没什么区别：
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
-    QMessageBox,
     QPushButton
 )
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import Slot
 
 app = QApplication()
-window = QWidget(windowIcon=QIcon.fromTheme(QIcon.ThemeIcon.ViewFullscreen))
+window = QWidget()
+window.setWindowTitle('信号与事件')
 window.resize(400,300)
-window.show()
-window2 = QWidget(windowIcon=QIcon.fromTheme(QIcon.ThemeIcon.MediaTape))
-window2.resize(400,300)
-window2.show()
+button = QPushButton('click',window)
 
-window2.closeEvent = lambda e: e.accept() if QMessageBox.question(window2,'消息','你确定要退出吗？', QMessageBox.Yes|QMessageBox.No, QMessageBox.No) == QMessageBox.Yes else e.ignore()
+# 信号，支持连接多个槽
+button.clicked.connect(lambda :print('button is clicked'))
+# 定义槽函数
+@Slot()
+def on_clicked():
+    print('button is clicked2')
+
+button.clicked.connect(on_clicked)
+
+window.show()
+app.exec()
+```
+
+说完了连接信号，就该说说如何发出信号。
+
+除了真的点击按钮来发出信号，还可以通过调用`click`方法来模拟点击（内部会发出信号）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+window.show()
+
+# 信号，支持连接多个槽
+button.clicked.connect(lambda :print('button is clicked'))
+button.clicked.connect(lambda :print('button is clicked2'))
+
+window2 = QWidget()
+window2.setWindowTitle('信号与事件-控制窗口')
+window2.resize(400,300)
+button2 = QPushButton('模拟信号',window2)
+# 模拟点击
+button2.clicked.connect(lambda :button.click())
+window2.show()
 
 app.exec()
 ```
+
+直接调用信号的`emit`方法发出信号也可以触发信号对应的响应函数：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+window.show()
+
+# 信号，支持连接多个槽
+button.clicked.connect(lambda :print('button is clicked'))
+button.clicked.connect(lambda :print('button is clicked2'))
+
+window2 = QWidget()
+window2.setWindowTitle('信号与事件-控制窗口')
+window2.resize(400,300)
+button2 = QPushButton('模拟信号',window2)
+
+# 发出信号
+button2.clicked.connect(lambda :button.clicked.emit())
+window2.show()
+
+app.exec()
+```
+
+至此，信号的学习告一段落。从上面的内容看，信号支持多个响应函数响应同一信号，模拟发出信号的方法简单直观，看起来很好用。不过，这并不是说事件就没有学习的必要。前面说过事件支持信号不支持的动作，这一点信号没法实现。因此，接下来就通过定义按钮点击的响应函数，学习一下事件的相关操作。
+
+### 6.2 事件
+
+对于事件而言，想要定义按钮点击的响应函数，需要先知道点击按钮之后触发的事件是什么。
+
+不同于信号的查询简单，想要知道按钮支持的事件，难度增加不少，需要访问Qt的C++相关文档（ https://doc.qt.io/qt-6/qwidget.html#protected-functions 、 https://doc.qt.io/qt-6/qabstractbutton.html#reimplemented-protected-functions 和 https://doc.qt.io/qt-6/qpushbutton.html#reimplemented-protected-functions ），才能知道`QAbstractButton`控件支持的事件（或者通过智能提示或者模块的`pyi`文件查询）。具体事件这里就不做解释了，只说一下事件中没有类似`clicked`信号的事件，只有与`pressed`信号相同的`mousePressEvent`事件（鼠标按键按下时触发），以及与`released`信号相同的`mouseReleaseEvent`事件（鼠标按键弹起时触发）。
+
+通过同类事件、信号的名称对比，想必读者已经看出二者的部分区别。信号主要是控件发出信号，相关概念偏向顶层；事件通常是设备、控件触发事件，相关概念偏向底层。
+
+因此，这里只能勉强用`mousePressEvent`事件代替`clicked`信号。示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+
+# 信号，支持连接多个槽
+button.clicked.connect(lambda :print('button is clicked'))
+button.clicked.connect(lambda :print('button is clicked2'))
+# 事件，只能同时分配一个响应函数，且会覆盖同类信号、同名事件
+button.mousePressEvent = lambda e:print('mouse is pressed')
+button.mousePressEvent = lambda e:print('mouse is pressed2')
+
+window.show()
+app.exec()
+```
+
+![2025_6_2](qt_for_python.assets/2025_6_2.png)
+
+通过代码和运行结果可以得知事件的响应函数有以下特点：
+
+- 会覆盖同类信号（`clicked`信号有鼠标按钮按下的过程）的响应函数，也就是事件的优先级高于信号。
+- 同名事件只能定义一个响应函数，重复定义的话会按照顺序覆盖。
+- 必须包含一个参数，用于接收事件的参数，否则会报错。
+
+与信号类似，事件的响应函数也有非真实交互的触发方式，但不完全与信号相同。
+
+首先，调用`click`方法没法触发事件的响应函数。但是，类似信号的`emit`方法，直接调用事件则可以触发：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+window.show()
+button.mousePressEvent = lambda e:print('mouse is pressed')
+
+window2 = QWidget()
+window2.setWindowTitle('信号与事件-控制窗口')
+window2.resize(400,300)
+button2 = QPushButton('模拟事件',window2)
+# 使用指定控件的对应事件（方法），参数按实际使用情况传入（可能需要构建事件对象）
+button2.clicked.connect(lambda :button.mousePressEvent(None))
+
+window2.show()
+
+app.exec()
+```
+
+![2025_6_3](qt_for_python.assets/2025_6_3.png)
+
+除了这种直接的触发方法，还有两种需要指定具体事件的触发方法：
+
+- 控件的`event`方法。
+- 程序类实例的`sendEvent`方法（可以执行多次）、`postEvent`方法（只能执行一次）。
+
+对于控件的`event`方法，其参数可以是（简化的鼠标事件，使用核心事件类）
+
+
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QEvent
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+window.show()
+button.mousePressEvent = lambda e:print('mouse is pressed')
+
+window2 = QWidget()
+window2.setWindowTitle('信号与事件-控制窗口')
+window2.resize(400,300)
+button2 = QPushButton('模拟事件',window2)
+# 使用指定控件的event方法
+button2.clicked.connect(lambda :button.event(QEvent(QEvent.Type.MouseButtonPress)))
+window2.show()
+
+app.exec()
+```
+
+
+
+也可以是（完整的鼠标事件，使用鼠标事件类）
+
+
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QEvent,Qt
+from PySide6.QtGui import QMouseEvent
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+window.show()
+button.mousePressEvent = lambda e:print('mouse is pressed')
+
+window2 = QWidget()
+window2.setWindowTitle('信号与事件-控制窗口')
+window2.resize(400,300)
+button2 = QPushButton('模拟事件',window2)
+
+# 获取按钮中心位置的局部坐标，并映射为全局坐标
+center = button.rect().center()
+globalPos = button.mapToGlobal(center)
+# 构建准确的鼠标按键事件
+# 参考自 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QMouseEvent.html#PySide6.QtGui.QMouseEvent.__init__
+press_event = QMouseEvent(
+    QEvent.Type.MouseButtonPress,
+    center,
+    globalPos,
+    # 按下的鼠标按键
+    Qt.MouseButton.LeftButton,
+    # 无组合使用的鼠标按键
+    Qt.MouseButton.NoButton,
+    # 无组合使用的键盘按键
+    Qt.KeyboardModifier.NoModifier
+)
+
+# 使用指定控件的event方法
+button2.clicked.connect(lambda :button.event(press_event))
+window2.show()
+
+app.exec()
+```
+
+
+
+
+
+而程序类实例的`sendEvent`方法（可以执行多次）、`postEvent`方法（只能执行一次）的参数只能是（完整的鼠标事件，使用鼠标事件类）
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QEvent,Qt
+from PySide6.QtGui import QMouseEvent
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+window.show()
+button.mousePressEvent = lambda e:print('mouse is pressed')
+
+window2 = QWidget()
+window2.setWindowTitle('信号与事件-控制窗口')
+window2.resize(400,300)
+button2 = QPushButton('模拟事件',window2)
+
+# 获取按钮中心位置的局部坐标，并映射为全局坐标
+center = button.rect().center()
+globalPos = button.mapToGlobal(center)
+# 构建准确的鼠标按键事件
+# 参考自 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QMouseEvent.html#PySide6.QtGui.QMouseEvent.__init__
+press_event = QMouseEvent(
+    QEvent.Type.MouseButtonPress,
+    center,
+    globalPos,
+    # 按下的鼠标按键
+    Qt.MouseButton.LeftButton,
+    # 无组合使用的鼠标按键
+    Qt.MouseButton.NoButton,
+    # 无组合使用的键盘按键
+    Qt.KeyboardModifier.NoModifier
+)
+# 使用sendEvent方法发送事件给指定对象
+# 也可以使用postEvent方法发送，postEvent方法是用后即销毁构建的事件，不能重复发送
+button2.clicked.connect(lambda :app.sendEvent(button,press_event))
+window2.show()
+
+app.exec()
+```
+
+
+
+前面说过事件可以给信号没有的动作添加响应函数，这里顺便简单介绍一个这样的动作——关闭窗口。
+
+（描述一下需求，说一下信号没法实现，然后说使用事件实现的话，代码如下）
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMessageBox
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('关闭时弹出对话框')
+window.resize(400, 300)
+window.show()
+
+
+def on_close(e):
+    result = QMessageBox.question(
+        window,
+        '消息',
+        '你确定要退出吗？',
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No
+    )
+    if result == QMessageBox.Yes:
+        # 接受，表示触发该事件的动作正常执行
+        e.accept()
+    else:
+        # 忽略，表示触发该事件的动作不常执行
+        e.ignore()
+
+window.closeEvent = on_close
+
+app.exec()
+```
+
+
+
+（补充说明一下事件的接受、忽略的区别）
 
 
 
@@ -1446,6 +1791,12 @@ app.exec()
 
 ## 9 QtWidgets程序的UI文件
 
+
+
+（创建UI文件）
+
+
+
 加载UI文件：
 
 ```python3
@@ -1498,7 +1849,7 @@ app.exec()
 
 
 
-## 10 QtQuick程序的模块
+## 10 QtQuick程序的模块（更新中，补充图片）
 
 除了直接导入QML文件这种使用QML文件的方式，还可以将QML文件包装为模块，通过导入模块的方式使用QML文件。
 
@@ -1663,7 +2014,7 @@ window2.show()
 app.exec()
 ```
 
-
+（运行截图）
 
 ### 10.3 模块的自定义属性
 
@@ -1824,7 +2175,7 @@ window2.show()
 app.exec()
 ```
 
-
+（运行截图）
 
 ## 11 在QML中使用Python对象
 

@@ -1,5 +1,7 @@
 # Qt For Python 札记（2025）
 
+[toc]
+
 ## 0 为何而写
 
 Qt For Python （目前库名为PySide6）各类教程已经有很多，笔者就不班门弄斧了。不过，框架在使用过程中还是有不少难点，对于心急的初学者来说，很容易在找不到解决方法之后轻言放弃。因此，笔者将代入初学者的视角，将学习心得按照时间顺序一一记下，以便于有一定基础但囿于难点的读者按图索骥。
@@ -683,7 +685,7 @@ window3.show()
 app.exec()
 ```
 
-## 6 QtWidgets程序的信号与事件（更新中）
+## 6 QtWidgets程序的信号与事件
 
 在Qt框架中，有两套类似但不完全相同的消息系统：信号系统和事件系统。消息系统可以让开发者定义用户执行不同的操作时，如何响应对应的操作。
 
@@ -905,11 +907,7 @@ app.exec()
 - 控件的`event`方法。
 - 程序类实例的`sendEvent`方法（可以执行多次）、`postEvent`方法（只能执行一次）。
 
-对于控件的`event`方法，其参数可以是（简化的鼠标事件，使用核心事件类）
-
-
-
-
+对于控件的`event`方法，其参数可以是简化的鼠标事件（核心事件类实例，完整用可参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QEvent.html#PySide6.QtCore.QEvent.__init__）：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -938,13 +936,7 @@ window2.show()
 app.exec()
 ```
 
-
-
-也可以是（完整的鼠标事件，使用鼠标事件类）
-
-
-
-
+也可以是衍生的鼠标事件（鼠标事件类实例，完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QMouseEvent.html#PySide6.QtGui.QMouseEvent.__init__）：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -992,13 +984,7 @@ window2.show()
 app.exec()
 ```
 
-
-
-
-
-而程序类实例的`sendEvent`方法（可以执行多次）、`postEvent`方法（只能执行一次）的参数只能是（完整的鼠标事件，使用鼠标事件类）
-
-
+而程序类实例的`sendEvent`方法（可以执行多次）、`postEvent`方法（只能执行一次）的参数只能是衍生的鼠标事件（鼠标事件类实例）：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -1046,13 +1032,23 @@ window2.show()
 app.exec()
 ```
 
+### 6.3 扩展内容
 
+#### 6.3.1 关闭窗口时弹出确认对话框
 
-前面说过事件可以给信号没有的动作添加响应函数，这里顺便简单介绍一个这样的动作——关闭窗口。
+前面说过事件可以给信号没有的动作添加响应函数，这里顺便介绍一个这样的动作——关闭窗口。
 
-（描述一下需求，说一下信号没法实现，然后说使用事件实现的话，代码如下）
+很多时候，为了避免用户误操作关闭程序，开发者会在用户关闭程序时弹出一个选择对话框，只有选择是（或者类似选项、按钮）才能关闭程序，否则不会关闭程序。在Qt程序中，关闭最后一个主窗口就会关闭整个程序，所以这里实际动作是关闭窗口。
 
+因此，可以给窗口的关闭事件设置一个弹出选择对话框的响应函数，并根据选择的结果决定是否执行该动作。
 
+响应函数的核心在于创建对话框和根据选择的结果决定是否执行动作。
+
+对话框可以随意选择，但为了简单方便，这里选择的是`QMessageBox`控件（消息对话框），并且只介绍必要的功能。至于其余的功能和其他种类的对话框，受限于篇幅，这里不做展开，后续可能会写专门的章节详细介绍。
+
+至于如何根据选择的结果决定是否执行动作，则要使用传给响应函数的参数。该参数是`QEvent`类型，调用该参数的`accept`方法，就会响应该事件，继续执行动作；如果调用`ignore`方法，则会忽略该事件，不执行动作。
+
+调用`QMessageBox`类的静态方法`question`（完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question）可以快速创建一个包含图标的问题对话框：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -1060,6 +1056,7 @@ from PySide6.QtWidgets import (
     QWidget,
     QMessageBox
 )
+from PySide6.QtCore import QEvent
 
 app = QApplication()
 window = QWidget()
@@ -1067,12 +1064,11 @@ window.setWindowTitle('关闭时弹出对话框')
 window.resize(400, 300)
 window.show()
 
-
-def on_close(e):
+def on_close(e:QEvent):
     result = QMessageBox.question(
         window,
         '消息',
-        '你确定要退出吗？',
+        '确定要退出吗？',
         QMessageBox.Yes | QMessageBox.No,
         QMessageBox.No
     )
@@ -1088,11 +1084,107 @@ window.closeEvent = on_close
 app.exec()
 ```
 
+![2025_6_4](qt_for_python.assets/2025_6_4.png)
 
+`question`方法会返回点击的按钮对应的标准按钮，可以对该方法的返回值进行判断，进而确定用户选择的是Yes还是No，并据此决定是否执行动作——关闭窗口。
 
-（补充说明一下事件的接受、忽略的区别）
+需要注意的是，虽然`question`方法创建对话框很简单，但对话框按钮的文本是英文的，不使用本地化功能的话，是没法自定义按钮或者按钮文本的。因此，想要让显示的内容更加自由，只能直接创建`QMessageBox`控件（完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.__init__），需要额外传入图标参数，并且参数的顺序也有要求：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMessageBox
+)
+from PySide6.QtCore import QEvent
 
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('关闭时弹出对话框')
+window.resize(400, 300)
+window.show()
+
+def on_close(e:QEvent):
+    msg_box = QMessageBox(
+        QMessageBox.Icon.Question,
+        '消息',
+        '确定要退出吗？',
+        QMessageBox.Yes | QMessageBox.No,
+        window
+    )
+    # 修改标准按钮的文本
+    yes_button = msg_box.button(QMessageBox.Yes)
+    yes_button.setText('确认')
+    no_button = msg_box.button(QMessageBox.No)
+    no_button.setText('取消')
+    # 将默认选择的按钮修改为取消按钮
+    msg_box.setDefaultButton(no_button)
+    msg_box.exec()
+
+    if msg_box.clickedButton() == yes_button:
+        # 接受，表示触发该事件的动作正常执行
+        e.accept()
+    else:
+        # 忽略，表示触发该事件的动作不常执行
+        e.ignore()
+
+window.closeEvent = on_close
+
+app.exec()
+```
+
+![2025_6_5](qt_for_python.assets/2025_6_5.png)
+
+使用对话框对象的`button`方法（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.button）可以获取对应的按钮，再调用该按钮的`setText`方法即可修改按钮文本。
+
+不同于`question`方法会自动显示对话框，创建`QMessageBox`控件的话，想要显示对话框，需要执行`exec`方法（只能显示为模态窗口，不点击按钮的话不继续执行）。调用`clickedButton`方法会返回用户点击的按钮，判断该方法的返回值即可。
+
+当然，也可以调用`standardButton`方法转换输出的结果，这样的话，判断结果的代码就能沿用先前示例中的这部分代码：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMessageBox
+)
+from PySide6.QtCore import QEvent
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('关闭时弹出对话框')
+window.resize(400, 300)
+window.show()
+
+def on_close(e:QEvent):
+    msg_box = QMessageBox(
+        QMessageBox.Icon.Question,
+        '消息',
+        '确定要退出吗？',
+        QMessageBox.Yes | QMessageBox.No,
+        window
+    )
+    # 修改标准按钮的文本
+    yes_button = msg_box.button(QMessageBox.Yes)
+    yes_button.setText('确认')
+    no_button = msg_box.button(QMessageBox.No)
+    no_button.setText('取消')
+    # 将默认选择的按钮修改为取消按钮
+    msg_box.setDefaultButton(no_button)
+    msg_box.exec()
+
+    # 结果转换为标准值
+    result = msg_box.standardButton(msg_box.clickedButton())
+    if result == QMessageBox.Yes:
+        # 接受，表示触发该事件的动作正常执行
+        e.accept()
+    else:
+        # 忽略，表示触发该事件的动作不常执行
+        e.ignore()
+
+window.closeEvent = on_close
+
+app.exec()
+```
 
 ## 7 QtQuick程序的两种主窗口控件（更新中）
 
@@ -1446,7 +1538,7 @@ app.exec()
 
 
 
-## 8 在QtWidgets程序中使用QtQuick程序的控件
+## 8 在QtWidgets程序中使用QtQuick程序的控件（更新中）
 
 1 原来的可以直接使用
 
@@ -1789,11 +1881,11 @@ app.exec()
 
 
 
-## 9 QtWidgets程序的UI文件
+## 9 QtWidgets程序的UI文件（更新中）
 
 
 
-（创建UI文件）
+（创建UI文件，介绍QtDesigner的使用，UI文件直接使用和编译为Python文件两种使用方法）
 
 
 

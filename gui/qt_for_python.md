@@ -1643,7 +1643,7 @@ view.show()
 app.exec()
 ```
 
-`QTemporaryFile`类的初始化参数（相关用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTemporaryFile.html#PySide6.QtCore.QTemporaryFile.__init__ ）可以配置临时文件的名字（但是后缀依然为随机，不可自定义）和路径（名字包含路径的话就会同时指定临时文件的生成路径；不包含路径的话，在工作目录中生成；不指定名字的话，临时文件会在系统定义的临时目录中生成），这里为了用户看到临时文件，所以没有定义临时文件的名字。
+`QTemporaryFile`类的初始化参数（相关用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTemporaryFile.html#PySide6.QtCore.QTemporaryFile.__init__ ）可以配置临时文件的名字（但是后缀依然为随机，不可自定义）和路径（名字包含路径的话就会同时指定临时文件的生成路径；不包含路径的话，在工作目录中生成；不指定名字的话，临时文件会在系统定义的临时目录中生成），这里为了避免用户看到临时文件，所以没有定义临时文件的名字。
 
 需要注意，向`QTemporaryFile`对象写入数据前，需要先调用`open`方法并判断返回值为`True`（直接调用也可以，但推荐判断一下），并在写入数据之后调用`flush`方法刷新或者`close`方法关闭文件，数据才会真正写入文件中。
 
@@ -1848,7 +1848,11 @@ app.exec()
 
 ## 8 在QtWidgets程序中使用QtQuick控件（更新中）
 
+### 8.1 QtQuick程序的主窗口控件无缝衔接（更新中）
 
+
+
+（随便写个增加了传统控件的示例，总结一下QtQuick程序的主窗口控件无缝衔接即可）
 
 1 原来的可以直接使用
 
@@ -1901,6 +1905,20 @@ app.exec()
 
 
 
+
+
+### 8.2 `QQuickWidget`控件是`QQuickView`控件的平替（更新中）
+
+
+
+（重点说一下这个控件，看看有没有与`QQuickView`控件不同的地方，相同的地方可以写一下示例，水字数）
+
+
+
+（偏QtWidgets程序的部分，偏QtQuick程序的部分，需要详细研究、分析、对比）
+
+
+
 2 特定的只能在QtWidgets程序中使用
 
 使用`QQuickWidget`（相当于`QQuickView`的平替，大部分功能兼容）：
@@ -1924,7 +1942,6 @@ Rectangle {
     width: 200
     height: 200
     color: 'green'
-
     Text {
         text: 'Hello World'
         anchors.centerIn: main
@@ -1968,7 +1985,6 @@ Rectangle {
     width: 200
     height: 200
     color: 'green'
-
     Text {
         text: 'Hello World'
         anchors.centerIn: main

@@ -845,7 +845,26 @@ if __name__ == '__main__':
 
 ![2025_4_2](textual_plus.assets/2025_4_2.gif)
 
+## 5 版本速览——5.0.0版本的新增内容（发现bug，等待修复中）
 
+5.0.0版本变动不大，没有明显新增内容，主要是性能优化，已经给部分组件增加了一些属性：
+
+- 为Visual协议添加了get_minimal_width[#5962](https://github.com/Textualize/textual/pull/5962)
+- 添加了 `expand` 和 `shrink` 属性到GridLayout [#5962](https://github.com/Textualize/textual/pull/5962)
+- 添加了`Markdown.get_stream` [#5966](https://github.com/Textualize/textual/pull/5966)
+- 添加了 `textual.highlight` 语法高亮模块 [#5966](https://github.com/Textualize/textual/pull/5966)
+- 添加了 `MessagePump.wait_for_refresh` 方法 [#5966](https://github.com/Textualize/textual/pull/5966)
+- 添加了 `Widget.container_scroll_offset` [`e84600c`](https://github.com/Textualize/textual/commit/e84600cfb31630f8b5493bf1043a4a1e7c212f7c)
+- 添加了 `Markdown.source` 属性到 MarkdownBlocks [`e84600c`](https://github.com/Textualize/textual/commit/e84600cfb31630f8b5493bf1043a4a1e7c212f7c)
+- 为Markdown添加了扩展机制[`e84600c`](https://github.com/Textualize/textual/commit/e84600cfb31630f8b5493bf1043a4a1e7c212f7c)
+- 添加了 `index`到 `ListView.Selected`事件 [#5973](https://github.com/Textualize/textual/pull/5973)
+- 添加了`layout`静态更新开关[#5973](https://github.com/Textualize/textual/pull/5973)
+
+
+
+
+
+不过，这个版本的更新导致上个版本`Markdown`标记文本组件新增的`append`方法出现异常，所以，本次版本更新内容暂停，等官方修复后重新梳理。
 
 
 

@@ -171,7 +171,7 @@ app.exec()
 如上节所讲，每个Qt程序只允许创建、运行一个程序类实例，同时，该程序类实例也决定了这个Qt程序是什么类型的程序。因为，不同的程序类，实现的功能也不一样：
 
 - `QCoreApplication`类，使用`from PySide6.QtCore import QCoreApplication`导入，不能创建任何GUI控件，只包含基本的事件循环机制，所以只能用于创建无GUI控件的控制台程序。
-- `QGuiApplication`类，继承自`QCoreApplication`类，使用`from PySide6.QtGui import QGuiApplication`导入，可以创建新式控件，包含QtQuick程序所需的全部功能，通常用于创建QtQuick程序。后面所说的QtQuick程序，通常是狭义上的QtQuick程序，是指程序类实例为`QGuiApplication`类实例的Qt程序。
+- `QGuiApplication`类，继承自`QCoreApplication`类，使用`from PySide6.QtGui import QGuiApplication`导入，可以创建新式控件，包含QtQuick程序所需的全部功能，通常用于创建QtQuick程序。后面所说的QtQuick程序，如无特别说明，通常是狭义上的QtQuick程序，即程序类实例为`QGuiApplication`类实例的Qt程序。
 - `QApplication`类，继承自`QGuiApplication`类，使用`from PySide6.QtWidgets import QApplication`导入，可以创建传统控件和新式控件，通常用于创建QtWidgets程序，但也可以创建支持广义上的QtQuick程序（同时具备QtWidgets程序的功能）。不过，为了与狭义上的QtQuick程序作出区分，后面所说的QtWidgets程序，是指程序类实例为`QApplication`类实例的Qt程序。
 
 三者的继承关系为：`QCoreApplication -> QGuiApplication -> QApplication`。同时，继承关系也是三者的功能一个比一个强大的原因。
@@ -1186,68 +1186,49 @@ window.closeEvent = on_close
 app.exec()
 ```
 
-## 7 QtQuick程序的两种主窗口控件（更新中）
+## 7 QtQuick程序的两种主窗口控件
 
+严格来说，能够显示QtQuick控件（即新式控件）的主窗口控件有三种，但为了方便理解，这里的主窗口控件特指在QtQuick程序（程序类实例为`QGuiApplication`类实例的Qt程序）中可以使用的两种主窗口控件（所以标题才叫QtQuick程序的两种主窗口控件），至于第三种主窗口控件，那就留给下一章，与其他在QtWidgets程序中使用QtQuick控件的方法一起介绍。
 
+QtQuick程序不如QtWidgets程序“历史悠久”，相关资料比较少，因此，这里提供了一些可能会用到的参考资料：
 
-QtQuick基础文档：
+- QtQuick基础文档：https://doc.qt.io/qt-6/qtquick-index.html
+- QML基础文档：https://doc.qt.io/qt-6/qmlreference.html
+- QtQuick的基本类型：https://doc.qt.io/qt-6/qtquick-qmlmodule.html
+- QtQuick常用控件的基本类型：https://doc.qt.io/qt-6/qtquick-controls-qmlmodule.html
+- QtQuick对话框的基本类型：https://doc.qt.io/qt-6/qtquick-dialogs-qmlmodule.html
+- QtQml的基本类型：https://doc.qt.io/qt-6/qtqml-qmlmodule.html
 
-https://doc.qt.io/qt-6/qtquick-index.html
+相关的QtQuick程序基础和QML基础这里不做太多展开，本章只介绍QtQuick程序中的两种主窗口控件，如果想要深入学习和了解更多基础知识，可以自行学习上面提供的参考资料，或者期待后续专门的章节。
 
-QML基础文档：
+### 7.1 主要内容
 
-https://doc.qt.io/qt-6/qmlreference.html
+QtQuick程序（控件）主要依赖QML（文件），所以上面提供的参考资料中有QML基础。不过，本节主要内容的重点不在QML文件的创建，因此，使用到的QML文件会直接提供，只解释必要的知识点。
 
+在QtQuick程序中，支持的主窗口控件有以下几种：
 
+- `QQuickView`控件（使用`from PySide6.QtQuick import QQuickView`导入），本身就是一个窗口，可以添加非窗口类的QtQuick控件，完整用法可以参考文档 https://doc.qt.io/qtforpython-6/PySide6/QtQuick/QQuickView.html#PySide6.QtQuick.QQuickView 。
+- `QQmlApplicationEngine`控件（使用`from PySide6.QtQml import QQmlApplicationEngine`导入），严格来说不是一个窗口，而是一个QML的解析引擎。该控件可以添加QtQuick控件，但需要先添加一个具备窗口功能的QtQuick控件，完整用法可以参考文档 https://doc.qt.io/qtforpython-6/PySide6/QtQml/QQmlApplicationEngine.html#PySide6.QtQml.QQmlApplicationEngine 。
 
-基本类型：
+在继续学习之前，这里需要额外区分一下教程中提到的控件类型，以免读者越看越迷糊。
 
-https://doc.qt.io/qt-6/qtquick-qmlmodule.html
+在不涉及QtQuick控件（即新式控件）的QtWidgets程序中，因为只使用传统控件，所有的控件都是调用Python接口的控件，所以，各种控件类型都很统一，没那么容易误解。
 
-常用控件的基本类型：
+但是，从这一章开始，有了QtQuick控件（即新式控件）这一种只能在QML中创建的控件之后，控件的类型开始变得有点模糊。
 
-https://doc.qt.io/qt-6/qtquick-controls-qmlmodule.html
+需要注意的是，虽然QtQuick控件与QtQuick程序密不可分，但这类控件只能在QML中创建，不能笼统认为QtQuick程序中使用的控件都是QtQuick控件。在QtQuick程序中，还有一些调用Python接口的控件（比如这一章介绍的两种主窗口控件，以及后面介绍的第三种主窗口控件），这些控件不仅能在QtQuick程序中使用，还能在QtWidgets程序中使用（相关知识参见在QtWidgets程序中使用QtQuick控件的方法）。若是严格区分的话，这些控件可以算作是传统控件。但为了避免混淆，这里并没有这样归类，只是将其算作QtQuick程序使用的控件而已。
 
-对话框的基本类型：
+因此，读者在学习、编写QtQuick程序时，需要记住，在QtQuick程序中调用Python接口的控件，并不是QtQuick控件（即新式控件）。
 
-https://doc.qt.io/qt-6/qtquick-dialogs-qmlmodule.html
-
-QtQml的基本类型：
-
-https://doc.qt.io/qt-6/qtqml-qmlmodule.html
-
-
-
-QtQuick的基本示例：
-
-使用`QQuickView`：
-
-加载QML文件（使用`QQuickView`）：
+`QQuickView`控件有点像QtWidgets程序中的主窗口控件，在实际使用时也一样。可以看到，示例中有着一样的`show`方法、`resize`方法，以及类似的`setTitle`方法，完成窗口的显示、大小修改、标题修改：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtCore import QUrl
 from PySide6.QtQuick import QQuickView
 
 app = QGuiApplication()
 
-# main.qml 内容为：
-'''
-import QtQuick
-
-Rectangle {
-    id: main
-    width: 200
-    height: 200
-    color: 'green'
-
-    Text {
-        text: 'Hello World'
-        anchors.centerIn: main
-    }
-}
-'''
-view = QQuickView(source=QUrl('./main.qml'))
+view = QQuickView()
 view.resize(200,200)
 view.setTitle('Main')
 view.show()
@@ -1255,11 +1236,289 @@ view.show()
 app.exec()
 ```
 
-加载QML字符串（使用`QQuickView`和`QQmlComponent`）：
+![2025_7_1](qt_for_python.assets/2025_7_1.png)
+
+没有添加任何控件的时候，该控件会创建一个空白（或者叫纯白）的窗口。
+
+这是和QtWidgets程序主窗口控件一样、类似的部分，接下来该说一些不一样的地方了。
+
+想要添加控件的话，只能使用QML文件或者字符串。
+
+先在Python文件的同目录下创建`main.qml`文件（文件名不限制，但推荐按这个名字和后缀来），其内容为：
+
+```dart
+import QtQuick
+
+Rectangle {
+    id: main
+    width: 200
+    height: 200
+    color: 'green'
+    Text {
+        text: 'Hello World'
+        anchors.centerIn: main
+    }
+}
+```
+
+然后在初始化`QQuickView`控件时传入文件路径：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtCore import QUrl,QByteArray
+from PySide6.QtQuick import QQuickView
+
+app = QGuiApplication()
+
+view = QQuickView('main.qml')
+view.resize(200,200)
+view.setTitle('Main')
+view.show()
+
+app.exec()
+```
+
+就能看到添加的控件（其实是QML的类型，可以理解为控件）:
+
+![2025_7_2](qt_for_python.assets/2025_7_2.png)
+
+需要注意的是，默认QML文件的相对路径是相对工作目录（命令启动时的路径）而言，如果想要使用绝对路径或者是以Python文件所在目录为相对路径起点，需要使用`QUrl`的静态方法`fromLocalFile`，传入绝对路径或者将相对路径转换为绝对路径后再传入（示例中就是将相对路径转换为绝对路径）：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQuick import QQuickView
+from pathlib import Path
+from PySide6.QtCore import QUrl
+
+app = QGuiApplication()
+
+view = QQuickView(QUrl.fromLocalFile(Path(__file__).parent/'main.qml'))
+view.resize(200,200)
+view.setTitle('Main')
+view.show()
+
+app.exec()
+```
+
+除了使用`fromLocalFile`方法，也可以使用`'file:///'`为前缀，与绝对路径连接，组成URI字符串之后直接代替`QUrl`对象或者传给`QUrl`类。
+
+与`QQuickView`控件不太相同的是，使用`QQmlApplicationEngine`控件的话，QtQuick程序会显得更纯粹，因为该控件如其名，只是一个QML的解析引擎。因此，`QQmlApplicationEngine`控件加载的QML文件需要修改：增加创建（添加）主窗口的代码。而修改主窗口的大小、标题的操作，既可以在QML文件中进行，也可以在Python文件中进行。
+
+QML文件修改如下（创建`Window`或者`ApplicationWindow`为主窗口都可以）：
+
+```dart
+import QtQuick.Window
+
+Window {
+    visible: true
+    //修改窗口标题
+    title: 'Main'
+    //修改窗口大小
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+```
+
+`QQmlApplicationEngine`控件加载QML文件的方法也和`QQuickView`控件一样，初始化时传入文件路径作即可，无需额外调用`show`方法：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from pathlib import Path
+from PySide6.QtCore import QUrl
+
+app = QGuiApplication()
+
+engine = QQmlApplicationEngine(QUrl.fromLocalFile(Path(__file__).parent/'main.qml'))
+
+app.exec()
+```
+
+![2025_7_2](qt_for_python.assets/2025_7_2.png)
+
+也可以使用`load`方法加载QML文件：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from pathlib import Path
+from PySide6.QtCore import QUrl
+
+app = QGuiApplication()
+
+engine = QQmlApplicationEngine()
+engine.load(QUrl.fromLocalFile(Path(__file__).parent/'main.qml'))
+
+app.exec()
+```
+
+如果QML文件中只是创建（添加）了主窗口，没有修改主窗口的大小、标题：
+
+```dart
+import QtQuick.Window
+
+Window {
+    visible: true
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+```
+
+则可以在Python文件中这样修改主窗口的大小、标题：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from pathlib import Path
+from PySide6.QtCore import QUrl
+
+app = QGuiApplication()
+
+engine = QQmlApplicationEngine(QUrl.fromLocalFile(Path(__file__).parent/'main.qml'))
+
+# 智能提示时使用
+from PySide6.QtGui import QWindow
+# 获取主窗口对象
+root :QWindow = engine.rootObjects()[0]
+# 修改窗口大小、标题
+root.resize(200,200)
+root.setTitle('Main')
+
+app.exec()
+```
+
+### 7.2 扩展内容
+
+除了上节介绍的直接加载QML文件的方式，使用`QQmlApplicationEngine`控件、`QQmlComponent`控件、`QQuickView`控件、`QQuickWidget`控件（用法与`QQuickView`控件类似，也支持直接加载QML文件，后续章节介绍）的`loadFromModule`方法可以导入模块（QML模块），也是一种类似加载QML文件的方式。不过，因为其涉及模块（QML模块）相关知识，受限于篇幅，不方便展开介绍，所以模块（QML模块）相关知识会在后续章节中专门介绍，这里仅提一嘴，读者了解一下有这种方式即可。
+
+#### 7.2.1 使用`QQmlComponent`控件加载QML字符串
+
+如果`QQuickView`控件不是直接通过加载QML文件添加控件，而是借助`QQmlComponent`控件（使用`from PySide6.QtQml import QQmlComponent`导入，完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtQml/QQmlComponent.html ）添加控件的话，则可以解锁更多使用QML的方法，比如：加载QML字符串。
+
+`QQmlComponent`控件不能直接使用，需要借助`QQuickView`控件才能添加其他控件：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQuick import QQuickView
+from PySide6.QtQml import QQmlComponent
+from PySide6.QtCore import QUrl
+
+app = QGuiApplication()
+
+view = QQuickView()
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 使用component创建内容，并将其设置为view显示的内容
+view.setContent(QUrl(), component, component.create())
+
+view.resize(200,200)
+view.setTitle('Main')
+
+view.show()
+
+app.exec()
+```
+
+![2025_7_1](qt_for_python.assets/2025_7_1.png)
+
+大体上和直接使用`QQuickView`控件类似，只是多了两步：
+
+1. 使用`QQuickView`控件的`engine`属性（使用`engine`方法获取）为参数来创建`QQmlComponent`控件。
+2. 将`QQuickView`控件显示的内容，通过`setContent`方法设置为`QQmlComponent`控件生成的内容（使用`create`方法获取）。
+
+相关的代码为：
+
+```python3
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 使用component创建内容，并将其设置为view显示的内容
+view.setContent(QUrl(), component, component.create())
+```
+
+不过，从结果上看，使用`QQmlComponent`控件似乎没有任何效果，这是因为`QQmlComponent`控件没有加载QML。
+
+首先，`QQmlComponent`控件和`QQuickView`控件一样支持加载QML文件，有两种方法：
+
+- 初始化时传入文件路径。支持`QUrl`类型（包括URI字符串）或者字符串类型（非URI字符串）表示的QML文件路径（相对路径或者绝对路径），完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtQml/QQmlComponent.html#PySide6.QtQml.QQmlComponent.__init__ 。示例如下（关键代码，非完整代码）：
+
+  ```python3
+  from PySide6.QtCore import QUrl
+  from pathlib import Path
+  
+  # 省略其余部分
+  
+  # 直接使用字符串表示的路径
+  component = QQmlComponent(
+      view.engine(),
+      str(Path(__file__).parent/'main.qml')
+  )
+  
+  # 或者使用QUrl
+  component = QQmlComponent(
+      view.engine(),
+      QUrl.fromLocalFile(Path(__file__).parent/'main.qml')
+  )
+  ```
+
+- 使用`loadUrl`方法。该方法仅支持`QUrl`类型（包括URI字符串）。
+
+以下为`loadUrl`方法加载QML文件的示例：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQuick import QQuickView
+from PySide6.QtQml import QQmlComponent
+from PySide6.QtCore import QUrl
+from pathlib import Path
+
+app = QGuiApplication()
+
+view = QQuickView()
+
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 给component加载QML文件
+component.loadUrl(
+    QUrl.fromLocalFile(Path(__file__).parent/'main.qml')
+)
+
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+view.setContent(QUrl(), component, component.create())
+
+view.resize(200,200)
+view.setTitle('Main')
+
+view.show()
+
+app.exec()
+```
+
+以上都是常规用法，接下来要说的，才是本节的重点内容，让`QQmlComponent`控件加载QML字符串。
+
+想要加载QML字符串，就要使用`setData`方法（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtQml/QQmlComponent.html#PySide6.QtQml.QQmlComponent.setData ）。该方法的第一个参数为编码之后的QML字符串，第二个参数为基础URL地址，需要构建一个`QUrl`对象。
+
+完整示例如下：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QUrl
 from PySide6.QtQuick import QQuickView
 from PySide6.QtQml import QQmlComponent
 
@@ -1273,7 +1532,6 @@ Rectangle {
     width: 200
     height: 200
     color: 'green'
-
     Text {
         text: 'Hello World'
         anchors.centerIn: main
@@ -1285,7 +1543,7 @@ view = QQuickView()
 # 使用view的engine创建component
 component = QQmlComponent(view.engine())
 # 给component加载qml字符串
-component.setData(QByteArray(qml_string.encode()),QUrl())
+component.setData(qml_string.encode(),QUrl())
 # 让view的根内容变成component，并将实际内容变为component的生成内容
 view.setContent(QUrl(), component, component.create())
 
@@ -1297,7 +1555,11 @@ view.show()
 app.exec()
 ```
 
-加载QML字符串（写入临时文件，也兼容Qt中其他只能加载文件的地方）：
+![2025_7_2](qt_for_python.assets/2025_7_2.png)
+
+除了`setData`方法这种支持传入QML字符串的加载方法，还有一种变通的思路可以实现加载QML字符串，那就是把QML字符串编码后写入临时文件，将QML字符串转换成QML文件。
+
+第一种临时文件是用Python的标准库`tempfile`创建，需要在完成加载后手动删除（通过代码，并非真的找到这个文件去删除）临时文件：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
@@ -1315,7 +1577,6 @@ Rectangle {
     width: 200
     height: 200
     color: 'green'
-
     Text {
         text: 'Hello World'
         anchors.centerIn: main
@@ -1341,7 +1602,7 @@ view.show()
 app.exec()
 ```
 
-不想手动删除临时文件的话，可以使用`QTemporaryFile`：
+不想写手动删除临时文件的代码，则可以使用`QTemporaryFile`类（使用`from PySide6.QtCore import QTemporaryFile`导入，完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTemporaryFile.html）创建临时文件，这种临时文件会在Qt程序退出时自动删除：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
@@ -1358,7 +1619,6 @@ Rectangle {
     width: 200
     height: 200
     color: 'green'
-
     Text {
         text: 'Hello World'
         anchors.centerIn: main
@@ -1375,7 +1635,6 @@ if qml_file.open():
 
 view = QQuickView(source=QUrl.fromLocalFile(qml_file.fileName()))
 
-
 view.resize(200,200)
 view.setTitle('Main')
 
@@ -1384,19 +1643,21 @@ view.show()
 app.exec()
 ```
 
-使用`QQmlApplicationEngine`加载文件和字符串都很简单，但不同于`QQuickView`，该控件默认不创建用于显示内容的主窗口，需要在QML中额外定义一个主窗口（`Window`或者`ApplicationWindow`都可以），并在主窗口的节点下挂载其他控件或者内容：
+`QTemporaryFile`类的初始化参数（相关用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTemporaryFile.html#PySide6.QtCore.QTemporaryFile.__init__ ）可以配置临时文件的名字（但是后缀依然为随机，不可自定义）和路径（名字包含路径的话就会同时指定临时文件的生成路径；不包含路径的话，在工作目录中生成；不指定名字的话，临时文件会在系统定义的临时目录中生成），这里为了用户看到临时文件，所以没有定义临时文件的名字。
 
-加载QML文件（使用`QQmlApplicationEngine`）：
+需要注意，向`QTemporaryFile`对象写入数据前，需要先调用`open`方法并判断返回值为`True`（直接调用也可以，但推荐判断一下），并在写入数据之后调用`flush`方法刷新或者`close`方法关闭文件，数据才会真正写入文件中。
+
+#### 7.2.2 使用`QQmlApplicationEngine`控件加载QML字符串
+
+`QQmlApplicationEngine`控件不需要借助其他控件就可以加载QML字符串，使用`loadData`方法加载编码的QML字符串（需要和QML文件内容一样，增加创建主窗口的代码）：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
 
 app = QGuiApplication()
 
-# main.qml 内容为：
-'''
+qml_string = '''
 import QtQuick.Window
 
 Window {
@@ -1409,7 +1670,6 @@ Window {
         width: 200
         height: 200
         color: 'green'
-
         Text {
             text: 'Hello World'
             anchors.centerIn: main
@@ -1417,12 +1677,63 @@ Window {
     }
 }
 '''
-engine = QQmlApplicationEngine(QUrl('./main.qml'))
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
 app.exec()
 ```
 
-加载QML字符串（使用`QQmlApplicationEngine`生成窗口和窗口的内容）：
+![2025_7_2](qt_for_python.assets/2025_7_2.png)
+
+当然，上一节中，将字符串写入临时文件，加载QML字符串变成加载QML文件的方式，对`QQmlApplicationEngine`控件一样适用：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtCore import QUrl,QTemporaryFile
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick.Window
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+'''
+# 将字符串写入临时文件，自动生成随机后缀，程序退出后自动删除
+# 可以指定临时文件的非随机部分名和路径，但要求路径所表示的文件夹已经存在，否则不能正常创建临时文件
+qml_file = QTemporaryFile()
+if qml_file.open():
+    qml_file.write(qml_string.encode())
+    qml_file.close()
+    # 或者使用 qml_file.flush() 写入磁盘文件
+
+engine = QQmlApplicationEngine(QUrl.fromLocalFile(qml_file.fileName()))
+
+app.exec()
+```
+
+![2025_7_2](qt_for_python.assets/2025_7_2.png)
+
+#### 7.2.3 `QQmlApplicationEngine`控件的自动注册
+
+提示：本节中说的模块为QML模块，相关用法会在后面单独的章节中学习，这里只是扩展一下相关内容，不做深入介绍。
+
+先回顾一下`QQmlApplicationEngine`控件加载QML字符串的示例：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
@@ -1444,7 +1755,6 @@ Window {
         width: 200
         height: 200
         color: 'green'
-
         Text {
             text: 'Hello World'
             anchors.centerIn: main
@@ -1458,9 +1768,9 @@ engine.loadData(qml_src.encode('utf-8'),QUrl())
 app.exec()
 ```
 
-需要注意的是，在使用`QQmlApplicationEngine`的示例中，虽然只导入了`QtQuick.Window`模块，没有主动导入其他相关模块，但依然可以使用除了`Window`类型之外的其他类型，比如示例中的`Rectangle`类型和`Text`类型，这是因为在`QQmlApplicationEngine`或者`QQmlEngine`中，涉及到QML文件时，会自动注册`QtQuick`直属的类型（https://doc.qt.io/qt-6/qtquick-qmlmodule.html#object-types）和`QtQml`直属的类型（https://doc.qt.io/qt-6/qtqml-qmlmodule.html#object-types），这些类型无需手动导入`QtQuick`和`QtQml`即可使用。
+可以看到，在`QQmlApplicationEngine`控件加载QML字符串的示例中，虽然只导入了`QtQuick.Window`模块，没有主动导入其他相关模块，但依然可以使用除了`Window`类型之外的其他类型，比如示例中的`Rectangle`类型和`Text`类型。这是因为在`QQmlApplicationEngine`控件或者`QQmlEngine`控件中，涉及到QML文件时，会自动注册`QtQuick`模块直属的类型（https://doc.qt.io/qt-6/qtquick-qmlmodule.html#object-types）和`QtQml`模块直属的类型（https://doc.qt.io/qt-6/qtqml-qmlmodule.html#object-types），这些类型无需手动导入`QtQuick`模块和`QtQml`模块即可使用。
 
-不过，`Window`类型只是在当前Qt版本（6.x）划分为`QtQuick`的直属类型，底层为了兼容旧版本（5.x）还是将其算作原来独立模块（`QtQuick.Window`）的类型，依然需要导入对应的模块才能使用，不会自动注册。不过，在当前Qt版本中，因为其被划分为`QtQuick`的直属类型，只是导入`QtQuick`模块的话也可以使用（相当于主动注册所有直属类型）。要验证的话也简单，将为了使用`Window`类型而不得不添加的导入语句改为`import QtQuick`，`Window`类型可以正常使用：
+不过，`Window`类型只是在当前Qt版本（6.x）划分为`QtQuick`模块的直属类型，底层为了兼容旧版本（5.x）还是将其算作原来独立模块（`QtQuick.Window`）的类型，依然需要导入对应的模块才能使用，不会自动注册。不过，在当前Qt版本中，因为其被划分为`QtQuick`模块的直属类型，只是导入`QtQuick`模块的话也可以使用（相当于主动注册所有直属类型）。要验证的话也简单，将为了使用`Window`类型而不得不添加的导入语句改为`import QtQuick`，`Window`类型依然可以正常使用：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
@@ -1536,9 +1846,9 @@ app.exec()
 
 示例中，使用`Qt`的函数生成颜色对象，使用ES标准中的模板字符串（必须使用反引号包围，格式为`` `${变量}` ``）嵌入应用名称和应用版本。QML支持C语言风格的单行注释`//`和多行注释`/*……*/`。
 
+## 8 在QtWidgets程序中使用QtQuick控件（更新中）
 
 
-## 8 在QtWidgets程序中使用QtQuick程序的控件（更新中）
 
 1 原来的可以直接使用
 
@@ -1941,13 +2251,13 @@ app.exec()
 
 
 
-## 10 QtQuick程序的模块（更新中，补充图片）
+## 10 QtQuick程序的模块（QML模块）（更新中，补充图片）
 
-除了直接导入QML文件这种使用QML文件的方式，还可以将QML文件包装为模块，通过导入模块的方式使用QML文件。
+除了直接导入QML文件这种使用QML文件的方式，还可以将QML文件包装为模块（QML模块），通过导入模块的方式使用QML文件。
 
 ### 10.1 创建模块
 
-要使用模块，需要先创建模块文件夹，将QML文件和`qmldir`文件放在模块文件夹中，并在`qmldir`文件中编写模块名和QML文件对应的类型名。`qmldir`文件的具体语法规则参考 https://doc.qt.io/qtforpython-6/overviews/qtqml-modules-qmldir.html。
+要使用模块，需要先创建模块文件夹，将QML文件（文件名不限制，但推荐文件名常规一些）和`qmldir`文件放在模块文件夹中，并在`qmldir`文件中编写模块名和QML文件对应的类型名。`qmldir`文件的具体语法规则参考 https://doc.qt.io/qtforpython-6/overviews/qtqml-modules-qmldir.html。
 
 模块文件夹的目录结构如下：
 
@@ -1959,7 +2269,7 @@ App
 
 `main.qml`文件的内容为：
 
-```js
+```dart
 import QtQuick.Window
 
 Window {
@@ -2011,7 +2321,7 @@ Main 1.0 main.qml
   setx QML2_IMPORT_PATH './'
   ```
 
-- 通过引擎对象（`QQuickView`对象、`QQuickWidget`对象的`engine`方法返回引擎对象，而`QQmlApplicationEngine`对象本身就是引擎对象）提供的方法添加模块所在的路径，即可识别到自定义的模块。方法有：
+- 通过引擎对象（`QQuickView`控件、`QQuickWidget`控件的`engine`方法返回引擎对象，而`QQmlApplicationEngine`控件本身就是引擎对象）提供的方法添加模块所在的路径，即可识别到自定义的模块。方法有：
 
   - 使用`setImportPathList`方法设置可识别的导入路径列表，但要包括原导入路径（使用`importPathList`方法获取）：
 
@@ -2041,14 +2351,18 @@ Main 1.0 main.qml
   '''
   ```
 
-- 使用引擎对象的`loadFromModule`方法导入模块，会自动创建类型的示例：
+- 使用`QQmlApplicationEngine`控件、`QQmlComponent`控件、`QQuickView`控件、`QQuickWidget`控件的`loadFromModule`方法导入模块，会自动创建类型的示例：
 
   ```python3
+  # 这里的engine是QQmlApplicationEngine控件
+  # 不是引擎对象
   engine.loadFromModule(
       'App', # 模块名
       'Main' # 类型名
   )
   ```
+  
+  需要注意的是，`QQmlComponent`控件是由本身就是窗口的`QQuickView`控件或者`QQuickWidget`控件创建，所以`QQmlComponent`控件导入模块的具体类型不能是具备窗口功能的类型。同样的，`QQuickView`控件或者`QQuickWidget`控件导入模块时也有这样的要求。
 
 完整示例如下：
 
@@ -2116,7 +2430,7 @@ app.exec()
 
 将模块中`main.qml`文件的内容修改如下：
 
-```js
+```dart
 import QtQuick.Window
 
 Window {
@@ -2269,7 +2583,7 @@ app.exec()
 
 （运行截图）
 
-## 11 在QML中使用Python对象
+## 11 在QML中使用Python对象（更新中）
 
 想要在QML中使用Python对象，必须要先获取上下文对象（通过引擎对象的`rootContext`方法获取），然后在上下文对象中注册`Property`属性，才能在QML中使用该属性对应的Python对象。
 
@@ -2636,13 +2950,49 @@ app.exec()
 
 
 
+## 12 控件的样式（更新中）
+
+
+
+控件相关方法：style，styleSheet，setStyle，setStyleSheet
+
+
+
+以及样式的语法
+
+基类：
+
+https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyle.html#PySide6.QtWidgets.QStyle
+
+https://doc.qt.io/qt-6/zh/qstyle.html
+
+
+
+扩展内容
+
+内容的样式
+
+除了控件的样式对象，具体某些内容也有样式（'Style'为后缀的类），比如笔迹的样式（`PenStyle`）：
+
+https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.PenStyle
+
+简单写个对比的示例
+
+
+
+## 12 具体控件——`QPushButton`（更新中）
 
 
 
 
 
+## 12 具体控件——`QMessageBox`（更新中）
 
-## 12 `QTextEdit`的用法（更新中）
+
+
+
+
+## 12 具体控件——`QTextEdit`（更新中）
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
 

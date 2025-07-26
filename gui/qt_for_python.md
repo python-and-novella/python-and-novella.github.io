@@ -1848,51 +1848,47 @@ app.exec()
 
 ## 8 在QtWidgets程序中使用QtQuick控件（更新中）
 
-### 8.1 QtQuick程序的主窗口控件无缝衔接（更新中）
+### 8.1 QtQuick程序的主窗口控件无缝衔接
 
+介绍程序类时说过三者的继承关系为：`QCoreApplication -> QGuiApplication -> QApplication`。而QtQuick程序，是程序类实例为`QGuiApplication`类实例的Qt程序；QtWidgets程序，是程序类实例为`QApplication`类实例的Qt程序。基于这一事实，想要在QtWidgets程序中使用QtQuick控件并不是什么难事，QtQuick程序的主窗口控件和QtQuick控件可以在QtWidgets程序直接使用，二者无缝衔接。
 
+因此，将QtQuick程序修改为QtWidgets程序只需很少的变动（修改程序类为`QApplication`）。当然，为了验证Qt程序的类型转换是否真的成功，还可以添加一个QtWidgets程序中才能运行的窗口。
 
-（随便写个增加了传统控件的示例，总结一下QtQuick程序的主窗口控件无缝衔接即可）
-
-1 原来的可以直接使用
+示例如下：
 
 ```python3
-from PySide6.QtCore import QUrl,QByteArray
-from PySide6.QtQuick import QQuickView
-from PySide6.QtQml import QQmlComponent
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtCore import QUrl,QTemporaryFile
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 
-# 包含QtWidgets程序控件只能使用QApplication，不能使用QGuiApplication
+# 修改程序类为QApplication
 app = QApplication()
 
 qml_string = '''
-import QtQuick
+import QtQuick.Window
 
-Rectangle {
-    id: main
+Window {
+    visible: true
+    title: 'Main'
     width: 200
     height: 200
-    color: 'green'
-
-    Text {
-        text: 'Hello World'
-        anchors.centerIn: main
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
     }
 }
 '''
-
-view = QQuickView()
-# 使用view的engine创建component
-component = QQmlComponent(view.engine())
-# 给component加载qml字符串
-component.setData(QByteArray(qml_string.encode()),QUrl())
-# 让view的根内容变成component，并将实际内容变为component的生成内容
-view.setContent(QUrl(), component, component.create())
-
-view.resize(200,200)
-view.setTitle('Main')
-
-view.show()
+qml_file = QTemporaryFile()
+if qml_file.open():
+    qml_file.write(qml_string.encode())
+    qml_file.close()
+engine = QQmlApplicationEngine(QUrl.fromLocalFile(qml_file.fileName()))
 
 # 非QtQuick部分
 window2 = QWidget()
@@ -1903,11 +1899,41 @@ window2.show()
 app.exec()
 ```
 
+![2025_8_1](qt_for_python.assets/2025_8_1.png)
 
-
-
+其余QtQuick程序的代码也都可以完美运行，这里就不一一演示了，留给读者自行探索。本章的重点在于下节要介绍的`QQuickWidget`控件，这就是前面铺垫过的、能够显示QtQuick控件的第三种主窗口控件。
 
 ### 8.2 `QQuickWidget`控件是`QQuickView`控件的平替（更新中）
+
+
+
+https://doc.qt.io/qtforpython-6/PySide6/QtQuickWidgets/QQuickWidget.html#PySide6.QtQuickWidgets.QQuickWidget
+
+
+
+https://doc.qt.io/qtforpython-6/PySide6/QtQuick/QQuickView.html#PySide6.QtQuick.QQuickView
+
+
+
+平替的部分：
+
+- 部分参数相同
+- 可加载的QML相同：
+  - QML文件
+  - 模块（QML模块）
+  - QML字符串
+- 部分方法相同，比如修改窗口大小
+- ……
+
+差异的部分：
+
+- 继承的类不同
+- 部分方法不同，比如设置窗口标题
+- ……
+
+
+
+（找一下其他相同、不同的地方，相同的地方直接写通用示例，不同的地方写几个对比的示例）
 
 
 

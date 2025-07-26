@@ -1,4 +1,4 @@
-# Textual拾遗（2025）
+# Textual拾遗（完结）
 
 ## 0 为什么要写这个系列
 
@@ -837,9 +837,7 @@ class MyApp(App):
         self.mount_all(self.widgets)
     async def on_click(self):
         from datetime import datetime
-        import asyncio
         for _ in range(5):
-            asyncio.sleep(1)
             await self.query_one(Markdown).append(f'\n### {datetime.now()}')
     def key_q(self):
         self.screen.anchor()
@@ -853,53 +851,135 @@ if __name__ == '__main__':
 
 ![2025_4_2](textual_plus.assets/2025_4_2.gif)
 
-## 5 版本速览——5.0.0版本的新增内容（发现bug，等待修复中）
+## 5 版本速览——5.0.0版本的新增内容
 
-5.0.0版本变动不大，没有明显新增内容，主要是性能优化，已经给部分组件增加了一些属性：
+注意，5.0.0版本中`Markdown`标记文本组件新增的`append`方法出现异常，需要升级至5.0.1版本才能修复，下面内容的示例均为5.0.1版本的示例。
 
-- 为Visual协议添加了get_minimal_width[#5962](https://github.com/Textualize/textual/pull/5962)
-- 添加了 `expand` 和 `shrink` 属性到GridLayout [#5962](https://github.com/Textualize/textual/pull/5962)
-- 添加了`Markdown.get_stream` [#5966](https://github.com/Textualize/textual/pull/5966)
-- 添加了 `textual.highlight` 语法高亮模块 [#5966](https://github.com/Textualize/textual/pull/5966)
-- 添加了 `MessagePump.wait_for_refresh` 方法 [#5966](https://github.com/Textualize/textual/pull/5966)
-- 添加了 `Widget.container_scroll_offset` [`e84600c`](https://github.com/Textualize/textual/commit/e84600cfb31630f8b5493bf1043a4a1e7c212f7c)
-- 添加了 `Markdown.source` 属性到 MarkdownBlocks [`e84600c`](https://github.com/Textualize/textual/commit/e84600cfb31630f8b5493bf1043a4a1e7c212f7c)
-- 为Markdown添加了扩展机制[`e84600c`](https://github.com/Textualize/textual/commit/e84600cfb31630f8b5493bf1043a4a1e7c212f7c)
-- 添加了 `index`到 `ListView.Selected`事件 [#5973](https://github.com/Textualize/textual/pull/5973)
-- 添加了`layout`静态更新开关[#5973](https://github.com/Textualize/textual/pull/5973)
+5.0.0版本的变动较多，但大部分是围绕`Markdown`标记文本组件进行的，因此本文主要介绍`Markdown`标记文本组件相关的变动，其余的小变动对日常使用影响不大，读者可以看官方发布公告（https://github.com/Textualize/textual/releases/tag/v5.0.0）了解完整内容。
 
+本次更新为了优化`Markdown`标记文本组件的性能，修改了其中表格内容的渲染方式，改为使用网格布局组件代替原来的富文本表格，同时允许选择文本。此外，一些标记文本组件中使用的样式也做了调整。
 
+`Markdown`标记文本组件新增属性：
 
+- `source`属性，同`markdown`参数。
 
+`Markdown`标记文本组件新增类方法：
 
-不过，这个版本的更新导致上个版本`Markdown`标记文本组件新增的`append`方法出现异常，所以，本次版本更新内容暂停，等官方修复后重新梳理。
+- `get_stream`方法，该方法以`Markdown`标记文本组件为参数，返回`MarkdownStream`对象，用于不断追加内容（类似`Markdown`标记文本组件的`append`方法）。示例如下：
 
+  ```python3
+  from textual.app import App
+  from textual.widgets import Markdown
+  from datetime import datetime
+  
+  TEXT = '''\
+  ### Hello
+  **World**
+  '''
+  
+  class MyApp(App):
+      def on_mount(self):
+          self.widgets = [
+              Markdown(TEXT)
+          ]
+          self.mount_all(self.widgets)
+      async def on_click(self):
+          stream = Markdown.get_stream(self.query_one(Markdown))
+          for _ in range(5):
+              await stream.write(f'\n### {datetime.now()}')
+  
+  if __name__ == '__main__':
+      app = MyApp()
+      app.run()
+  ```
 
+`Markdown`标记文本组件样式相关变动：
 
-# Textual拾遗（2026）
+- 所有渲染的内容挂载到`MarkdownBlock`组件下，同时因为内部的代码优化，可以实现添加下面的样式后，对应内容会在超过可显示宽度时自动换行。
 
-## 0 2026版前言
+  ```css
+  /*代码块自动换行*/
+  MarkdownFence > * {
+  	width: 100%;
+  }
+  /*其他内容自动换行*/
+  MarkdownBlock {
+  	width: 100%;
+  }
+  ```
 
-NiceGUI不断更新，开发时遇到的问题也层出不穷，学习更是温故而知新。因此，2026年，笔者将继续本教程系列的更新，沿袭2025版的目标，添补NiceGUI学习中欠缺的知识。
+5.0.0版本的另一个重要更新就是新增`textual.highlight`模块。
 
+之前介绍`TextArea`文本区域组件时，说过使用Rich的`Syntax`高亮内容：
 
+```python3
+from textual.app import App
+from textual.widgets import Static
+from rich.syntax import Syntax
 
-## 1 版本速览——x.x.x版本新增内容（多个小功能合并讲解）
+code = '''\
+#include <stdio.h>
 
+int main() {
+    printf('Hello World!');
+    return 0;
+}
+'''
+syntax = Syntax(code,'c')
 
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Static(syntax)
+        ]
+        self.mount_all(self.widgets)
 
-## 2 版本速览——x.x.x版本新增xxx（具体的单个功能）
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
+`textual.highlight`模块的`highlight`方法也有这样的作用：
 
+```python3
+from textual.app import App
+from textual.widgets import Static
+from textual.highlight import HighlightTheme,highlight
+from pygments.token import Token
 
-## 1 （修正2025.13）
+theme = HighlightTheme()
+theme.STYLES[Token.Keyword] = 'red underline'
 
-原内容存在错误，修正错误。
+code = '''\
+#include <stdio.h>
 
-## 1 （补充2025.13）
+int main() {
+    printf('Hello World!');
+    return 0;
+}
+'''
+syntax = highlight(code,language='c',theme=theme)
 
-原内容不全面，补充内容。
+class MyApp(App):
+    def on_mount(self):
+        self.widgets = [
+            Static(syntax)
+        ]
+        self.mount_all(self.widgets)
 
-## 1 （扩展2025.13）
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()
+```
 
-从原内容想到的其他内容，虽然可以作为独立的内容写标题，但这部分内容确实是看完原内容才有了创作契机。
+![2025_5_1](textual_plus.assets/2025_5_1.png)
+
+具体样式如何配置可以参考源码和官网文档，这里不做过多介绍。
+
+## 0 完结
+
+没想到这个系列也会完结。按理来说，这种可以跟着官方更新内容不断跟进（水字数）的主题，哪怕持续更新，也不会出现无内容可写的窘境。不过，看着后台相关内容的热度，笔者也难免感慨TUI的时代已经过去了。
+
+好在相关基础教程已经更新完毕，手头已经立项的其他TUI框架教程也即将进入收尾阶段，TUI框架类还有内容继续更新。
+
+在更新完手头的TUI框架类教程之后，未来将以GUI类和Web类教程为主（相关内容的热度不是一般高），TUI框架类教程看未来发展趋势决定是否重启（应该不会重启了，即使框架优秀，受众太少也导致了开发需求很少）。

@@ -1,67 +1,502 @@
-# tkinter 札记（2025）
+# tkinter的快速入门教程
 
 ## 0 为何而写
 
-虽然已经有Qt、NiceGUI等更加现代、美观的GUI框架，但tkinter依然有不可替代的优势——内置。因为是内置的，所以不用额外安装，只要安装了Python，就可以直接使用。当然，网上和官方的教程不少，也有很多中文教程，学起来很容易。不过，很多教程使用的控件不是支持样式的新式控件，让不少人草草放弃了tkinter。因此，本教程将汲取那些优秀的现有内容，立足于新式控件的使用，按照笔者的想法整合、补充相关内容，让大家重新认识tkinter。
+tkinter的教程很多，但想要快速入门的话，还是要看一会儿资料才能有个大概。于是，笔者想在三言两语说完基本用法、常用参数、常用方法，实现快速入门的目的，这才有了本教程。
 
-本教材的主要内容，可能是找遍全网都没有答案的问题（有些夸张），也可能是看其他教程有感而发（就像读书笔记）。然后，以创作的时间顺序作为更新顺序（确实有点像读书笔记或者日记），并为每篇内容添加概括主要内容的标题（标题很重要，但不能做标题党）。最后，共同构成本教程（说白了就是拼好文）。
-
-本教材主要以官方教程（ https://docs.python.org/zh-cn/3.13/library/tkinter.html ）、入门教程（https://tkdocs.com/tutorial/onepage.html）和API手册（https://tkdocs.com/pyref/index.html）为基准，依照笔者的思路搜罗网络的公开资料并作为参考，在此感谢所有无私的创作者。
+本教程主要以官方教程（ https://docs.python.org/zh-cn/3.13/library/tkinter.html ）、入门教程（https://tkdocs.com/tutorial/onepage.html）、API手册（https://tkdocs.com/pyref/index.html）和Tcl的手册（https://www.tcl-lang.org/man/tcl8.6/contents.htm）为基准，依照笔者的思路搜罗网络的公开资料并作为参考。
 
 ## 1 tkinter的安装
 
-这也许是最快开始的GUI框架了，居然不用介绍如何安装！开玩笑，本身内置在Python程序中，自然不需要安装。不过，话不能说绝了，虽然tkinter是默认安装的，但还是要确保万无一失，如果读者在安装Python程序时，点了自定义安装，想要少安装一些不必要的内容（比如自带文档和测试套件，没必要或者一开始用不到），切勿取消`tcl/tk and IDLE`这个选项（见下图），这个就是安装tkinter的选项。
+tkinter不能通过pip安装，只能在安装Python程序时一并安装，安装时切勿取消`tcl/tk and IDLE`这个选项（见下图），这个就是安装tkinter的选项。
 
 ![2025_1_1](tkinter.assets/2025_1_1.png)
 
-为什么要重点强调一下安装呢？不同于其他Python的库，大部分内置库（主要是标准库）无法通过`pip`命令安装，因此，如果没在安装Python程序时安装这些库，后续只能重新运行安装程序才能安装，还是有点麻烦的。
+## 2 tkinter程序的基本结构
 
-## 2 Hello World 程序（构思中）
-
-在编程语言界，万物始于神秘的字符串`'Hello World'`，这就像
-
-
-
-（编程语言有helloworld的习俗，到了框架的学习，也未能免俗，介绍一下helloworld的基本用途、功能，解释一下这个习俗的背后含义，就像新生儿的第一声啼哭，是框架学习者的第一声问候，学习者入门了）
-
-
+tkinter程序也是类似“创建程序类实例-创建主窗口-添加控件-运行程序类实例循环方法”的结构：
 
 ```python3
 from tkinter import Tk
 from tkinter import ttk
 
 root = Tk()
-root.title('Title')
-root.geometry(f'320x240+{root.winfo_screenwidth()//2-160}+{root.winfo_screenheight()//2-120}')
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 label = ttk.Label(root,text='Hello World')
 label.pack()
 
 root.mainloop()
 ```
 
+![2025_2_1](tkinter.assets/2025_2_1.png)
+
+其中，`Tk`类就是程序类，同时也具备主窗口功能（可以理解为主窗口控件与程序类二合一）。创建、添加的控件想要显示，需要调用布局方法（`pack`方法就是其中一种）。`Tk`类实例的`mainloop`方法就是程序类实例的循环方法。
+
+## 3 tkinter的控件
+
+在tkinter中，按照其是否支持使用主题（由样式对象设定统一的样式或者创建自定义样式）的情况，控件可分为两类：
+
+- 可以使用主题的控件。
+- 不能使用主题的控件。
+
+可以使用主题的控件是`tkinter.ttk`模块提供的控件，也是目前推荐使用的控件。
+
+不能使用主题的控件是`tkinter`模块的顶层控件以及一个在`tkinter.scrolledtext`模块中的控件，因为`tkinter.ttk`模块提供的控件不能覆盖所有功能，所以这些顶层控件还是要掌握。
+
+### 3.1 `tkinter.ttk`模块的控件
+
+#### 3.1.1 `tkinter.ttk.Button`按钮控件
+
+`tkinter.ttk.Button`的官方文档：https://tkdocs.com/pyref/ttk_button.html。
+
+注意，很多控件参数、属性、方法相同，但因为该控件是第一次介绍这些内容，所以会介绍比较详细。后续其他控件除了特有的参数、属性、方法会详细介绍外，相同的参数、属性、方法都会一笔带过。
+
+该控件支持以下参数（相关参数的完整用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_button.htm）：
+
+- `master`参数，表示该控件的父控件。该参数一般要指定为容器控件，这样容器才会编排子控件的位置，控件的布局方法才能正确生效。
+
+- `class_`参数，字符串类型，表示控件对应的的Tcl/Tk“窗口类名。该参数与窗口管理器相关，也会影响到样式。一般该参数会根据控件的类型自动决定（比如ttk的按钮对应的是`'TButton'`），通常不需要单独设置该参数。从该参数开始，只能通过关键字传入。
+
+- `command`参数，可调用类型，点击控件后执行的操作。
+
+- `compound`参数，字符串类型，表示图像与文字组合的方式（需要同时指定`image`参数），仅支持`['center','text','image','top','left','right','bottom','none']`中的值，依次表示文字在图片中央、只显示文字、只显示图片、图片在文字上方、图片在文字左方、图片在文字右方、图片在文字下方、不组合（效果相当于只显示图片，也就是默认值）。
+
+  示例如下：
+
+  ```python3
+  from tkinter import Tk,PhotoImage
+  from tkinter import ttk
+  from pathlib import Path
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  # 需要使用PhotoImage方法转换（PGM, PPM, GIF, PNG）图片之后才能传给image参数
+  # 图片不会自动缩放，需要自己调整原始图片的分辨率
+  img = PhotoImage(file=Path(__file__).parent/'button.png',width=100,height=50)
+  
+  for i in ['center','text','image','top','left','right','bottom','none']:
+      ttk.Button(root,text=i,compound=i,image=img).pack()
+  
+  root.mainloop()
+  ```
+
+  ![2025_3_1_1_1](tkinter.assets/2025_3_1_1_1.png)
+
+- `cursor`参数，字符串类型，表示鼠标悬停在该控件上时光标的样式。具体支持的部分样式可以参考示例（完整样式可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/cursors.htm）：
+
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title("Main")
+  width = 840
+  height = 640
+  root.geometry(
+      f"{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}"
+  )
+  
+  def show(cursor, i):
+      ttk.Button(root, text=cursor, cursor=cursor).grid(column=i // 20, row=i % 20)
+  
+  cursorList = [
+      "arrow",
+      "xterm",
+      "ibeam",
+      "watch",
+      "wait",
+      "hand1",
+      "hand2",
+      "no",
+      "question_arrow",
+      "uparrow",
+      "size",
+      "size_ns",
+      "size_we",
+      "size_ne_sw",
+      "size_nw_se",
+      "starting",
+      "crosshair",
+      "sb_h_double_arrow",
+      "sb_v_double_arrow",
+      "fleur",
+      "based_arrow_down",
+      "based_arrow_up",
+      "boat",
+      "bogosity",
+      "top_left_corner",
+      "top_right_corner",
+      "bottom_left_corner",
+      "bottom_right_corner",
+      "top_side",
+      "bottom_side",
+      "top_tee",
+      "bottom_tee",
+      "box_spiral",
+      "center_ptr",
+      "circle",
+      "clock",
+      "coffee_mug",
+      "cross",
+      "cross_reverse",
+      "diamond_cross",
+      "dot",
+      "dotbox",
+      "double_arrow",
+      "top_left_arrow",
+      "draft_small",
+      "draft_large",
+      "left_ptr",
+      "right_ptr",
+      "draped_box",
+      "exchange",
+      "gobbler",
+      "gumby",
+      "hand1",
+      "heart",
+      "icon",
+      "iron_cross",
+      "left_side",
+      "right_side",
+      "left_tee",
+      "right_tee",
+      "leftbutton",
+      "middlebutton",
+      "rightbutton",
+      "ll_angle",
+      "lr_angle",
+      "man",
+      "mouse",
+      "pencil",
+      "pirate",
+      "plus",
+      "rtl_logo",
+      "sailboat",
+      "sb_left_arrow",
+      "sb_right_arrow",
+      "sb_up_arrow",
+      "sb_down_arrow",
+      "shuttle",
+      "sizing",
+      "spider",
+      "spraycan",
+      "star",
+      "target",
+      "tcross",
+      "trek",
+      "ul_angle",
+      "umbrella",
+      "ur_angle",
+      "X_cursor",
+  ]
+  
+  for i in range(len(cursorList)):
+      show(cursorList[i], i)
+  
+  root.mainloop()
+  ```
+
+- `default`参数，字符串类型，表示按钮默认可用的状态下的激活样式，仅支持`['disabled','normal','active']`中的值。示例如下：
+
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  
+  for i in ['disabled','normal','active']:
+      ttk.Button(root,text=i,default=i).pack()
+  
+  root.mainloop()
+  ```
+
+  ![2025_3_1_1_2](tkinter.assets/2025_3_1_1_2.png)
+
+- `image`参数，`PhotoImage`类型或者字符串类型，表示控件额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。示例如下：
+
+  ```python3
+  from tkinter import Tk,PhotoImage,Image
+  from tkinter import ttk
+  from pathlib import Path
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  img = PhotoImage('logo',file=Path(__file__).parent/'button.png',width=100,height=50)
+  
+  ttk.Button(root,text='image',image=img).pack()
+  ttk.Button(root,text='image',image='logo').pack()
+  
+  root.mainloop()
+  ```
+
+  ![2025_3_1_1_3](tkinter.assets/2025_3_1_1_3.png)
+
+- `name`参数，字符串类型，表示控件的内部名称，自动注册到父控件的控件树中。控件的父控件可以使用`nametowidget`方法获取到该控件：
+
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  ttk.Button(root,text='click',name='button').pack()
+  
+  # 通过name获取控件，并修改显示的文字
+  root.nametowidget('button').configure(text='close')
+  
+  root.mainloop()
+  ```
+
+  ![2025_3_1_1_4](tkinter.assets/2025_3_1_1_4.png)
+
+- `padding`参数，整数类型或者元素为整数类型的元组或者字符串类型，表示控件的内边距（边界到文字，单位为像素）。该参数为整数类型或者单元素元组或者字符串中只包含一个合法的整数时，表示四个方向上的内边距。该参数为双元素元组或者包含两个合法整数的字符串时，两个整数分别表示左右方向的内边距和上下方向的内边距。该参数为四元素元组或者包含四个合法整数的字符串时，四个整数分别表示左、上、右、下方向的内边距。
+
+- `state`参数，字符串类型，表示控件的状态，仅支持`['disabled','normal','active']`中的值。示例如下：
+
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  
+  for i in ['disabled','normal','active']:
+      ttk.Button(root,text=i,state=i).pack()
+  
+  root.mainloop()
+  ```
+
+  ![2025_3_1_1_5](tkinter.assets/2025_3_1_1_5.png)
+
+- `style`参数，字符串类型，表示控件使用的主题样式。具体主题、样式的用法见后续章节的专门介绍，这里只提供示例，不做展开介绍：
+
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  ttk.Style(root).configure('Info.TButton',foreground='green')
+  ttk.Button(root,text='click',style='Info.TButton').pack()
+  
+  root.mainloop()
+  ```
+
+  ![2025_3_1_1_6](tkinter.assets/2025_3_1_1_6.png)
+
+- `takefocus`参数，布尔类型，表示该控件是否接收焦点（按`tab`键可以切换控件的焦点），默认为`True`。
+
+- `text`参数，字符串类型或者浮点类型，表示控件显示的文字。
+
+- `textvariable`参数，`Variable`类型（其派生类型`StringVar`等也可以）或者字符串类型，`text`参数的变量绑定版本。
+
+  为什么要用变量绑定呢？那是因为tkinter的控件显示的文字一般情况下不支持与变量绑定，比如，这样的操作没法修改显示的文字：
+
+  ```python3
+  from tkinter import Tk,Variable
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  button_var = 'click'
+  
+  def change():
+      global button_var
+      button_var = 'close'
+      print(button_var)
+  
+  ttk.Button(root,tex=button_var).pack()
+  ttk.Button(root,text='change',command=change).pack()
+  
+  root.mainloop()
+  ```
+
+  想要让控件的相关参数与变量绑定，并且随着变量的变化实时刷新相关内容，就要使用`tkinter`模块提供的`Variable`类和其余几个'Var'为后缀的派生类（派生类指定了值的类型）创建变量对象。变量对象内部实现了值变化时自动刷新相关内容，并且支持`name`参数，可以注册内部名称。相应的，控件这边也只能将变量对象或者变量对象的`name`传给支持变量绑定的参数（'variable'为后缀的参数名）。示例如下：
+
+  ```python3
+  from tkinter import Tk,Variable
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  # 变量对象
+  button_var = Variable(name='button',value='close')
+  # 使用变量对象的内部名称
+  ttk.Button(root,text='click',textvariable='button').pack()
+  # 直接使用变量对象
+  ttk.Button(root,text='click',textvariable=button_var).pack()
+  # 使用变量对象的值，通过get方法，不会自动绑定
+  ttk.Button(root,text=button_var.get()).pack()
+  # 修改变量对象的值，通过set方法，
+  ttk.Button(root,text='change',command=lambda : button_var.set('click')).pack()
+  
+  root.mainloop()
+  ```
+
+  ![2025_3_1_1_7](tkinter.assets/2025_3_1_1_7.gif)
+
+- `underline`参数，整数类型，表示给指定索引值的字符添加下划线，用于菜单项的快捷键绑定，默认为`-1`。
+
+- `width`参数，整数类型，表示控件的宽度，单位为字符数。
+
+控件支持以下属性：
+
+- 
+
+控件支持以下方法：
+
+- `after`方法，
 
 
 
 
-（语言风格轻松一些，内容偏口语化，）
 
 
+
+主要有：
+
+- 
+- [`tkinter.ttk.Checkbutton`](https://tkdocs.com/pyref/ttk_checkbutton.html)，多选框。
+- [`tkinter.ttk.Combobox`](https://tkdocs.com/pyref/ttk_combobox.html)，下拉选择框。
+- [tkinter.ttk.Entry](https://tkdocs.com/pyref/ttk_entry.html) - *Ttk Entry widget displays a one-line text string and allows that string to be edited by the user.*
+- [tkinter.ttk.Frame](https://tkdocs.com/pyref/ttk_frame.html) - *Ttk Frame widget is a container, used to group other widgets together.*
+- [tkinter.ttk.Label](https://tkdocs.com/pyref/ttk_label.html) - *Ttk Label widget displays a textual label and/or image.*
+- [tkinter.ttk.LabeledScale](https://tkdocs.com/pyref/ttk_labeledscale.html) - *A Ttk Scale widget with a Ttk Label widget indicating its current value. The Ttk Scale can be accessed through instance.scale, and Ttk Label can be accessed through instance.label*
+- [tkinter.ttk.Labelframe](https://tkdocs.com/pyref/ttk_labelframe.html) - *Ttk Labelframe widget is a container used to group other widgets together. It has an optional label, which may be a plain text string or another widget.*
+- [tkinter.ttk.Menubutton](https://tkdocs.com/pyref/ttk_menubutton.html) - *Ttk Menubutton widget displays a textual label and/or image, and displays a menu when pressed.*
+- [tkinter.ttk.Notebook](https://tkdocs.com/pyref/ttk_notebook.html) - *Ttk Notebook widget manages a collection of windows and displays a single one at a time.*
+- [tkinter.ttk.OptionMenu](https://tkdocs.com/pyref/ttk_optionmenu.html) - *Themed OptionMenu, based after tkinter's OptionMenu, which allows the user to select a value from a menu.*
+- [tkinter.ttk.Panedwindow](https://tkdocs.com/pyref/ttk_panedwindow.html) - *Ttk Panedwindow widget displays a number of subwindows, stacked either vertically or horizontally.*
+- [tkinter.ttk.Progressbar](https://tkdocs.com/pyref/ttk_progressbar.html) - *Ttk Progressbar widget shows the status of a long-running operation.*
+- [tkinter.ttk.Radiobutton](https://tkdocs.com/pyref/ttk_radiobutton.html) - *Ttk Radiobutton widgets are used in groups to show or change a set of mutually-exclusive options.*
+- [tkinter.ttk.Scale](https://tkdocs.com/pyref/ttk_scale.html) - *Ttk Scale widget is typically used to control the numeric value of a linked variable that varies uniformly over some range.*
+- [tkinter.ttk.Scrollbar](https://tkdocs.com/pyref/ttk_scrollbar.html) - *Ttk Scrollbar controls the viewport of a scrollable widget.*
+- [tkinter.ttk.Separator](https://tkdocs.com/pyref/ttk_separator.html) - *Ttk Separator widget displays a horizontal or vertical separator bar.*
+- [tkinter.ttk.Sizegrip](https://tkdocs.com/pyref/ttk_sizegrip.html) - *Ttk Sizegrip allows the user to resize the containing toplevel window by pressing and dragging the grip.*
+- [tkinter.ttk.Spinbox](https://tkdocs.com/pyref/ttk_spinbox.html) - *Ttk Spinbox is an Entry with increment and decrement arrows It is commonly used for number entry or to select from a list of string values.*
+- [tkinter.ttk.Treeview](https://tkdocs.com/pyref/ttk_treeview.html) - *Ttk Treeview widget displays a hierarchical collection of items.*
+
+不能使用主题的控件是tkinter的顶层控件，但这部分控件分类两类，一类是`tkinter.ttk`模块提供的控件中有相同用途控件的控件，主要有：
+
+- [tkinter.Button](https://tkdocs.com/pyref/button.html) - *Button widget.*
+- [tkinter.Checkbutton](https://tkdocs.com/pyref/checkbutton.html) - *Checkbutton widget which is either in on- or off-state.*
+- [tkinter.Entry](https://tkdocs.com/pyref/entry.html) - *Entry widget which allows displaying simple text.*
+- [tkinter.Frame](https://tkdocs.com/pyref/frame.html) - *Frame widget which may contain other widgets and can have a 3D border.*
+- [tkinter.Label](https://tkdocs.com/pyref/label.html) - *Label widget which can display text and bitmaps.*
+- [tkinter.LabelFrame](https://tkdocs.com/pyref/labelframe.html) - *labelframe widget.*
+- [tkinter.Menubutton](https://tkdocs.com/pyref/menubutton.html) - *Menubutton widget, obsolete since Tk8.0.*
+- [tkinter.Message](https://tkdocs.com/pyref/message.html) - *Message widget to display multiline text. Obsolete since Label does it too.*
+- [tkinter.OptionMenu](https://tkdocs.com/pyref/optionmenu.html) - *OptionMenu which allows the user to select a value from a menu.*
+- [tkinter.PanedWindow](https://tkdocs.com/pyref/panedwindow.html) - *panedwindow widget.*
+- [tkinter.Radiobutton](https://tkdocs.com/pyref/radiobutton.html) - *Radiobutton widget which shows only one of several buttons in on-state.*
+- [tkinter.Scale](https://tkdocs.com/pyref/scale.html) - *Scale widget which can display a numerical scale.*
+- [tkinter.Scrollbar](https://tkdocs.com/pyref/scrollbar.html) - *Scrollbar widget which displays a slider at a certain position.*
+- [tkinter.Spinbox](https://tkdocs.com/pyref/spinbox.html) - *spinbox widget.*
+
+另一类是`tkinter.ttk`模块提供的控件中没有相同用途控件的控件，主要有：
+
+- [tkinter.Tk](https://tkdocs.com/pyref/tk.html) - *Toplevel widget of Tk which represents mostly the main window of an application. It has an associated Tcl interpreter.*
+- [tkinter.Canvas](https://tkdocs.com/pyref/canvas.html) - *Canvas widget to display graphical elements like lines or text.*
+- [tkinter.Listbox](https://tkdocs.com/pyref/listbox.html) - *Listbox widget which can display a list of strings.*
+- [tkinter.Menu](https://tkdocs.com/pyref/menu.html) - *Menu widget which allows displaying menu bars, pull-down menus and pop-up menus.*
+- [tkinter.Text](https://tkdocs.com/pyref/text.html) - *Text widget which can display text in various forms.*
+- [tkinter.Toplevel](https://tkdocs.com/pyref/toplevel.html) - *Toplevel widget, e.g. for dialogs.*
+- [tkinter.BitmapImage](https://tkdocs.com/pyref/bitmapimage.html) - *Widget which can display images in XBM format.*
+- [tkinter.PhotoImage](https://tkdocs.com/pyref/photoimage.html) - *Widget which can display images in PGM, PPM, GIF, PNG format.*
+
+以及一个在tkinter.scrolledtext模块中的控件：
+
+- tkinter.scrolledtext（基于Text控件）
+
+
+
+控件常用的关键字参数（不同控件支持的参数不一样，具体以实际控件为准）为：
+
+- `text`参数，字符串类型，控件上显示的文字。
+- `command`参数，可调用类型，点击控件后执行的操作。只有明显可以点击操作控件才有此参数，对于任意控件，可以通过`bind`方法绑定点击事件的响应函数。
+
+控件常用的方法为：
+
+- `bind`方法，
+
+
+
+## 4 主题与样式
+
+
+
+https://tkdocs.com/tutorial/styles.html
+
+
+
+
+
+## 5 布局方法
+
+
+
+
+
+## 6 tkinter的对话框
+
+
+
+提供对话框的模块
+
+- [tkinter.filedialog.Directory](https://tkdocs.com/pyref/filedialog_directory.html) - *Ask for a directory*
+- [tkinter.filedialog.Open](https://tkdocs.com/pyref/filedialog_open.html) - *Ask for a filename to open*
+- [tkinter.filedialog.SaveAs](https://tkdocs.com/pyref/filedialog_saveas.html) - *Ask for a filename to save as*
+- [tkinter.colorchooser.Chooser](https://tkdocs.com/pyref/colorchooser_chooser.html) - *Create a dialog for the tk_chooseColor command.*
+- tkinter.messagebox，showerror等等
+- tkinter.simpledialog
 
 
 
 ```python3
-from tkinter import Tk
-from tkinter import ttk
-
-root = Tk()
-root.title('Title')
-root.geometry(f'320x240+{root.winfo_screenwidth()//2-160}+{root.winfo_screenheight()//2-120}')
-# 新式控件，支持样式
-button = ttk.Button(root,text='Hello World')
-button.pack()
-
-root.mainloop()
+from tkinter.filedialog import Open
+print(Open().show())
 ```
+
+
+
+
+
+
 
 
 

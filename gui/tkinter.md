@@ -1,18 +1,22 @@
 # tkinter的快速入门教程
 
+[toc]
+
 ## 0 为何而写
 
 tkinter的教程很多，但想要快速入门的话，还是要看一会儿资料才能有个大概。于是，笔者想在三言两语说完基本用法、常用参数、常用方法，实现快速入门的目的，这才有了本教程。
 
 本教程主要以官方教程（ https://docs.python.org/zh-cn/3.13/library/tkinter.html ）、入门教程（https://tkdocs.com/tutorial/onepage.html）、API手册（https://tkdocs.com/pyref/index.html）和Tcl的手册（https://www.tcl-lang.org/man/tcl8.6/contents.htm）为基准，依照笔者的思路搜罗网络的公开资料并作为参考。
 
-## 1 tkinter的安装
+## 1 基础知识
+
+### 1.1 tkinter的安装
 
 tkinter不能通过pip安装，只能在安装Python程序时一并安装，安装时切勿取消`tcl/tk and IDLE`这个选项（见下图），这个就是安装tkinter的选项。
 
-![2025_1_1](tkinter.assets/2025_1_1.png)
+![1_1_1](tkinter.assets/1_1_1.png)
 
-## 2 tkinter程序的基本结构
+### 1.2 tkinter程序的基本结构
 
 tkinter程序也是类似“创建程序类实例-创建主窗口-添加控件-运行程序类实例循环方法”的结构：
 
@@ -31,11 +35,275 @@ label.pack()
 root.mainloop()
 ```
 
-![2025_2_1](tkinter.assets/2025_2_1.png)
+![1_2_1](tkinter.assets/1_2_1.png)
 
 其中，`Tk`类就是程序类，同时也具备主窗口功能（可以理解为主窗口控件与程序类二合一）。创建、添加的控件想要显示，需要调用布局方法（`pack`方法就是其中一种）。`Tk`类实例的`mainloop`方法就是程序类实例的循环方法。
 
-## 3 tkinter的控件
+### 1.3 变量绑定
+
+什么是变量绑定？
+
+变量绑定即控件的参数与变量绑定，一旦变量发生变化，与之绑定的参数也会随之发生变化。
+
+为什么要用变量绑定呢？
+
+那是因为tkinter的控件的参数一般情况下不支持与变量绑定，比如按钮控件显示的文字对应`text`参数，直接将变量传给该参数，没法通过修改变量来修改显示的文字：
+
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+button_var = 'click'
+
+def change():
+    global button_var
+    button_var = 'close'
+    print(button_var)
+
+ttk.Button(root,tex=button_var).pack()
+ttk.Button(root,text='change',command=change).pack()
+
+root.mainloop()
+```
+
+想要让控件的相关参数与变量绑定，并且随着变量的变化实时刷新相关内容，就要使用`tkinter`模块提供的`Variable`类和其余几个'Var'为后缀的派生类（派生类指定了值的类型）创建变量对象。变量对象内部实现了值变化时自动刷新相关内容，并且支持`name`参数，可以注册内部名称。相应的，控件这边也只能将变量对象或者变量对象的`name`传给支持变量绑定的参数（'variable'为后缀的参数名）。示例如下：
+
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+# 变量对象
+button_var = Variable(name='button',value='close')
+# 使用变量对象的内部名称
+ttk.Button(root,text='click',textvariable='button').pack()
+# 直接使用变量对象
+ttk.Button(root,text='click',textvariable=button_var).pack()
+# 使用变量对象的值，通过get方法，不会自动绑定
+ttk.Button(root,text=button_var.get()).pack()
+# 修改变量对象的值，通过set方法，
+ttk.Button(root,text='change',command=lambda : button_var.set('click')).pack()
+
+root.mainloop()
+```
+
+![1_3_1](tkinter.assets/1_3_1.gif)
+
+### 1.4 内部名称
+
+如果控件有`name`参数，则该控件会自动注册到父控件的控件树中，控件的父控件可以使用`nametowidget`方法获取到该控件：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+ttk.Button(root,text='click',name='button').pack()
+
+# 通过name获取控件，并修改显示的文字
+root.nametowidget('button').configure(text='close')
+
+root.mainloop()
+```
+
+![1_4_1](tkinter.assets/1_4_1.png)
+
+如果对象有`name`参数，支持使用该对象的参数若是同时支持字符串，则该参数也可以使用这些对象的内部名称（示例源于变量绑定的示例）：
+
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+# 变量对象
+button_var = Variable(name='button',value='close')
+# 使用变量对象的内部名称
+ttk.Button(root,text='click',textvariable='button').pack()
+# 直接使用变量对象
+ttk.Button(root,text='click',textvariable=button_var).pack()
+# 使用变量对象的值，通过get方法，不会自动绑定
+ttk.Button(root,text=button_var.get()).pack()
+# 修改变量对象的值，通过set方法，
+ttk.Button(root,text='change',command=lambda : button_var.set('click')).pack()
+
+root.mainloop()
+```
+
+控件和对象的`name`参数都可以通过`_name`属性获取。
+
+程序处于运行状态时，控件的`name`参数还可以通过`winfo_name`方法获取。
+
+示例如下：
+
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+# 变量对象
+button_var = Variable(name='button_var',value='close')
+# 使用变量对象的内部名称
+button = ttk.Button(root,text='click',textvariable='button',name='ttk_button')
+
+ttk.Label(root,text=f'{button_var._name=}\n{button._name=}\n{button.winfo_name()=}').pack()
+
+root.mainloop()
+```
+
+![1_4_2](tkinter.assets/1_4_2.png)
+
+### 1.5 响应函数
+
+给控件绑定响应函数有两种方法：
+
+- 控件的`command`参数，与控件正常交互时执行该参数对应的操作。该参数对应的可调用对象不接收任何参数。
+- 控件的绑定方法，用于绑定任意事件的响应函数。
+
+绑定方法（底层用法资料可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/bind.htm）包括：
+
+- `bind`方法，给调用该方法的控件绑定任意事件的响应函数。该方法支持以下参数：
+
+  - `sequence`参数，字符串类型，表示绑定的事件序列。
+
+    所谓事件序列，是由一个或多个事件组成的一系列响应条件，多个事件之间需要使用空格分隔。比如`'q w'`，表示依次按下`q`键、`w`键。事件的表达格式见下文，这里受限于篇幅，不方便展开介绍。
+
+  - `func`参数，接收一个参数的可调用类型，表示被绑定事件的响应函数。
+
+  - `add`参数，字符串类型，表示相同控件调用此方法绑定相同事件的响应函数时，是否覆盖之前的绑定，只能为`''`（覆盖）或者`'+'`（不覆盖，同时生效），默认为`''`。
+
+  调用该方法的控件，会同时将响应函数绑定至子控件，所以，当程序类实例（主窗口）调用此方法时，相当于全局绑定。
+
+- `bind_all`方法，参数同`bind`方法，响应函数是全局（整个程序）生效。
+
+- `bind_class`方法，第一个参数为`className`，字符串类型，为控件通过`bindtags`方法设置的标签或者原本的控件类名，其余参数同`bind`方法，表示标签列表中包含该标签的控件都会添加指定的响应函数。
+
+  注意，使用`bindtags`方法设置标签时，最好是添加，而不是替换。比如，下面这种就是添加：
+
+  ```python3
+  button_ttk.bindtags([button_ttk.winfo_class(),'a'])
+  ```
+
+  通过`winfo_class`方法获取原来的控件类名，并在列表中增加其他标签名。
+
+  另外，使用`bindtags`方法设置标签之后，控件的`bind`方法和`bind_all`方法，无法让响应函数在控件范围内生效，只有控件通过调用`bind_class`方法添加的响应函数才能在控件范围内生效。
+
+解绑方法包括：
+
+- `unbind`方法，用于解绑控件指定事件序列的响应函数。该方法还有一个`funcid`参数，传入`bind`方法的返回值，可以在一个事件序列包含多个响应函数时，只解绑某个响应函数。
+- `unbind_all`方法，解绑指定事件序列全局（整个程序）生效的响应函数。
+- `unbind_class`方法，给包含指定标签的控件解绑指定事件序列的响应函数。
+
+事件有三种表达格式：
+
+- 除了空格和`'<'`之外的可打印字符（区分大小写），直接表示对应按键。
+
+- 格式为`'<{修饰符}-{修饰符}-{类型}-{详细信息}>'`的标准表达，用于表示任意按键、任意事件。
+
+  类型和详细信息二者至少要有一个，修饰符则可有可无。
+
+  修饰符可以是（部分修饰符）：
+
+  - `'Control'`，表示`ctrl`键。
+  - `'Alt'`，表示`alt`键。
+  - `'Shift'`，表示`shift`键。
+  - `'Lock'`，表示`capslock`键（切换至大写锁定状态时）或者处于大写锁定状态（因为按下`capslock`键之后会一直处于大写锁定状态）。
+  - `'Button1'`或者`'B1'`，表示鼠标左键。
+  - `'Button2'`或者`'B2'`，表示鼠标中键。
+  - `'Button3'`或者`'B3'`，表示鼠标右键。
+  - `'Button4'`或者`'B4'`，表示鼠标第四个功能键。
+  - `'Button5'`或者`'B5'`，表示鼠标第五个功能键。
+
+  类型可以是（部分类型）：
+
+  - `'MouseWheel'`，表示鼠标滚轮滚动。响应函数的参数的`delta`属性表示滚轮滚动的变化量（可以通过正负来判断滚动方向）。
+  - `'KeyPress'`或者`'Key'`表示按下按键，需要在详细信息中指明具体按键，否则为任意按键。
+  - 除了空格、`'<'`、`'>'`之外的可打印字符（区分大小写）以及按键的正式名称（比如`'space'`表示空格，`'F1'`表示`f1`键），表示按下对应按键。
+  - `'KeyRelease'`，表示松开（释放）按键，需要在详细信息中指明具体按键，否则为任意按键。
+  - `'ButtonPress'`或者`'Button'`表示按下鼠标按键，需要在详细信息中指明具体按键，否则为任意按键。
+  - `'ButtonRelease'`，表示松开（释放）鼠标按键，需要在详细信息中指明具体按键，否则为任意按键。
+  - `'Motion'`，表示鼠标移动。
+  - `'Enter'`，表示鼠标进入某一控件。
+  - `'Leave'`，表示鼠标离开某一控件。
+  - `'FocusIn'`，表示控件获得焦点。
+  - `'FocusOut'`，表示控件失去焦点。
+  - `'Configure'`，表示窗口的大小、位置发生变化。
+  - `'Destroy'`，表示控件被销毁（执行`destroy`方法）。
+  - `'Visibility'`，表示控件从不可见变为可见（窗口从最小化状态变为可见）。
+  - 更多事件类型可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/bind.htm#M7
+
+  以下类型支持详细信息：
+
+  - `'KeyPress'`或`'KeyRelease'`，其详细信息为对应的按键。详细信息可以是除了空格、`'<'`、`'>'`之外的可打印字符（区分大小写）以及按键的正式名称（比如`'space'`表示空格，`'F1'`表示`f1`键），表示对应按键。
+  - `'ButtonPress'`或`'ButtonRelease'`，其详细信息为对应的鼠标按键。详细信息可以是1-5的数字，等同于鼠标左键、中键、右键、第四功能键、第五功能键。
+
+- 格式为`'<<{虚拟事件名}>>'`的表达，用于响应用户自定义事件或者控件的虚拟事件。比如`tkinter.Text`的虚拟事件`'<<Selection>>'`，表示文字被选中。
+
+除了使用绑定方法，还有一种协议方法`protocol`（同`wm_protocol`）也能指定响应函数（完整用法参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/wm.htm#M58）。不过该方法只能指定窗口的响应函数。比如，窗口关闭时弹出对话框，用于询问用户是否关闭窗口：
+
+```python3
+from tkinter import Tk,messagebox
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+root.protocol('WM_DELETE_WINDOW',lambda : root.destroy() if messagebox.askokcancel('退出','确认退出？') else 0)
+
+root.mainloop()
+```
+
+![1_5_1](tkinter.assets/1_5_1.png)
+
+### 1.6 布局方法
+
+布局是指控件通过调用布局方法显示在窗口中，并按照布局的要求排布控件。
+
+除了窗口之外，所有控件均支持以下布局方法：
+
+- `pack`方法，
+- `grid`方法，
+- `place`方法，
+
+
+
+
+
+### 1.7 主题与样式
+
+注意，只有`tkinter.ttk`模块提供的控件才可以定制其主题和样式。
+
+相关资料可以参考 https://tkdocs.com/tutorial/styles.html。
+
+
+
+
+
+## 2 tkinter的控件
 
 在tkinter中，按照其是否支持使用主题（由样式对象设定统一的样式或者创建自定义样式）的情况，控件可分为两类：
 
@@ -46,19 +314,17 @@ root.mainloop()
 
 不能使用主题的控件是`tkinter`模块的顶层控件以及一个在`tkinter.scrolledtext`模块中的控件，因为`tkinter.ttk`模块提供的控件不能覆盖所有功能，所以这些顶层控件还是要掌握。
 
-### 3.1 `tkinter.ttk`模块的控件
-
-#### 3.1.1 `tkinter.ttk.Button`按钮控件
+### 6.1 `tkinter.ttk.Button`按钮控件
 
 `tkinter.ttk.Button`的官方文档：https://tkdocs.com/pyref/ttk_button.html。
 
-注意，很多控件参数、属性、方法相同，但因为该控件是第一次介绍这些内容，所以会介绍比较详细。后续其他控件除了特有的参数、属性、方法会详细介绍外，相同的参数、属性、方法都会一笔带过。
+注意，很多控件参数、属性、方法相同，但因为该控件是第一次介绍这些内容，所以会介绍比较详细。后续其他控件除了特有的参数、属性、方法会详细介绍外，相同的参数、属性、方法都不再介绍。在基础知识中介绍过的内容，后续介绍具体控件时也不再介绍。
 
 该控件支持以下参数（相关参数的完整用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_button.htm）：
 
 - `master`参数，表示该控件的父控件。该参数一般要指定为容器控件，这样容器才会编排子控件的位置，控件的布局方法才能正确生效。
 
-- `class_`参数，字符串类型，表示控件对应的的Tcl/Tk“窗口类名。该参数与窗口管理器相关，也会影响到样式。一般该参数会根据控件的类型自动决定（比如ttk的按钮对应的是`'TButton'`），通常不需要单独设置该参数。从该参数开始，只能通过关键字传入。
+- `class_`参数，字符串类型，表示控件对应的的Tcl/Tk窗口类名。该参数与窗口管理器相关，也会影响到样式。一般该参数会根据控件的类型自动决定（比如`ttk`模块的按钮控件对应的是`'TButton'`），通常不需要单独设置该参数。从该参数开始，只能通过关键字传入。
 
 - `command`参数，可调用类型，点击控件后执行的操作。
 
@@ -247,27 +513,7 @@ root.mainloop()
 
   ![2025_3_1_1_3](tkinter.assets/2025_3_1_1_3.png)
 
-- `name`参数，字符串类型，表示控件的内部名称，自动注册到父控件的控件树中。控件的父控件可以使用`nametowidget`方法获取到该控件：
-
-  ```python3
-  from tkinter import Tk
-  from tkinter import ttk
-  
-  root = Tk()
-  root.title('Main')
-  width = 320
-  height = 240
-  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
-  
-  ttk.Button(root,text='click',name='button').pack()
-  
-  # 通过name获取控件，并修改显示的文字
-  root.nametowidget('button').configure(text='close')
-  
-  root.mainloop()
-  ```
-
-  ![2025_3_1_1_4](tkinter.assets/2025_3_1_1_4.png)
+- `name`参数，字符串类型，表示控件的内部名称。
 
 - `padding`参数，整数类型或者元素为整数类型的元组或者字符串类型，表示控件的内边距（边界到文字，单位为像素）。该参数为整数类型或者单元素元组或者字符串中只包含一个合法的整数时，表示四个方向上的内边距。该参数为双元素元组或者包含两个合法整数的字符串时，两个整数分别表示左右方向的内边距和上下方向的内边距。该参数为四元素元组或者包含四个合法整数的字符串时，四个整数分别表示左、上、右、下方向的内边距。
 
@@ -292,7 +538,7 @@ root.mainloop()
 
   ![2025_3_1_1_5](tkinter.assets/2025_3_1_1_5.png)
 
-- `style`参数，字符串类型，表示控件使用的主题样式。具体主题、样式的用法见后续章节的专门介绍，这里只提供示例，不做展开介绍：
+- `style`参数，字符串类型，表示控件使用的主题样式。示例如下：
 
   ```python3
   from tkinter import Tk
@@ -318,58 +564,6 @@ root.mainloop()
 
 - `textvariable`参数，`Variable`类型（其派生类型`StringVar`等也可以）或者字符串类型，`text`参数的变量绑定版本。
 
-  为什么要用变量绑定呢？那是因为tkinter的控件显示的文字一般情况下不支持与变量绑定，比如，这样的操作没法修改显示的文字：
-
-  ```python3
-  from tkinter import Tk,Variable
-  from tkinter import ttk
-  
-  root = Tk()
-  root.title('Main')
-  width = 320
-  height = 240
-  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
-  
-  button_var = 'click'
-  
-  def change():
-      global button_var
-      button_var = 'close'
-      print(button_var)
-  
-  ttk.Button(root,tex=button_var).pack()
-  ttk.Button(root,text='change',command=change).pack()
-  
-  root.mainloop()
-  ```
-
-  想要让控件的相关参数与变量绑定，并且随着变量的变化实时刷新相关内容，就要使用`tkinter`模块提供的`Variable`类和其余几个'Var'为后缀的派生类（派生类指定了值的类型）创建变量对象。变量对象内部实现了值变化时自动刷新相关内容，并且支持`name`参数，可以注册内部名称。相应的，控件这边也只能将变量对象或者变量对象的`name`传给支持变量绑定的参数（'variable'为后缀的参数名）。示例如下：
-
-  ```python3
-  from tkinter import Tk,Variable
-  from tkinter import ttk
-  
-  root = Tk()
-  root.title('Main')
-  width = 320
-  height = 240
-  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
-  # 变量对象
-  button_var = Variable(name='button',value='close')
-  # 使用变量对象的内部名称
-  ttk.Button(root,text='click',textvariable='button').pack()
-  # 直接使用变量对象
-  ttk.Button(root,text='click',textvariable=button_var).pack()
-  # 使用变量对象的值，通过get方法，不会自动绑定
-  ttk.Button(root,text=button_var.get()).pack()
-  # 修改变量对象的值，通过set方法，
-  ttk.Button(root,text='change',command=lambda : button_var.set('click')).pack()
-  
-  root.mainloop()
-  ```
-
-  ![2025_3_1_1_7](tkinter.assets/2025_3_1_1_7.gif)
-
 - `underline`参数，整数类型，表示给指定索引值的字符添加下划线，用于菜单项的快捷键绑定，默认为`-1`。
 
 - `width`参数，整数类型，表示控件的宽度，单位为字符数。
@@ -381,6 +575,27 @@ root.mainloop()
 控件支持以下方法：
 
 - `after`方法，
+
+
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+button = ttk.Button(root,text='click',underline=0,command=lambda:root.destroy())
+button.pack()
+
+['after', 'after_cancel', 'after_idle', 'anchor', 'bbox', 'bell', 'bind', 'bind_all', 'bind_class', 'bindtags', 'cget', 'children', 'clipboard_append', 'clipboard_clear', 'clipboard_get', 'columnconfigure', 'config', 'configure', 'deletecommand', 'destroy', 'event_add', 'event_delete', 'event_generate', 'event_info', 'focus', 'focus_displayof', 'focus_force', 'focus_get', 'focus_lastfor', 'focus_set', 'forget', 'getboolean', 'getdouble', 'getint', 'getvar', 'grab_current', 'grab_release', 'grab_set', 'grab_set_global', 'grab_status', 'grid', 'grid_anchor', 'grid_bbox', 'grid_columnconfigure', 'grid_configure', 'grid_forget', 'grid_info', 'grid_location', 'grid_propagate', 'grid_remove', 'grid_rowconfigure', 'grid_size', 'grid_slaves', 'identify', 'image_names', 'image_types', 'info', 'info_patchlevel', 'instate', 'invoke', 'keys', 'lift', 'location', 'lower', 'mainloop', 'master', 'nametowidget', 'option_add', 'option_clear', 'option_get', 'option_readfile', 'pack', 'pack_configure', 'pack_forget', 'pack_info', 'pack_propagate', 'pack_slaves', 'place', 'place_configure', 'place_forget', 'place_info', 'place_slaves', 'propagate', 'quit', 'register', 'rowconfigure', 'selection_clear', 'selection_get', 'selection_handle', 'selection_own', 'selection_own_get', 'send', 'setvar', 'size', 'slaves', 'state', 'tk', 'tk_bisque', 'tk_focusFollowsMouse', 'tk_focusNext', 'tk_focusPrev', 'tk_setPalette', 'tk_strictMotif', 'tkraise', 'unbind', 'unbind_all', 'unbind_class', 'update', 'update_idletasks', 'wait_variable', 'wait_visibility', 'wait_window', 'waitvar', 'widgetName', 'winfo_atom', 'winfo_atomname', 'winfo_cells', 'winfo_children', 'winfo_class', 'winfo_colormapfull', 'winfo_containing', 'winfo_depth', 'winfo_exists', 'winfo_fpixels', 'winfo_geometry', 'winfo_height', 'winfo_id', 'winfo_interps', 'winfo_ismapped', 'winfo_manager', 'winfo_name', 'winfo_parent', 'winfo_pathname', 'winfo_pixels', 'winfo_pointerx', 'winfo_pointerxy', 'winfo_pointery', 'winfo_reqheight', 'winfo_reqwidth', 'winfo_rgb', 'winfo_rootx', 'winfo_rooty', 'winfo_screen', 'winfo_screencells', 'winfo_screendepth', 'winfo_screenheight', 'winfo_screenmmheight', 'winfo_screenmmwidth', 'winfo_screenvisual', 'winfo_screenwidth', 'winfo_server', 'winfo_toplevel', 'winfo_viewable', 'winfo_visual', 'winfo_visualid', 'winfo_visualsavailable', 'winfo_vrootheight', 'winfo_vrootwidth', 'winfo_vrootx', 'winfo_vrooty', 'winfo_width', 'winfo_x', 'winfo_y']
+root.mainloop()
+```
+
+
 
 
 
@@ -445,40 +660,21 @@ root.mainloop()
 
 
 
-控件常用的关键字参数（不同控件支持的参数不一样，具体以实际控件为准）为：
-
-- `text`参数，字符串类型，控件上显示的文字。
-- `command`参数，可调用类型，点击控件后执行的操作。只有明显可以点击操作控件才有此参数，对于任意控件，可以通过`bind`方法绑定点击事件的响应函数。
-
-控件常用的方法为：
-
-- `bind`方法，
-
-
-
-## 4 主题与样式
-
-
-
-https://tkdocs.com/tutorial/styles.html
 
 
 
 
+## 3 tkinter的对话框
 
-## 5 布局方法
+对话框的用法与控件用法不同：无需构建具备基本结构的tkinter程序，也能使用对话框。
 
-
-
-
-
-## 6 tkinter的对话框
+### 7.1 `tkinter.filedialog.Directory`选择目录对话框
 
 
 
 提供对话框的模块
 
-- [tkinter.filedialog.Directory](https://tkdocs.com/pyref/filedialog_directory.html) - *Ask for a directory*
+- [`tkinter.filedialog.Directory`](https://tkdocs.com/pyref/filedialog_directory.html) - *Ask for a directory*
 - [tkinter.filedialog.Open](https://tkdocs.com/pyref/filedialog_open.html) - *Ask for a filename to open*
 - [tkinter.filedialog.SaveAs](https://tkdocs.com/pyref/filedialog_saveas.html) - *Ask for a filename to save as*
 - [tkinter.colorchooser.Chooser](https://tkdocs.com/pyref/colorchooser_chooser.html) - *Create a dialog for the tk_chooseColor command.*

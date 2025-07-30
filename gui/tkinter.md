@@ -285,19 +285,224 @@ root.mainloop()
 
 除了窗口之外，所有控件均支持以下布局方法：
 
-- `pack`方法，
-- `grid`方法，
-- `place`方法，
+- `pack`方法，平铺布局，在某一方向上的控件依次相接排布（基于剩余空间确定当前控件的布局位置），相当于水平、垂直布局。该方法支持以下参数：
 
+  - `cnf`参数，字典类型，表示映射其余参数的字典，可以传入键为参数名的字典，一次性给所有参数传值，比如`{'side':'bottom'}`。
+  - `after`参数，表示该控件在哪个控件之后。从此参数开始，只能通过关键字传入。
+  - `anchor`参数，字符串类型，仅支持`['nw', 'n', 'ne', 'w', 'center', 'e', 'sw', 's', 'se']`中的值，表示排布当前控件时，控件的对齐起点为哪个位置（上北下南左西右东），默认为`'center'`。
+  - `before`参数，表示该控件在哪个控件之后。
+  - `expand`参数，布尔类型或者整数类型（`0`或者`1`），表示在当前布局方向上，该控件是否占据全部可用控件，默认为`0`。
+  - `fill`参数，字符串类型，仅支持`['none', 'x', 'y', 'both']`中的值，表示控件在哪个方向上调整控件大小至最大，进而充满整个可用空间，默认为`'none'`。
+  - `side`参数，字符串类型，仅支持`['left', 'right', 'top', 'bottom']`中的值，表示布局的起始方向，比如`'left'`，表示左起的水平方向，左边为起点。
+  - `ipadx`参数，字符串类型或者浮点类型，表示控件内容在X方向（水平方向）上到控件边界的距离，单位为像素。
+  - `ipady`参数，字符串类型或者浮点类型，表示控件内容在Y方向（垂直方向）上到控件边界的距离，单位为像素。
+  - `padx`参数，字符串类型或者浮点类型或者元素为前述类型的双元素元组，表示在X方向（水平方向）上，控件边界到可用空间边界的距离，单位为像素。参数为元组时，两个元素分别表示左边、右边的距离。
+  - `pady`参数，字符串类型或者浮点类型或者元素为前述类型的双元素元组，表示在Y方向（垂直方向）上，控件边界到可用空间边界的距离，单位为像素。参数为元组时，两个元素分别表示上边、下边的距离。
 
+- `grid`方法，网格布局，将整个窗口划分为类似于表格的网格之后，指定控件所属的网格。
 
+  注意，该方法不能与`pack`方法混用，即一旦某个控件使用了二者其一，其余控件就不能使用另一种方法进行布局。
 
+  该方法支持以下参数（完整用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/grid.htm ）：
+
+  - `cnf`参数，字典类型，表示映射其余参数的字典，可以传入键为参数名的字典，一次性给所有参数传值。
+  - `column`参数，整数类型，表示所属网格的列索引。从此参数开始，只能通过关键字传入。
+  - `columnspan`参数，整数类型，表示所属网格占用几列，默认为`1`。
+  - `row`参数，整数类型，表示所属网格的行索引。
+  - `rowspan`参数，整数类型，表示所属网格占用几行，默认为`1`。
+  - `ipadx`参数，字符串类型或者浮点类型，表示控件内容在X方向（水平方向）上到控件边界的距离，单位为像素。
+  - `ipady`参数，字符串类型或者浮点类型，表示控件内容在Y方向（垂直方向）上到控件边界的距离，单位为像素。
+  - `padx`参数，字符串类型或者浮点类型或者元素为前述类型的双元素元组，表示在X方向（水平方向）上，控件边界到可用空间边界的距离，单位为像素。参数为元组时，两个元素分别表示左边、右边的距离。
+  - `pady`参数，字符串类型或者浮点类型或者元素为前述类型的双元素元组，表示在Y方向（垂直方向）上，控件边界到可用空间边界的距离，单位为像素。参数为元组时，两个元素分别表示上边、下边的距离。
+  - `sticky`参数，字符串类型，仅支持`[ 'n', 'w', 'e', 's']`中的值，表示在网格中的控件吸附在网格哪条边（上北下南左西右东），默认为`''`，即居中不吸附。
+
+  与网格布局相关的窗口网格规格定义没有可以直接配置的参数，但可以使用窗口控件的`grid_columnconfigure`方法和`grid_rowconfigure`方法依次定义每一列、每一行的具体规格，不过这两个方法都不会限制最大网格数。这两个方法都支持以下参数：
+
+  - `index`参数，整数类型，表示被配置的行（列）的索引。
+  - `cnf`参数，字典类型，表示映射其余参数的字典，可以传入键为参数名的字典，一次性给所有参数传值。
+  - `minsize`参数，字符串类型或者浮点类型，表示单元格的最小尺寸（定义行的话，该参数表示最小高度；定义列的话，该参数表示最小宽度）。从此参数开始，只能通过关键字传入。
+  - `pad`参数，字符串类型或者浮点类型，表示行（列）的间距。
+  - `uniform`参数，字符串类型，表示该行（列）的分组名。当分组相同时，组内的行（列）长度比例始终（强制）遵守其`weight`参数的权重（`0`被当`1`处理），不会因为其他网格计算原则导致行（列）长度比例脱离`weight`参数的要求。
+  - `weight`参数，整数类型，表示该行（列）占所有行（列）总长度的权重（份数），默认为`0`，表示保持控件、行（列）长度的原有尺寸，不自动调整。
+
+  以下为示例：
+
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  for i in range(2):
+      root.grid_rowconfigure(i,{'weight':1}, minsize=100)
+      root.grid_columnconfigure(i, weight=1, minsize=100)
+  
+  button = ttk.Button(root,text='click1',command=lambda:print('click1'))
+  button.grid(column=0,row=0)
+  
+  ttk.Button(root,text='click2',command=lambda : button.invoke()).grid(column=1,row=1)
+  
+  root.mainloop()
+  ```
+
+- `place`方法，自由布局，相当于创建一个容器来放置控件，可以自定义容器的坐标。该方法支持以下参数（完整用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/place.htm）：
+
+  - `cnf`参数，字典类型，表示映射其余参数的字典，可以传入键为参数名的字典，一次性给所有参数传值。
+  - `anchor`参数，字符串类型，仅支持`['nw', 'n', 'ne', 'w', 'center', 'e', 'sw', 's', 'se']`中的值，表示排布当前控件时，控件的对齐起点为哪个位置（上北下南左西右东），默认为`'nw'`。从此参数开始，只能通过关键字传入。
+  - `bordermode`参数，字符串类型，仅支持`['inside', 'outside', 'ignore']`中的值，表示计算容器的坐标时是否考虑父控件的边框。如果控件的父控件包含边框，默认值`'inside'`表示计算坐标时的原点为不包含边框的父控件的原点，`'outside'`（同` 'ignore'`）表示计算坐标时的原点为包含边框的父控件的原点。
+  - `width`参数，字符串类型或者浮点类型，表示容器的宽度。
+  - `height`参数，字符串类型或者浮点类型，表示容器的高度。
+  - `x`参数，字符串类型或者浮点类型，表示容器的X坐标（水平方向）。
+  - `y`参数，字符串类型或者浮点类型，表示容器的Y坐标（垂直方向）。
+  - `relheight`参数，字符串类型或者浮点类型，表示容器的高度相对于窗口高度的比值。
+  - `relwidth`参数，字符串类型或者浮点类型，表示容器的宽度相对于窗口宽度的比值。
+  - `relx`参数，字符串类型或者浮点类型，表示容器的X坐标（水平方向）相对于父控件宽度的比值。
+  - `rely`参数，字符串类型或者浮点类型，表示容器的Y坐标（垂直方向）。相对于父控件高度的比值。
 
 ### 1.7 主题与样式
 
 注意，只有`tkinter.ttk`模块提供的控件才可以定制其主题和样式。
 
 相关资料可以参考 https://tkdocs.com/tutorial/styles.html。
+
+想要修改控件的主题和样式，需要先创建一个样式对象：
+
+```python3
+style = ttk.Style(root)
+```
+
+默认情况下，tkinter提供了一些内部的主题可以使用：
+
+```shell
+('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
+```
+
+可以通过`style.theme_names()`获取，通过`style.theme_use('clam')`使用：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+style = ttk.Style(root)
+style.theme_use('clam')
+ttk.Button(root,text='click').pack()
+
+root.mainloop()
+```
+
+![1_7_1](tkinter.assets/1_7_1.png)
+
+想要创建自定义样式的话，需要先了解一下样式名称的组成：
+
+```shell
+>>> b = ttk.Button()
+>>> b['style']
+''
+>>> b.winfo_class()
+'TButton'
+```
+
+`b['style']`获取的是自定义样式，因为这里的按钮控件没有设置自定义样式，所以自定义样式为空。但是，所有控件都有默认的基础样式（取决于控件的`className`，可以通过`b.winfo_class()`获取，上面的执行结果表明，`ttk.Button()`的基础样式是`'TButton'`。
+
+创建自定义样式需要调用样式对象的`configure`方法，该方法的`style`参数表示创建的自定义样式的样式名。自定义样式相关的具体样式通过关键字传入，比如`foreground='red'`，自定义前景色（文字的字体颜色）。
+
+需要注意，创建自定义样式时，需要使用`'{自定义样式名}.{基础样式名}'`这种复合的自定义样式名，不包含基础样式的话，会导致控件失效。这种复合的自定义样式名，需要传给具体控件的`style`参数才能生效。
+
+如果想要修改所有同类控件的样式，自定义样式名格式为`'{基础样式名}'`。这种同类控件的样式，无需传给具体控件即可生效。
+
+示例代码如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+style = ttk.Style(root)
+style.configure(
+    style='red.TButton',
+    foreground='red'
+)
+ttk.Button(root,text='click',style='red.TButton').pack()
+
+
+root.mainloop()
+```
+
+![1_7_2](tkinter.assets/1_7_2.png)
+
+除了样式对象的`configure`方法可以创建自定义样式，样式对象的`map`方法能创建更加精细的自定义样式：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+style = ttk.Style(root)
+style.map(
+    style='red.TButton', 
+    background=[('pressed','green')],
+    foreground=[('active','red')],
+)
+ttk.Button(root,text='click',style='red.TButton').pack()
+
+root.mainloop()
+```
+
+![1_7_3](tkinter.assets/1_7_3.png)
+
+`map`方法具体样式的关键字参数接收的是列表，列表的每个元素都是一个特定状态时样式（`'active'`表示鼠标悬停时的状态，`'pressed'`表示按钮按下时的状态）。
+
+需要注意，列表中的顺序会影响生效的优先级（越靠前的越优先），比如`[('pressed','green'),('active','red')]`，悬停和按下都能正确生效；若是改成`[('active','red'),('pressed','green')]`，则只有悬停优先生效。
+
+### 1.8 控件的通用方法（常用非全部）
+
+控件方法很多，但不是所有控件都常用。大部分控件都有以下方法，并且这些方法在开发时经常使用：
+
+- `config`同`configure`方法，
+- `quit`方法，
+- `destroy`方法，
+- `after`方法，
+
+
+
+
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+button = ttk.Button(root,text='click',underline=0,command=lambda:root.destroy())
+button.pack()
+
+['after', 'after_cancel', 'after_idle', 'anchor', 'bbox', 'bell', 'bind', 'bind_all', 'bind_class', 'bindtags', 'cget', 'children', 'clipboard_append', 'clipboard_clear', 'clipboard_get', 'columnconfigure', 'config', 'configure', 'deletecommand', 'destroy', 'event_add', 'event_delete', 'event_generate', 'event_info', 'focus', 'focus_displayof', 'focus_force', 'focus_get', 'focus_lastfor', 'focus_set', 'forget', 'getboolean', 'getdouble', 'getint', 'getvar', 'grab_current', 'grab_release', 'grab_set', 'grab_set_global', 'grab_status', 'grid', 'grid_anchor', 'grid_bbox', 'grid_columnconfigure', 'grid_configure', 'grid_forget', 'grid_info', 'grid_location', 'grid_propagate', 'grid_remove', 'grid_rowconfigure', 'grid_size', 'grid_slaves', 'identify', 'image_names', 'image_types', 'info', 'info_patchlevel', 'instate', 'invoke', 'keys', 'lift', 'location', 'lower', 'mainloop', 'master', 'nametowidget', 'option_add', 'option_clear', 'option_get', 'option_readfile', 'pack', 'pack_configure', 'pack_forget', 'pack_info', 'pack_propagate', 'pack_slaves', 'place', 'place_configure', 'place_forget', 'place_info', 'place_slaves', 'propagate', 'quit', 'register', 'rowconfigure', 'selection_clear', 'selection_get', 'selection_handle', 'selection_own', 'selection_own_get', 'send', 'setvar', 'size', 'slaves', 'state', 'tk', 'tk_bisque', 'tk_focusFollowsMouse', 'tk_focusNext', 'tk_focusPrev', 'tk_setPalette', 'tk_strictMotif', 'tkraise', 'unbind', 'unbind_all', 'unbind_class', 'update', 'update_idletasks', 'wait_variable', 'wait_visibility', 'wait_window', 'waitvar', 'widgetName', 'winfo_atom', 'winfo_atomname', 'winfo_cells', 'winfo_children', 'winfo_class', 'winfo_colormapfull', 'winfo_containing', 'winfo_depth', 'winfo_exists', 'winfo_fpixels', 'winfo_geometry', 'winfo_height', 'winfo_id', 'winfo_interps', 'winfo_ismapped', 'winfo_manager', 'winfo_name', 'winfo_parent', 'winfo_pathname', 'winfo_pixels', 'winfo_pointerx', 'winfo_pointerxy', 'winfo_pointery', 'winfo_reqheight', 'winfo_reqwidth', 'winfo_rgb', 'winfo_rootx', 'winfo_rooty', 'winfo_screen', 'winfo_screencells', 'winfo_screendepth', 'winfo_screenheight', 'winfo_screenmmheight', 'winfo_screenmmwidth', 'winfo_screenvisual', 'winfo_screenwidth', 'winfo_server', 'winfo_toplevel', 'winfo_viewable', 'winfo_visual', 'winfo_visualid', 'winfo_visualsavailable', 'winfo_vrootheight', 'winfo_vrootwidth', 'winfo_vrootx', 'winfo_vrooty', 'winfo_width', 'winfo_x', 'winfo_y']
+root.mainloop()
+```
 
 
 
@@ -314,11 +519,13 @@ root.mainloop()
 
 不能使用主题的控件是`tkinter`模块的顶层控件以及一个在`tkinter.scrolledtext`模块中的控件，因为`tkinter.ttk`模块提供的控件不能覆盖所有功能，所以这些顶层控件还是要掌握。
 
+注意，很多控件参数相同，介绍第一个控件时，会介绍比较详细。后续其他控件除了特有的参数会详细介绍外，相同的参数都不再介绍，请读者自行参考前面的内容或者开发工具的智能提示。
+
+控件方法很多，但不是所有控件都常用。在基础知识中介绍过的控件通用方法，后续介绍具体控件时不再介绍，只会介绍常用的控件特有方法。
+
 ### 6.1 `tkinter.ttk.Button`按钮控件
 
 `tkinter.ttk.Button`的官方文档：https://tkdocs.com/pyref/ttk_button.html。
-
-注意，很多控件参数、属性、方法相同，但因为该控件是第一次介绍这些内容，所以会介绍比较详细。后续其他控件除了特有的参数、属性、方法会详细介绍外，相同的参数、属性、方法都不再介绍。在基础知识中介绍过的内容，后续介绍具体控件时也不再介绍。
 
 该控件支持以下参数（相关参数的完整用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_button.htm）：
 
@@ -568,32 +775,41 @@ root.mainloop()
 
 - `width`参数，整数类型，表示控件的宽度，单位为字符数。
 
-控件支持以下属性：
+该控件支持以下特有方法：
+
+- `invoke`方法，模拟点击按钮（执行`command`参数的值）。
+
+### 6.2 `tkinter.ttk.Checkbutton`多选框控件
+
+`tkinter.ttk.Checkbutton`的官方文档：https://tkdocs.com/pyref/ttk_checkbutton.html。
+
+该控件中需要注意的部分参数：
 
 - 
 
-控件支持以下方法：
+该控件支持以下特有方法：
 
-- `after`方法，
+- `invoke`方法，
+
+示例如下：
 
 
 
-```python3
-from tkinter import Tk
-from tkinter import ttk
 
-root = Tk()
-root.title('Main')
-width = 320
-height = 240
-root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 
-button = ttk.Button(root,text='click',underline=0,command=lambda:root.destroy())
-button.pack()
+### 6.2 `tkinter.ttk.Button`按钮控件
 
-['after', 'after_cancel', 'after_idle', 'anchor', 'bbox', 'bell', 'bind', 'bind_all', 'bind_class', 'bindtags', 'cget', 'children', 'clipboard_append', 'clipboard_clear', 'clipboard_get', 'columnconfigure', 'config', 'configure', 'deletecommand', 'destroy', 'event_add', 'event_delete', 'event_generate', 'event_info', 'focus', 'focus_displayof', 'focus_force', 'focus_get', 'focus_lastfor', 'focus_set', 'forget', 'getboolean', 'getdouble', 'getint', 'getvar', 'grab_current', 'grab_release', 'grab_set', 'grab_set_global', 'grab_status', 'grid', 'grid_anchor', 'grid_bbox', 'grid_columnconfigure', 'grid_configure', 'grid_forget', 'grid_info', 'grid_location', 'grid_propagate', 'grid_remove', 'grid_rowconfigure', 'grid_size', 'grid_slaves', 'identify', 'image_names', 'image_types', 'info', 'info_patchlevel', 'instate', 'invoke', 'keys', 'lift', 'location', 'lower', 'mainloop', 'master', 'nametowidget', 'option_add', 'option_clear', 'option_get', 'option_readfile', 'pack', 'pack_configure', 'pack_forget', 'pack_info', 'pack_propagate', 'pack_slaves', 'place', 'place_configure', 'place_forget', 'place_info', 'place_slaves', 'propagate', 'quit', 'register', 'rowconfigure', 'selection_clear', 'selection_get', 'selection_handle', 'selection_own', 'selection_own_get', 'send', 'setvar', 'size', 'slaves', 'state', 'tk', 'tk_bisque', 'tk_focusFollowsMouse', 'tk_focusNext', 'tk_focusPrev', 'tk_setPalette', 'tk_strictMotif', 'tkraise', 'unbind', 'unbind_all', 'unbind_class', 'update', 'update_idletasks', 'wait_variable', 'wait_visibility', 'wait_window', 'waitvar', 'widgetName', 'winfo_atom', 'winfo_atomname', 'winfo_cells', 'winfo_children', 'winfo_class', 'winfo_colormapfull', 'winfo_containing', 'winfo_depth', 'winfo_exists', 'winfo_fpixels', 'winfo_geometry', 'winfo_height', 'winfo_id', 'winfo_interps', 'winfo_ismapped', 'winfo_manager', 'winfo_name', 'winfo_parent', 'winfo_pathname', 'winfo_pixels', 'winfo_pointerx', 'winfo_pointerxy', 'winfo_pointery', 'winfo_reqheight', 'winfo_reqwidth', 'winfo_rgb', 'winfo_rootx', 'winfo_rooty', 'winfo_screen', 'winfo_screencells', 'winfo_screendepth', 'winfo_screenheight', 'winfo_screenmmheight', 'winfo_screenmmwidth', 'winfo_screenvisual', 'winfo_screenwidth', 'winfo_server', 'winfo_toplevel', 'winfo_viewable', 'winfo_visual', 'winfo_visualid', 'winfo_visualsavailable', 'winfo_vrootheight', 'winfo_vrootwidth', 'winfo_vrootx', 'winfo_vrooty', 'winfo_width', 'winfo_x', 'winfo_y']
-root.mainloop()
-```
+`tkinter.ttk.Button`的官方文档：https://tkdocs.com/pyref/ttk_button.html。
+
+该控件中需要注意的部分参数：
+
+- 
+
+该控件支持以下特有方法：
+
+- `invoke`方法，
+
+示例如下：
 
 
 
@@ -606,7 +822,7 @@ root.mainloop()
 主要有：
 
 - 
-- [`tkinter.ttk.Checkbutton`](https://tkdocs.com/pyref/ttk_checkbutton.html)，多选框。
+- ]()，多选框。
 - [`tkinter.ttk.Combobox`](https://tkdocs.com/pyref/ttk_combobox.html)，下拉选择框。
 - [tkinter.ttk.Entry](https://tkdocs.com/pyref/ttk_entry.html) - *Ttk Entry widget displays a one-line text string and allows that string to be edited by the user.*
 - [tkinter.ttk.Frame](https://tkdocs.com/pyref/ttk_frame.html) - *Ttk Frame widget is a container, used to group other widgets together.*
@@ -659,6 +875,14 @@ root.mainloop()
 - tkinter.scrolledtext（基于Text控件）
 
 
+
+
+
+窗口（Tk，Toplevel）的显示与隐藏：
+
+deiconify显示
+
+withdraw隐藏
 
 
 

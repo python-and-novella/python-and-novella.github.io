@@ -476,39 +476,112 @@ root.mainloop()
 
 ### 1.8 控件的通用方法（常用非全部）
 
-控件方法很多，但不是所有控件都常用。大部分控件都有以下方法，并且这些方法在开发时经常使用：
+控件方法很多，但不是所有方法都常用。大部分控件都有以下常用的方法：
 
-- `config`同`configure`方法，
-- `quit`方法，
-- `destroy`方法，
-- `after`方法，
+- `config`同`configure`方法，用于更新控件的参数，具体参数取决于控件的参数。
 
+- `quit`方法，退出当前程序。
 
+- `destroy`方法，销毁当前控件。如果当前控件是主窗口控件，则退出当前程序。
 
+- `after`方法，在指定时间之后执行指定操作，相当于定时器。该方法支持以下参数：
 
+  - `ms`参数，整数类型或者`'idle'`，表示多少时间之后（单位毫秒）或者立即执行。
+  - `func`参数，可调用类型，表示要执行的操作。
+  - `*args`参数，表示传给`func`参数对应函数的参数。
 
-```python3
-from tkinter import Tk
-from tkinter import ttk
+  以下为示例：
 
-root = Tk()
-root.title('Main')
-width = 320
-height = 240
-root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  button = ttk.Button(root,text='click',command=lambda :button.after(3000,print,'a'))
+  button.pack()
+  
+  root.mainloop()
+  ```
 
-button = ttk.Button(root,text='click',underline=0,command=lambda:root.destroy())
-button.pack()
+- `bell`方法，程序发出一声提示音。
 
-['after', 'after_cancel', 'after_idle', 'anchor', 'bbox', 'bell', 'bind', 'bind_all', 'bind_class', 'bindtags', 'cget', 'children', 'clipboard_append', 'clipboard_clear', 'clipboard_get', 'columnconfigure', 'config', 'configure', 'deletecommand', 'destroy', 'event_add', 'event_delete', 'event_generate', 'event_info', 'focus', 'focus_displayof', 'focus_force', 'focus_get', 'focus_lastfor', 'focus_set', 'forget', 'getboolean', 'getdouble', 'getint', 'getvar', 'grab_current', 'grab_release', 'grab_set', 'grab_set_global', 'grab_status', 'grid', 'grid_anchor', 'grid_bbox', 'grid_columnconfigure', 'grid_configure', 'grid_forget', 'grid_info', 'grid_location', 'grid_propagate', 'grid_remove', 'grid_rowconfigure', 'grid_size', 'grid_slaves', 'identify', 'image_names', 'image_types', 'info', 'info_patchlevel', 'instate', 'invoke', 'keys', 'lift', 'location', 'lower', 'mainloop', 'master', 'nametowidget', 'option_add', 'option_clear', 'option_get', 'option_readfile', 'pack', 'pack_configure', 'pack_forget', 'pack_info', 'pack_propagate', 'pack_slaves', 'place', 'place_configure', 'place_forget', 'place_info', 'place_slaves', 'propagate', 'quit', 'register', 'rowconfigure', 'selection_clear', 'selection_get', 'selection_handle', 'selection_own', 'selection_own_get', 'send', 'setvar', 'size', 'slaves', 'state', 'tk', 'tk_bisque', 'tk_focusFollowsMouse', 'tk_focusNext', 'tk_focusPrev', 'tk_setPalette', 'tk_strictMotif', 'tkraise', 'unbind', 'unbind_all', 'unbind_class', 'update', 'update_idletasks', 'wait_variable', 'wait_visibility', 'wait_window', 'waitvar', 'widgetName', 'winfo_atom', 'winfo_atomname', 'winfo_cells', 'winfo_children', 'winfo_class', 'winfo_colormapfull', 'winfo_containing', 'winfo_depth', 'winfo_exists', 'winfo_fpixels', 'winfo_geometry', 'winfo_height', 'winfo_id', 'winfo_interps', 'winfo_ismapped', 'winfo_manager', 'winfo_name', 'winfo_parent', 'winfo_pathname', 'winfo_pixels', 'winfo_pointerx', 'winfo_pointerxy', 'winfo_pointery', 'winfo_reqheight', 'winfo_reqwidth', 'winfo_rgb', 'winfo_rootx', 'winfo_rooty', 'winfo_screen', 'winfo_screencells', 'winfo_screendepth', 'winfo_screenheight', 'winfo_screenmmheight', 'winfo_screenmmwidth', 'winfo_screenvisual', 'winfo_screenwidth', 'winfo_server', 'winfo_toplevel', 'winfo_viewable', 'winfo_visual', 'winfo_visualid', 'winfo_visualsavailable', 'winfo_vrootheight', 'winfo_vrootwidth', 'winfo_vrootx', 'winfo_vrooty', 'winfo_width', 'winfo_x', 'winfo_y']
-root.mainloop()
-```
+- `clipboard_append`方法，设置剪贴板当前内容，该方法的`string`参数（字符串类型）就是要写入的内容。
 
+- `clipboard_clear`方法，清空剪贴板。
 
+- `clipboard_get`方法，获取剪贴板当前内容。
 
+- `cget`方法，获取指定参数的值。该方法接收一个字符串类型参数`key`，即参数名。
 
+- `focus`方法、`focus_set`方法和`focus_force`方法（强制，慎用），让调用该方法的控件获得焦点。
 
-## 2 tkinter的控件
+- `focus_displayof`方法、`focus_get`方法和`focus_lastfor`方法，获取焦点所在的控件。
+
+- `grab_set`方法，仅限`Toplevel`普通窗口控件可以调用此方法，调用此方法之后，窗口会进入模态（只有该窗口可以响应，其余窗口会被冻结，除非该窗口关闭）。
+
+  注意，`grab_set_global`方法为该方法的全局版本，但是非常不建议使用。因为会导致当前窗口不能通过点击关闭按钮关闭，但通过使用`bind`方法为模态窗口注册关闭操作的快捷键（或者通过`bind_all`方法注册关闭操作的全局快捷键）依然可以使用。
+
+- `grab_release`方法，窗口退出模态。
+
+- `grab_current`方法，获取当前为模态的窗口。
+
+- `grab_status`方法，获取模态的生效范围（全局还是局部）。
+
+- `slaves`方法，返回所有子控件。该方法对应平铺布局、网格布局、自由布局的版本为：`pack_slaves`方法、`grid_slaves`方法、`place_slaves`方法。
+
+- `mainloop`方法，消息循环方法，无论调用者是否为程序类实例都可以。
+
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  button = ttk.Button(root,text='click')
+  button.pack()
+  button.mainloop()
+  ```
+
+- `nametowidget`方法，获取子控件中指定内部名称的控件。
+
+- `option_add`方法、`option_clear`方法、`option_get`方法、`option_readfile`方法适用于`tkinter`（非`tkinter.ttk`）提供的控件，在创建控件前调用，用于批量设置默认控件样式，用途依次为添加样式规则、清空样式规则、获取样式规则、从文件（每一行使用英文冒号分隔规则和对应的值）中添加样式规则。以下为示例：
+
+  ```python3
+  from tkinter import Tk,Button
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  root.option_add('*Button.Foreground','red')
+  root.option_clear()
+  
+  button = Button(root,text='click')
+  button.pack()
+  
+  
+  root.mainloop()
+  ```
+
+- `propagate`方法，适用于容器控件，不传入参数时返回容器是否根据内部控件的大小调整自身的大小；如果传入布尔值，则可以启用、禁用这一功能。该方法对应平铺布局、网格布局的版本为：`pack_propagate`方法、`grid_propagate`方法。
+
+- `update`方法，更新控件的显示（一般不需要主动调用）。
+
+- 'winfo'前缀的方法统一由winfo命令（Tk命令）提供（完整介绍参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/winfo.htm），主要用于返回一些和窗口有关的信息，比如前面示例中，为了让窗口居中，使用的`winfo_screenwidth`方法和`winfo_screenheight`方法，用于获取屏幕的宽度和高度。
+
+## 2 tkinter的控件（更新中）
 
 在tkinter中，按照其是否支持使用主题（由样式对象设定统一的样式或者创建自定义样式）的情况，控件可分为两类：
 
@@ -519,11 +592,11 @@ root.mainloop()
 
 不能使用主题的控件是`tkinter`模块的顶层控件以及一个在`tkinter.scrolledtext`模块中的控件，因为`tkinter.ttk`模块提供的控件不能覆盖所有功能，所以这些顶层控件还是要掌握。
 
-注意，很多控件参数相同，介绍第一个控件时，会介绍比较详细。后续其他控件除了特有的参数会详细介绍外，相同的参数都不再介绍，请读者自行参考前面的内容或者开发工具的智能提示。
+注意，很多控件参数相同，介绍第一个控件时，会介绍得比较详细。后续其他控件除了特有的参数会详细介绍外，相同的参数都不再介绍，请读者自行参考前面的内容或者开发工具的智能提示。
 
-控件方法很多，但不是所有控件都常用。在基础知识中介绍过的控件通用方法，后续介绍具体控件时不再介绍，只会介绍常用的控件特有方法。
+控件的方法很多，但不是所有方法都常用。在基础知识中介绍过的控件通用方法，后续介绍具体控件时不再介绍，只会介绍控件的特有方法。
 
-### 6.1 `tkinter.ttk.Button`按钮控件
+### 2.1 `tkinter.ttk.Button`按钮控件
 
 `tkinter.ttk.Button`的官方文档：https://tkdocs.com/pyref/ttk_button.html。
 
@@ -779,25 +852,48 @@ root.mainloop()
 
 - `invoke`方法，模拟点击按钮（执行`command`参数的值）。
 
-### 6.2 `tkinter.ttk.Checkbutton`多选框控件
+### 2.2 `tkinter.ttk.Checkbutton`多选框控件
 
 `tkinter.ttk.Checkbutton`的官方文档：https://tkdocs.com/pyref/ttk_checkbutton.html。
 
-该控件中需要注意的部分参数：
+多选框控件的英文名字里带着'button'，实际上很多参数也和按钮控件一样，只是该控件在使用时还是一个多选框应该有的表现。
 
-- 
+该控件中需要注意的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_checkbutton.htm）：
+
+- `variable`参数，`Variable`类型（其派生类型`StringVar`等也可以），表示多选框当前状态绑定的变量。
+- `offvalue`参数，任意类型，表示多选框非勾选状态时，其绑定变量的值，默认为`0`。
+- `onvalue`参数，任意类型，表示多选框勾选状态时，其绑定变量的值，默认为`1`。
 
 该控件支持以下特有方法：
 
-- `invoke`方法，
+- `invoke`方法，模拟点击多选框（执行`command`参数的值，同时切换多选状态）。
 
 示例如下：
 
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+value = Variable(value='选中')
+button = ttk.Checkbutton(root,text='check',variable=value,offvalue='未选中',onvalue='选中')
+button.pack()
+
+ttk.Label(root,textvariable=value).pack()
+
+root.mainloop()
+```
+
+![2_2_1](tkinter.assets/2_2_1.png)
 
 
 
-
-### 6.2 `tkinter.ttk.Button`按钮控件
+### 2.3 `tkinter.ttk.Button`按钮控件
 
 `tkinter.ttk.Button`的官方文档：https://tkdocs.com/pyref/ttk_button.html。
 
@@ -888,7 +984,7 @@ withdraw隐藏
 
 
 
-## 3 tkinter的对话框
+## 3 tkinter的对话框（更新中）
 
 对话框的用法与控件用法不同：无需构建具备基本结构的tkinter程序，也能使用对话框。
 
@@ -992,3 +1088,6 @@ root.mainloop()
 
 
 
+## 4 拾遗
+
+虽说本教程是快速入门，但不代表本教程没有讲到的部分就一概不管。在实际开发、使用时，tkinter碍于其设计理念，还是有一些不及现代GUI框架的地方，有不少晦涩难懂的概念。因此，本章节主要聚焦于实际的开发问题，为这些问题带来答案。

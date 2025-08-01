@@ -664,7 +664,406 @@ ui.run(native=True)
 
 文件对话框会根据用户的选择返回文件路径，因此，需要使用异步等待获取返回值。
 
-## x （待定）
+## 21 版本速览——2.22.0版本新增单页面应用控件以及其他
+
+NiceGUI 2.22.0 新增内容不少，重点内容就是本次更新增加了单页面应用（SPA）专用的控件`ui.sub_pages`。
+
+先说说什么是单页面应用（Single Page Application，SPA）。所谓单页面应用，就是可以将一部分内容划分为子路由的页面，即子页面。不同于普通页面，刷新子页面内容无需重新加载整个页面，即使路径变化，也只有子页面是变化的，非子页面的部分无需变化。单页面应用的基本结构如下图：
+
+![2025_21_1](nicegui_plus.assets/2025_21_1.png)
+
+之前想要实现单页面应用（SPA）的话，需要单独写管理子路由的JavaScript代码，比较麻烦。好在本次版本更新，增加了`ui.sub_pages`控件，只需添加该控件，并映射子路由对应的页面生成器（也就是调用之后能创建内容的函数）即可。
+
+注意，`ui.sub_pages`控件目前为实验性预览控件，API和具体用法尚未稳定，可能会因为后续更新而变动，如果使用该控件，请密切关注后续更新，以免相关变动导致项目出现问题。
+
+先看基本用法：
+
+```python3
+from nicegui import ui
+from uuid import uuid4
+
+@ui.page('/')
+@ui.page('/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+def index():
+    ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+    ui.label(f'页面ID为 {str(uuid4())[:6]}')
+    ui.separator()
+    ui.sub_pages({'/': main, '/page1': page1})
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+
+def page1():
+    ui.label('page1（子页面）的内容')
+    ui.link('回到/（子页面）', '/')
+
+ui.run(port=80)
+```
+
+![2025_21_2](nicegui_plus.assets/2025_21_2.png)
+
+控件支持以下参数：
+
+- `routes`参数，字典类型（键为表示子路由的字符串，值为对应的页面生成器），表示子路由与具体页面生成器的对应关系。
+
+  注意，如果普通页面中使用了子页面，子路由`'/'`和其对应的页面生成器是必须的，不定义的话，页面会报404错误。
+
+- `root_path`参数，字符串类型，表示子页面所属普通页面的路径。当普通页面的路径非根路径时，必须给该参数传入普通页面对应的路径才能让子路由正常生效。比如：
+
+  ```python3
+  from nicegui import ui
+  from uuid import uuid4
+  
+  @ui.page('/index')
+  @ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+  def index():
+      ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+      ui.label(f'页面ID为 {str(uuid4())[:6]}')
+      ui.separator()
+      ui.sub_pages({'/': main, '/page1': page1},root_path='/index')
+  
+  def main():
+      ui.label('/（子页面）的内容')
+      ui.link('去page1（子页面）', '/index/page1')
+      #ui.link('去pagex（子页面不存在）', '/pagex')
+  
+  def page1():
+      ui.label('page1（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  ui.run(port=80)
+  ```
+
+  从此参数开始，只能通过关键字传入。
+
+- `data`参数，字典类型（键为表示子路由页面生成器参数的字符串，值为参数对应的值），表示传给子路由页面生成器参数的值，以便子页面之间、子页面与普通页面之间共享变量、控件。比如：
+
+  ```python3
+  from nicegui import ui
+  from uuid import uuid4
+  
+  @ui.page('/index')
+  @ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+  def index():
+      title = ui.label('主页面')
+      ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+      ui.label(f'页面ID为 {str(uuid4())[:6]}')
+      ui.separator()
+      ui.sub_pages(
+          routes={'/': main, '/page1': page1},
+          root_path='/index',
+          data={'title':title}
+      )
+  
+  def main(title:ui.label):
+      title.text = '/（子页面）'
+      ui.label('/（子页面）的内容')
+      ui.link('去page1（子页面）', '/index/page1')
+  
+  def page1(title:ui.label):
+      title.text = 'page1（子页面）'
+      ui.label('page1（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  ui.run(port=80)
+  ```
+
+- `show_404`参数，布尔类型，表示如果子路由没有对应的页面生成器，是否显示一段展示该错误的简短字符串，默认为`True`。如果该参数为`False`，则没有任何提示内容。示例如下：
+
+  ```python3
+  from nicegui import ui
+  from uuid import uuid4
+  
+  @ui.page('/index')
+  @ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+  def index():
+      title = ui.label('主页面')
+      ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+      ui.label(f'页面ID为 {str(uuid4())[:6]}')
+      ui.separator()
+      ui.sub_pages(
+          routes={'/': main, '/page1': page1},
+          root_path='/index',
+          data={'title':title},
+          show_404=True
+      )
+  
+  def main(title:ui.label):
+      title.text = '/（子页面）'
+      ui.label('/（子页面）的内容')
+      ui.link('去page1（子页面）', '/index/page1')
+      ui.link('去pagex（子页面不存在）', '/index/pagex')
+  
+  def page1(title:ui.label):
+      title.text = 'page1（子页面）'
+      ui.label('page1（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  ui.run(port=80)
+  ```
+
+  ![2025_21_3](nicegui_plus.assets/2025_21_3.png)
+
+  如果此时刷新页面，将会自动跳转至默认的404的报错页面。
+
+该控件支持以下方法：
+
+- `add`方法，添加、更新子路由和其对应的页面生成器。该方法支持以下参数：
+
+  - `path`参数，字符串类型，表示子路由。
+  - `page`参数，可调用类型，表示子路由对应的页面生成器。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  from uuid import uuid4
+  
+  @ui.page('/index')
+  @ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+  def index():
+      title = ui.label('主页面')
+      ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+      ui.label(f'页面ID为 {str(uuid4())[:6]}')
+      ui.separator()
+      pages = ui.sub_pages(
+          routes={'/': main, '/page1': page1},
+          root_path='/index',
+          data={'title':title},
+          show_404=True
+      )
+      pages.add('/page1',page1_x)
+  
+  def main(title:ui.label):
+      title.text = '/（子页面）'
+      ui.label('/（子页面）的内容')
+      ui.link('去page1（子页面）', '/index/page1')
+      ui.link('去pagex（子页面不存在）', '/index/pagex')
+  
+  def page1(title:ui.label):
+      title.text = 'page1（子页面）'
+      ui.label('page1（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  def page1_x(title:ui.label):
+      title.text = 'page1_x（子页面）'
+      ui.label('page1_x（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  ui.run(port=80)
+  ```
+
+  ![2025_21_4](nicegui_plus.assets/2025_21_4.png)
+
+需要注意的是，代码中，额外使用了`@ui.page('/index/{_:path}')`（`'/{_:path}'`前面的部分与子页面所属的普通页面的路径一致）装饰包含子页面的普通页面，用于捕获子路由相关的路径。如果不使用这行代码的话，当前路径为非根路由的子路由时，刷新当前页面会自动跳转至对应路径的普通页面，而非子页面。示例如下：
+
+```python3
+from nicegui import ui
+from uuid import uuid4
+
+@ui.page('/index')
+#@ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+def index():
+    title = ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+    ui.label(f'页面ID为 {str(uuid4())[:6]}')
+    ui.separator()
+    ui.sub_pages(
+        routes={'/': main, '/page1': page1},
+        root_path='/index',
+        data={'title':title},
+        show_404=True
+    )
+
+def main(title:ui.label):
+    title.text = '/（子页面）'
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/index/page1')
+    ui.link('去pagex（子页面不存在）', '/index/pagex')
+
+def page1(title:ui.label):
+    title.text = 'page1（子页面）'
+    ui.label('page1（子页面）的内容')
+    ui.link('回到/（子页面）', '/index')
+
+@ui.page('/index/page1')
+def _():
+    ui.label('''这里是page1（普通页面），不使用@ui.page('/index/{_:path}')的话，刷新就会显示这个页面。''')
+    ui.link('回到/（子页面）', '/index')
+
+ui.run(port=80)
+```
+
+子页面同样支持参数注入，但需要给页面生成器的参数添加`PageArguments`类型注解：
+
+```python3
+from nicegui import ui,PageArguments
+
+@ui.page('/index')
+@ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+def index():
+    ui.link('msg=你好', '/index?msg=你好')
+    ui.link('msg=世界', '/index?msg=世界')
+    ui.separator()
+    ui.sub_pages(
+        routes={'/': main},
+        root_path='/index',
+    )
+    
+def main(args:PageArguments):
+    ui.label(args.query_parameters.get('msg','no value'))
+
+ui.run(port=80)
+```
+
+![2025_21_5](nicegui_plus.assets/2025_21_5.png)
+
+如果不添加类型注解，程序会认为参数名与注入参数的名字一致，同样效果的代码只能这样写：
+
+```python3
+from nicegui import ui
+
+@ui.page('/index')
+@ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+def index():
+    ui.link('msg=你好', '/index?msg=你好')
+    ui.link('msg=世界', '/index?msg=世界')
+    ui.separator()
+    ui.sub_pages(
+        routes={'/': main},
+        root_path='/index',
+    )
+
+def main(msg='no value'):
+    ui.label(msg)
+
+ui.run(port=80)
+```
+
+和普通页面一样，子页面也支持使用异步但是要使用异步的页面生成器（即使普通页面不是异步的），：
+
+```python3
+from nicegui import ui
+
+@ui.page('/index')
+@ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+def index():
+    ui.sub_pages(
+        routes={'/': main},
+        root_path='/index',
+    )
+
+async def main():
+    await ui.button('Go').clicked()
+    await ui.button('One').clicked()
+    await ui.button('Two').clicked()
+    await ui.button('Three').clicked()
+    ui.label('Ok!')
+
+ui.run(port=80)
+```
+
+![2025_21_6](nicegui_plus.assets/2025_21_6.png)
+
+当然，子页面同样支持嵌入子页面，但是结构会复杂一些：
+
+```python3
+from nicegui import ui
+
+@ui.page('/')
+@ui.page('/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+def index():
+    ui.label('主页面')
+    ui.link('回主页','/')
+    ui.link('子页面a','/a')
+    ui.separator()
+    ui.sub_pages(
+        routes={'/': main},
+    )
+
+def main():
+    ui.sub_pages(
+        routes={
+            '/': lambda:ui.label('主页面的子页面'),
+            '/a': sub_a
+        },
+    )
+
+def sub_a():
+    ui.link('子页面a/子页面a','/a/a')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': lambda:ui.label('主页面的子页面/子页面a'),
+            '/a': lambda:ui.label('主页面的子页面/子页面a/子页面a'),
+        },
+    )
+
+ui.run(port=80)
+```
+
+![2025_21_7](nicegui_plus.assets/2025_21_7.png)
+
+NiceGUI 2.22.0 的其他更新内容包括：
+
+- 类似输入框但回车之后可以创建薄片控件的复合控件`ui.input_chips`：
+
+  ```python3
+  from nicegui import ui
+  
+  ui.input_chips('Hello',value='World')
+  
+  ui.run(native=True)
+  ```
+
+  ![2025_21_8](nicegui_plus.assets/2025_21_8.png)
+
+- 官方实现的Floating Action Button，一共两个控件：`ui.fab`——可以展开的FAB按钮，`ui.fab_action`——展开后的实际功能按钮。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  with ui.fab('menu'):
+      ui.fab_action('home',label='home')
+  
+  ui.run(native=True)
+  ```
+
+  ![2025_21_9](nicegui_plus.assets/2025_21_9.png)
+
+- `ui.dropdown_button`下拉按钮新增`on_click`方法，可以和`ui.button`按钮一样，先创建控件，再创建响应动作。
+
+- 简化了FastAPI挂载NiceGUI程序的示例，以下为基于简化示例进一步简化的版本：
+
+  ```python3
+  import uvicorn
+  from fastapi import FastAPI
+  from nicegui import ui
+  
+  fast_app = FastAPI()
+  
+  @fast_app.get('/')
+  def root():
+      return '请访问 /gui 查看NiceGUI程序'
+  
+  # 这里的路径是相对挂载路径而言
+  @ui.page('/')
+  def index():
+      ui.label('Hello, NiceGUI!')
+  
+  ui.run_with(
+      app=fast_app,
+      # 省略挂载路径的话，直接访问根路径（/）即可看到NiceGUI程序，但要注释掉@fast_app.get('/')和其装饰的函数
+      mount_path='/gui' 
+  )
+  
+  uvicorn.run(app=fast_app,host='0.0.0.0',port=80)
+  ```
+
+## 23 （待定）
 
 
 

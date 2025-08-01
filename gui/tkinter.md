@@ -633,7 +633,7 @@ root.mainloop()
   root.mainloop()
   ```
 
-  ![2025_3_1_1_1](tkinter.assets/2025_3_1_1_1.png)
+  ![2_1_1](tkinter.assets/2_1_1.png)
 
 - `cursor`参数，字符串类型，表示鼠标悬停在该控件上时光标的样式。具体支持的部分样式可以参考示例（完整样式可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/cursors.htm）：
 
@@ -768,7 +768,7 @@ root.mainloop()
   root.mainloop()
   ```
 
-  ![2025_3_1_1_2](tkinter.assets/2025_3_1_1_2.png)
+  ![2_1_2](tkinter.assets/2_1_2.png)
 
 - `image`参数，`PhotoImage`类型或者字符串类型，表示控件额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。示例如下：
 
@@ -791,7 +791,7 @@ root.mainloop()
   root.mainloop()
   ```
 
-  ![2025_3_1_1_3](tkinter.assets/2025_3_1_1_3.png)
+  ![2_1_3](tkinter.assets/2_1_3.png)
 
 - `name`参数，字符串类型，表示控件的内部名称。
 
@@ -816,7 +816,7 @@ root.mainloop()
   root.mainloop()
   ```
 
-  ![2025_3_1_1_5](tkinter.assets/2025_3_1_1_5.png)
+  ![2_1_4](tkinter.assets/2_1_4.png)
 
 - `style`参数，字符串类型，表示控件使用的主题样式。示例如下：
 
@@ -836,7 +836,7 @@ root.mainloop()
   root.mainloop()
   ```
 
-  ![2025_3_1_1_6](tkinter.assets/2025_3_1_1_6.png)
+  ![2_1_5](tkinter.assets/2_1_5.png)
 
 - `takefocus`参数，布尔类型，表示该控件是否接收焦点（按`tab`键可以切换控件的焦点），默认为`True`。
 
@@ -891,19 +891,36 @@ root.mainloop()
 
 ![2_2_1](tkinter.assets/2_2_1.png)
 
+### 2.3 `tkinter.ttk.Entry`输入框控件
+
+`tkinter.ttk.Entry`的官方文档：https://tkdocs.com/pyref/ttk_entry.html。
+
+该控件中需要注意的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_entry.htm）：
+
+- `exportselection`参数，布尔类型，表示是否在选中文本时自动复制到剪贴板（仅支持使用X11窗口管理器的Linux系统），默认为`False`。
+- 
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
 
 
-### 2.3 `tkinter.ttk.Button`按钮控件
 
-`tkinter.ttk.Button`的官方文档：https://tkdocs.com/pyref/ttk_button.html。
 
-该控件中需要注意的部分参数：
+
+### 2.4 `tkinter.ttk.Combobox`下拉选择框控件
+
+`tkinter.ttk.Combobox`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+该控件中需要注意的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
 
 - 
 
 该控件支持以下特有方法：
 
-- `invoke`方法，
+- `xxx`方法，
 
 示例如下：
 
@@ -915,12 +932,10 @@ root.mainloop()
 
 
 
-主要有：
+
 
 - 
-- ]()，多选框。
-- [`tkinter.ttk.Combobox`](https://tkdocs.com/pyref/ttk_combobox.html)，下拉选择框。
-- [tkinter.ttk.Entry](https://tkdocs.com/pyref/ttk_entry.html) - *Ttk Entry widget displays a one-line text string and allows that string to be edited by the user.*
+- [tkinter.ttk.Entry ) - *Ttk Entry widget displays a one-line text string and allows that string to be edited by the user.*
 - [tkinter.ttk.Frame](https://tkdocs.com/pyref/ttk_frame.html) - *Ttk Frame widget is a container, used to group other widgets together.*
 - [tkinter.ttk.Label](https://tkdocs.com/pyref/ttk_label.html) - *Ttk Label widget displays a textual label and/or image.*
 - [tkinter.ttk.LabeledScale](https://tkdocs.com/pyref/ttk_labeledscale.html) - *A Ttk Scale widget with a Ttk Label widget indicating its current value. The Ttk Scale can be accessed through instance.scale, and Ttk Label can be accessed through instance.label*

@@ -508,7 +508,7 @@ Quasar.lang.set(Quasar.lang[language.replace('-', '')]);
 Quasar.Dark.set(dark === None ? 'auto' : dark);
 ```
 
-注意，该功能仅是实验性功能，不能确保NiceGUI默认使用的Quasar框架与其他基于VUE的框架百分比兼容，也无法保证使用其他框架之后，NiceGUI程序依然正常，请慎重使用该功能。
+注意，该功能仅是实验性功能，不能确保NiceGUI默认使用的Quasar框架与其他基于VUE的框架百分百兼容，也无法保证使用其他框架之后，NiceGUI程序依然正常，请慎重使用该功能。
 
 完整示例如下：
 

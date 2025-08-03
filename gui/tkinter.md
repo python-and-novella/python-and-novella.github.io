@@ -212,7 +212,7 @@ root.mainloop()
 
 解绑方法包括：
 
-- `unbind`方法，用于解绑控件指定事件序列的响应函数。该方法还有一个`funcid`参数，传入`bind`方法的返回值，可以在一个事件序列包含多个响应函数时，只解绑某个响应函数。
+- `unbind`方法，用于解绑控件指定事件序列的响应函数。该方法还有一个`funcid`参数，传入`bind`方法、`bind_all`方法、`bind_class`方法的返回值（即funcid），可以解绑其他绑定方法的响应函数。
 - `unbind_all`方法，解绑指定事件序列全局（整个程序）生效的响应函数。
 - `unbind_class`方法，给包含指定标签的控件解绑指定事件序列的响应函数。
 
@@ -579,6 +579,12 @@ root.mainloop()
 
 - `update`方法，更新控件的显示（一般不需要主动调用）。
 
+- `register`方法，将可调用对象注册为funcid（和`bind`方法、`bind_all`方法、`bind_class`方法一样返回funcid），控件中支持可调用类型同时支持字符串类型的参数，均可以使用funcid。该方法支持以下参数：
+
+  - `func`参数，可调用类型，表示要注册的可调用对象。
+  - `subst`参数，可调用类型（接收多个参数，返回可迭代对象），表示将原本通过脚本格式符传给被注册的可调用对象的多个参数，处理之后再传给被注册的可调用对象。
+  - `needcleanup`参数，布尔类型或者效果相同的整数类型，表示相关的控件销毁时是否自动清理相关注册（一般不需要修改，除非要永久保存注册结果），默认为`1`。
+
 - 'winfo'前缀的方法统一由winfo命令（Tk命令）提供（完整介绍参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/winfo.htm），主要用于返回一些和窗口有关的信息，比如前面示例中，为了让窗口居中，使用的`winfo_screenwidth`方法和`winfo_screenheight`方法，用于获取屏幕的宽度和高度。
 
 ## 2 tkinter的控件（更新中）
@@ -606,7 +612,7 @@ root.mainloop()
 
 - `class_`参数，字符串类型，表示控件对应的的Tcl/Tk窗口类名。该参数与窗口管理器相关，也会影响到样式。一般该参数会根据控件的类型自动决定（比如`ttk`模块的按钮控件对应的是`'TButton'`），通常不需要单独设置该参数。从该参数开始，只能通过关键字传入。
 
-- `command`参数，可调用类型，点击控件后执行的操作。
+- `command`参数，可调用类型或者字符串类型（即funcid），点击控件后执行的操作。
 
 - `compound`参数，字符串类型，表示图像与文字组合的方式（需要同时指定`image`参数），仅支持`['center','text','image','top','left','right','bottom','none']`中的值，依次表示文字在图片中央、只显示文字、只显示图片、图片在文字上方、图片在文字左方、图片在文字右方、图片在文字下方、不组合（效果相当于只显示图片，也就是默认值）。
 
@@ -898,29 +904,130 @@ root.mainloop()
 该控件中需要注意的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_entry.htm）：
 
 - `exportselection`参数，布尔类型，表示是否在选中文本时自动复制到剪贴板（仅支持使用X11窗口管理器的Linux系统），默认为`False`。
-- 
+- `foreground`参数、`font`参数，字符串类型，表示输入内容的颜色、字体。
+- `justify`参数，字符串类型，仅支持`['left', 'center', 'right']`中的内容，表示内容的对齐方式（靠左、居中、靠右），默认为`'left'`。
+- `show`参数，字符串类型，当该参数不为空时，表示输入的内容密文显示，参数值即为掩饰用的文字，默认为`''`。
+- `textvariable`参数，`Variable`类型（其派生类型`StringVar`等也可以）或者字符串类型（为变量对象的`name`参数），表示输入框的内容。
+- `validate`参数，字符串类型，仅支持`['none', 'focus', 'focusin', 'focusout', 'key', 'all']`中的内容，表示在什么时候（不验证、焦点变化、获得焦点、失去焦点、按任意键、前述所有条件）触发对内容的验证，默认为`'none'`。
+- `validatecommand`参数，返回布尔值的可调用类型或者元组（第一个元素为funcid；从第二个元素开始，为使用脚本格式符表示的、传给可调用对象的参数，具体语法参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_entry.htm#M42），表示触发内容验证时执行的操作。具体示例见下面的内容。
+- `invalidcommand`参数，返回可调用类型或者元组（第一个元素为funcid；从第二个元素开始，为使用脚本格式符表示的、传给可调用对象的参数，具体语法参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_entry.htm#M42），表示验证结果返回`False`时执行的操作。具体示例见下面的内容。
 
 该控件支持以下特有方法：
 
-- `xxx`方法，
+- `validate`方法，返回内容的验证结果。
 
 示例如下：
 
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 
 
+value = Variable(value='1')
+entry = ttk.Entry(
+    root,
+    textvariable=value,
+    validate='key',
+    validatecommand=lambda :value.get().isdigit(),
+    invalidcommand=lambda:value.set('0')
+)
+entry.pack()
 
+root.mainloop()
+```
 
-### 2.4 `tkinter.ttk.Combobox`下拉选择框控件
+上面示例使用可调用对象作为验证方法，在输入的内容为纯数字时返回`True`，表示内容有效。如果输入的内容不是纯数字，则会自动将内容修改为`'0'`，表明内容无效。
+
+`validatecommand`参数和`invalidcommand`参数还可以使用`register`方法注册的可调用对象（使用funcid组成的元组），这里简单介绍一下常用的脚本格式符：
+
+- `'%P'`表示输入后的结果。
+- `'%s'`表示输入前的内容。
+- `'%S'`表示本次输入的内容。
+- `'%W'`表示输入框的`name`属性，可以通过其父控件的`nametowidget`方法转换为控件对象。
+
+于是，上面的示例可以改成这样
+
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+value = Variable(value='1')
+entry = ttk.Entry(
+    root,
+    textvariable=value,
+    validate='key',
+    validatecommand=(root.register(lambda p:p.isdigit()),'%P'),
+    invalidcommand=(root.register(print),'%P','%s','%S')
+)
+entry.pack()
+
+root.mainloop()
+```
+
+![2_3_1](tkinter.assets/2_3_1.png)
+
+因为接收的参数不能直接修改，所以`invalidcommand`参数中注册的是内置函数`print`，只在输入内容非纯数字时，在终端打印输出三个参数的值。
+
+也可以使用`'%W'`，实现基于验证结果修改内容颜色的效果：
+
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+def check_it(p,w):
+    if p.isdigit():
+        root.nametowidget(w).configure(foreground='green')
+        return True
+    else:
+        root.nametowidget(w).configure(foreground='red')
+        return False
+
+value = Variable(value='1')
+entry = ttk.Entry(
+    root,
+    textvariable=value,
+    validate='key',
+    validatecommand=(root.register(check_it),'%P','%W'),
+)
+entry.pack()
+
+root.mainloop()
+```
+
+![2_3_2](tkinter.assets/2_3_2.png)
+
+### 2.4 `tkinter.ttk.Combobox`下拉选择框控件（更新中）
 
 `tkinter.ttk.Combobox`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-该控件中需要注意的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+下拉选择框是基于输入框修改的，因为大部分输入框的参数，在下拉选择框中也能使用，以下是该控件中与输入框不同、新增的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
 
-- 
+- `height`参数，整数类型，表示下拉框的高度（显示多少个选项，其余选项需要通过拖动滚动条查看，最少为`3`），默认为`10`。
+- `postcommand`参数，可调用类型或者字符串类型（即funcid），点击弹出下拉框时执行的操作。
+- `values`参数，列表类型或者元组类型，表示下拉框的选项。
 
 该控件支持以下特有方法：
 
-- `xxx`方法，
+- `current`方法，
+- `set`方法，
 
 示例如下：
 
@@ -934,8 +1041,8 @@ root.mainloop()
 
 
 
-- 
-- [tkinter.ttk.Entry ) - *Ttk Entry widget displays a one-line text string and allows that string to be edited by the user.*
+
+
 - [tkinter.ttk.Frame](https://tkdocs.com/pyref/ttk_frame.html) - *Ttk Frame widget is a container, used to group other widgets together.*
 - [tkinter.ttk.Label](https://tkdocs.com/pyref/ttk_label.html) - *Ttk Label widget displays a textual label and/or image.*
 - [tkinter.ttk.LabeledScale](https://tkdocs.com/pyref/ttk_labeledscale.html) - *A Ttk Scale widget with a Ttk Label widget indicating its current value. The Ttk Scale can be accessed through instance.scale, and Ttk Label can be accessed through instance.label*

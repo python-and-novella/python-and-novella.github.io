@@ -864,7 +864,7 @@ root.mainloop()
 
 多选框控件的英文名字里带着'button'，实际上很多参数也和按钮控件一样，只是该控件在使用时还是一个多选框应该有的表现。
 
-该控件中需要注意的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_checkbutton.htm）：
+该控件中需要注意的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_checkbutton.htm）：
 
 - `variable`参数，`Variable`类型（其派生类型`StringVar`等也可以），表示多选框当前状态绑定的变量。
 - `offvalue`参数，任意类型，表示多选框非勾选状态时，其绑定变量的值，默认为`0`。
@@ -901,7 +901,7 @@ root.mainloop()
 
 `tkinter.ttk.Entry`的官方文档：https://tkdocs.com/pyref/ttk_entry.html。
 
-该控件中需要注意的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_entry.htm）：
+该控件中需要注意的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_entry.htm）：
 
 - `exportselection`参数，布尔类型，表示是否在选中文本时自动复制到剪贴板（仅支持使用X11窗口管理器的Linux系统），默认为`False`。
 - `foreground`参数、`font`参数，字符串类型，表示输入内容的颜色、字体。
@@ -1014,11 +1014,11 @@ root.mainloop()
 
 ![2_3_2](tkinter.assets/2_3_2.png)
 
-### 2.4 `tkinter.ttk.Combobox`下拉选择框控件（更新中）
+### 2.4 `tkinter.ttk.Combobox`下拉选择框控件
 
 `tkinter.ttk.Combobox`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-下拉选择框是基于输入框修改的，因为大部分输入框的参数，在下拉选择框中也能使用，以下是该控件中与输入框不同、新增的部分参数（完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+下拉选择框是基于输入框修改的，因为大部分输入框的参数，在下拉选择框中也能使用，以下是该控件相比于输入框不同、新增的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
 
 - `height`参数，整数类型，表示下拉框的高度（显示多少个选项，其余选项需要通过拖动滚动条查看，最少为`3`），默认为`10`。
 - `postcommand`参数，可调用类型或者字符串类型（即funcid），点击弹出下拉框时执行的操作。
@@ -1026,8 +1026,203 @@ root.mainloop()
 
 该控件支持以下特有方法：
 
-- `current`方法，
-- `set`方法，
+- `current`方法，设置当前选中的选项。该方法支持一个整数类型参数`newindex`，表示被选中选项的索引值。
+- `set`方法，设置当前值。该方法支持一个字符串类型参数`value`，表示控件的输入框的当前值。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+combo = ttk.Combobox(
+    root,
+    values=[i for i in range(9)]
+)
+combo.pack()
+combo.set('请选择')
+
+root.mainloop()
+```
+
+![2_4_1](tkinter.assets/2_4_1.png)
+
+### 2.5 `tkinter.ttk.Frame`框架控件
+
+`tkinter.ttk.Frame`的官方文档：https://tkdocs.com/pyref/ttk_frame.html。
+
+框架控件是一个容器控件，常用于包装其他控件，配合不同的布局方法，可以做到容器内外的布局不同，进而实现复杂的组合布局。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_frame.htm）：
+
+- `borderwidth`参数（`border`参数效果相同，但官方文档里只有`borderwidth`参数），整数类型或者字符串类型，表示边框的宽度。
+
+- `relief`参数，字符串类型，仅支持`['raised', 'sunken', 'flat', 'ridge', 'solid', 'groove']`中的值，表示边框的样式。
+
+- `padding`参数，整数类型或者字符串类型或者元素为前述类型的元组，表示内边距。需要注意的是，元组的元素数量不同，表示的内边距也不同：
+
+  - 单个元素，表示四个方向上的内边距。
+  - 两个元素，分别表示左右内边距、上下内边距。
+  - 三个元素，分别表示左内边距、上下内边距、右内边距。
+  - 四个元素，分别表示左内边距、上内边距、右内边距、下内边距。
+
+- `height`参数和`width`参数，整数类型或者字符串类型，表示控件的高度和宽度。需要注意，默认这两个参数因为传播机制的存在而无法生效，需要使用`propagate`方法或者对应布局版本的`propagate`方法来禁用传播：
+
+  ```python3
+  from tkinter import Tk
+  from tkinter import ttk
+  
+  root = Tk()
+  root.title('Main')
+  width = 320
+  height = 240
+  root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+  
+  frame = ttk.Frame(
+      root,
+      relief='ridge',
+      width=300,
+      height=200,
+  )
+  frame.pack()
+  # 没有子控件时使用 frame.propagate(False)
+  # 有子控件时，需要子控件对应布局版本的propagate方法
+  frame.grid_propagate(False)
+  
+  ttk.Button(frame,text='click1').grid(column=0,row=0)
+  
+  root.mainloop()
+  ```
+
+  ![2_5_1](tkinter.assets/2_5_1.png)
+
+### 2.6 `tkinter.ttk.Label`标签控件
+
+`tkinter.ttk.Label`的官方文档：https://tkdocs.com/pyref/ttk_label.html。
+
+标签控件可以显示文本或者图片。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_label.htm）：
+
+- `wraplength`参数，整数类型或者字符串类型，表示文字宽度超过多少像素时自动换行。
+- `width`参数，整数类型，表示控件的宽度（字符数）。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+label = ttk.Label(
+    root,
+    text='Hello',
+    relief='solid',
+    width=10
+)
+label.pack()
+
+root.mainloop()
+```
+
+![2_6_1](tkinter.assets/2_6_1.png)
+
+### 2.7 `tkinter.ttk.Scale`滑块控件
+
+`tkinter.ttk.Scale`的官方文档：https://tkdocs.com/pyref/ttk_scale.html。
+
+
+
+*Ttk Scale widget is typically used to control the numeric value of a linked variable that varies uniformly over some range.*
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_scale.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
+### 2.8 `tkinter.ttk.LabeledScale`标签滑块控件
+
+`tkinter.ttk.LabeledScale`的官方文档：https://tkdocs.com/pyref/ttk_labeledscale.html。
+
+相当于标签加滑块，可通过label属性访问标签控件，通过scale属性访问滑块控件
+
+[tkinter.ttk.LabeledScale]
+
+) - *A Ttk Scale widget with a Ttk Label widget indicating its current value. The Ttk Scale can be accessed through instance.scale, and Ttk Label can be accessed through instance.label*
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
+
+
+### 2.9 `tkinter.ttk.xxx`xxx控件
+
+`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+[tkinter.ttk.Labelframe](https://tkdocs.com/pyref/ttk_labelframe.html) - *Ttk Labelframe widget is a container used to group other widgets together. It has an optional label, which may be a plain text string or another widget.*
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
+
+
+### 2.10 `tkinter.ttk.xxx`xxx控件
+
+`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+[tkinter.ttk.Menubutton](https://tkdocs.com/pyref/ttk_menubutton.html) - *Ttk Menubutton widget displays a textual label and/or image, and displays a menu when pressed.*
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
 
 示例如下：
 
@@ -1039,43 +1234,41 @@ root.mainloop()
 
 
 
+### 2.x `tkinter.ttk.xxx`xxx控件
+
+`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
 
 
 
 
-- [tkinter.ttk.Frame](https://tkdocs.com/pyref/ttk_frame.html) - *Ttk Frame widget is a container, used to group other widgets together.*
-- [tkinter.ttk.Label](https://tkdocs.com/pyref/ttk_label.html) - *Ttk Label widget displays a textual label and/or image.*
-- [tkinter.ttk.LabeledScale](https://tkdocs.com/pyref/ttk_labeledscale.html) - *A Ttk Scale widget with a Ttk Label widget indicating its current value. The Ttk Scale can be accessed through instance.scale, and Ttk Label can be accessed through instance.label*
-- [tkinter.ttk.Labelframe](https://tkdocs.com/pyref/ttk_labelframe.html) - *Ttk Labelframe widget is a container used to group other widgets together. It has an optional label, which may be a plain text string or another widget.*
-- [tkinter.ttk.Menubutton](https://tkdocs.com/pyref/ttk_menubutton.html) - *Ttk Menubutton widget displays a textual label and/or image, and displays a menu when pressed.*
+
+- 
 - [tkinter.ttk.Notebook](https://tkdocs.com/pyref/ttk_notebook.html) - *Ttk Notebook widget manages a collection of windows and displays a single one at a time.*
 - [tkinter.ttk.OptionMenu](https://tkdocs.com/pyref/ttk_optionmenu.html) - *Themed OptionMenu, based after tkinter's OptionMenu, which allows the user to select a value from a menu.*
 - [tkinter.ttk.Panedwindow](https://tkdocs.com/pyref/ttk_panedwindow.html) - *Ttk Panedwindow widget displays a number of subwindows, stacked either vertically or horizontally.*
 - [tkinter.ttk.Progressbar](https://tkdocs.com/pyref/ttk_progressbar.html) - *Ttk Progressbar widget shows the status of a long-running operation.*
 - [tkinter.ttk.Radiobutton](https://tkdocs.com/pyref/ttk_radiobutton.html) - *Ttk Radiobutton widgets are used in groups to show or change a set of mutually-exclusive options.*
-- [tkinter.ttk.Scale](https://tkdocs.com/pyref/ttk_scale.html) - *Ttk Scale widget is typically used to control the numeric value of a linked variable that varies uniformly over some range.*
 - [tkinter.ttk.Scrollbar](https://tkdocs.com/pyref/ttk_scrollbar.html) - *Ttk Scrollbar controls the viewport of a scrollable widget.*
 - [tkinter.ttk.Separator](https://tkdocs.com/pyref/ttk_separator.html) - *Ttk Separator widget displays a horizontal or vertical separator bar.*
 - [tkinter.ttk.Sizegrip](https://tkdocs.com/pyref/ttk_sizegrip.html) - *Ttk Sizegrip allows the user to resize the containing toplevel window by pressing and dragging the grip.*
 - [tkinter.ttk.Spinbox](https://tkdocs.com/pyref/ttk_spinbox.html) - *Ttk Spinbox is an Entry with increment and decrement arrows It is commonly used for number entry or to select from a list of string values.*
 - [tkinter.ttk.Treeview](https://tkdocs.com/pyref/ttk_treeview.html) - *Ttk Treeview widget displays a hierarchical collection of items.*
 
-不能使用主题的控件是tkinter的顶层控件，但这部分控件分类两类，一类是`tkinter.ttk`模块提供的控件中有相同用途控件的控件，主要有：
 
-- [tkinter.Button](https://tkdocs.com/pyref/button.html) - *Button widget.*
-- [tkinter.Checkbutton](https://tkdocs.com/pyref/checkbutton.html) - *Checkbutton widget which is either in on- or off-state.*
-- [tkinter.Entry](https://tkdocs.com/pyref/entry.html) - *Entry widget which allows displaying simple text.*
-- [tkinter.Frame](https://tkdocs.com/pyref/frame.html) - *Frame widget which may contain other widgets and can have a 3D border.*
-- [tkinter.Label](https://tkdocs.com/pyref/label.html) - *Label widget which can display text and bitmaps.*
-- [tkinter.LabelFrame](https://tkdocs.com/pyref/labelframe.html) - *labelframe widget.*
-- [tkinter.Menubutton](https://tkdocs.com/pyref/menubutton.html) - *Menubutton widget, obsolete since Tk8.0.*
-- [tkinter.Message](https://tkdocs.com/pyref/message.html) - *Message widget to display multiline text. Obsolete since Label does it too.*
-- [tkinter.OptionMenu](https://tkdocs.com/pyref/optionmenu.html) - *OptionMenu which allows the user to select a value from a menu.*
-- [tkinter.PanedWindow](https://tkdocs.com/pyref/panedwindow.html) - *panedwindow widget.*
-- [tkinter.Radiobutton](https://tkdocs.com/pyref/radiobutton.html) - *Radiobutton widget which shows only one of several buttons in on-state.*
-- [tkinter.Scale](https://tkdocs.com/pyref/scale.html) - *Scale widget which can display a numerical scale.*
-- [tkinter.Scrollbar](https://tkdocs.com/pyref/scrollbar.html) - *Scrollbar widget which displays a slider at a certain position.*
-- [tkinter.Spinbox](https://tkdocs.com/pyref/spinbox.html) - *spinbox widget.*
+
+
 
 另一类是`tkinter.ttk`模块提供的控件中没有相同用途控件的控件，主要有：
 
@@ -1106,22 +1299,66 @@ withdraw隐藏
 
 
 
+### 2.x 不推荐使用的控件（更新中）
+
+`tkinter`模块的顶层控件有很多，但不是所有顶层控件都推荐使用，以下这些是`tkinter.ttk`模块有相同控件或者tkinter中有替代控件的控件，不推荐继续使用。虽然不会像前面的控件一样单独介绍，但考虑到tkinter尚未移除，这里依然提供了对应的官网文档链接，以便不时之需：
+
+- [tkinter.Button](https://tkdocs.com/pyref/button.html) - *Button widget.*
+- [tkinter.Checkbutton](https://tkdocs.com/pyref/checkbutton.html) - *Checkbutton widget which is either in on- or off-state.*
+- [tkinter.Entry](https://tkdocs.com/pyref/entry.html) - *Entry widget which allows displaying simple text.*
+- [tkinter.Frame](https://tkdocs.com/pyref/frame.html) - *Frame widget which may contain other widgets and can have a 3D border.*
+- [tkinter.Label](https://tkdocs.com/pyref/label.html) - *Label widget which can display text and bitmaps.*
+- [tkinter.LabelFrame](https://tkdocs.com/pyref/labelframe.html) - *labelframe widget.*
+- [tkinter.Menubutton](https://tkdocs.com/pyref/menubutton.html) - *Menubutton widget, obsolete since Tk8.0.*
+- [tkinter.Message](https://tkdocs.com/pyref/message.html) - *Message widget to display multiline text. Obsolete since Label does it too.*
+- [tkinter.OptionMenu](https://tkdocs.com/pyref/optionmenu.html) - *OptionMenu which allows the user to select a value from a menu.*
+- [tkinter.PanedWindow](https://tkdocs.com/pyref/panedwindow.html) - *panedwindow widget.*
+- [tkinter.Radiobutton](https://tkdocs.com/pyref/radiobutton.html) - *Radiobutton widget which shows only one of several buttons in on-state.*
+- [tkinter.Scale](https://tkdocs.com/pyref/scale.html) - *Scale widget which can display a numerical scale.*
+- [tkinter.Scrollbar](https://tkdocs.com/pyref/scrollbar.html) - *Scrollbar widget which displays a slider at a certain position.*
+- [tkinter.Spinbox](https://tkdocs.com/pyref/spinbox.html) - *spinbox widget.*
+
+
+
+
+
 ## 3 tkinter的对话框（更新中）
 
-对话框的用法与控件用法不同：无需构建具备基本结构的tkinter程序，也能使用对话框。
+对话框的用法与控件用法不同：大部分对话框无需构建具备基本结构的tkinter程序，就能直接使用。
 
-### 7.1 `tkinter.filedialog.Directory`选择目录对话框
+### 3.1 `tkinter.filedialog`模块
 
+该模块的类、方法，提供了与文件、目录相关的对话框功能。
 
+该模块提供以下类：
 
-提供对话框的模块
+- `Directory`类，用于弹出目录选择对话框。该类支持以下参数（参数的完整用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/chooseDirectory.htm）：
 
-- [`tkinter.filedialog.Directory`](https://tkdocs.com/pyref/filedialog_directory.html) - *Ask for a directory*
+  - 
+
+  需要调用`show`方法才能显示对话框，并返回目录、文件的路径；该方法支持的参数与对应的类相同。
+
 - [tkinter.filedialog.Open](https://tkdocs.com/pyref/filedialog_open.html) - *Ask for a filename to open*
+
 - [tkinter.filedialog.SaveAs](https://tkdocs.com/pyref/filedialog_saveas.html) - *Ask for a filename to save as*
-- [tkinter.colorchooser.Chooser](https://tkdocs.com/pyref/colorchooser_chooser.html) - *Create a dialog for the tk_chooseColor command.*
-- tkinter.messagebox，showerror等等
-- tkinter.simpledialog
+
+- `FileDialog`类等'Dialog'后缀的类
+
+  需要指定父控件，并且需要调用`go`方法才能显示对话框
+
+- 
+
+
+
+该模块提供以下方法：
+
+- askdirectory
+- askopenfile
+- askopenfilename
+- askopenfiles
+- askopenfilenames
+- asksaveasfile
+- asksaveasfilename
 
 
 
@@ -1134,77 +1371,49 @@ print(Open().show())
 
 
 
+### 3.2 `tkinter.messagebox`模块
+
+该模块提供以下方法：
+
+- showinfo
+- showwarning
+- ", "showerror",
+- ​      "askquestion", 
+- "askokcancel", 
+- "askyesno",
+- ​      "askyesnocancel",
+-  "askretrycancel"]
 
 
 
 
-主题对比：
 
-```python3
-import tkinter as tk
-from tkinter import ttk
-root = tk.Tk()
-root.geometry('600x400+200+200')
-root.title('Ttk 主题小部件演示')
+### 3.3 `tkinter.simpledialog`模块
 
-text = tk.StringVar()
-style = ttk.Style(root)
-def change_theme():
-    style.theme_use(selected_theme.get())
-    
-def callback():
-    pass
+该模块提供以下类：
 
-left_frame = tk.Frame(root,  width=300,  height=400)
-left_frame.pack(side='left',  fill='both',  padx=10,  pady=5,  expand=True)
+- `SimpleDialog`类
+- `Dialog`类
 
-right_frame  =  tk.Frame(root,  width=300,  height=400)
-right_frame.pack(side='right',  fill='both',  padx=10,  pady=5,  expand=True)
+该模块提供两个类：`SimpleDialog`类和`Dialog`类。这两个类都需要指定父控件，并且前者要调用`go`方法才能显示，用起来比较麻烦。所以，本节主要介绍该模块提供的方法。
 
-selected_theme = tk.StringVar()
-theme_frame = ttk.LabelFrame(left_frame, text='Themes')
-theme_frame.pack(padx=10, pady=10, ipadx=20, ipady=20)
+该模块提供以下方法：
 
-for theme_name in style.theme_names():
-    rb = ttk.Radiobutton(
-        theme_frame,
-        text=theme_name,
-        value=theme_name,
-        variable=selected_theme,
-        command=change_theme)
-    rb.pack(expand=True, fill='both')
+- askfloat
+- askinteger
+- askstring
 
-label = ttk.Label(right_frame, text='ttk标签')
-label.pack(pady=5)
-button = ttk.Button(right_frame, text="ttk按钮", command=callback)
-button.pack(pady=5)
-entry = ttk.Entry(right_frame, textvariable=text, text="文本框")
-entry.pack(pady=5)
-entry.insert(0, "ttk单行文本框")
-frame2 = ttk.LabelFrame(right_frame, text='ttk复选框')
-frame2.pack(pady=5)
-cb3 = ttk.Checkbutton(frame2, text='Number 3')
-cb3.pack()
-cb4 = ttk.Checkbutton(frame2, text='Number 4')
-cb4.pack()
-frame4 = ttk.LabelFrame(right_frame, text='ttk单选按钮')
-frame4.pack(pady=5)
-r1 = ttk.Radiobutton(frame4,text="option 1", value=1)
-r1.pack()
-r2 = ttk.Radiobutton(frame4,text="option 2", value=2)
-r2.pack()
-scale2 = ttk.Scale(right_frame, from_=0, to=100, orient='horizontal', length=100)
-scale2.pack(pady=5)
-menubttn = ttk.Menubutton(right_frame, text = "ttk菜单按钮")
-menu = tk.Menu(menubttn, tearoff = 0)
-menu.add_checkbutton(label = "Python")
-menu.add_checkbutton(label = "Java")
-menubttn["menu"] = menu
-menubttn.pack(pady=5)
-spinbox2 = ttk.Spinbox(right_frame, from_=0, to=10, wrap=True)
-spinbox2.pack(pady=5)
-root.mainloop()
-```
+
+
+### 3.4 `tkinter.colorchooser`模块
+
+
+
+Chooser类
+
+
+
+askcolor方法
 
 
 

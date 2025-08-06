@@ -858,7 +858,7 @@ root.mainloop()
 
 - `invoke`方法，模拟点击按钮（执行`command`参数的值）。
 
-### 2.2 `tkinter.ttk.Checkbutton`多选框控件
+### 2.2 `tkinter.ttk.Checkbutton`多选框控件与`tkinter.ttk.Radiobutton`单选框控件
 
 `tkinter.ttk.Checkbutton`的官方文档：https://tkdocs.com/pyref/ttk_checkbutton.html。
 
@@ -896,6 +896,53 @@ root.mainloop()
 ```
 
 ![2_2_1](tkinter.assets/2_2_1.png)
+
+`tkinter.ttk.Radiobutton`的官方文档：https://tkdocs.com/pyref/ttk_radiobutton.html。
+
+单选框控件与多选框控件用法类似，但是，想要实现单选话，用法上需要额外注意。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_radiobutton.htm）：
+
+- `value`参数，表示当前选项的值，默认为`'1'`。
+- `variable`参数，`Variable`类型（其派生类型`StringVar`等也可以），表示单选框绑定的变量。使用同一绑定对象的单选框为同一分组，同一分组的选项只能同时选定其中一个。
+
+该控件支持以下特有方法：
+
+- `invoke`方法，模拟点击单选框（执行`command`参数的值，同时切换单选状态）。
+
+示例如下：
+
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+value = Variable(value='1')
+radio_button1 = ttk.Radiobutton(
+    root,
+    variable=value,
+    value='0',
+    text='0'
+)
+radio_button1.pack()
+
+radio_button2 = ttk.Radiobutton(
+    root,
+    variable=value,
+    text='1'
+)
+radio_button2.pack()
+
+
+root.mainloop()
+```
+
+![2_2_2](tkinter.assets/2_2_2.png)
 
 ### 2.3 `tkinter.ttk.Entry`输入框控件
 
@@ -1142,55 +1189,132 @@ root.mainloop()
 
 `tkinter.ttk.Scale`的官方文档：https://tkdocs.com/pyref/ttk_scale.html。
 
+移动滑块控件的滑块，可以精准调整数值。
 
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_scale.htm）：
 
-*Ttk Scale widget is typically used to control the numeric value of a linked variable that varies uniformly over some range.*
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_scale.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
+- `command`参数，可调用类型或者字符串类型（即funcid），移动滑块时执行的操作。该参数对应的可调用对象接收一个字符串类型参数，表示滑块当前位置对应的值。
+- `from_`参数和`to`参数，浮点类型，表示滑块起点、终点对应的值，默认为`0`、`1`。
+- `value`参数，浮点类型，表示滑块的当前位置。
+- `variable`参数，`value`参数的变量绑定版本。
+- `length`参数，浮点类型或者字符串类型，表示控件的长度。
+- `orient`参数，字符串类型，仅支持`['horizontal', 'vertical']`中的值，表示滑块控件的方向，默认为`'horizontal'`（水平方向）。
 
 示例如下：
 
+```python3
+from tkinter import Tk
+from tkinter import ttk
 
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+ttk.Scale()
+
+scale = ttk.Scale(
+    root,
+    from_=0,
+    to=10,
+    value=10,
+    orient='vertical'
+)
+scale.pack()
+
+root.mainloop()
+```
+
+![2_7_1](tkinter.assets/2_7_1.png)
 
 ### 2.8 `tkinter.ttk.LabeledScale`标签滑块控件
 
 `tkinter.ttk.LabeledScale`的官方文档：https://tkdocs.com/pyref/ttk_labeledscale.html。
 
-相当于标签加滑块，可通过label属性访问标签控件，通过scale属性访问滑块控件
-
-[tkinter.ttk.LabeledScale]
-
-) - *A Ttk Scale widget with a Ttk Label widget indicating its current value. The Ttk Scale can be accessed through instance.scale, and Ttk Label can be accessed through instance.label*
-
-（说一下控件的用途或者是否基于其他控件）
+相当于基于框架控件，添加了标签和滑块，可通过`label`属性访问标签控件，通过`scale`属性访问滑块控件。
 
 以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件）：
 
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
+- `variable`参数，`Variable`类型（一般使用派生类型`IntVar`、`DoubleVar`），表示滑块的当前位置。
+- `from_`参数和`to`参数，浮点类型，表示滑块起点、终点对应的值，默认为`0`、`1`。
 
 示例如下：
 
+```python3
+from tkinter import Tk,IntVar
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+ttk.Scale()
+
+value = IntVar(value=10)
+labeled_scale = ttk.LabeledScale(
+    root,
+    from_=0,
+    to=10,
+    variable=value,
+)
+labeled_scale.pack()
+labeled_scale.scale.configure(orient='vertical')
+
+root.mainloop()
+```
+
+![2_8_1](tkinter.assets/2_8_1.png)
+
+### 2.9 `tkinter.ttk.Labelframe`标签框架控件
+
+`tkinter.ttk.Labelframe`的官方文档：https://tkdocs.com/pyref/ttk_labelframe.html。
+
+标签框架控件的主体是显示边框的框架，可以在边框上添加文字或者其他控件。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_labelframe.htm）：
+
+- `labelanchor`参数，字符串类型，仅支持`['nw', 'n', 'ne', 'en', 'e', 'es', 'se', 's', 'sw', 'ws', 'w', 'wn']`中的值，表示边框上文字或者控件的位置（上北下南左西右东），默认为`'nw'`。
+- `text`参数，字符串类型，表示边框上的文字。
+- `labelwidget`参数，表示边框上的控件。注意，控件优先于文字显示。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+ttk.Scale()
+
+labeled_frame = ttk.Labelframe(
+    root,
+    text='Hello',
+    width=200,
+    height=200,
+    #labelwidget=ttk.Label(text='World'),
+    labelanchor='e'
+)
+labeled_frame.pack()
+
+root.mainloop()
+```
+
+![2_9_1](tkinter.assets/2_9_1.png)
 
 
 
 
-### 2.9 `tkinter.ttk.xxx`xxx控件
+
+### 2.x `tkinter.ttk.xxx`xxx控件
 
 `tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-[tkinter.ttk.Labelframe](https://tkdocs.com/pyref/ttk_labelframe.html) - *Ttk Labelframe widget is a container used to group other widgets together. It has an optional label, which may be a plain text string or another widget.*
+[tkinter.ttk.Spinbox](https://tkdocs.com/pyref/ttk_spinbox.html) - *Ttk Spinbox is an Entry with increment and decrement arrows It is commonly used for number entry or to select from a list of string values.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1205,6 +1329,76 @@ root.mainloop()
 示例如下：
 
 
+
+### 2.x `tkinter.ttk.xxx`xxx控件
+
+`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
+### 2.x `tkinter.ttk.xxx`xxx控件
+
+`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
+### 2.x `tkinter.ttk.xxx`xxx控件
+
+`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
+### 2.x `tkinter.ttk.xxx`xxx控件
+
+`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
 
 
 
@@ -1225,12 +1419,6 @@ root.mainloop()
 - `xxx`方法，
 
 示例如下：
-
-
-
-
-
-
 
 
 
@@ -1259,11 +1447,9 @@ root.mainloop()
 - [tkinter.ttk.OptionMenu](https://tkdocs.com/pyref/ttk_optionmenu.html) - *Themed OptionMenu, based after tkinter's OptionMenu, which allows the user to select a value from a menu.*
 - [tkinter.ttk.Panedwindow](https://tkdocs.com/pyref/ttk_panedwindow.html) - *Ttk Panedwindow widget displays a number of subwindows, stacked either vertically or horizontally.*
 - [tkinter.ttk.Progressbar](https://tkdocs.com/pyref/ttk_progressbar.html) - *Ttk Progressbar widget shows the status of a long-running operation.*
-- [tkinter.ttk.Radiobutton](https://tkdocs.com/pyref/ttk_radiobutton.html) - *Ttk Radiobutton widgets are used in groups to show or change a set of mutually-exclusive options.*
 - [tkinter.ttk.Scrollbar](https://tkdocs.com/pyref/ttk_scrollbar.html) - *Ttk Scrollbar controls the viewport of a scrollable widget.*
 - [tkinter.ttk.Separator](https://tkdocs.com/pyref/ttk_separator.html) - *Ttk Separator widget displays a horizontal or vertical separator bar.*
 - [tkinter.ttk.Sizegrip](https://tkdocs.com/pyref/ttk_sizegrip.html) - *Ttk Sizegrip allows the user to resize the containing toplevel window by pressing and dragging the grip.*
-- [tkinter.ttk.Spinbox](https://tkdocs.com/pyref/ttk_spinbox.html) - *Ttk Spinbox is an Entry with increment and decrement arrows It is commonly used for number entry or to select from a list of string values.*
 - [tkinter.ttk.Treeview](https://tkdocs.com/pyref/ttk_treeview.html) - *Ttk Treeview widget displays a hierarchical collection of items.*
 
 

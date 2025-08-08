@@ -1306,15 +1306,215 @@ root.mainloop()
 
 ![2_9_1](tkinter.assets/2_9_1.png)
 
+### 2.10 `tkinter.ttk.Spinbox`数值调整控件
+
+`tkinter.ttk.Spinbox`的官方文档：https://tkdocs.com/pyref/ttk_spinbox.html。
+
+数值调整控件基于输入框控件，因此主体是一个输入框。参数上有点像滑块控件，需要限定调整范围。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_spinbox.htm）：
+
+- `from_`参数和`to`参数，浮点类型，表示数值的调整起止点，默认为`0`、`0`。
+- `increment`参数，浮点类型，表示每次增减的值，默认为`1`。
+- `format`参数，字符串类型，表示显示内容的格式（同Python中浮点数的格式化表达规则）。
+- `values`参数，元素为字符串类型或者浮点类型的列表或者元组，表示允许的值。
+
+该控件支持以下特有方法：
+
+- `set`方法，设置控件的当前值，该方法支持`value`参数，表示当前值。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+spinbox = ttk.Spinbox(
+    root,
+    from_=0,
+    to=10,
+    format='%.2f',
+    values=[1,3,5],
+)
+spinbox.pack()
+spinbox.set(1)
+
+root.mainloop()
+```
+
+![2_10_1](tkinter.assets/2_10_1.png)
+
+### 2.11 `tkinter.ttk.Separator`分隔线控件
+
+`tkinter.ttk.Separator`的官方文档：https://tkdocs.com/pyref/ttk_separator.html。
+
+分隔线控件用于分隔两个边界没那么明显的控件，可以显示一个明显的分隔线。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_separator.htm）：
+
+- `orient`参数，字符串类型，仅支持`['horizontal', 'vertical']`中的值，表示控件的方向，默认为`'horizontal'`（水平方向）。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+frame1 = ttk.Frame(root,width=200,height=100)
+frame1.pack()
+frame1.pack_propagate(False)
+ttk.Button(frame1,text='Hello').pack()
+
+sep = ttk.Separator(root)
+sep.pack(fill='x')
+
+frame2 = ttk.Frame(root,width=200,height=100)
+frame2.pack()
+frame2.pack_propagate(False)
+ttk.Button(frame2,text='World').pack()
+
+root.mainloop()
+```
+
+![2_11_1](tkinter.assets/2_11_1.png)
+
+### 2.12 `tkinter.ttk.Progressbar`进度条控件
+
+`tkinter.ttk.Progressbar`的官方文档：https://tkdocs.com/pyref/ttk_progressbar.html。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_progressbar.htm）：
+
+- `maximum`参数，浮点类型，表示进度条的总步数。
+- `mode`参数，字符串类型，仅支持`['determinate', 'indeterminate']`中的值，表示进度条的总步数是否为确定值，默认为`'determinate'`。如果该参数为`'indeterminate'`，则进度条会变成往复运动的小方块。
+- `orient`参数，字符串类型，仅支持`['horizontal', 'vertical']`中的值，表示进度条控件的方向，默认为`'horizontal'`（水平方向）。
+- `value`参数，浮点类型，表示进度条的当前进度。
+- `variable`参数，`Variable`类型的派生类型`IntVar`或者`DoubleVar`，`value`参数的变量绑定版本。
+
+该控件支持以下特有方法：
+
+- `start`方法，进度条开始自动增加。该方法接收一个整数类型参数`interval`，表示每隔多少毫秒增加一步。
+- `step`方法，进度条增加指定步数。该方法接收一个整数类型参数`amount`，表示增加多少步。
+- `stop`方法，进度条停止自动增加。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 
 
+progress = ttk.Progressbar(
+    root,
+    maximum=100,
+    value=40
+)
+progress.pack()
+progress.start(100)
 
+root.mainloop()
+```
 
-### 2.x `tkinter.ttk.xxx`xxx控件
+![2_12_1](tkinter.assets/2_12_1.png)
 
-`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+### 2.13 `tkinter.ttk.Sizegrip`窗口尺寸控件
 
-[tkinter.ttk.Spinbox](https://tkdocs.com/pyref/ttk_spinbox.html) - *Ttk Spinbox is an Entry with increment and decrement arrows It is commonly used for number entry or to select from a list of string values.*
+`tkinter.ttk.Sizegrip`的官方文档：https://tkdocs.com/pyref/ttk_sizegrip.html。
+
+拖动窗口尺寸控件的效果和拖动窗口右下角位置调整窗口尺寸的效果一样。
+
+该控件其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_sizegrip.htm。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+sizegrip = ttk.Sizegrip(
+    root
+)
+sizegrip.place(relx=1,rely=1,anchor='se')
+
+root.mainloop()
+```
+
+注意窗口右下角多出来的内容，即为本节介绍的控件：
+
+![2_13_1](tkinter.assets/2_13_1.png)
+
+### 2.14 `tkinter.ttk.Scrollbar`滚动条控件
+
+`tkinter.ttk.Scrollbar`的官方文档：https://tkdocs.com/pyref/ttk_scrollbar.html。
+
+滚动条控件通常与具备滚动参数（`xscrollcommand`、`yscrollcommand`）和滚动方法（`xview`、`yview`）的控件组合使用。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_scrollbar.htm）：
+
+- `command`参数，表示关联控件的滚动方法（`xview`、`yview`）。
+- `orient`参数，字符串类型，仅支持`['horizontal', 'vertical']`中的值，表示控件的方向，默认为`'vertical'`（垂直方向）。
+
+该控件支持以下特有方法：
+
+- `set`方法，设置滚动条的状态，通常传给关联控件的滚动参数（`xscrollcommand`、`yscrollcommand`）。
+
+示例如下：
+
+```python3
+from tkinter import Tk,Variable
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+value = Variable(value=''.join(str(i) for i in range(19)))
+entry = ttk.Entry(
+    root,
+    textvariable=value
+)
+entry.pack()
+
+scrollbar = ttk.Scrollbar(root,orient='horizontal',command=entry.xview)
+scrollbar.pack(fill='x')
+
+entry.configure(xscrollcommand=scrollbar.set)
+
+root.mainloop()
+```
+
+![2_14_1](tkinter.assets/2_14_1.png)
+
+### 2.15 `tkinter.ttk.Treeview`表格控件
+
+`tkinter.ttk.Treeview`的官方文档：https://tkdocs.com/pyref/ttk_treeview.html。
+
+ Treeview widget displays a hierarchical collection of items.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1330,79 +1530,7 @@ root.mainloop()
 
 
 
-### 2.x `tkinter.ttk.xxx`xxx控件
-
-`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
-
-示例如下：
-
-
-
-### 2.x `tkinter.ttk.xxx`xxx控件
-
-`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
-
-示例如下：
-
-
-
-### 2.x `tkinter.ttk.xxx`xxx控件
-
-`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
-
-示例如下：
-
-
-
-### 2.x `tkinter.ttk.xxx`xxx控件
-
-`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
-
-示例如下：
-
-
-
-### 2.10 `tkinter.ttk.xxx`xxx控件
+### 2.16 `tkinter.ttk.xxx`xxx控件
 
 `tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
@@ -1422,6 +1550,26 @@ root.mainloop()
 
 
 
+### 2.17 `tkinter.ttk.xxx`xxx控件
+
+`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+[tkinter.ttk.OptionMenu](https://tkdocs.com/pyref/ttk_optionmenu.html) - *Themed OptionMenu, based after tkinter's OptionMenu, which allows the user to select a value from a menu.*
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
 ### 2.x `tkinter.ttk.xxx`xxx控件
 
 `tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
@@ -1440,17 +1588,9 @@ root.mainloop()
 
 
 
-
-
-- 
 - [tkinter.ttk.Notebook](https://tkdocs.com/pyref/ttk_notebook.html) - *Ttk Notebook widget manages a collection of windows and displays a single one at a time.*
-- [tkinter.ttk.OptionMenu](https://tkdocs.com/pyref/ttk_optionmenu.html) - *Themed OptionMenu, based after tkinter's OptionMenu, which allows the user to select a value from a menu.*
 - [tkinter.ttk.Panedwindow](https://tkdocs.com/pyref/ttk_panedwindow.html) - *Ttk Panedwindow widget displays a number of subwindows, stacked either vertically or horizontally.*
-- [tkinter.ttk.Progressbar](https://tkdocs.com/pyref/ttk_progressbar.html) - *Ttk Progressbar widget shows the status of a long-running operation.*
-- [tkinter.ttk.Scrollbar](https://tkdocs.com/pyref/ttk_scrollbar.html) - *Ttk Scrollbar controls the viewport of a scrollable widget.*
-- [tkinter.ttk.Separator](https://tkdocs.com/pyref/ttk_separator.html) - *Ttk Separator widget displays a horizontal or vertical separator bar.*
-- [tkinter.ttk.Sizegrip](https://tkdocs.com/pyref/ttk_sizegrip.html) - *Ttk Sizegrip allows the user to resize the containing toplevel window by pressing and dragging the grip.*
-- [tkinter.ttk.Treeview](https://tkdocs.com/pyref/ttk_treeview.html) - *Ttk Treeview widget displays a hierarchical collection of items.*
+- 
 
 
 

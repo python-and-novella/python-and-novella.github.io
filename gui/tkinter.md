@@ -1521,6 +1521,7 @@ root.mainloop()
 - 第一行为表头，可通过配置参数隐藏。
 - 第二行开始为普通数据区，其中左边为树形图区，用于展示数据之间的树形结构，可通过配置参数隐藏；右边为表格区，和普通表格数据一样。
 - 第一列为`'#0'`列，无法命名，但可以和表头一样通过设置`text`参数修改显示的文字。
+- 第二列开始为可命名列，支持使用命名或者整数类型的索引值（不包含`'#0'`列，从0开始）或者`'#{索引值+1}'`作为列的唯一标识。
 
 以下为控件内容的组成示意图：
 
@@ -1552,7 +1553,7 @@ root.mainloop()
 
 - `xscrollcommand`参数和`yscrollcommand`参数，可配合滚动条控件实现内容的滚动（具体用法参考滚动条控件）。
 
-该控件支持以下特有方法：
+该控件支持以下特有方法（部分）：
 
 - `heading`方法，设置指定列的表头。该方法支持以下参数（部分）：
   - `column`参数，字符串类型或者整数类型，表示对应的列。
@@ -1570,39 +1571,79 @@ root.mainloop()
   - `parent`参数，字符串类型，表示该节点的父节点。
   - `index`参数，字符串`'end'`或者整数类型，表示在哪一行插入数据。如果为整数，表示插入位置的行索引，如果为`'end'`，表示在最后一行插入数据。
   - `iid`参数，字符串类型或者整数类型，表示该行的唯一标识符，如果未指定，则自动生成。
-  - `id`参数，字符串类型或者整数类型，表示该行的唯一标识符，如果未指定，则自动生成。从该参数开始，只能通过关键字传入。
-  - `text`参数，字符串类型，表示该节点显示的内容。
-  - `image`参数，
-  - `values`参数，
-  - `open`参数，
-  - `tags`参数，
-- `get_children`方法，
-- `set_children`方法，
-- `delete`方法，
-- `detach`方法，
-- `exists`方法，
-- `focus`方法，
-- `identify`方法，
-- `identify_row`方法，
-- `identify_column`方法，
-- `identify_region`方法，
-- `identify_element`方法，
-- `index`方法，
-- `item`方法，
-- `move`方法，
-- `next`方法，
-- `parent`方法，
-- `prev`方法，
-- `see`方法，
-- `selection`方法，
-- `selection_set`方法，
-- `selection_add`方法，
-- `selection_remove`方法，
-- `selection_toggle`方法，
-- `set`方法，
-- `tag_bind`方法，
-- `tag_configure`方法，
-- `tag_has`方法，
+  - `id`参数，字符串类型或者整数类型，表示该节点的唯一标识符，如果未指定，则自动生成（格式为`'I{自增编号}'`）。从该参数开始，只能通过关键字传入。
+  - `text`参数，字符串类型，表示该节点显示的文字内容。
+  - `image`参数，`PhotoImage`类型或者字符串类型，表示该节点额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。
+  - `values`参数，列表类型或者元组类型，表示表格区的数据。
+  - `open`参数，布尔类型，表示该节点是否展开。
+  - `tags`参数，字符串类型、元素为字符串的元组或者列表，表示该节点的标签，可通过'tag'前缀的方法影响包含指定标签的节点。
+- `get_children`方法，获取指定节点的子节点。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `set_children`方法，设置指定节点的子节点。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+  - `*newchildren`参数，字符串类型或者整数类型，表示子节点的唯一标识符。
+- `delete`方法，删除指定节点。该方法支持以下参数：
+  - `*items`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `detach`方法，分离指定节点（不同于删除节点，可使用`reattach`方法或者`move`方法重新附加节点）。该方法支持以下参数：
+  - `*items`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `exists`方法，检查指定节点是否附加在节点树上。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `identify`方法，用来识别指定坐标位置的指定类型组件。该方法支持以下参数：
+  - `component`参数，字符串类型，表示识别什么类型的组件，支持`['item','row','column','element','region']`（单元格、行、列、元素、区域）。
+  - `x`参数，整数类型，鼠标位置的X坐标。
+  - `y`参数，整数类型，鼠标位置的Y坐标。
+- `identify_row`方法，识别指定坐标位置的行。该方法支持以下参数：
+  - `y`参数，整数类型，鼠标位置的Y坐标。
+- `identify_column`方法，识别指定坐标位置的列。该方法支持以下参数：
+  - `x`参数，整数类型，鼠标位置的X坐标。
+- `identify_region`方法，识别指定坐标位置的区域。该方法支持以下参数：
+  - `x`参数，整数类型，鼠标位置的X坐标。
+  - `y`参数，整数类型，鼠标位置的Y坐标。
+- `identify_element`方法，识别指定坐标位置的元素。该方法支持以下参数：
+  - `x`参数，整数类型，鼠标位置的X坐标。
+  - `y`参数，整数类型，鼠标位置的Y坐标。
+- `index`方法，返回节点在其父节点所有的子节点中的索引。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `item`方法，返回指定节点。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `move`方法，移动指定节点。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+  - `parent`参数，字符串类型，表示该节点的父节点。
+  - `index`参数，字符串`'end'`或者整数类型，表示在移动节点至哪一行。如果为整数，表示插入位置的行索引，如果为`'end'`，表示移动至最后一行。
+- `next`方法，返回指定节点的弟弟节点。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `parent`方法，返回指定节点的父节点。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `prev`方法，返回指定节点的哥哥节点。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `see`方法，让指定节点可见（滚动至该节点）。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `selection`方法，返回选中的节点。
+- `selection_set`方法，选择指定节点。该方法支持以下参数：
+  - `*items`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `selection_add`方法，额外选择指定节点。该方法支持以下参数：
+  - `*items`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `selection_remove`方法，从选择的节点中移除指定节点。该方法支持以下参数：
+  - `*items`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `selection_toggle`方法，切换选择指定节点的选择状态。该方法支持以下参数：
+  - `*items`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+- `set`方法，查询或修改指定节点对应列的值。该方法支持以下参数：
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
+  - `column`参数，字符串类型或者整数类型，表示节点对应的列。
+  - `value`参数，表示节点对应列的值。
+- `tag_bind`方法，给指定标签的节点设置响应函数。该方法支持以下参数：
+  - `tagname`参数，字符串类型，表示节点的标签。
+  - `sequence`参数，字符串类型，表示绑定的事件序列。
+  - `callback`参数，接收一个参数的可调用类型或者字符串类型，表示被绑定事件的响应函数。
+- `tag_configure`方法，更新指定标签的节点的样式。该方法支持以下参数：
+  - `tagname`参数，字符串类型，表示节点的标签。
+  - `background`参数，字符串类型，表示节点的背景色。
+  - `foreground`参数，字符串类型，表示节点的前景色。
+  - `font`参数，字符串类型，表示节点的字体。
+  - `image`参数，`PhotoImage`类型或者字符串类型，表示节点额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。
+- `tag_has`方法，返回包含指定标签的节点或者指定节点是否包含指定标签。该方法支持以下参数：
+  - `tagname`参数，字符串类型，表示节点的标签。
+  - `item`参数，字符串类型或者整数类型，表示节点的唯一标识符。
 
 示例如下：
 
@@ -1638,13 +1679,102 @@ treeview.insert(node1,-1,text='3.13',values=('Python','3.13'))
 root.mainloop()
 ```
 
-![image-20250808164124503](tkinter.assets/image-20250808164124503.png)
+![2_15_2](tkinter.assets/2_15_2.png)
 
-### 2.16 `tkinter.ttk.xxx`xxx控件
+### 2.16 `tkinter.ttk.Menubutton`下拉菜单按钮控件
 
-`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+`tkinter.ttk.Menubutton`的官方文档：https://tkdocs.com/pyref/ttk_menubutton.html。
 
-[tkinter.ttk.Menubutton](https://tkdocs.com/pyref/ttk_menubutton.html) - *Ttk Menubutton widget displays a textual label and/or image, and displays a menu when pressed.*
+下拉菜单按钮控件看起来像是普通按钮，但点击该按钮只能弹出下拉菜单。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_menubutton.htm）：
+
+- `direction`参数，字符串类型，仅支持`['above', 'below', 'left', 'right', 'flush']`中的值，表示菜单弹出的方向（上方、下方、左边、右边、中间），默认为`'below'`。
+- `menu`参数，表示具体的菜单内容。
+
+示例如下（菜单控件的完整用法见后面的章节）：
+
+```python3
+from tkinter import Tk, Menu
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(
+    f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}'
+)
+
+menu = Menu(root, tearoff=False)
+menu.add_command(label='子菜单1')
+menu.add_command(label='子菜单2')
+
+for direction in ['above', 'below', 'left', 'right', 'flush']:
+    ttk.Menubutton(
+        root,
+        text=direction,
+        menu=menu,
+        direction=direction
+    ).pack()
+
+root.mainloop()
+```
+
+![2_16_1](tkinter.assets/2_16_1.png)
+
+### 2.17 `tkinter.ttk.OptionMenu`下拉菜单控件
+
+`tkinter.ttk.OptionMenu`的官方文档：https://tkdocs.com/pyref/ttk_optionmenu.html。
+
+下拉菜单控件基于下拉菜单按钮控件，外观很像下拉菜单按钮控件，但是，下拉菜单控件的使用效果更像下拉选择框，选择不同的菜单项之后，下拉菜单控件显示的内容会变化为对应的菜单项。
+
+以下是该控件相比于下拉菜单按钮控件不同、新增的部分参数（其他同名参数可以参考前面章节介绍的控件）：
+
+- `variable`参数，
+- `default`参数，
+- `*values`参数，
+- `style`参数，
+- `direction`参数，
+- `command`参数，
+
+该控件支持以下特有方法：
+
+- `set_menu`方法，
+
+示例如下：
+
+```python3
+from tkinter import Tk,StringVar
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(
+    f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}'
+)
+
+value = StringVar(value='')
+optmenu = ttk.OptionMenu(
+    root,
+    value,
+    'a',
+    *['a','b','c']
+)
+optmenu.pack()
+
+root.mainloop()
+```
+
+![2_17_1](tkinter.assets/2_17_1.png)
+
+### 2.x `tkinter.ttk.Notebook`笔记本控件
+
+`tkinter.ttk.Notebook`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+[tkinter.ttk.Notebook](https://tkdocs.com/pyref/ttk_notebook.html) - *Ttk Notebook widget manages a collection of windows and displays a single one at a time.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1660,29 +1790,13 @@ root.mainloop()
 
 
 
-### 2.17 `tkinter.ttk.xxx`xxx控件
-
-`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
-
-[tkinter.ttk.OptionMenu](https://tkdocs.com/pyref/ttk_optionmenu.html) - *Themed OptionMenu, based after tkinter's OptionMenu, which allows the user to select a value from a menu.*
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
-
-示例如下：
 
 
+### 2.x `tkinter.ttk.Panedwindow`嵌入窗口控件
 
-### 2.x `tkinter.ttk.xxx`xxx控件
+`tkinter.ttk.Panedwindow`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-`tkinter.ttk.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+[tkinter.ttk.Panedwindow](https://tkdocs.com/pyref/ttk_panedwindow.html) - *Ttk Panedwindow widget displays a number of subwindows, stacked either vertically or horizontally.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1698,11 +1812,49 @@ root.mainloop()
 
 
 
-- [tkinter.ttk.Notebook](https://tkdocs.com/pyref/ttk_notebook.html) - *Ttk Notebook widget manages a collection of windows and displays a single one at a time.*
-- [tkinter.ttk.Panedwindow](https://tkdocs.com/pyref/ttk_panedwindow.html) - *Ttk Panedwindow widget displays a number of subwindows, stacked either vertically or horizontally.*
-- 
 
 
+
+
+### 2.x `tkinter.xxx`xxx控件
+
+`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
+
+
+### 2.x `tkinter.xxx`xxx控件
+
+`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
 
 
 
@@ -1735,28 +1887,24 @@ withdraw隐藏
 
 
 
-### 2.x 不推荐使用的控件（更新中）
+### 2.x 不推荐使用的控件
 
-`tkinter`模块的顶层控件有很多，但不是所有顶层控件都推荐使用，以下这些是`tkinter.ttk`模块有相同控件或者tkinter中有替代控件的控件，不推荐继续使用。虽然不会像前面的控件一样单独介绍，但考虑到tkinter尚未移除，这里依然提供了对应的官网文档链接，以便不时之需：
+`tkinter`模块的顶层控件有很多，但不是所有顶层控件都推荐使用，以下这些是`tkinter.ttk`模块有相同控件或者tkinter中有替代控件的控件，不推荐继续使用。虽然不会像前面的控件一样单独介绍，但考虑到tkinter尚未移除，这里依然提供了对应的官网文档链接，以备不时之需：
 
-- [tkinter.Button](https://tkdocs.com/pyref/button.html) - *Button widget.*
-- [tkinter.Checkbutton](https://tkdocs.com/pyref/checkbutton.html) - *Checkbutton widget which is either in on- or off-state.*
-- [tkinter.Entry](https://tkdocs.com/pyref/entry.html) - *Entry widget which allows displaying simple text.*
-- [tkinter.Frame](https://tkdocs.com/pyref/frame.html) - *Frame widget which may contain other widgets and can have a 3D border.*
-- [tkinter.Label](https://tkdocs.com/pyref/label.html) - *Label widget which can display text and bitmaps.*
-- [tkinter.LabelFrame](https://tkdocs.com/pyref/labelframe.html) - *labelframe widget.*
-- [tkinter.Menubutton](https://tkdocs.com/pyref/menubutton.html) - *Menubutton widget, obsolete since Tk8.0.*
-- [tkinter.Message](https://tkdocs.com/pyref/message.html) - *Message widget to display multiline text. Obsolete since Label does it too.*
-- [tkinter.OptionMenu](https://tkdocs.com/pyref/optionmenu.html) - *OptionMenu which allows the user to select a value from a menu.*
-- [tkinter.PanedWindow](https://tkdocs.com/pyref/panedwindow.html) - *panedwindow widget.*
-- [tkinter.Radiobutton](https://tkdocs.com/pyref/radiobutton.html) - *Radiobutton widget which shows only one of several buttons in on-state.*
-- [tkinter.Scale](https://tkdocs.com/pyref/scale.html) - *Scale widget which can display a numerical scale.*
-- [tkinter.Scrollbar](https://tkdocs.com/pyref/scrollbar.html) - *Scrollbar widget which displays a slider at a certain position.*
-- [tkinter.Spinbox](https://tkdocs.com/pyref/spinbox.html) - *spinbox widget.*
-
-
-
-
+- [`tkinter.Button`](https://tkdocs.com/pyref/button.html)，按钮控件。
+- [`tkinter.Checkbutton`](https://tkdocs.com/pyref/checkbutton.html)，多选框控件。
+- [`tkinter.Entry`](https://tkdocs.com/pyref/entry.html)，输入框控件。
+- [`tkinter.Frame`](https://tkdocs.com/pyref/frame.html)，框架控件。
+- [`tkinter.Label`](https://tkdocs.com/pyref/label.html)，标签控件。
+- [`tkinter.LabelFrame`](https://tkdocs.com/pyref/labelframe.html)，标签框架控件。
+- [`tkinter.Menubutton`](https://tkdocs.com/pyref/menubutton.html)，下拉菜单按钮控件。
+- [`tkinter.Message`](https://tkdocs.com/pyref/message.html)，消息文件控件，推荐使用标签控件代替。
+- [`tkinter.OptionMenu`](https://tkdocs.com/pyref/optionmenu.html)，下拉菜单控件。
+- [`tkinter.PanedWindow`](https://tkdocs.com/pyref/panedwindow.html)，嵌入窗口控件。
+- [`tkinter.Radiobutton`](https://tkdocs.com/pyref/radiobutton.html)，单选框控件。
+- [`tkinter.Scale`](https://tkdocs.com/pyref/scale.html)，滑块控件。
+- [`tkinter.Scrollbar`](https://tkdocs.com/pyref/scrollbar.html)，滚动条控件。
+- [`tkinter.Spinbox`](https://tkdocs.com/pyref/spinbox.html)，数值调整控件。
 
 ## 3 tkinter的对话框（更新中）
 

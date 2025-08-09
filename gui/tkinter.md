@@ -1510,25 +1510,135 @@ root.mainloop()
 
 ![2_14_1](tkinter.assets/2_14_1.png)
 
-### 2.15 `tkinter.ttk.Treeview`表格控件
+### 2.15 `tkinter.ttk.Treeview`树形图控件
 
 `tkinter.ttk.Treeview`的官方文档：https://tkdocs.com/pyref/ttk_treeview.html。
 
- Treeview widget displays a hierarchical collection of items.*
+树形图控件可以展示具有树形结构的数据，同时也可以作为表格控件来使用。
 
-（说一下控件的用途或者是否基于其他控件）
+树形图控件的内容主要由以下几部分组成：
 
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+- 第一行为表头，可通过配置参数隐藏。
+- 第二行开始为普通数据区，其中左边为树形图区，用于展示数据之间的树形结构，可通过配置参数隐藏；右边为表格区，和普通表格数据一样。
+- 第一列为`'#0'`列，无法命名，但可以和表头一样通过设置`text`参数修改显示的文字。
 
-- `xxx`参数，
+以下为控件内容的组成示意图：
+
+![2_15_1](tkinter.assets/2_15_1.png)
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_treeview.htm）：
+
+- `columns`参数，字符串类型、元素为字符串或者整数的列表、元素为字符串或者整数的元组，表示表格区及表头的每一列的唯一标识，其他方法的`column`参数可以使用该唯一标识表示对应列。
+
+  如果参数为字符串，则表示普通数据区只有一列。
+
+  如果元素为字符串，则该字符串为该列的唯一标识，不可重复。
+
+  如果元素为整数，则该整数表示该列的列索引（从0开始），不可重复。
+
+  如果列表或者元组的元素为字符串、整数混合，则字符串元素的索引为列索引，字符串元素对应的列可以同时使用列索引、字符串作为唯一标识；若是该列索引已经存在对应的整数元素，则字符串元素对应的列只能使用字符串作为唯一标识。
+
+  比如，该参数的值为`[3,'Name','Ver',2]`，`'Name'`、`'Ver'`对应的索引值为1、2，但是2存在于列表中，所以`'Name'`对应的列可以使用`'Name'`或者1作为唯一标识，而`'Ver'`对应的列只能使用`'Ver'`作为唯一标识。
+
+- `displaycolumns`参数，字符串类型、整数类型、元素为字符串或者整数的列表、元素为字符串或者整数的元组，表示表格区及表头显示的列的识别标识。不指定该参数的话，该参数默认为`'#all'`，即所有列都显示。
+
+- `selectmode`参数，字符串类型，仅支持`['extended', 'browse', 'none']`中的值，表示选择节点（行）的模式（多选、单选、禁止选择），默认为`'extend'`。
+
+- `show`参数，字符串类型、元组、列表，表示是否显示表头、树形图，默认为`('tree', 'headings')`。
+
+  如果为字符串，仅支持`['tree', 'headings', 'tree headings', '']`中的值，表示显示树形图、显示表头、显示树形图和表头、不显示树形图和表头。
+
+  如果为元组、列表，则元素只能为`['tree', 'headings']`中的值或者无元素（表示不显示树形图和表头）。
+
+- `xscrollcommand`参数和`yscrollcommand`参数，可配合滚动条控件实现内容的滚动（具体用法参考滚动条控件）。
 
 该控件支持以下特有方法：
 
-- `xxx`方法，
+- `heading`方法，设置指定列的表头。该方法支持以下参数（部分）：
+  - `column`参数，字符串类型或者整数类型，表示对应的列。
+  - `text`参数，字符串类型，表示表头显示的内容。从该参数开始，只能通过关键字传入。
+  - `image`参数，`PhotoImage`类型或者字符串类型，表示表头额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。
+  - `anchor`参数，字符串类型，仅支持`['nw', 'n', 'ne', 'w', 'center', 'e', 'sw', 's', 'se']`中的值，表示表头的表格中文字的对齐起点为哪个位置（上北下南左西右东），默认为`'center'`。
+  - `command`参数，可调用类型或者字符串类型（即funcid），点击表头时执行的操作。
+- `column`方法，设置指定列的样式。该方法支持以下参数（部分）：
+  - `column`参数，字符串类型或者整数类型，表示对应的列。
+  - `width`参数，整数类型，表示该列的宽度。从该参数开始，只能通过关键字传入。
+  - `minwidth`参数，整数类型，表示该列的最小宽度。
+  - `stretch`参数，布尔类型，表示控件尺寸变化使，是否该列的宽度来同步变化，默认为`True`。
+  - `anchor`参数，字符串类型，仅支持`['nw', 'n', 'ne', 'w', 'center', 'e', 'sw', 's', 'se']`中的值，表示该列的表格中文字的对齐起点为哪个位置（上北下南左西右东），默认为`'w'`。
+- `insert`方法，为指定节点添加子节点，并返回该节点的唯一标识。因为树形图的节点对应一行表格数据，所以，该方法也用于添加一行数据。该方法支持以下参数（部分）：
+  - `parent`参数，字符串类型，表示该节点的父节点。
+  - `index`参数，字符串`'end'`或者整数类型，表示在哪一行插入数据。如果为整数，表示插入位置的行索引，如果为`'end'`，表示在最后一行插入数据。
+  - `iid`参数，字符串类型或者整数类型，表示该行的唯一标识符，如果未指定，则自动生成。
+  - `id`参数，字符串类型或者整数类型，表示该行的唯一标识符，如果未指定，则自动生成。从该参数开始，只能通过关键字传入。
+  - `text`参数，字符串类型，表示该节点显示的内容。
+  - `image`参数，
+  - `values`参数，
+  - `open`参数，
+  - `tags`参数，
+- `get_children`方法，
+- `set_children`方法，
+- `delete`方法，
+- `detach`方法，
+- `exists`方法，
+- `focus`方法，
+- `identify`方法，
+- `identify_row`方法，
+- `identify_column`方法，
+- `identify_region`方法，
+- `identify_element`方法，
+- `index`方法，
+- `item`方法，
+- `move`方法，
+- `next`方法，
+- `parent`方法，
+- `prev`方法，
+- `see`方法，
+- `selection`方法，
+- `selection_set`方法，
+- `selection_add`方法，
+- `selection_remove`方法，
+- `selection_toggle`方法，
+- `set`方法，
+- `tag_bind`方法，
+- `tag_configure`方法，
+- `tag_has`方法，
 
 示例如下：
 
+```python3
+from tkinter import Tk
+from tkinter import ttk
 
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+treeview = ttk.Treeview(
+    root,
+    columns=['Name','Ver'],
+    displaycolumns='#all',
+    show='tree headings',
+)
+treeview.pack(expand=True, fill='both')
+
+treeview.heading('#0',text='ID')
+treeview.heading('Name',text='软件名')
+treeview.heading('Ver',text='版本号')
+
+treeview.column('#0',width=80)
+treeview.column('Name',width=120)
+treeview.column('Ver',width=120)
+
+node1 = treeview.insert('',-1,text='3.12',values=('Python','3.12'),open=True)
+treeview.insert(node1,-1,text='3.13',values=('Python','3.13'))
+
+root.mainloop()
+```
+
+![image-20250808164124503](tkinter.assets/image-20250808164124503.png)
 
 ### 2.16 `tkinter.ttk.xxx`xxx控件
 

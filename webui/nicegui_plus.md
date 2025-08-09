@@ -601,6 +601,8 @@ ui.run(native=True)
   SAVE_DIALOG = 30
   ```
 
+  注意，`webview`库升级为6.0之后，这三个预定义常量已经标记为弃用，推荐改用`webview.FileDialog`的成员`LOAD`（对应`OPEN_DIALOG`）、`FOLDER`（对应`FOLDER_DIALOG`）和 `SAVE`（对应`SAVE_DIALOG`）。
+
   示例如下：
 
   ```python3

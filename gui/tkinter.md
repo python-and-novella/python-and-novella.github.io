@@ -587,7 +587,7 @@ root.mainloop()
 
 - 'winfo'前缀的方法统一由winfo命令（Tk命令）提供（完整介绍参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/winfo.htm），主要用于返回一些和窗口有关的信息，比如前面示例中，为了让窗口居中，使用的`winfo_screenwidth`方法和`winfo_screenheight`方法，用于获取屏幕的宽度和高度。
 
-## 2 tkinter的控件（部分非全部）
+## 2 tkinter的控件
 
 在tkinter中，按照其是否支持使用主题（由样式对象设定统一的样式或者创建自定义样式）的情况，控件可分为两类：
 
@@ -1909,21 +1909,145 @@ root.mainloop()
 
 `tkinter.Tk`的官方文档：https://tkdocs.com/pyref/tk.html。
 
-主窗口控件是所有控件中最特殊的。
+主窗口控件是所有控件中最特殊的，是一个tkinter程序必不可少的控件，同时也具备程序类的功能，负责消息循环。
+
+该控件支持以下方法（部分）：
+
+- `withdraw`方法，隐藏窗口。
+- `deiconify`方法，显示窗口。
+- `title`方法，修改窗口的标题。
+- `state`方法，修改窗口的显示状态。该方法的参数仅支持`['normal', 'iconic', 'withdrawn', 'zoomed']`中的值（正常、最小化、隐藏、最大化）。
+- `resizable`方法，修改窗口的尺寸。
+- `iconbitmap`方法或者`iconphoto`方法，修改窗口的图标。
+
+该控件支持的部分配置项（可使用`configure`方法更新，参考 https://tkdocs.com/pyref/tk.html）：
+
+- `menu`，表示菜单栏使用的菜单。
+
+以下为添加菜单栏的示例（菜单控件的完整用法见后面的章节）：
+
+```python3
+from tkinter import Tk,Menu,StringVar
+
+root = Tk()
+root.title('Main')
+
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+menu = Menu(root, tearoff=False)
+
+sub_menu = Menu(menu, tearoff=False)
+sub_menu.add_command(label='子菜单1')
+sub_menu.add_checkbutton(label='多选')
+sub_menu.add_separator()
+value = StringVar(value='1')
+sub_menu.add_radiobutton(label='单选1',variable=value,value='1')
+sub_menu.add_radiobutton(label='单选2',variable=value,value='2')
+
+sub_menu2 = Menu(menu, tearoff=False)
+sub_menu2.add_command(label='子菜单2')
+sub_menu.add_cascade(label='二级菜单',menu=sub_menu2)
+
+menu.add_cascade(label='菜单',menu=sub_menu)
+
+root.configure(menu=menu)
+
+root.mainloop()
+```
+
+![2_20_1](tkinter.assets/2_20_1.png)
+
+### 2.21 `tkinter.Toplevel`窗口控件
+
+`tkinter.Toplevel`的官方文档：https://tkdocs.com/pyref/toplevel.html。
+
+不同于主窗口控件的功能复杂，窗口控件简单不少，它只是一个窗口，通常用于创建一个独立的窗口或者对话框。不过，对于使用对话框的情况，更推荐尝试第三章中的对话框，而不是使用窗口控件，除非对话框功能简单、需要定制对话框中的控件。
+
+该控件的参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/toplevel.htm）、支持的方法与主窗口控件基本相同。
+
+注意，如果在全局环境中创建该控件，则运行主窗口的`mainloop`方法时会自动显示。
+
+示例如下：
+
+```python3
+from tkinter import Tk,Menu,StringVar,Toplevel,ttk
 
 
+root = Tk()
+root.title('Main')
 
-[tkinter.Tk](https://tkdocs.com/pyref/tk.html) - *Toplevel widget of Tk which represents mostly the main window of an application. It has an associated Tcl interpreter.*
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 
-（说一下控件的用途或者是否基于其他控件）
+menu = Menu(root, tearoff=False)
 
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+sub_menu = Menu(menu, tearoff=False)
+sub_menu.add_command(label='子菜单1')
+sub_menu.add_checkbutton(label='多选')
+sub_menu.add_separator()
+value = StringVar(value='1')
+sub_menu.add_radiobutton(label='单选1',variable=value,value='1')
+sub_menu.add_radiobutton(label='单选2',variable=value,value='2')
 
-- `xxx`参数，
+sub_menu2 = Menu(menu, tearoff=False)
+sub_menu2.add_command(label='子菜单2')
+sub_menu.add_cascade(label='二级菜单',menu=sub_menu2)
 
-该控件支持以下特有方法：
+menu.add_cascade(label='菜单',menu=sub_menu)
 
-- `xxx`方法，
+def sub_window():
+    toplevel = Toplevel(root,menu=menu)
+    toplevel.title('Sub')
+    toplevel.geometry(f'{width}x{height}+{(toplevel.winfo_screenwidth()-width)//2}+{(toplevel.winfo_screenheight()-height)//2}')
+    toplevel.focus()
+
+ttk.Button(root,text='显示子窗口',command=sub_window).pack()
+
+root.mainloop()
+```
+
+![2_21_1](tkinter.assets/2_21_1.png)
+
+### 2.22 `tkinter.Menu`菜单控件
+
+`tkinter.Menu`的官方文档：https://tkdocs.com/pyref/menu.html。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/menu.htm）：
+
+- `activebackground`参数，
+- `activeborderwidth`参数，
+- `activeforeground`参数，
+- `disabledforeground`参数，
+- `postcommand`参数，
+- `tearoff`参数，
+- `tearoffcommand`参数，
+- `title`参数，
+- `type`参数，
+
+该控件支持以下特有方法（部分）：
+
+- `activate`方法，
+- `add`方法，
+- `add_cascade`方法，
+- `add_command`方法，
+- `add_checkbutton`方法，
+- `add_radiobutton`方法，
+- `add_separator`方法，
+- `insert`方法，
+- `insert_cascade`方法，
+- `insert_command`方法，
+- `insert_checkbutton`方法，
+- `insert_radiobutton`方法，
+- `insert_separator`方法，
+- `delete`方法，
+- `index`方法，
+- `invoke`方法，
+- `post`方法，
+- `type`方法，
+- `unpost`方法，
 
 示例如下：
 
@@ -1931,11 +2055,11 @@ root.mainloop()
 
 
 
-### 2.21 `tkinter.xxx`xxx控件
+### 2.23 `tkinter.xxx`xxx控件
 
 `tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-[tkinter.Toplevel](https://tkdocs.com/pyref/toplevel.html) - *Toplevel widget, e.g. for dialogs.*
+[tkinter.Text](https://tkdocs.com/pyref/text.html) - *Text widget which can display text in various forms.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1953,11 +2077,11 @@ root.mainloop()
 
 
 
-### 2.x `tkinter.xxx`xxx控件
+### 2.24 `tkinter.xxx`xxx控件
 
 `tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-
+[tkinter.Listbox](https://tkdocs.com/pyref/listbox.html) - *Listbox widget which can display a list of strings.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1975,11 +2099,11 @@ root.mainloop()
 
 
 
-### 2.x `tkinter.xxx`xxx控件
+### 2.25 `tkinter.xxx`xxx控件
 
 `tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-
+[tkinter.Canvas](https://tkdocs.com/pyref/canvas.html) - *Canvas widget to display graphical elements like lines or text.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1997,58 +2121,56 @@ root.mainloop()
 
 
 
-### 2.x `tkinter.xxx`xxx控件
+### 2.26 `tkinter.xxx`xxx控件（类）和`tkinter.xxx`xxx控件（类）
 
 `tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
-
-示例如下：
-
-
-
-
-
-另一类是`tkinter.ttk`模块提供的控件中没有相同用途控件的控件，主要有：
-
-- 
-- [tkinter.Canvas](https://tkdocs.com/pyref/canvas.html) - *Canvas widget to display graphical elements like lines or text.*
-- [tkinter.Listbox](https://tkdocs.com/pyref/listbox.html) - *Listbox widget which can display a list of strings.*
-- [tkinter.Menu](https://tkdocs.com/pyref/menu.html) - *Menu widget which allows displaying menu bars, pull-down menus and pop-up menus.*
-- [tkinter.Text](https://tkdocs.com/pyref/text.html) - *Text widget which can display text in various forms.*
-- 
 - [tkinter.BitmapImage](https://tkdocs.com/pyref/bitmapimage.html) - *Widget which can display images in XBM format.*
 - [tkinter.PhotoImage](https://tkdocs.com/pyref/photoimage.html) - *Widget which can display images in PGM, PPM, GIF, PNG format.*
 
-以及一个在tkinter.scrolledtext模块中的控件：
+（说一下控件的用途或者是否基于其他控件）
 
-- tkinter.scrolledtext（基于Text控件）
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
 
+- `xxx`参数，
 
+该控件支持以下特有方法：
 
+- `xxx`方法，
 
-
-窗口（Tk，Toplevel）的显示与隐藏：
-
-deiconify显示
-
-withdraw隐藏
+示例如下：
 
 
 
 
 
-### 2.x 不推荐使用的控件
+### 2.27 `tkinter.xxx`xxx控件
+
+`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+tkinter.scrolledtext（基于Text控件）
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
+
+
+
+
+
+
+
+### 2.28 不推荐使用的控件
 
 `tkinter`模块的顶层控件有很多，但不是所有顶层控件都推荐使用，以下这些是`tkinter.ttk`模块有相同控件或者tkinter中有替代控件的控件，不推荐继续使用。虽然不会像前面的控件一样单独介绍，但考虑到tkinter尚未移除，这里依然提供了对应的官网文档链接，以备不时之需：
 

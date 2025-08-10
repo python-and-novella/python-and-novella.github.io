@@ -587,7 +587,7 @@ root.mainloop()
 
 - 'winfo'前缀的方法统一由winfo命令（Tk命令）提供（完整介绍参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/winfo.htm），主要用于返回一些和窗口有关的信息，比如前面示例中，为了让窗口居中，使用的`winfo_screenwidth`方法和`winfo_screenheight`方法，用于获取屏幕的宽度和高度。
 
-## 2 tkinter的控件（更新中）
+## 2 tkinter的控件（部分非全部）
 
 在tkinter中，按照其是否支持使用主题（由样式对象设定统一的样式或者创建自定义样式）的情况，控件可分为两类：
 
@@ -1731,16 +1731,18 @@ root.mainloop()
 
 以下是该控件相比于下拉菜单按钮控件不同、新增的部分参数（其他同名参数可以参考前面章节介绍的控件）：
 
-- `variable`参数，
-- `default`参数，
-- `*values`参数，
-- `style`参数，
-- `direction`参数，
-- `command`参数，
+- `variable`参数，`StringVar`类型，表示下拉菜单控件当前显示、选择的选项。
+- `default`参数，字符串类型，表示下拉菜单控件默认显示、选择的选项。
+- `*values`参数，表示下拉菜单控件的选项。
+- `style`参数，字符串类型，表示控件使用的主题样式。
+- `direction`参数，字符串类型，仅支持`['above', 'below', 'left', 'right', 'flush']`中的值，表示选项弹出的方向（上方、下方、左边、右边、中间），默认为`'below'`。
+- `command`参数，接收一个字符串的可调用类型，表示选择选项时执行的操作。
 
 该控件支持以下特有方法：
 
-- `set_menu`方法，
+- `set_menu`方法，设置控件的选项。该方法支持以下参数：
+  - `default`参数，字符串类型，表示下拉菜单控件默认显示、选择的选项。
+  - `*values`参数，表示下拉菜单控件的选项。
 
 示例如下：
 
@@ -1770,11 +1772,148 @@ root.mainloop()
 
 ![2_17_1](tkinter.assets/2_17_1.png)
 
-### 2.x `tkinter.ttk.Notebook`笔记本控件
+### 2.18 `tkinter.ttk.Notebook`选项卡控件
 
-`tkinter.ttk.Notebook`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+`tkinter.ttk.Notebook`的官方文档：https://tkdocs.com/pyref/ttk_notebook.html。
 
-[tkinter.ttk.Notebook](https://tkdocs.com/pyref/ttk_notebook.html) - *Ttk Notebook widget manages a collection of windows and displays a single one at a time.*
+选项卡控件的参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_notebook.htm）没有需要介绍的，该控件支持的特有方法反倒是使用该控件的主要方式：
+
+- `add`方法，添加一个选项卡。该方法支持以下参数（部分）：
+
+  - `child`参数，表示选项卡的主要内容（控件）。
+  - `state`参数，字符串类型，仅支持`['normal', 'disabled', 'hidden']`中的值，表示子选项卡的状态（正常、禁用、隐藏）。从参数开始，只能通过关键字传入。
+  - `sticky`参数，字符串类型，仅支持`[ 'n', 'w', 'e', 's','']`中的值，表示选项卡中的控件吸附在容器哪条边（上北下南左西右东，`''`表示居中不吸附），默认为`'w'`。
+  - `text`参数，字符串类型，表示选项卡的标题。
+
+- `insert`方法，插入一个选项卡。该方法支持以下参数（部分）：
+
+  - `pos`参数，`tab_id`，表示选项卡插入的位置。
+  - `child`参数，表示选项卡的主要内容（控件）。
+
+  所谓`tab_id`，既可以是整数，表示选项卡位置的索引，也可以是选项卡的`child`参数对应的值。
+
+- `forget`方法，移除指定选项卡。该方法支持以下参数：
+
+  - `tab_id`参数，表示选项卡的`tab_id`。
+
+- `hide`方法，隐藏指定选项卡。该方法支持以下参数：
+
+  - `tab_id`参数，表示选项卡的`tab_id`。
+
+- `index`方法，返回指定选项卡的索引值。该方法支持以下参数：
+
+  - `tab_id`参数，表示选项卡的`tab_id`。
+
+- `select`方法，选择指定选项卡。该方法支持以下参数：
+
+  - `tab_id`参数，表示选项卡的`tab_id`。
+
+- `tab`方法，修改指定选项卡的样式。该方法支持以下参数：
+
+  - `tab_id`参数，表示选项卡的`tab_id`。
+  - `state`参数，字符串类型，仅支持`['normal', 'disabled', 'hidden']`中的值，表示子选项卡的状态（正常、禁用、隐藏）。
+  - `sticky`参数，字符串类型，仅支持`[ 'n', 'w', 'e', 's','']`中的值，表示选项卡中的控件吸附在容器哪条边（上北下南左西右东，`''`表示居中不吸附），默认为`'w'`。
+  - `text`参数，字符串类型，表示选项卡的标题。
+
+- `tabs`方法，返回所有选项卡。
+
+- `enable_traversal`方法，启用选项卡专用的快捷键。
+
+  需要在添加了选项卡之后调用，支持以下快捷键：
+
+  - `ctrl + tab`键，切换下一个选项卡。
+  - `ctrl + shift + tab`键，切换上一个选项卡。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+notebook = ttk.Notebook(
+    root
+)
+notebook.pack(expand=True, fill='both')
+notebook.add(
+    ttk.Label(notebook,text='Hello'),
+    text='Hello',
+    sticky=''
+)
+notebook.add(
+    ttk.Label(notebook,text='World'),
+    text='World',
+    sticky=''
+)
+
+root.mainloop()
+```
+
+![2_18_1](tkinter.assets/2_18_1.png)
+
+### 2.19 `tkinter.ttk.Panedwindow`嵌入窗口控件
+
+`tkinter.ttk.Panedwindow`的官方文档：https://tkdocs.com/pyref/ttk_panedwindow.html。
+
+嵌入窗口控件用法上类似选项卡控件，外观上很像平铺布局。
+
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_panedwindow.htm）：
+
+- `orient`参数，字符串类型，仅支持`['horizontal', 'vertical']`中的值，表示控件的方向，默认为`'vertical'`（垂直方向）。
+
+该控件支持以下特有方法：
+
+- `add`方法，添加一个窗格。该方法支持以下参数（部分）：
+  - `child`参数，表示窗格的主要内容（控件）。
+  - `weight`参数，整数类型，表示该窗格占总长度的权重（份数），默认为`0`，表示保持控件、窗格长度的原有尺寸，不自动调整。从参数开始，只能通过关键字传入。
+- `remove`方法或者`forget`方法，移除一个窗格。该方法支持以下参数（部分）：
+  - `child`参数，窗格的索引值或者窗格的主要内容（控件），表示窗格。
+- `panes`方法，返回所有窗格。
+
+示例如下：
+
+```python3
+from tkinter import Tk
+from tkinter import ttk
+
+root = Tk()
+root.title('Main')
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+panedwindow = ttk.Panedwindow(
+    root
+)
+panedwindow.pack(expand=True, fill='both')
+panedwindow.add(
+    ttk.Label(panedwindow,text='Hello'),
+)
+panedwindow.add(
+    ttk.Label(panedwindow,text='World'),
+)
+
+root.mainloop()
+```
+
+![2_19_1](tkinter.assets/2_19_1.png)
+
+### 2.20 `tkinter.Tk`主窗口控件
+
+本节开始，将介绍`tkinter`模块的顶层控件。
+
+`tkinter.Tk`的官方文档：https://tkdocs.com/pyref/tk.html。
+
+主窗口控件是所有控件中最特殊的。
+
+
+
+[tkinter.Tk](https://tkdocs.com/pyref/tk.html) - *Toplevel widget of Tk which represents mostly the main window of an application. It has an associated Tcl interpreter.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1792,11 +1931,11 @@ root.mainloop()
 
 
 
-### 2.x `tkinter.ttk.Panedwindow`嵌入窗口控件
+### 2.21 `tkinter.xxx`xxx控件
 
-`tkinter.ttk.Panedwindow`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
 
-[tkinter.ttk.Panedwindow](https://tkdocs.com/pyref/ttk_panedwindow.html) - *Ttk Panedwindow widget displays a number of subwindows, stacked either vertically or horizontally.*
+[tkinter.Toplevel](https://tkdocs.com/pyref/toplevel.html) - *Toplevel widget, e.g. for dialogs.*
 
 （说一下控件的用途或者是否基于其他控件）
 
@@ -1809,8 +1948,6 @@ root.mainloop()
 - `xxx`方法，
 
 示例如下：
-
-
 
 
 
@@ -1855,17 +1992,41 @@ root.mainloop()
 - `xxx`方法，
 
 示例如下：
+
+
+
+
+
+### 2.x `tkinter.xxx`xxx控件
+
+`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+
+
+
+（说一下控件的用途或者是否基于其他控件）
+
+以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+
+- `xxx`参数，
+
+该控件支持以下特有方法：
+
+- `xxx`方法，
+
+示例如下：
+
+
 
 
 
 另一类是`tkinter.ttk`模块提供的控件中没有相同用途控件的控件，主要有：
 
-- [tkinter.Tk](https://tkdocs.com/pyref/tk.html) - *Toplevel widget of Tk which represents mostly the main window of an application. It has an associated Tcl interpreter.*
+- 
 - [tkinter.Canvas](https://tkdocs.com/pyref/canvas.html) - *Canvas widget to display graphical elements like lines or text.*
 - [tkinter.Listbox](https://tkdocs.com/pyref/listbox.html) - *Listbox widget which can display a list of strings.*
 - [tkinter.Menu](https://tkdocs.com/pyref/menu.html) - *Menu widget which allows displaying menu bars, pull-down menus and pop-up menus.*
 - [tkinter.Text](https://tkdocs.com/pyref/text.html) - *Text widget which can display text in various forms.*
-- [tkinter.Toplevel](https://tkdocs.com/pyref/toplevel.html) - *Toplevel widget, e.g. for dialogs.*
+- 
 - [tkinter.BitmapImage](https://tkdocs.com/pyref/bitmapimage.html) - *Widget which can display images in XBM format.*
 - [tkinter.PhotoImage](https://tkdocs.com/pyref/photoimage.html) - *Widget which can display images in PGM, PPM, GIF, PNG format.*
 

@@ -2580,7 +2580,7 @@ root.mainloop()
 - [`tkinter.Scrollbar`](https://tkdocs.com/pyref/scrollbar.html)，滚动条控件。
 - [`tkinter.Spinbox`](https://tkdocs.com/pyref/spinbox.html)，数值调整控件。
 
-## 3 tkinter的对话框（更新中）
+## 3 tkinter的对话框
 
 对话框的用法与控件用法不同：大部分对话框无需构建具备基本结构的tkinter程序，就能直接使用。
 
@@ -2588,95 +2588,232 @@ root.mainloop()
 
 该模块的类、方法，提供了与文件、目录相关的对话框功能。
 
-该模块提供以下类：
+该模块提供以下类（部分）：
 
-- `Directory`类，用于弹出目录选择对话框。该类支持以下参数（参数的完整用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/chooseDirectory.htm）：
+- `Directory`类，用于弹出目录选择对话框。该类支持的部分关键字参数（完整参数可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/chooseDirectory.htm）：
 
-  - 
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `initialdir`参数，字符串类型，表示对话框默认打开的路径。
 
-  需要调用`show`方法才能显示对话框，并返回目录、文件的路径；该方法支持的参数与对应的类相同。
+  需要调用`show`方法才能显示对话框，并返回目录的路径；该方法支持的参数与对应的类相同。
 
-- [tkinter.filedialog.Open](https://tkdocs.com/pyref/filedialog_open.html) - *Ask for a filename to open*
+- `Open`类和`SaveAs`类，用于弹出文件选择对话框，区别在于，前者必须是存在的文件，后者可以为不存在的文件。该类支持的部分关键字参数（完整参数可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/getOpenFile.htm）：
 
-- [tkinter.filedialog.SaveAs](https://tkdocs.com/pyref/filedialog_saveas.html) - *Ask for a filename to save as*
+  - `title`参数，字符串类型，表示对话框的标题。
 
-- `FileDialog`类等'Dialog'后缀的类
+  - `initialdir`参数，字符串类型，表示对话框默认打开的路径。
 
-  需要指定父控件，并且需要调用`go`方法才能显示对话框
+  - `initialfile`参数，字符串类型，表示对话框默认选择的文件。
 
-- 
+  - `defaultextension`参数，字符串类型，表示文件的默认扩展名（只适用于`SaveAs`类，需要与允许的文件类型一致），比如`'.py'`。
 
+  - `filetypes`参数，元组或者列表，表示允许的文件类型。
 
+    该参数的元素为元组或者列表，表示一种文件类型。对于每种文件类型，第一元素为字符串，表示文件类型的描述，第二元素表示文件类型筛选器（语法为`'*.{后缀}'`），可以是字符串（一种文件类型对应一种后缀）或者元素为字符串的元组或者列表（一种文件类型对应多种后缀）。以下为合法的参数值：
 
-该模块提供以下方法：
+    - ```python3
+      [
+          ['Python文件','*.py'],
+          ['C文件','*.c']
+      ]
+      ```
 
-- askdirectory
-- askopenfile
-- askopenfilename
-- askopenfiles
-- askopenfilenames
-- asksaveasfile
-- asksaveasfilename
+    - ```python3
+      [
+          [
+              'Python文件',		
+              [
+                  '*.py',
+                  '*.pyc'
+              ]
+          ]
+      ]
+      ```
 
+  - `multiple`参数，布尔类型，表示是否允许打开多个文件。
 
+  - `typevariable`参数，`StringVar`类型或者字符串类型，表示默认的文件类型，值应当与文件类型的描述相同。
+
+    注意，如果想要使用该参数，则需要创建主窗口，并设置`StringVar`对象的父控件。
+
+  需要调用`show`方法才能显示对话框，并返回文件的路径；该方法支持的参数与对应的类相同。
+
+如果觉得使用类比较麻烦（需要创建实例并调用`show`方法才能得到结果，都没有参数提示），可以试试该模块提供的方法（提供参数提示）：
+
+- `askdirectory`方法，目录选择对话框。
+- `askopenfile`方法，文件选择对话框，返回打开的文件。
+- `askopenfilename`方法，文件选择对话框，返回文件路径。
+- `askopenfiles`方法，多文件选择对话框，返回打开文件的列表。
+- `askopenfilenames`方法，多文件选择对话框，返回文件路径的列表。
+- `asksaveasfile`方法，文件保存对话框，返回打开的文件。
+- `asksaveasfilename`方法，文件保存对话框，返回文件路径。
+
+以下为示例：
 
 ```python3
-from tkinter.filedialog import Open
-print(Open().show())
+from tkinter.filedialog import askopenfile
+
+with askopenfile(
+        filetypes=[
+            ['Python文件', '*.py'],
+            ['C文件', '*.c']
+        ]
+    ) as f:
+    print(''.join([i.encode('GBK').decode('utf-8') for i in f.readlines()]))
 ```
 
-
-
-
+![3_1_1](tkinter.assets/3_1_1.png)
 
 ### 3.2 `tkinter.messagebox`模块
 
+该模块提供创建系统提示框的功能。
+
 该模块提供以下方法：
 
-- showinfo
-- showwarning
-- ", "showerror",
-- ​      "askquestion", 
-- "askokcancel", 
-- "askyesno",
-- ​      "askyesnocancel",
--  "askretrycancel"]
+- `showinfo`方法，显示一个信息提示框。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+  - `detail`参数，字符串类型，表示对话框内容的补充内容。
+  - `icon`参数，字符串类型，仅支持`['error', 'info', 'question', 'warning']`中的值，表示对话框左边的图标，默认为`'info'`。
 
+- `showwarning`方法，显示一个警告提示框。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+  - `detail`参数，字符串类型，表示对话框内容的补充内容。
+  - `icon`参数，字符串类型，仅支持`['error', 'info', 'question', 'warning']`中的值，表示对话框左边的图标，默认为`'warning'`。
+- `showerror`方法，显示一个错误提示框。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+  - `detail`参数，字符串类型，表示对话框内容的补充内容。
+  - `icon`参数，字符串类型，仅支持`['error', 'info', 'question', 'warning']`中的值，表示对话框左边的图标，默认为`'error'`。
+- `askquestion`方法，显示一个包含是、否两个按钮的提示框，并根据点击按钮的情况返回对应的值。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+  - `detail`参数，字符串类型，表示对话框内容的补充内容。
+  - `icon`参数，字符串类型，仅支持`['error', 'info', 'question', 'warning']`中的值，表示对话框左边的图标，默认为`'question'`。
+  - `default`参数，字符串类型，仅支持`['yes', 'no']`中的值，表示对话框默认获得焦点的按钮，默认为`'yes'`。
+- `askokcancel`方法，显示一个包含确认、取消两个按钮的提示框，并根据点击按钮的情况返回布尔值。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+  - `detail`参数，字符串类型，表示对话框内容的补充内容。
+  - `icon`参数，字符串类型，仅支持`['error', 'info', 'question', 'warning']`中的值，表示对话框左边的图标，默认为`'question'`。
+  - `default`参数，字符串类型，仅支持`['ok', 'cancel']`中的值，表示对话框默认获得焦点的按钮，默认为`'ok'`。
+- `askyesno`方法，显示一个包含是、否两个按钮的提示框，并根据点击按钮的情况返回布尔值。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+  - `detail`参数，字符串类型，表示对话框内容的补充内容。
+  - `icon`参数，字符串类型，仅支持`['error', 'info', 'question', 'warning']`中的值，表示对话框左边的图标，默认为`'question'`。
+  - `default`参数，字符串类型，仅支持`['yes', 'no']`中的值，表示对话框默认获得焦点的按钮，默认为`'yes'`。
+- `askyesnocancel`方法，显示一个包含是、否、取消三个按钮的提示框，并根据点击按钮的情况返回布尔值或者`None`（对应取消按钮）。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+  - `detail`参数，字符串类型，表示对话框内容的补充内容。
+  - `icon`参数，字符串类型，仅支持`['error', 'info', 'question', 'warning']`中的值，表示对话框左边的图标，默认为`'question'`。
+  - `default`参数，字符串类型，仅支持`['yes', 'no', 'cancel']`中的值，表示对话框默认获得焦点的按钮，默认为`'yes'`。
+- `askretrycancel`方法，显示一个包含重试、取消两个按钮的提示框，并根据点击按钮的情况返回布尔值。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+  - `detail`参数，字符串类型，表示对话框内容的补充内容。
+  - `icon`参数，字符串类型，仅支持`['error', 'info', 'question', 'warning']`中的值，表示对话框左边的图标，默认为`'warning'`。
+  - `default`参数，字符串类型，仅支持`['retry', 'cancel']`中的值，表示对话框默认获得焦点的按钮，默认为`'retry'`。
 
+示例如下：
 
+```python3
+from tkinter.messagebox import askyesno
 
+print(
+    askyesno(
+        title='确认',
+        message='请回答以下问题：',
+        detail='是否继续？',
+    )
+)
+```
+
+![3_2_1](tkinter.assets/3_2_1.png)
 
 ### 3.3 `tkinter.simpledialog`模块
 
-该模块提供以下类：
-
-- `SimpleDialog`类
-- `Dialog`类
-
-该模块提供两个类：`SimpleDialog`类和`Dialog`类。这两个类都需要指定父控件，并且前者要调用`go`方法才能显示，用起来比较麻烦。所以，本节主要介绍该模块提供的方法。
+该模块提供创建带输入框且限定输入内容的对话框的功能。
 
 该模块提供以下方法：
 
-- askfloat
-- askinteger
-- askstring
+- `askfloat`方法，显示一个只允许输入数字的对话框，点击确认返回输入的内容，点击取消返回`None`。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `prompt`参数，字符串类型，表示对话框的内容。
+  - `initialvalue`参数，浮点类型，表示输入框的默认值。
+  - `minvalue`参数，浮点类型，表示输入框的最小值。
+  - `maxvalue`参数，浮点类型，表示输入框的最大值。
+- `askinteger`方法，显示一个只允许输入整数的对话框，点击确认返回输入的内容，点击取消返回`None`。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `prompt`参数，字符串类型，表示对话框的内容。
+  - `initialvalue`参数，整数类型，表示输入框的默认值。
+  - `minvalue`参数，整数类型，表示输入框的最小值。
+  - `maxvalue`参数，整数类型，表示输入框的最大值。
+- `askstring`方法，显示一个允许输入任意内容的对话框，点击确认返回输入的内容，点击取消返回`None`。该方法支持以下参数（部分）：
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `prompt`参数，字符串类型，表示对话框的内容。
+  - `initialvalue`参数，字符串类型，表示输入框的默认值。
+  - `show`参数，字符串类型，当该参数不为空时，表示输入的内容密文显示，参数值即为掩饰用的文字，默认为`''`。
 
+示例如下：
 
+```python3
+from tkinter.simpledialog import askfloat
+
+print(
+    askfloat(
+        title='确认',
+        prompt='请回答以下问题：',
+        initialvalue=10
+    )
+)
+```
+
+![3_3_1](tkinter.assets/3_3_1.png)
 
 ### 3.4 `tkinter.colorchooser`模块
 
+该模块提供了创建颜色选择对话框的功能。
+
+`Chooser`类用于弹出颜色选择对话框。该类支持的部分关键字参数（完整参数可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/chooseColor.htm）：
+
+- `title`参数，字符串类型，表示对话框的标题。
+- `initialcolor`参数，字符串类型或者三元素元组，表示对话框默认选择的颜色。颜色的表达方式有三种（支持的颜色参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/colors.htm）：
+  - 颜色名，比如`'red'`。
+  - 使用元组表示颜色的RGB分量，比如`(255, 0, 0)`。
+  - '#'开头，将RGB分量转换为十六进制数字之后，拼接在一起的字符串，比如`'#ff0000'`。
 
 
-Chooser类
+`Chooser`类实例需要调用`show`方法才能显示对话框，并返回颜色的值；该方法支持的参数与对应的类相同。
 
+当然，创建颜色选择对话框也可以使用简化的`askcolor`方法：
 
+- `title`参数，字符串类型，表示对话框的标题。
+- `color`参数，字符串类型或者三元素元组，表示对话框默认选择的颜色。
 
-askcolor方法
+示例如下：
 
+```python3
+from tkinter.colorchooser import askcolor
 
+print(
+    askcolor(
+        title='选择一个颜色',
+        color='red'
+    )
+)
+```
 
+![3_4_1](tkinter.assets/3_4_1.png)
 
-
-## 4 拾遗
+## 4 拾遗（随时更新）
 
 虽说本教程是快速入门，但不代表本教程没有讲到的部分就一概不管。在实际开发、使用时，tkinter碍于其设计理念，还是有一些不及现代GUI框架的地方，有不少晦涩难懂的概念。因此，本章节主要聚焦于实际的开发问题，为这些问题带来答案。
+
+### 4.1 （待定）
+
+
+
+（未完待续）

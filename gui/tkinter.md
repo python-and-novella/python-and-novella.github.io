@@ -2017,160 +2017,551 @@ root.mainloop()
 
 以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/menu.htm）：
 
-- `activebackground`参数，
-- `activeborderwidth`参数，
-- `activeforeground`参数，
-- `disabledforeground`参数，
-- `postcommand`参数，
-- `tearoff`参数，
-- `tearoffcommand`参数，
-- `title`参数，
-- `type`参数，
+- `activebackground`参数，字符串类型，表示鼠标悬停在菜单项上时，菜单项的背景颜色。
+- `activeborderwidth`参数，字符串类型或者整数类型，表示菜单项的边框宽度。
+- `activeforeground`参数，字符串类型，表示鼠标悬停在菜单项上时，菜单项的前景颜色。
+- `disabledforeground`参数，字符串类型，表示菜单项被禁用时，菜单项的背景颜色。
+- `postcommand`参数，可调用类型或者字符串类型（即funcid），点击菜单项时额外执行的操作。
+- `tearoff`参数，布尔类型，表示是否允许菜单控件显示为独立的窗口（需要点击内容为`'----'`的菜单项），默认为`True`。
+- `tearoffcommand`参数，可调用类型或者字符串类型（即funcid），表示菜单控件显示为独立的窗口时执行的操作。
+- `title`参数，字符串类型，表示菜单控件显示为独立的窗口时的窗口标题。
 
 该控件支持以下特有方法（部分）：
 
-- `activate`方法，
-- `add`方法，
-- `add_cascade`方法，
-- `add_command`方法，
-- `add_checkbutton`方法，
-- `add_radiobutton`方法，
-- `add_separator`方法，
-- `insert`方法，
-- `insert_cascade`方法，
-- `insert_command`方法，
-- `insert_checkbutton`方法，
-- `insert_radiobutton`方法，
-- `insert_separator`方法，
-- `delete`方法，
-- `index`方法，
-- `invoke`方法，
-- `post`方法，
-- `type`方法，
-- `unpost`方法，
+- `add`方法，添加一个菜单项。该方法支持以下参数：
+
+  - `itemType`参数，字符串类型，表示菜单项的类型，仅支持`['cascade', 'checkbutton', 'command', 'radiobutton', 'separator']`中的值。
+  - `**kw`参数，表示菜单项相关的其他参数，具体参考下面其他的添加菜单项方法。
+
+- `add_cascade`方法，添加一个二级菜单。该方法支持以下参数（部分）：
+
+  - `accelerator`参数，字符串类型，表示显示在菜单项内容后的快捷键提示。注意，该参数只能提示该菜单项对应的快捷键，还需要额外绑定该快捷键对应的响应函数才能正常生效。
+
+  - `columnbreak`参数，布尔类型，一般菜单只有一列，设置该参数可以增加一列，并将该菜单项放在新的一列中，默认为`False`。
+
+  - `command`参数，可调用类型，表示点击该菜单项执行的操作。
+
+    注意，因为包含二级菜单的菜单项只能展开二级菜单，所以该参数无效。
+
+  - `image`参数，`PhotoImage`类型或者字符串类型，表示菜单项额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。
+
+  - `label`参数，字符串类型，表示菜单项的内容。
+
+  - `menu`参数，表示二级菜单对应的菜单控件。
+
+  - `state`参数，字符串类型，仅支持`['normal', 'active', 'disabled']`中的值，表示菜单项的状态（正常、激活、禁用），默认为`'normal'`。
+
+- `add_command`方法，添加一个菜单项。该方法支持以下参数（部分）：
+
+  - `accelerator`参数，字符串类型，表示显示在菜单项内容后的快捷键提示。注意，该参数只能提示该菜单项对应的快捷键，还需要额外绑定该快捷键对应的响应函数才能正常生效。
+  - `columnbreak`参数，布尔类型，一般菜单只有一列，设置该参数可以增加一列，并将该菜单项放在新的一列中，默认为`False`。
+  - `command`参数，可调用类型，表示点击该菜单项执行的操作。
+  - `image`参数，`PhotoImage`类型或者字符串类型，表示菜单项额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。
+  - `label`参数，字符串类型，表示菜单项的内容。
+  - `state`参数，字符串类型，仅支持`['normal', 'active', 'disabled']`中的值，表示菜单项的状态（正常、激活、禁用），默认为`'normal'`。
+
+- `add_checkbutton`方法，添加一个具备多选框功能的菜单项。该方法支持以下参数（部分）：
+
+  - `accelerator`参数，字符串类型，表示显示在菜单项内容后的快捷键提示。注意，该参数只能提示该菜单项对应的快捷键，还需要额外绑定该快捷键对应的响应函数才能正常生效。
+  - `columnbreak`参数，布尔类型，一般菜单只有一列，设置该参数可以增加一列，并将该菜单项放在新的一列中，默认为`False`。
+  - `command`参数，可调用类型，表示点击该菜单项执行的操作。
+  - `image`参数，`PhotoImage`类型或者字符串类型，表示菜单项额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。
+  - `label`参数，字符串类型，表示菜单项的内容。
+  - `selectcolor`参数，字符串类型，表示勾选符号的颜色。
+  - `state`参数，字符串类型，仅支持`['normal', 'active', 'disabled']`中的值，表示菜单项的状态（正常、激活、禁用），默认为`'normal'`。
+
+- `add_radiobutton`方法，添加一个具备单选框功能的菜单项。该方法支持以下参数（部分）：
+
+  - `accelerator`参数，字符串类型，表示显示在菜单项内容后的快捷键提示。注意，该参数只能提示该菜单项对应的快捷键，还需要额外绑定该快捷键对应的响应函数才能正常生效。
+  - `columnbreak`参数，布尔类型，一般菜单只有一列，设置该参数可以增加一列，并将该菜单项放在新的一列中，默认为`False`。
+  - `command`参数，可调用类型，表示点击该菜单项执行的操作。
+  - `image`参数，`PhotoImage`类型或者字符串类型，表示菜单项额外显示的图片。当该参数为字符串类型时，表示的是注册在全局变量中的`PhotoImage`控件的`name`参数（或属性）。
+  - `label`参数，字符串类型，表示菜单项的内容。
+  - `selectcolor`参数，字符串类型，表示勾选符号的颜色。
+  - `state`参数，字符串类型，仅支持`['normal', 'active', 'disabled']`中的值，表示菜单项的状态（正常、激活、禁用），默认为`'normal'`。
+
+- `add_separator`方法，添加一个具备分隔线功能的菜单项。
+
+- `insert`方法，插入一个菜单项。该方法支持以下参数：
+
+  - `index`参数，整数类型，表示插入的位置（索引）。
+  - `itemType`参数，字符串类型，表示菜单项的类型，仅支持`['cascade', 'checkbutton', 'command', 'radiobutton', 'separator']`中的值。
+  - `**kw`参数，表示菜单项相关的其他参数，具体参考下面其他的插入菜单项方法。
+
+- `insert_cascade`方法，在指定位置插入一个二级菜单，比`add_cascade`方法多一个表示插入位置（索引）的整数类型参数`index`。
+
+- `insert_command`方法，在指定位置插入一个菜单项，比`add_command`方法多一个表示插入位置（索引）的整数类型参数`index`。
+
+- `insert_checkbutton`方法，在指定位置插入一个具备多选框功能的菜单项，比`add_checkbutton`方法多一个表示插入位置（索引）的整数类型参数`index`。
+
+- `insert_radiobutton`方法，在指定位置插入一个具备单选框功能的菜单项，比`add_radiobutton`方法多一个表示插入位置（索引）的整数类型参数`index`。
+
+- `insert_separator`方法，在指定位置插入一个具备分隔线功能的菜单项，比`add_separator`方法多一个表示插入位置（索引）的整数类型参数`index`。
+
+- `delete`方法，删除指定范围内的菜单项。该方法支持以下参数：
+
+  - `index1`参数，整数类型，表示起点的位置（索引）。
+  - `index2`参数，整数类型，表示终点的位置（索引）。该参数默认为`None`，相当于`index1`参数的值。
+
+- `entryconfigure`方法或者`entryconfig`方法，配置指定索引值的菜单项。该方法支持以下参数：
+
+  - `index`参数，整数类型，表示菜单项的索引。
+  - `cnf`参数，字典类型，表示菜单项参数映射的字典。
+  - `**kw`参数，表示菜单项的参数。
+
+- `invoke`方法，模拟点击指定索引值的菜单项。该方法支持以下参数：
+
+  - `index`参数，整数类型，表示菜单项的索引。
+
+- `post`方法，在指定位置显示菜单（常用于模拟右键菜单、下拉菜单）。该方法支持以下参数：
+
+  - `x`参数，整数类型，菜单显示位置的X坐标。
+  - `y`参数，整数类型，菜单显示位置的Y坐标。
+
+- `type`方法，返回指定索引值菜单项的类型。该方法支持以下参数：
+
+  - `index`参数，整数类型，表示菜单项的索引。
+
+- `unpost`方法，隐藏使用`post`方法显示的菜单。
+
+- `xposition`方法，返回指定索引值菜单项的X坐标。该方法支持以下参数：
+
+  - `index`参数，整数类型，表示菜单项的索引。
+
+- `yposition`方法，返回指定索引值菜单项的Y坐标。该方法支持以下参数：
+
+  - `index`参数，整数类型，表示菜单项的索引。
+
+示例如下（右键菜单）：
+
+```python3
+from tkinter import Tk,Menu,StringVar
+
+root = Tk()
+root.title('Main')
+
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
+
+menu = Menu(root, tearoff=False)
+
+sub_menu = Menu(menu,tearoff=False)
+sub_menu.add_command(label='子菜单1')
+sub_menu.add_checkbutton(label='多选')
+sub_menu.add_separator()
+value = StringVar(value='1')
+sub_menu.add_radiobutton(label='单选1',variable=value,value='1')
+sub_menu.add_radiobutton(label='单选2',variable=value,value='2')
+
+sub_menu2 = Menu(menu, tearoff=False)
+sub_menu2.add_command(label='子菜单2')
+sub_menu.add_cascade(label='二级菜单',menu=sub_menu2)
+
+menu.add_cascade(label='菜单',menu=sub_menu)
+
+root.configure(menu=menu)
+
+root.bind('<Button-3>',lambda e:sub_menu.post(e.x_root,e.y_root))
+
+root.mainloop()
+```
+
+![2_22_1](tkinter.assets/2_22_1.png)
+
+### 2.23 `tkinter.Text`文本控件
+
+`tkinter.Text`的官方文档：https://tkdocs.com/pyref/text.html。
+
+文本控件类似输入框，但是支持输入多行文本。
+
+该控件的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/text.htm。
 
 示例如下：
 
+```python3
+from tkinter import Tk,Text
 
+root = Tk()
+root.title('Main')
 
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 
+Text(
+    root,
+).pack()
 
-### 2.23 `tkinter.xxx`xxx控件
+root.mainloop()
+```
 
-`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+### 2.24 `tkinter.Listbox`列表控件
 
-[tkinter.Text](https://tkdocs.com/pyref/text.html) - *Text widget which can display text in various forms.*
+`tkinter.Listbox`的官方文档：https://tkdocs.com/pyref/listbox.html。
 
-（说一下控件的用途或者是否基于其他控件）
+列表控件可以将内容以列表形式展示。
 
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
-
-示例如下：
-
-
-
-
-
-### 2.24 `tkinter.xxx`xxx控件
-
-`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
-
-[tkinter.Listbox](https://tkdocs.com/pyref/listbox.html) - *Listbox widget which can display a list of strings.*
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
+该控件的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/listbox.htm。
 
 示例如下：
 
+```python3
+from tkinter import Tk,Listbox,Variable
 
+root = Tk()
+root.title('Main')
 
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 
+value = Variable(value=[1,2,3])
+Listbox(
+    root,
+    listvariable=value
+).pack()
 
-### 2.25 `tkinter.xxx`xxx控件
+root.mainloop()
+```
 
-`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+![2_24_1](tkinter.assets/2_24_1.png)
 
-[tkinter.Canvas](https://tkdocs.com/pyref/canvas.html) - *Canvas widget to display graphical elements like lines or text.*
+### 2.25 `tkinter.Canvas`画布控件
 
-（说一下控件的用途或者是否基于其他控件）
+`tkinter.Canvas`的官方文档：https://tkdocs.com/pyref/canvas.html。
 
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+画布控件可以绘制一些简单的图形，也是海龟库的基础。
 
-- `xxx`参数，
+在正式学习之前，需要了解几个图形绘制的基本概念：
 
-该控件支持以下特有方法：
+- 坐标系。在画布上，左上角为画布原点，横向为X方向，向右为正；纵向为Y方向，向下为正。
+- 矩形的坐标。不管是绘制矩形还是绘制其他图形，抑或是某种矩形区域，和创建矩形相关的坐标点有两个，即矩形的左上角和矩形的右下角，要依次传入这两个点的坐标，顺序不可颠倒（即先传入的点的坐标必须小于后传入点的坐标）。
 
-- `xxx`方法，
+以下是该控件的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm）：
+
+- `closeenough`参数，字符浮点，表示鼠标距离绘制的图形小于多少像素时算作鼠标在图形之上，默认为`1.0`。
+
+该控件支持以下方法（部分）：
+
+- `addtag_above`方法，给绘制顺序紧挨着指定图形、在指定图形之后的图形添加标签。
+
+  在画布控件的所有图形中，每个图形都有ID（图形创建方法的返回值），也可以在创建时指定标签（`tags`参数的元素或者本身），如果想要对指定图形执行指定操作，则必须使用图形的ID或者标签。
+
+  所有的图形按照创建顺序依次叠加，顺序靠后的图形在顺序靠前的图形之上。
+
+  该方法支持以下参数：
+
+  - `newtag`参数，字符串类型，表示新添加的标签。
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+
+- `addtag_all`方法，给所有图形添加标签。该方法支持以下参数：
+
+  - `newtag`参数，字符串类型，表示新添加的标签。
+
+- `addtag_below`方法，给绘制顺序紧挨着指定图形、在指定图形之前的图形添加标签。该方法支持以下参数：
+
+  - `newtag`参数，字符串类型，表示新添加的标签。
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+
+- `addtag_closest`方法，给距离指定点最近的图形添加标签。该方法支持以下参数：
+
+  - `newtag`参数，字符串类型，表示新添加的标签。
+  - `x`参数，整数类型，表示点的X坐标。
+  - `y`参数，整数类型，表示点的Y坐标。
+  - `halo`参数，整数类型，表示点的判定半径，默认为`None`，即`0`。
+  - `start`参数，字符串类型或者整数类型，表示图形的标签或者ID，如果符合条件的图形不止一个，所有符合条件的图形按照创建顺序组成一个列表，创建顺序在该图形之前的（不含该图形，如果该图形是第一个，则最后一个图形被当作该图形前面的图形），会被当作符合条件的唯一结果，否则使用创建顺序在最后的图形作为唯一结果。
+
+- `addtag_enclosed`方法，给完全在指定矩形区域内的图形添加标签。该方法支持以下参数：
+
+  - `newtag`参数，字符串类型，表示新添加的标签。
+  - `x1`参数，浮点类型，表示矩形区域左上角的X坐标。
+  - `y1`参数，浮点类型，表示矩形区域左上角的Y坐标。
+  - `x2`参数，浮点类型，表示矩形区域右下角的X坐标。
+  - `y2`参数，浮点类型，表示矩形区域右下角的Y坐标。
+
+- `addtag_overlapping`方法，给和指定矩形区域重叠的图形添加标签。该方法支持以下参数：
+
+  - `newtag`参数，字符串类型，表示新添加的标签。
+  - `x1`参数，浮点类型，表示矩形区域左上角的X坐标。
+  - `y1`参数，浮点类型，表示矩形区域左上角的Y坐标。
+  - `x2`参数，浮点类型，表示矩形区域右下角的X坐标。
+  - `y2`参数，浮点类型，表示矩形区域右下角的Y坐标。
+
+- `addtag_withtag`方法，给包含指定标签的图形添加标签。该方法支持以下参数：
+
+  - `newtag`参数，字符串类型，表示新添加的标签。
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+
+- `bbox`方法，返回完全包含指定图形且边界不与指定图形相交的矩形区域的坐标。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+
+- `canvasx`方法，将鼠标的X坐标转换为画布上的X坐标。该方法支持以下参数：
+
+  - `screenx`参数，浮点类型，表示鼠标的X坐标。
+  - `gridspacing`参数，整数类型，表示画布的网格间距，如果指定了该参数，得到的值会基于该参数值就近取整。
+
+- `canvasy`方法，将鼠标的Y坐标转换为画布上的Y坐标。该方法支持以下参数：
+
+  - `screeny`参数，浮点类型，表示鼠标的Y坐标。
+  - `gridspacing`参数，整数类型，表示画布的网格间距，如果指定了该参数，得到的值会基于该参数值就近取整。
+
+- `coords`方法，查询或修改指定图形的坐标。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+  - `*args`参数，依次表示对应点的X、Y坐标，如果没有指定这些参数，则返回构成图形的所有点的坐标。如果指定了这些参数，则这些参数分别对应创建图形时所需的点的X、Y坐标。
+
+- `create_arc`方法，创建一个弧形并返回该图形的ID。该方法支持以下参数（部分参数，完整参数参考https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M125）：
+
+  - 第一个位置参数，浮点类型，表示矩形绘制区域左上角的X坐标。
+
+  - 第二个位置参数，浮点类型，表示矩形绘制区域左上角的Y坐标。
+
+  - 第三个位置参数，浮点类型，表示矩形绘制区域右下角的X坐标。
+
+  - 第四个位置参数，浮点类型，表示矩形绘制区域右下角的Y坐标。
+
+    注意，绘制弧形实际上是在矩形内制作内切圆（也可以是椭圆，这里为了方便理解，简化为圆），然后根据参数截取一部分弧形。
+
+    如下图所示：
+
+    ![2_25_1](tkinter.assets/2_25_1.png)
+
+    矩形为绘制区域，X轴正方向为计算起始角度的起点（与`start`参数相关），根据`extent`参数的值确定弧形对应的圆心角，最终完成整个弧形。
+
+    另外，除了直接传入四个位置参数，可以传入元素为X、Y坐标的元组（或者列表）来表示每个点，或者将这些元组（或者列表）放入元组（或者列表）后再传入。
+
+  - `start`参数，浮点类型，表示弧形起始位置对应的圆心角。
+
+  - `extent`参数，浮点类型，表示整个弧形对应的圆心角。
+
+  - `style`参数，字符串类型，仅支持`'['pieslice','arc','chord']'`中的值，表示弧形的风格（扇形、只有圆弧、圆弧的起止点使用直线连接），默认为`'pieslice'`。
+
+  - `fill`参数，字符串类型，表示填充区域的颜色（必须是封闭图形才有效）。
+
+  - `activefill`参数，字符串类型，表示激活状态填充区域的颜色（必须是封闭图形才有效）。
+
+  - `disabledfill`参数，字符串类型，表示禁用状态填充区域的颜色（必须是封闭图形才有效）。
+
+  - `outline`参数，字符串类型，表示轮廓线的颜色。
+
+  - `activeoutline`参数，字符串类型，表示激活状态轮廓线的颜色。
+
+  - `disabledoutline`参数，字符串类型，表示禁用状态轮廓线的颜色。
+
+  - `width`参数，整数类型，表示轮廓线的宽度。
+
+  - `activewidth`参数，整数类型，表示激活状态轮廓线的宽度。
+
+  - `disabledwidth`参数，整数类型，表示禁用状态轮廓线的宽度。
+
+  - `state`参数，字符串类型，仅支持`'['normal','disabled','hidden']'`中的值，表示图形的状态（正常、禁用、隐藏），默认为`'normal'`。
+
+  - `tags`参数，字符串类型、元素为字符串的列表或者元组，表示图形对应的标签。
+
+- `create_bitmap`方法，创建一个位图（使用图片文件）并返回该图形的ID。该方法支持的参数参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M129 。
+
+- `create_image`方法，创建一个图像（使用图片文件）并返回该图形的ID。该方法支持的参数参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M139 。
+
+- `create_line`方法，创建一个直线并返回该图形的ID。该方法支持的参数参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M143 。
+
+- `create_oval`方法，创建一个椭圆（也可以是圆）并返回该图形的ID。该方法支持的参数参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M150。
+
+- `create_polygon`方法，创建一个多边形并返回该图形的ID。该方法支持的参数参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M151。
+
+- `create_rectangle`方法，创建一个矩形并返回该图形的ID。该方法支持的参数参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M155。
+
+- `create_text`方法，创建一个文本并返回该图形的ID。该方法支持的参数参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M156。
+
+- `create_window`方法，创建一个控件并返回该图形的ID。该方法支持的参数参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm#M163。
+
+- `dchars`方法，删除文本图形的部分字符。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示文本图形的标签或者ID。
+  - 第二个位置参数，整数类型，表示删除开始的位置（索引，含当前位置）。
+  - 第三个位置参数，整数类型，表示删除结束的位置（索引，含当前位置）。
+
+- `delete`方法，删除指定图形。该方法支持以下参数：
+
+  - `*args`参数，字符串类型或者整数类型，表示图形的标签或者ID（可传入多个）。
+
+- `dtag`方法，删除指定图形的指定标签。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示图形的标签或者ID。
+  - 第二个位置参数，字符串类型，表示要删除的标签。
+
+- `find_above`方法，返回绘制顺序紧挨着指定图形、在指定图形之后的图形。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+
+- `find_all`方法，返回所有图形。
+
+- `find_below`方法，返回绘制顺序紧挨着指定图形、在指定图形之前的图形。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+
+- `find_closest`方法，返回距离指定点最近的图形。该方法支持以下参数：
+
+  - `x`参数，整数类型，表示点的X坐标。
+  - `y`参数，整数类型，表示点的Y坐标。
+  - `halo`参数，整数类型，表示点的判定半径，默认为`None`，即`0`。
+  - `start`参数，字符串类型或者整数类型，表示图形的标签或者ID，如果符合条件的图形不止一个，所有符合条件的图形按照创建顺序组成一个列表，创建顺序在该图形之前的（不含该图形，如果该图形是第一个，则最后一个图形被当作该图形前面的图形），会被当作符合条件的唯一结果，否则使用创建顺序在最后的图形作为唯一结果。
+
+- `find_enclosed`方法，返回完全在指定矩形区域内的图形。该方法支持以下参数：
+
+  - `x1`参数，浮点类型，表示矩形区域左上角的X坐标。
+  - `y1`参数，浮点类型，表示矩形区域左上角的Y坐标。
+  - `x2`参数，浮点类型，表示矩形区域右下角的X坐标。
+  - `y2`参数，浮点类型，表示矩形区域右下角的Y坐标。
+
+- `find_overlapping`方法，返回和指定矩形区域重叠的图形。该方法支持以下参数：
+
+  - `x1`参数，浮点类型，表示矩形区域左上角的X坐标。
+  - `y1`参数，浮点类型，表示矩形区域左上角的Y坐标。
+  - `x2`参数，浮点类型，表示矩形区域右下角的X坐标。
+  - `y2`参数，浮点类型，表示矩形区域右下角的Y坐标。
+
+- `find_withtag`方法，返回给包含指定标签的图形。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+
+- `insert`方法，在文本图形的指定位置插入字符。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示文本图形的标签或者ID。
+  - 第二个位置参数，整数类型，表示插入字符的位置（索引）。
+  - 第三个位置参数，字符串数类型，表示插入的内容。
+
+- `itemcget`方法，获取指定参数的值。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+  - `option`参数，字符串类型，表示参数名。
+
+- `itemconfig`方法或者`itemconfigure`方法，配置指定图形的参数。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+  - `cnf`参数，字典类型，表示图形参数映射的字典。
+  - `**kw`参数，表示图形的参数。
+
+- `move`方法，将图形移动。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示文本图形的标签或者ID。
+  - 第二个位置参数，浮点类型，表示X坐标的增量。
+  - 第三个位置参数，浮点类型，表示Y坐标的增量。
+
+- `moveto`方法，将图形移动到指定位置。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
+  - `x`参数，浮点类型，表示目标位置的X坐标。
+  - `y`参数，浮点类型，表示目标位置的Y坐标。
+
+- `postscript`方法，生成画布所有图形的PostScript（一种用于打印和图像输出的页面描述语言）。
+
+- `scale`方法，缩放图形。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示文本图形的标签或者ID。
+  - 第二个位置参数，浮点类型或者字符串类型，表示缩放原点的X坐标。
+  - 第三个位置参数，浮点类型或者字符串类型，表示缩放原点的Y坐标。
+  - 第四个位置参数，浮点类型，表示X方向的缩放比例。
+  - 第五个位置参数，浮点类型，表示Y方向的缩放比例。
+
+- `scan_mark`方法与`scan_dragto`方法配对使用，前者用于指定画布拖动的起点，后者用于指定拖动的终点。两个方法都支持`x`参数和`y`参数表示坐标，而后者额外支持`gain`参数，表示拖动距离的倍率（表示拖动一次的实际距离相当于拖动起止距离的多少倍，默认为`10`）。
+
+- `select_adjust`方法，在文本图形中选择指定位置的字符。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示文本图形的标签或者ID。
+  - 第二个位置参数，整数类型，表示被选择字符的位置（索引）。
+
+- `select_clear`方法，在文本图形中清除字符的选择状态。
+
+- `select_from`方法，在文本图形中设定选择字符的起点。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示文本图形的标签或者ID。
+  - 第二个位置参数，整数类型，表示选择字符的起点位置（索引）。
+
+- `select_item`方法，返回文本图形中被选择的字符。
+
+- `select_to`方法，在文本图形中设定选择字符的终点。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示文本图形的标签或者ID。
+  - 第二个位置参数，整数类型，表示选择字符的终点位置（索引）。
+
+- `tag_bind`方法，给指定图形添加响应函数，`tagOrId`参数表示图形的标签或者ID，其余参数同`bind`方法。
+
+- `tag_unbind`方法，给指定图形解绑响应函数，`tagOrId`参数表示图形的标签或者ID，其余参数同`unbind`方法。
+
+- `tag_lower`方法或者`lower`方法，将指定图形移动到最下面，并紧挨着指定图形。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示图形的标签或者ID。
+  - 第二个位置参数，字符串类型或者整数类型，表示紧挨着的图形的标签或者ID。
+
+- `tag_raise`方法或者`tkraise`方法或者`lift`方法，将指定图形移动到最上面，并紧挨着指定图形。该方法支持以下参数：
+
+  - 第一个位置参数，字符串类型或者整数类型，表示图形的标签或者ID。
+  - 第二个位置参数，字符串类型或者整数类型，表示紧挨着的图形的标签或者ID。
+
+- `type`方法，返回给指定图形的类型。该方法支持以下参数：
+
+  - `tagOrId`参数，字符串类型或者整数类型，表示图形的标签或者ID。
 
 示例如下：
 
+```python3
+from tkinter import Tk,Canvas,ttk,Variable
 
+root = Tk()
+root.title('Main')
 
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 
+value = Variable(value='')
+ttk.Label(textvariable=value).pack()
 
-### 2.26 `tkinter.xxx`xxx控件（类）和`tkinter.xxx`xxx控件（类）
+canvas = Canvas(
+    root,
+)
+canvas.pack(expand=True,fill='both')
 
-`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
+canvas.create_polygon(
+    10,10,
+    200,200,
+    10,200,
+    tags='triangle'
+)
+canvas.tag_bind('all','<Button-1>',lambda e:value.set(e))
 
-- [tkinter.BitmapImage](https://tkdocs.com/pyref/bitmapimage.html) - *Widget which can display images in XBM format.*
-- [tkinter.PhotoImage](https://tkdocs.com/pyref/photoimage.html) - *Widget which can display images in PGM, PPM, GIF, PNG format.*
+root.mainloop()
+```
 
-（说一下控件的用途或者是否基于其他控件）
+![2_25_2](tkinter.assets/2_25_2.png)
 
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
+### 2.26 `tkinter.scrolledtext.ScrolledText`滚动文本控件
 
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
-
-示例如下：
-
-
-
-
-
-### 2.27 `tkinter.xxx`xxx控件
-
-`tkinter.xxx`的官方文档：https://tkdocs.com/pyref/ttk_combobox.html。
-
-tkinter.scrolledtext（基于Text控件）
-
-（说一下控件的用途或者是否基于其他控件）
-
-以下是该控件（根据其继承情况写定语“相比于xxx不同、新增”）的部分参数（其他同名参数可以参考前面章节介绍的控件，完整的参数用法可以参考 https://www.tcl-lang.org/man/tcl8.6/TkCmd/ttk_combobox.htm）：
-
-- `xxx`参数，
-
-该控件支持以下特有方法：
-
-- `xxx`方法，
+滚动文本控件基于文本控件实现，默认添加了滚动条，当内容的行数超过显示区域时，滚动条即时生效。
 
 示例如下：
 
+```python3
+from tkinter import Tk
+from tkinter.scrolledtext import ScrolledText
 
+root = Tk()
+root.title('Main')
 
+width = 320
+height = 240
+root.geometry(f'{width}x{height}+{(root.winfo_screenwidth()-width)//2}+{(root.winfo_screenheight()-height)//2}')
 
+ScrolledText(root).pack()
 
+root.mainloop()
+```
 
+![2_26_1](tkinter.assets/2_26_1.png)
 
-
-
-### 2.28 不推荐使用的控件
+### 2.27 不推荐使用的控件
 
 `tkinter`模块的顶层控件有很多，但不是所有顶层控件都推荐使用，以下这些是`tkinter.ttk`模块有相同控件或者tkinter中有替代控件的控件，不推荐继续使用。虽然不会像前面的控件一样单独介绍，但考虑到tkinter尚未移除，这里依然提供了对应的官网文档链接，以备不时之需：
 
@@ -2181,7 +2572,7 @@ tkinter.scrolledtext（基于Text控件）
 - [`tkinter.Label`](https://tkdocs.com/pyref/label.html)，标签控件。
 - [`tkinter.LabelFrame`](https://tkdocs.com/pyref/labelframe.html)，标签框架控件。
 - [`tkinter.Menubutton`](https://tkdocs.com/pyref/menubutton.html)，下拉菜单按钮控件。
-- [`tkinter.Message`](https://tkdocs.com/pyref/message.html)，消息文件控件，推荐使用标签控件代替。
+- [`tkinter.Message`](https://tkdocs.com/pyref/message.html)，信息控件，推荐使用标签控件代替。
 - [`tkinter.OptionMenu`](https://tkdocs.com/pyref/optionmenu.html)，下拉菜单控件。
 - [`tkinter.PanedWindow`](https://tkdocs.com/pyref/panedwindow.html)，嵌入窗口控件。
 - [`tkinter.Radiobutton`](https://tkdocs.com/pyref/radiobutton.html)，单选框控件。

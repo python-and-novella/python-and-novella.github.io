@@ -1846,7 +1846,7 @@ app.exec()
 
 示例中，使用`Qt`的函数生成颜色对象，使用ES标准中的模板字符串（必须使用反引号包围，格式为`` `${变量}` ``）嵌入应用名称和应用版本。QML支持C语言风格的单行注释`//`和多行注释`/*……*/`。
 
-## 8 在QtWidgets程序中使用QtQuick控件（更新中）
+## 8 在QtWidgets程序中使用QtQuick控件
 
 ### 8.1 QtQuick程序的主窗口控件无缝衔接
 
@@ -1903,53 +1903,11 @@ app.exec()
 
 其余QtQuick程序的代码也都可以完美运行，这里就不一一演示了，留给读者自行探索。本章的重点在于下节要介绍的`QQuickWidget`控件，这就是前面铺垫过的、能够显示QtQuick控件的第三种主窗口控件。
 
-### 8.2 `QQuickWidget`控件是`QQuickView`控件的平替（更新中）
+### 8.2 `QQuickWidget`控件是`QQuickView`控件的平替
 
+除了直接使用QtQuick控件，QtWidgets程序还可以使用`QQuickWidget`控件作为`QQuickView`控件的平替。
 
-
-https://doc.qt.io/qtforpython-6/PySide6/QtQuickWidgets/QQuickWidget.html#PySide6.QtQuickWidgets.QQuickWidget
-
-
-
-https://doc.qt.io/qtforpython-6/PySide6/QtQuick/QQuickView.html#PySide6.QtQuick.QQuickView
-
-
-
-平替的部分：
-
-- 部分参数相同
-- 可加载的QML相同：
-  - QML文件
-  - 模块（QML模块）
-  - QML字符串
-- 部分方法相同，比如修改窗口大小
-- ……
-
-差异的部分：
-
-- 继承的类不同
-- 部分方法不同，比如设置窗口标题
-- ……
-
-
-
-（找一下其他相同、不同的地方，相同的地方直接写通用示例，不同的地方写几个对比的示例）
-
-
-
-（重点说一下这个控件，看看有没有与`QQuickView`控件不同的地方，相同的地方可以写一下示例，水字数）
-
-
-
-（偏QtWidgets程序的部分，偏QtQuick程序的部分，需要详细研究、分析、对比）
-
-
-
-2 特定的只能在QtWidgets程序中使用
-
-使用`QQuickWidget`（相当于`QQuickView`的平替，大部分功能兼容）：
-
-加载QML文件（使用`QQuickWidget`）：
+先看示例：
 
 ```python3
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
@@ -1978,9 +1936,8 @@ Rectangle {
 window = QQuickWidget(source=QUrl('./main.qml'))
 
 window.resize(200,200)
-# QQuickWidget 不支持 view.setTitle('Main')
+# QQuickWidget不支持setTitle('Main')
 window.setWindowTitle('Main')
-
 window.show()
 
 # 非QtQuick部分
@@ -1992,269 +1949,75 @@ window2.show()
 app.exec()
 ```
 
-加载QML字符串（使用`QQuickWidget`和`QQmlComponent`）：
+![2025_8_1](qt_for_python.assets/2025_8_1.png)
 
-```python3
-from PySide6.QtWidgets import QApplication,QWidget,QPushButton
-from PySide6.QtCore import QUrl,QByteArray
-from PySide6.QtQuickWidgets import QQuickWidget
-from PySide6.QtQml import QQmlComponent
+从代码上看，`QQuickWidget`控件“似乎”是`QQuickView`控件的平替，除了修改窗口的标题使用了`setWindowTitle`方法而非`setTitle`方法。
 
-# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
-app = QApplication()
+为了搞清楚二者的区别，需要同步查阅以下资料：
 
-qml_string = '''
-import QtQuick
+- `QQuickWidget`控件的官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtQuickWidgets/QQuickWidget.html#PySide6.QtQuickWidgets.QQuickWidget
+- `QQuickView`控件的官网文档：https://doc.qt.io/qtforpython-6/PySide6/QtQuick/QQuickView.html#PySide6.QtQuick.QQuickView
 
-Rectangle {
-    id: main
-    width: 200
-    height: 200
-    color: 'green'
-    Text {
-        text: 'Hello World'
-        anchors.centerIn: main
-    }
-}
-'''
+先说结论，可以平替的部分有：
 
-window = QQuickWidget()
-# 使用view的engine创建component
-component = QQmlComponent(window.engine())
-# 给component加载qml字符串
-component.setData(QByteArray(qml_string.encode()),QUrl())
-# 让view的根内容变成component，并将实际内容变为component的生成内容
-window.setContent(QUrl(), component, component.create())
+- 除了`QQuickView`控件额外支持的`renderControl`参数外，其余参数都相同。换句话说，`QQuickView`控件不使用`renderControl`参数的话，两个控件的初始化方法的用法完全相同。
 
-window.resize(200,200)
-# QQuickWidget 不支持 view.setTitle('Main')
-window.setWindowTitle('Main')
+  注意，`QQuickView`控件的`renderControl`参数是一个仅限位置参数，仅当`source`参数作为第一位置参数时可用，此时`renderControl`参数是第二位置参数，效果类似于`parent`参数，仅支持`QQuickRenderControl`控件。
 
-window.show()
+- 加载QML的方法相同，支持加载QML文件、模块（QML模块）、QML字符串。
+  
+- 部分方法相同。比如，修改窗口大小的`resize`方法，通过`setContent`方法设置为`QQmlComponent`控件生成的内容。
 
-# 非QtQuick部分
-window2 = QWidget()
-window2.resize(400,300)
-QPushButton('click',window2).clicked.connect(lambda :app.quit())
-window2.show()
+当然，正如示例中修改窗口标题使用`setWindowTitle`方法与先前不同，二者还是存在一些差异的部分：
 
-app.exec()
-```
+- 继承的类不同。`QQuickWidget`控件继承自`QWidget`类，`QQuickView`控件继承自`QQuickWindow`类。
+- 部分方法不同。比如，设置窗口标题的方法，`QQuickWidget`控件只能使用`setWindowTitle`方法，`QQuickView`控件只能使用`setTitle`方法。
+- 适用的程序类不同。`QQuickWidget`控件只能在QtWidgets程序中使用，`QQuickView`控件可以在QtQuick程序、QtWidgets程序中使用。
 
-加载QML字符串（写入临时文件，也兼容Qt中其他只能加载文件的地方）：
+总的来说，`QQuickWidget`控件类似于在`QQuickView`控件的基础上添加`QWidget`控件的功能，只是部分`QWidget`控件中相同功能（比如修改窗口标题）的方法覆盖了`QQuickView`控件的方法。
 
-```python3
-from PySide6.QtWidgets import QApplication,QWidget,QPushButton
-from PySide6.QtCore import QUrl
-from PySide6.QtQuickWidgets import QQuickWidget
-import tempfile
+读者如果理解了`QQuickWidget`控件与`QQuickView`控件的差异，可以尝试将前面`QQuickView`控件的示例，修改为使用`QQuickWidget`控件的代码。
 
-# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
-app = QApplication()
+## 9 QtWidgets程序的UI文件
 
-qml_string = '''
-import QtQuick
+QtQuick程序可以使用QML定义界面布局，QtWidgets程序也有类似的界面描述方式，那就是UI。注意，这里的UI不是指User Interface（用户界面），而是特指使用QtDesigner创建UI文件，然后QtWidgets程序通过加载UI文件来显示界面的方式。为了避免混淆，下面提到的UI文件，特指使用QtDesigner创建的UI文件（`*.ui`）。
 
-Rectangle {
-    id: main
-    width: 200
-    height: 200
-    color: 'green'
+不过，与QtQuick程序只能使用QML添加控件不同，QtWidgets程序本身可以很方便地在Python代码中添加控件，使用UI文件是为了通过QtDesigner这个可视化工具，直观地设计界面，不用在Python代码中反复调整界面细节。
 
-    Text {
-        text: 'Hello World'
-        anchors.centerIn: main
-    }
-}
-'''
-# 将字符串写入临时文件
-with tempfile.NamedTemporaryFile(delete=False) as qml_file:
-    qml_file.write(qml_string.encode())
+想要运行QtDesigner，可以在终端执行`pyside6-designer`命令或者双击`{项目文件夹}\.venv\Scripts\pyside6-designer.exe`运行，即可看到QtDesigner的界面：
 
-window = QQuickWidget(source=QUrl.fromLocalFile(qml_file.name))
+![2025_9_1](qt_for_python.assets/2025_9_1.png)
 
-# 删除临时文件
-import os
-os.remove(qml_file.name)
-# 或者 os.unlink(qml_file.name)
+### 9.1 创建UI文件
 
-window.resize(200,200)
-# QQuickWidget 不支持 view.setTitle('Main')
-window.setWindowTitle('Main')
+QtDesigner的用法这里不展开介绍，其他人自有更加详实的教程。这里需要简单强调一下创建UI文件的要点，后续使用UI文件时，才更好理解关键知识点。
 
-window.show()
+选择Widget模板，点击创建：
 
-# 非QtQuick部分
-window2 = QWidget()
-window2.resize(400,300)
-QPushButton('click',window2).clicked.connect(lambda :app.quit())
-window2.show()
+![2025_9_2](qt_for_python.assets/2025_9_2.png)
 
-app.exec()
-```
+从左边拖一个Push Button到中间的窗口中，这样就在窗口中创建了一个按钮控件：
 
-不想手动删除临时文件的话，可以使用`QTemporaryFile`：
+![2025_9_3](qt_for_python.assets/2025_9_3.png)
 
-```python3
-from PySide6.QtWidgets import QApplication,QWidget,QPushButton
-from PySide6.QtCore import QUrl,QTemporaryFile
-from PySide6.QtQuickWidgets import QQuickWidget
+点击对象检查器中最上面的对象（主窗口），修改`objectName`属性为`MainWindow`（名称随意，只要是合法变量名，不与主窗口控件的成员重名即可），修改`geometry`属性为`[(0,0),400 x 300]`（点击属性名左边的`>`，展开之后，修改下面的宽度为`400`，修改高度为`300`），修改`windowsTitle`属性为`Main`（往下滚动才能看到这个属性）：
 
-# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
-app = QApplication()
+![2025_9_4](qt_for_python.assets/2025_9_4.png)
 
-qml_string = '''
-import QtQuick
+点击对象检查器中的子对象（`QPushButton`类），修改`objectName`属性为`psf`（名称随意，只要是合法变量名，不与主窗口控件的成员重名即可），点击`geometry`属性、`text`属性右边的初始化按钮：
 
-Rectangle {
-    id: main
-    width: 200
-    height: 200
-    color: 'green'
+![2025_9_5](qt_for_python.assets/2025_9_5.png)
 
-    Text {
-        text: 'Hello World'
-        anchors.centerIn: main
-    }
-}
-'''
+点击文件菜单中的保存（或者使用`ctrl + s`快捷键），将UI文件保存到Python源代码的同目录下，文件名为`main.ui`（文件名随意，如果不使用该文件名，下面示例中涉及的UI文件请按实际情况改名）。
 
-# 将字符串写入临时文件，自动生成随机后缀，程序退出后自动删除
-# 可以指定临时文件的非随机部分名和路径，但要求路径所表示的文件夹已经存在，否则不能正常创建临时文件
-qml_file = QTemporaryFile()
-if qml_file.open():
-    qml_file.write(qml_string.encode())
-    qml_file.close()
-    # 或者使用 qml_file.flush() 写入磁盘文件
+如果使用编辑器打开`main.ui`的话，可以看到文件的内容如下：
 
-window = QQuickWidget(source=QUrl.fromLocalFile(qml_file.fileName()))
-
-window.resize(200,200)
-# QQuickWidget 不支持 view.setTitle('Main')
-window.setWindowTitle('Main')
-
-window.show()
-
-# 非QtQuick部分
-window2 = QWidget()
-window2.resize(400,300)
-QPushButton('click',window2).clicked.connect(lambda :app.quit())
-window2.show()
-
-app.exec()
-```
-
-使用`QQmlApplicationEngine`（加载文件和字符串都很简单，但默认不包括窗口，需要在QML中定义）：
-
-加载QML文件（使用`QQmlApplicationEngine`）：
-
-```python3
-from PySide6.QtWidgets import QApplication,QWidget,QPushButton
-from PySide6.QtCore import QUrl
-from PySide6.QtQml import QQmlApplicationEngine
-
-# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
-app = QApplication()
-
-# main.qml 内容为：
-'''
-import QtQuick.Window
-
-Window {
-    visible: true
-    title: 'Main'
-    width: 200
-    height: 200
-    Rectangle {
-        id: main
-        width: 200
-        height: 200
-        color: 'green'
-
-        Text {
-            text: 'Hello World'
-            anchors.centerIn: main
-        }
-    }
-}
-'''
-engine = QQmlApplicationEngine(QUrl('./main.qml'))
-
-# 非QtQuick部分
-window2 = QWidget()
-window2.resize(400,300)
-QPushButton('click',window2).clicked.connect(lambda :app.quit())
-window2.show()
-
-app.exec()
-```
-
-加载QML字符串（使用`QQmlApplicationEngine`生成窗口和窗口的内容）：
-
-```python3
-from PySide6.QtWidgets import QApplication,QWidget,QPushButton
-from PySide6.QtCore import QUrl
-from PySide6.QtQml import QQmlApplicationEngine
-
-# 非QtQuick程序只能使用QApplication，不能使用QGuiApplication
-app = QApplication()
-
-qml_src = '''
-import QtQuick.Window
-
-Window {
-    visible: true
-    title: 'Main'
-    width: 200
-    height: 200
-    Rectangle {
-        id: main
-        width: 200
-        height: 200
-        color: 'green'
-        Text {
-            text: 'Hello World'
-            anchors.centerIn: main
-        }
-    }
-}
-'''
-engine = QQmlApplicationEngine()
-engine.loadData(qml_src.encode('utf-8'),QUrl())
-
-# 非QtQuick部分
-window2 = QWidget()
-window2.resize(400,300)
-QPushButton('click',window2).clicked.connect(lambda :app.quit())
-window2.show()
-
-app.exec()
-```
-
-
-
-## 9 QtWidgets程序的UI文件（更新中）
-
-
-
-（创建UI文件，介绍QtDesigner的使用，UI文件直接使用和编译为Python文件两种使用方法）
-
-
-
-加载UI文件：
-
-```python3
-
-from PySide6.QtWidgets import QApplication,QWidget
-from PySide6.QtUiTools import QUiLoader
-
-# main.ui 文件内容如下：
-'''
-<?xml version='1.0' encoding='UTF-8'?>
-<ui version='4.0'>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class='QWidget' name='MainWindow'>
-  <property name='geometry'>
+ <widget class="QWidget" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -2262,22 +2025,33 @@ from PySide6.QtUiTools import QUiLoader
     <height>300</height>
    </rect>
   </property>
-  <property name='windowTitle'>
+  <property name="windowTitle">
    <string>Main</string>
   </property>
-  <widget class='QPushButton' name='psf'>
-  </widget>
+  <widget class="QPushButton" name="psf"/>
  </widget>
  <resources/>
  <connections/>
 </ui>
-'''
+```
+
+从内容上看，UI文件本质上就是个XML文件（注意这句话，后面会有用）。
+
+### 9.2 直接加载UI文件
+
+创建好UI文件之后，就可以加载UI文件，生成对应控件了。
+
+想要加载UI文件，需要用到`QUiLoader`类（使用`from PySide6.QtUiTools import QUiLoader`导入，完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtUiTools/QUiLoader.html#PySide6.QtUiTools.QUiLoader）。创建`QUiLoader`类的实例后，使用实例的`load`方法加载UI文件，该方法会基于UI文件生成对应的控件结构，并返回最顶层的主窗口控件：
+
+```python3
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
 
 app = QApplication()
 # 基本结构，必须分成两步
 # window = QWidget()
 # window.show()
-# 导入UI文件的方法是一样的结构
+# 导入UI文件后是一样的结构
 window = QUiLoader().load('main.ui')
 window.psf.setText('click')
 window.psf.clicked.connect(lambda:print('Clicked!'))
@@ -2285,15 +2059,390 @@ window.show()
 app.exec()
 ```
 
-除了主窗口的`name`属性（比如示例中的`'MainWindow'`）之外，其余控件的`name`属性（比如示例中的`'psf'`）都会转换、注册为`load`方法的返回值的属性，可通过该属性访问对应的控件。
+![2025_9_6](qt_for_python.assets/2025_9_6.png)
 
-但这种使用UI文件的方法没有智能提示，想要智能提示的话，需要先将UI文件编译为Python文件，再导入该Python文件：
+如示例中所展示的，除了主窗口的`name`属性（`'MainWindow'`）之外，其余控件的`name`属性（示例中的`'psf'`）都会转换、注册为`load`方法的返回值的属性，可通过该属性访问对应的控件。
 
-（上面的UI文件编译为Python文件，写一下操作过程和最终的结果）
+因此，调用`psf`属性的方法，相当于调用`QPushButton`控件的方法。比如，修改显示文字的`setText`方法，连接`clicked`信号的`clicked.connect`方法。
 
+当然，主窗口的`name`属性并非完全没用，主窗口的`objectName`属性（Qt程序的部分属性在Python接口中使用方法获取，这里指的是`objectName`方法返回的值）就是`'MainWindow'`。如果使用`load`方法时，同时设置了`parentWidget`参数，可以使用`parentWidget`参数对应控件的`findChildren`方法或者`findChild`方法查找指定`objectName`的控件，此时主窗口的`objectName`属性就可以派上用场：
 
+```python3
+from PySide6.QtWidgets import QApplication,QWidget
+from PySide6.QtUiTools import QUiLoader
 
-## 10 QtQuick程序的模块（QML模块）（更新中，补充图片）
+app = QApplication()
+# 创建空的主窗口控件
+root = QWidget()
+# 指定为UI文件生成控件的顶级父控件
+QUiLoader(app).load('main.ui',root)
+# 获取指定objectName的控件
+window = root.findChild(QWidget,'MainWindow')
+# 使用该控件
+window.psf.setText('click')
+window.psf.clicked.connect(lambda:print('Clicked!'))
+# 修改主窗口控件的窗口标题
+root.setWindowTitle(window.windowTitle())
+root.show()
+
+app.exec()
+```
+
+### 9.3 将UI文件转换为Python类之后使用
+
+加载UI文件固然简单，但这种使用UI文件的方法没有智能提示，即使知道有`psf`这个属性，也没法进一步获取`psf`属性的方法、属性。如果想要智能提示的话，就需要先将UI文件编译为Python文件，再导入、使用该Python文件（或者文件内的Python类）。
+
+先说如何将UI文件编译为Python文件。
+
+简单一点的，就是在创建完UI文件之后，不要立刻关闭QtDesigner，点击窗体菜单中的`View Python Code`：
+
+![2025_9_7](qt_for_python.assets/2025_9_7.png)
+
+在弹出的窗口中，可以选择复制（如箭头所示）还是保存为单独的文件：
+
+![2025_9_8](qt_for_python.assets/2025_9_8.png)
+
+也可以在终端执行`pyside6-uic {UI文件路径} [-o {输出的Python文件路径}]`命令（`-o`选项为可选，表示是否输出为Python文件，下面的输入结果实际上没有使用该选项），结果是一样的：
+
+![2025_9_9](qt_for_python.assets/2025_9_9.png)
+
+生成的Python代码如下：
+
+```python3
+# -*- coding: utf-8 -*-
+
+################################################################################
+## Form generated from reading UI file 'main.ui'
+##
+## Created by: Qt User Interface Compiler version 6.9.1
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
+
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QPushButton, QSizePolicy, QWidget)
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        if not MainWindow.objectName():
+            MainWindow.setObjectName(u"MainWindow")
+        MainWindow.resize(400, 300)
+        self.psf = QPushButton(MainWindow)
+        self.psf.setObjectName(u"psf")
+
+        self.retranslateUi(MainWindow)
+
+        QMetaObject.connectSlotsByName(MainWindow)
+    # setupUi
+
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+    # retranslateUi
+```
+
+生成的Python代码默认导入了不少模块，但不是所有模块都用得上。不过，默认导入了`QApplication`和`QWidget`，正好也是示例所需的，所以，可以将上面的Python代码放在Python文件的头部，后面直接添加使用Python代码生成UI的其他代码。
+
+生成UI的代码之外，其余部分代码和前面加载UI文件的代码一样：
+
+```python3
+app = QApplication()
+
+# 创建UI的代码
+...
+
+window.psf.setText('click')
+window.psf.clicked.connect(lambda:print('Clicked!'))
+window.show()
+
+app.exec()
+```
+
+重点在于生成UI的其他代码，这里是笔者想到的一种比较简单的方式，不是唯一的方式，读者可以参考其他的教程，灵活使用。
+
+首先就是融合UI类和主窗口控件，创建自定义主窗口控件类：
+
+```python3
+# 创建UI的代码
+# 融合UI类和主窗口控件
+class MyWidget(QWidget,Ui_MainWindow):
+    ...
+```
+
+这里不需要修改、实现任何功能，主要是为了将`Ui_MainWindow`类中生成UI的方法添加至主窗口控件中，
+
+创建自定义主窗口控件：
+
+```python3
+window = MyWidget()
+```
+
+调用生成UI的`setupUi`方法：
+
+```python3
+# 生成UI
+window.setupUi(window)
+```
+
+注意，`setupUi`方法需要接收一个主窗口控件作为参数，用来注册`psf`等属性，如果读者是使用单独的主窗口控件（非自定义），则需要创建`Ui_MainWindow`类实例，并在调用`setupUi`方法传入单独的主窗口控件。笔者这里使用的是融合了UI类和主窗口控件的自定义主窗口控件，因此，传入的是控件自身（为了避免其余代码有较大变化）。
+
+完整代码如下：
+
+```python3
+# UI模块开始
+
+# -*- coding: utf-8 -*-
+
+################################################################################
+## Form generated from reading UI file 'mainy.ui'
+##
+## Created by: Qt User Interface Compiler version 6.9.1
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
+
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QPushButton, QSizePolicy, QWidget)
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        if not MainWindow.objectName():
+            MainWindow.setObjectName(u"MainWindow")
+        MainWindow.resize(400, 300)
+        self.psf = QPushButton(MainWindow)
+        self.psf.setObjectName(u"psf")
+
+        self.retranslateUi(MainWindow)
+
+        QMetaObject.connectSlotsByName(MainWindow)
+    # setupUi
+
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+    # retranslateUi
+
+# UI模块结束
+
+app = QApplication()
+
+# 融合UI类和主窗口控件
+class MyWidget(QWidget,Ui_MainWindow):
+    ...
+
+window = MyWidget()
+
+# 生成UI
+window.setupUi(window)
+
+window.psf.setText('click')
+window.psf.clicked.connect(lambda:print('Clicked!'))
+window.show()
+
+app.exec()
+```
+
+如果读者是一步步手敲代码的话，就会发现写完生成UI的代码之后，`window`对象的智能提示（需要编辑器支持）中多了`psf`属性：
+
+![2025_9_10](qt_for_python.assets/2025_9_10.png)
+
+### 9.4 加载UI字符串
+
+和加载QML类似，UI也可以通过字符串加载，但是要求比较严苛（主要是因为XML格式要求）：多行字符串的首行不能是空行。
+
+UI字符串如下（创建为Python字符串对象）：
+
+```python3
+# UI字符串，首行不能为空行（XML格式要求）
+ui_str = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QWidget" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Main</string>
+  </property>
+  <widget class="QPushButton" name="psf"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+```
+
+和前面使用QML字符串的思路一样，将字符串写入临时文件，加载UI字符串变成加载UI文件，是最简单的。
+
+使用`tempfile`模块创建临时文件：
+
+```python3
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
+
+# UI字符串，首行不能为空行（XML格式要求）
+ui_str = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QWidget" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Main</string>
+  </property>
+  <widget class="QPushButton" name="psf"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+
+app = QApplication()
+
+# 写入临时文件
+import tempfile
+with tempfile.NamedTemporaryFile(delete=False) as ui_file:
+    ui_file.write(ui_str.encode())
+
+window = QUiLoader().load(ui_file.name)
+
+# 删除临时文件
+import os
+os.remove(ui_file.name)
+# 或者 os.unlink(ui_file.name)
+
+window.psf.setText('click')
+window.psf.clicked.connect(lambda:print('Clicked!'))
+window.show()
+
+app.exec()
+```
+
+使用`QTemporaryFile`类创建临时文件：
+
+```python3
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QTemporaryFile
+
+# UI字符串，首行不能为空行（XML格式要求）
+ui_str = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QWidget" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Main</string>
+  </property>
+  <widget class="QPushButton" name="psf"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+
+app = QApplication()
+
+# 写入临时文件
+ui_file = QTemporaryFile()
+if ui_file.open():
+    ui_file.write(ui_str.encode())
+    ui_file.close()
+    # 或者使用 qml_file.flush() 写入磁盘文件
+
+window = QUiLoader().load(ui_file)
+window.psf.setText('click')
+window.psf.clicked.connect(lambda:print('Clicked!'))
+window.show()
+
+app.exec()
+```
+
+`QUiLoader`类的`load`方法也支持另一种非文件方式加载UI字符串，但需要借助`QBuffer`类（使用`from PySide6.QtCore import QBuffer`导入）的帮忙：使用`setData`方法，给`QBuffer`类实例设置数据为编码之后的UI字符串。核心代码如下：
+
+```python3
+# 构建buffer、设置数据、打开buffer必须分步
+buffer = QBuffer()
+buffer.setData(ui_str.encode())
+
+window = QUiLoader().load(buffer)
+```
+
+创建了`window`对象之后，就和正常加载UI文件一样了。
+
+完整代码如下：
+
+```python3
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QBuffer
+
+# UI字符串，首行不能为空行（XML格式要求）
+ui_str = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QWidget" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Main</string>
+  </property>
+  <widget class="QPushButton" name="psf"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+
+app = QApplication()
+
+# 构建buffer、设置数据、打开buffer必须分步
+buffer = QBuffer()
+buffer.setData(ui_str.encode())
+
+window = QUiLoader().load(buffer)
+window.psf.setText('click')
+window.psf.clicked.connect(lambda:print('Clicked!'))
+window.show()
+
+app.exec()
+```
+
+## 10 QtQuick程序的模块（QML模块）
 
 除了直接导入QML文件这种使用QML文件的方式，还可以将QML文件包装为模块（QML模块），通过导入模块的方式使用QML文件。
 
@@ -2462,7 +2611,7 @@ window2.show()
 app.exec()
 ```
 
-（运行截图）
+![2025_10_1](qt_for_python.assets/2025_10_1.png)
 
 ### 10.3 模块的自定义属性
 
@@ -2623,9 +2772,9 @@ window2.show()
 app.exec()
 ```
 
-（运行截图）
+![2025_10_2](qt_for_python.assets/2025_10_2.png)
 
-## 11 在QML中使用Python对象（更新中）
+## 11 在QML中使用Python对象
 
 想要在QML中使用Python对象，必须要先获取上下文对象（通过引擎对象的`rootContext`方法获取），然后在上下文对象中注册`Property`属性，才能在QML中使用该属性对应的Python对象。
 
@@ -2681,8 +2830,6 @@ root = view.engine().rootContext()
 
 app.exec()
 ```
-
-
 
 `QQuickWidget`获取上下文对象：
 
@@ -2743,8 +2890,6 @@ window2.show()
 app.exec()
 ```
 
-
-
 `QQmlApplicationEngine`获取上下文对象：
 
 ```python3
@@ -2797,9 +2942,11 @@ window2.show()
 app.exec()
 ```
 
+### 11.2 注册`Property`属性（更新中，需要优化前言，补充正文、扩展内容）
 
 
-### 11.2 注册`Property`属性
+
+
 
 使用上下文对象的`setContextObject`方法注册一个`QObject`的`Property`属性：
 
@@ -2992,7 +3139,7 @@ app.exec()
 
 
 
-## 12 控件的样式（更新中）
+## 12 控件的样式（更新中，需要从大纲开始构思）
 
 
 
@@ -3022,19 +3169,19 @@ https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.PenStyl
 
 
 
-## 12 具体控件——`QPushButton`（更新中）
+## 13 具体控件——`QPushButton`（更新中）
 
 
 
 
 
-## 12 具体控件——`QMessageBox`（更新中）
+## 13 具体控件——`QMessageBox`（更新中）
 
 
 
 
 
-## 12 具体控件——`QTextEdit`（更新中）
+## 13 具体控件——`QTextEdit`（更新中）
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
 

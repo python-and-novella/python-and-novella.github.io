@@ -2776,7 +2776,7 @@ app.exec()
 
 ## 11 在QML中使用Python对象
 
-想要在QML中使用Python对象，必须要先获取上下文对象（通过引擎对象的`rootContext`方法获取），然后在上下文对象中注册`Property`属性，才能在QML中使用该属性对应的Python对象。
+想要在QML中使用Python对象（仅限`QObject`类，下文中未做特别说明的话，默认为`QObject`类的派生类对象），必须要先获取上下文对象（通过引擎对象的`rootContext`方法获取），然后在上下文对象中注册`Property`属性，才能在QML中使用该属性对应的Python对象。
 
 ### 11.1 获取上下文对象
 
@@ -2942,13 +2942,54 @@ window2.show()
 app.exec()
 ```
 
-### 11.2 注册`Property`属性（更新中，需要优化前言，补充正文、扩展内容）
+### 11.2 注册`Property`属性
 
+获取了上下文对象之后，就可以通过调用上下文对象的方法，将Python中的对象注册为`Property`属性，在QML中使用。
 
+但在此之前，需要明确一下注册`Property`属性的目的：点击QtQuick控件中的按钮退出程序。
 
+可能有的读者有一定基础，知道这种操作不需要注册属性，直接使用`Qt.quit()`即可。对于`QQmlApplicationEngine`控件来说，是最简单的，甚至不用在QML中导入`QtQml`（使用`import QtQml`）。不过，对于`QQuickView`控件和`QQuickWidget`控件来说，想要使用`Qt.quit()`，光导入`QtQml`（使用`import QtQml`）还不够，还需要将这些控件的引擎对象的`quit`信号与程序类实例的`quit`方法连接，才能响应操作。
 
+即便如此，注册`Property`属性的操作也不比上面的操作简单，那为何还要这样做？
 
-使用上下文对象的`setContextObject`方法注册一个`QObject`的`Property`属性：
+这里的“点击QtQuick控件中的按钮退出程序”是一个简单的目标，其本质上相当于使用Python中的任意对象，只不过为了让结果更直观，笔者才会使用一个QML可以实现的功能作为示例，主要是为了将程序类实例注册为`Property`属性。
+
+另外，如果将程序类实例注册为`Property`属性，不仅可以更加简单地退出程序，其他将程序类实例的方法、属性也能使用，对于不完全熟悉QML的开发者来说，这样操作反而能省不少事。
+
+为了让示例尽量简单，下面的示例均采用`QQmlApplicationEngine`控件作为主窗口控件，并且内嵌了QML字符串。
+
+想要将Python中的对象注册为`Property`属性，可以使用上下文对象支持的这几种方法：
+
+- `setContextObject`方法，只能注册`QObject`的`Property`属性。
+- `setContextProperty`方法，可以将任意对象注册为`Property`属性。每次执行只能注册一个属性，注册时可以指定属性名。
+- `setContextProperties`方法，可以将任意对象注册为`Property`属性。每次执行可以注册多个属性，注册时可以指定属性名。
+
+先说`setContextObject`方法，因为只能注册`QObject`的`Property`属性，所以，需要手动构建符合要求的对象。
+
+导入相关类：
+
+```python3
+from PySide6.QtCore import QObject,Property
+```
+
+创建自定义类（继承自`QObject`类）：
+
+```python3
+class Obj(QObject):
+    def __init__(self):
+        super().__init__()
+        # 这里的app是全局中的程序类实例
+        self._app = app
+    app = Property(
+        object,
+        fget=lambda self:self._app,
+        fset=lambda self,value:setattr(self,'_app',app)
+    )
+```
+
+在自定义类中，先在初始化方法中，获取全局中的程序类实例，将其赋值给普通的实例属性`_app`。然后，在类中单独创建名为`app`的`Property`类实例，这个名为`app`的`Property`类实例就是后续用于注册的`QObject`的`Property`属性。`Property`类的`fget`参数表示属性的读取方法（返回实例属性`_app`），`fset`参数表示属性的赋值方法（修改实例属性`_app`）。属性的读取方法是必需的，属性的赋值方法可以省略，省略的话表示该属性是只读属性。
+
+然后，就可以使用上下文对象的`setContextObject`方法注册这个自定义类的实例了：
 
 ```python3
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
@@ -2995,6 +3036,7 @@ root = engine.rootContext()
 class Obj(QObject):
     def __init__(self):
         super().__init__()
+        # 这里的app是全局中的程序类实例
         self._app = app
     app = Property(
         object,
@@ -3012,9 +3054,9 @@ window2.show()
 app.exec()
 ```
 
+![2025_11_1](qt_for_python.assets/2025_11_1.png)
 
-
-使用上下文对象的`setContextProperty`方法一次注册一个`Property`属性为任意对象：
+相比之下，使用上下文对象的`setContextProperty`方法就简单不少。该方法的第一位置参数为字符串类型，表示属性名；第二位置参数表示该属性对应的对象（`QObject`类的派生类对象）：
 
 ```python3
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
@@ -3069,9 +3111,41 @@ window2.show()
 app.exec()
 ```
 
+`setContextProperty`方法简单，但也不是完美的。如前面所写，如果想要注册多个属性，则需要多次调用`setContextProperty`方法才行。
 
+使用上下文对象的`setContextProperties`方法的话，就可以一次注册多个`Property`属性。
 
-使用上下文对象的`setContextProperties`方法一次注册多个`Property`属性为任意对象：
+`setContextProperties`方法接收元素为`PropertyPair`类型的序列对象（元素排列有先后顺序的可迭代对象），但是，`PropertyPair`类不能直接使用，需要做一点额外的工作。
+
+首先，导入`QQmlContext`类（`PropertyPair`类嵌在该类中）：
+
+```python3
+from PySide6.QtQml import QQmlContext
+```
+
+然后继承`QQmlContext.PropertyPair`，创建自定义类（可以与`PropertyPair`类同名，也可以是其他名字），并添加如下的初始化方法（参数和`setContextProperty`方法一样）：
+
+```python3
+# 使用PropertyPair类
+class PropertyPair(QQmlContext.PropertyPair):
+    def __init__(self,name:str,value:object):
+        super().__init__()
+        self.name = name
+        self.value = value
+```
+
+这样，才能使用`setContextProperties`方法，一次注册多个`Property`属性（这里为了让其余代码和前面的示例保持一致，只注册一个）：
+
+```python3
+# 一次注册多个属性（Property）到QML全局
+root.setContextProperties(
+    [
+        PropertyPair('app',app)
+    ]
+)
+```
+
+完整示例如下：
 
 ```python3
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
@@ -3137,13 +3211,21 @@ window2.show()
 app.exec()
 ```
 
-
-
-## 12 控件的样式（更新中，需要从大纲开始构思）
-
-
+## 12 控件的样式（QSS）（更新中，需要从大纲开始构思）
 
 控件相关方法：style，styleSheet，setStyle，setStyleSheet
+
+入门教程：
+
+https://doc.qt.io/qtforpython-6/tutorials/basictutorial/widgetstyling.html#tutorial-widgetstyling
+
+基础教程：
+
+https://doc.qt.io/qt-6/stylesheet.html
+
+基础语法：
+
+https://doc.qt.io/qt-6/stylesheet-syntax.html
 
 
 

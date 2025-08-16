@@ -3211,59 +3211,122 @@ window2.show()
 app.exec()
 ```
 
-## 12 控件的样式（QSS）（更新中，需要从大纲开始构思）
+## 12 控件的样式（QSS）（更新中）
 
-控件相关方法：style，styleSheet，setStyle，setStyleSheet
+### 12.1 为什么要用样式
 
-入门教程：
+在正式学习样式之前，先通过几个示例了解一下为什么要用样式，以及样式的用途。
 
-https://doc.qt.io/qtforpython-6/tutorials/basictutorial/widgetstyling.html#tutorial-widgetstyling
+第一个示例需要借用前面加载UI文件的示例，在Python代码中使用控件的`setFixedSize`方法修改控件的样式（大小）：
 
-基础教程：
+```python
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
 
-https://doc.qt.io/qt-6/stylesheet.html
+app = QApplication()
+window = QUiLoader().load('main.ui')
+window.psf.setText('click')
 
-基础语法：
+# 设置控件的样式（大小）
+window.psf.setFixedSize(100,50)
 
-https://doc.qt.io/qt-6/stylesheet-syntax.html
+window.show()
+app.exec()
+```
+
+在控件所有的方法中，'set'开头的方法可以设置控件的属性，包括控件的样式。比如`setFixedSize`方法就是用来设置控件固定大小的，因此，原本比较紧凑的按钮会变成指定大小：
+
+![2025_12_1](qt_for_python.assets/2025_12_1.png)
+
+当然，除了在代码中调用Python接口设置控件的大小，还可以在修改UI文件时设置控件`geometry`属性中的宽度、高度：
+
+![2025_12_2](qt_for_python.assets/2025_12_2.png)
+
+除了上面两种方法，修改控件的样式表，也能实现相同的效果。
+
+将`geometry`属性初始化，右键控件，选择改变样式表，输入如下内容：
+
+![2025_12_3](qt_for_python.assets/2025_12_3.png)
+
+控件大小也会随之改变。
+
+此外，如果修改主窗口控件的样式表（但是要删掉按钮的样式表）如下：
+
+```css
+QPushButton {
+    width: 100;
+	height: 50;                  
+}
+```
+
+样式生效范围就会变成主窗口控件的所有子控件。
+
+使用下面的代码，添加三个新的按钮，但是移动它们的位置、完全不设置它们的大小的话，它们默认的大小都会遵守样式表中的规则：
+
+```python3
+from PySide6.QtWidgets import QApplication,QPushButton
+from PySide6.QtUiTools import QUiLoader
+
+app = QApplication()
+window = QUiLoader().load('main.ui')
+window.psf.setText('click')
+
+QPushButton('click2',window).move(108,0)
+QPushButton('click3',window).move(0,58)
+QPushButton('click4',window).move(108,58)
+
+window.show()
+app.exec()
+```
+
+![2025_12_4](qt_for_python.assets/2025_12_4.png)
+
+如上图所示，新添加的按钮默认尺寸与已有按钮的尺寸一致，这就是使用样式的方便之处：可以通过这样操作统一所有子控件的样式，不用单独设置每个子控件。
+
+### 12.2 样式的基本语法
+
+介绍完使用样式的方便之处，接下来，简单说一下样式的基本语法。
+
+需要深入学习的读者可以参考官方提供的资料：
+
+- 入门教程：https://doc.qt.io/qtforpython-6/tutorials/basictutorial/widgetstyling.html#tutorial-widgetstyling
+- 基础教程：https://doc.qt.io/qt-6/stylesheet.html
+- 基础语法：https://doc.qt.io/qt-6/stylesheet-syntax.html
+- 样式手册：https://doc.qt.io/qt-6/stylesheet-reference.html
+
+基于官方提供的资料和前面的示例可以得知，Qt的样式语法类似CSS，Qt称之为QSS。和CSS一样，QSS也是使用`选择器 { 样式类型: 样式值;}`的格式定义样式。
 
 
 
-以及样式的语法
+### 12.3 在Python代码中使用样式（QSS字符串）
 
-基类：
+除了在UI文件中设置样式，还可以将样式写入文件或者字符串，使用Python接口修改控件的样式。
 
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyle.html#PySide6.QtWidgets.QStyle
-
-https://doc.qt.io/qt-6/zh/qstyle.html
-
-
-
-扩展内容
-
-内容的样式
-
-除了控件的样式对象，具体某些内容也有样式（'Style'为后缀的类），比如笔迹的样式（`PenStyle`）：
-
-https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.PenStyle
-
-简单写个对比的示例
-
-
-
-## 13 具体控件——`QPushButton`（更新中）
+控件相关方法：styleSheet，setStyleSheet
 
 
 
 
 
-## 13 具体控件——`QMessageBox`（更新中）
+
+
+## 13 具体控件——按钮类控件（QAbstractButton的衍生控件，比如`QPushButton`）（更新中）
+
+
+
+
+
+## 13 具体控件——显示一个对话框（比如`QMessageBox`）（更新中）
 
 
 
 
 
 ## 13 具体控件——`QTextEdit`（更新中）
+
+
+
+
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
 

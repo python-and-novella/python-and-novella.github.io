@@ -35,11 +35,11 @@ pyside6-uv-app v0.1.0
 
 PySide6（6.9.x版本）提供了很多模块，但不是所有模块都常用，其中，常用（狭义概念）的模块为：
 
-- `QtCore`模块，包含Qt框架中与GUI功能无关的核心类（具体参考https://doc.qt.io/qt-6/qtcore-module.html）。
-- `QtGui`模块，包含Qt框架中与GUI功能相关的核心类（具体参考https://doc.qt.io/qt-6/qtgui-module.html）。
-- `QtWidgets`模块，包含创建传统控件（使用C++设计的类似原生的控件）所需的类（具体参考https://doc.qt.io/qt-6/qtwidgets-module.html）。
-- `QtQuick`模块，包含创建新式控件（使用QML设计的类似网页的控件）所需的类（具体参考https://doc.qt.io/qt-6/qtquick-module.html）。
-- `QtQml`模块，提供了解析、处理QML所需的类（通常与`QtQuick`模块一起使用，具体参考https://doc.qt.io/qt-6/qtqml-module.html）。
+- `QtCore`模块，包含Qt框架中与GUI功能无关的核心类（具体参考https://doc.qt.io/qt-6/zh/qtcore-module.html）。
+- `QtGui`模块，包含Qt框架中与GUI功能相关的核心类（具体参考https://doc.qt.io/qt-6/zh/qtgui-module.html）。
+- `QtWidgets`模块，包含创建传统控件（使用C++设计的类似原生的控件）所需的类（具体参考https://doc.qt.io/qt-6/zh/qtwidgets-module.html）。
+- `QtQuick`模块，包含创建新式控件（使用QML设计的类似网页的控件）所需的类（具体参考https://doc.qt.io/qt-6/zh/qtquick-module.html）。
+- `QtQml`模块，提供了解析、处理QML所需的类（通常与`QtQuick`模块一起使用，具体参考https://doc.qt.io/qt-6/zh/qtqml-module.html）。
 
 需要注意的是，不同开发目的所需的模块不尽相同，对于“常用”的理解也有所不同。这里的“常用”为狭义概念，是指创建简单桌面程序时必需的模块。如果涉及到其他功能（比如嵌入网页），则其他模块（与网页视图控件相关的模块）也会成为必需，因此常用的模块不是固定的几个模块，视具体情况而定。
 
@@ -831,7 +831,7 @@ app.exec()
 
 对于事件而言，想要定义按钮点击的响应函数，需要先知道点击按钮之后触发的事件是什么。
 
-不同于信号的查询简单，想要知道按钮支持的事件，难度增加不少，需要访问Qt的C++相关文档（ https://doc.qt.io/qt-6/qwidget.html#protected-functions 、 https://doc.qt.io/qt-6/qabstractbutton.html#reimplemented-protected-functions 和 https://doc.qt.io/qt-6/qpushbutton.html#reimplemented-protected-functions ），才能知道`QAbstractButton`控件支持的事件（或者通过智能提示或者模块的`pyi`文件查询）。具体事件这里就不做解释了，只说一下事件中没有类似`clicked`信号的事件，只有与`pressed`信号相同的`mousePressEvent`事件（鼠标按键按下时触发），以及与`released`信号相同的`mouseReleaseEvent`事件（鼠标按键弹起时触发）。
+不同于信号的查询简单，想要知道按钮支持的事件，难度增加不少，需要访问Qt的C++相关文档（ https://doc.qt.io/qt-6/zh/qwidget.html#protected-functions 、 https://doc.qt.io/qt-6/zh/qabstractbutton.html#reimplemented-protected-functions 和 https://doc.qt.io/qt-6/zh/qpushbutton.html#reimplemented-protected-functions ），才能知道`QAbstractButton`控件支持的事件（或者通过智能提示或者模块的`pyi`文件查询）。具体事件这里就不做解释了，只说一下事件中没有类似`clicked`信号的事件，只有与`pressed`信号相同的`mousePressEvent`事件（鼠标按键按下时触发），以及与`released`信号相同的`mouseReleaseEvent`事件（鼠标按键弹起时触发）。
 
 通过同类事件、信号的名称对比，想必读者已经看出二者的部分区别。信号主要是控件发出信号，相关概念偏向顶层；事件通常是设备、控件触发事件，相关概念偏向底层。
 
@@ -1192,12 +1192,12 @@ app.exec()
 
 QtQuick程序不如QtWidgets程序“历史悠久”，相关资料比较少，因此，这里提供了一些可能会用到的参考资料：
 
-- QtQuick基础文档：https://doc.qt.io/qt-6/qtquick-index.html
-- QML基础文档：https://doc.qt.io/qt-6/qmlreference.html
-- QtQuick的基本类型：https://doc.qt.io/qt-6/qtquick-qmlmodule.html
-- QtQuick常用控件的基本类型：https://doc.qt.io/qt-6/qtquick-controls-qmlmodule.html
-- QtQuick对话框的基本类型：https://doc.qt.io/qt-6/qtquick-dialogs-qmlmodule.html
-- QtQml的基本类型：https://doc.qt.io/qt-6/qtqml-qmlmodule.html
+- QtQuick基础文档：https://doc.qt.io/qt-6/zh/qtquick-index.html
+- QML基础文档：https://doc.qt.io/qt-6/zh/qmlreference.html
+- QtQuick的基本类型：https://doc.qt.io/qt-6/zh/qtquick-qmlmodule.html
+- QtQuick常用控件的基本类型：https://doc.qt.io/qt-6/zh/qtquick-controls-qmlmodule.html
+- QtQuick对话框的基本类型：https://doc.qt.io/qt-6/zh/qtquick-dialogs-qmlmodule.html
+- QtQml的基本类型：https://doc.qt.io/qt-6/zh/qtqml-qmlmodule.html
 
 相关的QtQuick程序基础和QML基础这里不做太多展开，本章只介绍QtQuick程序中的两种主窗口控件，如果想要深入学习和了解更多基础知识，可以自行学习上面提供的参考资料，或者期待后续专门的章节。
 
@@ -1768,7 +1768,7 @@ engine.loadData(qml_src.encode('utf-8'),QUrl())
 app.exec()
 ```
 
-可以看到，在`QQmlApplicationEngine`控件加载QML字符串的示例中，虽然只导入了`QtQuick.Window`模块，没有主动导入其他相关模块，但依然可以使用除了`Window`类型之外的其他类型，比如示例中的`Rectangle`类型和`Text`类型。这是因为在`QQmlApplicationEngine`控件或者`QQmlEngine`控件中，涉及到QML文件时，会自动注册`QtQuick`模块直属的类型（https://doc.qt.io/qt-6/qtquick-qmlmodule.html#object-types）和`QtQml`模块直属的类型（https://doc.qt.io/qt-6/qtqml-qmlmodule.html#object-types），这些类型无需手动导入`QtQuick`模块和`QtQml`模块即可使用。
+可以看到，在`QQmlApplicationEngine`控件加载QML字符串的示例中，虽然只导入了`QtQuick.Window`模块，没有主动导入其他相关模块，但依然可以使用除了`Window`类型之外的其他类型，比如示例中的`Rectangle`类型和`Text`类型。这是因为在`QQmlApplicationEngine`控件或者`QQmlEngine`控件中，涉及到QML文件时，会自动注册`QtQuick`模块直属的类型（https://doc.qt.io/qt-6/zh/qtquick-qmlmodule.html#object-types）和`QtQml`模块直属的类型（https://doc.qt.io/qt-6/zh/qtqml-qmlmodule.html#object-types），这些类型无需手动导入`QtQuick`模块和`QtQml`模块即可使用。
 
 不过，`Window`类型只是在当前Qt版本（6.x）划分为`QtQuick`模块的直属类型，底层为了兼容旧版本（5.x）还是将其算作原来独立模块（`QtQuick.Window`）的类型，依然需要导入对应的模块才能使用，不会自动注册。不过，在当前Qt版本中，因为其被划分为`QtQuick`模块的直属类型，只是导入`QtQuick`模块的话也可以使用（相当于主动注册所有直属类型）。要验证的话也简单，将为了使用`Window`类型而不得不添加的导入语句改为`import QtQuick`，`Window`类型依然可以正常使用：
 
@@ -2654,7 +2654,7 @@ Window {
 
 这样，原本只能直接使用的模块就多了三个自定义属性：`my_text`、`my_color`、`my_title`。
 
-自定义属性的相关语法可以参考 https://doc.qt.io/qt-6/qtqml-syntax-objectattributes.html。
+自定义属性的相关语法可以参考 https://doc.qt.io/qt-6/zh/qtqml-syntax-objectattributes.html。
 
 这里简单介绍一下示例中用到的部分语法。
 
@@ -3211,7 +3211,7 @@ window2.show()
 app.exec()
 ```
 
-## 12 控件的样式（QSS）（更新中）
+## 12 控件的样式表（QSS）（更新中）
 
 ### 12.1 为什么要用样式
 
@@ -3234,7 +3234,7 @@ window.show()
 app.exec()
 ```
 
-在控件所有的方法中，'set'开头的方法可以设置控件的属性，包括控件的样式。比如`setFixedSize`方法就是用来设置控件固定大小的，因此，原本比较紧凑的按钮会变成指定大小：
+在控件所有的方法中，'set'开头的方法可以设置控件的控件属性（即UI文件中设置的属性，对应XML格式的UI文件中的`property`节点及其子节点），包括控件的样式。比如`setFixedSize`方法就是用来设置控件固定大小的，因此，原本比较紧凑的按钮会变成指定大小：
 
 ![2025_12_1](qt_for_python.assets/2025_12_1.png)
 
@@ -3250,7 +3250,7 @@ app.exec()
 
 控件大小也会随之改变。
 
-此外，如果修改主窗口控件的样式表（但是要删掉按钮的样式表）如下：
+此外，如果修改主窗口控件的样式表如下（但是要删掉按钮的样式表）：
 
 ```css
 QPushButton {
@@ -3259,7 +3259,7 @@ QPushButton {
 }
 ```
 
-样式生效范围就会变成主窗口控件的所有子控件。
+样式表生效范围就会变成主窗口控件的所有子控件。
 
 使用下面的代码，添加三个新的按钮，但是移动它们的位置、完全不设置它们的大小的话，它们默认的大小都会遵守样式表中的规则：
 
@@ -3281,32 +3281,329 @@ app.exec()
 
 ![2025_12_4](qt_for_python.assets/2025_12_4.png)
 
-如上图所示，新添加的按钮默认尺寸与已有按钮的尺寸一致，这就是使用样式的方便之处：可以通过这样操作统一所有子控件的样式，不用单独设置每个子控件。
+如上图所示，新添加的按钮默认尺寸与已有按钮的尺寸一致，这就是使用样式表的方便之处：可以通过这样操作统一所有子控件的样式，不用单独设置每个子控件。
 
-### 12.2 样式的基本语法
+### 12.2 样式的基本语法与使用样式表（QSS字符串）的方法
 
-介绍完使用样式的方便之处，接下来，简单说一下样式的基本语法。
+介绍完使用样式表的方便之处，接下来，简单说一下样式的基本语法。
 
 需要深入学习的读者可以参考官方提供的资料：
 
 - 入门教程：https://doc.qt.io/qtforpython-6/tutorials/basictutorial/widgetstyling.html#tutorial-widgetstyling
-- 基础教程：https://doc.qt.io/qt-6/stylesheet.html
-- 基础语法：https://doc.qt.io/qt-6/stylesheet-syntax.html
-- 样式手册：https://doc.qt.io/qt-6/stylesheet-reference.html
+- 基础教程：https://doc.qt.io/qt-6/zh/stylesheet.html
+- 基础语法：https://doc.qt.io/qt-6/zh/stylesheet-syntax.html
+- 样式手册：https://doc.qt.io/qt-6/zh/stylesheet-reference.html
 
 基于官方提供的资料和前面的示例可以得知，Qt的样式语法类似CSS，Qt称之为QSS。和CSS一样，QSS也是使用`选择器 { 样式类型: 样式值;}`的格式定义样式。
 
+以下为相关基础的参考资料：
+
+- 样式类型：https://doc.qt.io/qt-6/zh/stylesheet-reference.html#list-of-properties
+- 样式值：https://doc.qt.io/qt-6/zh/stylesheet-reference.html#list-of-property-types
+- 选择器类型：https://doc.qt.io/qt-6/zh/stylesheet-syntax.html#selector-types
+- 内部子控件：https://doc.qt.io/qt-6/zh/stylesheet-reference.html#list-of-sub-controls
+- 伪类（状态类）：https://doc.qt.io/qt-6/zh/stylesheet-reference.html#list-of-pseudo-states
+
+但在学习基础之前，需要先学习一下使用样式表（QSS字符串）的方法`setStyleSheet`。
+
+除了在UI文件中设置样式表，还可以将样式表写入文件或者字符串，使用Python接口设置控件的样式表（QSS字符串）。能实现此功能的，就是控件的`setStyleSheet`方法。
+
+知道了使用样式表（QSS字符串）的方法，下一步，就是改造一下前面演示样式的示例。使用独立的UI文件，每次启动QtDesigner、在UI文件中修改样式表属实麻烦，那就将UI文件编译为Python代码，然后简化无用的代码。最后，将控件的样式表字符串传给`setStyleSheet`方法，本章最开始的示例将变成这样：
+
+```python3
+from PySide6.QtCore import QCoreApplication,QMetaObject
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        if not MainWindow.objectName():
+            MainWindow.setObjectName(u"MainWindow")
+        MainWindow.resize(400, 300)
+        self.psf = QPushButton(MainWindow)
+        self.psf.setObjectName(u"psf")
+        self.retranslateUi(MainWindow)
+        QMetaObject.connectSlotsByName(MainWindow)
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+
+app = QApplication()
+class MyWidget(QWidget, Ui_MainWindow):...
+window = MyWidget()
+window.setupUi(window)
+window.psf.setText('click')
+
+# 样式字符串
+style_str = '''
+QPushButton {
+    width: 100;
+    height: 50;
+}
+'''
+
+# 设置控件的样式表（全局生效）
+window.setStyleSheet(style_str)
+
+# 添加一个新的控件
+button = QPushButton('click2',window)
+button.move(0,58)
+
+window.show()
+app.exec()
+```
+
+![2025_12_5](qt_for_python.assets/2025_12_5.png)
+
+接下来，基于这个示例，开始学习样式的基本语法。
+
+先说选择器，QSS支持的选择器种类有以下几种：
+
+- 通用选择器，使用星号`*`表示，表明样式适用于生效范围内所有的控件。
+
+- 类型选择器，使用控件的类名表示，表明样式适用于该控件（控件类的实例）及其衍生控件（衍生类的实例）。示例如下（`QPushButton`类继承自`QAbstractButton`类）：
+
+  ```python3
+  from PySide6.QtCore import QCoreApplication,QMetaObject
+  from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+  
+  class Ui_MainWindow(object):
+      def setupUi(self, MainWindow):
+          if not MainWindow.objectName():
+              MainWindow.setObjectName(u"MainWindow")
+          MainWindow.resize(400, 300)
+          self.psf = QPushButton(MainWindow)
+          self.psf.setObjectName(u"psf")
+          self.retranslateUi(MainWindow)
+          QMetaObject.connectSlotsByName(MainWindow)
+      def retranslateUi(self, MainWindow):
+          MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+  
+  app = QApplication()
+  class MyWidget(QWidget, Ui_MainWindow):...
+  window = MyWidget()
+  window.setupUi(window)
+  window.psf.setText('click')
+  
+  # 样式字符串
+  style_str = '''
+  QAbstractButton {
+      width: 100;
+      height: 50;
+  }
+  '''
+  
+  # 设置控件的样式表
+  window.setStyleSheet(style_str)
+  
+  # 添加一个新的控件
+  button = QPushButton('click2',window)
+  button.move(0,58)
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_12_5](qt_for_python.assets/2025_12_5.png)
+
+- 属性选择器，使用`[{属性名}={属性值（字符串类型）}]`表示，表明样式适用于控件属性（只能匹配部分值可以转换为字符串的属性）为指定值的控件。比如，匹配`text`属性为`'click2'`的控件：
+
+  ```python3
+  from PySide6.QtCore import QCoreApplication,QMetaObject
+  from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
+  
+  class Ui_MainWindow(object):
+      def setupUi(self, MainWindow):
+          if not MainWindow.objectName():
+              MainWindow.setObjectName(u"MainWindow")
+          MainWindow.resize(400, 300)
+          self.psf = QPushButton(MainWindow)
+          self.psf.setObjectName(u"psf")
+          self.retranslateUi(MainWindow)
+          QMetaObject.connectSlotsByName(MainWindow)
+      def retranslateUi(self, MainWindow):
+          MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+  
+  app = QApplication()
+  class MyWidget(QWidget, Ui_MainWindow):...
+  window = MyWidget()
+  window.setupUi(window)
+  window.psf.setText('click')
+  
+  # 样式字符串
+  style_str = '''
+  [text='click2'] {
+      width: 100;
+      height: 50;
+  }
+  '''
+  
+  # 设置控件的样式表
+  window.setStyleSheet(style_str)
+  
+  # 添加一个新的控件
+  button = QPushButton('click2',window)
+  button.move(0,58)
+  
+  # 添加一个新的控件
+  button2 = QToolButton(window)
+  button2.move(0,116)
+  button2.setText('click2')
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_12_6](qt_for_python.assets/2025_12_6.png)
+
+  需要注意的是，只有能够转换为字符串的控件属性才能匹配，整数类型直接转换，布尔类型会被转换为`'true'`或者`'false'`。比如，按钮有一个布尔类型的控件属性`flat`，要匹配该控件属性为`True`的控件，选择器要写成`[flat='true']`。
+
+  除了使用`=`精准匹配，对于可以转换为字符串列表的控件属性，还可以使用`~=`进行包含匹配，格式为`[{属性名}~={属性值（字符串类型）}]`，表明样式适用于控件属性（列表类型）包含指定值的控件。
+
+  因为属性选择器包含闭合的括号，所以，括号内可以添加空格来改善表达式的可读性，不会产生语法问题或者歧义。但在括号外，与其他选择器同时使用时，使用空格有特殊含义（对应后代选择器），需要注意空格的使用场景。
+
+  属性选择器除了单独使用，还可以与类型选择器组合使用（之间没有空格），表示在指定控件及其衍生控件中，只有控件属性为（或者包含）指定值的控件应用对应的样式。示例如下：
+
+  ```python3
+  from PySide6.QtCore import QCoreApplication,QMetaObject
+  from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
+  
+  class Ui_MainWindow(object):
+      def setupUi(self, MainWindow):
+          if not MainWindow.objectName():
+              MainWindow.setObjectName(u"MainWindow")
+          MainWindow.resize(400, 300)
+          self.psf = QPushButton(MainWindow)
+          self.psf.setObjectName(u"psf")
+          self.retranslateUi(MainWindow)
+          QMetaObject.connectSlotsByName(MainWindow)
+      def retranslateUi(self, MainWindow):
+          MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+  
+  app = QApplication()
+  class MyWidget(QWidget, Ui_MainWindow):...
+  window = MyWidget()
+  window.setupUi(window)
+  window.psf.setText('click')
+  
+  # 样式字符串
+  style_str = '''
+  QPushButton[text='click2'] {
+      width: 100;
+      height: 50;
+  }
+  '''
+  
+  # 设置控件的样式
+  window.setStyleSheet(style_str)
+  
+  # 添加一个新的控件
+  button = QPushButton('click2',window)
+  button.move(0,58)
+  
+  # 添加一个新的控件表
+  button2 = QToolButton(window)
+  button2.move(0,116)
+  button2.setText('click2')
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_12_7](qt_for_python.assets/2025_12_7.png)
+
+  属性选择器可以与通用选择器（`*`）组合使用，但效果与不组合使用一样，
+
+  如果控件属性在设置了样式表之后发生变化，控件的样式不会实时刷新，需要重新设置样式表才能正确生效。
+
+- 类选择器，给控件的类名前加一个英语句号（`.`），表明样式只适用于该控件（控件类的实例），其效果相当于样式适用于控件属性`class`中包含指定控件类名的控件。比如，`.QPushButton`等效于`[class~='QPushButton']`。示例如下：
+
+  ```python3
+  from PySide6.QtCore import QCoreApplication,QMetaObject
+  from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
+  
+  class Ui_MainWindow(object):
+      def setupUi(self, MainWindow):
+          if not MainWindow.objectName():
+              MainWindow.setObjectName(u"MainWindow")
+          MainWindow.resize(400, 300)
+          self.psf = QPushButton(MainWindow)
+          self.psf.setObjectName(u"psf")
+          self.retranslateUi(MainWindow)
+          QMetaObject.connectSlotsByName(MainWindow)
+      def retranslateUi(self, MainWindow):
+          MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+  
+  app = QApplication()
+  class MyWidget(QWidget, Ui_MainWindow):...
+  window = MyWidget()
+  window.setupUi(window)
+  window.psf.setText('click')
+  
+  # 样式字符串
+  style_str = '''
+  .QPushButton {
+      width: 100;
+      height: 50;
+  }
+  '''
+  
+  # 设置控件的样式表
+  window.setStyleSheet(style_str)
+  
+  # 添加一个新的控件
+  button = QPushButton('click2',window)
+  button.move(0,58)
+  
+  # 添加一个新的控件
+  button2 = QToolButton(window)
+  button2.move(0,116)
+  button2.setText('click2')
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_12_8](qt_for_python.assets/2025_12_8.png)
+
+- ID 选择器，
+
+- 内部子控件选择器，`::{内部子控件名}`，
+
+- 伪类（状态类）选择器，`:{伪类（状态类）}`，
 
 
-### 12.3 在Python代码中使用样式（QSS字符串）
 
-除了在UI文件中设置样式，还可以将样式写入文件或者字符串，使用Python接口修改控件的样式。
+组合器由多个选择器组合而成，可以实现更加复杂的匹配规则。
 
-控件相关方法：styleSheet，setStyleSheet
+- 兼备组合器，无空格，必须是不同类型的选择器、且不能有歧义
+- 任意组合器，`,`
+- 后代组合器，有空格
+- 子代组合器，`>`
 
 
 
 
+
+（思路，主要介绍一下选择器相关的选择器类型、内部子控件（简单说一下，不提供示例）、伪类（状态类））
+
+
+
+
+
+
+
+
+
+## 13 QtWidgets程序的布局（更新中，大纲阶段）
+
+根据QtDesigner中已有的布局控件学习布局的基本用法
+
+
+
+## 13 处理复杂数据——表格
+
+
+
+## 13 处理复杂数据——树形图
 
 
 

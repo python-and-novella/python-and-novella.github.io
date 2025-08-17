@@ -3283,7 +3283,7 @@ app.exec()
 
 如上图所示，新添加的按钮默认尺寸与已有按钮的尺寸一致，这就是使用样式表的方便之处：可以通过这样操作统一所有子控件的样式，不用单独设置每个子控件。
 
-### 12.2 样式的基本语法与使用样式表（QSS字符串）的方法
+### 12.2 使用样式表（QSS字符串）的方法与样式的基本语法
 
 介绍完使用样式表的方便之处，接下来，简单说一下样式的基本语法。
 
@@ -3460,7 +3460,7 @@ app.exec()
 
   因为属性选择器包含闭合的括号，所以，括号内可以添加空格来改善表达式的可读性，不会产生语法问题或者歧义。但在括号外，与其他选择器同时使用时，使用空格有特殊含义（对应后代选择器），需要注意空格的使用场景。
 
-  属性选择器除了单独使用，还可以与类型选择器组合使用（之间没有空格），表示在指定控件及其衍生控件中，只有控件属性为（或者包含）指定值的控件应用对应的样式。示例如下：
+  属性选择器除了单独使用，还可以与类型选择器组合使用（之间没有空格，其实就是兼备组合器），表示在指定控件及其衍生控件中，只有控件属性为（或者包含）指定值的控件应用对应的样式。示例如下：
 
   ```python3
   from PySide6.QtCore import QCoreApplication,QMetaObject
@@ -3564,46 +3564,201 @@ app.exec()
 
   ![2025_12_8](qt_for_python.assets/2025_12_8.png)
 
-- ID 选择器，
+- ID 选择器，给控件`objectName`属性的值前加一个井号（`#`），表明样式适用于控件属性`objectName`为指定值的控件。示例如下：
 
-- 内部子控件选择器，`::{内部子控件名}`，
+  ```python3
+  from PySide6.QtCore import QCoreApplication,QMetaObject
+  from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
+  
+  class Ui_MainWindow(object):
+      def setupUi(self, MainWindow):
+          if not MainWindow.objectName():
+              MainWindow.setObjectName(u"MainWindow")
+          MainWindow.resize(400, 300)
+          self.psf = QPushButton(MainWindow)
+          self.psf.setObjectName(u"psf")
+          self.retranslateUi(MainWindow)
+          QMetaObject.connectSlotsByName(MainWindow)
+      def retranslateUi(self, MainWindow):
+          MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+  
+  app = QApplication()
+  class MyWidget(QWidget, Ui_MainWindow):...
+  window = MyWidget()
+  window.setupUi(window)
+  window.psf.setText('click')
+  
+  # 样式字符串
+  style_str = '''
+  #psf {
+      width: 100;
+      height: 50;
+  }
+  '''
+  
+  # 设置控件的样式表
+  window.setStyleSheet(style_str)
+  
+  # 添加一个新的控件
+  button = QPushButton('click2',window)
+  button.move(0,58)
+  
+  # 添加一个新的控件
+  button2 = QToolButton(window)
+  button2.move(0,116)
+  button2.setText('click2')
+  
+  window.show()
+  app.exec()
+  ```
 
-- 伪类（状态类）选择器，`:{伪类（状态类）}`，
+  ![2025_12_9](qt_for_python.assets/2025_12_9.png)
+
+- 内部子控件选择器，使用`::{内部子控件名}`表示，表明样式适用于指定的内部子控件。这里的内部子控件指的是有些控件的组成部分本质上是单独的控件，所以，可以通过内部子控件选择器进行匹配，设置这些控件的样式。比如，给按钮设置下拉菜单之后，按钮会多出一个菜单指示器，可以使用`::menu-indicator`匹配：
+
+  ```python3
+  from PySide6.QtCore import QCoreApplication,QMetaObject
+  from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
+  
+  class Ui_MainWindow(object):
+      def setupUi(self, MainWindow):
+          if not MainWindow.objectName():
+              MainWindow.setObjectName(u"MainWindow")
+          MainWindow.resize(400, 300)
+          self.psf = QPushButton(MainWindow)
+          self.psf.setObjectName(u"psf")
+          self.retranslateUi(MainWindow)
+          QMetaObject.connectSlotsByName(MainWindow)
+      def retranslateUi(self, MainWindow):
+          MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+  
+  app = QApplication()
+  class MyWidget(QWidget, Ui_MainWindow):...
+  window = MyWidget()
+  window.setupUi(window)
+  window.psf.setText('click')
+  
+  # 样式字符串
+  style_str = '''
+  ::menu-indicator {
+      background: red;
+  }
+  '''
+  
+  # 设置控件的样式表
+  window.setStyleSheet(style_str)
+  
+  # 添加一个新的控件
+  button = QPushButton('click2',window)
+  button.move(0,58)
+  
+  # 给按钮添加下拉菜单
+  from PySide6.QtWidgets import QMenu
+  menu = QMenu()
+  menu.addAction('Hello')
+  button.setMenu(menu)
+  
+  # 添加一个新的控件
+  button2 = QToolButton(window)
+  button2.move(0,116)
+  button2.setText('click2')
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_12_10](qt_for_python.assets/2025_12_10.png)
+
+  内部子控件选择器与其他选择器（伪类选择器除外）组合，成为兼备组合器时，应当放在其他选择器之后。
+
+- 伪类（状态类）选择器，使用`:{伪类（状态类）}`表示，表明样式适用于指定状态（比如，被禁用，被点击）的控件。示例如下：
+
+  ```python3
+  from PySide6.QtCore import QCoreApplication,QMetaObject
+  from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
+  
+  class Ui_MainWindow(object):
+      def setupUi(self, MainWindow):
+          if not MainWindow.objectName():
+              MainWindow.setObjectName(u"MainWindow")
+          MainWindow.resize(400, 300)
+          self.psf = QPushButton(MainWindow)
+          self.psf.setObjectName(u"psf")
+          self.retranslateUi(MainWindow)
+          QMetaObject.connectSlotsByName(MainWindow)
+      def retranslateUi(self, MainWindow):
+          MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+  
+  app = QApplication()
+  class MyWidget(QWidget, Ui_MainWindow):...
+  window = MyWidget()
+  window.setupUi(window)
+  window.psf.setText('click')
+  
+  # 样式字符串
+  style_str = '''
+  :disabled {
+      background: red;
+  }
+  :pressed {
+      background: green;
+  }
+  '''
+  
+  # 设置控件的样式表
+  window.setStyleSheet(style_str)
+  
+  # 添加一个新的控件
+  button = QPushButton('click2',window)
+  button.move(0,58)
+  # 禁用控件
+  button.setDisabled(True)
+  
+  # 添加一个新的控件
+  button2 = QToolButton(window)
+  button2.move(0,116)
+  button2.setText('click2')
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_12_11](qt_for_python.assets/2025_12_11.png)
+
+  伪类选择器与其他选择器（伪类选择器除外）组合，成为兼备组合器时，应当放在其他选择器之后。
+
+除了单独使用选择器，还可以将不同的选择器组合起来（有限制条件，不是自由组合），实现复杂的匹配规则。甚至可以将不同的组合器进一步组合（有限制条件，不是自由组合），实现更加复杂的匹配规则。
+
+在QSS中，可以使用以下几种组合器：
+
+- 兼备组合器，选择器之间无空格，选择器必须是不同类型的，且连接之后不能有歧义（即首尾相连时不能为英文字母直接相连），表明样式适用于同时匹配所有选择器的控件。
+- 后代组合器，选择器之间有空格，---
+- 子代组合器，选择器之间是大于号（`>`），---
+- 任意组合器，选择器、组合器之间是英文逗号（`,`），表明样式适用于可以匹配任意选择器、组合器的控件。
 
 
 
-组合器由多个选择器组合而成，可以实现更加复杂的匹配规则。
+当一个控件同时匹配到不同的选择器、组合器时，想要确定是哪个样式生效，就需要用到选择器、组合器的优先级。
 
-- 兼备组合器，无空格，必须是不同类型的选择器、且不能有歧义
-- 任意组合器，`,`
-- 后代组合器，有空格
-- 子代组合器，`>`
+选择器的优先级为：ID选择器>类选择器>伪类选择器>属性选择器>类型选择器。
 
+组合器的优先级与选择器的优先级相关：按照选择器的优先级顺序，依次对比组合器包含的、相同优先级的选择器数量，数量多的组合器优先级高；如果包含的选择器数量相同，则继续对比次高优先级的选择器数量。
 
+如果优先级相同，则靠下的选择器、组合器优先生效。
 
-
-
-（思路，主要介绍一下选择器相关的选择器类型、内部子控件（简单说一下，不提供示例）、伪类（状态类））
-
-
-
-
-
-
-
-
+和CSS一样，QSS也支持`/*`开头、`*/`结尾的注释方式，可在样式表中添加补充说明的文字。
 
 ## 13 QtWidgets程序的布局（更新中，大纲阶段）
 
-根据QtDesigner中已有的布局控件学习布局的基本用法
+图形界面不是控件的简单堆砌，为了让界面高效、美观，控件应当基于一定规则排布，这个规则就叫布局。
 
 
 
-## 13 处理复杂数据——表格
+（根据QtDesigner中已有的布局控件学习布局的基本用法）
 
 
 
-## 13 处理复杂数据——树形图
+
 
 
 
@@ -3616,6 +3771,14 @@ app.exec()
 ## 13 具体控件——显示一个对话框（比如`QMessageBox`）（更新中）
 
 
+
+
+
+## 13 处理复杂数据——表格
+
+
+
+## 13 处理复杂数据——树形图
 
 
 

@@ -3817,11 +3817,48 @@ app.exec()
 
 图形界面不是控件的简单堆砌，为了让界面高效、美观，控件应当基于一定规则排布，这个规则就叫布局。
 
-
+参考资料：https://doc.qt.io/qt-6/zh/layout.html
 
 （根据QtDesigner中已有的布局控件学习布局的基本用法）
 
+画个布局的示意图：
 
+（草图）
+
+
+
+支持的布局：
+
+QGridLayout
+
+QHBoxLayout
+
+QVBoxLayout
+
+
+
+QBoxLayout
+
+
+
+| 布局类                                                       | 用途                                            |
+| ------------------------------------------------------------ | ----------------------------------------------- |
+| [QBoxLayout](https://doc.qt.io/qt-6/zh/qboxlayout.html)      | 水平或垂直排列子部件                            |
+| [QButtonGroup](https://doc.qt.io/qt-6/zh/qbuttongroup.html)  | 组织按钮部件组的容器                            |
+| [QFormLayout](https://doc.qt.io/qt-6/zh/qformlayout.html)    | 管理输入部件的表格及其相关标签                  |
+| [QGraphicsAnchor](https://doc.qt.io/qt-6/zh/qgraphicsanchor.html) | 代表 QGraphicsAnchorLayout 中两个项目之间的锚点 |
+| [QGraphicsAnchorLayout](https://doc.qt.io/qt-6/zh/qgraphicsanchorlayout.html) | 可在图形视图中将部件锚定在一起的布局            |
+| [QGridLayout](https://doc.qt.io/qt-6/zh/qgridlayout.html)    | 在网格中布局部件                                |
+| [QGroupBox](https://doc.qt.io/qt-6/zh/qgroupbox.html)        | 带有标题的组框                                  |
+| [QHBoxLayout](https://doc.qt.io/qt-6/zh/qhboxlayout.html)    | 水平排列部件                                    |
+| [QLayout](https://doc.qt.io/qt-6/zh/qlayout.html)            | 几何图形管理器的基类                            |
+| [QLayoutItem](https://doc.qt.io/qt-6/zh/qlayoutitem.html)    | QLayout 可操作的抽象项                          |
+| [QSizePolicy](https://doc.qt.io/qt-6/zh/qsizepolicy.html)    | 描述水平和垂直大小调整策略的布局属性            |
+| [QSpacerItem](https://doc.qt.io/qt-6/zh/qspaceritem.html)    | 布局中的空白空间                                |
+| [QStackedLayout](https://doc.qt.io/qt-6/zh/qstackedlayout.html) | 一次只能看到一个部件的部件堆栈                  |
+| [QStackedWidget](https://doc.qt.io/qt-6/zh/qstackedwidget.html) | 同时只有一个部件可见的部件堆栈                  |
+| [QVBoxLayout](https://doc.qt.io/qt-6/zh/qvboxlayout.html)    | 垂直排列部件                                    |
+| [QWidgetItem](https://doc.qt.io/qt-6/zh/qwidgetitem.html)    | 表示部件的布局项                                |
 
 
 
@@ -3917,6 +3954,18 @@ app.exec()
 
 
 ## x 创作灵感（非正式内容）
+
+灵感来源（官方）：
+
+- Qt 入门：https://doc.qt.io/qt-6/zh/gettingstarted.html
+- Qt Core：https://doc.qt.io/qt-6/zh/qtcore-index.html
+- Qt GUI：https://doc.qt.io/qt-6/zh/qtgui-index.html
+- Qt Network：https://doc.qt.io/qt-6/zh/qtnetwork-index.html
+- Qt Quick：https://doc.qt.io/qt-6/zh/qtquick-index.html
+- Qt Widgets：https://doc.qt.io/qt-6/zh/qtwidgets-index.html
+- Qt Test：https://doc.qt.io/qt-6/zh/qttest-index.html
+- Additional Modules：https://doc.qt.io/qt-6/zh/qt-additional-modules.html
+- Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
 
 
 

@@ -3211,7 +3211,7 @@ window2.show()
 app.exec()
 ```
 
-## 12 控件的样式表（QSS）（更新中）
+## 12 控件的样式表（QSS）
 
 ### 12.1 为什么要用样式
 
@@ -3725,18 +3725,72 @@ app.exec()
 
   ![2025_12_11](qt_for_python.assets/2025_12_11.png)
 
-  伪类选择器与其他选择器（伪类选择器除外）组合，成为兼备组合器时，应当放在其他选择器之后。
+  注意，伪类选择器与其他选择器（伪类选择器除外）组合，成为兼备组合器时，应当放在其他选择器之后。
 
 除了单独使用选择器，还可以将不同的选择器组合起来（有限制条件，不是自由组合），实现复杂的匹配规则。甚至可以将不同的组合器进一步组合（有限制条件，不是自由组合），实现更加复杂的匹配规则。
 
 在QSS中，可以使用以下几种组合器：
 
 - 兼备组合器，选择器之间无空格，选择器必须是不同类型的，且连接之后不能有歧义（即首尾相连时不能为英文字母直接相连），表明样式适用于同时匹配所有选择器的控件。
-- 后代组合器，选择器之间有空格，---
-- 子代组合器，选择器之间是大于号（`>`），---
+- 后代组合器，选择器（或者兼备组合器）之间有空格，表明样式适用情况为：控件的父级控件（父控件、父控件的父控件……向上追溯，直至控件没有父控件为止，都算父级控件）匹配空格前的选择器（或者兼备组合器），控件本身匹配空格后的选择器（或者组合器）。如果组合器包含超过两个选择器（或者兼备组合器），则控件本身匹配最后一个的选择器（或者兼备组合器）。
+- 子代组合器，选择器（或者兼备组合器）之间是大于号（`>`），大于号前后的空格、换行会被忽略，表明样式适用情况为：控件的父控件匹配空格前的选择器（或者兼备组合器），控件本身匹配空格后的选择器（或者兼备组合器）。如果组合器包含超过两个选择器（或者兼备组合器），则控件本身匹配最后一个的选择器（或者兼备组合器）。
 - 任意组合器，选择器、组合器之间是英文逗号（`,`），表明样式适用于可以匹配任意选择器、组合器的控件。
 
+因为组合器之间也能组合，构成复合组合器，所以，在编写复合组合器时，还要注意复合组合器的生效原则：
 
+- 有英文逗号（`,`）的，首先划分任意组合器，得到多个选择器、组合器。
+- 有兼备组合器的，将兼备组合器当作选择器处理。
+
+示例如下（后代组合器与子代组合器的区别）：
+
+```python3
+from PySide6.QtCore import QCoreApplication,QMetaObject
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QFrame
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        if not MainWindow.objectName():
+            MainWindow.setObjectName(u"MainWindow")
+        MainWindow.resize(400, 300)
+        self.psf = QPushButton(MainWindow)
+        self.psf.setObjectName(u"psf")
+        self.retranslateUi(MainWindow)
+        QMetaObject.connectSlotsByName(MainWindow)
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main", None))
+
+app = QApplication()
+class MyWidget(QWidget, Ui_MainWindow):...
+window = MyWidget()
+window.setupUi(window)
+window.psf.setText('click')
+
+# 样式字符串
+style_str = '''
+#MainWindow QPushButton {
+    height: 50;
+}
+#MainWindow > QPushButton {
+    width: 100;
+}
+'''
+
+# 设置控件的样式表
+window.setStyleSheet(style_str)
+
+# 添加一个框架控件
+frame = QFrame(window)
+frame.setFixedSize(120,60)
+frame.move(0,58)
+
+# 添加一个新的控件，是框架控件的子控件
+button = QPushButton('click2',frame)
+
+window.show()
+app.exec()
+```
+
+![2025_12_12](qt_for_python.assets/2025_12_12.png)
 
 当一个控件同时匹配到不同的选择器、组合器时，想要确定是哪个样式生效，就需要用到选择器、组合器的优先级。
 
@@ -3744,9 +3798,20 @@ app.exec()
 
 组合器的优先级与选择器的优先级相关：按照选择器的优先级顺序，依次对比组合器包含的、相同优先级的选择器数量，数量多的组合器优先级高；如果包含的选择器数量相同，则继续对比次高优先级的选择器数量。
 
-如果优先级相同，则靠下的选择器、组合器优先生效。
+如果优先级相同，则字QSS中位置靠下的选择器、组合器优先生效。
 
-和CSS一样，QSS也支持`/*`开头、`*/`结尾的注释方式，可在样式表中添加补充说明的文字。
+和CSS一样，QSS也支持`/*`开头、`*/`结尾的注释方式，可在样式表中添加补充说明的文字。上面示例中的QSS字符串可以这样写注释：
+
+```css
+/* 后代组合器 */
+#MainWindow QPushButton {
+    height: 50;
+}
+/* 子代组合器，>前后的空格、换行都会被忽略 */
+#MainWindow > QPushButton {
+    width: 100;
+}
+```
 
 ## 13 QtWidgets程序的布局（更新中，大纲阶段）
 

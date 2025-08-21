@@ -3813,52 +3813,145 @@ app.exec()
 }
 ```
 
-## 13 QtWidgets程序的布局（更新中，大纲阶段）
+## 13 QtWidgets程序的布局（更新中）
 
-图形界面不是控件的简单堆砌，为了让界面高效、美观，控件应当基于一定规则排布，这个规则就叫布局。
+在QtWidgets程序（本章只说QtWidgets程序的布局，QtQuick程序的布局不在讨论范围内，故本章后续简称为QtWidgets程序为程序）中，如果创建控件之后，未调整控件位置的话，控件将始终在窗口坐标系的原点。每在原点创建一个新的控件，新控件就会叠在之前的控件之上，覆盖住之前的控件。
 
-参考资料：https://doc.qt.io/qt-6/zh/layout.html
+在窗口中，是基于坐标定位控件、调整控件位置的。这里就不得不讲一下窗口的坐标系：窗口排除标题栏之外的左上角为原点，向右为X轴的正方向，向下为Y轴的正方向。大致如下图所示：
 
-（根据QtDesigner中已有的布局控件学习布局的基本用法）
+![2025_13_1](qt_for_python.assets/2025_13_1.png)
 
-画个布局的示意图：
+因此，直接创建多个控件的话，控件会叠在一起，无法正常使用：
 
-（草图）
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton
+)
+
+app = QApplication()
+
+window = QWidget()
+window.resize(400,300)
+label = QLabel('Hello World',window)
+button = QPushButton('click',window)
+
+window.show()
+app.exec()
+```
+
+结果就是这样的：
+
+![2025_13_2](qt_for_python.assets/2025_13_2.png)
+
+当然，为了让控件不重叠，可以使用`move`方法调整控件的位置：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton
+)
+
+app = QApplication()
+
+window = QWidget()
+window.resize(400,300)
+label = QLabel('Hello World',window)
+button = QPushButton('click',window)
+button.move(100,50)
+
+window.show()
+app.exec()
+```
+
+![2025_13_3](qt_for_python.assets/2025_13_3.png)
+
+但是，窗口大小调整的话，控件不会随之调整位置。对于上面的例子来说，这个特性没什么影响，若是想要实现控件始终在窗口的中心位置，让界面变得美观一些，那就要在窗口大小变化时，重新计算并调整控件位置，这个代码很麻烦。
+
+看完上面的示例，可以发现，图形界面不是控件的简单堆砌，为了让界面高效、美观，控件应当基于一定规则排布（比如始终在窗口中心位置），才能适应各种使用场景，这个规则就叫布局（相关参考资料 https://doc.qt.io/qt-6/zh/layout.html）。
+
+为了更直观地了解布局的效果，笔者将基于本章的第一个示例，通过添加布局控件，轻松实现控件始终在窗口的中心位置，无需手动调整控件位置。哪怕调整窗口大小，控件也始终在窗口的中心位置：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QVBoxLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.resize(400,300)
+label = QLabel('Hello World',window)
+button = QPushButton('click',window)
+
+layout = QVBoxLayout(window)
+layout.addStretch()
+layout.addWidget(label,alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addWidget(button,alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addStretch()
+
+window.show()
+app.exec()
+```
+
+![2025_13_4](qt_for_python.assets/2025_13_4.png)
+
+神奇的布局控件是如何发挥作用呢？
+
+就以上面的示例为例，布局相当于一个看不见的容器，对外占据全部可用空间，对内自动调整内部控件的大小、位置，无需额外、单独、手动调整每个控件的大小、位置，大致结构如下图所示：
+
+![2025_13_5](qt_for_python.assets/2025_13_5.png)
 
 
 
-支持的布局：
-
-QGridLayout
-
-QHBoxLayout
-
-QVBoxLayout
 
 
+程序中与布局相关的类、控件如下表所示：
 
-QBoxLayout
+| 布局类                                                       | 用途                                            | 文档链接                                    |
+| ------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------- |
+| QBoxLayout                                                   | 水平或垂直排列子部件                            | https://doc.qt.io/qt-6/zh/qboxlayout.html   |
+| QButtonGroup                                                 | 组织按钮部件组的容器                            | https://doc.qt.io/qt-6/zh/qbuttongroup.html |
+| [QFormLayout](https://doc.qt.io/qt-6/zh/qformlayout.html)    | 管理输入部件的表格及其相关标签                  |                                             |
+| [QGraphicsAnchor](https://doc.qt.io/qt-6/zh/qgraphicsanchor.html) | 代表 QGraphicsAnchorLayout 中两个项目之间的锚点 |                                             |
+| [QGraphicsAnchorLayout](https://doc.qt.io/qt-6/zh/qgraphicsanchorlayout.html) | 可在图形视图中将部件锚定在一起的布局            |                                             |
+| [QGridLayout](https://doc.qt.io/qt-6/zh/qgridlayout.html)    | 在网格中布局部件                                |                                             |
+| [QGroupBox](https://doc.qt.io/qt-6/zh/qgroupbox.html)        | 带有标题的组框                                  |                                             |
+| [QHBoxLayout](https://doc.qt.io/qt-6/zh/qhboxlayout.html)    | 水平排列部件                                    |                                             |
+| [QLayout](https://doc.qt.io/qt-6/zh/qlayout.html)            | 几何图形管理器的基类                            |                                             |
+| [QLayoutItem](https://doc.qt.io/qt-6/zh/qlayoutitem.html)    | QLayout 可操作的抽象项                          |                                             |
+| [QSizePolicy](https://doc.qt.io/qt-6/zh/qsizepolicy.html)    | 描述水平和垂直大小调整策略的布局属性            |                                             |
+| [QSpacerItem](https://doc.qt.io/qt-6/zh/qspaceritem.html)    | 布局中的空白空间                                |                                             |
+| [QStackedLayout](https://doc.qt.io/qt-6/zh/qstackedlayout.html) | 一次只能看到一个部件的部件堆栈                  |                                             |
+| [QStackedWidget](https://doc.qt.io/qt-6/zh/qstackedwidget.html) | 同时只有一个部件可见的部件堆栈                  |                                             |
+| [QVBoxLayout](https://doc.qt.io/qt-6/zh/qvboxlayout.html)    | 垂直排列部件                                    |                                             |
+| [QWidgetItem](https://doc.qt.io/qt-6/zh/qwidgetitem.html)    | 表示部件的布局项                                |                                             |
 
 
 
-| 布局类                                                       | 用途                                            |
-| ------------------------------------------------------------ | ----------------------------------------------- |
-| [QBoxLayout](https://doc.qt.io/qt-6/zh/qboxlayout.html)      | 水平或垂直排列子部件                            |
-| [QButtonGroup](https://doc.qt.io/qt-6/zh/qbuttongroup.html)  | 组织按钮部件组的容器                            |
-| [QFormLayout](https://doc.qt.io/qt-6/zh/qformlayout.html)    | 管理输入部件的表格及其相关标签                  |
-| [QGraphicsAnchor](https://doc.qt.io/qt-6/zh/qgraphicsanchor.html) | 代表 QGraphicsAnchorLayout 中两个项目之间的锚点 |
-| [QGraphicsAnchorLayout](https://doc.qt.io/qt-6/zh/qgraphicsanchorlayout.html) | 可在图形视图中将部件锚定在一起的布局            |
-| [QGridLayout](https://doc.qt.io/qt-6/zh/qgridlayout.html)    | 在网格中布局部件                                |
-| [QGroupBox](https://doc.qt.io/qt-6/zh/qgroupbox.html)        | 带有标题的组框                                  |
-| [QHBoxLayout](https://doc.qt.io/qt-6/zh/qhboxlayout.html)    | 水平排列部件                                    |
-| [QLayout](https://doc.qt.io/qt-6/zh/qlayout.html)            | 几何图形管理器的基类                            |
-| [QLayoutItem](https://doc.qt.io/qt-6/zh/qlayoutitem.html)    | QLayout 可操作的抽象项                          |
-| [QSizePolicy](https://doc.qt.io/qt-6/zh/qsizepolicy.html)    | 描述水平和垂直大小调整策略的布局属性            |
-| [QSpacerItem](https://doc.qt.io/qt-6/zh/qspaceritem.html)    | 布局中的空白空间                                |
-| [QStackedLayout](https://doc.qt.io/qt-6/zh/qstackedlayout.html) | 一次只能看到一个部件的部件堆栈                  |
-| [QStackedWidget](https://doc.qt.io/qt-6/zh/qstackedwidget.html) | 同时只有一个部件可见的部件堆栈                  |
-| [QVBoxLayout](https://doc.qt.io/qt-6/zh/qvboxlayout.html)    | 垂直排列部件                                    |
-| [QWidgetItem](https://doc.qt.io/qt-6/zh/qwidgetitem.html)    | 表示部件的布局项                                |
+
+
+
+
+（示例代码，效果图片，基本用法（添加控件，移除控件，与其他控件配合使用的情况），看布局控件的方法中有没有坑或者扩展用法）
+
+基本的布局包括：
+
+- QGridLayout
+- QHBoxLayout
+- QVBoxLayout
+- QFormLayout
+
+
 
 
 

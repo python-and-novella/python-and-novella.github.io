@@ -184,8 +184,6 @@ app.exec()
 
 ```python3
 # 控制台程序的简单示例
-from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QCoreApplication,QTimer
 
 app = QCoreApplication()
@@ -4519,7 +4517,23 @@ app.exec()
 
 注意，虽然控件本身没有居中对齐，但`label`默认内容左对齐、上下居中，想要让内容居中显示，需要设置控件内容的对齐方式（`alignment`参数）为左右居中或者完全居中。
 
-## 14 具体功能——`QTimer`定时器（更新中）
+## 14 定时器（更新中）
+
+
+
+几种定时器：
+
+https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimer.html
+
+https://doc.qt.io/qtforpython-6/PySide6/QtCore/QBasicTimer.html
+
+https://doc.qt.io/qtforpython-6/PySide6/QtCore/QDeadlineTimer.html
+
+https://doc.qt.io/qtforpython-6/PySide6/QtCore/QElapsedTimer.html
+
+定时器事件：
+
+https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimerEvent.html
 
 
 
@@ -4529,8 +4543,6 @@ app.exec()
 
 ```python3
 # 控制台程序的简单示例
-from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QCoreApplication,QTimer
 
 app = QCoreApplication()

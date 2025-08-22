@@ -3813,7 +3813,9 @@ app.exec()
 }
 ```
 
-## 13 QtWidgets程序的布局（更新中）
+## 13 QtWidgets程序的布局
+
+### 13.1 了解布局
 
 在QtWidgets程序（本章只说QtWidgets程序的布局，QtQuick程序的布局不在讨论范围内，故本章后续简称为QtWidgets程序为程序）中，如果创建控件之后，未调整控件位置的话，控件将始终在窗口坐标系的原点。每在原点创建一个新的控件，新控件就会叠在之前的控件之上，覆盖住之前的控件。
 
@@ -3907,51 +3909,656 @@ app.exec()
 
 神奇的布局控件是如何发挥作用呢？
 
-就以上面的示例为例，布局相当于一个看不见的容器，对外占据全部可用空间，对内自动调整内部控件的大小、位置，无需额外、单独、手动调整每个控件的大小、位置，大致结构如下图所示：
+就以上面的示例为例，布局控件相当于一个容器，对外占据全部可用空间，对内自动调整内部控件的大小、位置，无需额外、单独、手动调整每个控件的大小、位置，大致结构如下图所示：
 
 ![2025_13_5](qt_for_python.assets/2025_13_5.png)
 
+布局控件相关的类、控件很多，一一介绍难免太啰嗦，故本章只介绍常用的类、控件，完整的内容可以参考下面表格中的文档链接。
+
+程序中与布局控件相关的类、控件如下表所示：
+
+| 类                      | 用途                                            | 文档链接                                             |
+| ----------------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| `QBoxLayout`            | 水平或垂直排列控件                              | https://doc.qt.io/qt-6/zh/qboxlayout.html            |
+| `QButtonGroup`          | 将按钮控件编成一组                              | https://doc.qt.io/qt-6/zh/qbuttongroup.html          |
+| `QFormLayout`           | 像表格一样管理输入框控件和对应的解释标签控件    | https://doc.qt.io/qt-6/zh/qformlayout.html           |
+| `QGraphicsAnchor`       | 表示`QGraphicsAnchorLayout`中两个控件之间的锚点 | https://doc.qt.io/qt-6/zh/qgraphicsanchor.html       |
+| `QGraphicsAnchorLayout` | 可在图形视图中将控件锚定在一起                  | https://doc.qt.io/qt-6/zh/qgraphicsanchorlayout.html |
+| `QGridLayout`           | 在网格中布局控件                                | https://doc.qt.io/qt-6/zh/qgridlayout.html           |
+| `QGroupBox`             | 将控件编成一组并显示说明文字                    | https://doc.qt.io/qt-6/zh/qgroupbox.html             |
+| `QHBoxLayout`           | 水平排列控件                                    | https://doc.qt.io/qt-6/zh/qhboxlayout.html           |
+| `QLayout`               | 表示布局控件的基类                              | https://doc.qt.io/qt-6/zh/qlayout.html               |
+| `QLayoutItem`           | 表示布局中布局的项目                            | https://doc.qt.io/qt-6/zh/qlayoutitem.html           |
+| `QSizePolicy`           | 表示控件的尺寸策略                              | https://doc.qt.io/qt-6/zh/qsizepolicy.html           |
+| `QSpacerItem`           | 表示布局中的空白空间                            | https://doc.qt.io/qt-6/zh/qspaceritem.html           |
+| `QStackedLayout`        | 表示一次只能看到一个控件的控件堆栈              | https://doc.qt.io/qt-6/zh/qstackedlayout.html        |
+| `QStackedWidget`        | 表示同时只有一个控件可见的控件堆栈              | https://doc.qt.io/qt-6/zh/qstackedwidget.html        |
+| `QVBoxLayout`           | 垂直排列控件                                    | https://doc.qt.io/qt-6/zh/qvboxlayout.html           |
+| `QWidgetItem`           | 表示布局中控件的项目                            | https://doc.qt.io/qt-6/zh/qwidgetitem.html           |
+
+其中，基本的布局控件包括：
+
+- `QVBoxLayout`控件，垂直布局控件，布局内的控件垂直排布，如下图所示：
+
+  ![2025_13_6](qt_for_python.assets/2025_13_6.png)
+
+- `QHBoxLayout`控件，水平布局控件，布局内的控件水平排布，如下图所示：
+
+  ![2025_13_7](qt_for_python.assets/2025_13_7.png)
+
+- `QGridLayout`控件，网格布局控件，布局内的控件占据一个网格（可以合并网格），如下图所示：
+
+  ![2025_13_8](qt_for_python.assets/2025_13_8.png)
+
+虽然基本的布局控件就这么几种，但布局控件可以组合使用。程序中千变万化的界面布局，实际上大多是这些布局控件的组合：
+
+![2025_13_9](qt_for_python.assets/2025_13_9.png)
+
+### 13.2 使用布局
+
+在学习使用布局之前，需要明确一下布局控件与非布局控件的差异：
+
+- 布局控件与非布局控件都可以指定父控件，但布局控件指定父控件的含义是：设置父控件的子控件布局为布局控件对应的布局。
+- 布局控件添加布局控件、非布局控件之后，这些控件属于布局控件，但这个属于关系不同于指定父控件的父子关系：布局控件添加控件之后，被添加控件的父控件会变成与布局控件一样，而不是布局控件。
+- 布局控件只能添加多个布局（控件）、非布局控件，不能设置布局；而非布局控件只能设置布局。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QVBoxLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.resize(400,300)
+label = QLabel('Hello World',window)
+button = QPushButton('click',label)
+# 添加至布局之前
+print(button.parent().children())
+
+layout = QVBoxLayout(window)
+layout.addStretch()
+layout.addWidget(label,alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addWidget(button,alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addStretch()
+# 添加至布局之后
+print(button.parent().children())
+
+window.show()
+app.exec()
+```
+
+输出结果为：
+
+```
+添加至布局之前，window的子控件为： [<PySide6.QtWidgets.QPushButton(0x251aa7ac280) at 0x00000251AAFF8C00>]
+添加至布局之后，window的子控件为： [<PySide6.QtWidgets.QLabel(0x251aa6e64f0) at 0x00000251AAFF8C40>, <PySide6.QtWidgets.QVBoxLayout(0x251aa74f060) at 0x00000251AAFF8B80>, <PySide6.QtWidgets.QPushButton(0x251aa7ac280) at 0x00000251AAFF8C00>]
+```
+
+注意输出结果中，`<PySide6.QtWidgets.QPushButton(0x251aa7ac280) at 0x00000251AAFF8C00>`表示`button`，添加至布局之前，该控件的父控件是`label`，但在添加至布局之后，父控件变成了`window`。
+
+布局可通过以下方法使用：
+
+- 在UI文件中使用布局，使用QtDesigner设计界面时可以使用布局控件，界面直观，可以实时预览，但部分属性没法灵活设置。
+- 在Python代码中使用布局，通过创建布局控件、使用Python接口设计布局，所有属性都可以设置，但是界面不直观，只能通过运行来预览。这种方法中，让布局生效也有先后顺序的差异，可以根据实际情况灵活选择：
+  - 创建布局控件时指定父控件，这种就是先设置布局，让布局生效，然后再设计布局。
+  - 创建布局控件时不指定父控件，这种就是先设计布局，再使用非布局控件的`setlayout`方法设置布局，然后让布局生效。
+
+布局控件支持以下方法（部分常用的，完整的可参考https://doc.qt.io/qt-6/zh/qlayout.html#public-functions、https://doc.qt.io/qt-6/zh/qlayout.html#reimplemented-public-functions、https://doc.qt.io/qt-6/zh/qlayout.html#reimplemented-protected-functions）：
+
+- `addWidget`方法，添加非布局控件到布局中。
+- `addLayout`方法，添加布局控件到布局中。
+- `addItem`方法，添加布局项目到布局中。
+- `count`方法，返回布局中项目的数量。
+- `itemAt`方法，返回指定索引值的项目。
+- `indexOf`方法，返回指定项目、控件的索引值。
+- `takeAt`方法，移除并返回指定索引值的项目。
+- `removeItem`方法，移除指定索引值的项目。
+- `removeWidget`方法，移除指定索引值的控件。
+- `isEmpty`方法，返回指定索引值的项目是否为空白控件。
+
+继承自`QBoxLayout`类的布局控件（垂直布局控件和水平布局控件）额外支持以下方法（部分常用的，完整的可参考https://doc.qt.io/qt-6/zh/qboxlayout.html#public-functions、https://doc.qt.io/qt-6/zh/qboxlayout.html#reimplemented-public-functions）：
+
+- `addStretch`方法，添加一个无限尺寸空白控件。
+
+- `addSpacing`方法，添加一个指定尺寸空白控件。
+
+- `setDirection`方法，修改布局的排布方向。比如，可以修改垂直布局的排布方向为从下至上：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QLabel,
+      QPushButton,
+      QVBoxLayout
+  )
+  from PySide6.QtCore import Qt
+  
+  app = QApplication()
+  
+  window = QWidget()
+  window.resize(400,300)
+  label = QLabel('Hello World')
+  button = QPushButton('click')
+  
+  layout = QVBoxLayout()
+  layout.addStretch()
+  layout.addWidget(label,alignment=Qt.AlignmentFlag.AlignCenter)
+  layout.addStrut(100)
+  layout.addWidget(button,alignment=Qt.AlignmentFlag.AlignCenter)
+  layout.addStretch()
+  window.setLayout(layout)
+  
+  # 修改排布方向
+  layout.setDirection(layout.Direction.BottomToTop)
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_13_10](qt_for_python.assets/2025_13_10.png)
+
+- `direction`方法，返回布局的排布方向。
+
+- `insertItem`方法，在指定索引值处插入项目。
+
+- `insertWidget`方法，在指定索引值处插入控件。
+
+- `insertStretch`方法，在指定索引值处一个无限尺寸空白控件。
+
+- `insertSpacing`方法，在指定索引值处一个指定尺寸空白控件。
+
+网格布局控件额外支持以下方法（部分常用的，完整的可参考https://doc.qt.io/qt-6/zh/qgridlayout.html#public-functions、https://doc.qt.io/qt-6/zh/qgridlayout.html#reimplemented-public-functions、https://doc.qt.io/qt-6/zh/qgridlayout.html#reimplemented-protected-functions）：
+
+- `columnCount`方法，返回网格的列数。
+- `rowCount`方法，返回网格的行数。
+- `itemAtPosition`方法，返回指定位置（行、列）的项目。
+- `verticalSpacing`方法，返回行间距。
+- `setVerticalSpacing`方法，设定行间距。
+- `horizontalSpacing`方法，返回列间距。
+- `setHorizontalSpacing`方法，设定列间距。
+- `columnStretch`方法，返回指定列的宽度份数（默认宽度份数为1，即该列的宽度为总宽度的总份数分之一）。
+- `setColumnStretch`方法，设置指定列的宽度份数。
+- `rowStretch`方法，返回指定行的高度份数（默认高度份数为1，即该行的高度为总高度的总份数分之一）。
+- `setRowStretch`方法，设置指定行的高度份数。
+- `originCorner`方法，返回网格划分时的初始方向（在哪个角落）。
+- `setOriginCorner`方法，设置网格划分的初始方向（在哪个角落），会影响到行、列的方向。
+
+以下为网格布局的示例：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QGridLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.resize(400,300)
+label = QLabel('Hello World')
+button = QPushButton('click')
+
+layout = QGridLayout()
+layout.addWidget(label,0,0,alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addWidget(button,1,1,alignment=Qt.AlignmentFlag.AlignCenter)
+window.setLayout(layout)
+
+window.show()
+app.exec()
+```
+
+![2025_13_11](qt_for_python.assets/2025_13_11.png)
+
+### 13.3 扩展内容
+
+#### 13.3.1 布局嵌套
+
+很多时候，控件的布局不是简单的一种，而是需要多种布局组合。比如，下面的品字形布局，除了简单使用网格布局控件实现，还可以使用其他布局控件嵌套实现：
+
+![2025_13_12](qt_for_python.assets/2025_13_12.png)
+
+先看使用网格布局控件如何实现：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QGridLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.resize(400,300)
+label = QLabel('Hello World')
+button = QPushButton('click')
+button2 = QPushButton('click2')
+
+layout = QGridLayout()
+layout.addWidget(label,0,0,1,2,alignment=Qt.AlignmentFlag.AlignHCenter)
+layout.addWidget(button,1,0,alignment=Qt.AlignmentFlag.AlignVCenter|Qt.AlignmentFlag.AlignRight)
+layout.addWidget(button2,1,1,alignment=Qt.AlignmentFlag.AlignVCenter|Qt.AlignmentFlag.AlignLeft)
+window.setLayout(layout)
+
+window.show()
+app.exec()
+```
+
+![2025_13_13](qt_for_python.assets/2025_13_13.png)
+
+使用水平布局控件、垂直布局控件组合的话，可以将下面两个按钮放在空白的框架控件中，单独设置框架控件的布局，将框架控件添加到主窗口控件的布局中：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,QHBoxLayout,
+    QFrame
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.resize(400,300)
+label = QLabel('Hello World')
+button = QPushButton('click')
+button2 = QPushButton('click2')
+frame = QFrame()
+
+layout = QVBoxLayout()
+layout2 = QHBoxLayout()
+
+window.setLayout(layout)
+frame.setLayout(layout2)
+
+layout.addWidget(label,alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addWidget(frame,alignment=Qt.AlignmentFlag.AlignCenter)
+
+layout2.addWidget(button,alignment=Qt.AlignmentFlag.AlignCenter)
+layout2.addWidget(button2,alignment=Qt.AlignmentFlag.AlignCenter)
+
+window.show()
+app.exec()
+```
+
+![2025_13_13](qt_for_python.assets/2025_13_13.png)
+
+当然，使用`addLayout`方法可以直接将布局添加到其他布局中，就能省略一个框架控件，但是要给子布局的两端各添加一个空白控件，才能让按钮居中：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,QHBoxLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.resize(400,300)
+label = QLabel('Hello World')
+button = QPushButton('click')
+button2 = QPushButton('click2')
+
+layout = QVBoxLayout()
+layout2 = QHBoxLayout()
+
+layout.addWidget(label,alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addLayout(layout2)
+
+layout2.addStretch()
+layout2.addWidget(button,alignment=Qt.AlignmentFlag.AlignCenter)
+layout2.addWidget(button2,alignment=Qt.AlignmentFlag.AlignCenter)
+layout2.addStretch()
+
+window.setLayout(layout)
+
+window.show()
+app.exec()
+```
+
+![2025_13_13](qt_for_python.assets/2025_13_13.png)
+
+#### 13.3.2 尺寸策略
+
+在本章接近尾声的时候，笔者突发奇想，既然网格布局控件可以将控件放在网格，能不能利用这个特性，做一个类似软键盘一样的数字键盘，用于输入纯数字呢？说干就干，不出半小时，便有了以下代码：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QGridLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.setFixedSize(300,500)
+window.setWindowTitle('输入PIN')
+label = QLabel('')
+
+layout = QGridLayout()
+window.setLayout(layout)
+layout.addWidget(label,0,0,1,3,alignment=Qt.AlignmentFlag.AlignCenter)
+
+pin = ''
+def pin_input(text):
+    global pin
+    if text.isdigit():
+        pin += text
+        label.setText(label.text()+'*')
+    else:
+        if text == '确认':
+            print(pin)
+        pin = ''
+        label.setText('')
+
+text = ['1','2','3','4','5','6','7','8','9','确认','0','清空']
+for i in range(12):
+    button = QPushButton(text[i])
+    button.clicked.connect(lambda _,i=i:pin_input(text[i]))
+    layout.addWidget(button,1+i//3,i%3,alignment=Qt.AlignmentFlag.AlignCenter)
+
+window.show()
+app.exec()
+```
+
+不过，界面却不如预想中“饱满”：
+
+
+
+想让按钮尺寸变大很简单，创建每个按钮时，调整尺寸即可：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QGridLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.setFixedSize(300,500)
+window.setWindowTitle('输入PIN')
+label = QLabel('')
+
+layout = QGridLayout()
+window.setLayout(layout)
+layout.addWidget(label,0,0,1,3,alignment=Qt.AlignmentFlag.AlignCenter)
+
+pin = ''
+def pin_input(text):
+    global pin
+    if text.isdigit():
+        pin += text
+        label.setText(label.text()+'*')
+    else:
+        if text == '确认':
+            print(pin)
+        pin = ''
+        label.setText('')
+
+text = ['1','2','3','4','5','6','7','8','9','确认','0','清空']
+for i in range(12):
+    button = QPushButton(text[i])
+    button.clicked.connect(lambda _,i=i:pin_input(text[i]))
+    layout.addWidget(button,1+i//3,i%3,alignment=Qt.AlignmentFlag.AlignCenter)
+    button.setFixedSize(90,90)
+
+window.show()
+app.exec()
+```
+
+注意，这里调整按钮尺寸使用的是`setFixedSize`方法，而非常用的`resize`方法，这个和本小节的主题有关，暂时不表，先看结果：
+
+![2025_13_15](qt_for_python.assets/2025_13_15.png)
+
+看上去解决方案很完美，但解决的过程没那么简单。首先就是调整按钮尺寸要用`setFixedSize`方法，使用`resize`方法不会生效。其次就是尺寸需要计算，因为有默认样式的存在，按钮的大小要刨除按钮之间间隔。为了得到代码中的`90`，需要多次调整，反复对比显示效果，这还不一定保证完美（起码肉眼看上去没啥明显问题）。可能有记性好的读者忍不住吐槽：用样式啊，直接设置宽、高为`100%`，让程序自动计算。
+
+样式是个很好的解决方法，不过，效果只能说差强人意：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QGridLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.setFixedSize(300,500)
+window.setWindowTitle('输入PIN')
+label = QLabel('')
+
+layout = QGridLayout()
+window.setLayout(layout)
+layout.addWidget(label,0,0,1,3,alignment=Qt.AlignmentFlag.AlignCenter)
+
+pin = ''
+def pin_input(text):
+    global pin
+    if text.isdigit():
+        pin += text
+        label.setText(label.text()+'*')
+    else:
+        if text == '确认':
+            print(pin)
+        pin = ''
+        label.setText('')
+
+text = ['1','2','3','4','5','6','7','8','9','确认','0','清空']
+for i in range(12):
+    button = QPushButton(text[i])
+    button.clicked.connect(lambda _,i=i:pin_input(text[i]))
+    layout.addWidget(button,1+i//3,i%3,alignment=Qt.AlignmentFlag.AlignCenter)
+    button.setStyleSheet('width:100%;height:100%;')
+
+window.show()
+app.exec()
+```
+
+![2025_13_16](qt_for_python.assets/2025_13_16png)
+
+倒是不用计算了，但自动计算的结果让原本显示内容的区域变矮了。难不成，下一步是调整`label`的尺寸（注意，设置`label`的样式没有效果）？
+
+在问题陷入“水多了加面，面多了加水”的循环之前，先暂停一下寻找解决方法的脚步，静下心思考一下问题的来由，再说如何解决。
+
+其实，这个问题的原因很简单，就是本小节的标题——尺寸策略。所谓尺寸策略，就是指控件受布局影响时，控件的尺寸发生什么样的变化。因为布局默认倾向于让控件填满可用空间，尺寸策略可以决定控件是否扩展为最大，还是优先使用最佳尺寸（不同的控件有不同的默认尺寸策略，完整的尺寸策略可以参考 https://doc.qt.io/qt-6/zh/qsizepolicy.html#details）。
+
+既然如此，那就要修改布局中所有控件的尺寸策略，让它们全部填满可用控件。
+
+控件的`setSizePolicy`方法可以设置尺寸策略，`sizePolicy`方法返回尺寸策略。
+
+尺寸策略对象由`QSizePolicy`类实例化而成，需要传入水平方向、垂直方向对应的策略类`QSizePolicy.Policy`枚举对象（`Expanding`表示扩展为最大）：
+
+```python3
+label.setSizePolicy(
+    QSizePolicy.Policy.Expanding,
+    QSizePolicy.Policy.Expanding
+)
+button.setSizePolicy(
+    QSizePolicy.Policy.Expanding,
+    QSizePolicy.Policy.Expanding
+)
+```
+
+因此，代码应该改为：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QGridLayout,
+    QSizePolicy
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.setFixedSize(300,500)
+window.setWindowTitle('输入PIN')
+label = QLabel('',alignment=Qt.AlignmentFlag.AlignCenter)
+label.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+
+layout = QGridLayout()
+window.setLayout(layout)
+layout.addWidget(label,0,0,1,3,alignment=Qt.AlignmentFlag.AlignCenter)
+
+pin = ''
+def pin_input(text):
+    global pin
+    if text.isdigit():
+        pin += text
+        label.setText(label.text()+'*')
+    else:
+        if text == '确认':
+            print(pin)
+        pin = ''
+        label.setText('')
+
+text = ['1','2','3','4','5','6','7','8','9','确认','0','清空']
+for i in range(12):
+    button = QPushButton(text[i])
+    button.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+    button.clicked.connect(lambda _,i=i:pin_input(text[i]))
+    layout.addWidget(button,1+i//3,i%3,alignment=Qt.AlignmentFlag.AlignCenter)
+
+window.show()
+app.exec()
+```
+
+不过，结果却依然有问题：
+
+![2025_13_14](qt_for_python.assets/2025_13_14.png)
+
+看起来好像没什么用，或者是存在bug。其实不然，这是因为前面代码中，给布局添加控件时，同时设置了控件在布局内的对齐方式（完全居中），对应方向上存在对齐方式的话，会让该方向上的尺寸策略失效。既然已经决定让控件填满可用空间，那就没有对齐的必要了。因此，只需将对齐相关的代码去掉，最后的结果就会顺心遂愿：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QGridLayout,
+    QSizePolicy
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.setFixedSize(300,500)
+window.setWindowTitle('输入PIN')
+label = QLabel('',alignment=Qt.AlignmentFlag.AlignCenter)
+label.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+
+layout = QGridLayout()
+window.setLayout(layout)
+layout.addWidget(label,0,0,1,3)
+
+pin = ''
+def pin_input(text):
+    global pin
+    if text.isdigit():
+        pin += text
+        label.setText(label.text()+'*')
+    else:
+        if text == '确认':
+            print(pin)
+        pin = ''
+        label.setText('')
+
+text = ['1','2','3','4','5','6','7','8','9','确认','0','清空']
+for i in range(12):
+    button = QPushButton(text[i])
+    button.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+    button.clicked.connect(lambda _,i=i:pin_input(text[i]))
+    layout.addWidget(button,1+i//3,i%3)
+
+window.show()
+app.exec()
+```
+
+![2025_13_17](qt_for_python.assets/2025_13_17.png)
+
+注意，虽然控件本身没有居中对齐，但`label`默认内容左对齐、上下居中，想要让内容居中显示，需要设置控件内容的对齐方式（`alignment`参数）为左右居中或者完全居中。
+
+## 14 具体功能——`QTimer`定时器（更新中）
+
+
+
+定时器
+
+前面的定时器示例：
+
+```python3
+# 控制台程序的简单示例
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QCoreApplication,QTimer
+
+app = QCoreApplication()
+QTimer.singleShot(1000,lambda :print('app is running'))
+QTimer.singleShot(2000,lambda :print('app is still running'))
+QTimer.singleShot(3000,app.quit)
+app.exec()
+```
 
 
 
 
-程序中与布局相关的类、控件如下表所示：
-
-| 布局类                                                       | 用途                                            | 文档链接                                    |
-| ------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------- |
-| QBoxLayout                                                   | 水平或垂直排列子部件                            | https://doc.qt.io/qt-6/zh/qboxlayout.html   |
-| QButtonGroup                                                 | 组织按钮部件组的容器                            | https://doc.qt.io/qt-6/zh/qbuttongroup.html |
-| [QFormLayout](https://doc.qt.io/qt-6/zh/qformlayout.html)    | 管理输入部件的表格及其相关标签                  |                                             |
-| [QGraphicsAnchor](https://doc.qt.io/qt-6/zh/qgraphicsanchor.html) | 代表 QGraphicsAnchorLayout 中两个项目之间的锚点 |                                             |
-| [QGraphicsAnchorLayout](https://doc.qt.io/qt-6/zh/qgraphicsanchorlayout.html) | 可在图形视图中将部件锚定在一起的布局            |                                             |
-| [QGridLayout](https://doc.qt.io/qt-6/zh/qgridlayout.html)    | 在网格中布局部件                                |                                             |
-| [QGroupBox](https://doc.qt.io/qt-6/zh/qgroupbox.html)        | 带有标题的组框                                  |                                             |
-| [QHBoxLayout](https://doc.qt.io/qt-6/zh/qhboxlayout.html)    | 水平排列部件                                    |                                             |
-| [QLayout](https://doc.qt.io/qt-6/zh/qlayout.html)            | 几何图形管理器的基类                            |                                             |
-| [QLayoutItem](https://doc.qt.io/qt-6/zh/qlayoutitem.html)    | QLayout 可操作的抽象项                          |                                             |
-| [QSizePolicy](https://doc.qt.io/qt-6/zh/qsizepolicy.html)    | 描述水平和垂直大小调整策略的布局属性            |                                             |
-| [QSpacerItem](https://doc.qt.io/qt-6/zh/qspaceritem.html)    | 布局中的空白空间                                |                                             |
-| [QStackedLayout](https://doc.qt.io/qt-6/zh/qstackedlayout.html) | 一次只能看到一个部件的部件堆栈                  |                                             |
-| [QStackedWidget](https://doc.qt.io/qt-6/zh/qstackedwidget.html) | 同时只有一个部件可见的部件堆栈                  |                                             |
-| [QVBoxLayout](https://doc.qt.io/qt-6/zh/qvboxlayout.html)    | 垂直排列部件                                    |                                             |
-| [QWidgetItem](https://doc.qt.io/qt-6/zh/qwidgetitem.html)    | 表示部件的布局项                                |                                             |
 
 
 
+## x 创作灵感（非正式内容）
 
+灵感来源（官方）：
 
-
-
-（示例代码，效果图片，基本用法（添加控件，移除控件，与其他控件配合使用的情况），看布局控件的方法中有没有坑或者扩展用法）
-
-基本的布局包括：
-
-- QGridLayout
-- QHBoxLayout
-- QVBoxLayout
-- QFormLayout
-
-
+- Qt 入门：https://doc.qt.io/qt-6/zh/gettingstarted.html
+- Qt Core：https://doc.qt.io/qt-6/zh/qtcore-index.html
+- Qt GUI：https://doc.qt.io/qt-6/zh/qtgui-index.html
+- Qt Network：https://doc.qt.io/qt-6/zh/qtnetwork-index.html
+- Qt Quick：https://doc.qt.io/qt-6/zh/qtquick-index.html
+- Qt Widgets：https://doc.qt.io/qt-6/zh/qtwidgets-index.html
+- Qt Test：https://doc.qt.io/qt-6/zh/qttest-index.html
+- Additional Modules：https://doc.qt.io/qt-6/zh/qt-additional-modules.html
+- Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
 
 
 
@@ -3966,6 +4573,45 @@ app.exec()
 ## 13 具体控件——显示一个对话框（比如`QMessageBox`）（更新中）
 
 
+
+## 13 具体控件——`QSplashScreen`启动画面控件（更新中）
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSplashScreen
+)
+from PySide6.QtCore import Qt,QThread
+from PySide6.QtGui import QPixmap
+
+app = QApplication()
+
+splash = QSplashScreen(QPixmap('LOGO.png'),Qt.WindowType.SplashScreen)
+# 显示加载图
+splash.show()
+# 显示加载信息
+splash.showMessage('加载中，请稍候……')
+# 模拟加载时间
+QThread.sleep(1)
+splash.clearMessage()
+QThread.sleep(1)
+splash.showMessage('即将加载完成')
+QThread.sleep(1)
+
+window = QWidget()
+window.resize(400,300)
+window.show()
+
+# 等待指定控件显示之后隐藏加载图
+splash.finish(window)
+# 或者直接隐藏加载图
+# splash.hide()
+
+app.exec()
+```
 
 
 
@@ -4043,22 +4689,6 @@ for row in range(3):
 app.exec()
 
 ```
-
-
-
-## x 创作灵感（非正式内容）
-
-灵感来源（官方）：
-
-- Qt 入门：https://doc.qt.io/qt-6/zh/gettingstarted.html
-- Qt Core：https://doc.qt.io/qt-6/zh/qtcore-index.html
-- Qt GUI：https://doc.qt.io/qt-6/zh/qtgui-index.html
-- Qt Network：https://doc.qt.io/qt-6/zh/qtnetwork-index.html
-- Qt Quick：https://doc.qt.io/qt-6/zh/qtquick-index.html
-- Qt Widgets：https://doc.qt.io/qt-6/zh/qtwidgets-index.html
-- Qt Test：https://doc.qt.io/qt-6/zh/qttest-index.html
-- Additional Modules：https://doc.qt.io/qt-6/zh/qt-additional-modules.html
-- Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
 
 
 

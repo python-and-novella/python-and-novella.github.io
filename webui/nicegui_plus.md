@@ -1065,6 +1065,64 @@ NiceGUI 2.22.0 的其他更新内容包括：
   uvicorn.run(app=fast_app,host='0.0.0.0',port=80)
   ```
 
+## 22 版本速览——2.23.0版本新增定时器可以取消正在执行的异步等待以及`props`方法支持字典和列表
+
+NiceGUI 2.23.0 新增内容不多，值得关注的有两项。
+
+### 22.1 定时器可以取消正在执行的异步等待
+
+在2.22.2版本中，触发问题代码如下：
+
+```python3
+from nicegui import ui
+import asyncio
+
+counter = {'value': 0}
+async def update():
+    await asyncio.sleep(3)
+    counter.update(value=counter['value'] + 1)
+
+timer = ui.timer(1.0, update)
+ui.label().bind_text_from(counter, 'value', lambda value: f'Count: {value}')
+ui.button('cancel',on_click=timer.cancel)
+
+ui.run(native=True)
+```
+
+虽然代码中添加了取消定时器的按钮，但是点击取消按钮的瞬间，如果程序还在执行异步等待（或者其他协程），定时器关联的操作不会完全停止，非协程部分会立即停止，但协程依然正常执行。
+
+更新2.23.0版本之后，可以给取消方法的`with_current_invocation`参数（默认为`False`）传入`True`，同时取消相关的协程，避免协程依然执行、响应结果让用户误解的情况。
+
+### 22.2 `props`方法支持字典和列表
+
+在2.22.2版本中，使用`props`方法设置HTML标签的属性使，会存在属性为字典的情况（比如`ui.input`的`input-style`），此时不能通过`props`方法修改属性，只能使用`props`字典：
+
+```python3
+from nicegui import ui
+
+ui.input('Name0').props.update(
+    {
+        'input-style':{
+             'backgroundColor': 'red' 
+        }
+    }
+)
+ui.input('Name1').props('input-style={"backgroundColor":"red"}')
+ui.input('Name2').props(f'input-style={{"backgroundColor":"red"}}')
+
+ui.run(native=True)
+```
+
+![2025_22_1](nicegui_plus.assets/2025_22_1.png)
+
+如上图所示，给`props`方法传入字典或者等效的字符串都不会生效，只有更新`props`字典指定键对应的值才能生效。
+
+好在更新2.23.0版本之后，`props`方法开始支持字典、列表或者等效的字符串，上面三种方法都可以正常使用：
+
+![2025_22_2](nicegui_plus.assets/2025_22_2.png)
+
+操作简单不少。
+
 ## 23 （待定）
 
 

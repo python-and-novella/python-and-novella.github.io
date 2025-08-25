@@ -4288,7 +4288,7 @@ app.exec()
 
 不过，界面却不如预想中“饱满”：
 
-
+![2025_13_14](qt_for_python.assets/2025_13_14.png)
 
 想让按钮尺寸变大很简单，创建每个按钮时，调整尺寸即可：
 
@@ -4388,7 +4388,7 @@ window.show()
 app.exec()
 ```
 
-![2025_13_16](qt_for_python.assets/2025_13_16png)
+![2025_13_16](qt_for_python.assets/2025_13_16.png)
 
 倒是不用计算了，但自动计算的结果让原本显示内容的区域变矮了。难不成，下一步是调整`label`的尺寸（注意，设置`label`的样式没有效果）？
 
@@ -4517,29 +4517,15 @@ app.exec()
 
 注意，虽然控件本身没有居中对齐，但`label`默认内容左对齐、上下居中，想要让内容居中显示，需要设置控件内容的对齐方式（`alignment`参数）为左右居中或者完全居中。
 
-## 14 定时器（更新中）
+## 14 Qt程序的定时器
 
+前面几章已经讲了Qt的大部分基础内容，从本章开始，将讲解Qt中的零散内容和实际问题，因此，内容篇幅受限于内容量，可能会有长有短。当然，因为实际问题会涉及到前面没有学习过的基础，也可能需要临时补课，单开专题。并且，从本章开始，后续内容不再定期更新，将基于内容创作进度更新（主要是没有确定的内容可写，只能在遇到难点的时候写一篇，读者也可以留言遇到的问题，笔者看到后，将问题分析、解决，并写成文章）。
 
+话不多说，正文开始。
 
-几种定时器：
+在GUI程序中，定时器是一个非常重要的功能。需要重复执行的操作，一定时间之后才能执行的操作，都要通过定时器实现。
 
-https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimer.html
-
-https://doc.qt.io/qtforpython-6/PySide6/QtCore/QBasicTimer.html
-
-https://doc.qt.io/qtforpython-6/PySide6/QtCore/QDeadlineTimer.html
-
-https://doc.qt.io/qtforpython-6/PySide6/QtCore/QElapsedTimer.html
-
-定时器事件：
-
-https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimerEvent.html
-
-
-
-定时器
-
-前面的定时器示例：
+其实，在本章之前，已经有示例用上了定时器：
 
 ```python3
 # 控制台程序的简单示例
@@ -4552,7 +4538,1035 @@ QTimer.singleShot(3000,app.quit)
 app.exec()
 ```
 
+只不过，这个示例是为了演示`QCoreApplication`类具备Qt程序的特性，而非展示定时器。
 
+Qt提供了四种定时器：
+
+- `QTimer`通用定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimer.html）。
+- `QBasicTimer`简单定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QBasicTimer.html）。
+- `QDeadlineTimer`倒计时定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QDeadlineTimer.html）。
+- `QElapsedTimer`计时定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QElapsedTimer.html）。
+
+接下来，以`QTimer`通用定时器为例，介绍一下定时器的基本用法。
+
+### 14.1 基本用法
+
+`QTimer`通用定时器是最常用的定时器，通过设置不同的参数，可以覆盖大部分定时器需求。
+
+先看一个`QTimer`通用定时器的示例：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QTimer
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('定时器')
+window.resize(400,300)
+button = QPushButton('start',window)
+
+timer = QTimer(interval=1000)
+
+# 通过信号定义定时器执行的操作
+timer.timeout.connect(lambda :print('ok'))
+# 通过事件定义定时器执行的操作（会覆盖信号，与一次性模式不兼容）
+# timer.timerEvent = lambda e:print('yes')
+
+button.clicked.connect(lambda :timer.start())
+window.show()
+app.exec()
+```
+
+点击按钮（执行定时器的`start`方法），定时器才会开始计时并循环执行指定操作。
+
+可以使用`timeout`信号、`timerEvent`事件定义要执行的操作。其中，`timerEvent`事件对应的操作需要接收一个`QTimerEvent`定时器事件对象（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimerEvent.html ）作为参数。
+
+`QTimer`类支持以下参数：
+
+- `singleShot`参数，布尔类型，表示定时器是否为一次性定时器（每次启动只执行一次指定操作），默认为`False`。注意，一次性模式仅针对`timeout`信号生效。
+- `interval`参数，整数类型，表示两次操作之间的时间间隔（单位毫秒）。注意，默认定时器启动时不执行操作，需要经过该参数定义的时间之后才会执行第一次操作。
+- `timerType`参数，`Qt.TimerType`类型（参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.TimerType），表示定时器的精确程度。比如`Qt.TimerType.PreciseTimer`表示精确定时器，但会频繁唤醒CPU，额外占用性能。
+
+`QTimer`类支持以下方法（部分）：
+
+- `start`方法，启动定时器。该方法还可以额外传入一个整数，覆盖`interval`参数的值。
+- `stop`方法，停止定时器。
+- `interval`方法，返回当前`interval`参数的值。
+- `timerType`方法，返回当前`timerType`参数的值。
+- `remainingTime`方法，返回当前时间距离下次执行操作时还有多少时间。
+- `isActive`方法，返回定时器是否正在运行。
+- `isSingleShot`方法，返回当前`singleShot`参数的值。
+- `setInterval`方法，修改当前`interval`参数的值。
+- `setSingleShot`方法，修改当前`singleShot`参数的值。
+- `setTimerType`方法，修改当前`timerType`参数的值。
+
+`QTimer`类支持以下静态方法
+
+- `singleShot`方法，创建一个一次性定时器并立刻启动。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+from PySide6.QtCore import QTimer
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('定时器')
+window.resize(400,300)
+
+QTimer.singleShot(1000,lambda :window.setWindowTitle('Are'))
+QTimer.singleShot(2000,lambda :window.setWindowTitle('You'))
+QTimer.singleShot(3000,lambda :window.setWindowTitle('Ready'))
+
+window.show()
+app.exec()
+```
+
+### 14.2 其他定时器的用法
+
+`QBasicTimer`简单定时器不同于通用定时器支持那么多参数，也不像通用定时器那样支持信号，简单定时器用法简单，直接创建即可。想要定时的话，直接给`start`方法传入执行操作的间隔和目标对象即可。
+
+如何定义要重复执行的操作呢？那就要先定义目标对象的`timerEvent`事件。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QBasicTimer
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('简单定时器')
+window.resize(400,300)
+button = QPushButton('click',window)
+
+timer = QBasicTimer()
+button.timerEvent = lambda e:print('ok')
+timer.start(1000,button)
+
+window.show()
+app.exec()
+```
+
+`QBasicTimer`简单定时器不支持信号，看似不如通用定时器，但这个特性也让简单定时器性能更好，因此，它通常用于控件内部追求高性能的场景，不建议在普通程序中使用。
+
+`QDeadlineTimer`倒计时定时器用于创建一个超过一定时间后过期的定时器，可以与其他代码结合，实现倒计时结束后才执行指定代码：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QDeadlineTimer
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('倒计时定时器')
+window.resize(400,300)
+button = QPushButton('click',window)
+
+timer = QDeadlineTimer(5000)
+
+def check():
+    if timer.hasExpired():
+        print('Expired!')
+    else:
+        print('remainingTime is ',timer.remainingTime())
+
+button.clicked.connect(check)
+
+window.show()
+app.exec()
+```
+
+![2025_14_1](qt_for_python.assets/2025_14_1.png)
+
+倒计时定时器在创建时传入时间，表示过多久之后倒计时结束，定时器立即开始。并且，可通过`hasExpired`方法检查倒计时是否结束（即到期）。
+
+如果不想创建就自动开始定时器，也可以随时使用`setRemainingTime`修改剩余时间。
+
+虽然通用定时器的一次性模式也能模拟倒计时定时器，但倒计时定时器专注于计时，没有多余信号、事件，性能相对更好。
+
+`QElapsedTimer`计时定时器用于计算定时器开始之后的时间间隔。使用`start`方法或者`restart`方法启动定时器，使用`elapsed`方法获取当前时间与开始时间之间的时间间隔，`hasExpired`方法加上表示超时时间间隔的参数，用来表示当前时间与开始时间之间的时间间隔是否超过指定值：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QElapsedTimer
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('计时定时器')
+window.resize(400,300)
+button = QPushButton('click',window)
+
+timer = QElapsedTimer()
+
+def check():
+    if timer.isValid():
+        print('elapsed：',timer.elapsed())
+        print('more than 1 sec：',timer.hasExpired(1000))
+        timer.restart()
+    else:
+        timer.start()
+
+button.clicked.connect(check)
+
+window.show()
+app.exec()
+```
+
+![2025_14_2](qt_for_python.assets/2025_14_2.png)
+
+## 15 `QSplashScreen`启动画面控件
+
+很多程序在完全启动之前，需要做一些准备工作，界面不会立刻显示。此时，程序会先显示一个启动画面，英文名SplashScreen，用于表明程序已经启动，只是还要做一些耗时的准备工作，并在准备工作完成后将其隐藏。
+
+在Qt中，`QSplashScreen`启动画面控件（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSplashScreen.html）就是用来实现此功能的。
+
+在正式学习之前，先准备好一张PNG格式的图片（或者直接用下面的图）：
+
+![2025_15_1](qt_for_python.assets/2025_15_1.png)
+
+将图片保存为`LOGO.png`，放在Python源代码的同目录下，Python源代码为：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSplashScreen
+)
+from PySide6.QtCore import Qt,QThread
+from PySide6.QtGui import QPixmap
+
+app = QApplication()
+
+splash = QSplashScreen(QPixmap('LOGO.png'))
+# 显示启动画面
+splash.show()
+# 显示加载信息
+splash.showMessage('加载中，请稍候……')
+# 模拟加载时间
+QThread.sleep(1)
+splash.clearMessage()
+QThread.sleep(1)
+splash.showMessage('即将加载完成')
+QThread.sleep(1)
+
+window = QWidget()
+window.resize(400,300)
+window.show()
+
+# 等待指定控件显示之后隐藏启动画面
+splash.finish(window)
+# 或者直接隐藏启动画面
+# splash.hide()
+
+app.exec()
+```
+
+效果如图：
+
+![2025_15_2](qt_for_python.assets/2025_15_2.png)
+
+代码中，创建启动画面控件时，`pixmap`参数需要传入`QPixmap`类对象作为启动画面的背景图，`f`参数默认可以不传入，也可以传入`Qt.WindowType`枚举对象（含义参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.WindowType），用于指定启动画面的窗口类型（启动画面本质上也是一个窗口），但对控件本身没什么影响。
+
+创建完控件，需要调用`show`方法才能显示。代码中使用`QThread`类的`sleep`方法模拟耗时操作，调用控件的`showMessage`方法可以在启动画面中显示简单的文字消息，使用`clearMessage`方法可以清除文字信息。
+
+等耗时操作完成，使用`hide`方法即可隐藏启动画面。如果耗时操作是因为准备其他控件，可以使用`finish`方法，并给该方法传入其他控件，则启动画面会在其他控件显示时自动隐藏。
+
+## 16 资源集合文件（`.qrc`）
+
+资源集合文件是一个XML格式文件，主要包含特定资源文件（图像、语言文件等）的描述，可供Qt资源系统使用，用于打包、编译资源文件。当然，这里的编译是指C++编写的Qt程序，可以将资源文件打包、编译到可执行文件中。对于Python编写的Qt程序，只能将资源文件编译为Python文件，供Python编写的Qt程序使用。完整用法可参考 https://doc.qt.io/qt-6/zh/resources.html。
+
+### 16.1 编译图片文件
+
+接下来，就以上一章节使用的图片为例，将其打包、编译为Python文件，并在Qt程序中使用。
+
+首先，准备`image.qrc`文件，内容如下（需要与图片文件同目录）：
+
+```xml
+<RCC>
+    <qresource prefix='/images'>
+        <file alias='my_logo.png'>LOGO.png</file>
+    </qresource>
+</RCC>
+```
+
+文件中，`prefix`表示路径前缀，这个前缀会在加载时使用，不代表资源文件的实际路径。但是，需要注意，不能使用`'/qt'`和`'/qt-project.org'` ，这两个前缀为默认保留前缀。
+
+`alias`表示资源别名，如果定义了此属性，则在加载时不能使用原本的文件名，只能使用别名。
+
+如果觉得手写资源集合文件有些麻烦，也可以使用QtDesigner中的资源浏览器创建（需要打开或者创建一个UI文件，保存UI文件才会真的生成资源集合文件）：
+
+![2025_16_1](qt_for_python.assets/2025_16_1.png)
+
+然后，使用`pyside6-rcc .\image.qrc -o image_qrc.py`命令，将资源集合文件编译为Python文件。
+
+生成的Python文件（`image_qrc.py`）内容如下：
+
+```python3
+# Resource object code (Python 3)
+# Created by: object code
+# Created by: The Resource Compiler for Qt version 6.9.1
+# WARNING! All changes made in this file will be lost!
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x07\x02\
+\x89\
+PNG\x0d\x0a\x1a\x0a\x00\x00\x00\x0dIHDR\x00\
+\x00\x00d\x00\x00\x002\x08\x06\x00\x00\x00\xaa5~\xbe\
+\x00\x00\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x00\
+\x04gAMA\x00\x00\xb1\x8f\x0b\xfca\x05\x00\x00\x00\
+\x09pHYs\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a\
+\x9c\x18\x00\x00\x04\xefiTXtXML:co\
+m.adobe.xmp\x00\x00\x00\x00\x00\
+<?xpacket begin=\
+\x22\xef\xbb\xbf\x22 id=\x22W5M0Mp\
+CehiHzreSzNTczkc\
+9d\x22?>\x0d\x0a<x:xmpmet\
+a xmlns:x=\x22adobe\
+:ns:meta/\x22 x:xmp\
+tk=\x22Adobe XMP Co\
+re 6.0-c003 116.\
+ddc7bc4, 2021/08\
+/17-13:18:37    \
+    \x22>\x0d\x0a\x09<rdf:RD\
+F xmlns:rdf=\x22htt\
+p://www.w3.org/1\
+999/02/22-rdf-sy\
+ntax-ns#\x22>\x0d\x0a\x09\x09<r\
+df:Description r\
+df:about=\x22\x22 xmln\
+s:xmp=\x22http://ns\
+.adobe.com/xap/1\
+.0/\x22 xmlns:dc=\x22h\
+ttp://purl.org/d\
+c/elements/1.1/\x22\
+ xmlns:photoshop\
+=\x22http://ns.adob\
+e.com/photoshop/\
+1.0/\x22 xmlns:xmpM\
+M=\x22http://ns.ado\
+be.com/xap/1.0/m\
+m/\x22 xmlns:stEvt=\
+\x22http://ns.adobe\
+.com/xap/1.0/sTy\
+pe/ResourceEvent\
+#\x22 xmp:ModifyDat\
+e=\x222025-07-27T17\
+:04:06+08:00\x22 xm\
+p:MetadataDate=\x22\
+2025-07-27T17:04\
+:06+08:00\x22 dc:fo\
+rmat=\x22image/png\x22\
+ photoshop:Color\
+Mode=\x223\x22 xmpMM:I\
+nstanceID=\x22xmp.i\
+id:4e9d3005-3a95\
+-4c4b-8c06-ff73d\
+9c6b3fc\x22 xmpMM:D\
+ocumentID=\x22xmp.d\
+id:4e9d3005-3a95\
+-4c4b-8c06-ff73d\
+9c6b3fc\x22 xmpMM:O\
+riginalDocumentI\
+D=\x22xmp.did:4e9d3\
+005-3a95-4c4b-8c\
+06-ff73d9c6b3fc\x22\
+>\x0d\x0a\x09\x09\x09<xmpMM:His\
+tory>\x0d\x0a\x09\x09\x09\x09<rdf:\
+Seq>\x0d\x0a\x09\x09\x09\x09\x09<rdf:\
+li stEvt:action=\
+\x22created\x22 stEvt:\
+instanceID=\x22xmp.\
+iid:4e9d3005-3a9\
+5-4c4b-8c06-ff73\
+d9c6b3fc\x22 stEvt:\
+when=\x222025-07-27\
+T11:46:35+08:00\x22\
+ stEvt:softwareA\
+gent=\x22Adobe Phot\
+oshop 21.2 (Wind\
+ows)\x22/>\x0d\x0a\x09\x09\x09\x09</r\
+df:Seq>\x0d\x0a\x09\x09\x09</xm\
+pMM:History>\x0d\x0a\x09\x09\
+</rdf:Descriptio\
+n>\x0d\x0a\x09</rdf:RDF>\x0d\
+\x0a</x:xmpmeta>\x0d\x0a \
+                \
+                \
+                \
+      <?xpacket \
+end='w'?>\xa9\xa6z\xe9\x00\x00\x01\
+\x9cIDATx^\xed\x9c\xc1n\x830\x10D\xd7\
+4\xd7\xfe\xff\xbfV\x0d\xeee\xa7\xb2V\xa8\xb6\x95\xb6\
+\xcc\xac\xf6!\x14\x81\xb0\x04\xfb2\x06\x0cI{\xef\xd6\
+\xad\xa0\xe1\x88+\x8a{)!dd\x11\xd2}\x1e\x97\
+%\xc9\x22\xa4\xf9\xe7\xa9,\xc3\x12\x09\x19\x13\xd2]\x90\
+\xa4\x98,B\x9a\x1f\xcb1\x88@j\xa4\xc8\x22d\xe4\
+M5\x1d\x96T\x08\xba,I2\x0a\xb1\x8b\xab.\x19\
+\x14\x84\xec\x14V:\x1d&\x22d\xa7\xc0\xe3\xb6;\xed\
+hP\x10\xb2\x8btJ2\x0a\x91\x95aI\x85HS\
+B\xc8(!d\x94\x102J\x08\x19\x19\x85\xec\xdcH\
+\xd2\x91QH]\xf6\x92Q\x09!\xa3\x12r#1\x0d\
+\xdd\x1f\xe3\xca\xa2.dL\x03\xc6\xb0\xa4\x8fIy\xe7\
+\xaf^h\x88\xcbr\xa8\x0aA\x1a\xe2p\xbb\xf4\xf9\xc3\
+\x84\x85\xa0\xf8\xf2\x89\x88\xa8\x0a\x81\x08\xf9DDT\x85\
+\xa4\x13\x01T\x85\xa4\xa5\x84\x90QB\xc8(!d\x94\
+\x102J\x08\x19%\x84\x8c\x12BF\x09!\xa3\x84\xdc\
+L\x0b\x83\x0e%\xe4f\xe2\xdf\x04\x94\x90\x9bi\xd6\xec\
+\x184\xb0\x09\xc1\x0fm\xae\x1e>\xcd\xd8\xdd\x9e\x02\xf6\
+\x84\x9cf\xf6\x19WN\x90\x1e\x8ao\xd6\xac[\xff>\
+\x970\x09AaO\x9fW\x0b\x8c\x07U\x98\xe5\xe8>\
+\x19\x99\x10\x0b]\xd5J\x81\xb1\xcd\x87'k\xa5\x0d\x15\
+\xec]\x16xzag)i\x83\xc4\xe7\xf0\x0a\x90\x94\
+\x94\x11V!\xab \x11\xe8\xb6 p&\x92\x96\x97\x84\
+\xc4\x9b\x9a_\xa4/\xec\x1b\x92\x814<\xbc\xcd\x9f\xed\
+\xd4\x7f0;\xe8\x1f\xc1\xd5\x01\xa6W\xf0\xf6\xf8\xa6?\
+\x16\xba\x1d\x14\xff\xf0\xed\x9b\xba\x0c3\xb3/\xeejU\
+Y\xa5\xb0\xf50\x00\x00\x00\x00IEND\xaeB`\
+\x82\
+"
+
+qt_resource_name = b"\
+\x00\x06\
+\x07\x03}\xc3\
+\x00i\
+\x00m\x00a\x00g\x00e\x00s\
+\x00\x0b\
+\x05K\xbb'\
+\x00m\
+\x00y\x00_\x00l\x00o\x00g\x00o\x00.\x00p\x00n\x00g\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x12\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x98\xdb\xfe\x0e(\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()
+```
+
+得到的Python文件就会包含`image.qrc`文件中描述的所有资源文件。
+
+然后，就可以在主程序的Python文件中导入该Python文件：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSplashScreen
+)
+from PySide6.QtCore import Qt,QThread
+from PySide6.QtGui import QPixmap
+import image_qrc
+
+app = QApplication()
+
+splash = QSplashScreen(QPixmap(':/images/my_logo.png'),Qt.WindowType.SplashScreen)
+
+splash.show()
+splash.showMessage('加载中，请稍候……')
+QThread.sleep(1)
+splash.clearMessage()
+QThread.sleep(1)
+splash.showMessage('即将加载完成')
+QThread.sleep(1)
+window = QWidget()
+window.resize(400,300)
+window.show()
+splash.finish(window)
+
+app.exec()
+```
+
+前面使用文件路径表示的图像，就可以替换为`':/images/my_logo.png'`。其中，`':'`表示从资源集合文件中加载，`'/images'`为前缀，`'my_logo.png'`为别名。
+
+### 16.2 编译其他文件
+
+除了图片，任意文件都能编译为Python文件，这样可以将其导入或者嵌入到Python文件中，无需单独放置该文件。
+
+比如，以前面嵌入QML文件的示例为例，这次不是将其作为字符串加载，而是将其编译，
+
+`main.qml`文件内容如下：
+
+```dart
+import QtQuick.Window
+
+Window {
+    visible: true
+    title: 'Main'
+    width: 200
+    height: 200
+    Rectangle {
+        id: main
+        width: 200
+        height: 200
+        color: 'green'
+        Text {
+            text: 'Hello World'
+            anchors.centerIn: main
+        }
+    }
+}
+```
+
+`qml.qrc`文件内容如下：
+
+```xml
+<RCC>
+  <qresource prefix='/qml'>
+    <file alias='ui.qml'>main.qml</file>
+  </qresource>
+</RCC>
+```
+
+生成的Python文件（`ui_qrc.py`）内容如下：
+
+```python3
+# Resource object code (Python 3)
+# Created by: object code
+# Created by: The Resource Compiler for Qt version 6.9.1
+# WARNING! All changes made in this file will be lost!
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x016\
+i\
+mport QtQuick.Wi\
+ndow\x0d\x0a\x0d\x0aWindow {\
+\x0d\x0a    visible: t\
+rue\x0d\x0a    title: \
+'Main'\x0d\x0a    widt\
+h: 200\x0d\x0a    heig\
+ht: 200\x0d\x0a    Rec\
+tangle {\x0d\x0a      \
+  id: main\x0d\x0a    \
+    width: 200\x0d\x0a\
+        height: \
+200\x0d\x0a        col\
+or: 'green'\x0d\x0a   \
+     Text {\x0d\x0a   \
+         text: '\
+Hello World'\x0d\x0a  \
+          anchor\
+s.centerIn: main\
+\x0d\x0a        }\x0d\x0a   \
+ }\x0d\x0a}\
+"
+
+qt_resource_name = b"\
+\x00\x03\
+\x00\x00x<\
+\x00q\
+\x00m\x00l\
+\x00\x06\
+\x07\xbcX<\
+\x00u\
+\x00i\x00.\x00q\x00m\x00l\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x98\xda{\x0e\xde\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()
+```
+
+使用时的代码如下：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+# 其实可以将导入的部分完全用生成的Python文件代替
+import ui_qrc
+
+app = QGuiApplication()
+
+engine = QQmlApplicationEngine(':/qml/ui.qml')
+# 或者 engine = QQmlApplicationEngine('qrc:/qml/ui.qml')
+app.exec()
+```
+
+注意，对于支持`QUrl`对象的参数，前缀可以是`':'`，也可以加上默认省略的协议`'qrc:'`，一样可以使用。
+
+当然，也可以用生成的Python文件内容完全代替`import ui_qrc`，实现另一种意义上的“嵌入”QML文件：
+
+```python3
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+# 生成的Python文件开始
+from PySide6 import QtCore
+qt_resource_data = b"\
+\x00\x00\x016\
+i\
+mport QtQuick.Wi\
+ndow\x0d\x0a\x0d\x0aWindow {\
+\x0d\x0a    visible: t\
+rue\x0d\x0a    title: \
+'Main'\x0d\x0a    widt\
+h: 200\x0d\x0a    heig\
+ht: 200\x0d\x0a    Rec\
+tangle {\x0d\x0a      \
+  id: main\x0d\x0a    \
+    width: 200\x0d\x0a\
+        height: \
+200\x0d\x0a        col\
+or: 'green'\x0d\x0a   \
+     Text {\x0d\x0a   \
+         text: '\
+Hello World'\x0d\x0a  \
+          anchor\
+s.centerIn: main\
+\x0d\x0a        }\x0d\x0a   \
+ }\x0d\x0a}\
+"
+qt_resource_name = b"\
+\x00\x03\
+\x00\x00x<\
+\x00q\
+\x00m\x00l\
+\x00\x06\
+\x07\xbcX<\
+\x00u\
+\x00i\x00.\x00q\x00m\x00l\
+"
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x98\xda{\x0e\xde\
+"
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+qInitResources()
+# 生成的Python文件结束
+
+app = QGuiApplication()
+
+engine = QQmlApplicationEngine(':/qml/ui.qml')
+# 或者 engine = QQmlApplicationEngine('qrc:/qml/ui.qml')
+app.exec()
+```
+
+![2025_7_2](qt_for_python.assets/2025_7_2.png)
+
+既然任意文件都能编译为Python文件，那已经是Python文件的话，能不能使用上面的方式再编译一次？
+
+当然可以！
+
+就以上面示例的代码为原始Python文件，假定其文件名为`main.py`，创建`main.qrc`，内容如下：
+
+```xml
+<RCC>
+  <qresource prefix='/src'>
+    <file alias='main.code'>main.py</file>
+  </qresource>
+</RCC>
+```
+
+使用`pyside6-rcc .\main.qrc -o code_main.py`命令，将资源集合文件编译为Python文件。
+
+注意，因为被编译的文件原本就是Python文件，想要执行的话，需要先读取原始内容，这里需要借用`QFile`类加载`':/src/main.code'`：
+
+```python3
+import code_main # 文件名取决于编译出来的Python文件名或者代码存放的具体Python文件，也可以将下面内容追加到编译文件的末尾
+from PySide6.QtCore import QFile
+
+file = QFile(':/src/main.code')
+file.open(QFile.OpenModeFlag.ReadOnly)
+exec(file.readAll())
+```
+
+可以将上面代码放在单独的Python文件中执行，也可以追加到编译出来的Python文件最后（去掉代码中第一行的导入代码）：
+
+```python3
+# Resource object code (Python 3)
+# Created by: object code
+# Created by: The Resource Compiler for Qt version 6.9.1
+# WARNING! All changes made in this file will be lost!
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x05\xd3\
+f\
+rom PySide6.QtGu\
+i import QGuiApp\
+lication\x0afrom Py\
+Side6.QtQml impo\
+rt QQmlApplicati\
+onEngine\x0a# \xe7\x94\x9f\xe6\x88\
+\x90\xe7\x9a\x84Python\xe6\x96\x87\xe4\xbb\xb6\
+\xe5\xbc\x80\xe5\xa7\x8b\x0afrom PySi\
+de6 import QtCor\
+e\x0aqt_resource_da\
+ta = b\x22\x5c\x0a\x5cx00\x5cx0\
+0\x5cx016\x5c\x0ai\x5c\x0amport\
+ QtQuick.Wi\x5c\x0ando\
+w\x5cx0d\x5cx0a\x5cx0d\x5cx0\
+aWindow {\x5c\x0a\x5cx0d\x5c\
+x0a    visible: \
+t\x5c\x0arue\x5cx0d\x5cx0a  \
+  title: \x5c\x0a'Main\
+'\x5cx0d\x5cx0a    wid\
+t\x5c\x0ah: 200\x5cx0d\x5cx0\
+a    heig\x5c\x0aht: 2\
+00\x5cx0d\x5cx0a    Re\
+c\x5c\x0atangle {\x5cx0d\x5c\
+x0a      \x5c\x0a  id:\
+ main\x5cx0d\x5cx0a   \
+ \x5c\x0a    width: 20\
+0\x5cx0d\x5cx0a\x5c\x0a     \
+   height: \x5c\x0a200\
+\x5cx0d\x5cx0a        \
+col\x5c\x0aor: 'green'\
+\x5cx0d\x5cx0a   \x5c\x0a   \
+  Text {\x5cx0d\x5cx0a\
+   \x5c\x0a         te\
+xt: '\x5c\x0aHello Wor\
+ld'\x5cx0d\x5cx0a  \x5c\x0a \
+         anchor\x5c\
+\x0as.centerIn: mai\
+n\x5c\x0a\x5cx0d\x5cx0a     \
+   }\x5cx0d\x5cx0a   \x5c\
+\x0a }\x5cx0d\x5cx0a}\x5c\x0a\x22\x0a\
+qt_resource_name\
+ = b\x22\x5c\x0a\x5cx00\x5cx03\x5c\
+\x0a\x5cx00\x5cx00x<\x5c\x0a\x5cx0\
+0q\x5c\x0a\x5cx00m\x5cx00l\x5c\x0a\
+\x5cx00\x5cx06\x5c\x0a\x5cx07\x5cx\
+bcX<\x5c\x0a\x5cx00u\x5c\x0a\x5cx0\
+0i\x5cx00.\x5cx00q\x5cx00\
+m\x5cx00l\x5c\x0a\x22\x0aqt_res\
+ource_struct = b\
+\x22\x5c\x0a\x5cx00\x5cx00\x5cx00\x5c\
+x00\x5cx00\x5cx02\x5cx00\x5c\
+x00\x5cx00\x5cx01\x5cx00\x5c\
+x00\x5cx00\x5cx01\x5c\x0a\x5cx0\
+0\x5cx00\x5cx00\x5cx00\x5cx0\
+0\x5cx00\x5cx00\x5cx00\x5c\x0a\x5c\
+x00\x5cx00\x5cx00\x5cx00\x5c\
+x00\x5cx02\x5cx00\x5cx00\x5c\
+x00\x5cx01\x5cx00\x5cx00\x5c\
+x00\x5cx02\x5c\x0a\x5cx00\x5cx0\
+0\x5cx00\x5cx00\x5cx00\x5cx0\
+0\x5cx00\x5cx00\x5c\x0a\x5cx00\x5c\
+x00\x5cx00\x5cx0c\x5cx00\x5c\
+x00\x5cx00\x5cx00\x5cx00\x5c\
+x01\x5cx00\x5cx00\x5cx00\x5c\
+x00\x5c\x0a\x5cx00\x5cx00\x5cx0\
+1\x5cx98\x5cxda{\x5cx0e\x5cx\
+de\x5c\x0a\x22\x0adef qInitR\
+esources():\x0a    \
+QtCore.qRegister\
+ResourceData(0x0\
+3, qt_resource_s\
+truct, qt_resour\
+ce_name, qt_reso\
+urce_data)\x0adef q\
+CleanupResources\
+():\x0a    QtCore.q\
+UnregisterResour\
+ceData(0x03, qt_\
+resource_struct,\
+ qt_resource_nam\
+e, qt_resource_d\
+ata)\x0aqInitResour\
+ces()\x0a# \xe7\x94\x9f\xe6\x88\x90\xe7\x9a\
+\x84Python\xe6\x96\x87\xe4\xbb\xb6\xe7\xbb\x93\
+\xe6\x9d\x9f\x0a\x0aapp = QGuiA\
+pplication()\x0a\x0aen\
+gine = QQmlAppli\
+cationEngine(':/\
+qml/ui.qml')\x0a# \xe6\
+\x88\x96\xe8\x80\x85 engine = Q\
+QmlApplicationEn\
+gine('qrc:/qml/u\
+i.qml')\x0aapp.exec\
+()\
+"
+
+qt_resource_name = b"\
+\x00\x03\
+\x00\x00z\x83\
+\x00s\
+\x00r\x00c\
+\x00\x09\
+\x00\x14\x82\xa5\
+\x00m\
+\x00a\x00i\x00n\x00.\x00c\x00o\x00d\x00e\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x98\xdcFRu\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()
+
+# 使用编译后的Python文件
+from PySide6.QtCore import QFile
+
+file = QFile(':/src/main.code')
+file.open(QFile.OpenModeFlag.ReadOnly)
+exec(file.readAll())
+```
+
+注意，这种将Python源代码编译的方法不是加密，只能防止普通用户随意修改源码，并不能阻止有能力的用户逆向还原代码，且不保证完美兼容所有代码。
+
+## 17 QtWidgets程序的多语言UI（更新中）
+
+
+
+### 17.1 简单的实现
+
+
+
+https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTranslator.html
+
+
+
+
+
+`main_zh.ts`文件：
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="zh">
+<context>
+    <name>Main</name>
+    <message>
+        <source>Main</source>
+        <translation>主窗口</translation>
+    </message>
+    <message>
+        <source>Click</source>
+        <translation>点击</translation>
+    </message>
+</context>
+</TS>
+```
+
+使用`pyside6-lrelease .\main_zh.ts`命令编译生成`main_zh.qm`文件，然后使用：
+
+
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QTranslator
+
+# 加载语言文件
+translator = QTranslator()
+# 可以打包到资源集合文件中，编译后使用
+translator.load('main_zh.qm')
+
+app = QApplication()
+# 安装语言文件
+QApplication.instance().installTranslator(translator)
+# 卸载语言文件
+#QApplication.instance().removeTranslator(translator)
+
+window = QWidget()
+
+# 自动使用翻译文本
+window.setWindowTitle(app.translate('Main','Main'))
+# 也可以不安装语言文件，直接使用
+# window.setWindowTitle(translator.translate('MainWindow','Main'))
+
+window.resize(400,300)
+button = QPushButton(app.translate('Main','Click'),window)
+
+window.show()
+app.exec()
+```
+
+
+
+### 17.2 快捷的实现
+
+
+
+基于UI文件，和多语言Python文件
+
+pyside6-lupdate从UI文件提取字符串，
+
+pyside6-linguist翻译，
+
+pyside6-lrelease编译，
+
+
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+)
+from PySide6.QtCore import QTranslator
+
+# 加载语言文件
+translator = QTranslator()
+# 可以打包到资源集合文件中，编译后使用
+translator.load('main.qm')
+
+app = QApplication()
+app.installTranslator(translator)
+
+window = QWidget()
+
+# 自动使用翻译文本
+window.setWindowTitle(app.translate('Main','Main'))
+
+window.resize(400,300)
+button = QPushButton(app.translate('Main','Click'),window)
+
+window.show()
+app.exec()
+```
+
+
+
+
+
+包含语言文件加载、自动使用语言文件、可提取可翻译字符串（改用`tr`方法的话，会自动选择调用对象的类名作为上下文）的Python文件：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+)
+from PySide6.QtCore import QTranslator
+
+# 加载语言文件
+translator = QTranslator()
+# 可以打包到资源集合文件中，编译后使用
+translator.load('main.qm')
+
+app = QApplication()
+app.installTranslator(translator)
+
+window = QWidget()
+
+# 自动使用翻译文本
+window.setWindowTitle(QApplication.tr('Main'))
+
+window.resize(400,300)
+button = QPushButton(QWidget.tr('Click'),window)
+
+window.show()
+app.exec()
+```
+
+`pyside6-lupdate .\main.py -ts main.ts`提取字符串，
+
+内容如下：
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1">
+<context>
+    <name>QApplication</name>
+    <message>
+        <location filename="main.py" line="19"/>
+        <source>Main</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QWidget</name>
+    <message>
+        <location filename="main.py" line="22"/>
+        <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+</TS>
+```
+
+`pyside6-linguist .\main.ts`启动翻译工具：
+
+![image-20250824232442310](qt_for_python.assets/image-20250824232442310.png)
+
+`pyside6-lrelease .\main.ts`编译、生成语言包，也可以使用文件-发布（或者发布为）：
+
+
+
+![image-20250824232604551](qt_for_python.assets/image-20250824232604551.png)
+
+
+
+## 18 使用配置文件保存配置项
+
+
+
+https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html
 
 
 
@@ -4562,7 +5576,6 @@ app.exec()
 
 灵感来源（官方）：
 
-- Qt 入门：https://doc.qt.io/qt-6/zh/gettingstarted.html
 - Qt Core：https://doc.qt.io/qt-6/zh/qtcore-index.html
 - Qt GUI：https://doc.qt.io/qt-6/zh/qtgui-index.html
 - Qt Network：https://doc.qt.io/qt-6/zh/qtnetwork-index.html
@@ -4583,47 +5596,6 @@ app.exec()
 
 
 ## 13 具体控件——显示一个对话框（比如`QMessageBox`）（更新中）
-
-
-
-## 13 具体控件——`QSplashScreen`启动画面控件（更新中）
-
-
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QSplashScreen
-)
-from PySide6.QtCore import Qt,QThread
-from PySide6.QtGui import QPixmap
-
-app = QApplication()
-
-splash = QSplashScreen(QPixmap('LOGO.png'),Qt.WindowType.SplashScreen)
-# 显示加载图
-splash.show()
-# 显示加载信息
-splash.showMessage('加载中，请稍候……')
-# 模拟加载时间
-QThread.sleep(1)
-splash.clearMessage()
-QThread.sleep(1)
-splash.showMessage('即将加载完成')
-QThread.sleep(1)
-
-window = QWidget()
-window.resize(400,300)
-window.show()
-
-# 等待指定控件显示之后隐藏加载图
-splash.finish(window)
-# 或者直接隐藏加载图
-# splash.hide()
-
-app.exec()
-```
 
 
 

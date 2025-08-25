@@ -5129,9 +5129,9 @@ engine = QQmlApplicationEngine(':/qml/ui.qml')
 app.exec()
 ```
 
-注意，对于支持`QUrl`对象的参数，前缀可以是`':'`，也可以加上默认省略的协议`'qrc:'`，一样可以使用。
+注意，对于支持`QUrl`对象的参数，前缀可以是`':'`，也可以加上默认省略的协议`'qrc:'`，都可以正常使用。
 
-当然，也可以用生成的Python文件内容完全代替`import ui_qrc`，实现另一种意义上的“嵌入”QML文件：
+当然，也可以用生成的Python文件内容完全代替`import ui_qrc`，实现另一种意义上的加载“QML字符串”：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
@@ -5370,21 +5370,44 @@ exec(file.readAll())
 
 注意，这种将Python源代码编译的方法不是加密，只能防止普通用户随意修改源码，并不能阻止有能力的用户逆向还原代码，且不保证完美兼容所有代码。
 
-## 17 QtWidgets程序的多语言UI（更新中）
+## 17 QtWidgets程序的多语言UI
 
+如果程序的使用者不只使用当前语言，还有可能使用其他语言，那么，程序界面就需要支持翻译为其他语言。对于熟悉Python的读者来说，可能第一时间想到的是使用字典显示界面内容，比如`ui_zh_dict['click'] = '点击'`，可以通过修改、更新字典，来更新界面的语言。不过，这种方法看似简单，但界面文本内容变得比较多的话，翻译工作量和代码难度会大幅增加。
 
+好在Qt提供了更加方便的多语言UI功能，让提供多语言UI更简单、快捷（涉及到的功能可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTranslator.html ）。
 
 ### 17.1 简单的实现
 
+先来看一下简单的实现方式。注意，本节的内容主要是为了演示构建多语言UI的基本流程，不推荐在实际开发中使用。因为，采用本节的实现方式，并不比使用字典的实现方式简单多少（部分采用Qt提供的工具），下一节会介绍全流程使用Qt提供工具翻译界面，才是Qt程序制作多语言UI的标准流程。
 
+首先，没有提供其他语言的`main.py`文件内容如下：
 
-https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTranslator.html
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
 
+app = QApplication()
 
+window = QWidget()
+window.setWindowTitle('Main')
+window.resize(400,300)
+button = QPushButton('Click',window)
 
+window.show()
+app.exec()
+```
 
+![2025_17_1](qt_for_python.assets/2025_17_1.png)
 
-`main_zh.ts`文件：
+很简单直观的QtWidgets程序，其中包含两处文本：
+
+- 主窗口标题：`'Main'`
+- 按钮文本：`'Click'`
+
+接下来，创建`main_zh.ts`文件，内容如下（不用纠结具体含义，这里只是演示基本流程，下一节有自动生成的方法）：
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -5404,11 +5427,11 @@ https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTranslator.html
 </TS>
 ```
 
-使用`pyside6-lrelease .\main_zh.ts`命令编译生成`main_zh.qm`文件，然后使用：
+此文件就是翻译内容的源文件（基于自动生成的文件修改，简化了不必要的内容，并补全了翻译结果）。注意，文件中第一个`'Main'`不是未翻译的文本，而是表明翻译文本所属的上下文，在下面使用翻译文本时会用到。
 
+然后，使用`pyside6-lrelease .\main_zh.ts`命令编译源文件，会在同目录下生成`main_zh.qm`语言文件（可由资源集合文件打包、编译，并在程序中使用，这里不做演示）。
 
-
-
+然后，需要修改`main.py`文件如下，来使用生成的语言文件：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -5418,23 +5441,24 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QTranslator
 
-# 加载语言文件
+# 创建翻译类对象
 translator = QTranslator()
-# 可以打包到资源集合文件中，编译后使用
+# 加载语言文件
 translator.load('main_zh.qm')
 
 app = QApplication()
-# 安装语言文件
+# 安装翻译类对象
 QApplication.instance().installTranslator(translator)
-# 卸载语言文件
+# 卸载翻译类对象
 #QApplication.instance().removeTranslator(translator)
 
 window = QWidget()
 
 # 自动使用翻译文本
 window.setWindowTitle(app.translate('Main','Main'))
+# 或者 window.setWindowTitle(QApplication.translate('Main','Main'))
 # 也可以不安装语言文件，直接使用
-# window.setWindowTitle(translator.translate('MainWindow','Main'))
+# window.setWindowTitle(translator.translate('Main','Main'))
 
 window.resize(400,300)
 button = QPushButton(app.translate('Main','Click'),window)
@@ -5443,45 +5467,73 @@ window.show()
 app.exec()
 ```
 
+代码中，想要使用语言文件的翻译文本，首先要创建翻译类对象，让翻译类对象加载语言文件：
 
+```python3
+from PySide6.QtCore import QTranslator
+
+# 创建翻译类对象
+translator = QTranslator()
+# 加载语言文件
+translator.load('main_zh.qm')
+```
+
+想要在程序中使用语言文件的翻译文本，接下来就是安装翻译类对象：
+
+```python3
+# 安装翻译类对象
+QApplication.instance().installTranslator(translator)
+# 或者
+app.installTranslator(translator)
+```
+
+只有程序类实例可以安装翻译类对象。另外，如果需要卸载的话（切换翻译前最好卸载当前翻译类对象，当然，直接安装也可以），则要调用`removeTranslator`方法：
+
+```python3
+# 卸载翻译类对象
+QApplication.instance().removeTranslator(translator)
+```
+
+只是加载语言文件、安装翻译类对象，程序显示的文本还不会自动切换为对应的语言，这是因为原本程序显示的文本是普通文本，不是自动翻译文本。因此，需要将程序显示的文本替换为下面任意一种自动翻译文本：
+
+- 程序类、程序类实例、翻译类对象的`translate`方法返回的文本。
+
+  需要注意，`translate`方法的第一个参数为上下文，第二个参数为文本原文，方法会返回语言文件中原文对应的翻译文本。
+
+  这里推荐使用程序类、程序类实例的`translate`方法，因为翻译类对象的`translate`方法在没有加载语言文件时，会返回空文本。而程序类、程序类实例的`translate`方法，在没有加载语言文件、安装翻译类对象时，会返回原文。
+
+- 程序类、程序类实例、翻译类、翻译类对象的`tr`方法返回的文本。
+
+  注意，`tr`方法默认调用对象的类名为上下文，第一个参数为文本原文，在没有加载语言文件、安装翻译类对象时，会返回原文。
+
+  虽然`tr`方法不适用于本节的语言文件，但在下节中，自动生成翻译内容源文件时可以快捷使用。因此，这里只是介绍正常流程，并为下一节铺垫，请读者不要直接套用到本节示例中。
+
+替换了自动翻译文本之后，再次运行，就能看到翻译结果：
+
+![2025_17_2](qt_for_python.assets/2025_17_2.png)
 
 ### 17.2 快捷的实现
 
+想必读者也发现了问题，虽说Qt提供了更加方便的多语言UI功能，让提供多语言UI更简单、快捷，但是需要手动创建翻译内容的源文件，和手动创建字典的区别不大。
 
+稍安勿躁，上一节只是为了介绍工作流程，如果一开始程序显示的文本就是支持自动翻译的文本的话，就可以使用Qt提供的工具自动生成翻译内容的源文件，还可以使用可视化工具翻译文本、编译源文件、生成语言文件，极大提高翻译效率。
 
-基于UI文件，和多语言Python文件
-
-pyside6-lupdate从UI文件提取字符串，
-
-pyside6-linguist翻译，
-
-pyside6-lrelease编译，
-
-
-
-
+`main.py`文件和上一节最后的示例基本相同，只是删掉了注释，并修改加载的语言文件为`main.qm`，避免使用上节的语言文件：
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
-    QPushButton,
+    QPushButton
 )
 from PySide6.QtCore import QTranslator
 
-# 加载语言文件
 translator = QTranslator()
-# 可以打包到资源集合文件中，编译后使用
 translator.load('main.qm')
-
 app = QApplication()
-app.installTranslator(translator)
-
+QApplication.instance().installTranslator(translator)
 window = QWidget()
-
-# 自动使用翻译文本
 window.setWindowTitle(app.translate('Main','Main'))
-
 window.resize(400,300)
 button = QPushButton(app.translate('Main','Click'),window)
 
@@ -5489,60 +5541,25 @@ window.show()
 app.exec()
 ```
 
+![2025_17_1](qt_for_python.assets/2025_17_1.png)
 
+接下来，使用`pyside6-lupdate .\main.py -ts main.ts`命令生成对应的翻译内容源文件。
 
-
-
-包含语言文件加载、自动使用语言文件、可提取可翻译字符串（改用`tr`方法的话，会自动选择调用对象的类名作为上下文）的Python文件：
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QPushButton,
-)
-from PySide6.QtCore import QTranslator
-
-# 加载语言文件
-translator = QTranslator()
-# 可以打包到资源集合文件中，编译后使用
-translator.load('main.qm')
-
-app = QApplication()
-app.installTranslator(translator)
-
-window = QWidget()
-
-# 自动使用翻译文本
-window.setWindowTitle(QApplication.tr('Main'))
-
-window.resize(400,300)
-button = QPushButton(QWidget.tr('Click'),window)
-
-window.show()
-app.exec()
-```
-
-`pyside6-lupdate .\main.py -ts main.ts`提取字符串，
-
-内容如下：
+`main.ts`文件的内容如下：
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1">
 <context>
-    <name>QApplication</name>
+    <name>Main</name>
     <message>
-        <location filename="main.py" line="19"/>
+        <location filename="main.py" line="13"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QWidget</name>
     <message>
-        <location filename="main.py" line="22"/>
+        <location filename="main.py" line="15"/>
         <source>Click</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5550,23 +5567,385 @@ app.exec()
 </TS>
 ```
 
-`pyside6-linguist .\main.ts`启动翻译工具：
+其实，此时就可以直接修改`main.ts`文件，然后使用`pyside6-lrelease .\main.ts`命令编译源文件，但这样操作不够快捷。为了更加快捷，使用`pyside6-linguist .\main.ts`命令打开源文件：
 
-![image-20250824232442310](qt_for_python.assets/image-20250824232442310.png)
+![2025_17_3](qt_for_python.assets/2025_17_3.png)
 
-`pyside6-lrelease .\main.ts`编译、生成语言包，也可以使用文件-发布（或者发布为）：
+可以直接确定，也可以调整下面的目标语言之后再确定，笔者这里调整下面的目标语言为简体中文：
+
+![2025_17_4](qt_for_python.assets/2025_17_4.png)
+
+点击对应的原文，然后输入翻译结果，在点击完成按钮，一条原文即可翻译完成：
+
+![2025_17_5](qt_for_python.assets/2025_17_5.png)
+
+翻译完所有原文后，按`ctrl+s`键或者点击保存按钮，将源文件保存。此时可以使用`pyside6-lrelease .\main.ts`命令编译、生成语言包，也可以使用`文件-发布`（或者`发布为`）编译、生成语言包：
+
+![2025_17_6](qt_for_python.assets/2025_17_6.png)
+
+生成的语言文件与源文件在同目录，再次运行`main.py`文件，翻译生效：
+
+![2025_17_2](qt_for_python.assets/2025_17_2.png)
+
+除了使用可翻译文本，从Python文件中提取、翻译文本的方式外，如果使用UI文件设计界面，还可以从UI文件中提取、翻译文本。
+
+`main.ui`文件（使用QtDesigner设计、生成，可以套用前面的UI文件，根据实际情况修改文本、`objectName`属性）内容如下：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Main</class>
+ <widget class="QWidget" name="Main">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Main</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QPushButton" name="psf">
+   <property name="text">
+    <string>Click</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+```
+
+`main.py`文件内容如下：
+
+```python3
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QTranslator
+
+translator = QTranslator()
+translator.load('main.qm')
+app = QApplication()
+QApplication.instance().installTranslator(translator)
+window = QUiLoader().load('main.ui')
+
+window.show()
+app.exec()
+```
+
+![2025_17_1](qt_for_python.assets/2025_17_1.png)
+
+如果读者运行过本节前面的示例，请删除同目录下的`main.ts`文件、`main.qm`文件，避免干扰。
+
+然后，使用`pyside6-lupdate .\main.ui -ts main.ts`命令生成对应的翻译内容源文件，使用`pyside6-linguist .\main.ts`命令打开源文件，开始翻译过程：
+
+![2025_17_7](qt_for_python.assets/2025_17_7.png)
+
+可以看到，不同于提取自Python文件的源文件，提取自UI文件的源文件，可以预览翻译结果。如果发现翻译结果会导致显示效果不佳，可以在这里直接修改翻译文本，或者回到QtDesigner程序中，重新调整控件的样式。
+
+之后就是保存、发布，再次运行`main.py`文件，翻译生效。
+
+### 17.3 切换语言
+
+对于支持多语言的QtWidgets程序，想要切换语言，就要在加载了指定语言的语言文件之后，重新安装翻译类对象，并重新翻译程序界面。
+
+为了实现热切换（不重启），需要将UI文件转换为Python类，并在加载了指定语言的语言文件、重新安装翻译类对象之后，调用`window.retranslateUi(window)`来重新翻译程序界面：
+
+```python3
+from PySide6.QtWidgets import QApplication, QWidget, QPushButton
+from PySide6.QtCore import QTranslator, QCoreApplication,QMetaObject
+
+class Ui_Main(object):
+    def setupUi(self, Main):
+        if not Main.objectName():
+            Main.setObjectName(u"Main")
+        Main.resize(400, 300)
+        Main.setStyleSheet(u"")
+        self.psf = QPushButton(Main)
+        self.psf.setObjectName(u"psf")
+        self.retranslateUi(Main)
+        QMetaObject.connectSlotsByName(Main)
+    def retranslateUi(self, Main):
+        Main.setWindowTitle(QCoreApplication.translate("Main", u"Main", None))
+        self.psf.setText(QCoreApplication.translate("Main", u"Click", None))
+
+app = QApplication()
+
+class MyWidget(QWidget, Ui_Main):
+    ...
+
+window = MyWidget()
+window.setupUi(window)
+
+def change_ui_zh():
+    translator = QTranslator()
+    translator.load('main.qm')
+    QApplication.instance().installTranslator(translator)
+    window.retranslateUi(window)
+
+def change_ui_default():
+    translator = QTranslator()
+    QApplication.instance().installTranslator(translator)
+    window.retranslateUi(window)
+
+button_zh = QPushButton('切换为中文',window)
+button_zh.clicked.connect(change_ui_zh)
+button_zh.move(0,50)
+
+button_default = QPushButton('切换为默认',window)
+button_default.clicked.connect(change_ui_default)
+button_default.move(100,50)
+
+window.show()
+app.exec()
+```
+
+![2025_17_8](qt_for_python.assets/2025_17_8.gif)
+
+热切换语言文件对代码要求比较严苛，如果是重启切换或者自动切换，则可以改用自动识别系统语言的方式，代码比较简单。
+
+为什么这么说呢？不知道读者是否还记得第一小节中，生成的`main_zh.qm`语言文件。刚好，此文件与基于`main.ui`文件的示例完美兼容，那就别浪费，接下来，用它们演示一下自动加载语言文件的独特方式：
+
+```python3
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QTranslator,QLocale
+
+app = QApplication()
+
+# 启动时自动切换的关键代码
+translator = QTranslator()
+if translator.load(QLocale('zh'),'main','_','./'):
+    QApplication.instance().installTranslator(translator)
+
+window = QUiLoader().load('main.ui')
+window.show()
+app.exec()
+```
+
+代码中，引入了`QLocale`类，此类用于获取或者定义当前系统环境的语言，笔者使用的是中文系统，对应的语言代码为`'zh'`，因此`QLocale`类的参数可以省略。如果读者使用其他语言系统或者想要使用其他语言文件，可以传入语言代码作为参数。
+
+当翻译对象的`load`方法的第一个参数为`QLocale`类对象时，翻译对象会自动基于`QLocale`类对象获取语言代码，加载格式为`{语言文件所在目录}/{主文件名}{分隔符}{语言代码}.qm`的语言文件（比如，获取到的语言代码为`'zh'`，就会加载`{语言文件所在目录}/{主文件名}{分隔符}zh.qm`）。此时，第二个参数表示语言文件的主文件名（`'main_zh.qm'`中的`'main'`）；第三个参数表示语言文件文件名中，主文件名与后面语言代码之间的分隔符（`'main_zh.qm'`中`'main'`和`'zh'`之间的下划线）；第四个参数表示语言文件所在目录，如果传入':'为前缀的地址，则会从资源集合文件中加载语言文件。比如，可以将示例中的UI文件和语言文件通过资源集合文件编译成Python文件，实现单文件支持多语言：
+
+`main.qrc`文件：
+
+```xml
+<RCC>
+  <qresource prefix='/'>
+    <file>main.ui</file>
+    <file>main_zh.qm</file>
+  </qresource>
+</RCC>
+```
+
+编译成Python文件：
+
+```python3
+# Resource object code (Python 3)
+# Created by: object code
+# Created by: The Resource Compiler for Qt version 6.9.1
+# WARNING! All changes made in this file will be lost!
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x00v\
+<\
+\xb8d\x18\xca\xef\x9c\x95\xcd!\x1c\xbf`\xa1\xbd\xdd\xa7\
+\x00\x00\x00\x02zhB\x00\x00\x00\x10\x00\x057\xfe\x00\
+\x00\x00\x22\x00J/\x9b\x00\x00\x00\x00i\x00\x00\x00E\
+\x03\x00\x00\x00\x04p\xb9Q\xfb\x08\x00\x00\x00\x00\x06\x00\
+\x00\x00\x05Click\x07\x00\x00\x00\x04Mai\
+n\x01\x03\x00\x00\x00\x06N;z\x97S\xe3\x08\x00\x00\
+\x00\x00\x06\x00\x00\x00\x04Main\x07\x00\x00\x00\x04\
+Main\x01\
+\x00\x00\x02P\
+<\
+?xml version=\x221.\
+0\x22 encoding=\x22UTF\
+-8\x22?>\x0d\x0a<ui versi\
+on=\x224.0\x22>\x0d\x0a <cla\
+ss>Main</class>\x0d\
+\x0a <widget class=\
+\x22QWidget\x22 name=\x22\
+Main\x22>\x0d\x0a  <prope\
+rty name=\x22geomet\
+ry\x22>\x0d\x0a   <rect>\x0d\
+\x0a    <x>0</x>\x0d\x0a \
+   <y>0</y>\x0d\x0a   \
+ <width>400</wid\
+th>\x0d\x0a    <height\
+>300</height>\x0d\x0a \
+  </rect>\x0d\x0a  </p\
+roperty>\x0d\x0a  <pro\
+perty name=\x22wind\
+owTitle\x22>\x0d\x0a   <s\
+tring>Main</stri\
+ng>\x0d\x0a  </propert\
+y>\x0d\x0a  <property \
+name=\x22styleSheet\
+\x22>\x0d\x0a   <string n\
+otr=\x22true\x22/>\x0d\x0a  \
+</property>\x0d\x0a  <\
+widget class=\x22QP\
+ushButton\x22 name=\
+\x22psf\x22>\x0d\x0a   <prop\
+erty name=\x22text\x22\
+>\x0d\x0a    <string>C\
+lick</string>\x0d\x0a \
+  </property>\x0d\x0a \
+ </widget>\x0d\x0a </w\
+idget>\x0d\x0a <resour\
+ces/>\x0d\x0a <connect\
+ions/>\x0d\x0a</ui>\x0d\x0a\
+"
+
+qt_resource_name = b"\
+\x00\x0a\
+\x04~\xc5}\
+\x00m\
+\x00a\x00i\x00n\x00_\x00z\x00h\x00.\x00q\x00m\
+\x00\x07\
+\x03\x80\x15Y\
+\x00m\
+\x00a\x00i\x00n\x00.\x00u\x00i\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x01\x00\x00\x00z\
+\x00\x00\x01\x98\xe0I\xa8\xd4\
+\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x98\xdf\x1f\x89\xd2\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()
+```
+
+整合之后的`main.py`文件：
+
+```python3
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QTranslator,QLocale
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x00v\
+<\
+\xb8d\x18\xca\xef\x9c\x95\xcd!\x1c\xbf`\xa1\xbd\xdd\xa7\
+\x00\x00\x00\x02zhB\x00\x00\x00\x10\x00\x057\xfe\x00\
+\x00\x00\x22\x00J/\x9b\x00\x00\x00\x00i\x00\x00\x00E\
+\x03\x00\x00\x00\x04p\xb9Q\xfb\x08\x00\x00\x00\x00\x06\x00\
+\x00\x00\x05Click\x07\x00\x00\x00\x04Mai\
+n\x01\x03\x00\x00\x00\x06N;z\x97S\xe3\x08\x00\x00\
+\x00\x00\x06\x00\x00\x00\x04Main\x07\x00\x00\x00\x04\
+Main\x01\
+\x00\x00\x02P\
+<\
+?xml version=\x221.\
+0\x22 encoding=\x22UTF\
+-8\x22?>\x0d\x0a<ui versi\
+on=\x224.0\x22>\x0d\x0a <cla\
+ss>Main</class>\x0d\
+\x0a <widget class=\
+\x22QWidget\x22 name=\x22\
+Main\x22>\x0d\x0a  <prope\
+rty name=\x22geomet\
+ry\x22>\x0d\x0a   <rect>\x0d\
+\x0a    <x>0</x>\x0d\x0a \
+   <y>0</y>\x0d\x0a   \
+ <width>400</wid\
+th>\x0d\x0a    <height\
+>300</height>\x0d\x0a \
+  </rect>\x0d\x0a  </p\
+roperty>\x0d\x0a  <pro\
+perty name=\x22wind\
+owTitle\x22>\x0d\x0a   <s\
+tring>Main</stri\
+ng>\x0d\x0a  </propert\
+y>\x0d\x0a  <property \
+name=\x22styleSheet\
+\x22>\x0d\x0a   <string n\
+otr=\x22true\x22/>\x0d\x0a  \
+</property>\x0d\x0a  <\
+widget class=\x22QP\
+ushButton\x22 name=\
+\x22psf\x22>\x0d\x0a   <prop\
+erty name=\x22text\x22\
+>\x0d\x0a    <string>C\
+lick</string>\x0d\x0a \
+  </property>\x0d\x0a \
+ </widget>\x0d\x0a </w\
+idget>\x0d\x0a <resour\
+ces/>\x0d\x0a <connect\
+ions/>\x0d\x0a</ui>\x0d\x0a\
+"
+
+qt_resource_name = b"\
+\x00\x0a\
+\x04~\xc5}\
+\x00m\
+\x00a\x00i\x00n\x00_\x00z\x00h\x00.\x00q\x00m\
+\x00\x07\
+\x03\x80\x15Y\
+\x00m\
+\x00a\x00i\x00n\x00.\x00u\x00i\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x01\x00\x00\x00z\
+\x00\x00\x01\x98\xe0I\xa8\xd4\
+\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x98\xdf\x1f\x89\xd2\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()
 
 
+app = QApplication()
 
-![image-20250824232604551](qt_for_python.assets/image-20250824232604551.png)
+# 启动时自动切换的关键代码
+translator = QTranslator()
+# 可以修改zh为其他内容，此时将显示翻译前的原文
+if translator.load(QLocale('zh'),'main','_',':/'):
+    QApplication.instance().installTranslator(translator)
 
+window = QUiLoader().load(':/main.ui')
+window.show()
+app.exec()
+```
 
+## 18 使用配置文件保存配置项（更新中）
 
-## 18 使用配置文件保存配置项
+上一章最后展示了（伪）自动获取系统语言并加载对应语言文件的示例，但是，很多时候，系统语言不代表用户一定会用对应语言的应用程序，有可能用户会用其他语言的应用程序。那么，如果能在用户切换了应用程序的语言之后，保存用户的设置，并在下次启动时使用该设置，这样的体验无疑是对用户更好的。
 
+不过，想要实现这个需求，如何保存用户设置到文件，是一个绕不开的难点。于是，本章诞生了。
 
+本章内容参考自 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html 和网络，有能力的读者可以参阅参考资料，学习更完整的内容。
 
-https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html
+### 18.1 （待定）
 
 
 

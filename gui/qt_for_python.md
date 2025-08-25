@@ -5923,7 +5923,6 @@ def qCleanupResources():
 
 qInitResources()
 
-
 app = QApplication()
 
 # 启动时自动切换的关键代码
@@ -5936,6 +5935,164 @@ window = QUiLoader().load(':/main.ui')
 window.show()
 app.exec()
 ```
+
+在完成本章之后，突然灵光一现，想到如果可以通过参数指定界面语言，并在程序启动时基于参数加载指定语言文件，是不是可以让任意使用语言文件的程序切换界面语言？
+
+于是，便有了下面的示例：
+
+```python3
+from PySide6.QtWidgets import QApplication,QPushButton,QMessageBox
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QTranslator,QLocale
+
+# 添加 --lang 参数，用于指定程序界面的语言
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--lang',help='界面的语言，目前支持：zh，en（留空则与系统语言一致）')
+args = parser.parse_args()
+
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x00v\
+<\
+\xb8d\x18\xca\xef\x9c\x95\xcd!\x1c\xbf`\xa1\xbd\xdd\xa7\
+\x00\x00\x00\x02zhB\x00\x00\x00\x10\x00\x057\xfe\x00\
+\x00\x00\x22\x00J/\x9b\x00\x00\x00\x00i\x00\x00\x00E\
+\x03\x00\x00\x00\x04p\xb9Q\xfb\x08\x00\x00\x00\x00\x06\x00\
+\x00\x00\x05Click\x07\x00\x00\x00\x04Mai\
+n\x01\x03\x00\x00\x00\x06N;z\x97S\xe3\x08\x00\x00\
+\x00\x00\x06\x00\x00\x00\x04Main\x07\x00\x00\x00\x04\
+Main\x01\
+\x00\x00\x02P\
+<\
+?xml version=\x221.\
+0\x22 encoding=\x22UTF\
+-8\x22?>\x0d\x0a<ui versi\
+on=\x224.0\x22>\x0d\x0a <cla\
+ss>Main</class>\x0d\
+\x0a <widget class=\
+\x22QWidget\x22 name=\x22\
+Main\x22>\x0d\x0a  <prope\
+rty name=\x22geomet\
+ry\x22>\x0d\x0a   <rect>\x0d\
+\x0a    <x>0</x>\x0d\x0a \
+   <y>0</y>\x0d\x0a   \
+ <width>400</wid\
+th>\x0d\x0a    <height\
+>300</height>\x0d\x0a \
+  </rect>\x0d\x0a  </p\
+roperty>\x0d\x0a  <pro\
+perty name=\x22wind\
+owTitle\x22>\x0d\x0a   <s\
+tring>Main</stri\
+ng>\x0d\x0a  </propert\
+y>\x0d\x0a  <property \
+name=\x22styleSheet\
+\x22>\x0d\x0a   <string n\
+otr=\x22true\x22/>\x0d\x0a  \
+</property>\x0d\x0a  <\
+widget class=\x22QP\
+ushButton\x22 name=\
+\x22psf\x22>\x0d\x0a   <prop\
+erty name=\x22text\x22\
+>\x0d\x0a    <string>C\
+lick</string>\x0d\x0a \
+  </property>\x0d\x0a \
+ </widget>\x0d\x0a </w\
+idget>\x0d\x0a <resour\
+ces/>\x0d\x0a <connect\
+ions/>\x0d\x0a</ui>\x0d\x0a\
+"
+
+qt_resource_name = b"\
+\x00\x0a\
+\x04~\xc5}\
+\x00m\
+\x00a\x00i\x00n\x00_\x00z\x00h\x00.\x00q\x00m\
+\x00\x07\
+\x03\x80\x15Y\
+\x00m\
+\x00a\x00i\x00n\x00.\x00u\x00i\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x01\x00\x00\x00z\
+\x00\x00\x01\x98\xe0I\xa8\xd4\
+\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x98\xdf\x1f\x89\xd2\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()
+
+
+app = QApplication()
+
+# 启动时自动切换的关键代码
+translator = QTranslator()
+if translator.load(QLocale(args.lang) if args.lang else QLocale(),'main','_',':/'):
+    QApplication.instance().installTranslator(translator)
+
+window = QUiLoader().load(':/main.ui')
+
+def restart(lang=''):
+    msg_box = QMessageBox(
+        QMessageBox.Icon.Question,
+        '消息',
+        '确定要重启程序吗？',
+        QMessageBox.Yes | QMessageBox.No,
+        window
+    ) if lang=='zh' else QMessageBox(
+        QMessageBox.Icon.Question,
+        'Info',
+        'Do you want to restart application?',
+        QMessageBox.Yes | QMessageBox.No,
+        window
+    )
+    # 修改标准按钮的文本
+    yes_button = msg_box.button(QMessageBox.Yes)
+    yes_button.setText('确认'if lang=='zh' else 'Yes')
+    no_button = msg_box.button(QMessageBox.No)
+    no_button.setText('取消'if lang=='zh' else 'No')
+    # 将默认选择的按钮修改为取消按钮
+    msg_box.setDefaultButton(no_button)
+    msg_box.exec()
+    # 结果转换为标准值
+    result = msg_box.standardButton(msg_box.clickedButton())
+    if result == QMessageBox.Yes:
+        # 接受，使用指定lang参数重启程序
+        app.quit()
+        import sys,os,subprocess
+        python_exec = sys.executable
+        script_path = os.path.abspath(__file__)
+        subprocess.Popen([python_exec, script_path,'--lang',lang])
+    else:
+        # 忽略
+        return
+
+button_zh = QPushButton('切换为中文',window)
+button_zh.clicked.connect(lambda :restart('zh'))
+button_zh.move(0,50)
+
+button_default = QPushButton('Change to English',window)
+button_default.clicked.connect(lambda :restart('en'))
+button_default.move(100,50)
+
+window.show()
+app.exec()
+```
+
+示例基于上一个示例修改，额外实现了系统参数`--lang`，并使用该系统参数加载指定语言文件。此外，还添加了一个双语版本的询问对话框，允许用户后悔重启程序，并实现了基于选择重启程序、传入指定系统参数的代码。主窗口添加了与系统参数相关的两个按钮。
+
+![2025_17_9](qt_for_python.assets/2025_17_9.png)
 
 ## 18 使用配置文件保存配置项（更新中）
 

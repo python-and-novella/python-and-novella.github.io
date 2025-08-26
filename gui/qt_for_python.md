@@ -6094,74 +6094,259 @@ app.exec()
 
 ![2025_17_9](qt_for_python.assets/2025_17_9.png)
 
-## 18 使用配置文件保存配置项（更新中）
+## 18 使用配置文件保存配置项
 
 上一章最后展示了（伪）自动获取系统语言并加载对应语言文件的示例，但是，很多时候，系统语言不代表用户一定会用对应语言的应用程序，有可能用户会用其他语言的应用程序。那么，如果能在用户切换了应用程序的语言之后，保存用户的设置，并在下次启动时使用该设置，这样的体验无疑是对用户更好的。
 
-不过，想要实现这个需求，如何保存用户设置到文件，是一个绕不开的难点。于是，本章诞生了。
+不过，想要实现这个需求，如何保存用户设置到配置文件中，是一个绕不开的难点。于是，本章诞生了。
 
 本章内容参考自 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html 和网络，有能力的读者可以参阅参考资料，学习更完整的内容。
 
-### 18.1 （待定）
+### 18.1 创建配置文件保存在默认位置的配置文件对象
+
+如果不指定配置文件的存储位置，让配置文件保存在默认位置，则可以使用下面几种方式创建配置文件对象（参数及类型提示来自`QtCore.pyi`）：
+
+第一种为：
+
+```python3
+QSettings(
+    organization: str, 
+    /, 
+    application: str = ..., 
+    parent: PySide6.QtCore.QObject | None = ...
+)
+```
+
+`organization`参数为公司名，`application`参数为应用程序名。配置文件的默认位置取决于系统：
+
+- Windows系统，配置将保存到注册表`\HKEY_CURRENT_USER\Software\{公司名}\{应用程序名}`下。如果`application`参数为空，则配置将保存到注册表`\HKEY_CURRENT_USER\Software\{公司名}\OrganizationDefaults`下。
+- Unix类系统（主要是Linux系统），配置将保存到文件`$HOME/.config/{公司名}/{应用程序名}.conf`内。如果`application`参数为空，则配置将保存到文件`$HOME/.config/{公司名}.conf`内。
+
+第二种为：
+
+```python3
+QSettings(
+    scope: PySide6.QtCore.QSettings.Scope, 
+    organization: str, 
+    /, 
+    application: str = ..., 
+    parent: PySide6.QtCore.QObject | None = ...
+)
+```
+
+增加了表示配置文件影响范围的`scope`参数，该参数为`PySide6.QtCore.QSettings.Scope`枚举对象：
+
+- `UserScope`，表示用户范围。
+- `SystemScope`，表示系统范围。
+
+配置文件的默认位置除了取决于系统，还取决于`scope`参数的值：
+
+- Windows系统，用户范围配置将保存到注册表`\HKEY_CURRENT_USER\Software\{公司名}\{应用程序名}`下，系统范围配置将保存到注册表`\HKEY_LOCAL_MACHINE\Software\{公司名}\{应用程序名}`下（需要管理员权限）。
+- Unix类系统（主要是Linux系统），用户范围配置将保存到文件`$HOME/.config/{公司名}/{应用程序名}.conf`内，系统范围配置将保存到文件` {$XDG_CONFIG_DIRS中第一个有效值}/.config/{公司名}/{应用程序名}.conf`内（需要有写入权限）。
+
+第三种为：
+
+```python3
+QSettings(
+    format: PySide6.QtCore.QSettings.Format, 
+    scope: PySide6.QtCore.QSettings.Scope, 
+    organization: str, 
+    /, 
+    application: str = ..., 
+    parent: PySide6.QtCore.QObject | None = ...
+)
+```
+
+增加了表示配置文件格式的`format`参数，该参数为`PySide6.QtCore.QSettings.Format`枚举对象（部分，其他对象限定系统，就不做介绍，具体参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#PySide6.QtCore.QSettings.Format）：
+
+- `NativeFormat`，对应系统的默认格式。Windows为注册表；Unix类系统（主要是Linux系统）为ini格式，但文件扩展名为`.conf`。
+- `IniFormat`，ini格式，文件扩展名为`.ini`。
+
+配置文件的默认位置除了取决于系统、`scope`参数，还取决于`format`参数的值。
+
+如果格式为对应系统的默认格式，默认位置则为前面介绍的情况。
+
+如果格式为ini格式，则：
+
+- Windows系统，用户范围配置将保存到文件`%APPDATA%/{公司名}/{应用程序名}.ini`中，系统范围配置将保存到文件`%PROGRAMDATA%/{公司名}/{应用程序名}.ini`中（需要管理员权限）。
+- Unix类系统（主要是Linux系统），用户范围配置将保存到文件`$HOME/.config/{公司名}/{应用程序名}.ini`内，系统范围配置将保存到文件` {$XDG_CONFIG_DIRS中第一个有效值}/.config/{公司名}/{应用程序名}.ini`内（需要有写入权限）。
+
+注意，上面的默认位置仅为一般情况，特殊情况下，位置会有些许差异，具体可参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#locations-where-application-settings-are-stored。
+
+关于默认位置的配置文件，还有一点需要注意，那就是`application`参数、`scope`参数为不同值的情况下，如果默认位置无权限读写时，配置文件会按照以下优先级顺序使用其他位置（即回退机制，默认启用，可通过` setFallbacksEnabled`方法启用、禁用，完整介绍参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#fallback-mechanism）：
+
+1. 用户范围的应用级位置，`application`参数不为空、`scope`参数为`PySide6.QtCore.QSettings.Scope.UserScope`（默认值，相当于省略`scope`参数）时对应的位置。
+2. 用户范围的公司级位置，`application`参数为空（默认值，相当于省略`application`参数）、`scope`参数为`PySide6.QtCore.QSettings.Scope.UserScope`（默认值，相当于省略`scope`参数）时对应的位置。
+3. 系统范围的应用级位置，`application`参数不为空、`scope`参数为`PySide6.QtCore.QSettings.Scope.SystemScope`时对应的位置。
+4. 系统范围的公司级位置，`application`参数为空（默认值，相当于省略`application`参数）、`scope`参数为`PySide6.QtCore.QSettings.Scope.SystemScope`时对应的位置。
+
+不过，并不是所有默认位置无权限读写时，都能使用上面全部的位置，具体情况有所不同。以下面构建的几个配置文件对象为例：
+
+```python3
+obj1 = QSettings(公司名, 应用程序名)
+obj2 = QSettings(公司名)
+obj3 = QSettings(QSettings.SystemScope, 公司名, 应用程序名)
+obj4 = QSettings(QSettings.SystemScope, 公司名)
+```
+
+配置文件位置的可用情况为（具体值以Windows系统为例，默认表示默认位置，可用表示除了默认位置外的可用位置，不可用表示除了默认位置外不可使用的位置）：
+
+| 配置文件位置（序号表示优先级）                               | `obj1` | `obj2` | `obj3` | `obj4` |
+| ------------------------------------------------------------ | ------ | ------ | ------ | ------ |
+| 1，用户范围的应用级位置<br/>比如`\HKEY_CURRENT_USER\Software\{公司名}\{应用程序名}` | 默认   | 不可用 | 不可用 | 不可用 |
+| 2，用户范围的公司级位置<br/>比如`\HKEY_CURRENT_USER\Software\{公司名}\OrganizationDefaults` | 可用   | 默认   | 不可用 | 不可用 |
+| 3，系统范围的应用级位置<br/>比如`\HKEY_LOCAL_MACHINE\Software\{公司名}\{应用程序名}` | 可用   | 不可用 | 默认   | 不可用 |
+| 4，系统范围的公司级位置<br/>比如`\HKEY_LOCAL_MACHINE\Software\{公司名}\OrganizationDefaults` | 可用   | 可用   | 可用   | 默认   |
+
+### 18.2 创建指定配置文件文件名（位置）的配置文件对象
+
+如果配置文件保存在默认位置，除非将配置文件随程序提供，并覆盖默认位置的配置文件，一旦程序在新的系统或者其他系统上执行，所有的配置项都要重新创建。
+
+此时，就可以使用下面的方式创建指定配置文件文件名（位置）的配置文件对象：
+
+```python3
+QSettings(
+    fileName: str, 
+    format: PySide6.QtCore.QSettings.Format, 
+    /, 
+    parent: PySide6.QtCore.QObject | None = ...
+)
+```
+
+`fileName`参数，表示配置文件的文件名，默认为相对路径，也可以使用绝对路径。
+
+需要注意的是，需要同时给`format`参数传值才能创建指定位置、文件名的配置文件，`format`参数不可省略。
+
+对于Windows系统，`format`参数指定为`PySide6.QtCore.QSettings.Format.NativeFormat`时，`fileName`参数表示的不是具体文件名，而是注册表路径，比如`'\\HKEY_CURRENT_USER\\Software\\Python\\main'`、`'HKEY_CURRENT_USER\\Software\\Python\\main'`、`r'\HKEY_CURRENT_USER\Software\Python\main'`、`r'HKEY_CURRENT_USER\Software\Python\main'`。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QSettings
+
+# 创建配置文件 main.ini
+setting = QSettings('main.ini',QSettings.Format.IniFormat)
+
+app = QApplication()
+
+window = QWidget()
+window.setWindowTitle('创建配置文件')
+window.resize(400,300)
+button = QPushButton('打印配置文件路径',window)
+
+button.clicked.connect(lambda :print(setting.fileName()))
+
+window.show()
+app.exec()
+```
+
+![2025_18_1](qt_for_python.assets/2025_18_1.png)
+
+不过，虽然这里打印了配置文件的路径，但配置文件此时并没有真的创建。这是因为程序没有执行配置文件对象写入配置项的操作（创建配置文件、读取配置项），因此不会真的创建配置文件。
+
+至于如何将配置项写入配置文件、读取配置项，下一节会详细介绍。
+
+### 18.3 使用配置文件对象
+
+创建了配置文件对象，下一步就是使用配置文件对象。配置文件对象支持以下方法（部分）：
+
+- `value`方法，返回指定配置项的值。该方法支持两个参数，第一个为仅限位置参数，表示配置项的名字，第二个参数为`defaultValue`，表示指定配置项如果不存在，该返回的默认值。如果配置项名字包含斜杠，则第一个斜杠前的部分为配置项所属的区域，斜杠后的部分才是配置项的名字。
+
+  所谓区域，可以理解为文件夹，配置项相当于文件，所有文件都必须存入文件夹。如果配置项名字不包含斜杠，那么，该配置项的区域为`'General'`。比如，`'title'`配置项实际存储为：
+
+  ```ini
+  [General]
+  title=示例文本
+  ```
+
+  `'main/title'`配置项实际存储为：
+
+  ```ini
+  [main]
+  title=示例文本
+  ```
+
+- `setValue`方法，修改指定配置项的值。
+
+- `beginGroup`方法，进入指定区域，后续读、写、判断该区域的配置项。
+
+- `endGroup`方法，离开指定区域（必须先进入才能离开）。
+
+- `sync`方法，将当前配置文件对象的所有配置项的值同步写入配置文件。
+
+- `remove`方法，移除指定配置项。
+
+- `clear`方法，移除所有配置项。
+
+- `contains`方法，返回配置文件中是否包含指定配置项。
+
+- `childKeys`方法，返回`'General'`区域的所有配置项。
+
+- `allKeys`方法，返回配置文件对象的所有配置项。
+
+- `childGroups`方法，返回配置文件对象的所有非`'General'`区域。
+
+- `group`方法，返回当前区域（如果是`'General'`区域，则返回空）。
+
+- `applicationName`方法，返回`application`的值。
+
+- `organizationName`方法，返回`organization`的值。
+
+- `format`方法，返回`format`的值。
+
+- `scope`方法，返回`scope`的值。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QSettings
+
+# 保存到配置文件 main.ini
+setting = QSettings('main.ini',QSettings.Format.IniFormat)
+
+if not setting.contains('main/title'):
+    setting.beginGroup('main')
+    setting.setValue('title','保存设置')
+    setting.endGroup()
+    # 立刻保存到配置文件
+    setting.sync()
+
+app = QApplication()
+
+window = QWidget()
+window.setWindowTitle(setting.value('main/title',''))
+window.resize(400,300)
+button = QPushButton('打印配置文件路径',window)
+
+button.clicked.connect(lambda :print(setting.fileName()))
+
+window.show()
+app.exec()
+```
+
+![2025_18_2](qt_for_python.assets/2025_18_2.png)
+
+## 19 `QTextEdit`富文本控件（更新中）
 
 
 
+`QTextEdit`富文本控件：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
 
 
-## x 创作灵感（非正式内容）
-
-灵感来源（官方）：
-
-- Qt Core：https://doc.qt.io/qt-6/zh/qtcore-index.html
-- Qt GUI：https://doc.qt.io/qt-6/zh/qtgui-index.html
-- Qt Network：https://doc.qt.io/qt-6/zh/qtnetwork-index.html
-- Qt Quick：https://doc.qt.io/qt-6/zh/qtquick-index.html
-- Qt Widgets：https://doc.qt.io/qt-6/zh/qtwidgets-index.html
-- Qt Test：https://doc.qt.io/qt-6/zh/qttest-index.html
-- Additional Modules：https://doc.qt.io/qt-6/zh/qt-additional-modules.html
-- Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
-
-
-
-
-
-## 13 具体控件——按钮类控件（QAbstractButton的衍生控件，比如`QPushButton`）（更新中）
-
-
-
-
-
-## 13 具体控件——显示一个对话框（比如`QMessageBox`）（更新中）
-
-
-
-## 13 处理复杂数据——表格
-
-
-
-## 13 处理复杂数据——树形图
-
-
-
-## 13 具体控件——`QTextEdit`（更新中）
-
-
-
-
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
-
-
-
-（简介`QTextEdit`，然后依次接收参数、属性、方法、实际问题）
 
 （按照创建QTextEdit、插入文本、定义QTextTableFormat、插入表格的顺序介绍，最后说一下边框不显示的问题和解决方法）
 
-### 12.1 创建`QTextEdit`控件
-
-
-
-x.1 在富文本中插入表格但不显示表格的边框（引入问题的示例和前言重新写，相关文档和链接在重新组织语言之后适当插入）
+在富文本中插入表格但不显示表格的边框（引入问题的示例和前言重新写，相关文档和链接在重新组织语言之后适当插入）
 
 根据Qt官方bug报告：https://bugreports.qt.io/browse/QTBUG-132173
 和官方文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html#PySide6.QtGui.QTextTableFormat.setBorderCollapse
@@ -6209,6 +6394,47 @@ for row in range(3):
 app.exec()
 
 ```
+
+
+
+
+
+
+
+
+
+## x 创作灵感（非正式内容）
+
+灵感来源（官方）：
+
+- Qt Core：https://doc.qt.io/qt-6/zh/qtcore-index.html
+- Qt GUI：https://doc.qt.io/qt-6/zh/qtgui-index.html
+- Qt Network：https://doc.qt.io/qt-6/zh/qtnetwork-index.html
+- Qt Quick：https://doc.qt.io/qt-6/zh/qtquick-index.html
+- Qt Widgets：https://doc.qt.io/qt-6/zh/qtwidgets-index.html
+- Qt Test：https://doc.qt.io/qt-6/zh/qttest-index.html
+- Additional Modules：https://doc.qt.io/qt-6/zh/qt-additional-modules.html
+- Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
+
+
+
+
+
+## 13 处理复杂数据——表格
+
+
+
+## 13 处理复杂数据——树形图
+
+
+
+
+
+## 19 `QMessageBox`消息对话框控件（更新中）
+
+
+
+https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html
 
 
 

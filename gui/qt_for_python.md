@@ -6336,7 +6336,7 @@ app.exec()
 
 ![2025_18_2](qt_for_python.assets/2025_18_2.png)
 
-## 19 `QTextEdit`富文本控件（更新中）
+## 19 解决`QTextEdit`富文本控件中插入表格不显示边框的问题（更新中）
 
 
 
@@ -6403,6 +6403,14 @@ app.exec()
 
 
 
+## 20 `QMessageBox`消息对话框控件（更新中）
+
+
+
+https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html
+
+
+
 ## x 创作灵感（非正式内容）
 
 灵感来源（官方）：
@@ -6429,12 +6437,6 @@ app.exec()
 
 
 
-
-## 19 `QMessageBox`消息对话框控件（更新中）
-
-
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html
 
 
 

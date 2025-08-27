@@ -6336,11 +6336,83 @@ app.exec()
 
 ![2025_18_2](qt_for_python.assets/2025_18_2.png)
 
-## 19 解决`QTextEdit`富文本控件中插入表格不显示边框的问题（更新中）
+## 19 解决`QTextEdit`富文本控件中插入的表格不显示边框的问题（更新中）
+
+本章内容比较简单，源于笔者冲浪时看到有人提出的问题。问题解决方法很简单，但解决过程很有意义，故单独写一章，分享一下。
+
+以下为解决问题所需的相关资料、网站：
+
+- `QTextEdit`富文本控件：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
+- `QTextTableFormat`富文本表格格式类：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html
+- Qt官方的bug追踪系统：https://bugreports.qt.io/secure/Dashboard.jspa
+
+为了避免源码、描述泄露相关用户的隐私，笔者做了一定程度的改编，只保留问题发现、问题解决等核心内容，并使用完全自己实现的源码示例。本章也是笔者首次尝试用博客风格分享PySide6的相关知识。
+
+### 19.1 在`QTextEdit`富文本控件中插入表格
+
+这是本章的开端——一段平平无奇的、创建富文本控件的代码：
+
+```python3
+from PySide6.QtWidgets import QApplication, QTextEdit
+
+app = QApplication()
+
+editor = QTextEdit()
+editor.show()
+
+app.exec()
+```
+
+![2025_19_1](qt_for_python.assets/2025_19_1.png)
+
+富文本控件不仅支持输入普通文本，还支持其他带格式的文本，比如下面的表格：
+
+| 行 1，列 1 | 行 1，列 2 |
+| ---------- | ---------- |
+| 行 2，列 1 | 行 1，列 2 |
+| 行 3，列 1 | 行 1，列 2 |
 
 
 
-`QTextEdit`富文本控件：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
+大纲：（创建富文本控件，插入表格，发现问题，寻求解决问题的方法（找bug），发现bug之后，回到文档找对应描述，添加一行解决的代码）
+
+
+
+### 19.2 设置表格的边框却没有显示
+
+
+
+
+
+### 19.3 网上搜索无果后怀疑是个bug
+
+
+
+
+
+### 19.4 回到文档才发现默认参数有变化
+
+
+
+
+
+### 19.5 总结
+
+富文本表格格式类的边框合并之后，边框不会显示，而6.8.x版本之后该样式相关的默认参数变化，才导致这一问题。
+
+问题的解决方式：AI数据不是实时更新，中文互联网很多资料更新不及时，所以这一类容易被当成bug上报的问题，
+
+
+
+可以多去bug追踪系统找找线索，很多问题通常是bug。不过，本次的不是，只是版本出现不兼容的变更，开发者没去关注更新日志而已。
+
+
+
+确实更新日志一般人不看，也不好找，也没想到次版本号更新可能会影响自己，
+
+
+
+
 
 
 
@@ -6370,8 +6442,8 @@ table_format.setCellPadding(4)
 table_format.setCellSpacing(2)
 table_format.setBorder(2)  # 边框宽度
 table_format.setBorderBrush(QBrush(QColor('red')))  # 边框颜色为红色
-# 6.8.x之前，borderCollapse()默认为False，后续版本默认为True（边框不显示）
-table_format.setBorderCollapse(False)
+# 6.8.x之前，borderCollapse 默认为False，后续版本默认为True（边框不显示）
+#table_format.setBorderCollapse(False)
 table_format.setBorderStyle(
     QTextFrameFormat.BorderStyle.BorderStyle_DotDotDash)  # 修改边框的样式
 table_format.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -6388,11 +6460,10 @@ table = editor.textCursor().insertTable(3, 2, table_format)
 for row in range(3):
     for col in range(2):
         cell_cursor = table.cellAt(row, col).firstCursorPosition()
-        cell_cursor.insertText(f'Row {row+1}, Col {col+1}')
+        cell_cursor.insertText(f'行 {row+1}，列 {col+1}')
 
 
 app.exec()
-
 ```
 
 

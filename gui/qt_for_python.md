@@ -6488,7 +6488,7 @@ app.exec()
 
 用法没错，难道是bug？
 
-想要知道是不是bug，再在网上像无头苍蝇一样乱撞可不行，这时需要到Qt官方的bug追踪系统（https://bugreports.qt.io/secure/Dashboard.jspa）寻求答案。
+想要知道是不是bug，继续在网上像无头苍蝇一样乱撞可不行，这时需要到Qt官方的bug追踪系统（https://bugreports.qt.io/secure/Dashboard.jspa）寻求答案。
 
 如何搜索、如何在茫茫bug中找到具体的问题就不赘述了，这里直接放结果。在这个bug（https://bugreports.qt.io/browse/QTBUG-132173）中，问题描述说的就是升级Qt版本之后，富文本控件中插入的表格不显示边框了，与笔者遇到的问题不谋而合。这个问题下面的评论中，也指出了问题的来源和解决方法：
 

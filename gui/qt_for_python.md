@@ -6336,15 +6336,17 @@ app.exec()
 
 ![2025_18_2](qt_for_python.assets/2025_18_2.png)
 
-## 19 解决`QTextEdit`富文本控件中插入的表格不显示边框的问题（更新中）
+## 19 解决`QTextEdit`富文本控件中插入的表格不显示边框的问题
 
 本章内容比较简单，源于笔者冲浪时看到有人提出的问题。问题解决方法很简单，但解决过程很有意义，故单独写一章，分享一下。
 
 以下为解决问题所需的相关资料、网站：
 
-- `QTextEdit`富文本控件：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
-- `QTextTableFormat`富文本表格格式类：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html
+- `QTextEdit`富文本控件文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
+- `QTextTableFormat`富文本表格格式类文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html
 - Qt官方的bug追踪系统：https://bugreports.qt.io/secure/Dashboard.jspa
+- Qt官方的代码review系统：https://codereview.qt-project.org/
+- Qt6.8.0版本的更新日志：https://code.qt.io/cgit/qt/qtreleasenotes.git/about/qt/6.8.0/release-note.md
 
 为了避免源码、描述泄露相关用户的隐私，笔者做了一定程度的改编，只保留问题发现、问题解决等核心内容，并使用完全自己实现的源码示例。本章也是笔者首次尝试用博客风格分享PySide6的相关知识。
 
@@ -6372,107 +6374,200 @@ app.exec()
 | 行 2，列 1 | 行 1，列 2 |
 | 行 3，列 1 | 行 1，列 2 |
 
+![2025_19_2](qt_for_python.assets/2025_19_2.png)
 
+当然，上面的表格是复制粘贴的，不是通过代码插入的，所以自带了复制内容的格式。不过，这都不重要，重要的是接下来的操作。
 
-大纲：（创建富文本控件，插入表格，发现问题，寻求解决问题的方法（找bug），发现bug之后，回到文档找对应描述，添加一行解决的代码）
+表格可以粘贴，自然也可以通过代码插入。表格可以来自剪贴板，也可以是程序自己创建的。
 
+于是，为了插入程序自己创建的表格，不得不使用本章问题的始作俑者——`QTextTableFormat`富文本表格格式类。
 
+这里说一下插入程序自己创建的表格的基本要点：
 
-### 19.2 设置表格的边框却没有显示
+- 富文本控件的`textCursor`方法会返回光标对象（即控件获得焦点时，表示输入位置的光标），调用该对象的`insertTable`方法可以在光标位置处插入表格。
+- 光标对象的`insertTable`方法返回表格对象，如果想要修改表格的样式（比如行高、列宽、边框），需要在调用`insertTable`方法时传入富文本表格格式对象，或者调用表格对象的`setFormat`方法修改富文本表格格式对象。
+- 富文本表格格式对象的`setBorder`方法、`setBorderBrush`方法、`setBorderStyle`方法分别用于设置边框的宽度、颜色、线样式。
 
-
-
-
-
-### 19.3 网上搜索无果后怀疑是个bug
-
-
-
-
-
-### 19.4 回到文档才发现默认参数有变化
-
-
-
-
-
-### 19.5 总结
-
-富文本表格格式类的边框合并之后，边框不会显示，而6.8.x版本之后该样式相关的默认参数变化，才导致这一问题。
-
-问题的解决方式：AI数据不是实时更新，中文互联网很多资料更新不及时，所以这一类容易被当成bug上报的问题，
-
-
-
-可以多去bug追踪系统找找线索，很多问题通常是bug。不过，本次的不是，只是版本出现不兼容的变更，开发者没去关注更新日志而已。
-
-
-
-确实更新日志一般人不看，也不好找，也没想到次版本号更新可能会影响自己，
-
-
-
-
-
-
-
-（按照创建QTextEdit、插入文本、定义QTextTableFormat、插入表格的顺序介绍，最后说一下边框不显示的问题和解决方法）
-
-在富文本中插入表格但不显示表格的边框（引入问题的示例和前言重新写，相关文档和链接在重新组织语言之后适当插入）
-
-根据Qt官方bug报告：https://bugreports.qt.io/browse/QTBUG-132173
-和官方文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html#PySide6.QtGui.QTextTableFormat.setBorderCollapse
-qt 6.8之后，表格边框默认合并，所以不显示表格边框。
-
-代码：
+如果不修改表格样式，只是插入一个表格，代码很简单：
 
 ```python3
 from PySide6.QtWidgets import QApplication, QTextEdit
-from PySide6.QtGui import QTextTableFormat, QTextLength, QBrush, QColor, QTextFrameFormat
-from PySide6.QtCore import Qt
 
 app = QApplication()
 
 editor = QTextEdit()
 editor.show()
 
-
-table_format = QTextTableFormat()
-table_format.setCellPadding(4)
-table_format.setCellSpacing(2)
-table_format.setBorder(2)  # 边框宽度
-table_format.setBorderBrush(QBrush(QColor('red')))  # 边框颜色为红色
-# 6.8.x之前，borderCollapse 默认为False，后续版本默认为True（边框不显示）
-#table_format.setBorderCollapse(False)
-table_format.setBorderStyle(
-    QTextFrameFormat.BorderStyle.BorderStyle_DotDotDash)  # 修改边框的样式
-table_format.setAlignment(Qt.AlignmentFlag.AlignCenter)
-table_format.setColumnWidthConstraints(
-    [
-        QTextLength(QTextLength.PercentageLength, 50),
-        QTextLength(QTextLength.PercentageLength, 50),
-    ]
-)
-
-
-table = editor.textCursor().insertTable(3, 2, table_format)
+table = editor.textCursor().insertTable(3, 2)
 
 for row in range(3):
     for col in range(2):
         cell_cursor = table.cellAt(row, col).firstCursorPosition()
         cell_cursor.insertText(f'行 {row+1}，列 {col+1}')
 
+app.exec()
+```
+
+![2025_19_3](qt_for_python.assets/2025_19_3.png)
+
+没有边框线的表格看不出来表格模样，所以，为了让表格看起来更像表格，这也就有了接下来的故事……
+
+### 19.2 设置表格的边框却没有显示
+
+富文本表格格式对象负责表格的样式，其`setBorder`方法、`setBorderBrush`方法、`setBorderStyle`方法分别用于设置边框的宽度、颜色、线样式，下一步思路很简单：创建富文本表格格式对象，执行这些方法。
+
+核心代码如下：
+
+```python3
+from PySide6.QtGui import QTextTableFormat, QBrush, QColor, QTextFrameFormat
+
+table_format = QTextTableFormat()
+# 边框宽度
+table_format.setBorder(2)
+# 边框颜色为红色
+table_format.setBorderBrush(
+    QBrush(
+        QColor('red')
+    )
+)
+# 修改边框的线样式
+table_format.setBorderStyle(
+    QTextFrameFormat.BorderStyle.BorderStyle_Solid
+)
+```
+
+下一步更简单，调用表格对象的`setFormat`方法修改富文本表格格式对象：
+
+```python3
+from PySide6.QtWidgets import QApplication, QTextEdit
+from PySide6.QtGui import QTextTableFormat, QBrush, QColor, QTextFrameFormat
+
+app = QApplication()
+editor = QTextEdit()
+editor.show()
+table = editor.textCursor().insertTable(3, 2)
+for row in range(3):
+    for col in range(2):
+        cell_cursor = table.cellAt(row, col).firstCursorPosition()
+        cell_cursor.insertText(f'行 {row+1}，列 {col+1}')
+
+
+table_format = QTextTableFormat()
+# 边框宽度
+table_format.setBorder(2)
+# 边框颜色为红色
+table_format.setBorderBrush(
+    QBrush(
+        QColor('red')
+    )
+)
+# 修改边框的线样式
+table_format.setBorderStyle(
+    QTextFrameFormat.BorderStyle.BorderStyle_Solid
+)
+
+# 修改表格对象的富文本表格格式对象
+table.setFormat(table_format)
 
 app.exec()
 ```
 
+但是，红色的边框实线，并没有出现：
+
+![2025_19_3](qt_for_python.assets/2025_19_3.png)
+
+为什么？
+
+### 19.3 网上搜索无果后怀疑是个bug
+
+起初，以为是用错了方法，认真查看官网文档（https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html）好几遍，确认这些方法没有用错。
+
+是不是漏了其他配置？
+
+于是，接下来问了百度、AI（甚至问了国外的GPT），都没有解决此问题的答案。
+
+用法没错，难道是bug？
+
+想要知道是不是bug，再在网上像无头苍蝇一样乱撞可不行，这时需要到Qt官方的bug追踪系统（https://bugreports.qt.io/secure/Dashboard.jspa）寻求答案。
+
+如何搜索、如何在茫茫bug中找到具体的问题就不赘述了，这里直接放结果。在这个bug（https://bugreports.qt.io/browse/QTBUG-132173）中，问题描述说的就是升级Qt版本之后，富文本控件中插入的表格不显示边框了，与笔者遇到的问题不谋而合。这个问题下面的评论中，也指出了问题的来源和解决方法：
+
+![2025_19_4](qt_for_python.assets/2025_19_4.png)
+
+### 19.4 查看文档和更新日志才发现默认参数有变化
+
+说是bug，其实也不算是bug，充其量算次要版本更新带来的不兼容。
+
+首先看更新日志（https://code.qt.io/cgit/qt/qtreleasenotes.git/about/qt/6.8.0/release-note.md），里面有这么一行：
+
+![2025_19_5](qt_for_python.assets/2025_19_5.png)
+
+查看对应的代码变更（https://codereview.qt-project.org/c/qt/qtbase/+/554132）：
+
+![2025_19_6](qt_for_python.assets/2025_19_6.png)
+
+好吧，使用Python的开发者不太理解C++代码，那就回到PySide6的文档，看看这个方法的说明（https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html#PySide6.QtGui.QTextTableFormat.setBorderCollapse）：
+
+![2025_19_7](qt_for_python.assets/2025_19_7.png)
+
+这下能理解了，该方法在Qt 6.8.0之前，参数值默认为`False`，C++代码的含义是将该参数的默认值设置为`True`（即启用边框合并），因此，才出现了问题。既然这样，解决起来就容易多了，bug的评论也给了解决方法：
+
+```python3
+table_format.setBorderCollapse(False)
+```
+
+完整代码如下：
+
+```python3
+from PySide6.QtWidgets import QApplication, QTextEdit
+from PySide6.QtGui import QTextTableFormat, QBrush, QColor, QTextFrameFormat
+
+app = QApplication()
+editor = QTextEdit()
+editor.show()
+table = editor.textCursor().insertTable(3, 2)
+for row in range(3):
+    for col in range(2):
+        cell_cursor = table.cellAt(row, col).firstCursorPosition()
+        cell_cursor.insertText(f'行 {row+1}，列 {col+1}')
 
 
+table_format = QTextTableFormat()
+# 边框宽度
+table_format.setBorder(2)
+# 边框颜色为红色
+table_format.setBorderBrush(
+    QBrush(
+        QColor('red')
+    )
+)
+# 修改边框的线样式
+table_format.setBorderStyle(
+    QTextFrameFormat.BorderStyle.BorderStyle_Solid
+)
 
+# Qt 6.8.0 之前，borderCollapse 默认为False，后续版本默认为True（边框不显示）
+table_format.setBorderCollapse(False)
 
+# 修改表格对象的富文本表格格式对象
+table.setFormat(table_format)
 
+app.exec()
+```
 
+![2025_19_8](qt_for_python.assets/2025_19_8.png)
 
+### 19.5 总结
+
+总的来说，表格启用边框合并之后，边框不会显示，而Qt 6.8.0版本之后该样式的默认参数变为`True`，这才导致富文本控件中插入的表格不显示边框。可以使用`table_format.setBorderCollapse(False)`禁用边框合并，让边框显示。
+
+问题解决起来很简单，但寻找答案的过程值得深思：
+
+- AI数据不是实时更新，中文互联网很多资料更新不及时，所以，一味依赖网络、AI的话，问题没办法解决。
+- 网络、AI解决不了的问题容易被当成bug上报，可以多去bug追踪系统找找线索，看看是不是真的有bug。不过，本章的问题不是bug，只是版本出现不兼容的变更，开发者没去关注更新日志而已。
+- Qt更新日志一般人不看，也不好找，但是次版本号更新可能产生不兼容的变更。如果更新Qt版本之后遇到问题，除了去bug追踪系统找线索，还可以翻翻最近几次，尤其是次版本更新的更新日志。
+
+最后，愿各位Qt的使用者、初学者没有难解的问题，每次遇到bug都有对应的补丁。
 
 ## 20 `QMessageBox`消息对话框控件（更新中）
 

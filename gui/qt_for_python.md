@@ -5654,7 +5654,9 @@ app.exec()
 
 对于支持多语言的QtWidgets程序，想要切换语言，就要在加载了指定语言的语言文件之后，重新安装翻译类对象，并重新翻译程序界面。
 
-为了实现热切换（不重启），需要将UI文件转换为Python类，并在加载了指定语言的语言文件、重新安装翻译类对象之后，调用`window.retranslateUi(window)`来重新翻译程序界面：
+#### 17.3.1 热切换（不重启程序）语言
+
+为了实现热切换（不重启程序），需要将UI文件转换为Python类，并在加载了指定语言的语言文件、重新安装翻译类对象之后，调用`window.retranslateUi(window)`来重新翻译程序界面：
 
 ```python3
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton
@@ -5706,6 +5708,8 @@ app.exec()
 ```
 
 ![2025_17_8](qt_for_python.assets/2025_17_8.gif)
+
+#### 17.3.2 启动程序时自动切换语言
 
 热切换语言文件对代码要求比较严苛，如果是重启切换或者自动切换，则可以改用自动识别系统语言的方式，代码比较简单。
 
@@ -6094,9 +6098,191 @@ app.exec()
 
 ![2025_17_9](qt_for_python.assets/2025_17_9.png)
 
+#### 17.3.3 切换内置控件的语言（更新中）
+
+
+
+细心的读者可能已经发现，上一小节中
+
+（内置控件）
+
+手动复制、加载内置控件的语言文件
+
+`.venv\Lib\site-packages\PySide6\translations\qtbass_{语言}.qm`
+
+
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMessageBox
+)
+from PySide6.QtCore import QEvent
+from PySide6.QtCore import QTranslator,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    './'
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('关闭时弹出对话框')
+window.resize(400, 300)
+window.show()
+
+def on_close(e:QEvent):
+    result = QMessageBox.question(
+        window,
+        '消息',
+        '确定要退出吗？',
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No
+    )
+    if result == QMessageBox.Yes:
+        # 接受，表示触发该事件的动作正常执行
+        e.accept()
+    else:
+        # 忽略，表示触发该事件的动作不常执行
+        e.ignore()
+
+window.closeEvent = on_close
+
+app.exec()
+```
+
+
+
+
+
+
+
+自动识别、加载内置控件的语言文件
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMessageBox
+)
+from PySide6.QtCore import QEvent
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('关闭时弹出对话框')
+window.resize(400, 300)
+window.show()
+
+def on_close(e:QEvent):
+    result = QMessageBox.question(
+        window,
+        '消息',
+        '确定要退出吗？',
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No
+    )
+    if result == QMessageBox.Yes:
+        # 接受，表示触发该事件的动作正常执行
+        e.accept()
+    else:
+        # 忽略，表示触发该事件的动作不常执行
+        e.ignore()
+
+window.closeEvent = on_close
+
+app.exec()
+```
+
+
+
+
+
+切换内置控件的语言和自定义内容的语言（使用`QMainWindow`包装）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QMessageBox
+)
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QTranslator,QLocale,QLibraryInfo
+from PySide6.QtCore import QEvent
+
+app = QApplication()
+
+# 加载自定义语言文件
+translator = QTranslator()
+if translator.load(QLocale('zh'),'main','_','./'):
+    QApplication.instance().installTranslator(translator)
+
+# 加载内置控件的语言文件
+translator2 = QTranslator()
+if translator2.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+):
+    QApplication.instance().installTranslator(translator2)
+
+window = QMainWindow()
+window.resize(400, 300)
+
+inner_window = QUiLoader().load('main.ui')
+window.setCentralWidget(inner_window)
+window.setWindowTitle(inner_window.windowTitle())
+
+window.show()
+
+def on_close(e:QEvent):
+    result = QMessageBox.question(
+        window,
+        '消息',
+        '确定要退出吗？',
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No
+    )
+    if result == QMessageBox.Yes:
+        # 接受，表示触发该事件的动作正常执行
+        e.accept()
+    else:
+        # 忽略，表示触发该事件的动作不常执行
+        e.ignore()
+
+window.closeEvent = on_close
+
+app.exec()
+```
+
+
+
+
+
 ## 18 使用配置文件保存配置项
 
-上一章最后展示了（伪）自动获取系统语言并加载对应语言文件的示例，但是，很多时候，系统语言不代表用户一定会用对应语言的应用程序，有可能用户会用其他语言的应用程序。那么，如果能在用户切换了应用程序的语言之后，保存用户的设置，并在下次启动时使用该设置，这样的体验无疑是对用户更好的。
+上一章最后几节中展示了（伪）自动获取系统语言并加载对应语言文件的示例，但是，很多时候，系统语言不代表用户一定会用对应语言的应用程序，有可能用户会用其他语言的应用程序。那么，如果能在用户切换了应用程序的语言之后，保存用户的设置，并在下次启动时使用该设置，这样的体验无疑是对用户更好的。
 
 不过，想要实现这个需求，如何保存用户设置到配置文件中，是一个绕不开的难点。于是，本章诞生了。
 
@@ -6573,7 +6759,139 @@ app.exec()
 
 
 
+（前情提要，从前面章节的示例中，表达出本章要详细介绍消息对话框控件）
+
+
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMessageBox
+)
+from PySide6.QtCore import QEvent
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('关闭时弹出对话框')
+window.resize(400, 300)
+window.show()
+
+def on_close(e:QEvent):
+    msg_box = QMessageBox(
+        QMessageBox.Icon.Question,
+        '消息',
+        '确定要退出吗？',
+        QMessageBox.Yes | QMessageBox.No,
+        window
+    )
+    # 修改标准按钮的文本
+    yes_button = msg_box.button(QMessageBox.Yes)
+    yes_button.setText('确认')
+    no_button = msg_box.button(QMessageBox.No)
+    no_button.setText('取消')
+    # 将默认选择的按钮修改为取消按钮
+    msg_box.setDefaultButton(no_button)
+    msg_box.exec()
+
+    if msg_box.clickedButton() == yes_button:
+        # 接受，表示触发该事件的动作正常执行
+        e.accept()
+    else:
+        # 忽略，表示触发该事件的动作不常执行
+        e.ignore()
+
+window.closeEvent = on_close
+
+app.exec()
+```
+
+
+
+### 20.1 基本用法
+
+
+
+消息对话框的基本结构，
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QMessageBox
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('信息对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+message_box = QMessageBox(
+    QMessageBox.Icon.Information,
+    '标题',
+    '主要文本',
+    detailedText='细节文本',
+    informativeText='信息文本'
+)
+
+button.clicked.connect(message_box.show)
+window.show()
+app.exec()
+```
+
+输出结果（不包含主窗口，仅消息对话框）：
+
+![image-20250828205507089](qt_for_python.assets/image-20250828205507089.png)
+
+
+
+
+
+参数、信号 、支持的方法（含控件属性）
+
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html
+
+
+
+
+
+### 20.2 扩展用法
+
+
+
+
+
+快速创建对话框的静态方法：
+
+- def [`about()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.about)
+- def [`aboutQt()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.aboutQt)
+- def [`critical()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.critical)
+- def [`information()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.information)
+- def [`question()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question)
+- def [`standardIcon()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardIcon)
+- def [`warning()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.warning)
+
+
+
+（扩展消息对话框的其他用法，比如自定义按钮之类的）
 
 
 

@@ -6761,13 +6761,7 @@ app.exec()
 
 ## 20 `QMessageBox`消息对话框控件（更新中）
 
-
-
-（前情提要，从前面章节的示例中，表达出本章要详细介绍消息对话框控件）
-
-
-
-
+其实，在前面的章节中，已经用了好几次消息对话框控件，比如下面的示例：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -6812,15 +6806,13 @@ window.closeEvent = on_close
 app.exec()
 ```
 
+不过，消息对话框控件用起来简单，不代表控件本身没有难点。所以，本章将深入学习消息对话框控件，扫除可能遇到的问题。
 
+本章主要参考资料为官网文档 ：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html。
 
 ### 20.1 基本用法
 
-
-
-消息对话框的基本结构，
-
-
+先看一下消息对话框的基本结构：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -6852,7 +6844,7 @@ message_box = QMessageBox(
     QMessageBox.Icon.Information,
     '标题',
     '主要文本',
-    detailedText='细节文本',
+    detailedText='详情文本',
     informativeText='信息文本'
 )
 
@@ -6861,17 +6853,72 @@ window.show()
 app.exec()
 ```
 
-输出结果（不包含主窗口，仅消息对话框）：
+结果（不包含主窗口，仅消息对话框）如下：
 
-![image-20250828205507089](qt_for_python.assets/image-20250828205507089.png)
+![2025_20_1](qt_for_python.assets/2025_20_1.png)
 
+如图所示，消息对话框和普通窗口一样，有标题和窗口内容，但与普通窗口不一样的是，消息对话框的内容组成比较固定：
 
+- 左上角显示的图标，通常是简单直观的标识，也可以是自定义的图片，用于表达信息的图形部分。
+- 图标右边的上面是主要文本，通常简明扼要地表达信息的主要内容。
+- 图标右边的下面是信息文本，通常补充说明信息内容。
+- 如果定没有义详情文本，最下面的是一排按钮，用户可以点击按钮，程序能够识别用户点击的按钮，对话框消失的同时，返回不同的值。
+- 如果定义了详情文本，最下面的一排按钮会多一个显示详情的按钮，点击这个按钮，最下面会展开显示详情文本。相比于信息文本，详情文本通常更加详细，也会包含一些默认不需要第一时间展示的文本，比如程序报错的详情。
 
+`QMessageBox`消息对话框控件支持以下参数：
 
+- 
+
+- `iconPixmap`参数，`PySide6.QtGui.QPixmap`类型，
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  from PySide6.QtGui import QPixmap
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('信息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  message_box = QMessageBox(
+      QMessageBox.Icon.Information,
+      '标题',
+      '主要文本',
+      iconPixmap=QPixmap('LOGO.png'),
+      detailedText='细节文本',
+      informativeText='信息文本'
+  )
+  
+  button.clicked.connect(message_box.show)
+  window.show()
+  app.exec()
+  ```
+
+  
+
+- `options`参数，可设置为`QMessageBox.Option.DontUseNativeDialog`，表示是否使用控件模拟系统提供的信息对话框。---（需要一个对比示例）
 
 参数、信号 、支持的方法（含控件属性）
 
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html
+
 
 
 
@@ -6896,6 +6943,14 @@ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html
 
 
 （扩展消息对话框的其他用法，比如自定义按钮之类的）
+
+
+
+## 21 其他对话框控件（更新中）
+
+
+
+比如名字里dialog为后缀的控件，
 
 
 

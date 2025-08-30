@@ -1086,7 +1086,7 @@ app.exec()
 
 `question`方法会返回点击的按钮对应的标准按钮，可以对该方法的返回值进行判断，进而确定用户选择的是Yes还是No，并据此决定是否执行动作——关闭窗口。
 
-需要注意的是，虽然`question`方法创建对话框很简单，但对话框按钮的文本是英文的，不使用本地化功能的话，是没法自定义按钮或者按钮文本的。因此，想要让显示的内容更加自由，只能直接创建`QMessageBox`控件（完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.__init__），需要额外传入图标参数，并且参数的顺序也有要求：
+需要注意的是，虽然`question`方法创建对话框很简单，但对话框按钮的文本是英文的，不使用本地化功能的话，是没法汉化按钮文本的。因此，在学习本地化之前（后面会讲的，但这里暂时卖个关子），想要让按钮文本变成中文，只能直接创建`QMessageBox`控件（完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.__init__），需要额外传入图标参数，并且参数的顺序也有要求：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -5575,7 +5575,7 @@ app.exec()
 
 ![2025_17_4](qt_for_python.assets/2025_17_4.png)
 
-点击对应的原文，然后输入翻译结果，在点击完成按钮，一条原文即可翻译完成：
+点击对应的原文，然后输入翻译结果，再点击完成按钮，一条原文即可翻译完成：
 
 ![2025_17_5](qt_for_python.assets/2025_17_5.png)
 
@@ -5654,7 +5654,7 @@ app.exec()
 
 对于支持多语言的QtWidgets程序，想要切换语言，就要在加载了指定语言的语言文件之后，重新安装翻译类对象，并重新翻译程序界面。
 
-#### 17.3.1 热切换（不重启程序）语言
+#### 17.3.1 切换语言不重启程序（热切换）
 
 为了实现热切换（不重启程序），需要将UI文件转换为Python类，并在加载了指定语言的语言文件、重新安装翻译类对象之后，调用`window.retranslateUi(window)`来重新翻译程序界面：
 
@@ -5709,7 +5709,7 @@ app.exec()
 
 ![2025_17_8](qt_for_python.assets/2025_17_8.gif)
 
-#### 17.3.2 启动程序时自动切换语言
+#### 17.3.2 启动程序时自动切换语言（冷切换）
 
 热切换语言文件对代码要求比较严苛，如果是重启切换或者自动切换，则可以改用自动识别系统语言的方式，代码比较简单。
 
@@ -6098,21 +6098,22 @@ app.exec()
 
 ![2025_17_9](qt_for_python.assets/2025_17_9.png)
 
-#### 17.3.3 切换内置控件的语言（更新中）
+#### 17.3.3 切换内置控件的语言
 
+细心的读者可能已经发现，上一小节中的询问对话框取材自之前的关闭窗口时弹出的确认对话框。依稀记得当时说过：“虽然`question`方法创建对话框很简单，但对话框按钮的文本是英文的，不使用本地化功能的话，是没法汉化按钮文本的。”
 
+既然本章学了多语言（即本地化），那能不能汉化一下这种内置的、非单独创建的控件？
 
-细心的读者可能已经发现，上一小节中
+当然没问题！
 
-（内置控件）
+想要汉化内置控件（或者切换内置控件的语言），需要加载内置控件的语言文件，有两种方法：
 
-手动复制、加载内置控件的语言文件
+- 手动复制并加载。
+- 自动识别路径并加载。
 
-`.venv\Lib\site-packages\PySide6\translations\qtbass_{语言}.qm`
+先说手动复制。
 
-
-
-
+复制`{Python的库文件目录}\site-packages\PySide6\translations\qtbass_{语言}.qm`（笔者这里使用的是虚拟环境，对应路径为`.venv\Lib\site-packages\PySide6\translations\qtbass_{语言}.qm`）到Python文件同目录或者直接使用该文件。下面的示例采用上一小节的自动切换语言设计，并手动复制了`qtbase_zh_CN.qm`到同目录：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -6160,13 +6161,17 @@ window.closeEvent = on_close
 app.exec()
 ```
 
+![2025_17_10](qt_for_python.assets/2025_17_10.png)
 
+既然内置控件的语言包的路径固定为`{Python的库文件目录}\site-packages\PySide6\translations\qtbass_{语言}.qm`，自然可以自动识别路径并加载。
 
+需要使用`QLibraryInfo`类的静态方法`path`，传入`QLibraryInfo.LibraryPath.TranslationsPath`，让其返回包含内置控件语言包目录：
 
+```python3
+QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+```
 
-
-
-自动识别、加载内置控件的语言文件
+完整示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -6175,7 +6180,7 @@ from PySide6.QtWidgets import (
     QMessageBox
 )
 from PySide6.QtCore import QEvent
-from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+from PySide6.QtCore import QTranslator,QLocale,QLibraryInfo
 
 app = QApplication()
 
@@ -6214,11 +6219,11 @@ window.closeEvent = on_close
 app.exec()
 ```
 
+![2025_17_10](qt_for_python.assets/2025_17_10.png)
 
+在切换内置控件的语言时，也可以同时切换自定义内容的语言，但需要注意的是，两个语言包要使用不同的翻译类对象加载，并安装这两个类翻译对象。
 
-
-
-切换内置控件的语言和自定义内容的语言（使用`QMainWindow`包装）：
+就以前面加载UI文件并加载语言包的示例为例，添加一个关闭窗口的询问对话框，同时汉化对话框的按钮。注意，UI文件生成的主窗口没法修改`closeEvent`事件，所以这里使用`QMainWindow`主窗口控件包装了一层，并将其标题与UI文件生成的主窗口标题同步：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -6243,16 +6248,17 @@ if translator2.load(
     QLocale('zh'),
     'qtbase',
     '_',
-    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+    QLibraryInfo.path(
+        QLibraryInfo.LibraryPath.TranslationsPath
+    )
 ):
     QApplication.instance().installTranslator(translator2)
 
 window = QMainWindow()
 window.resize(400, 300)
 
-inner_window = QUiLoader().load('main.ui')
-window.setCentralWidget(inner_window)
-window.setWindowTitle(inner_window.windowTitle())
+window.setCentralWidget(QUiLoader().load('main.ui'))
+window.setWindowTitle(window.centralWidget().windowTitle())
 
 window.show()
 
@@ -6276,9 +6282,7 @@ window.closeEvent = on_close
 app.exec()
 ```
 
-
-
-
+![2025_17_11](qt_for_python.assets/2025_17_11.png)
 
 ## 18 使用配置文件保存配置项
 

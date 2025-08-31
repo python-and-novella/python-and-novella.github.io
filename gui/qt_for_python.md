@@ -4585,7 +4585,7 @@ app.exec()
 
 可以使用`timeout`信号、`timerEvent`事件定义要执行的操作。其中，`timerEvent`事件对应的操作需要接收一个`QTimerEvent`定时器事件对象（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimerEvent.html ）作为参数。
 
-`QTimer`类支持以下参数：
+`QTimer`类支持以下参数（部分）：
 
 - `singleShot`参数，布尔类型，表示定时器是否为一次性定时器（每次启动只执行一次指定操作），默认为`False`。注意，一次性模式仅针对`timeout`信号生效。
 - `interval`参数，整数类型，表示两次操作之间的时间间隔（单位毫秒）。注意，默认定时器启动时不执行操作，需要经过该参数定义的时间之后才会执行第一次操作。
@@ -6294,7 +6294,7 @@ app.exec()
 
 ### 18.1 创建配置文件保存在默认位置的配置文件对象
 
-如果不指定配置文件的存储位置，让配置文件保存在默认位置，则可以使用下面几种方式创建配置文件对象（参数及类型提示来自`QtCore.pyi`）：
+如果不指定配置文件的存储位置，让配置文件保存在默认位置，则可以使用下面几种方式创建配置文件对象（参数名及类型提示来自`QtCore.pyi`）：
 
 第一种为：
 
@@ -6863,13 +6863,21 @@ app.exec()
 - 图标右边的上面是主要文本，通常简明扼要地表达信息的主要内容。
 - 图标右边的下面是信息文本，通常补充说明信息内容。
 - 如果定没有义详情文本，最下面的是一排按钮，用户可以点击按钮，程序能够识别用户点击的按钮，对话框消失的同时，返回不同的值。
-- 如果定义了详情文本，最下面的一排按钮会多一个显示详情的按钮，点击这个按钮，最下面会展开显示详情文本。相比于信息文本，详情文本通常更加详细，也会包含一些默认不需要第一时间展示的文本，比如程序报错的详情。
+- 如果定义了详情文本，最下面的一排按钮会多一个显示详情的按钮，点击这个按钮，最下面会弹出详情文本区域，显示详情文本。相比于信息文本，详情文本通常更加详细，也会包含一些默认不需要第一时间展示的文本，比如程序报错的详情。
 
-`QMessageBox`消息对话框控件支持以下参数：
+`QMessageBox`消息对话框控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
 
-- 
+第一种初始化方法支持以下参数（部分）：
 
-- `iconPixmap`参数，`PySide6.QtGui.QPixmap`类型，
+- `icon`参数，仅限位置参数（第一个位置参数），`PySide6.QtWidgets.QMessageBox.Icon`类型，表示显示的标准图标。
+
+- `title`参数，仅限位置参数（第二个位置参数），字符串类型，表示窗口的标题。
+
+- `text`参数，仅限位置参数（第三个位置参数），字符串类型，表示主要文本。
+
+- `buttons`参数，`PySide6.QtWidgets.QMessageBox.StandardButton`类型，表示信息对话框中显示的按钮。可以使用`|`连接多个不同的值，表示同时显示多个按钮。
+
+- `iconPixmap`参数，仅限关键字参数，`PySide6.QtGui.QPixmap`类型，表示使用自定义图片当作图标。示例如下：
 
   ```python3
   from PySide6.QtWidgets import (
@@ -6912,11 +6920,248 @@ app.exec()
   app.exec()
   ```
 
+  ![2025_20_2](qt_for_python.assets/2025_20_2.png)
+
+  需要注意的是，如果使用了该参数，则`icon`参数不会生效。
+
+- `textFormat`参数，仅限关键字参数，`PySide6.QtCore.Qt.TextFormat`类型，表示主要文本、信息文本的文本格式（纯文本、富文本、标记文本、自动识别富文本和纯文本，完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.TextFormat）。示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  from PySide6.QtCore import Qt
   
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('信息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  message_box = QMessageBox(
+      QMessageBox.Icon.Information,
+      '标题',
+      '<h2>主要文本',
+      textFormat=Qt.TextFormat.AutoText,
+      detailedText='详情文本',
+      informativeText='<font color="red">信息文本'
+  )
+  
+  button.clicked.connect(message_box.show)
+  window.show()
+  app.exec()
+  ```
 
-- `options`参数，可设置为`QMessageBox.Option.DontUseNativeDialog`，表示是否使用控件模拟系统提供的信息对话框。---（需要一个对比示例）
+  ![2025_20_3](qt_for_python.assets/2025_20_3.png)
 
-参数、信号 、支持的方法（含控件属性）
+- `standardButtons`参数，仅限关键字参数，含义、用法同`buttons`参数，但该参数同时也是控件属性，可通过对应的设置方法随时修改控件属性。
+
+- `detailedText`参数，仅限关键字参数，字符串类型，表示详情文本。
+
+- `informativeText`参数，仅限关键字参数，字符串类型，表示信息文本。
+
+- `textInteractionFlags`参数，仅限关键字参数，`PySide6.QtCore.Qt.TextInteractionFlag`类型，表示主要文本的可交互性（是否允许编辑、复制、点击链接等）。
+
+第二种初始化方法支持以下参数（部分）：
+
+- `text`参数，仅限关键字参数，含义、用法参考前面。
+- `icon`参数，仅限关键字参数，含义、用法参考前面。
+- `iconPixmap`参数，仅限关键字参数，含义、用法参考前面。
+- `textFormat`参数，仅限关键字参数，含义、用法参考前面。
+- `standardButtons`参数，仅限关键字参数，含义、用法参考前面。
+- `detailedText`参数，仅限关键字参数，含义、用法参考前面。
+- `informativeText`参数，仅限关键字参数，含义、用法参考前面。
+- `textInteractionFlags`参数，仅限关键字参数，含义、用法参考前面。
+
+`QMessageBox`消息对话框控件支持以下信号：
+
+- `buttonClicked`信号，内置的按钮点击时发射该信号，并将被点击的按钮作为参数传给槽函数（响应函数）。
+
+`QMessageBox`消息对话框控件支持以下方法（部分，含控件属性）：
+
+- `addButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.addButton），在对话框中添加一个`PySide6.QtWidgets.QMessageBox.StandardButton`类型按钮，并返回该按钮。
+
+  注意，如果默认没有设置`buttons`参数或者`standardButtons`参数（控件属性）的话，使用此方法会覆盖默认的按钮配置。即默认有一个按钮，使用此方法之后，默认按钮会消失。
+
+  示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  from PySide6.QtCore import Qt
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('信息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  message_box = QMessageBox(
+      QMessageBox.Icon.Information,
+      '标题',
+      '主要文本',
+      # 如果注释掉下面这行，默认会添加一个“是”按钮，并在使用addButton方法（如果不添加“是”按钮）之后消失
+      buttons=QMessageBox.StandardButton.Yes,
+      informativeText='信息文本'
+  )
+  # 添加按钮，但是，“是”按钮是参数设置的，不会消失
+  abort_button = message_box.addButton(QMessageBox.StandardButton.No)
+  abort_button.setText('坚决否认')
+  
+  button.clicked.connect(message_box.show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_20_4](qt_for_python.assets/2025_20_4.png)
+
+  除了直接添加`PySide6.QtWidgets.QMessageBox.StandardButton`类型按钮，可以在指定按钮角色的同时，添加自定义文本或者自定义按钮：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  from PySide6.QtCore import Qt
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('信息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  message_box = QMessageBox(
+      QMessageBox.Icon.Information,
+      '标题',
+      '主要文本',
+      buttons=QMessageBox.StandardButton.Yes,
+      informativeText='信息文本'
+  )
+  # 这种添加方法返回按钮
+  yes_button = message_box.addButton('另一个确认',QMessageBox.ButtonRole.YesRole)
+  # 这种添加方法不返回按钮
+  yes_button2 = QPushButton('还是一个确认')
+  message_box.addButton(yes_button2,QMessageBox.ButtonRole.YesRole)
+  
+  button.clicked.connect(message_box.show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_20_5](qt_for_python.assets/2025_20_5.png)
+
+  至于按钮角色的含义，可以看下面`buttonRole`方法部分。
+
+- def [`button()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.button)
+
+- def [`buttonRole()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttonRole)
+
+- def [`buttonText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttonText)
+
+- def [`buttons()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttons)
+
+- def [`checkBox()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.checkBox)
+
+- def [`clickedButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.clickedButton)
+
+- def [`defaultButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.defaultButton)
+
+- def [`detailedText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id0)
+
+- def [`escapeButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.escapeButton)
+
+- def [`icon()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id1)
+
+- def [`iconPixmap()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id2)
+
+- def [`informativeText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id3)
+
+- def [`open()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.open)
+
+- def [`removeButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.removeButton)
+
+- def [`setButtonText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setButtonText)
+
+- def [`setCheckBox()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setCheckBox)
+
+- def [`setDefaultButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDefaultButton)
+
+- def [`setDetailedText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDetailedText)
+
+- def [`setEscapeButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setEscapeButton)
+
+- def [`setIcon()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIcon)
+
+- def [`setIconPixmap()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIconPixmap)
+
+- def [`setInformativeText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setInformativeText)
+
+- def [`setStandardButtons()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setStandardButtons)
+
+- def [`setText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setText)
+
+- def [`setTextFormat()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextFormat)
+
+- def [`setTextInteractionFlags()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextInteractionFlags)
+
+- def [`setWindowModality()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowModality)
+
+- def [`setWindowTitle()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowTitle)
+
+- def [`standardButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardButton)
+
+- def [`standardButtons()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id5)
+
+- def [`text()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id6)
+
+- def [`textFormat()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id7)
+
+- def [`textInteractionFlags()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id8)
 
 
 
@@ -6926,11 +7171,9 @@ app.exec()
 
 ### 20.2 扩展用法
 
+#### 20.2.1 静态方法
 
-
-
-
-快速创建对话框的静态方法：
+`QMessageBox`类可以用于创建高度自定义的消息对话框控件，但同时也会让使用过程变得复杂。对于想要快速、简单创建对话框的需求，可以使用`QMessageBox`类的静态方法：
 
 - def [`about()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.about)
 - def [`aboutQt()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.aboutQt)
@@ -6942,15 +7185,25 @@ app.exec()
 
 
 
-（扩展消息对话框的其他用法，比如自定义按钮之类的）
-
 
 
 ## 21 其他对话框控件（更新中）
 
+除了消息对话框控件，Qt还提供一些功能各异的对话框：
+
+- `QFileDialog`文件对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html。
+- QFontDialog，https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFontDialog.html
+- QColorDialog，https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColorDialog.html
+- QInputDialog，https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QInputDialog.html
+- QProgressDialog，https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressDialog.html
+
+本章将简单介绍一下这些对话框的用法。
+
+### 21.1 文件对话框控件
 
 
-比如名字里dialog为后缀的控件，
+
+（以第一小节为模板，其余几个小节，每节介绍一个对话框）
 
 
 

@@ -6759,7 +6759,7 @@ app.exec()
 
 最后，愿各位Qt的使用者、初学者没有难解的问题，每次遇到bug都有对应的补丁。
 
-## 20 `QMessageBox`消息对话框控件（更新中）
+## 20 `QMessageBox`消息对话框控件
 
 其实，在前面的章节中，已经用了好几次消息对话框控件，比如下面的示例：
 
@@ -6837,7 +6837,7 @@ translator.load(
 app.installTranslator(translator)
 
 window = QWidget()
-window.setWindowTitle('信息对话框')
+window.setWindowTitle('消息对话框')
 window.resize(400, 300)
 button = QPushButton('显示对话框',window)
 
@@ -6880,7 +6880,7 @@ app.exec()
 
 - `text`参数，仅限位置参数（第三个位置参数），字符串类型，表示主要文本。
 
-- `buttons`参数，`PySide6.QtWidgets.QMessageBox.StandardButton`类型，表示信息对话框中显示的按钮。可以使用`|`连接多个不同的值，表示同时显示多个按钮。
+- `buttons`参数，`PySide6.QtWidgets.QMessageBox.StandardButton`类型，表示消息对话框中显示的按钮。可以使用`|`连接多个不同的值，表示同时显示多个按钮。
 
 - `iconPixmap`参数，仅限关键字参数，`PySide6.QtGui.QPixmap`类型，表示使用自定义图片当作图标。示例如下：
 
@@ -6907,7 +6907,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -6954,7 +6954,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -7027,7 +7027,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -7074,7 +7074,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -7124,7 +7124,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -7171,7 +7171,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -7223,7 +7223,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -7271,7 +7271,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -7320,7 +7320,7 @@ app.exec()
   app.installTranslator(translator)
   
   window = QWidget()
-  window.setWindowTitle('信息对话框')
+  window.setWindowTitle('消息对话框')
   window.resize(400, 300)
   button = QPushButton('显示对话框',window)
   
@@ -7372,61 +7372,223 @@ app.exec()
 
 - `setIconPixmap`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIconPixmap），使用自定义图片当作图标。
 
-- def [`setInformativeText()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setInformativeText），---
+- `setInformativeText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setInformativeText），设置信息文本。
 
-- def [`setStandardButtons()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setStandardButtons)
+- `setStandardButtons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setStandardButtons），设置消息对话框中显示的按钮。
 
-- def [`setText()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setText)
+- `setText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setText），设置主要文本。
 
-- def [`setTextFormat()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextFormat)
+- `setTextFormat`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextFormat），设置主要文本、信息文本的文本格式。
 
-- def [`setTextInteractionFlags()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextInteractionFlags)
+- `setTextInteractionFlags`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextInteractionFlags），设置主要文本的可交互性。
 
-- def [`setWindowModality()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowModality)
+- `setWindowModality`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowModality），在消息对话框显示前设置其模态级别。
 
-- def [`setWindowTitle()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowTitle)
+- `setWindowTitle`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowTitle），设置消息对话框的标题。
 
-- def [`standardButton()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardButton)
+- `standardButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardButton），返回消息对话框指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）对应的标准按钮。
 
-- def [`standardButtons()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id5)
+- `standardButtons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id5），返回消息对话框中显示的按钮（枚举对象对应的十六进制数）。
 
-- def [`text()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id6)
+- `text`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id6），返回消息对话框的主要文本。
 
-- def [`textFormat()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id7)
+- `textFormat`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id7），返回要文本、信息文本的文本格式。
 
-- def [`textInteractionFlags()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id8)
-
-
+- `textInteractionFlags`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id8），返回主要文本的可交互性。
 
 ### 20.2 扩展用法
 
 #### 20.2.1 静态方法
 
-`QMessageBox`类可以用于创建高度自定义的消息对话框控件，但同时也会让使用过程变得复杂。对于想要快速、简单创建对话框的需求，可以使用`QMessageBox`类的静态方法：
+`QMessageBox`类可以用于创建高度自定义的消息对话框控件，但同时也会让使用过程变得复杂。对于想要快速、简单创建对话框的需求，可以使用`QMessageBox`类的静态方法。不同于使用`QMessageBox`类创建消息对话框控件需要调用`show`方法、`exec`方法、`open`方法才会显示，运行静态方法会自动显示特定类型的消息对话框并阻塞后续代码。
 
-- def [`about`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.about），
-- def [`aboutQt()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.aboutQt)
-- def [`critical()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.critical)
-- def [`information()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.information)
-- def [`question()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question)
-- def [`standardIcon()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardIcon)
-- def [`warning()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.warning)
+`QMessageBox`类支持的静态方法有：
 
+- `about`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.about），显示一个简化的、自定义关于信息的对话框（只有标题、主要文本）。示例如下：
 
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('消息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      QMessageBox.about(window,'关于信息','本程序由PythonPan编写')
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_20_7](qt_for_python.assets/2025_20_7.png)
+
+- `aboutQt`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.aboutQt），显示一个主要文本为Qt框架版本信息的对话框（但可以自定义标题）。示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('消息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      QMessageBox.aboutQt(window,'Qt版本信息')
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_20_8](qt_for_python.assets/2025_20_8.png)
+
+- `critical`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.critical），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Critical`的消息对话框（常用于表明主要文本内容为致命错误）。示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('消息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      QMessageBox.critical(
+          window,
+          '致命错误',
+          '发生了一个致命错误',
+          buttons=QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No
+      )
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_20_9](qt_for_python.assets/2025_20_9.png)
+
+- `information`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.information），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Information`的消息对话框（常用于表明主要文本内容为一般信息）。
+
+- `question`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Question`的消息对话框（常用于表明主要文本内容为问题，需要用户通过点击按钮的形式回答）。
+
+- `warning`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.warning），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Warning`的消息对话框（常用于表明主要文本内容为警告信息）。
+
+- `standardIcon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardIcon），将`PySide6.QtWidgets.QMessageBox.Icon`类型转换为`PySide6.QtGui.QPixmap`类型。
 
 ## 21 其他对话框控件（更新中）
 
 除了消息对话框控件，Qt还提供一些功能各异的对话框：
 
-- `QFileDialog`文件对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html。
-- QFontDialog，https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFontDialog.html
-- QColorDialog，https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColorDialog.html
-- QInputDialog，https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QInputDialog.html
-- QProgressDialog，https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressDialog.html
+- `QFileDialog`文件选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html。
+- `QFontDialog`---对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFontDialog.html。
+- `QColorDialog`---对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColorDialog.html。
+- `QInputDialog`，---对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QInputDialog.html。
+- `QProgressDialog`---对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressDialog.html。
 
 本章将简单介绍一下这些对话框的用法。
 
-### 21.1 文件对话框控件
+### 21.1 文件选择对话框控件
+
+
+
+（简单说一下对话框的用途，然后通过示例介绍具体参数的用法，重点介绍有点难度的，简单的可以一句话带过）
+
+
+
+(示例代码，不完整，需要增加其他参数的用法，)
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QFileDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('其他对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QFileDialog(window)
+    dialog.show()
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+
 
 
 

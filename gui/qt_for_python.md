@@ -6819,7 +6819,8 @@ from PySide6.QtWidgets import (
     QApplication,
     QWidget,
     QPushButton,
-    QMessageBox
+    QMessageBox,
+    QCheckBox
 )
 from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
 
@@ -6848,6 +6849,9 @@ message_box = QMessageBox(
     informativeText='信息文本'
 )
 
+cb = QCheckBox('复选框')
+message_box.setCheckBox(cb)
+
 button.clicked.connect(message_box.show)
 window.show()
 app.exec()
@@ -6861,7 +6865,8 @@ app.exec()
 
 - 左上角显示的图标，通常是简单直观的标识，也可以是自定义的图片，用于表达信息的图形部分。
 - 图标右边的上面是主要文本，通常简明扼要地表达信息的主要内容。
-- 图标右边的下面是信息文本，通常补充说明信息内容。
+- 主要文本的下面是信息文本，通常补充说明信息内容。
+- 信息文本的下面是复选框，通常表示一个布尔类型的选择。
 - 如果定没有义详情文本，最下面的是一排按钮，用户可以点击按钮，程序能够识别用户点击的按钮，对话框消失的同时，返回不同的值。
 - 如果定义了详情文本，最下面的一排按钮会多一个显示详情的按钮，点击这个按钮，最下面会弹出详情文本区域，显示详情文本。相比于信息文本，详情文本通常更加详细，也会包含一些默认不需要第一时间展示的文本，比如程序报错的详情。
 
@@ -7140,73 +7145,256 @@ app.exec()
 
   ![2025_20_6](qt_for_python.assets/2025_20_6.png)
 
-- `buttonRole`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttonRole），
+- `buttonRole`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttonRole），返回消息对话框指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）的按钮角色。
 
-- def [`buttonText()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttonText)
+  所谓按钮角色，即点击按钮之后，消息对话框应当执行的操作，具体参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.ButtonRole。注意，按钮角色不限制按钮的功能，主要用在开发者实现按钮对应功能时，帮助开发者识别按钮应该执行的功能。比如，`QMessageBox.ButtonRole.YesRole`角色对应的按钮，点击按钮之后，应该执行确认之类的操作：
 
-- def [`buttons()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttons)
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('信息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  message_box = QMessageBox(
+      QMessageBox.Icon.Information,
+      '标题',
+      '主要文本',
+      informativeText='信息文本',
+      buttons=QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,
+  )
+  
+  def which_button(e):
+      if message_box.buttonRole(e) == QMessageBox.ButtonRole.YesRole:
+          print('yes')
+      else:
+          print('else')
+  
+  message_box.buttonClicked.connect(which_button)
+  
+  button.clicked.connect(message_box.show)
+  window.show()
+  app.exec()
+  ```
 
-- def [`checkBox()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.checkBox)
+- `buttons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttons），返回`buttons`参数定义的和`addButton`方法添加的按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- def [`clickedButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.clickedButton)
+- `checkBox`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.checkBox），返回复选框控件（需要通过`setCheckBox`方法添加，复选框控件必须分步创建）。示例如下：
 
-- def [`defaultButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.defaultButton)
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox,
+      QCheckBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('信息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  message_box = QMessageBox(
+      QMessageBox.Icon.Information,
+      '标题',
+      '主要文本',
+      informativeText='信息文本',
+      buttons=QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,
+  )
+  
+  cb = QCheckBox('复选框')
+  message_box.setCheckBox(cb)
+  message_box.checkBox().clicked.connect(lambda e:print(e))
+  
+  button.clicked.connect(message_box.show)
+  window.show()
+  app.exec()
+  ```
 
-- def [`detailedText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id0)
+- `clickedButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.clickedButton），通过阻塞型方法（`exec`方法）显示对话框的话，该方法会返回用户点击的按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- def [`escapeButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.escapeButton)
+  借助该方法的返回值，可以准确判断出用户点击了哪个按钮：
 
-- def [`icon()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id1)
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox,
+      QCheckBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('信息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  message_box = QMessageBox(
+      QMessageBox.Icon.Information,
+      '标题',
+      '主要文本',
+      informativeText='信息文本',
+  )
+  
+  yes_button = message_box.addButton('是(&Y)',QMessageBox.ButtonRole.YesRole)
+  no_button = message_box.addButton('否(&N)',QMessageBox.ButtonRole.NoRole)
+  
+  def show():
+      message_box.exec()
+      if message_box.clickedButton() == yes_button:
+          print('yes')
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
 
-- def [`iconPixmap()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id2)
+  对于通过参数添加的按钮，没有变量表示对应按钮的话，可以使用`standardButton`方法或者`buttonRole`方法将返回值转换为其他可以判断的类型：
 
-- def [`informativeText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id3)
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMessageBox,
+      QCheckBox
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('信息对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  message_box = QMessageBox(
+      QMessageBox.Icon.Information,
+      '标题',
+      '主要文本',
+      informativeText='信息文本',
+      buttons=QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,
+  )
+  
+  def show():
+      message_box.exec()
+      if message_box.standardButton(message_box.clickedButton()) == QMessageBox.StandardButton.Yes:
+          print('yes')
+      if message_box.buttonRole(message_box.clickedButton()) == QMessageBox.ButtonRole.YesRole:
+          print('yesRole')
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
 
-- def [`open()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.open)
+- `defaultButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.defaultButton），返回消息对话框默认获得焦点的按钮。
 
-- def [`removeButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.removeButton)
+- `detailedText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id0），返回详情文本。
 
-- def [`setButtonText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setButtonText)
+- `escapeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.escapeButton），返回按下`escape`键时的等效按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- def [`setCheckBox()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setCheckBox)
+- `icon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id1），返回对话框显示的标准图标。
 
-- def [`setDefaultButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDefaultButton)
+- `iconPixmap`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id2），返回使用自定义图片的图标。
 
-- def [`setDetailedText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDetailedText)
+- `informativeText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id3），返回信息文本。
 
-- def [`setEscapeButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setEscapeButton)
+- `open`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.open），以非模态、非阻塞的方式显示对话框。除了此方法之外，`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞），也支持显示对话框。所谓阻塞，即执行方法时，如果对话框不关闭，该方法之后的其他代码不会执行。
 
-- def [`setIcon()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIcon)
+- `removeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.removeButton），从对话框中移除指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- def [`setIconPixmap()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIconPixmap)
+- `setCheckBox`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setCheckBox），在消息对话框中添加一个复选框。
 
-- def [`setInformativeText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setInformativeText)
+- `setDefaultButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDefaultButton），设置消息对话框默认获得焦点的按钮为指定按钮。
 
-- def [`setStandardButtons()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setStandardButtons)
+- `setDetailedText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDetailedText），设置详情文本。
 
-- def [`setText()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setText)
+- `setEscapeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setEscapeButton），设置按下`escape`键时的等效按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- def [`setTextFormat()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextFormat)
+- `setIcon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIcon），设置显示的标准图标。
 
-- def [`setTextInteractionFlags()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextInteractionFlags)
+- `setIconPixmap`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIconPixmap），使用自定义图片当作图标。
 
-- def [`setWindowModality()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowModality)
+- def [`setInformativeText()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setInformativeText），---
 
-- def [`setWindowTitle()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowTitle)
+- def [`setStandardButtons()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setStandardButtons)
 
-- def [`standardButton()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardButton)
+- def [`setText()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setText)
 
-- def [`standardButtons()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id5)
+- def [`setTextFormat()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextFormat)
 
-- def [`text()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id6)
+- def [`setTextInteractionFlags()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextInteractionFlags)
 
-- def [`textFormat()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id7)
+- def [`setWindowModality()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowModality)
 
-- def [`textInteractionFlags()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id8)
+- def [`setWindowTitle()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowTitle)
 
+- def [`standardButton()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardButton)
 
+- def [`standardButtons()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id5)
 
+- def [`text()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id6)
 
+- def [`textFormat()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id7)
+
+- def [`textInteractionFlags()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id8)
 
 
 
@@ -7216,15 +7404,13 @@ app.exec()
 
 `QMessageBox`类可以用于创建高度自定义的消息对话框控件，但同时也会让使用过程变得复杂。对于想要快速、简单创建对话框的需求，可以使用`QMessageBox`类的静态方法：
 
-- def [`about`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.about)
+- def [`about`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.about），
 - def [`aboutQt()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.aboutQt)
-- def [`critical()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.critical)
-- def [`information()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.information)
-- def [`question()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question)
-- def [`standardIcon()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardIcon)
-- def [`warning()`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.warning)
-
-
+- def [`critical()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.critical)
+- def [`information()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.information)
+- def [`question()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question)
+- def [`standardIcon()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardIcon)
+- def [`warning()`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.warning)
 
 
 

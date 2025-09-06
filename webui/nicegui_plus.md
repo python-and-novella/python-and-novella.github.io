@@ -1123,9 +1123,350 @@ ui.run(native=True)
 
 操作简单不少。
 
-## 23 （待定）
+## 23 版本速览——3.0.0版本有大量不兼容更新
 
+NiceGUI 3.0.0 新增内容不少，正如其版本号大变化所表示的含义，该版本值得关注的就是大量不兼容旧代码的更新。
 
+官方更新日志：https://github.com/zauberzeug/nicegui/releases/tag/v3.0.0rc1
+
+### 23.1 `ui.run`方法的`root`参数——auto-index页面功能全面删除（简化单页面应用的使用）
+
+`ui.run`方法新增`root`参数，该参数对应的值（可调用类型）的调用结果将替代auto-index页面，并自动捕获子路由，传给单页面应用（如果有的话）。并且，原auto-index页面全面删除，其内容将被自动打包到函数中，传给该参数。
+
+其实，该功能主要是为了简化单页面应用的创建。比如前面章节的单页面应用可以改为：
+
+```python3
+from nicegui import ui
+from uuid import uuid4
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+
+def page1():
+    ui.label('page1（子页面）的内容')
+    ui.link('回到/（子页面）', '/')
+
+ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+ui.label(f'页面ID为 {str(uuid4())[:6]}')
+ui.separator()
+ui.sub_pages({'/': main, '/page1': page1})
+
+ui.run(port=80)
+```
+
+或者改得更加规整：
+
+```python3
+from nicegui import ui
+from uuid import uuid4
+
+def index():
+    ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+    ui.label(f'页面ID为 {str(uuid4())[:6]}')
+    ui.separator()
+    ui.sub_pages({'/': main, '/page1': page1})
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+
+def page1():
+    ui.label('page1（子页面）的内容')
+    ui.link('回到/（子页面）', '/')
+
+index()
+ui.run(port=80)
+```
+
+一般将打包的函数传给`ui.run`方法的`root`参数，而不是直接调用（这也是新版本简化后的结果）：
+
+```python3
+from nicegui import ui
+from uuid import uuid4
+
+def index():
+    ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+    ui.label(f'页面ID为 {str(uuid4())[:6]}')
+    ui.separator()
+    ui.sub_pages({'/': main, '/page1': page1})
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+
+def page1():
+    ui.label('page1（子页面）的内容')
+    ui.link('回到/（子页面）', '/')
+
+ui.run(root=index,port=80)
+```
+
+虽然用法简化了，但该功能预示着auto-index页面功能全面删除，因此，新版本有以下**不兼容**：
+
+1. 不兼容auto-index页面和私有的page页面（`ui.page`）中都创建了控件并同时使用的旧版本代码。比如下面这种**旧版本代码**，在新版本中将会**报错**：
+
+   ```python3
+   from nicegui import ui
+   
+   ui.link('到其他页面', '/other')
+   
+   @ui.page('/other')
+   def other():
+       ui.link('回到主页', '/')
+   
+   ui.run(port=80)
+   ```
+
+   **正确**用法应该是将原auto-index页面的内容包装到函数中，并将函数名传给`root`参数：
+
+   ```python3
+   from nicegui import ui
+   
+   def index():
+       ui.link('到其他页面', '/other')
+   
+   @ui.page('/other')
+   def other():
+       ui.link('回到主页', '/')
+   
+   ui.run(root=index,port=80)
+   ```
+
+   相比于原auto-index页面，这样的变动虽然麻烦一点，但好处是可以使用在后面定义的函数。如果是**旧版本代码**，对应如下：
+
+   ```python3
+   from nicegui import ui
+   
+   def index():
+       ui.link('到其他页面', '/other')
+       main()
+   
+   @ui.page('/other')
+   def other():
+       main()
+   
+   def main():
+       ui.link('回到主页', '/')
+   
+   index()
+   
+   ui.run(port=80)
+   ```
+
+   若是不使用包装函数，`main`方法的调用位置就只能放在其定义之后，否则会报错，相应的**旧版本代码**如下：
+
+   ```python3
+   from nicegui import ui
+   
+   @ui.page('/other')
+   def other():
+       main()
+   
+   def main():
+       ui.link('回到主页', '/')
+   
+   ui.link('到其他页面', '/other')
+   main()
+   
+   ui.run(port=80)
+   ```
+
+2. 原auto-index页面中共享状态的控件，在新版本中不再共享。因此，类似原auto-index页面的新用法（官方称之为NiceGUI脚本）变成了私有页面。不过，为了共享状态、同步不同页面之间的数据，新版本引入了`Event`类（类似于Qt的信号，完整用法参考后面的章节，这里不做展开）。
+
+3. 访问不存在的地址，情况根据是否为单页面应用、是否为NiceGUI脚本而有所不同。
+
+   非单页面应用的NiceGUI脚本不再显示404页面。因为新版本自动捕获子路由，访问不存在的地址，依然显示首页的内容。
+
+   比如，下面的示例不显示404页面：
+
+   ```python3
+   from nicegui import ui
+   
+   ui.link('到其他页面（不存在）', '/other')
+   
+   ui.run(port=80)
+   ```
+
+   单页面应用的NiceGUI脚本，情况会有点复杂：
+
+   ```python3
+   from nicegui import ui
+   
+   def index():
+       ui.link('到其他页面（不存在）', '/other')
+       ui.separator()
+       ui.sub_pages({'/': main, '/page1': page1})
+   
+   def main():
+       ui.label('/（子页面）的内容')
+       ui.link('去page1（子页面）', '/page1')
+   
+   def page1():
+       ui.label('page1（子页面）的内容')
+       ui.link('回到/（子页面）', '/')
+   
+   ui.run(root=index,port=80)
+   ```
+
+   结果如下表所示：
+
+   | 当前地址             | 访问不存在的地址后           | 页面内容          | 刷新后内容      |
+   | -------------------- | ---------------------------- | ----------------- | --------------- |
+   | 根路由`/`            | 地址变为不存在的地址`/other` | 子页面显示404提示 | 页面显示500页面 |
+   | 子路由`/page1`       | 地址不变                     | 子页面显示404提示 | 子页面          |
+   | 不存在的地址`/other` | 无                           | 页面显示500页面   | 页面显示500页面 |
+
+   如果不是NiceGUI脚本，所有页面都是使用`ui.page`定义的私有页面，则正常显示404页面，也可以自定义404页面。
+
+   比如，下面的示例正常显示404页面：
+
+   ```python3
+   from nicegui import ui
+   
+   @ui.page('/')
+   def _():
+       ui.link('到其他页面（不存在）', '/other')
+   
+   ui.run(port=80)
+   ```
+
+   还可以自定义404页面：
+
+   ```python3
+   from nicegui import ui
+   
+   @ui.page('/')
+   def _():
+       ui.link('到其他页面（不存在）', '/other')
+   
+   # 自定义HTTP报错的响应页面
+   from nicegui import app,Client
+   from fastapi import Request
+   
+   @app.exception_handler(404)
+   def exception_handler_404(request:Request, exception: Exception):
+       from urllib.parse import urlparse
+       with Client(ui.page(''),request=request) as client:
+           ui.label(f'页面 {urlparse(str(request.url)).path[1:]} 不存在').classes('')
+       return client.build_response(request, 404)
+   
+   ui.run(port=80)
+   ```
+
+   注意，自定义404页面**不支持**NiceGUI脚本，强行使用会导致NiceGUI脚本的自动捕获子路由无法正常使用。
+
+   若是单页面应用，情况会有点复杂：
+
+   ```python3
+   from nicegui import ui
+   
+   @ui.page('/')
+   @ui.page('/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+   def _():
+       ui.link('到其他页面（不存在）', '/other')
+       ui.separator()
+       ui.sub_pages({'/': main, '/page1': page1})
+   
+   def main():
+       ui.label('/（子页面）的内容')
+       ui.link('去page1（子页面）', '/page1')
+   
+   def page1():
+       ui.label('page1（子页面）的内容')
+       ui.link('回到/（子页面）', '/')
+   
+   ui.run(port=80)
+   ```
+
+   结果如下表所示：
+
+   | 当前地址             | 访问不存在的地址后           | 页面内容          | 刷新后内容      |
+   | -------------------- | ---------------------------- | ----------------- | --------------- |
+   | 根路由`/`            | 地址变为不存在的地址`/other` | 子页面显示404提示 | 页面显示404页面 |
+   | 子路由`/page1`       | 地址变为不存在的地址`/other` | 子页面显示404提示 | 页面显示404页面 |
+   | 不存在的地址`/other` | 无                           | 页面显示404页面   | 页面显示404页面 |
+
+### 23.2 `Event`类——NiceGUI版本的信号
+
+为了解决auto-index页面全面删除之后，各个页面之间共享全局数据时，其他页面中使用该数据的控件不会自动同步的问题，是新版本引入了`Event`类（使用`from nicegui import Event`即可导入）。
+
+`Event`类没有参数，主要使用以下方法：
+
+- `emit`方法，发射数据改变的信号，通知其他订阅者。可传入任意数量参数，表示具体的数据，会同步传给其他订阅者。
+
+- `call`方法，`emit`方法的异步版本，不同于`emit`方法不等待所有订阅者执行完毕，该方法可以使用异步等待，等待所有订阅者执行完毕再发射信号。
+
+- `subscribe`方法，生成订阅者（不返回具体对象）。该方法的`callback`参数（可调用类型）表示接收到通知之后执行的操作，并且，该参数的值的参数个数必须与`emit`方法执行时传入的参数个数一致。
+
+  注意，该方法必须放在打包函数或者私有页面中执行。
+
+以下为同步NiceGUI脚本页面中控件的示例：
+
+```python3
+from nicegui import ui,Event
+
+signal_obj = Event()
+shared_value = ''
+def update_shared_value(x):
+    global shared_value
+    shared_value=x
+
+def index():
+    # 订阅信号，更新全局变量，以便于新打开的页面自动使用该值作为初始值
+    signal_obj.subscribe(update_shared_value)
+    input = ui.input(value=shared_value)
+    # 订阅信号
+    signal_obj.subscribe(lambda x:input.set_value(x))
+    # 发射信号
+    input.on_value_change(lambda :signal_obj.emit(input.value))
+
+ui.run(root=index,port=80)
+```
+
+打开多个页面的话，在任一页面中输入，其他页面的控件会自动同步。
+
+上面的示例也可以改为装饰器，效果相同：
+
+```python3
+from nicegui import ui,Event
+
+signal_obj = Event()
+shared_value = ''
+
+def index():
+    # 订阅信号，更新全局变量，以便于新打开的页面自动使用该值作为初始值
+    @signal_obj.subscribe
+    def update_shared_value(x):
+        global shared_value
+        shared_value=x
+
+    input = ui.input(value=shared_value)
+    # 订阅信号
+    signal_obj.subscribe(
+        lambda x:input.set_value(x)
+    )
+    # 发射信号
+    input.on_value_change(
+        lambda :signal_obj.emit(input.value)
+    )
+
+ui.run(root=index,port=80)
+```
+
+### 23.3 几句话带过但同样重要的更新
+
+NiceGUI 3.0.0 不再支持Python 3.8，使用该版本Python的基础环境，如果想要使用NiceGUI 3.0.0，必须升级Python版本到3.8以上。
+
+绑定方法新增`strict`参数，用于增加属性是否存在的检查。因为之前属性名都是字符串，如果运行时检查属性不存在，就会默默失败（不报错），这种秘不发丧的情况对于开发者来说是不友好的。使用`strict`参数（设置为`True`），当属性不存在时，就会报错，以提醒开发者发生了绑定失败的问题。
+
+TailWindCSS版本升级之后，控件的`tailwindcss`属性、`nicegui.tailwind`模块因为无法继续维护而移除，后续使用TailWindCSS的话，推荐使用VSCode扩展https://open-vsx.org/extension/DaelonSuzuka/nicegui。
+
+`ui.aggrid`的`run_column_method`方法（使用`run_grid_method`方法替代）、`ui.open`方法（使用`ui.navigate.to`方法替代）已经移除，如果代码中存在相关调用，请改为替代方法。
+
+调用控件的 `props`方法、`classes`方法、`style`方法之后，无需额外调用`update`方法刷新显示，因为这些方法相关的属性已经变成可以自动触发显示刷新的可观察类对象。
+
+## 24 （待定）
 
 
 

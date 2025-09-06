@@ -7536,10 +7536,10 @@ app.exec()
 除了消息对话框控件，Qt还提供一些功能各异的对话框：
 
 - `QFileDialog`文件选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html。
-- `QFontDialog`---对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFontDialog.html。
-- `QColorDialog`---对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColorDialog.html。
-- `QInputDialog`，---对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QInputDialog.html。
-- `QProgressDialog`---对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressDialog.html。
+- `QFontDialog`字体选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFontDialog.html。
+- `QColorDialog`颜色选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColorDialog.html。
+- `QInputDialog`输入对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QInputDialog.html。
+- `QProgressDialog`进度条对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressDialog.html。
 
 本章将简单介绍一下这些对话框的用法。
 

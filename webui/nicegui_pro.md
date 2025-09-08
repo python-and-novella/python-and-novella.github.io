@@ -16,29 +16,109 @@ NiceGUI（官网https://nicegui.io/）是一款优秀的WebUI、GUI框架，只�
 
 ## 1 安装NiceGUI
 
-（免费，）
+之前《NiceGUI的中文入门教程》使用PDM作为环境管理工具，这一次，将使用uv管理环境。
+
+为什么要用uv？
+
+原因只有一个，那就是快！速度对比如下：
+
+![2026_1_1](nicegui_pro.assets/2026_1_1.png)
+
+首先，新建一个空白文件夹，笔者这里新建了`nicegui_app`文件夹。进入该文件夹，运行`uv init`，即可初始化该文件夹为项目文件夹（`uv`命令需要使用`pip install uv`安装）。
+
+此时创建的项目是空白项目，没有添加任何依赖，还需要使用`uv add nicegui`添加依赖，并自动创建虚拟环境。
+
+NiceGUI还提供了一些可选的依赖：
+
+- `pywebview`库，以Native Mode（本地窗口模式）运行NiceGUI程序时依赖该库，使用`uv add nicegui[native]`命令添加。
+- `plotly`库，`ui.plotly`控件依赖该库，使用`uv add nicegui[plotly]`命令添加。
+- `matplotlib`库，`ui.matplotlib`控件和`ui.pyplot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
+- `nicegui-highcharts`库，`ui.highchart`控件依赖该库，使用`uv add nicegui[highcharts]`命令添加。
+- `libsass`库，`ui.add_scss`方法和`ui.add_sass`方法依赖该库，使用`uv add nicegui[sass]`命令添加。
+- `redis`库，使用Redis存储`app.storage`时（定义环境变量`NICEGUI_REDIS_URL`）依赖该库，使用`uv add nicegui[redis]`命令添加。
+
+如果想要将虚拟环境中的所有库升级至最新稳定版，可以使用`uv sync -U`。
+
+若是只想升级指定库，比如`nicegui`，则使用`uv sync -P nicegui`。
+
+升级指定库至最新测试版。因为本章节创作时，NiceGUI的3.0.0版本尚未正式发布，需要升级至最新测试版才行，或者读者想要使用其他最新测试版的功能，则可以使用`uv sync -P nicegui --prerelease allow`命令，将指定库升级至最新测试版。
+
+## 2 NiceGUI程序的基本结构与运行方式
+
+从NiceGUI 3.0.0开始，NiceGUI程序按照是否使用`ui.page`方法可划分为两种模式：
+
+- 脚本模式
+
+  
+
+  ```python3
+  ```
+
+  
+
+- 页面模式
+
+  
+
+  ```python3
+  ```
+
+  
+
+两种模式均可以设计为单页面应用，实现细节上大致相同。
 
 
 
-使用uv初始化项目，安装基础库，添加可选库
+运行方式分为，网页模式和本地窗口模式，
 
 
 
-## 2 NiceGUI程序的基本结构
+网页模式还支持与FastAPI应用组合运行：
 
-（开始收费）
+```python3
+import uvicorn
+from fastapi import FastAPI
+from nicegui import ui
+  
+fast_app = FastAPI()
+  
+@ui.page('/')
+def index():
+    ui.label('Hello, NiceGUI!')
+  
+ui.run_with(
+    app=fast_app,
+)
 
+uvicorn.run(app=fast_app,host='0.0.0.0',port=80)
+```
 
+或者将NiceGUI程序挂载到子路由：
 
-脚本模式（3.0.0新增）
-
-
-
-页面模式（ui.page）
-
-
-
-单页面应用（基于脚本模式、页面模式，使用ui.sub_pages扩展为单页面应用）
+```python3
+import uvicorn
+from fastapi import FastAPI
+from nicegui import ui
+  
+fast_app = FastAPI()
+  
+@fast_app.get('/')
+def root():
+    return '请访问 /gui 查看NiceGUI程序'
+  
+# 这里的路径是相对挂载路径而言
+@ui.page('/')
+def index():
+    ui.label('Hello, NiceGUI!')
+  
+ui.run_with(
+    app=fast_app,
+    # 省略挂载路径的话，直接访问根路径（/）即可看到NiceGUI程序，但要注释掉@fast_app.get('/')和其装饰的函数
+    mount_path='/gui' 
+)
+  
+uvicorn.run(app=fast_app,host='0.0.0.0',port=80)
+```
 
 
 
@@ -167,3 +247,64 @@ ui.add\_\* 和app.add\_\*
 
 
 ## 5 修改指定元素
+
+
+
+
+
+## 5 环境变量
+
+原文参考自 https://nicegui.io/documentation/section_configuration_deployment#environment_variables 。
+
+在NiceGUI中，有些设置项只能通过修改环境变量实现：
+
+- `MATPLOTLIB`，默认为`'true'`，表示是否自动导入`matplotlib`(`ui.pyplot`和`ui.line_plot`依赖此库），可以将此环境变量设置为`'false'`来避免自动导入，减少导入`nicegui`所需的时间，同时也会导致`ui.pyplot`和`ui.line_plot`无法使用。
+
+  以下为用于对比的示例，读者可以修改环境变量值，冷启动（完全退出再重新打开）看看导入所需的时间：
+
+  ```python3
+  import os
+  os.environ['MATPLOTLIB'] = 'false'
+  
+  import time
+  start_time = time.time()
+  
+  from nicegui import ui
+  
+  end_time = time.time()
+  
+  print(f'used {end_time- start_time}')
+  
+  ui.button('Test')
+  
+  ui.run(native=True)
+  ```
+
+- `NICEGUI_STORAGE_PATH`，默认为`'.nicegui'`，表示使用`app.storage`时，需要在服务器磁盘存储数据的空间，具体使用哪个位置，默认为运行命令时当前路径下的`.nicegui`文件夹。
+
+- `NICEGUI_REDIS_URL`，默认未设置（即为`None`），表示使用`app.storage`时，相关数据存储在哪个Redis服务器中，该环境变量需要设置为包含Redis协议的完整地址，比如`'redis://redis_server_host:6379'`，如果不设置（即默认值），则表示相关数据存储在本地文件夹中。
+
+- `NICEGUI_REDIS_KEY_PREFIX`，默认为`'nicegui'`，表示使用`app.storage`，相关数据存储在Redis服务器中时，相关数据的键使用什么作为前缀。
+
+- `MARKDOWN_CONTENT_CACHE_SIZE`，默认为`'1000'`，表示`ui.markdown`在内存中缓存多少个内容片段，如果使用`ui.markdown`时，程序占用内存太高，可以调整该值。
+
+- `RST_CONTENT_CACHE_SIZE`，默认为`'1000'`，表示`ui.restructured_text`在内存中缓存多少个内容片段，如果使用`ui.restructured_text`时，程序占用内存太高，可以调整该值。
+
+  ```python3
+  from nicegui import ui
+  from nicegui.elements import markdown,restructured_text
+  
+  import os
+  os.environ['MARKDOWN_CONTENT_CACHE_SIZE'] = '1'
+  os.environ['RST_CONTENT_CACHE_SIZE'] = '1'
+  
+  ui.label(f'MARKDOWN_CONTENT_CACHE_SIZE is {markdown.prepare_content.cache_info().maxsize}')
+  ui.label(f'RST_CONTENT_CACHE_SIZE is {restructured_text.prepare_content.cache_info().maxsize}')
+  
+  ui.run(native=True)
+  ```
+
+xxx
+
+
+

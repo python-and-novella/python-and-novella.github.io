@@ -7531,7 +7531,7 @@ app.exec()
 
 - `standardIcon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardIcon），将`PySide6.QtWidgets.QMessageBox.Icon`类型转换为`PySide6.QtGui.QPixmap`类型。
 
-## 21 其他对话框控件（更新中）
+## 21 其他对话框控件
 
 除了消息对话框控件，Qt还提供一些功能各异的对话框：
 
@@ -8004,7 +8004,7 @@ app.exec()
 
 字体选择对话框控件允许用户在对话框中选择字体，并通过`currentFont`方法返回字体。也可以使用`currentFontChanged`信号，获取当前字体。
 
-和文件选择对话框一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
+和文件选择对话框控件一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -8050,7 +8050,7 @@ app.exec()
 
 颜色选择对话框控件允许用户在对话框中选择颜色，并通过`currentColor`方法返回颜色。也可以使用`currentColorChanged`信号，获取当前颜色。
 
-和文件选择对话框一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
+和文件选择对话框控件一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -8092,29 +8092,341 @@ app.exec()
 
 ![2025_21_6](qt_for_python.assets/2025_21_6.png)
 
-### 21.4 输入对话框控件（更新中）
+### 21.4 输入对话框控件
 
-字体选择对话框控件允许用户在对话框中选择字体，并通过`currentFont`方法返回字体。也可以使用`currentFontChanged`信号，获取当前字体。
+输入对话框控件允许用户在对话框中输入内容，并通过指定方法返回输入的内容。
 
-和文件选择对话框一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
+和文件选择对话框控件一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QInputDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
 
+app = QApplication()
 
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
 
+window = QWidget()
+window.setWindowTitle('其他对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
 
+def show():
+    dialog = QInputDialog(
+        window,
+    )
+    dialog.exec()
+    print(dialog.textValue())
 
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+不过，与前面几种对话框不同的是，输入对话框控件通常使用静态方法创建，因为静态方法支持更多参数，也会直接返回输入的内容：
+
+- `getDouble`方法，创建一个只允许输入小数的输入对话框控件：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QInputDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      print(
+          QInputDialog.getDouble(
+              window,
+              '获取输入',
+              '请输入'
+          )
+      )
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_21_7](qt_for_python.assets/2025_21_7.png)
+
+- `getInt`方法，创建一个只允许输入整数的输入对话框控件。
+
+- `getItem`方法，创建一个只允许从下拉框选择的输入对话框控件：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QInputDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      print(
+          QInputDialog.getItem(
+              window,
+              '获取输入',
+              '请选择',
+              [
+                  '1',
+                  'a'
+              ]
+          )
+      )
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_21_8](qt_for_python.assets/2025_21_8.png)
+
+- `getText`方法，创建一个可以输入任意单行文本的输入对话框控件：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QInputDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      print(
+          QInputDialog.getText(
+              window,
+              '获取输入',
+              '请输入'
+          )
+      )
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_21_9](qt_for_python.assets/2025_21_9.png)
+
+- `getMultiLineText`方法，创建一个可以输入任意多行文本的输入对话框控件：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QInputDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      print(
+          QInputDialog.getMultiLineText(
+              window,
+              '获取输入',
+              '请输入'
+          )
+      )
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_21_10](qt_for_python.assets/2025_21_10.png)
 
 ### 21.5 进度条对话框控件
 
-字体选择对话框控件允许用户在对话框中选择字体，并通过`currentFont`方法返回字体。也可以使用`currentFontChanged`信号，获取当前字体。
+进度条对话框控件包含一个进度条，可以表明某个后台任务的进度。
 
-和文件选择对话框一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
+和文件选择对话框控件一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QProgressDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('其他对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QProgressDialog(
+        window,
+        value=50,
+        labelText='当前进度'
+    )
+    dialog.setWindowTitle('进度条对话框')
+    dialog.exec()
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+![2025_21_11](qt_for_python.assets/2025_21_11.png)
+
+除了主动显示对话框，进度条对话框控件还支持`minimumDuration`参数（默认为`4000`，不能小于该值），表示创建了控件多少毫秒之后，自动显示对话框。比如，下面的示例中，虽然注释掉了`exec`方法的调用，但对话框依然会自动显示：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QProgressDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('其他对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QProgressDialog(
+        window,
+        value=50,
+        labelText='当前进度'
+    )
+    dialog.setWindowTitle('进度条对话框')
+    #dialog.exec()
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+## 23 （待定）
 
 
 
 
 
 
+
+## 2x 其他对话框控件的实例
+
+前面简单介绍了其他对话框控件之后，还是有读者不太理解具体用法，或者在实际使用中存在问题。于是，笔者搜集了一些读者反馈的问题，并上网找了一些常见的应用场景，写了一些实际应用的示例代码。
+
+#### 2x.1 （待定）
+
+
+
+（补充一些对话框内容、功能自定义的例子，可能涉及到未写的参数、方法，结构采取“需求或者问题来源+代码+截图”的形式）
 
 
 

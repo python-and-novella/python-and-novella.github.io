@@ -7545,13 +7545,9 @@ app.exec()
 
 ### 21.1 文件选择对话框控件
 
+文件选择对话框控件允许用户在对话框中选择文件、目录、保存文件（不是真的保存，只是返回路径），并通过特定方法返回路径。
 
-
-（简单说一下对话框的用途，然后通过示例介绍具体参数的用法，重点介绍有点难度的，简单的可以一句话带过）
-
-
-
-(示例代码，不完整，需要增加其他参数的用法，)
+示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -7580,19 +7576,545 @@ window.resize(400, 300)
 button = QPushButton('显示对话框',window)
 
 def show():
-    dialog = QFileDialog(window)
-    dialog.show()
+    dialog = QFileDialog(
+        window
+    )
+    dialog.exec()
 
 button.clicked.connect(show)
 window.show()
 app.exec()
 ```
 
+![2025_21_1](qt_for_python.assets/2025_21_1.png)
+
+控件提供了一些参数，可以定制文件选择对话框的功能：
+
+- `caption`参数，字符串类型，表示文件选择对话框的标题。
+
+- `directory`参数，字符串类型，表示文件选择对话框的初始目录。
+
+- `filter`参数，字符串类型，表示文件选择对话框的格式过滤器。格式过滤器的语法为：`{格式描述}({格式通配符}{空格或者分号}...);;...`。其中，双英文分号表示不同类型过滤器之间的分隔符。以下为合法的格式过滤器：
+
+  ```python3
+  '支持的格式(*.png;*.py *.md);;所有文件 (*.*)'
+  ```
+
+- `viewMode`参数，`PySide6.QtWidgets.QFileDialog.ViewMode`类型，表示文件选择对话框中文件视图的形式（列表视图、详细视图）。
+
+  注意，受限于Windows系统，想要让该参数生效，必须禁用原生的文件选择对话框：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QFileDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      dialog = QFileDialog(
+          window,
+          viewMode=QFileDialog.ViewMode.List,
+          options=QFileDialog.Option.DontUseNativeDialog
+      )
+      dialog.exec()
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_21_2](qt_for_python.assets/2025_21_2.png)
+
+- `fileMode`参数，`PySide6.QtWidgets.QFileDialog.FileMode`类型（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html#PySide6.QtWidgets.QFileDialog.FileMode），表示文件选择对话框的打开的文件类型（打开无论是否存在的单个文件、打开现有的单个文件、打开现有的多个文件、打开文件夹）。示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QFileDialog,
+      QFontDialog,
+      QColorDialog,
+      QInputDialog,
+      QProgressDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      dialog = QFileDialog(
+          window,
+          fileMode=QFileDialog.FileMode.Directory
+      )
+      dialog.exec()
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+- `acceptMode`参数，`PySide6.QtWidgets.QFileDialog.AcceptMode`类型，表示文件选择对话框右下角的接受按钮显示文字，同时也定义了文件选择对话框是打开文件还是保存文件。
+
+  示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QFileDialog,
+      QFontDialog,
+      QColorDialog,
+      QInputDialog,
+      QProgressDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      dialog = QFileDialog(
+          window,
+          acceptMode=QFileDialog.AcceptMode.AcceptOpen
+      )
+      dialog.exec()
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+- `defaultSuffix`参数，字符串类型，表示默认后缀，当保存文件或者选择打开不存在的文件（实际上就是保存文件）时，如果输入的文件名不包含默认后缀，则自动添加默认后缀。
+
+- `options`参数，`PySide6.QtWidgets.QFileDialog.Option`类型（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html#PySide6.QtWidgets.QFileDialog.Option），表示文件选择对话框支持的额外选项，一般不需要单独设置。比如前面`viewMode`参数中使用的`QFileDialog.Option.DontUseNativeDialog`，表示不使用原生的文件选择对话框。多个额外选项可以组合使用，通过`|`连接即可：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QFileDialog,
+      QFontDialog,
+      QColorDialog,
+      QInputDialog,
+      QProgressDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      dialog = QFileDialog(
+          window,
+          options=QFileDialog.Option.DontUseNativeDialog|QFileDialog.Option.ShowDirsOnly
+      )
+      dialog.exec()
+      print(dialog.selectedFiles())
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+控件支持很多信号，常用的信号有：
+
+- `currentChanged`信号，点选（点击，使其处于选择状态）不同文件、文件夹时发射该信号，并将被点选的文件、文件夹的路径作为参数传给槽函数（响应函数）。
+
+- `directoryEntered`信号，进入任意文件夹时发射该信号，并将文件夹的路径对象（`QUrl`类型）作为参数传给槽函数（响应函数）。
+
+- `fileSelected`信号，打开单个文件、文件夹时发射该信号，并将被打开的文件、文件夹的路径作为参数传给槽函数（响应函数）。
+
+- `filesSelected`信号，打开多个文件时发射该信号，并将包含被打开文件的路径的列表作为参数传给槽函数（响应函数）。
+
+- `filterSelected`信号，切换格式过滤器时发射该信号，并将表示当前类型过滤器的字符串作为参数传给槽函数（响应函数）。注意，只有非原生的文件选择对话框可以使用该信号。示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QFileDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      dialog = QFileDialog(
+          window,
+          filter='支持的格式(*.png;*.py *.md);;所有文件 (*.*)',
+          options=QFileDialog.Option.DontUseNativeDialog
+      )
+      dialog.filterSelected.connect(print)
+      dialog.exec()
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+- `finished`信号，关闭对话框（包括用户确认、取消）时发射该信号。
+
+- `accepted`信号，用户确认（打开、保存）时发射该信号。
+
+- `rejected`信号，用户取消（直接关闭对话框、取消）时发射该信号。
+
+控件支持很多方法，常用的方法有：
+
+- `exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞），和消息对话框一样，文件选择对话框也支持这些显示方法。需要注意的是，如果使用阻塞方法显示文件选择对话框，需要在阻塞方法前连接信号才能生效。如果使用非阻塞方法获取选择的文件，则需要确保对话框关闭（通过使用`finished`信号）之后再获取，或者直接使用`fileSelected`信号、`filesSelected`信号。
+
+  注意，如果使用`show`方法显示文件选择对话框，默认为非原生。
+
+- `selectedFiles`方法，获取选择的文件。该方法返回的是包含文件路径的列表，无论是文件还是文件，单选还是多选。
+
+- `setLabelText`方法，用于设置非原生对话框指定标签的文本。支持以下区域：
+
+  ![2025_21_3](qt_for_python.assets/2025_21_3.png)
+
+- `setMimeTypeFilters`方法，使用MIME格式表示格式过滤器。示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QFileDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      dialog = QFileDialog(
+          window,
+      )
+      dialog.setMimeTypeFilters(
+          [
+              'image/png',
+              'application/octet-stream'
+          ]
+      )
+      dialog.exec()
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+- `setNameFilter`方法、`setNameFilters`方法，限定打开文件的文件名（前者限制为单个文件名，后者可以指定多个文件名）。示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QFileDialog
+  )
+  from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+  
+  app = QApplication()
+  
+  # 加载内置控件的语言文件
+  translator = QTranslator()
+  translator.load(
+      QLocale('zh'),
+      'qtbase',
+      '_',
+      QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+  )
+  app.installTranslator(translator)
+  
+  window = QWidget()
+  window.setWindowTitle('其他对话框')
+  window.resize(400, 300)
+  button = QPushButton('显示对话框',window)
+  
+  def show():
+      dialog = QFileDialog(
+          window,
+      )
+      dialog.setNameFilters(
+              [
+                  'main.py',
+                  'LOGO.png'
+              ]
+      )
+      dialog.exec()
+  
+  button.clicked.connect(show)
+  window.show()
+  app.exec()
+  ```
+
+  ![2025_21_4](qt_for_python.assets/2025_21_4.png)
+
+- `selectNameFilter`方法，选择当前限定打开文件的文件名。如果使用`setNameFilters`方法定义了多个限定打开文件的文件名，显示文件选择对话框时，默认使用第一个文件名。但是，如果想要指定默认使用的文件名而不想调整文件名的顺序，可以使用该方法。
+
+- `selectFile`方法，显示文件选择对话框时，默认选择指定文件。
+
+除了直接创建控件，`QFileDialog`类也提供了一些方便快捷的静态方法（部分），这些方法执行之后立即显示对话框，并返回用户选择的结果：
+
+- `getExistingDirectory`方法，打开文件夹，返回路径。
+- `getOpenFileName`方法，打开单个文件，返回路径。
+- `getOpenFileNames`方法，打开多个文件，返回路径。
+- `getSaveFileName`方法，保存为文件，返回路径。
+- `saveFileContent`方法，保存指定内容为指定文件。
+
+静态方法中，几个‘get'前缀的方法的参数在控件的参数中介绍过，这里不再赘述，就单独说一下`saveFileContent`方法的参数：
+
+- 第一位置参数，已编码的字符串，表示文件的内容。
+- 第二位置参数，字符串类型，表示文件名。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QFileDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('其他对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    QFileDialog.saveFileContent(
+        'test'.encode(),
+        'my_file.txt'
+    )
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+### 21.2 字体选择对话框控件
+
+字体选择对话框控件允许用户在对话框中选择字体，并通过`currentFont`方法返回字体。也可以使用`currentFontChanged`信号，获取当前字体。
+
+和文件选择对话框一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QFontDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('其他对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QFontDialog(
+        window,
+    )
+    dialog.exec()
+    print(dialog.currentFont())
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+![2025_21_5](qt_for_python.assets/2025_21_5.png)
+
+### 21.3 颜色选择对话框控件
+
+颜色选择对话框控件允许用户在对话框中选择颜色，并通过`currentColor`方法返回颜色。也可以使用`currentColorChanged`信号，获取当前颜色。
+
+和文件选择对话框一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QColorDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('其他对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QColorDialog(
+        window,
+    )
+    dialog.exec()
+    print(dialog.currentColor())
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+![2025_21_6](qt_for_python.assets/2025_21_6.png)
+
+### 21.4 输入对话框控件（更新中）
+
+字体选择对话框控件允许用户在对话框中选择字体，并通过`currentFont`方法返回字体。也可以使用`currentFontChanged`信号，获取当前字体。
+
+和文件选择对话框一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
 
 
 
 
-（以第一小节为模板，其余几个小节，每节介绍一个对话框）
+
+
+
+### 21.5 进度条对话框控件
+
+字体选择对话框控件允许用户在对话框中选择字体，并通过`currentFont`方法返回字体。也可以使用`currentFontChanged`信号，获取当前字体。
+
+和文件选择对话框一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
+
+
+
+
+
+
 
 
 

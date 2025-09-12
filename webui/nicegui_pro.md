@@ -45,9 +45,31 @@ NiceGUI还提供了一些可选的依赖：
 
 ## 2 NiceGUI程序的基本结构与运行方式
 
-从NiceGUI 3.0.0开始，NiceGUI程序按照是否使用`ui.page`方法可划分为两种模式：
+先看示例，简单了解一下NiceGUI程序的基本结构：
 
-- 脚本模式
+```python3
+from nicegui import ui
+  
+ui.button('Hello')
+
+ui.run()
+```
+
+示例很简单，正好对应着NiceGUI程序的三个基本组成：
+
+- 导入模块
+- 创建控件
+- 运行程序
+
+
+
+（导入模块，创建控件，运行）
+
+
+
+从NiceGUI 3.0.0开始，NiceGUI程序按照是否使用`ui.page`方法可划分为两种模式，对应着两种基本结构：
+
+- 脚本模式，不使用`ui.page`方法创建页面，所有控件
 
   
 

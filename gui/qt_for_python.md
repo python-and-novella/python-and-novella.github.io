@@ -46,8 +46,8 @@ PySide6（6.9.x版本）提供了很多模块，但不是所有模块都常用�
 Qt框架作为成熟的GUI框架，模块、类的命名也是统一且整齐的：
 
 - 所有的命名均采用大驼峰规则，即每个字段的首字母大写，直接连接每个字段。
-- 所有模块都是'Qt'开头，后接表明模块用途的字段。
-- 所有的类都是'Q'开头，后接表明类含义的字段。
+- 所有模块都是“Qt”开头，后接表明模块用途的字段。
+- 所有的类都是“Q”开头，后接表明类含义的字段。
 
 PySide6（6.9.x版本）包含的所有模块（目录参考自 https://doc.qt.io/qtforpython-6/py-modindex.html）及相关信息（资料有限，主要用途的解释可能存在偏差，以官方资料为准）参见下表：
 
@@ -110,7 +110,7 @@ PySide6（6.9.x版本）包含的所有模块（目录参考自 https://doc.qt.i
 | `QtWidgets`            | QtWidgets程序的基础功能          | https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html#module-PySide6.QtWidgets |
 | `QtXml`                | 处理XML文件                      | https://doc.qt.io/qtforpython-6/PySide6/QtXml/index.html#module-PySide6.QtXml |
 
-读者在看完上面的表格之后，应该也发现了，除了`QtWidgets`模块，还有不少模块以'Widgets'为结尾。在使用这些模块时需要注意：`QtWidgets`模块包含的传统控件只能用于`QApplication`类实例（后面会介绍`QApplication`类的用法），而其他以'Widgets'结尾的模块包含的控件同样也只能用于`QApplication`类实例。
+读者在看完上面的表格之后，应该也发现了，除了`QtWidgets`模块，还有不少模块以“Widgets”为结尾。在使用这些模块时需要注意：`QtWidgets`模块包含的传统控件只能用于`QApplication`类实例（后面会介绍`QApplication`类的用法），而其他以“Widgets”结尾的模块包含的控件同样也只能用于`QApplication`类实例。
 
 ## 3 Qt程序的基本结构
 
@@ -3232,7 +3232,7 @@ window.show()
 app.exec()
 ```
 
-在控件所有的方法中，'set'开头的方法可以设置控件的控件属性（即UI文件中设置的属性，对应XML格式的UI文件中的`property`节点及其子节点），包括控件的样式。比如`setFixedSize`方法就是用来设置控件固定大小的，因此，原本比较紧凑的按钮会变成指定大小：
+在控件所有的方法中，“set”开头的方法可以设置控件的控件属性（即UI文件中设置的属性，对应XML格式的UI文件中的`property`节点及其子节点），包括控件的样式。比如`setFixedSize`方法就是用来设置控件固定大小的，因此，原本比较紧凑的按钮会变成指定大小：
 
 ![2025_12_1](qt_for_python.assets/2025_12_1.png)
 
@@ -3798,7 +3798,7 @@ app.exec()
 
 如果优先级相同，则字QSS中位置靠下的选择器、组合器优先生效。
 
-和CSS一样，QSS也支持`/*`开头、`*/`结尾的注释方式，可在样式表中添加补充说明的文字。上面示例中的QSS字符串可以这样写注释：
+和CSS一样，QSS也支持“/\*”开头、“\*/”结尾的注释方式，可在样式表中添加补充说明的文字。上面示例中的QSS字符串可以这样写注释：
 
 ```css
 /* 后代组合器 */

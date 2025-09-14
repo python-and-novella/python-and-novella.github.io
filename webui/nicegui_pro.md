@@ -141,7 +141,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
   ui.run()
   ```
   
-  看起来有点复杂，但如果读者有Python基础的话，就会发现，这段看似复杂的代码，其实就是一个装饰器：
+  看起来有点复杂，但如果读者细心观察的话，就会发现，这段看似复杂的代码，其实就是一个装饰器：
   
   ```python3
   from nicegui import ui
@@ -599,39 +599,82 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-## 4 控件的样式（更新中）
+## 4 修改样式
 
 NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，实际使用时总不能全用默认样式，肯定要美化一番。因此，如何修改控件的样式，值得读者认真学习。
 
-### 4.1 支持的样式
+### 4.1 修改样式的方法
 
-在学习修改控件的样式之前，先了解一下NiceGUI的控件支持哪些样式：
+在学习修改控件的样式之前，先了解一下NiceGUI的控件支持哪些修改样式的方法：
 
-- CSS
-- TailWindCSS
-- Quasar
+- `style`方法（属性），支持CSS，可以直接设置具体的Web样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS。
+- `classes`方法（属性），支持tailwindcss，可以设置tailwindcss框架定义的CSS变量，让控件应用这些变量对应的CSS样式。tailwindcss的语法可参考 https://tailwindcss.com/。
+- `props`方法（属性），支持Quasar控件的属性，可以设置对应Quasar控件的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components。
 
-
+可能读者看到上面的介绍有点疑惑，为何这些方法后，还用括号补充说明是属性？在NiceGUI最新版本中，这三种方法，可以通过调用的方式添加、修改样式。同时，控件还支持同名的字典（或者列表）属性，可以使用字典（或者列表支持的方式添加、修改样式，字典的键即为样式名。
 
 ### 4.2 `style`方法（属性）
 
+示例如下：
 
+```python3
+from nicegui import ui
 
-三种有关样式的方法（控件属性）
+def index():
+    button = ui.button('Hello')
+    button.style('color:red!important')
+    button.style['background'] = 'green!important'
 
+ui.run(root=index,native=True)
+```
 
+![2026_4_1](nicegui_pro.assets/2026_4_1.png)
+
+需要注意的是，默认控件的样式优先级较高，需要通过添加`!important`来提高自定义样式的优先级，否则不会生效。
 
 ### 4.3 `classes`方法（属性）
 
+示例如下：
 
+```python3
+from nicegui import ui
+
+def index():
+    label = ui.label('Hello')
+    label.classes('bg-yellow-400')
+    label.classes.append('text-blue-600')
+
+ui.run(root=index,native=True)
+```
+
+![2026_4_2](nicegui_pro.assets/2026_4_2.png)
+
+`classes`属性是一个列表，因此只能使用列表的方法。
+
+注意，因为NiceGUI的很多控件自带颜色，其生效优先级源于Quasar框架，高于tailwindcss框架，所以，即使使用`!`修饰颜色也不一定能生效。
 
 ### 4.4 `props`方法（属性）
 
+示例如下：
 
+```python3
+from nicegui import ui
 
+def index():
+    button = ui.button('Hello')
+    button.props('text-color=green')
+    button.props['color'] = 'red'
 
+ui.run(root=index,native=True)
+```
 
-## 3 事件
+![2026_4_3](nicegui_pro.assets/2026_4_3.png)
+
+需要注意的是，Quasar控件的属性有两种类型，布尔类型和其他类型。如果是布尔类型的属性，可以不用赋值，添加该属性相当于给该属性赋值为`True`。
+
+## 5 响应事件（更新中）
+
+### 5.1 响应控件的事件
 
 
 
@@ -641,9 +684,15 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 
 
 
-
+### 5.2 响应NiceGUI程序的事件
 
 介绍app的事件
+
+
+
+
+
+### 5.3 响应信号（`Event`类）
 
 
 
@@ -657,7 +706,7 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 
 
 
-## 4 属性绑定
+## 6 绑定属性
 
 
 
@@ -669,7 +718,7 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 
 
 
-## 4 可刷新方法
+## 4 使用可刷新方法
 
 
 
@@ -683,7 +732,7 @@ refreshable
 
 
 
-## 4 异步支持
+## 4 使用异步
 
 
 
@@ -693,11 +742,134 @@ refreshable
 
 
 
-## 4 后台任务
+## 4 创建后台任务
+
+
+
+
+
+前面说使用`time.sleep`会阻塞主线程，所以要用异步，但如果是后台任务，不在主线程上运行，那就没问题了。
+
+NiceGUI提供了两种后台执行任务的方法，由`run`模块提供：
+
+-   `run.cpu_bound`方法，常用于占用较多CPU资源的后台任务，该方法会创建新的进程操作，让进程池的进程数扩大。
+-   `run.io_bound`方法，常用于占用较多IO资源的后台任务开，因为这类后台任务不会占用太多CPU资源，因此，该方法只是创建新的线程操作，操作完线程会关闭。
+
+下面的示例使用`time.sleep`模拟耗时的操作，但将其放到后台任务中，所以不会卡死主线程：
+
+```python3
+from nicegui import ui, run
+import time
+
+def test_task(t):
+    time.sleep(t)
+    return 0
+
+async def sub_task():
+    #单独进程
+    result = await run.cpu_bound(test_task,5)
+    #单独线程
+    #result = await run.io_bound(test_task,5)
+    ui.notify(result)
+
+ui.button('background task',on_click=sub_task)
+
+ui.run(native=True)
+```
+
+
 
 
 
 含定时器
+
+ui.timer和app.timer
+
+
+
+##### i.timer`和`app.timer`
+
+定时器可以根据给定的时间间隔，周期性执行指定函数。`ui.timer`有四个参数：浮点类型的时间间隔`interval`、可调用类型的执行操作`callback`、布尔类型的是否激活`active`、布尔类型的是否运行一次`once`。
+
+代码如下：
+
+```python3
+from nicegui import ui
+
+ui.timer(interval=6.0,callback=lambda :ui.notify('Timer.'),active=True,once=False)
+
+ui.run(native=True)
+```
+
+以下的内容按理来说属于进阶部分，就算不学习，也能满足基础开发需要。但是官方将此部分内容与基础部分放在一起解释，为了方便有相关需求的读者学习，特地将该部分内容与基础合并，并且进阶部分也会同步增加。不理解、不需要此功能的读者可以暂时忽略，等学进阶部分时再学也可以。
+
+NiceGUI官方在2.9.0版本新增了`app.timer`定时器，虽然用法上和`ui.timer`一样，但其归属于`app`而不是`ui`，还是有所区别的。
+
+为了理解区别，需要先运行以下示例代码：
+
+```python3
+from nicegui import app, ui
+
+counter = {'value': 0}
+label = ui.element()
+timer = None
+
+with ui.element() as buttons:
+    button1 = ui.button('add label')
+    button2 = ui.button('delete buttons')
+
+def add_label():
+    timer = ui.timer(1,lambda :counter.update(value=counter['value']+1))
+    with label:
+        ui.label().bind_text_from(counter, 'value', lambda value: f'Count: {value}')
+
+def delete_buttons():
+    buttons.clear()
+    
+button1.on_click(add_label)
+button2.on_click(delete_buttons)
+
+ui.run(native=True)
+```
+
+
+
+示例代码源于NiceGUI官方仓库的一个问题，这里稍微简化了一下。问题作者想要让按钮创建一个定时更新显示内容的定时器，然后用另一个按钮删掉创建定时器的按钮。就是这样听起来很简单的操作，结果在删掉按钮时，工作定时器好像被一并“删掉”了。导致删掉按钮之后，原本应该继续执行的显示更新操作随之停止了。
+
+听起来很奇怪，像是一个问题，其实不是，一开始就没有必要让按钮创建定时器。定时器可以在按钮的响应函数之外创建，按钮只需启动（`activate`）、停止（`deactivate`）定时器即可。因为定时器（`ui.timer`）会自动关联创建定时器的UI组件，一般做法是在auto-index页创建定时器，定时器关联了auto-index页，而auto-index页一般不会被删掉（也不能删掉，会出问题），所以使用定时器不会出问题。如果是其他UI组件创建了定时器，删掉创建定时器的UI组件，同时会一并删掉定时器，这也就是问题的原因。
+
+上面的示例代码更换成常规用法也可以，解决方法也不难，不过，NiceGUI官方还是为此增加了一个独立于UI组件的定时器——`app.timer`，既是对此问题的解决方案，也是对后续有类似需求的功能实现。
+
+那么，上面的代码在基本不动的前提下，只需将`ui.timer`换成`app.timer`即可：
+
+```python3
+from nicegui import app, ui
+
+counter = {'value': 0}
+label = ui.element()
+timer = None
+
+with ui.element() as buttons:
+    button1 = ui.button('add label')
+    button2 = ui.button('delete buttons')
+
+def add_label():
+    timer = app.timer(1,lambda :counter.update(value=counter['value']+1))
+    with label:
+        ui.label().bind_text_from(counter, 'value', lambda value: f'Count: {value}')
+
+def delete_buttons():
+    buttons.clear()
+    
+button1.on_click(add_label)
+button2.on_click(delete_buttons)
+
+ui.run(native=True)
+```
+
+
+
+
 
 
 

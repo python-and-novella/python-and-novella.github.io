@@ -651,7 +651,7 @@ ui.run(root=index,native=True)
 
 `classes`属性是一个列表，因此只能使用列表的方法。
 
-注意，因为NiceGUI的很多控件自带颜色，其生效优先级源于Quasar框架，高于tailwindcss框架，所以，即使使用`!`修饰颜色也不一定能生效。
+注意，因为NiceGUI的很多控件自带颜色，其生效优先级源于Quasar框架，高于tailwindcss框架，所以，即使使用`!`（在tailwindcss中等效于CSS的`!important`）修饰颜色也不一定能生效。
 
 ### 4.4 `props`方法（属性）
 
@@ -676,7 +676,7 @@ ui.run(root=index,native=True)
 
 ### 5.1 响应控件的事件
 
-
+ 
 
 以按钮为例，介绍控件的事件使用方法
 

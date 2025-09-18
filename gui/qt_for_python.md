@@ -7597,8 +7597,10 @@ app.exec()
 - `filter`参数，字符串类型，表示文件选择对话框的格式过滤器。格式过滤器的语法为：`{格式描述}({格式通配符}{空格或者分号}...);;...`。其中，双英文分号表示不同类型过滤器之间的分隔符。以下为合法的格式过滤器：
 
   ```python3
-  '支持的格式(*.png;*.py *.md);;所有文件 (*.*)'
+  '支持的格式 (*.png;*.py *.md);;所有文件 (*.*)'
   ```
+
+  注意，如果是非原生对话框，则只能使用空格作为不同格式通配符之间的分隔符。
 
 - `viewMode`参数，`PySide6.QtWidgets.QFileDialog.ViewMode`类型，表示文件选择对话框中文件视图的形式（列表视图、详细视图）。
 
@@ -8410,25 +8412,236 @@ window.show()
 app.exec()
 ```
 
-## 23 （待定）
+## 22 对话框控件的实例（更新中）
 
+前面简单介绍了对话框控件之后，还是有读者不太理解具体用法，在实际使用中存在问题。于是，笔者搜集了一些读者反馈的问题，并上网找了一些常见的应用场景，写了一些实际应用的示例代码。
 
+### 22.1 选择并打开指定类型的文件
 
+使用文件选择对话框控件打开指定类型的文件，要点为：
 
+- `filter`参数控制可以打开的文件类型。
+- 如果使用的是`exec`方法显示对话框，则可以使用`selectedFiles`方法获取选择的文件。
+- 如果使用非阻塞方法显示对话框，则应当使用`fileSelected`信号（单选）、`filesSelected`信号（多选）、`finished`信号（关闭对话框）、`accepted`信号（用户确认）。
 
+使用`exec`方法的示例：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QFileDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
 
-## 2x 对话框控件的实例
+app = QApplication()
 
-前面简单介绍了对话框控件之后，还是有读者不太理解具体用法，或者在实际使用中存在问题。于是，笔者搜集了一些读者反馈的问题，并上网找了一些常见的应用场景，写了一些实际应用的示例代码。
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
 
-#### 2x.1 选择并打开指定文件
+window = QWidget()
+window.setWindowTitle('文件选择对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QFileDialog(
+        window,
+        caption='打开文本文件',
+        filter='支持的格式 (*.ini *.py *.md);;所有文件 (*.*)'
+    )
+    dialog.exec()
+    selected_files = dialog.selectedFiles()
+    if len(selected_files) != 0:
+        with open(
+            selected_files[0],
+            # 默认Qt采用系统的编码，建议这里指定为文件的编码
+            encoding='utf-8'
+        ) as f:
+            print(f.readlines())
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+使用非阻塞方法的示例（`fileSelected`信号）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QFileDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('文件选择对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QFileDialog(
+        window,
+        caption='打开文本文件',
+        filter='支持的格式 (*.ini *.py *.md);;所有文件 (*.*)'
+    )
+    dialog.show()
+    def open_file(file_path = None):
+        if file_path:
+            with open(
+                file_path,
+                # 默认Qt采用系统的编码，建议这里指定为文件的编码
+                encoding='utf-8'
+            ) as f:
+                print(f.readlines())
+    dialog.fileSelected.connect(open_file)
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+使用非阻塞方法的示例（`filesSelected`信号）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QFileDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('文件选择对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QFileDialog(
+        window,
+        caption='打开文本文件',
+        filter='支持的格式 (*.ini *.py *.md);;所有文件 (*.*)'
+    )
+    dialog.show()
+    def open_file(file_paths = None):
+        if file_paths:
+            with open(
+                file_paths[0],
+                # 默认Qt采用系统的编码，建议这里指定为文件的编码
+                encoding='utf-8'
+            ) as f:
+                print(f.readlines())
+    dialog.filesSelected.connect(open_file)
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+使用非阻塞方法的示例（`accepted`信号、`finished`信号）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QFileDialog
+)
+from PySide6.QtCore import QTranslator,QLibraryInfo,QLocale
+
+app = QApplication()
+
+# 加载内置控件的语言文件
+translator = QTranslator()
+translator.load(
+    QLocale('zh'),
+    'qtbase',
+    '_',
+    QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+)
+app.installTranslator(translator)
+
+window = QWidget()
+window.setWindowTitle('文件选择对话框')
+window.resize(400, 300)
+button = QPushButton('显示对话框',window)
+
+def show():
+    dialog = QFileDialog(
+        window,
+        caption='打开文本文件',
+        filter='支持的格式 (*.ini *.py *.md);;所有文件 (*.*)'
+    )
+    dialog.show()
+    def open_file():
+        if len(dialog.selectedFiles()) != 0:
+            file_path = dialog.selectedFiles()[0]
+        else:
+            return
+        if file_path:
+            with open(
+                file_path,
+                # 默认Qt采用系统的编码，建议这里指定为文件的编码
+                encoding='utf-8'
+            ) as f:
+                print(f.readlines())
+    dialog.accepted.connect(open_file)
+
+button.clicked.connect(show)
+window.show()
+app.exec()
+```
+
+### 22.2 （待定）
 
 
 
 
 
 （补充一些对话框内容、功能自定义的例子，可能涉及到未写的参数、方法，结构采取“需求或者问题来源+代码+截图”的形式）
+
+
+
+
+
+## 23 （待定）
+
+
 
 
 
@@ -8454,10 +8667,6 @@ app.exec()
 
 
 ## 13 处理复杂数据——树形图
-
-
-
-
 
 
 

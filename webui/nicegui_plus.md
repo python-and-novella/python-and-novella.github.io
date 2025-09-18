@@ -1458,7 +1458,7 @@ ui.run(root=index,port=80)
 
 NiceGUI 3.0.0 不再支持Python 3.8，使用该版本Python的基础环境，如果想要使用NiceGUI 3.0.0，必须升级Python版本到3.8以上。
 
-绑定方法新增`strict`参数，用于增加属性是否存在的检查。因为之前属性名都是字符串，如果运行时检查属性不存在，就会默默失败（不报错），这种秘不发丧的情况对于开发者来说是不友好的。使用`strict`参数（设置为`True`），当属性不存在时，就会报错，以提醒开发者发生了绑定失败的问题。
+绑定方法新增`strict`参数，用于增加属性是否存在的检查。因为之前属性名都是字符串，如果运行时检查属性不存在，就会默默失败（不报错），这种秘不发丧的情况对于开发者来说是不友好的。将`strict`参数设置为`True`的话，当属性不存在时，就会报错，以提醒开发者发生了绑定失败的问题。
 
 TailWindCSS版本升级之后，控件的`tailwindcss`属性、`nicegui.tailwind`模块因为无法继续维护而移除，后续使用TailWindCSS的话，推荐使用VSCode扩展https://open-vsx.org/extension/DaelonSuzuka/nicegui。
 

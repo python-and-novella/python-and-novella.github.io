@@ -672,53 +672,151 @@ ui.run(root=index,native=True)
 
 需要注意的是，Quasar控件的属性有两种类型，布尔类型和其他类型。如果是布尔类型的属性，可以不用赋值，添加该属性相当于给该属性赋值为`True`。
 
-## 5 响应事件（更新中）
+## 5 响应事件
+
+NiceGUI中，如果用户执行了动作（比如点击），会产生相应的事件，控件就会执行对应事件的响应函数。因此，想要根据用户的动作执行对应的函数，只需定义事件对应的响应函数即可。
 
 ### 5.1 响应控件的事件
 
- 
+ 对于控件而言，定义事件的响应函数有三种方式：
 
-以按钮为例，介绍控件的事件使用方法
+- “on”开头的参数。比如`ui.button`按钮控件的`on_click`参数，支持可调用对象。
 
-参数传入，具体的on_*方法，通用的on方法
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello',
+          on_click = lambda :ui.notify('Hello')
+      )
+  
+  ui.run(root=index,native=True)
+  ```
 
+- “on”开头的方法。比如`ui.button`按钮控件的`on_click`方法，该方法的参数为可调用对象。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      ).on_click(
+          lambda :ui.notify('Hello')
+      )
+  
+  ui.run(root=index,native=True)
+  ```
+
+- `on`方法。效果类似“on”开头的方法，但该方法的第一个参数为事件类型，可以定义任意JavaScript中支持的事件类型。比如，`on_click`方法，效果等于`on`方法的第一个参数为`'click'`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      ).on(
+          'click',
+          lambda :ui.notify('Hello')
+      )
+  
+  ui.run(root=index,native=True)
+  ```
 
 ### 5.2 响应NiceGUI程序的事件
 
-介绍app的事件
+除了可以定义控件的响应函数，NiceGUI程序也支持一些事件，可以定义这些事件的响应函数。
 
+想要定义NiceGUI程序事件的响应函数，需要导入`app`对象，调用该对象的“on”开头的方法。比如，`on_startup`方法用于定义NiceGUI程序启动完成时的响应函数：
 
+```python3
+from nicegui import ui,app
 
+def index():
+    ui.button(
+        'Hello'
+    ).on(
+        'click',
+        lambda :ui.notify('Hello')
+    )
 
+app.on_startup(lambda :print('程序已启动……'))
+ui.run(root=index,native=True)
+```
 
 ### 5.3 响应信号（`Event`类）
 
+事件类——`Event`类（使用`from nicegui import Event`导入）虽然从名字上看应该和事件、响应函数相关，但要是从用法看，该类被称作信号更合适。
 
+信号是NiceGUI 3.0.0引入的新功能。之前版本中类似脚本模式的NiceGUI程序可以共享全局作用域内控件的状态、数据，但在NiceGUI 3.0.0版本中，脚本模式下，全局作用域内控件相当于放在单独的函数中，无法实现全局共享其状态、数据。为了解决此需求，新增了具备信号功能的`Event`类。
 
-介绍事件类`Event`类（相当于信号，一般用于共享数据，通常是与属性绑定结合使用）
+在全局作用域内创建`Event`类对象之后，可以在定义控件的响应函数时，将控件的状态、数据通过`Event`类对象的`emit`方法发射为信号，其他通过`subscribe`方法订阅信号而定义的响应函数，会在接收到信号时执行响应函数。
 
+示例如下：
 
+```python3
+from nicegui import ui,Event
 
+signal_obj = Event()
+shared_value = ''
+def update_shared_value(x):
+    global shared_value
+    shared_value=x
 
+def index():
+    # 订阅信号，更新全局变量，以便于新打开的页面自动使用该值作为初始值
+    signal_obj.subscribe(update_shared_value)
+    input = ui.input(value=shared_value)
+    # 订阅信号
+    signal_obj.subscribe(lambda x:input.set_value(x))
+    # 发射信号
+    input.on_value_change(lambda :signal_obj.emit(input.value))
 
+ui.run(root=index,port=80)
+```
 
+在运行代码之后，可以在浏览器中打开多个标签页，地址为`http://127.0.0.1/`，在任意一个标签页中输入框内输入内容，其他标签页中输入框的内容会自动同步。
 
+## 6 绑定属性（更新中）
 
+上一章介绍了如何同步脚本模式同一控件之间的状态、数据，但是，如果想要同步同一页面（脚本模式、页面模式）中不同控件之间、控件与任意对象属性之间的状态、数据，则不用那么复杂，控件提供了简单的属性绑定方法，可以单向或者双向绑定控件的可绑定属性、对象的属性。
 
-## 6 绑定属性
+如果控件存在可绑定属性，则该控件会存在以下三种相关的属性绑定方法：
 
+- `bind_{属性名}_from`方法，将该属性与其他对象的指定属性绑定，其他对象的指定属性发生改变，该控件的该属性同步发生变化，反之不会触发同步。
+- `bind_{属性名}_to`方法，将该属性与其他对象的指定属性绑定，该控件的该属性发生改变，其他对象的指定属性同步发生变化，反之不会触发同步。
+- `bind_{属性名}`方法，将该属性与其他对象的指定属性绑定，发起绑定和被绑定的属性中，只要一方发生变化，另一方同步发生变化。
 
+示例如下：
 
-属性绑定方法的基本用法，含具体属性绑定方法和通用属性绑定方法，
+```python3
+from nicegui import ui
 
+class data_class:
+    value = 'no value'
 
+def index():
+    ui.input('输入').bind_value(
+        data_class,
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(data_class.value)
+    )
 
-介绍绑定的技巧，字典、全局变量、性能优化
+ui.run(root=index,native=True)
+```
 
-
-
-## 4 使用可刷新方法
+## 7 使用可刷新方法
 
 
 
@@ -732,7 +830,7 @@ refreshable
 
 
 
-## 4 使用异步
+## 8 使用异步
 
 
 
@@ -985,3 +1083,89 @@ ui.run()
 
 
 
+
+
+## x 绑定属性的技巧
+
+通用的绑定方法：
+
+```python3
+from nicegui import ui
+from nicegui.binding import bind
+
+class data_class:
+    value = 'no value'
+
+def index():
+    my_input = ui.input('输入')
+    bind(
+        my_input,
+        'value',
+        data_class,
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(data_class.value)
+    )
+
+ui.run(root=index,native=True)
+```
+
+
+
+
+
+介绍绑定的技巧，字典、全局变量、性能优化
+
+
+
+## x `Event`类的用法
+
+
+
+（简单说一下类、方法的用途，提供一下NiceGUI框架和Quasar框架（如果有的话）那边的文档地址，写个简单的示例，可以按照实际情况配上说明性图片或者效果图片）
+
+
+
+该类支持以下参数：
+
+
+
+该类支持以下属性：
+
+
+
+该类支持以下方法：
+
+
+
+
+
+## x `ui.button`按钮控件的用法
+
+
+
+（简单说一下控件的用途，提供一下NiceGUI框架和Quasar框架那边的文档地址，写个简单的示例，配上图片）
+
+
+
+控件支持以下参数：
+
+
+
+控件支持以下属性：
+
+
+
+控件支持以下方法：
+
+
+
+## x 创作要点
+
+前面系统性介绍基础知识和相关概念，并附上简单的示例，免费发布。
+
+后面针对相关方法、类的具体参数和用法收费发布，内容详细，至少一千字，收费1豆起。
+
+后面具体问题的分析、解决代码大部分收费，少部分免费发布，用于维持热度。

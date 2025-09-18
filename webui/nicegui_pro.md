@@ -672,7 +672,7 @@ ui.run(root=index,native=True)
 
 需要注意的是，Quasar控件的属性有两种类型，布尔类型和其他类型。如果是布尔类型的属性，可以不用赋值，添加该属性相当于给该属性赋值为`True`。
 
-## 5 响应事件
+## 5 创建事件的响应函数
 
 NiceGUI中，如果用户执行了动作（比如点击），会产生相应的事件，控件就会执行对应事件的响应函数。因此，想要根据用户的动作执行对应的函数，只需定义事件对应的响应函数即可。
 
@@ -785,7 +785,7 @@ ui.run(root=index,port=80)
 
 在运行代码之后，可以在浏览器中打开多个标签页，地址为`http://127.0.0.1/`，在任意一个标签页中输入框内输入内容，其他标签页中输入框的内容会自动同步。
 
-## 6 绑定属性（更新中）
+## 6 绑定属性
 
 上一章介绍了如何同步脚本模式同一控件之间的状态、数据，但是，如果想要同步同一页面（脚本模式、页面模式）中不同控件之间、控件与任意对象属性之间的状态、数据，则不用那么复杂，控件提供了简单的属性绑定方法，可以单向或者双向绑定控件的可绑定属性、对象的属性。
 
@@ -816,31 +816,194 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-## 7 使用可刷新方法
+## 7 创建可刷新方法
+
+绑定属性可以单向或者双向绑定控件的可绑定属性、对象的属性，无需额外执行控件的刷新方法。比如：
+
+```python3
+from nicegui import ui
+
+def index():
+    my_label = ui.label('')
+    my_input = ui.input('输入')
+    my_input.bind_value(my_label,'text')  
+
+ui.run(root=index,native=True)
+```
+
+![2026_7_1](nicegui_pro.assets/2026_7_1.png)
+
+但是，如果“属性”不是控件的属性，而是诸如个数之类需要重新创建控件的“属性”，绑定属性就没法直接实现，需要做一些额外的事情：
+
+```python3
+from nicegui import ui
+
+count = 2
+def index():
+    my_input = ui.number(
+        '个数',
+        value=1,
+        min=1,
+        max=10,
+        format='%d'
+    )
+    e = ui.element()
+    def rebuild():
+        e.clear()
+        with e:
+            for i in range(
+                int(my_input.value)
+            ):
+                ui.label('A')
+    rebuild()
+    my_input.bind_value(
+        globals(),
+        'count',
+    )
+    my_input.on_value_change(rebuild)
+
+ui.run(root=index,native=True)
+```
+
+![2026_7_2](nicegui_pro.assets/2026_7_2.png)
+
+字母的个数与输入框内的数字是同步了，但需要使用全局变量存储个数，还需要借助额外的控件作为容器，容器内的多个控件比较紧凑，样式还要额外调整。
+
+其实，可以使用NiceGUI提供的`refreshable`类（用于装饰函数）、`refreshable_method`类（用于装饰类的方法）创建可刷新方法（函数），直接调用其`refresh`方法，一步实现清除创建的控件、重新创建控件：
+
+```python3
+from nicegui import ui
+
+def index():
+    my_input = ui.number(
+        '个数',
+        value=1,
+        min=1,
+        max=10,
+        format='%d'
+    )
+    @ui.refreshable
+    def rebuild():
+        for i in range(int(my_input.value)):
+            ui.label('A')
+    my_input.on_value_change(
+        rebuild.refresh
+    )
+    rebuild()
+
+ui.run(root=index,native=True)
+```
+
+代码简洁不少，但效果更好：
+
+![2026_7_3](nicegui_pro.assets/2026_7_3.png)
+
+需要注意的是，在`refreshable`类、`refreshable_method`类装饰的函数（方法）内，所有创建的控件都会在调用`refresh`方法时重新创建，不会保存控件的状态：
+
+```python3
+from nicegui import ui
+
+def index():
+    @ui.refreshable
+    def rebuild():
+        my_input = ui.number(
+            '个数',
+            value=1,
+            min=1,
+            max=10,
+            format='%d'
+        )
+        my_input.on_value_change(
+            rebuild.refresh
+        )
+        for i in range(int(my_input.value)):
+            ui.label('A')
+    rebuild()
+
+ui.run(root=index, native=True)
+```
+
+如果想要保存控件的状态，可以使用前面用过的绑定属性：
+
+```python3
+from nicegui import ui
+
+count = 1
+def index():
+    @ui.refreshable
+    def rebuild():
+        my_input = ui.number(
+            '个数',
+            value=1,
+            min=1,
+            max=10,
+            format='%d'
+        )
+        my_input.bind_value(
+            globals(),
+            'count',
+        )
+        my_input.on_value_change(
+            rebuild.refresh
+        )
+        for i in range(int(my_input.value)):
+            ui.label(['A'])
+    rebuild()
+
+ui.run(root=index, native=True)
+```
+
+也可以使用只与`refreshable`类、`refreshable_method`类配合使用的`ui.state`状态方法。
+
+`ui.state`状态方法的参数为初始值，该方法返回一个元组。元组的第一个元素为调用`refresh`方法之后的保存值（第一次返回的是初始值），元组的第二个元素为修改保存值的赋值方法。
+
+于是，将所有控件一股脑地塞入可刷新方法中之后，代码如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    @ui.refreshable
+    def rebuild():
+        num,set_num = ui.state(1)
+        my_input = ui.number(
+            '个数',
+            value=num,
+            min=1,
+            max=10,
+            format='%d'
+        )
+        # 修改保存值
+        my_input.on_value_change(
+            lambda :set_num(my_input.value)
+        )
+        my_input.on_value_change(
+            rebuild.refresh
+        )
+        for i in range(int(my_input.value)):
+            ui.label('A')
+    rebuild()
+
+ui.run(root=index, native=True)
+```
+
+## 8 使用异步（更新中）
 
 
 
-refreshable
-
-以及配套的ui.state状态控件
+（简单说一下什么是异步，什么是同步，异步的好处，）
 
 
 
-
-
-
-
-## 8 使用异步
-
-
+（支持异步的地方）
 
 支持可调用对象、函数的地方，对异步的支持情况
 
-脚本模式、ui.page、ui.sub_pages、on_click参数、控件的异步方法（比如button的clicked，可以使用异步等待来实现分步显示）
+脚本模式（全局作用域和root参数）、页面模式、单页面应用、事件的响应函数、控件的异步方法（比如button的clicked，可以使用异步等待来实现分步显示）
 
 
 
-## 4 创建后台任务
+## 9 创建后台任务
 
 
 
@@ -879,13 +1042,13 @@ ui.run(native=True)
 
 
 
-含定时器
-
-ui.timer和app.timer
+## 10 使用定时器
 
 
 
-##### i.timer`和`app.timer`
+简单介绍`ui.timer`和`app.timer`基本用法与区别
+
+
 
 定时器可以根据给定的时间间隔，周期性执行指定函数。`ui.timer`有四个参数：浮点类型的时间间隔`interval`、可调用类型的执行操作`callback`、布尔类型的是否激活`active`、布尔类型的是否运行一次`once`。
 
@@ -932,6 +1095,8 @@ ui.run(native=True)
 
 
 
+（示例代码源于官方仓库问题的介绍部分可以删去，直接介绍两种定时器的区别即可）
+
 示例代码源于NiceGUI官方仓库的一个问题，这里稍微简化了一下。问题作者想要让按钮创建一个定时更新显示内容的定时器，然后用另一个按钮删掉创建定时器的按钮。就是这样听起来很简单的操作，结果在删掉按钮时，工作定时器好像被一并“删掉”了。导致删掉按钮之后，原本应该继续执行的显示更新操作随之停止了。
 
 听起来很奇怪，像是一个问题，其实不是，一开始就没有必要让按钮创建定时器。定时器可以在按钮的响应函数之外创建，按钮只需启动（`activate`）、停止（`deactivate`）定时器即可。因为定时器（`ui.timer`）会自动关联创建定时器的UI组件，一般做法是在auto-index页创建定时器，定时器关联了auto-index页，而auto-index页一般不会被删掉（也不能删掉，会出问题），所以使用定时器不会出问题。如果是其他UI组件创建了定时器，删掉创建定时器的UI组件，同时会一并删掉定时器，这也就是问题的原因。
@@ -973,7 +1138,9 @@ ui.run(native=True)
 
 
 
-## 4 快捷键——`ui.keyboard`
+## 11 绑定快捷键
+
+`ui.keyboard`
 
 
 
@@ -1003,7 +1170,19 @@ ui.add\_\* 和app.add\_\*
 
 
 
-## 5 修改指定元素
+## 5 修改指定控件
+
+先说控件的`move`方法可以移动控件的位置，
+
+
+
+再说
+
+ui.query
+
+ui.teleport
+
+ElementFilter
 
 
 
@@ -1083,17 +1262,157 @@ ui.run()
 
 
 
+## x 单页面应用的扩展内容
+
+`ui.sub_pages`的`add`方法，
+
+不同的404情况：
 
 
-## x 绑定属性的技巧
+
+（根据本教程前面的概念定义需修改下面对应的概念名词，核实最新版本对应示例代码的执行情况是否相同）
+
+
+
+访问不存在的地址，情况根据是否为单页面应用、是否为NiceGUI脚本而有所不同。
+
+非单页面应用的NiceGUI脚本不再显示404页面。因为新版本自动捕获子路由，访问不存在的地址，依然显示首页的内容。
+
+比如，下面的示例不显示404页面：
+
+```python3
+from nicegui import ui
+
+ui.link('到其他页面（不存在）', '/other')
+
+ui.run(port=80)
+```
+
+单页面应用的NiceGUI脚本，情况会有点复杂：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.link('到其他页面（不存在）', '/other')
+    ui.separator()
+    ui.sub_pages({'/': main, '/page1': page1})
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+
+def page1():
+    ui.label('page1（子页面）的内容')
+    ui.link('回到/（子页面）', '/')
+
+ui.run(root=index,port=80)
+```
+
+结果如下表所示：
+
+| 当前地址             | 访问不存在的地址后           | 页面内容          | 刷新后内容      |
+| -------------------- | ---------------------------- | ----------------- | --------------- |
+| 根路由`/`            | 地址变为不存在的地址`/other` | 子页面显示404提示 | 页面显示500页面 |
+| 子路由`/page1`       | 地址不变                     | 子页面显示404提示 | 子页面          |
+| 不存在的地址`/other` | 无                           | 页面显示500页面   | 页面显示500页面 |
+
+如果不是NiceGUI脚本，所有页面都是使用`ui.page`定义的私有页面，则正常显示404页面，也可以自定义404页面。
+
+比如，下面的示例正常显示404页面：
+
+```python3
+from nicegui import ui
+
+@ui.page('/')
+def _():
+    ui.link('到其他页面（不存在）', '/other')
+
+ui.run(port=80)
+```
+
+还可以自定义404页面：
+
+```python3
+from nicegui import ui
+
+@ui.page('/')
+def _():
+    ui.link('到其他页面（不存在）', '/other')
+
+# 自定义HTTP报错的响应页面
+from nicegui import app,Client
+from fastapi import Request
+
+@app.exception_handler(404)
+def exception_handler_404(request:Request, exception: Exception):
+    from urllib.parse import urlparse
+    with Client(ui.page(''),request=request) as client:
+        ui.label(f'页面 {urlparse(str(request.url)).path[1:]} 不存在').classes('')
+    return client.build_response(request, 404)
+
+ui.run(port=80)
+```
+
+注意，自定义404页面**不支持**NiceGUI脚本，强行使用会导致NiceGUI脚本的自动捕获子路由无法正常使用。
+
+若是单页面应用，情况会有点复杂：
+
+```python3
+from nicegui import ui
+
+@ui.page('/')
+@ui.page('/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+def _():
+    ui.link('到其他页面（不存在）', '/other')
+    ui.separator()
+    ui.sub_pages({'/': main, '/page1': page1})
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+
+def page1():
+    ui.label('page1（子页面）的内容')
+    ui.link('回到/（子页面）', '/')
+
+ui.run(port=80)
+```
+
+结果如下表所示：
+
+| 当前地址             | 访问不存在的地址后           | 页面内容          | 刷新后内容      |
+| -------------------- | ---------------------------- | ----------------- | --------------- |
+| 根路由`/`            | 地址变为不存在的地址`/other` | 子页面显示404提示 | 页面显示404页面 |
+| 子路由`/page1`       | 地址变为不存在的地址`/other` | 子页面显示404提示 | 页面显示404页面 |
+| 不存在的地址`/other` | 无                           | 页面显示404页面   | 页面显示404页面 |
+
+
+
+
+
+## x 绑定属性的扩展内容
+
+### x.1 通用绑定方法
 
 通用的绑定方法：
+
+```python3
+from nicegui.binding import bind_from,bind_to,bind
+```
+
+
+
+示例如下：
 
 ```python3
 from nicegui import ui
 from nicegui.binding import bind
 
 class data_class:
+    value = 'no value'
+
+class data_class2:
     value = 'no value'
 
 def index():
@@ -1104,9 +1423,15 @@ def index():
         data_class,
         'value'
     )
+    bind(
+        data_class,
+        'value',
+        data_class2,
+        'value'
+    )
     ui.button(
         '显示',
-        on_click = lambda :ui.notify(data_class.value)
+        on_click = lambda :ui.notify(data_class2.value)
     )
 
 ui.run(root=index,native=True)
@@ -1117,6 +1442,86 @@ ui.run(root=index,native=True)
 
 
 介绍绑定的技巧，字典、全局变量、性能优化
+
+与字典绑定：
+
+```python3
+from nicegui import ui
+
+data_dict = {'value':'no value'}
+
+def index():
+    ui.input('输入').bind_value(
+        data_dict,
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(data_dict['value'])
+    )
+
+ui.run(root=index,native=True)
+```
+
+与全局变量绑定：
+
+```python3
+from nicegui import ui
+
+value = 'no value'
+
+def index():
+    ui.input('输入').bind_value(
+        globals(),
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(globals()['value'])
+    )
+
+ui.run(root=index,native=True)
+```
+
+
+
+（下面内容需要优化表达与示例）
+
+在NiceGUI中有两种类型的绑定：
+
+1.   "Bindable properties" （可绑定属性）会自动检测写入访问并触发值变动传播。大多数 NiceGUI 元素使用这种可绑定属性，例如`ui.input`的`value`或 `ui.label`的`text`。基本上所有带有`bind()`方法的属性都支持这种类型的绑定。
+2.   另一种绑定"active links"（活动链接）不会自动检测写入访问并触发值变动传播。如果将标签文本绑定到字典或自定义数据模型的属性，NiceGUI 的绑定模块则需要主动检查值是否发生变化。这个主动检查是通过每 0.1 秒运行一次`refresh_loop()`来完成。主动检查间隔可以通过设置`ui.run()`的参数`binding_refresh_interval`来修改。
+
+可绑定属性非常高效，只要值不变，就不会产生任何性能开销（相对而言比较小而已）。但活动链接需要每秒检查所有绑定值10 次。这可能会消耗比较多的性能，尤其是活动链接的绑定关系非常复杂、非常多的时候。
+
+因为不能让主线程阻塞太久，所以如果太多主动检查导致运行`refresh_loop()`的耗时过长，程序会发出警告。当然，可以配置阈值`binding.MAX_PROPAGATION_TIME`（默认为 0.01 秒）来消除警告。但是，这个警告是有意义的，是在告诉开发者性能可能存在问题。比如，CPU在更新绑定花费太长时间的话，主线程就没法做别的事情，程序界面会因此卡住。
+
+为了避免性能出问题，需要将活动链接改为可绑定属性之间的绑定，需要使用`binding.BindableProperty()`来创建可绑定属性。于是，基于第一小节的代码，将字典改为数据类，在数据类中定义两个可绑定属性，控件的绑定改为与数据类对象的绑定。代码如下：
+
+```python3
+from nicegui import ui, binding
+
+class data_base:
+    name = binding.BindableProperty()
+    age = binding.BindableProperty()
+    def __init__(self) -> None:
+        self.name = 'Bob'
+        self.age = 17
+
+data =data_base()
+
+ui.label().bind_text_from(data, 'name', backward=lambda n: f'Name: {n}')
+ui.label().bind_text_from(data, 'age', backward=lambda a: f'Age: {a}')
+
+ui.input(label='name:').bind_value(data,'name')
+ui.number(label='age:').bind_value(data,'age',forward=lambda x:int(x))
+
+ui.run(native=True)
+```
+
+因为代码中的绑定数量很少，因此差异不大，如果将绑定数量放大百倍，就能看出两种绑定的性能差异。
+
+
 
 
 

@@ -756,7 +756,7 @@ ui.run(root=index,native=True)
 
 事件类——`Event`类（使用`from nicegui import Event`导入）虽然从名字上看应该和事件、响应函数相关，但要是从用法看，该类被称作信号更合适。
 
-信号是NiceGUI 3.0.0引入的新功能。之前版本中类似脚本模式的NiceGUI程序可以共享全局作用域内控件的状态、数据，但在NiceGUI 3.0.0版本中，脚本模式下，全局作用域内控件相当于放在单独的函数中，无法实现全局共享其状态、数据。为了解决此需求，新增了具备信号功能的`Event`类。
+信号是NiceGUI 3.0.0引入的新功能。之前版本中类似脚本模式的NiceGUI程序可以共享全局作用域内控件的状态、数据，但在NiceGUI 3.0.0版本中，脚本模式下，全局作用域内的控件相当于放在单独的函数中，无法在全局作用域中共享其状态、数据。为了解决此需求，NiceGUI新增了具备信号功能的`Event`类。
 
 在全局作用域内创建`Event`类对象之后，可以在定义控件的响应函数时，将控件的状态、数据通过`Event`类对象的`emit`方法发射为信号，其他通过`subscribe`方法订阅信号而定义的响应函数，会在接收到信号时执行响应函数。
 
@@ -947,7 +947,7 @@ def index():
             rebuild.refresh
         )
         for i in range(int(my_input.value)):
-            ui.label(['A'])
+            ui.label('A')
     rebuild()
 
 ui.run(root=index, native=True)

@@ -8660,6 +8660,29 @@ app.exec()
 
 
 
+《Qt for Python PySide6 GUI界面开发详解与实例》中，布局控件，可以写布局一章；另外QtCore的QRect的bottomRight的坐标少1，可以与其他基础类的用法一起写一章
+
+
+
+```python3
+from PySide6.QtCore import QRect,QPoint,QSize
+
+rect = QRect(
+    QPoint(0,0),
+    QSize(3,4)
+)
+
+print(
+    rect.right(),
+    rect.bottom(),
+    rect.bottomRight()
+)
+
+# 输出 2 3 PySide6.QtCore.QPoint(2, 3)
+```
+
+
+
 
 
 ## 13 处理复杂数据——表格

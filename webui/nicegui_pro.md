@@ -632,6 +632,22 @@ ui.run(root=index,native=True)
 
 需要注意的是，默认控件的样式优先级较高，需要通过添加`!important`来提高自定义样式的优先级，否则不会生效。
 
+部分样式支持使用`props`方法（属性）去掉，比如控件的背景色、前景色（文字颜色）。此时不用添加`!important`来提高自定义样式的优先级：
+
+```python3
+from nicegui import ui
+
+def index():
+    button = ui.button('Hello')
+    button.props('color text-color')
+    button.style('color:red')
+    button.style['background'] = 'green'
+
+ui.run(root=index,native=True)
+```
+
+![2026_4_1](nicegui_pro.assets/2026_4_1.png)
+
 ### 4.3 `classes`方法（属性）
 
 示例如下：
@@ -651,7 +667,46 @@ ui.run(root=index,native=True)
 
 `classes`属性是一个列表，因此只能使用列表的方法。
 
-注意，因为NiceGUI的很多控件自带颜色，其生效优先级源于Quasar框架，高于tailwindcss框架，所以，即使使用`!`（在tailwindcss中等效于CSS的`!important`）修饰颜色也不一定能生效。
+NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样式使用`!important`修饰，优先级高于没有使用`!important`修饰的普通样式。
+
+虽然tailwindcss的普通样式默认优先级高于Quasar框架的普通样式，但添加“!”为前缀或者后缀（在tailwindcss中等效于使用`!important`修饰）的tailwindcss样式，遇到Quasar框架使用`!important`修饰的相同样式（比如背景颜色）时，优先级反而会比Quasar框架的低。
+
+想要理解这个反常现象，需要先了解两个相关知识：
+
+- 从NiceGUI 3.0.0开始，内部使用了级联层（@layer）决定样式的优先级，具体顺序如下：
+
+  ```css
+  theme, 
+  base, 
+  quasar(Quasar框架的预定义样式类类名在这一层), 
+  nicegui, 
+  components, 
+  utilities(tailwindcss框架的预定义样式类类名在这一层), 
+  overrides
+  ```
+
+  对于普通样式，越靠下的层级，优先级越高。
+
+- 对于同样使用`!important`修饰的相同样式，则基于上面的级联层顺序，优先级则是相反的，具体可以参考 https://developer.mozilla.org/en-US/docs/Web/CSS/@layer#layer_order_and_the_!important_flag，完整的优先级顺序如下图所示：
+
+  ![2026_4_3](nicegui_pro.assets/2026_4_3.png)
+
+那么，问题来了，默认控件的颜色样式就是使用`!important`修饰的，如果想要将其改为tailwindcss的颜色，怎么解决？
+
+可以使用`props`方法（属性）去掉控件原本的背景色、前景色（文字颜色），再使用`classes`方法（属性）修改为指定的背景色、前景色（文字颜色），此时不用添加“!”为前缀或者后缀：
+
+```python3
+from nicegui import ui
+
+def index():
+    button = ui.button('Hello')
+    button.props('color text-color')
+    button.classes('bg-red-700 text-green-700')
+
+ui.run(root=index,native=True)
+```
+
+![2026_4_4](nicegui_pro.assets/2026_4_4.png)
 
 ### 4.4 `props`方法（属性）
 
@@ -668,7 +723,7 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-![2026_4_3](nicegui_pro.assets/2026_4_3.png)
+![2026_4_5](nicegui_pro.assets/2026_4_5.png)
 
 需要注意的是，Quasar控件的属性有两种类型，布尔类型和其他类型。如果是布尔类型的属性，可以不用赋值，添加该属性相当于给该属性赋值为`True`。
 

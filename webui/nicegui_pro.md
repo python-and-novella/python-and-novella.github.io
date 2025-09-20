@@ -1044,17 +1044,67 @@ ui.run(root=index, native=True)
 
 ## 8 使用异步（更新中）
 
+在Python中，有一种函数叫异步函数。与之相对的，就是同步函数。同步函数就是常见的函数，异步函数就是在定义函数时使用`async`修饰的函数。
+
+一般来说，函数执行之后，就会立即得到结果。但是，如果函数执行的操作比较耗时，程序就会卡住，需要等函数执行完，程序才会恢复。这个就是同步函数的执行过程。
+
+于是，异步函数为了解决卡住程序的问题，使用异步处理要执行的耗时操作。所谓异步，就是执行之后不会立即要求得到结果，而是按照顺序继续执行后续的代码，并按照完成顺序依次得到结果。
+
+光说的话，不太直观，那就用代码对比一下。
+
+先看同步函数的示例：
+
+```python3
+from nicegui import ui
+import time
+
+def do_something():
+    ui.notify('start')
+    time.sleep(3)
+    ui.notify('ok')
+
+def index():
+    ui.button('Do Something',on_click=do_something)
+
+ui.run(root=index,native=True)
+```
 
 
-（简单说一下什么是异步，什么是同步，异步的好处，）
+
+换成异步函数的话，效果就符合预期了：
+
+```python3
+from nicegui import ui
+import asyncio
+
+async def do_something():
+    ui.notify('start')
+    await asyncio.sleep(3)
+    ui.notify('ok')
+
+def index():
+    ui.button('Do Something',on_click=do_something)
+
+ui.run(root=index,native=True)
+```
 
 
 
-（支持异步的地方）
+NiceGUI对异步的支持如下：
 
-支持可调用对象、函数的地方，对异步的支持情况
+- 响应函数可以是异步函数。
 
-脚本模式（全局作用域和root参数）、页面模式、单页面应用、事件的响应函数、控件的异步方法（比如button的clicked，可以使用异步等待来实现分步显示）
+  
+
+- 脚本模式、页面模式、单页面应用创建页面的函数可以是异步函数。
+
+  
+
+- 部分控件、对象提供了可以异步等待的方法，用于实现在指定动作、状态之后才执行后续操作。
+
+  
+
+
 
 
 

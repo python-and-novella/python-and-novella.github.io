@@ -1042,7 +1042,7 @@ def index():
 ui.run(root=index, native=True)
 ```
 
-## 8 使用异步（更新中）
+## 8 使用异步
 
 在Python中，有一种函数叫异步函数。与之相对的，就是同步函数。同步函数就是常见的函数，异步函数就是在定义函数时使用`async`修饰的函数。
 
@@ -1069,9 +1069,11 @@ def index():
 ui.run(root=index,native=True)
 ```
 
+![2026_8_1](nicegui_pro.assets/2026_8_1.gif)
 
+可以看到，虽然函数中，两个通知之间加入了延时，但两个通知还是同时弹出。
 
-换成异步函数的话，效果就符合预期了：
+换成异步函数的话，结果就符合预期了：
 
 ```python3
 from nicegui import ui
@@ -1088,162 +1090,143 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-
+![2026_8_2](nicegui_pro.assets/2026_8_2.gif)
 
 NiceGUI对异步的支持如下：
 
 - 响应函数可以是异步函数。
 
-  
-
 - 脚本模式、页面模式、单页面应用创建页面的函数可以是异步函数。
 
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import asyncio
   
+  async def do_something():
+      ui.notify('start')
+      await asyncio.sleep(3)
+      ui.notify('ok')
+  
+  async def index():
+      ui.button('Do Something',on_click=do_something)
+  
+  ui.run(root=index,native=True)
+  ```
 
 - 部分控件、对象提供了可以异步等待的方法，用于实现在指定动作、状态之后才执行后续操作。
 
+  比如，`ui.button`按钮控件的`clicked`方法就是一个异步函数，只有在点击按钮之后，该函数才会执行：
   
-
-
-
-
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      await ui.button('Do Something One').clicked()
+      await ui.button('Do Something Two').clicked()
+      await ui.button('Do Something Three').clicked()
+  
+  ui.run(root=index,native=True)
+  ```
+  
+  ![2026_8_3](nicegui_pro.assets/2026_8_3.gif)
 
 ## 9 创建后台任务
 
+上一章节介绍异步的时候，可以看到直接执行包含`time.sleep`的同步函数会导致问题，但是，如果在后台任务中执行同步函数，就不会有这样问题。
 
-
-
-
-前面说使用`time.sleep`会阻塞主线程，所以要用异步，但如果是后台任务，不在主线程上运行，那就没问题了。
-
-NiceGUI提供了两种后台执行任务的方法，由`run`模块提供：
+NiceGUI提供了两种后台执行任务的方法，均为异步函数，由`run`模块提供：
 
 -   `run.cpu_bound`方法，常用于占用较多CPU资源的后台任务，该方法会创建新的进程操作，让进程池的进程数扩大。
 -   `run.io_bound`方法，常用于占用较多IO资源的后台任务开，因为这类后台任务不会占用太多CPU资源，因此，该方法只是创建新的线程操作，操作完线程会关闭。
 
-下面的示例使用`time.sleep`模拟耗时的操作，但将其放到后台任务中，所以不会卡死主线程：
+示例如下：
 
 ```python3
-from nicegui import ui, run
+from nicegui import ui,run
 import time
 
-def test_task(t):
-    time.sleep(t)
-    return 0
+def sleep():
+    time.sleep(3)
 
-async def sub_task():
-    #单独进程
-    result = await run.cpu_bound(test_task,5)
-    #单独线程
-    #result = await run.io_bound(test_task,5)
-    ui.notify(result)
+async def do_something():
+    ui.notify('start')
+    await run.cpu_bound(sleep)
+    ui.notify('ok')
 
-ui.button('background task',on_click=sub_task)
+def index():
+    ui.button('Do Something',on_click=do_something)
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
+![2026_8_2](nicegui_pro.assets/2026_8_2.gif)
 
-
-
+可以看到，虽然执行的是包含`time.sleep`的同步函数，但因为将其放在后台任务中执行，所以，结果符合预期。
 
 ## 10 使用定时器
 
+上一章讲了在后台任务中执行函数，这一章说一下效果有点类似，但是常用于重复执行函数的定时器。
 
+NiceGUI提供了两种定时器：
 
-简单介绍`ui.timer`和`app.timer`基本用法与区别
+- `ui.timer`定时器，控件层级的定时器。
+- `app.timer`定时器，程序层级的定时器。
 
+`ui.timer`定时器和`app.timer`定时器基本用法相同，但使用场景有所差别。
 
-
-定时器可以根据给定的时间间隔，周期性执行指定函数。`ui.timer`有四个参数：浮点类型的时间间隔`interval`、可调用类型的执行操作`callback`、布尔类型的是否激活`active`、布尔类型的是否运行一次`once`。
-
-代码如下：
+先看基本用法：
 
 ```python3
 from nicegui import ui
 
-ui.timer(interval=6.0,callback=lambda :ui.notify('Timer.'),active=True,once=False)
+def index():
+    button = ui.button('Do Something')
+    def do_something():
+        button.disable()
+        ui.timer(3,lambda :ui.notify('ok'))
+    button.on_click(do_something)
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-以下的内容按理来说属于进阶部分，就算不学习，也能满足基础开发需要。但是官方将此部分内容与基础部分放在一起解释，为了方便有相关需求的读者学习，特地将该部分内容与基础合并，并且进阶部分也会同步增加。不理解、不需要此功能的读者可以暂时忽略，等学进阶部分时再学也可以。
+点击按钮之后，响应函数先禁用按钮，防止重复点击。然后创建一个定时器，每隔三秒弹出一条通知。
 
-NiceGUI官方在2.9.0版本新增了`app.timer`定时器，虽然用法上和`ui.timer`一样，但其归属于`app`而不是`ui`，还是有所区别的。
-
-为了理解区别，需要先运行以下示例代码：
+如果是`app.timer`定时器，则不能使用这种创建控件的操作：
 
 ```python3
-from nicegui import app, ui
+from nicegui import ui,app
 
-counter = {'value': 0}
-label = ui.element()
-timer = None
+def index():
+    button = ui.button('Do Something')
+    def do_something():
+        button.disable()
+        app.timer(3,lambda :print('ok'))
+    button.on_click(do_something)
 
-with ui.element() as buttons:
-    button1 = ui.button('add label')
-    button2 = ui.button('delete buttons')
-
-def add_label():
-    timer = ui.timer(1,lambda :counter.update(value=counter['value']+1))
-    with label:
-        ui.label().bind_text_from(counter, 'value', lambda value: f'Count: {value}')
-
-def delete_buttons():
-    buttons.clear()
-    
-button1.on_click(add_label)
-button2.on_click(delete_buttons)
-
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
+除此以外，两种定时器还有一个区别：控件的响应函数创建了`ui.timer`定时器，那`ui.timer`定时器就属于这个控件的父控件（或者创建定时器位置所属上下文的控件）；一旦父控件清空所有子控件，`ui.timer`定时器也会随之清除。而`app.timer`定时器属于当前程序，不会因为这样的操作而被清除掉。
 
-
-（示例代码源于官方仓库问题的介绍部分可以删去，直接介绍两种定时器的区别即可）
-
-示例代码源于NiceGUI官方仓库的一个问题，这里稍微简化了一下。问题作者想要让按钮创建一个定时更新显示内容的定时器，然后用另一个按钮删掉创建定时器的按钮。就是这样听起来很简单的操作，结果在删掉按钮时，工作定时器好像被一并“删掉”了。导致删掉按钮之后，原本应该继续执行的显示更新操作随之停止了。
-
-听起来很奇怪，像是一个问题，其实不是，一开始就没有必要让按钮创建定时器。定时器可以在按钮的响应函数之外创建，按钮只需启动（`activate`）、停止（`deactivate`）定时器即可。因为定时器（`ui.timer`）会自动关联创建定时器的UI组件，一般做法是在auto-index页创建定时器，定时器关联了auto-index页，而auto-index页一般不会被删掉（也不能删掉，会出问题），所以使用定时器不会出问题。如果是其他UI组件创建了定时器，删掉创建定时器的UI组件，同时会一并删掉定时器，这也就是问题的原因。
-
-上面的示例代码更换成常规用法也可以，解决方法也不难，不过，NiceGUI官方还是为此增加了一个独立于UI组件的定时器——`app.timer`，既是对此问题的解决方案，也是对后续有类似需求的功能实现。
-
-那么，上面的代码在基本不动的前提下，只需将`ui.timer`换成`app.timer`即可：
+示例如下：
 
 ```python3
-from nicegui import app, ui
+from nicegui import ui,app
 
-counter = {'value': 0}
-label = ui.element()
-timer = None
+def index():
+    with ui.element() as element:
+        ui.timer(3,lambda :print('ui is ok'))
+        app.timer(3,lambda :print('app is ok'))
+    ui.button('Clear Timers',on_click=element.clear)
 
-with ui.element() as buttons:
-    button1 = ui.button('add label')
-    button2 = ui.button('delete buttons')
-
-def add_label():
-    timer = app.timer(1,lambda :counter.update(value=counter['value']+1))
-    with label:
-        ui.label().bind_text_from(counter, 'value', lambda value: f'Count: {value}')
-
-def delete_buttons():
-    buttons.clear()
-    
-button1.on_click(add_label)
-button2.on_click(delete_buttons)
-
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
+点击按钮之后，终端只会输出`app is ok`，因为`app.timer`定时器属于当前程序，不受影响。
 
-
-
-
-
-
-
-
-## 11 绑定快捷键
+## 11 绑定快捷键（更新中）
 
 `ui.keyboard`
 
@@ -1253,47 +1236,7 @@ ui.run(native=True)
 
 
 
-## 4 具体控件——`ui.button`
-
-具体控件的基础用法免费发布，高级用法和特定问题的解决付费，最低1豆，最多9豆
-
-
-
-
-
-## 4 自定义控件
-
-
-
-
-
-## 5 管理网页相关文件
-
-ui.add\_\* 和app.add\_\*
-
-
-
-
-
-## 5 修改指定控件
-
-先说控件的`move`方法可以移动控件的位置，
-
-
-
-再说
-
-ui.query
-
-ui.teleport
-
-ElementFilter
-
-
-
-
-
-## 5 环境变量
+## 12 使用环境变量
 
 原文参考自 https://nicegui.io/documentation/section_configuration_deployment#environment_variables 。
 
@@ -1344,6 +1287,50 @@ ElementFilter
   
   ui.run(native=True)
   ```
+
+## 13 使用`ui.button`按钮控件（更新中）
+
+具体控件的基础用法免费发布，高级用法和特定问题的解决付费，最低1豆，最多9豆
+
+
+
+
+
+## 4 使用`ui.button`按钮控件（更新中）
+
+具体控件的基础用法免费发布，高级用法和特定问题的解决付费，最低1豆，最多9豆
+
+
+
+## 4 自定义控件
+
+
+
+
+
+## 5 管理网页相关文件
+
+ui.add\_\* 和app.add\_\*
+
+
+
+
+
+## 5 修改指定控件
+
+先说控件的`move`方法可以移动控件的位置，
+
+
+
+再说
+
+ui.query
+
+ui.teleport
+
+ElementFilter
+
+
 
 
 
@@ -1676,6 +1663,6 @@ ui.run(native=True)
 
 前面系统性介绍基础知识和相关概念，并附上简单的示例，免费发布。
 
-后面针对相关方法、类的具体参数和用法收费发布，内容详细，至少一千字，收费1豆起。
+后面针对相关方法、类的具体参数和用法收费发布，内容详细，至少一千字，收费1豆起，最多9豆。
 
 后面具体问题的分析、解决代码大部分收费，少部分免费发布，用于维持热度。

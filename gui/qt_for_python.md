@@ -8625,7 +8625,44 @@ window.show()
 app.exec()
 ```
 
-## 23 （待定）
+## 23 `QRect`类的反常坐标
+
+本章内容灵感源于《Qt for Python PySide6 GUI界面开发详解与实例》一书的2.1.3节，无论是否读过此书都不影响本章的学习。
+
+书中提到，`QRect`类就是Qt中用于表示矩形的类。因此，该类提供了诸如`bottom`方法、`right`方法、`bottomRight`方法等，用于表示矩形底边Y坐标、右边X坐标、右下角坐标等。然而，一个原点为`(0,0)`、宽4高3的矩形，右下角的坐标却是`(3,2)`，看上去好像有问题。
+
+以下为能够展示这一反常的示例：
+
+```python3
+from PySide6.QtCore import QRect,QPoint,QSize
+
+rect = QRect(
+    QPoint(0,0),
+    QSize(4,3)
+)
+
+print(
+    rect.right(),
+    rect.bottom(),
+    rect.bottomRight()
+)
+
+# 输出 3 2 PySide6.QtCore.QPoint(3, 2)
+```
+
+想要弄清楚这个问题，需要先简单了解一下Qt中控件、图形使用的坐标系，以及坐标的实际含义。在Qt中，坐标系的原点为窗口的左上角，向右为X轴正方向，向下为Y轴的正方向。至于坐标的含义，则表示该坐标点对应的像素点。因此，如果有一个原点为`(0,0)`、宽4高3的矩形，那矩形的12个像素点的坐标如下图所示：
+
+![2025_23_1](qt_for_python.assets/2025_23_1.png)
+
+当`bottomRight`方法返回矩形的右下角的坐标时，实际上返回的是属于矩形的右下角像素点的坐标，这才看上去有点“反常”。
+
+## 24 （待定）
+
+
+
+
+
+## 25 （待定）
 
 
 
@@ -8645,27 +8682,6 @@ app.exec()
 - Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
 
 
-
-《Qt for Python PySide6 GUI界面开发详解与实例》中，布局控件，可以写布局一章；另外QtCore的QRect的bottomRight的坐标少1（但像素总数等于宽高的乘积，这是反常背后的合理之处），可以与其他基础类的用法一起写一章
-
-
-
-```python3
-from PySide6.QtCore import QRect,QPoint,QSize
-
-rect = QRect(
-    QPoint(0,0),
-    QSize(3,4)
-)
-
-print(
-    rect.right(),
-    rect.bottom(),
-    rect.bottomRight()
-)
-
-# 输出 2 3 PySide6.QtCore.QPoint(2, 3)
-```
 
 
 

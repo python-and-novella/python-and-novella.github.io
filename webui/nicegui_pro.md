@@ -1042,7 +1042,7 @@ def index():
 ui.run(root=index, native=True)
 ```
 
-## 8 使用异步
+## 8 使用异步函数
 
 在Python中，有一种函数叫异步函数。与之相对的，就是同步函数。同步函数就是常见的函数，异步函数就是在定义函数时使用`async`修饰的函数。
 
@@ -1219,16 +1219,121 @@ def index():
     with ui.element() as element:
         ui.timer(3,lambda :print('ui is ok'))
         app.timer(3,lambda :print('app is ok'))
-    ui.button('Clear Timers',on_click=element.clear)
+    ui.button('Clear Timers',on_click = element.clear)
 
 ui.run(root=index,native=True)
 ```
 
 点击按钮之后，终端只会输出`app is ok`，因为`app.timer`定时器属于当前程序，不受影响。
 
-## 11 绑定快捷键（更新中）
+## 11 绑定快捷键
 
-`ui.keyboard`
+就像使用定时器需要添加一个定时器一样，想要绑定快捷键，也要添加一个`ui.keyborad`键盘响应器，用于响应指定快捷键。
+
+注意，和`ui.timer`定时器类似，键盘响应器同样属于创建位置的父控件，一旦父控件清空所有子控件，键盘响应器也会随之清除。
+
+`ui.keyborad`键盘响应器支持以下：
+
+- `on_key`参数，可调用类型，表示按键的响应函数。
+- `active`参数，布尔类型，表示是否激活该键盘响应器，默认为`True`。
+- `repeating`参数，布尔类型，表示当按键持续按下的时候是否重复执行按键的响应函数，默认为`True`。
+- `ignore`参数，元素为字符串的列表，表示当哪些控件激活时，不执行按键的响应函数，默认为`['input', 'select', 'button', 'textarea']`。
+
+对于`on_key`参数对应响应函数，可以传递一个`KeyEventArguments`类型的响应对象，作为响应函数的参数。响应对象有以下属性：
+
+-   `sender`属性，表示执行响应函数的键盘响应器。
+-   `client`属性，表示客户端对象。
+-   `action`属性，`KeyboardAction`类型，表示按键具体的动作，该属性有以下子属性：
+    -   `keydown`属性，布尔类型，表示按键按下。
+    -   `keyup`属性，布尔类型，表示按键松开。
+    -   `repeat`属性，布尔类型，表示按键重复按下中。
+-   `key`属性，`KeyboardKey`类型，表示当前按键具体是哪个键（如果是组合键，则表示除了修饰键之外的具体按键）。该属性有以下子属性：
+    -   `name`属性，字符串类型，表示按键名。比如：`'a'`、`'Enter'`、`'ArrowLeft'`等。 可以参考 https://developer.mozilla.org/zh-CN/docs/Web/API/UI_Events/Keyboard_event_key_values 提供的按键名清单。
+    -   `code`属性，字符串类型，表示按键的代号。比如：`'KeyA'`、`'Enter'`、`'ArrowLeft'`等。
+    -   `location`属性，整数类型，表示按键的位置。`0`表示标准键盘区，`1`表示左边的按键（指的是`Ctrl`、`Alt`、`Shift`这种左右都有的按键），`2`表示右边的按键（指的是`Ctrl`、`Alt`、`Shift`这种左右都有的按键），`3`表示数字键盘区。
+-   `modifiers`属性，`KeyboardModifiers`类型，表示组合键中的修饰键（`Ctrl`键、`Alt`键、`Shift`键、`Win`键这种可以与字母键、数字键、功能键等组合使用的按键），该属性有以下子属性：
+    -   `alt`属性，布尔类型，表示修饰键中是否有`Alt`键（Mac下的`Opt`键）。
+    -   `ctrl`属性，布尔类型，表示修饰键中是否有`Ctrl`键。
+    -   `meta`属性，布尔类型，表示修饰键中是否有`Meta`键（WIn的`Win`键或者Mac下的`Cmd`键）。
+    -   `shift`属性，布尔类型，表示修饰键中是否有`Shift`键。
+
+为了方便使用，`KeyboardKey`类支持以下属性：:
+
+-   `is_cursorkey`属性，布尔类型，表示方向键是否被按下（数字键盘区的方向键不算）。
+-   `number`属性，整数类型，表示按下了哪个主键盘区上方的数字键。`0`-`9`表示对应的数字键，`None` 没有按下上方的数字键。
+-   `backspace`、`tab`、`enter`、`shift`、`control`、`alt`、`pause`、`caps_lock`、`escape`、`space`、`page_up`、`page_down`、`end`、`home`、`arrow_left`、`arrow_up`、`arrow_right`、`arrow_down`、`print_screen`、`insert`、`delete`、`meta`、`f1`、`f2`、`f3`、`f4`、`f5`、`f6`、`f7`、`f8`、`f9`、`f10`、`f11`、`f12`等属性，均为布尔类型，表示对应的按键是否被按下。
+
+示例如下：
+
+```python3
+from nicegui import ui
+from nicegui.events import KeyEventArguments
+
+def handle_key_ctrl(e: KeyEventArguments):
+    if e.modifiers.ctrl and not e.key.control:
+        if e.action.keyup:
+            ui.notify(f'松开了 ctrl+{e.key} 键')
+
+def handle_key_alt(e: KeyEventArguments):
+    if e.modifiers.alt and not e.key.alt:
+        if e.action.keyup:
+            ui.notify(f'松开了 alt+{e.key} 键')
+
+def index():
+    ui.label('按下ctrl键或者alt键与其他键的组合')
+    with ui.element() as element:
+        ui.keyboard(on_key=handle_key_ctrl,active=True)
+        ui.keyboard(on_key=handle_key_alt,active=True)
+    ui.button('清除快捷键',on_click = element.clear)
+
+ui.run(root=index,native=True)
+```
+
+![2026_11_1](nicegui_pro.assets/2026_11_1.png)
+
+## 12 运行JavaScript代码
+
+NiceGUI的页面本质上是网页，因此，NiceGUI程序虽然是用Python写的，但可以运行JavaScript代码，只需调用`ui.run_javascript`方法即可：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.button(
+        'Run JavaScript',
+        on_click=lambda :ui.run_javascript(
+            'alert("Hello World!")'
+        )
+    )
+
+ui.run(root=index,native=True)
+```
+
+![2026_12_1](nicegui_pro.assets/2026_12_1.png)
+
+## 13 设计控件的布局（更新中）
+
+
+
+`ui.row`、`ui.column`和`ui.grid`
+
+`ui.space`
+
+`ui.separator`
+
+`ui.splitter`
+
+
+
+## 14 设计页面的布局（更新中）
+
+
+
+`ui.header`和`ui.footer`
+
+`ui.left_drawer`和`ui.right_drawer`
+
+`ui.page_sticky`
 
 
 
@@ -1236,13 +1341,77 @@ ui.run(root=index,native=True)
 
 
 
-## 12 使用环境变量
+
+
+
+
+
+
+
+
+## 12 文本控件（更新中）
+
+
+
+ui.label
+
+ui.link
+
+
+
+## 12 按钮控件（更新中）
+
+
+
+ui.button
+
+ui.button_group
+
+ui.dropdown_button
+
+ui.fab
+
+
+
+
+
+## x 线形图控件（更新中）
+
+NiceGUI支持多种线性图控件，基于不同的库实现。读者可以根据对库的熟悉程度、控件的外观选用合适的控件。
+
+### x.1 `ui.pyplot`控件
+
+
+
+ui.matplotlib
+
+ui.line_plot
+
+ui.plotly
+
+## x 图表控件（更新中）
+
+ui.highchart
+
+ui.echart
+
+## x 表格控件（更新中）
+
+ui.table
+
+ui.aggrid
+
+
+
+
+
+## x 使用环境变量
 
 原文参考自 https://nicegui.io/documentation/section_configuration_deployment#environment_variables 。
 
 在NiceGUI中，有些设置项只能通过修改环境变量实现：
 
-- `MATPLOTLIB`，默认为`'true'`，表示是否自动导入`matplotlib`(`ui.pyplot`和`ui.line_plot`依赖此库），可以将此环境变量设置为`'false'`来避免自动导入，减少导入`nicegui`所需的时间，同时也会导致`ui.pyplot`和`ui.line_plot`无法使用。
+- `MATPLOTLIB`，默认为`'true'`，表示是否自动导入`matplotlib`(`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件依赖此库），可以将此环境变量设置为`'false'`来避免自动导入，减少导入`nicegui`所需的时间，同时也会导致`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件无法使用。
 
   以下为用于对比的示例，读者可以修改环境变量值，冷启动（完全退出再重新打开）看看导入所需的时间：
 
@@ -1288,9 +1457,9 @@ ui.run(root=index,native=True)
   ui.run(native=True)
   ```
 
-## 13 使用`ui.button`按钮控件（更新中）
 
-具体控件的基础用法免费发布，高级用法和特定问题的解决付费，最低1豆，最多9豆
+
+
 
 
 
@@ -1308,9 +1477,216 @@ ui.run(root=index,native=True)
 
 
 
-## 5 管理网页相关文件
 
-ui.add\_\* 和app.add\_\*
+
+## 5 管理媒体文件
+
+NiceGUI的页面本质上是网页，而网页中通常包含图片、音频、视频、JavaScript代码、CSS代码等文件。NiceGUI提供了一些方法，可以更好管理、使用这些文件：
+
+- `app.add_static_file`
+- `app.add_static_files`
+- `app.add_media_file`
+- `app.add_media_files`
+
+
+
+#### 3.12.1 `app.add_static_file`和`app.add_static_files`
+
+前面提到过`ui.image`、`ui.video`、`ui.audio`等提供视听效果。不过，前面的例子中只用了网络图片地址，并没有使用本地地址，肯定有读者在尝试使用本地地址之后发现了一个奇怪的现象，以为NiceGUI有bug。
+
+以下面的代码为例，`os.path.dirname(os.path.abspath(__file__))`可以获取代码文件的当前目录，在代码文件的同目录下放一个图片文件`LOGO.png`，下面的代码就能显示这个图片。看起来没问题。但是，一旦复制这个图片的地址，将后面的文件名换成其他同目录下的文件名，就会报404错误（文件未找到）。
+
+```python3
+from nicegui import ui
+import os
+
+ui.image(f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png')
+
+ui.run(native=True)
+```
+
+其实这不是NiceGUI的bug，而是默认的安全和缓存机制，只有代码中使用的静态文件才会生成地址映射，其他没有使用的文件即使存在，直接输入地址访问也会报不存在。以上面的代码为例，图片文件的地址是`http://127.0.0.1:8000/_nicegui/auto/static/cf276f9ca066376dc8588fbf61afe905/LOGO.png`，中间的`cf276f9ca066376dc8588fbf61afe905`是图片的hash码，而不是真实存在的目录。之所以会变成这样，是因为NiceGUI会对小的静态文件进行缓存，提高访问速度。因为网页中经常存在大量图片、JavaScript代码、CSS代码等文件，使用缓存可以提高访问速度，不必每次刷新都要从服务器获取。而且，采用缓存机制，还能避免黑客恶意猜测服务器的文件目录，进而获取到影响安全的文件。
+
+这个时候，理解这一切的读者已经恍然大悟，随之而来的是另一个问题——如果想创建一个图片的链接但图片随时修改怎么办？总不能每次都用`ui.image`生成一次，然后复制地址过去吧？就算使用代码实现自动化，看上去也不够优雅。
+
+这时，就需要正式介绍一下本节要说的功能——`app.add_static_file`。`app.add_static_file`可以返回本地文件的服务器地址，也可以将本地文件映射为固定的服务器地址。
+
+以代码为例：
+
+```python3
+from nicegui import ui, app
+import os
+
+src = app.add_static_file(
+    local_file=f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png',
+    url_path=None,
+    single_use=False
+)
+
+ui.link('pic', src)
+ui.label(src)
+ui.image(src)
+
+ui.run(native=True)
+```
+
+
+
+可以看到，给`app_add_static_file`的`local_file`传入本地文件地址，返回的正是服务器地址，和`ui.image`的图片地址一致，这下，`ui.link`也能使用图片，而不必担心图片变化还要手动复制地址。
+
+`app_add_static_file`有三个参数：
+
+`local_file`参数，字符串类型或者`Path`类型，表示本地文件地址。
+
+`url_path`参数，字符串类型，表示服务器地址，默认为`None`，即自动生成服务器地址，也可以传入参数，例如`'/logo.png'`，就是固定的服务器地址。
+
+`single_use`参数，布尔类型，表示文件是否在下载一次后移除服务器地址，默认为`False`。
+
+假如要添加的图片比较多，但都在一个文件夹内，是不是还要一个一个添加？不用，`app_add_static_files`可以将本地文件夹映射为服务器地址。
+
+`app_add_static_files`有三个参数：
+
+`local_directory`参数，字符串类型或者`Path`类型，表示本地文件夹地址。
+
+`url_path`参数，字符串类型，表示服务器目录地址，必须传入'/'开头的字符串，例如`'/pic'`，同时不能为`'/'`，不然会报错。
+
+`follow_symlink`参数，布尔类型，表示是否追踪符号链接，即目录下如果存在符号链接的话，会将符号链接代表的实际路径连接到当前路径下，让服务器地址访问符号链接就和本地访问符号链接一样。这个参数默认为`False`，即不处理符号链接，服务器地址没法访问符号链接。注意，此参数为`True`并且在Windows平台下的话，代码中使用的`os.path.abspath(__file__)`会导致获取到文件路径中的磁盘符号为小写，将导致底层代码出错进而上报404错误。此时应该将`os.path.abspath(__file__)`换成`os.path.realpath(__file__)`。如果后续遇到Windows平台下开启`app_add_static_files`的追踪符号链接后，报404错误，可以按照这个思路检查一下传入的`local_directory`参数中，磁盘符号是不是小写。
+
+#### 3.12.2 `app.add_media_file`和`app.add_media_files`
+
+前面的`app.add_static_file`、`app.add_static_files`用于添加小的静态文件，本节要介绍的`app.add_media_file`、`app.add_media_files`则用于添加媒体文件。看名字的话，和前两者相似，一个是添加单个文件，一个是添加文件夹，那NiceGUI为何要设计重复的功能？
+
+重复当然是不可能重复的，既然是用于媒体文件，肯定与静态文件不同。媒体文件通常是音视频等需要流式传输的文件，不会一下子全部加载，而是一点一点加载，这一点与静态文件不同。毕竟媒体文件通常比较大，一下子全部缓存，一不小心就会让缓存空间爆满。之所以采用流式传输，是因为媒体文件需要支持播放时跳转到指定时间点，如果是采用静态文件那种缓存全部再加载的机制，跳转到指定时间点的功能会失效，只有流式传输才支持跳转到指定时间点。
+
+`app.add_media_file`、`app.add_media_files`得到的服务器地址就是采用流式传输，而不是缓存机制。
+
+以下面的代码为例，可以看一下区别，因为此代码需要本地视频文件，这里就不提供直接运行的代码了，视频文件地址由读者自己修改：
+
+```python3
+from nicegui import ui,app
+
+video = r'{视频文件的本地路径}'
+app.add_static_file(local_file=video,url_path='/video1')
+app.add_media_file(local_file=video,url_path='/video2')
+
+ui.video('/video1')
+ui.video('/video2')
+
+ui.run(native=True)
+```
+
+通常情况下，`app.add_static_file`得到的视频文件地址，在播放器中没法拖动进度条，`app.add_media_file`得到的视频文件地址，在播放器中和正常播放一样，可以自由拖动时间轴。但是，大多数服务器、浏览器、播放器有容错优化，实际上两种方法得到的视频地址都可以正常播放，只有某些要求严格的接口、播放程序才会有区别。一般建议读者使用`app.add_media_file`添加媒体文件，以免特定情况下出现不兼容的问题。
+
+`app.add_media_file`的参数和`app.add_static_file`的一样，这里不再赘述。`app.add_media_files`的参数则比`app.add_static_files`少了`follow_symlink`参数。
+
+
+
+## 5 给页面添加额外的代码（HTML、CSS）
+
+NiceGUI的页面本质上是网页，而网页有时候需要添加一些额外的HTML代码、CSS代码才能使用特定的功能。想要添加额外的外码，就要使用以下方法：
+
+- `ui.add_head_html`
+- `ui.add_body_html`
+- `ui.add_css`
+- `ui.add_scss`
+- `ui.add_sass`
+
+
+
+#### 3.12.3 `ui.add_head_html`和`ui.add_body_html`
+
+`ui.add_head_html`可以添加HTML代码到页面`head`标签内，`ui.add_body_html`可以添加HTML代码到页面`body`标签内。对于页面加载来说，`head`标签内的内容一般不显示，而且因为是从上到下加载，`head`标签内的内容会先被加载，这里通常放着需要第一时间执行的前置脚本和样式设置。`body`标签内放着页面显示内容的主体，使用`ui.add_body_html`会在NiceGUI其他控件加载前嵌入HTML代码，因此`ui.add_body_html`通常是为了实现在NiceGUI其他内容显示之前放置内容，包括但不限于显示的内容、执行前置脚本和样式设置。
+
+这两个方法都有两个参数字符串参数`code`和布尔参数`shared`。前者表示要嵌入的HTML代码，后者表示是否在所有页面（`ui.page`）执行嵌入操作，对于使用`ui.page`装饰的页面，后者可以让嵌入操作的代码只写一次，就能应用于所有页面上。
+
+前面说过，`ui.html`也可以添加HTML代码，那和`ui.add_head_html`、`ui.add_body_html`有什么区别？
+
+`ui.html`会返回一个元素，可以使用一般元素的方法，`ui.add_head_html`和`ui.add_body_html`是直接将HTML代码嵌入页面，不会返回任何对象，没法调用一般元素的方法。不过，它们支持嵌入JavaScript代码，而`ui.html`只能是纯HTML。
+
+```python3
+from nicegui import ui
+
+ui.add_head_html('<script>alert("yes")</script>')
+ui.add_body_html('<script>alert("yes")</script>')
+#ui.html('<script>alert("yes")</script>')
+
+ui.run(native=True)
+```
+
+#### 3.12.4 `ui.add_css`、`ui.add_scss`、`ui.add_sass`
+
+这三个功能都可以添加CSS代码，只是对应的CSS代码语法规则不同。
+
+`ui.add_scss`和`ui.add_sass`依赖的`libsass`默认不安装，如果想要使用此控件，可以在项目根目录下使用以下命令安装：
+
+```shell
+pdm add nicegui[sass]
+#或者下面这条
+pdm add libsass
+```
+
+如果运行环境是全局环境或者想用pip安装，可以执行下面的命令安装：
+
+```shell
+pip install nicegui[sass]
+#或者下面这条
+pip install libsass
+```
+
+SASS是一款强化 CSS 的辅助工具，它在 CSS 语法的基础上增加了变量 (variables)、嵌套 (nested rules)、混合 (mixins)、导入 (inline imports) 等高级功能，这些拓展令 CSS 更加强大与优雅。简单一点理解的话，SASS是CSS扩展版本。SASS有两种语法风格：以`.scss`为后缀的，是语法风格和CSS一致的版本，即采用大括号表示所属，用分号表示一句内容的结束；以`.sass`为后缀的，是语法风格变成用缩进代替大括号、用换行代替分号的版本。
+
+因此`ui.add_css`、`ui.add_scss`、`ui.add_sass`分别代表可以添加标准CSS代码、scss风格代码、sass风格代码。因为scss语法风格和CSS一致，基本兼容CSS，所以，可以用`ui.add_scss`添加CSS代码，反之不行。
+
+`ui.add_css`：
+
+```python3
+from nicegui import ui
+
+ui.add_css('''
+    .red {
+        color: red;
+    }
+''')
+ui.label('This is red with CSS.').classes('red')
+
+ui.run()
+```
+
+`ui.add_scss`：
+
+```python3
+from nicegui import ui
+
+ui.add_scss('''
+    .green {
+        background-color: lightgreen;
+        .blue {
+            color: blue;
+        }
+    }
+''')
+with ui.element().classes('green'):
+    ui.label('This is blue on green with SCSS.').classes('blue')
+
+ui.run()
+```
+
+`ui.add_sass`：
+
+```python3
+from nicegui import ui
+
+ui.add_sass('''
+    .yellow
+        background-color: yellow
+        .purple
+            color: purple
+''')
+with ui.element().classes('yellow'):
+    ui.label('This is purple on yellow with SASS.').classes('purple')
+
+ui.run()
+```
 
 
 
@@ -1636,6 +2012,14 @@ ui.run(native=True)
 该类支持以下方法：
 
 
+
+
+
+## x 同一类控件
+
+
+
+简单说一下同类型的控件，提供简单示例即可，具体控件的完整用法后面单独章节介绍
 
 
 

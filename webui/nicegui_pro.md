@@ -1311,41 +1311,165 @@ ui.run(root=index,native=True)
 
 ![2026_12_1](nicegui_pro.assets/2026_12_1.png)
 
-## 13 设计控件的布局（更新中）
+## 13 设计控件的布局
 
+### 13.1 基本布局控件
 
+在NiceGUI中，有以下三种基本布局，用于组合实现复杂的界面布局：
 
-`ui.row`、`ui.column`和`ui.grid`
+- 列（column）布局，所有的子控件排成一列。
+- 行（row）布局，所有的子控件排成一行。
+- 网格（gird）布局，所有的子控件都放在指定规格（默认为`1x1`）的单元格中。
 
-`ui.space`
+三种基本布局的示意图如下：
 
-`ui.separator`
+![2026_13_1](nicegui_pro.assets/2026_13_1.png)
 
-`ui.splitter`
+默认情况下，直接创建控件的话，就和在`ui.column`列控件中添加子控件一样，都是列布局：
 
+```python3
+from nicegui import ui
 
+def index():
+    for i in range(4):
+        ui.button(i)
+    with ui.column().classes(
+        'border-2 border-red-700 p-1'
+    ):
+        for i in range(4):
+            ui.button(i)
 
-## 14 设计页面的布局（更新中）
+ui.run(root=index,native=True)
+```
 
+![2026_13_2](nicegui_pro.assets/2026_13_2.png)
 
+在`ui.row`行控件中添加子控件，则为行布局：
 
-`ui.header`和`ui.footer`
+```python3
+from nicegui import ui
 
-`ui.left_drawer`和`ui.right_drawer`
+def index():
+    with ui.row().classes(
+        'border-2 border-red-700 p-1'
+    ):
+        for i in range(4):
+            ui.button(i)
 
-`ui.page_sticky`
+ui.run(root=index,native=True)
+```
 
+![2026_13_3](nicegui_pro.assets/2026_13_3.png)
 
+在`ui.grid`网格控件中添加子控件，则为网格布局：
 
+```python3
+from nicegui import ui
 
+def index():
+    with ui.grid(columns=3,rows=2).classes(
+        'border-2 border-red-700 p-1'
+    ):
+        ui.label('label 1').classes(
+            'row-span-2 border-1 border-black p-1'
+        )
+        ui.label('label 2').classes(
+            'col-span-2 border-1 border-black p-1'
+        )
+        ui.label('label 3').classes(
+            'border-1 border-black p-1'
+        )
 
+ui.run(root=index,native=True)
+```
 
+![2026_13_4](nicegui_pro.assets/2026_13_4.png)
 
+### 13.2 布局辅助控件
 
+只是使用基本布局控件的话，虽然能实现几乎所有常见的布局，但是，不使用下面的辅助控件的话，效果还是差点意思：
 
+- `ui.space`空白控件，可以填充布局方向上可用的剩余空间，一般用于行布局、列布局中，让最后的控件可以紧贴父控件的边界：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.column().classes(
+          'border-2 border-red-700 p-1 h-72'
+      ):
+          for i in range(4):
+              ui.button(i)
+          ui.space()
+          ui.button(4)
+  
+  ui.run(root=index,native=True)
+  ```
 
+  ![2026_13_5](nicegui_pro.assets/2026_13_5.png)
 
+- `ui.separator`分隔控件，可以创建一个占用空间极小且不太明显的分隔符：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.column().classes(
+          'border-2 border-red-700 p-1'
+      ):
+          for i in range(4):
+              ui.button(i)
+          ui.space()
+          ui.separator()
+          ui.button(4)
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_13_6](nicegui_pro.assets/2026_13_6.png)
+
+## 14 设计页面的特殊区域
+
+页面除了主内容区域外，还有一些特殊的区域，可以自由添加控件。这些区域的位置都是固定的，并且创建（使用）这些区域并不会影响这些区域的实际位置。
+
+特殊区域相关的控件与其对应位置为：
+
+- `ui.header`页头控件，对应位置为页头，即主内容区域的上方。
+- `ui.footer`页脚控件，对应位置为页脚，即主内容区域的下方。
+- `ui.left_drawer`左抽屉控件，对应位置为左抽屉，即主内容区域的左边，该区域的隐藏状态支持动态切换。
+- `ui.right_drawer`右抽屉控件，对应位置为右抽屉，即主内容区域的右边，该区域的隐藏状态支持动态切换。
+- `ui.page_sticky`便签控件，对应位置在主内容区域的八个边角。
+
+它们的位置关系如下：
+
+![2026_14_1](nicegui_pro.assets/2026_14_1.png)
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('主内容')
+    with ui.header():
+        ui.label('页头')
+    with ui.footer():
+        ui.label('页脚')
+    with ui.left_drawer().classes('bg-grey'):
+        ui.label('左抽屉')
+    with ui.right_drawer().classes('bg-grey'):
+        ui.label('右抽屉')
+    with ui.page_sticky():
+        ui.button('便签')
+
+ui.run(root=index,native=True)
+```
+
+![2026_14_2](nicegui_pro.assets/2026_14_2.png)
+
+注意，如果窗口太小，左右抽屉默认为隐藏状态：
+
+![2026_14_3](nicegui_pro.assets/2026_14_3.png)
 
 
 

@@ -8656,11 +8656,67 @@ print(
 
 当`bottomRight`方法返回矩形的右下角的坐标时，实际上返回的是矩形中右下角像素点的坐标，所以，结果才会看上去有点“反常”。
 
-## 24 （待定）
+## 24 绑定快捷键
 
+想要给Qt程序绑定快捷键，可以使用`keyReleaseEvent`事件、`keyPressEvent`事件：
 
+````python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+from PySide6.QtGui import QKeyEvent
+from PySide6.QtCore import Qt,QKeyCombination
 
+app = QApplication()
 
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('使用Ctrl+Q关闭窗口',window)
+window.show()
+
+def on_key_ctrl_q(event:QKeyEvent):
+    key = event.keyCombination()
+    if key == QKeyCombination(
+        Qt.KeyboardModifier.ControlModifier,
+        Qt.Key.Key_Q
+    ):
+        app.quit()
+
+window.keyReleaseEvent = on_key_ctrl_q
+
+app.exec()
+````
+
+代码有点复杂，所以，也可以使用简单的`QShortcut`类（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QShortcut.html），实现相同的效果：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+from PySide6.QtGui import QShortcut,QKeySequence
+
+app = QApplication()
+
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('使用Ctrl+Q关闭窗口',window)
+window.show()
+
+QShortcut(
+    QKeySequence(
+        'Ctrl+Q'
+    ),
+    window
+).activated.connect(app.quit)
+
+app.exec()
+```
 
 ## 25 （待定）
 

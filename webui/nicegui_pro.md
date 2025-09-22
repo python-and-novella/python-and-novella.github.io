@@ -1092,7 +1092,7 @@ ui.run(root=index,native=True)
 
 ![2026_8_2](nicegui_pro.assets/2026_8_2.gif)
 
-NiceGUI对异步的支持如下：
+NiceGUI使用异步函数的情况如下：
 
 - 响应函数可以是异步函数。
 

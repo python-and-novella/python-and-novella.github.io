@@ -8719,11 +8719,11 @@ QShortcut(
 app.exec()
 ```
 
-### 24.2 扩展用法（更新中）
+### 24.2 扩展用法
 
 基本用法中展示了使用`QShortcut`类绑定快捷键的简单示例，本节将扩展`QShortcut`类的用法，学习更多场景下如何绑定快捷键。
 
-#### 24.2.1 快捷键序列
+#### 24.2.1 使用快捷键序列
 
 除了绑定单个快捷键、组合快捷键，`QShortcut`类还支持快捷键序列，即依次按下一系列指定的快捷键才会触发：
 
@@ -8780,25 +8780,212 @@ QShortcut(
 app.exec()
 ```
 
+#### 24.2.3 处理快捷键冲突
 
+默认情况下，虽然`QShortcut`类指定了父控件，但快捷键在同窗口内都生效，比如：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QLineEdit
+)
+from PySide6.QtGui import QShortcut
 
+app = QApplication()
 
-#### 处理歧义
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('使用Ctrl+Q触发操作',window)
+edit1 = QLineEdit(window)
+edit1.move(10,30)
+edit2 = QLineEdit(window)
+edit2.move(10,60)
+window.show()
 
+c_q = QShortcut(
+    'ctrl+q',
+    edit1,
+)
+c_q.activated.connect(lambda :print('ctrl+q'))
 
+app.exec()
+```
 
-ctrl+shift+s 也会触发 ctrl+s ，这就是歧义
+不管哪个输入框获得焦点，按`Ctrl+Q`键，都能在终端输出指定内容。
 
-使用信号识别歧义
+此时，可以给`context`参数传入指定值（具体含义参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.ShortcutContext ），限制快捷键的生效范围，让其只在获得焦点的控件（即`QShortcut`类的父控件）中生效：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QLineEdit
+)
+from PySide6.QtGui import QShortcut
+from PySide6.QtCore import Qt
 
+app = QApplication()
 
-#### 绑定上下文
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('使用Ctrl+Q触发操作',window)
+edit1 = QLineEdit(window)
+edit1.move(10,30)
+edit2 = QLineEdit(window)
+edit2.move(10,60)
+window.show()
 
+c_q = QShortcut(
+    'ctrl+q',
+    edit1,
+    context=Qt.ShortcutContext.WidgetShortcut
+)
+c_q.activated.connect(lambda :print('ctrl+q'))
 
+app.exec()
+```
 
+也可以修改为整个Qt程序全局生效的快捷键：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QLineEdit
+)
+from PySide6.QtGui import QShortcut
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('使用Ctrl+Q触发操作',window)
+edit1 = QLineEdit(window)
+edit1.move(10,30)
+window.show()
+
+window2 = QWidget()
+window2.setWindowTitle('绑定快捷键-窗口2')
+window2.resize(400,300)
+edit2 = QLineEdit(window2)
+window2.show()
+
+c_q = QShortcut(
+    'ctrl+q',
+    edit1,
+    context=Qt.ShortcutContext.ApplicationShortcut
+)
+c_q.activated.connect(lambda :print('ctrl+q'))
+
+app.exec()
+```
+
+除了这种一个快捷键在多个控件中生效的冲突情况，还存在多个同名快捷键在一个控件中生效的冲突情况：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QLineEdit
+)
+from PySide6.QtGui import QShortcut
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('使用Ctrl+Q触发操作',window)
+edit1 = QLineEdit(window)
+edit1.move(10,30)
+edit2 = QLineEdit(window)
+edit2.move(10,60)
+window.show()
+
+c_q = QShortcut(
+    'ctrl+q',
+    edit1,
+    context=Qt.ShortcutContext.ApplicationShortcut
+)
+c_q.activated.connect(lambda :print('ctrl+q'))
+c_q.activatedAmbiguously.connect(lambda :print('maybe ctrl+q'))
+
+c_q_2 = QShortcut(
+    'ctrl+q',
+    edit2,
+    context=Qt.ShortcutContext.WidgetShortcut
+)
+c_q_2.activated.connect(lambda :print('second ctrl+q'))
+c_q_2.activatedAmbiguously.connect(lambda :print('maybe second ctrl+q'))
+
+app.exec()
+```
+
+上面的示例中，两个输入框分别对应着不同生效范围的同名快捷键，并且使用了`activatedAmbiguously`信号，用于识别可能是该快捷键的触发信号。当第一个输入框获得焦点时，按下`Ctrl+Q`键，终端输出为：
+
+```python3
+ctrl+q
+```
+
+当第二个输入框获得焦点时，按下`Ctrl+Q`键，终端输出为：
+
+```python3
+maybe ctrl+q
+maybe second ctrl+q
+```
+
+没有触发第二个`QShortcut`类的`activated`信号，而是依次触发两个`QShortcut`类的`activatedAmbiguously`信号，这就是另一种快捷键冲突。因此，可以使用`activatedAmbiguously`信号处理冲突：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QLineEdit
+)
+from PySide6.QtGui import QShortcut
+from PySide6.QtCore import Qt
+
+app = QApplication()
+
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('使用Ctrl+Q触发操作',window)
+edit1 = QLineEdit(window)
+edit1.move(10,30)
+edit2 = QLineEdit(window)
+edit2.move(10,60)
+window.show()
+
+c_q = QShortcut(
+    'ctrl+q',
+    edit1,
+    context=Qt.ShortcutContext.ApplicationShortcut
+)
+c_q.activated.connect(lambda :print('ctrl+q'))
+c_q.activatedAmbiguously.connect(lambda :c_q_2.activated.emit())
+
+c_q_2 = QShortcut(
+    'ctrl+q',
+    edit2,
+    context=Qt.ShortcutContext.WidgetShortcut
+)
+c_q_2.activated.connect(lambda :print('second ctrl+q'))
+c_q_2.activatedAmbiguously.connect(lambda :c_q_2.activated.emit())
+
+app.exec()
+```
 
 ## 25 （待定）
 

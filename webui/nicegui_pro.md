@@ -507,7 +507,7 @@ ui.run(root=index,native=True)
 
 ### 3.4 `for`的技巧
 
-需要创建多个有规律的控件时，熟悉Python的读者肯定第一时间想到了`for`，使用该关键字遍历可以迭代的对象：
+需要创建多个有规律的控件时，熟悉Python的读者肯定第一时间想到了`for`，可以使用该关键字遍历可以迭代的对象，同时创建控件：
 
 ```python3
 from nicegui import ui

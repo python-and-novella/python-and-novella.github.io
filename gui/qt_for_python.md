@@ -8656,7 +8656,9 @@ print(
 
 当`bottomRight`方法返回矩形的右下角的坐标时，实际上返回的是矩形中右下角像素点的坐标，所以，结果才会看上去有点“反常”。
 
-## 24 绑定快捷键
+## 24 绑定快捷键（使用`QShortcut`类）
+
+### 24.1 基本用法
 
 想要给Qt程序绑定快捷键，可以使用`keyReleaseEvent`事件、`keyPressEvent`事件：
 
@@ -8698,7 +8700,7 @@ from PySide6.QtWidgets import (
     QWidget,
     QLabel
 )
-from PySide6.QtGui import QShortcut,QKeySequence
+from PySide6.QtGui import QShortcut
 
 app = QApplication()
 
@@ -8709,14 +8711,94 @@ QLabel('使用Ctrl+Q关闭窗口',window)
 window.show()
 
 QShortcut(
-    QKeySequence(
-        'Ctrl+Q'
-    ),
-    window
+    'ctrl+q',
+    window,
+    app.quit
+)
+
+app.exec()
+```
+
+### 24.2 扩展用法（更新中）
+
+基本用法中展示了使用`QShortcut`类绑定快捷键的简单示例，本节将扩展`QShortcut`类的用法，学习更多场景下如何绑定快捷键。
+
+#### 24.2.1 快捷键序列
+
+除了绑定单个快捷键、组合快捷键，`QShortcut`类还支持快捷键序列，即依次按下一系列指定的快捷键才会触发：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+from PySide6.QtGui import QShortcut
+
+app = QApplication()
+
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('依次按下Ctrl+W、Ctrl+Q关闭窗口',window)
+window.show()
+
+QShortcut(
+    'ctrl+w,ctrl+q',
+    window,
+    app.quit
+)
+
+app.exec()
+```
+
+#### 24.2.2 使用信号
+
+除了在实例化`QShortcut`类时传入快捷键对应的操作，还可以使用`activated`信号，当快捷键激活（触发）时，执行对应的操作：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+from PySide6.QtGui import QShortcut
+
+app = QApplication()
+
+window = QWidget()
+window.setWindowTitle('绑定快捷键')
+window.resize(400,300)
+QLabel('使用Ctrl+Q关闭窗口',window)
+window.show()
+
+QShortcut(
+    'ctrl+q',
+    window,
 ).activated.connect(app.quit)
 
 app.exec()
 ```
+
+
+
+
+
+#### 处理歧义
+
+
+
+ctrl+shift+s 也会触发 ctrl+s ，这就是歧义
+
+使用信号识别歧义
+
+
+
+#### 绑定上下文
+
+
+
+
 
 ## 25 （待定）
 
@@ -8757,7 +8839,7 @@ app.exec()
 
 ## 0 为何而写
 
-2025版在创作过程中添加了不少对之前内容的修正、补充，但还是未能做到内容正确、全面。对于之前内容错误、遗漏之处，2026年，笔者将继续本教程系列的更新。当然，基础、理论部分已经写了不少，除非Qt框架后续更新之后有变动，基础、理论部分不会有其他新内容了，只会补充遗漏、修正错误、扩展用法、衍生相关内容。
+2025版在创作过程中已经添加了不少对之前内容的修正、补充，但还是未能做到内容正确、全面。对于之前内容错误、遗漏之处，笔者将在2026年继续本教程系列的更新，补充遗漏、修正错误、扩展用法、衍生相关内容。
 
 ## 1 （修正2025.13）
 

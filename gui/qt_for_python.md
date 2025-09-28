@@ -83,7 +83,7 @@ PySide6（6.9.x版本）包含的所有模块（目录参考自 https://doc.qt.i
 | `QtPositioning`        | 实时定位                         | https://doc.qt.io/qtforpython-6/PySide6/QtPositioning/index.html#module-PySide6.QtPositioning |
 | `QtPrintSupport`       | 打印文件相关的功能               | https://doc.qt.io/qtforpython-6/PySide6/QtPrintSupport/index.html#module-PySide6.QtPrintSupport |
 | `QtQml`                | 处理QML文件                      | https://doc.qt.io/qtforpython-6/PySide6/QtQml/index.html#module-PySide6.QtQml |
-| `QtQuick`              | `QtQuick`程序的基础功能          | https://doc.qt.io/qtforpython-6/PySide6/QtQuick/index.html#module-PySide6.QtQuick |
+| `QtQuick`              | QtQuick程序的基础功能            | https://doc.qt.io/qtforpython-6/PySide6/QtQuick/index.html#module-PySide6.QtQuick |
 | `QtQuick3D`            | 在QtQuick程序中显示3D内容        | https://doc.qt.io/qtforpython-6/PySide6/QtQuick3D/index.html#module-PySide6.QtQuick3D |
 | `QtQuickControls2`     | QtQuick程序的配套控件            | https://doc.qt.io/qtforpython-6/PySide6/QtQuickControls2/index.html#module-PySide6.QtQuickControls2 |
 | `QtQuickTest`          | QtQuick程序的测试框架            | https://doc.qt.io/qtforpython-6/PySide6/QtQuickTest/index.html#module-PySide6.QtQuickTest |
@@ -2778,7 +2778,7 @@ app.exec()
 
 ### 11.1 获取上下文对象
 
-`QQuickView`获取上下文对象（为了避免QML代码出错导致程序无法正常关闭，后面注册`Property`属性的示例不使用`QtQuick`程序，这里仅作为获取上下文对象的示例）：
+`QQuickView`获取上下文对象（为了避免QML代码出错导致程序无法正常关闭，后面注册`Property`属性的示例不使用QtQuick程序，这里仅作为获取上下文对象的示例）：
 
 ```python3
 from PySide6.QtGui import QGuiApplication
@@ -8988,6 +8988,24 @@ app.exec()
 ```
 
 ## 25 （待定）
+
+
+
+
+
+## 3x `QWizard`向导对话框控件和`QWizardPage`向导页控件（更新中）
+
+
+
+https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWizard.html
+
+https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWizardPage.html
+
+
+
+
+
+## 26 （待定）
 
 
 

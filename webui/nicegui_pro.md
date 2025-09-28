@@ -24,7 +24,7 @@ NiceGUI（官网https://nicegui.io/）是一款优秀的WebUI、GUI框架，只�
 
 ![2026_1_1](nicegui_pro.assets/2026_1_1.png)
 
-首先，新建一个空白文件夹，笔者这里新建了`nicegui_app`文件夹。进入该文件夹，运行`uv init`，即可初始化该文件夹为项目文件夹（`uv`命令需要使用`pip install uv`安装）。
+首先，新建一个空白文件夹，笔者这里新建了`nicegui_uv_app`文件夹。进入该文件夹，运行`uv init`，即可初始化该文件夹为项目文件夹（`uv`命令需要使用`pip install uv`安装）。
 
 此时创建的项目是空白项目，没有添加任何依赖，还需要使用`uv add nicegui`添加依赖，并自动创建虚拟环境。
 
@@ -1293,7 +1293,7 @@ ui.run(root=index,native=True)
 
 ## 12 运行JavaScript代码
 
-NiceGUI的页面本质上是网页，因此，NiceGUI程序虽然是用Python写的，但可以运行JavaScript代码，只需调用`ui.run_javascript`方法即可：
+NiceGUI的页面本质上是网页，而网页的很多操作离不开JavaScript代码。因此，NiceGUI程序虽然是用Python写的，但支持运行JavaScript代码，只需调用`ui.run_javascript`方法即可：
 
 ```python3
 from nicegui import ui
@@ -1471,19 +1471,57 @@ ui.run(root=index,native=True)
 
 ![2026_14_3](nicegui_pro.assets/2026_14_3.png)
 
+## 15 认识控件（更新中）
+
+NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较多、功能各异，为了方便读者快速了解，笔者将特点、用途类似的控件划分为一类，先按照类别了解一下控件的简单用法和外观。
+
+### 15.1 显示简单文本
+
+想要在页面中显示一些简单文本的话，可以使用下面的控件：
+
+- `ui.label`控件，直接显示文本。
+- `ui.link`控件，将文本显示为超链接。
+- `ui.chat_message`控件，将文本放入消息气泡。
+- `ui.badge`控件，将文本放入类似按钮的紧凑容器中，常用于当作现有控件的角标。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('label')
+    ui.link('link','/')
+    ui.chat_message('chat_message')
+    with ui.button('button').props('no-caps'):
+        ui.badge('badge',color='red').props('floating')
+
+ui.run(root=index,native=True)
+```
+
+![2026_15_1](nicegui_pro.assets/2026_15_1.png)
+
+### 15.2 渲染格式文本（更新中）
+
+有些格式文本会在渲染之后显示，显示出来的不是文本原文，而是特定的内容，比如下面的控件：
+
+- `ui.markdown`控件，可以渲染使用Markdown语法的文本。
+- ui.restructured_text
+- ui.mermaid
 
 
-## 12 文本控件（更新中）
+
+### 15.3 使用任意HTML标签
+
+ui.element
+
+ui.html
+
+html.\*
 
 
 
-ui.label
-
-ui.link
-
-
-
-## 12 按钮控件（更新中）
+### 15.4 创建一些按钮
 
 
 
@@ -1495,17 +1533,115 @@ ui.dropdown_button
 
 ui.fab
 
+ui.chip
 
 
 
-
-## x 线形图控件（更新中）
-
-NiceGUI支持多种线性图控件，基于不同的库实现。读者可以根据对库的熟悉程度、控件的外观选用合适的控件。
-
-### x.1 `ui.pyplot`控件
+### 15.5 让用户选择
 
 
+
+ui.toggle
+
+ui.radio
+
+ui.checkbox
+
+ui.switch
+
+u.select
+
+
+
+### 15.6 让用户直接输入
+
+
+
+ui.input
+
+ui.number
+
+ui.input_chips
+
+ui.textarea
+
+ui.codemirror
+
+ui.color_input
+
+ui.editor
+
+ui.json_editor
+
+
+
+### 15.7 获取用户的非直接输入
+
+ui.slider
+
+ui.range
+
+ui.rating
+
+ui.joystick
+
+ui.knob
+
+ui.color_picker
+
+ui.date
+
+ui.time
+
+ui.upload
+
+### 15.8 显示图片
+
+ui.image
+
+ui.interactive_image
+
+### 15.9 处理音视频
+
+ui.audio
+
+ui.video
+
+
+
+### 15.10 显示矢量图（SVG）
+
+ui.icon
+
+ui.avatar
+
+ui.spinner
+
+ui.html支持SVG
+
+
+
+### 15.11 显示简单数据
+
+ui.linear_progress
+
+ui.circular_progress
+
+ui.code
+
+ui.log
+
+### 15.12 显示表格
+
+ui.table
+
+ui.aggrid
+
+### 15.13 渲染线形图
+
+
+
+ui.pyplot
 
 ui.matplotlib
 
@@ -1513,23 +1649,99 @@ ui.line_plot
 
 ui.plotly
 
-## x 图表控件（更新中）
+### 15.14 渲染图表
 
 ui.highchart
 
 ui.echart
 
-## x 表格控件（更新中）
-
-ui.table
-
-ui.aggrid
 
 
+### 15.15 渲染复杂数据
+
+ui.tree
+
+ui.scene
+
+ui.leaflet
 
 
 
-## x 使用环境变量
+### 15.16 创建布局
+
+ui.column
+
+ui.row
+
+ui.grid
+
+ui.list
+
+ui.card
+
+
+
+### 15.17 辅助设计布局
+
+ui.separator
+
+ui.space
+
+ui.skeleton
+
+
+
+### 15.18 灵活处理控件占用的空间
+
+ui.slide_item
+
+ui.expansion
+
+ui.scroll_area
+
+ui.splitter
+
+
+
+### 15.19 显示多重内容
+
+ui.tabs
+
+ui.stepper
+
+ui.timeline
+
+ui.carousel
+
+ui.pagination
+
+
+
+### 15.20 使用菜单
+
+ui.menu
+
+ui.menu_item
+
+ui.context_menu
+
+
+
+### 15.21 弹出提示信息
+
+ui.tooltip
+
+ui.notify
+
+ui.notification
+
+ui.dialog
+
+
+
+
+
+## 16 使用环境变量
 
 原文参考自 https://nicegui.io/documentation/section_configuration_deployment#environment_variables 。
 
@@ -1585,36 +1797,166 @@ ui.aggrid
 
 
 
+## 17 自定义控件（更新中）
 
 
 
-
-## 4 使用`ui.button`按钮控件（更新中）
-
-具体控件的基础用法免费发布，高级用法和特定问题的解决付费，最低1豆，最多9豆
+简单说一下自定义控件有三种方法
 
 
 
-## 4 自定义控件
+#### 3.4.1 通过继承NiceGUI现有控件来创建新控件（优化一下表达，也要重新写示例、标题）
+
+在Python中，可以通过继承来扩展现有类的功能，这个操作对于NiceGUI同样适用。
+
+如果想要基于`ui.button`实现一个可以通过点击切换颜色的按钮，可以这样做：
+
+继承现有的控件类`ui.button`，先在`__init__`内调用父类的初始化方法；然后增加`_state`属性，默认为`False`，用于保存状态；最后定义点击事件的响应调用自身的`toggle`方法。
+
+增加`toggle`方法，在方法内实现每次调用就翻转`_state`属性，并调用自身的`update`方法来更新显示。
+
+重写`update`方法，先要根据`_state`属性设定button的显示颜色（动态更新`color`属性，详见Quasar提供的API），调用父类的`update`方法更新显示。
+
+代码如下：
+
+```python3
+from nicegui import ui
+
+class ToggleButton(ui.button):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._state = False
+        self.on('click', self.toggle)
+
+    def toggle(self) -> None:
+        """Toggle the button state."""
+        self._state = not self._state
+        self.update()
+
+    def update(self) -> None:
+        self.props(f'color={"green" if self._state else "red"}')
+        super().update()
+
+ToggleButton('Toggle me')
+
+ui.run(native=True)
+```
+
+![toggle_button](nicegui_pro.assets/toggle_button.gif)
+
+#### 3.4.2 使用Quasar的标签定义新控件（重新写引言、示例、标题）
+
+如果想要实现的功能比较复杂，但是Quasar提供了NiceGUI没有实现的组件，还有一种简单的方法创建新控件。
+
+Quasar有一个浮动功能按钮[Floating Action Button](https://quasar.dev/vue-components/floating-action-button#introduction)，但NiceGUI没有实现。浮动功能按钮在Quasar的使用代码是：
+
+```html
+<q-fab color="green" icon="navigation" >
+    <q-fab-action color="green-5" icon="train" />
+    <q-fab-action color="green-5" icon="sailing" />
+    <q-fab-action color="green-5" icon="rocket" />
+</q-fab>
+```
+
+对应地，将HTML标签嵌套关系转换为Python代码，`q-fab`标签就变成了`ui.element('q-fab')`，代码如下：
+
+```python3
+from nicegui import ui
+
+with ui.element('q-fab').props('icon=navigation color=green'):
+    ui.element('q-fab-action').props('icon=train color=green-5').on('click', lambda: ui.notify('train'))
+    ui.element('q-fab-action').props('icon=sailing color=green-5').on('click', lambda: ui.notify('boat'))
+    ui.element('q-fab-action').props('icon=rocket color=green-5').on('click', lambda: ui.notify('rocket'))
+    
+ui.run(native=True)
+```
 
 
 
+#### 3.4.3 使用VUE自定义新控件（基本不变，优化表达、示例）
+
+如果有VUE基础，可以结合VUE创建新的控件，在VUE中定义界面和部分交互，比在Python中更自由。由于笔者不擅长VUE，以下来自[官方示例](https://github.com/zauberzeug/nicegui/tree/main/examples/custom_vue_component)的代码就不做完全详细的解释，只简单说一下思路。
+
+`counter.js`内容为：
+
+```javascript
+// NOTE: Make sure to reload the browser with cache disabled after making changes to this file.
+export default {
+  template: `
+  <button @click="handle_click">
+    <strong>{{title}}: {{value}}</strong>
+  </button>`,
+  data() {
+    return {
+      value: 0,
+    };
+  },
+  methods: {
+    handle_click() {
+      this.value += 1;
+      this.$emit("change", {value:this.value});
+    },
+    reset() {
+      this.value = 0;
+    },
+  },
+  props: {
+    title: String,
+  },
+};
+```
+
+`counter.py`内容为：
+
+```python3
+from typing import Callable, Optional
+from nicegui.element import Element
+
+class Counter(Element, component='counter.js'):
+    def __init__(self, title: str, *, on_change: Optional[Callable] = None) -> None:
+        super().__init__()
+        self.props['title'] = title
+        self.on('change', on_change)
+    def reset(self) -> None:
+        self.run_method('reset')
+```
+
+测试代码为：
+
+```python3
+from counter import Counter
+from nicegui import ui
+
+ui.markdown('''
+#### Try the new click counter!
+
+Click to increment its value.
+''')
+with ui.card():
+    counter = Counter('Clicks', on_change=lambda e: ui.notify(f'The value changed to {e.args['value']}.'))
+
+ui.button('Reset', on_click=counter.reset).props('small outline')
+
+ui.run(native=True)
+```
+
+自定义控件的核心在`counter.js`文件中，由VUE暴露需要用到的属性和JavaScript方法，在`counter.py`文件中通过`props`属性接收和设置暴露的属性，使用`run_method`方法执行暴露出的JavaScript方法。如果在`counter.js`文件中发射（`$emit`）了事件，还可以在`counter.py`文件中使用`on`方法响应对应的事件。
 
 
 
-
-## 5 管理媒体文件
+## 18 管理媒体文件（更新中）
 
 NiceGUI的页面本质上是网页，而网页中通常包含图片、音频、视频、JavaScript代码、CSS代码等文件。NiceGUI提供了一些方法，可以更好管理、使用这些文件：
 
-- `app.add_static_file`
-- `app.add_static_files`
-- `app.add_media_file`
-- `app.add_media_files`
+- `app.add_static_file`方法和`app.add_static_files`方法。
+- `app.add_media_file`方法和`app.add_media_files`方法。
+
+#### x.1 `app.add_static_file`方法和`app.add_static_files`方法
 
 
 
-#### 3.12.1 `app.add_static_file`和`app.add_static_files`
+
 
 前面提到过`ui.image`、`ui.video`、`ui.audio`等提供视听效果。不过，前面的例子中只用了网络图片地址，并没有使用本地地址，肯定有读者在尝试使用本地地址之后发现了一个奇怪的现象，以为NiceGUI有bug。
 
@@ -1676,7 +2018,7 @@ ui.run(native=True)
 
 `follow_symlink`参数，布尔类型，表示是否追踪符号链接，即目录下如果存在符号链接的话，会将符号链接代表的实际路径连接到当前路径下，让服务器地址访问符号链接就和本地访问符号链接一样。这个参数默认为`False`，即不处理符号链接，服务器地址没法访问符号链接。注意，此参数为`True`并且在Windows平台下的话，代码中使用的`os.path.abspath(__file__)`会导致获取到文件路径中的磁盘符号为小写，将导致底层代码出错进而上报404错误。此时应该将`os.path.abspath(__file__)`换成`os.path.realpath(__file__)`。如果后续遇到Windows平台下开启`app_add_static_files`的追踪符号链接后，报404错误，可以按照这个思路检查一下传入的`local_directory`参数中，磁盘符号是不是小写。
 
-#### 3.12.2 `app.add_media_file`和`app.add_media_files`
+#### x.2 `app.add_media_file`方法和`app.add_media_files`方法
 
 前面的`app.add_static_file`、`app.add_static_files`用于添加小的静态文件，本节要介绍的`app.add_media_file`、`app.add_media_files`则用于添加媒体文件。看名字的话，和前两者相似，一个是添加单个文件，一个是添加文件夹，那NiceGUI为何要设计重复的功能？
 
@@ -1705,19 +2047,14 @@ ui.run(native=True)
 
 
 
-## 5 给页面添加额外的代码（HTML、CSS）
+## 19 给页面添加额外的HTML、CSS代码（更新中）
 
 NiceGUI的页面本质上是网页，而网页有时候需要添加一些额外的HTML代码、CSS代码才能使用特定的功能。想要添加额外的外码，就要使用以下方法：
 
-- `ui.add_head_html`
-- `ui.add_body_html`
-- `ui.add_css`
-- `ui.add_scss`
-- `ui.add_sass`
+- `ui.add_head_html`方法和`ui.add_body_html`方法。
+- `ui.add_css`方法、`ui.add_scss`方法和`ui.add_sass`方法。
 
-
-
-#### 3.12.3 `ui.add_head_html`和`ui.add_body_html`
+#### x.1 `ui.add_head_html`方法和`ui.add_body_html`方法
 
 `ui.add_head_html`可以添加HTML代码到页面`head`标签内，`ui.add_body_html`可以添加HTML代码到页面`body`标签内。对于页面加载来说，`head`标签内的内容一般不显示，而且因为是从上到下加载，`head`标签内的内容会先被加载，这里通常放着需要第一时间执行的前置脚本和样式设置。`body`标签内放着页面显示内容的主体，使用`ui.add_body_html`会在NiceGUI其他控件加载前嵌入HTML代码，因此`ui.add_body_html`通常是为了实现在NiceGUI其他内容显示之前放置内容，包括但不限于显示的内容、执行前置脚本和样式设置。
 
@@ -1737,7 +2074,7 @@ ui.add_body_html('<script>alert("yes")</script>')
 ui.run(native=True)
 ```
 
-#### 3.12.4 `ui.add_css`、`ui.add_scss`、`ui.add_sass`
+#### x.2 `ui.add_css`方法、`ui.add_scss`方法和`ui.add_sass`方法
 
 这三个功能都可以添加CSS代码，只是对应的CSS代码语法规则不同。
 
@@ -1816,7 +2153,7 @@ ui.run()
 
 
 
-## 5 修改指定控件
+## 20 修改指定控件（更新中）
 
 先说控件的`move`方法可以移动控件的位置，
 
@@ -1832,11 +2169,53 @@ ElementFilter
 
 
 
+## 21 使用主题（更新中）
+
+### NiceGUI支持的颜色
+
+颜色表达式的语法
+
+
+
+### 颜色主题
+
+ui.colors
+
+### 暗黑模式
+
+ui.dark_mode
 
 
 
 
-对话框背景模糊：
+
+## 22 保存数据（更新中）
+
+app.storage
+
+
+
+## 23 使用`ui.navigate`控制地址（更新中）
+
+
+
+
+
+## 24 使用`ui.fullscreen`控制全屏（更新中）
+
+
+
+
+
+## 25 读写剪贴板（更新中）
+
+ui.clipboard
+
+
+
+## 对话框背景模糊（更新中）
+
+
 
 ```python3
 from nicegui import ui
@@ -1854,7 +2233,50 @@ ui.run()
 
 
 
-## x 单页面应用的扩展内容
+## 自定义错误页面（更新中）
+
+
+
+自定义HTTP错误码对应的页面
+
+
+
+自定义Python异常对应的页面
+
+
+
+
+
+## 使用其他VUE框架的控件（更新中）
+
+app.config.vue_config_script
+
+```python3
+from nicegui import app, ui
+
+ui.add_body_html('''
+    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
+    <script defer src="https://unpkg.com/element-plus"></script>
+''')
+app.config.vue_config_script += '''
+    app.use(ElementPlus);
+'''
+
+with ui.element('el-button').on('click', lambda: ui.notify('Hi!')):
+    ui.html('Element Plus button')
+
+ui.button('Quasar button', on_click=lambda: ui.notify('Ho!'))
+
+ui.run()
+```
+
+
+
+## `ui.run`的参数（更新中）
+
+
+
+## x 单页面应用的扩展内容（更新中）
 
 `ui.sub_pages`的`add`方法，
 
@@ -1983,7 +2405,7 @@ ui.run(port=80)
 
 
 
-## x 绑定属性的扩展内容
+## x 绑定属性的扩展内容（更新中）
 
 ### x.1 通用绑定方法
 
@@ -2117,7 +2539,7 @@ ui.run(native=True)
 
 
 
-## x `Event`类的用法
+## x `Event`类的用法（更新中）
 
 
 
@@ -2139,15 +2561,9 @@ ui.run(native=True)
 
 
 
-## x 同一类控件
 
 
-
-简单说一下同类型的控件，提供简单示例即可，具体控件的完整用法后面单独章节介绍
-
-
-
-## x `ui.button`按钮控件的用法
+## x `ui.button`控件的用法（模板，更新中）
 
 
 

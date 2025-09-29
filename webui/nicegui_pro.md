@@ -608,7 +608,7 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 在学习修改控件的样式之前，先了解一下NiceGUI的控件支持哪些修改样式的方法：
 
 - `style`方法（属性），支持CSS，可以直接设置具体的Web样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS。
-- `classes`方法（属性），支持tailwindcss，可以设置tailwindcss框架定义的CSS变量，让控件应用这些变量对应的CSS样式。tailwindcss的语法可参考 https://tailwindcss.com/。
+- `classes`方法（属性），支持tailwindcss，可以设置tailwindcss框架定义的CSS变量或，也可以设置为CSS样式类，让控件应用这些变量或者CSS样式类对应的CSS样式。tailwindcss的语法可参考 https://tailwindcss.com/。
 - `props`方法（属性），支持Quasar控件的属性，可以设置对应Quasar控件的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components。
 
 可能读者看到上面的介绍有点疑惑，为何这些方法后，还用括号补充说明是属性？在NiceGUI最新版本中，这三种方法，可以通过调用的方式添加、修改样式。同时，控件还支持同名的字典（或者列表）属性，可以使用字典（或者列表支持的方式添加、修改样式，字典的键即为样式名。
@@ -1473,7 +1473,7 @@ ui.run(root=index,native=True)
 
 ## 15 认识控件（更新中）
 
-NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较多、功能各异，为了方便读者快速了解，笔者将特点、用途类似的控件划分为一类，先按照类别了解一下控件的简单用法和外观。
+NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较多、功能各异，为了方便读者快速了解，笔者将特点、用途类似的控件划分为一类，先按照类别简单介绍一下这些控件。
 
 ### 15.1 显示简单文本
 
@@ -1501,43 +1501,102 @@ ui.run(root=index,native=True)
 
 ![2026_15_1](nicegui_pro.assets/2026_15_1.png)
 
-### 15.2 渲染格式文本（更新中）
+### 15.2 渲染格式文本
 
 有些格式文本会在渲染之后显示，显示出来的不是文本原文，而是特定的内容，比如下面的控件：
 
 - `ui.markdown`控件，可以渲染使用Markdown语法的文本。
-- ui.restructured_text
-- ui.mermaid
+- `ui.restructured_text`控件，可以渲染使用RST语法（规则类似Markdown，但比较复杂且不如Markdown应用范围广）的文本。
+- `ui.mermaid`控件，可以将使用Mermaid语法的文本渲染为流程图。
+- `ui.code`控件，可以渲染代码的语法高亮。
+- `ui.log`控件，可以逐条显示日志内容。如果推送日志时额外指定了样式，则该条日志会被渲染为对应样式。
 
+示例如下：
 
+```python3
+from nicegui import ui
+
+def index():
+    ui.markdown('*markdown*')
+    ui.restructured_text('*restructured_text*')
+    ui.mermaid('graph LR;A[NiceGUI] --> |Render| B{mermaid};')
+
+ui.run(root=index,native=True)
+```
+
+![2026_15_2](nicegui_pro.assets/2026_15_2.png)
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.code('print("Python Code")')
+    ui.log(3).push('log',classes='text-red-700')
+
+ui.run(root=index,native=True)
+```
+
+![2026_15_3](nicegui_pro.assets/2026_15_3.png)
 
 ### 15.3 使用任意HTML标签
 
-ui.element
+NiceGUI的页面本质上是网页，很多控件也是通过底层的前端框架和HTML标签实现的。如果想要直接使用HTML标签，可以使用下面的控件或者模块：
 
-ui.html
+- `ui.element`控件，可以创建指定的HTML标签，但是想要在标签内添加内容的话，需要进入控件的上下文。
+- `ui.html`控件，可以创建指定的HTML标签，并在标签内添加内容。
+- `html`模块，提供了部分常用的HTML标签，直接调用该模块中标签名对应的方法即可。但是，想要在标签内添加内容的话，需要进入控件的上下文。
 
-html.\*
+示例如下：
 
+```python3
+from nicegui import ui,html
 
+def index():
+    with ui.element('h1'):
+        ui.label('element')
+    ui.html('html',tag='h1')
+    with html.h1():
+        ui.label(text='html')
 
-### 15.4 创建一些按钮
+ui.run(root=index,native=True)
+```
 
+![2026_15_4](nicegui_pro.assets/2026_15_4.png)
 
+### 15.4 创建各种按钮
 
-ui.button
+在NiceGUI的所有控件，唯有按钮相关的控件最多，因此，这些控件在创建按钮时都有用：
 
-ui.button_group
+- `ui.button`控件，就是普通的按钮。
+- `ui.button_group`控件，用于将多个普通按钮组合成一个外观上是单个按钮、功能上每个按钮都可以点击的巨大按钮。
+- `ui.dropdown_button`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容。点击右侧图标，即可弹出嵌入的内容。
+- `ui.fab`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容（建议嵌入`ui.fab_action`控件）。点击控件，即可弹出嵌入的内容。
+- `ui.chip`控件，本身具备按钮功能，还支持选择、删除自身。
 
-ui.dropdown_button
+示例如下：
 
-ui.fab
+```python3
+from nicegui import ui
 
-ui.chip
+def index():
+    ui.button('button')
+    with ui.button_group():
+        ui.button('button1')
+        ui.button('button2')
+    with ui.dropdown_button('dropdown_button',auto_close=True):
+        ui.item('item1')
+        ui.item('item2')
+    with ui.fab('menu',label='fab'):
+        ui.fab_action('home')
+        ui.fab_action('replay')
+    ui.chip('chip',selectable=True,removable=True)
 
+ui.run(root=index,native=True)
+```
 
+![2026_15_5](nicegui_pro.assets/2026_15_5.png)
 
-### 15.5 让用户选择
+### 15.5 获取用户的选择（更新中）
 
 
 
@@ -1553,7 +1612,7 @@ u.select
 
 
 
-### 15.6 让用户直接输入
+### 15.6 获取用户的直接输入（更新中）
 
 
 
@@ -1575,7 +1634,7 @@ ui.json_editor
 
 
 
-### 15.7 获取用户的非直接输入
+### 15.7 获取用户的间接输入（更新中）
 
 ui.slider
 
@@ -1595,13 +1654,13 @@ ui.time
 
 ui.upload
 
-### 15.8 显示图片
+### 15.8 显示图片（更新中）
 
 ui.image
 
 ui.interactive_image
 
-### 15.9 处理音视频
+### 15.9 播放音视频（更新中）
 
 ui.audio
 
@@ -1621,15 +1680,13 @@ ui.html支持SVG
 
 
 
-### 15.11 显示简单数据
+### 15.11 显示简单数据（更新中）
 
 ui.linear_progress
 
 ui.circular_progress
 
-ui.code
 
-ui.log
 
 ### 15.12 显示表格
 
@@ -1691,7 +1748,7 @@ ui.skeleton
 
 
 
-### 15.18 灵活处理控件占用的空间
+### 15.18 调整布局空间
 
 ui.slide_item
 

@@ -1493,8 +1493,17 @@ def index():
     ui.label('label')
     ui.link('link','/')
     ui.chat_message('chat_message')
-    with ui.button('button').props('no-caps'):
-        ui.badge('badge',color='red').props('floating')
+    with ui.button(
+        'button'
+    ).props(
+        'no-caps'
+    ):
+        ui.badge(
+            'badge',
+            color='red'
+        ).props(
+            'floating'
+        )
 
 ui.run(root=index,native=True)
 ```
@@ -1518,8 +1527,12 @@ from nicegui import ui
 
 def index():
     ui.markdown('*markdown*')
-    ui.restructured_text('*restructured_text*')
-    ui.mermaid('graph LR;A[NiceGUI] --> |Render| B{mermaid};')
+    ui.restructured_text(
+        '*restructured_text*'
+    )
+    ui.mermaid(
+        'graph LR;A[NiceGUI] --> |Render| B{mermaid};'
+    )
 
 ui.run(root=index,native=True)
 ```
@@ -1531,7 +1544,10 @@ from nicegui import ui
 
 def index():
     ui.code('print("Python Code")')
-    ui.log(3).push('log',classes='text-red-700')
+    ui.log(3).push(
+        'log',
+        classes='text-red-700'
+    )
 
 ui.run(root=index,native=True)
 ```
@@ -1583,7 +1599,10 @@ def index():
     with ui.button_group():
         ui.button('button1')
         ui.button('button2')
-    with ui.dropdown_button('dropdown_button',auto_close=True):
+    with ui.dropdown_button(
+        'dropdown_button',
+        auto_close=True
+    ):
         ui.item('item1')
         ui.item('item2')
     with ui.fab('menu',label='fab'):
@@ -1596,21 +1615,36 @@ ui.run(root=index,native=True)
 
 ![2026_15_5](nicegui_pro.assets/2026_15_5.png)
 
-### 15.5 获取用户的选择（更新中）
+### 15.5 获取用户的选择
 
+想要获取用户的选择，可以使用下面的控件：
 
+- `ui.radio`控件，提供了只能单选的多个选项。
+- `ui.toggle`控件，用法和`ui.radio`控件一样，不同的是，该控件看上去更像一个可以点击切换选项的按钮。
+- `ui.select`控件，需要点击控件才能看到所有选项，允许单选、多选。
+- `ui.checkbox`控件，点击之后可以切换选项选择状态，可用于组成多选的选项，也可以像一个开关一样单独使用。
+- `ui.switch`控件，用法和`ui.checkbox`控件一样，不同的是，该控件看上去更像一个可以点击切换状态的开关。
 
-ui.toggle
+示例如下：
 
-ui.radio
+```python3
+from nicegui import ui
 
-ui.checkbox
+def index():
+    ui.radio(['a','b','c'],value='a')
+    ui.toggle(['a','b','c'],value='a')
+    ui.select(
+        ['a','b','c'],
+        value='a',
+        label='select'
+    ).classes('w-32')
+    ui.checkbox('checkbox',value=True)
+    ui.switch('switch',value=True)
 
-ui.switch
+ui.run(root=index,native=True)
+```
 
-u.select
-
-
+![2026_15_6](nicegui_pro.assets/2026_15_6.png)
 
 ### 15.6 获取用户的直接输入（更新中）
 
@@ -1622,15 +1656,17 @@ ui.number
 
 ui.input_chips
 
+ui.color_input
+
 ui.textarea
 
 ui.codemirror
 
-ui.color_input
-
 ui.editor
 
 ui.json_editor
+
+
 
 
 
@@ -1680,7 +1716,7 @@ ui.html支持SVG
 
 
 
-### 15.11 显示简单数据（更新中）
+### 15.11 显示进度（更新中）
 
 ui.linear_progress
 

@@ -1531,7 +1531,10 @@ def index():
         '*restructured_text*'
     )
     ui.mermaid(
-        'graph LR;A[NiceGUI] --> |Render| B{mermaid};'
+        '''
+        graph LR;
+        A[NiceGUI] --> |Render| B{mermaid};
+        '''
     )
 
 ui.run(root=index,native=True)
@@ -1646,57 +1649,130 @@ ui.run(root=index,native=True)
 
 ![2026_15_6](nicegui_pro.assets/2026_15_6.png)
 
-### 15.6 获取用户的直接输入（更新中）
+### 15.6 获取用户的直接输入
 
+除了让用户点击控件，从给定的选项中选择，还可以使用下面的控件，让用户直接输入：
 
+- `ui.input`控件，就是一个输入框，用户可以通过键盘输入任何内容。
+- `ui.number`控件，外观、用法与`ui.input`控件基本相同，但该控件只允许输入数字，并提供了额外的按钮，用于快捷调整数字。
+- `ui.input_chips`控件，外观、用法与`ui.input`控件基本相同，但该控件可以在按下`Enter`键之后将当前输入的内容转换为`ui.chip`控件，并支持继续转换后续输入的内容。当然，也可以在创建该控件时传入一个元素为字符串的列表，作为默认已经转换的`ui.chip`控件。
+- `ui.color_input`控件，外观、用法与`ui.input`控件基本相同，但该控件主要用于获取具体颜色的表示方式，并提供了额外的按钮，用于弹出调色盘，用户的选择转换为颜色表达式。
+- `ui.textarea`控件，允许用户输入多行内容。
+- `ui.editor`控件，允许用户输入多行内容，同时该控件提供了一些设置内容格式的按钮。
+- `ui.codemirror`控件，允许用户输入多行代码，并使用指定的编程语言语法高亮渲染输入的内容。
+- `ui.json_editor`控件，允许用户输入JSON格式的内容，并自动验证输入的内容是否符合语法。
 
-ui.input
+示例如下：
 
-ui.number
+```python3
+from nicegui import ui
 
-ui.input_chips
+def index():
+    ui.input('input',value='a')
+    ui.number('number',value=0)
+    ui.input_chips(
+        'input_chips',
+        value=['a','b','c']
+    )
+    ui.color_input(
+        'color_input',
+        value='rgb(255,0,0)'
+    )
+    ui.textarea(
+        'textarea',
+        value='Hello'
+    )
+    ui.editor(
+        value='Hello'
+    ).classes('h-16')
+    ui.codemirror(
+        'print("hello")',
+        language='python'
+    ).classes('h-16 w-64')
+    ui.json_editor(
+        {
+            'content': {
+                'json': {
+                    'name':'json_editor'
+                }
+            }
+        }
+    ).classes('h-16')
 
-ui.color_input
+ui.run(root=index,native=True)
+```
 
-ui.textarea
-
-ui.codemirror
-
-ui.editor
-
-ui.json_editor
-
-
-
-
+![2026_15_7](nicegui_pro.assets/2026_15_7.png)
 
 ### 15.7 获取用户的间接输入（更新中）
 
-ui.slider
+除了可以直接获取的用户输入，用户的有些“输入”不是可以直接获取的，需要通过下面的控件转换之后才能获取：
 
-ui.range
+- `ui.slider`控件，
+- `ui.range`
+- `ui.knob`
+- `ui.rating`
+- `ui.color_picker`
+- `ui.upload`
+- ui.date
+- ui.time
+- ui.joystick
 
-ui.rating
+示例如下：
 
-ui.joystick
+```python3
+from nicegui import ui
 
-ui.knob
+def index():
+    ui.slider(
+        min=0,
+        max=10,
+        value=2
+    )
+    ui.range(
+        min=0,
+        max=10,
+        value={
+            'min':2,
+            'max':4
+        }
+    )
+    ui.knob(
+        2,
+        min=0,
+        max=10
+    )
+    ui.rating(
+        max=10,
+        value=2
+    )
+    with ui.button('color_picker'):
+        ui.color_picker()
+    ui.upload()
+    ui.joystick(
+        on_move=lambda e:print(e)
+    )
+    ui.date('2026-01-01')
+    ui.time('20:26')
 
-ui.color_picker
+ui.run(root=index,native=True)
+```
 
-ui.date
-
-ui.time
-
-ui.upload
+![2026_15_8](nicegui_pro.assets/2026_15_8.png)
 
 ### 15.8 显示图片（更新中）
+
+
 
 ui.image
 
 ui.interactive_image
 
+
+
 ### 15.9 播放音视频（更新中）
+
+
 
 ui.audio
 
@@ -1705,6 +1781,8 @@ ui.video
 
 
 ### 15.10 显示矢量图（SVG）
+
+
 
 ui.icon
 
@@ -1718,6 +1796,8 @@ ui.html支持SVG
 
 ### 15.11 显示进度（更新中）
 
+
+
 ui.linear_progress
 
 ui.circular_progress
@@ -1726,9 +1806,13 @@ ui.circular_progress
 
 ### 15.12 显示表格
 
+
+
 ui.table
 
 ui.aggrid
+
+
 
 ### 15.13 渲染线形图
 
@@ -1742,7 +1826,11 @@ ui.line_plot
 
 ui.plotly
 
+
+
 ### 15.14 渲染图表
+
+
 
 ui.highchart
 
@@ -1751,6 +1839,8 @@ ui.echart
 
 
 ### 15.15 渲染复杂数据
+
+
 
 ui.tree
 
@@ -1761,6 +1851,8 @@ ui.leaflet
 
 
 ### 15.16 创建布局
+
+
 
 ui.column
 
@@ -1776,6 +1868,8 @@ ui.card
 
 ### 15.17 辅助设计布局
 
+
+
 ui.separator
 
 ui.space
@@ -1785,6 +1879,8 @@ ui.skeleton
 
 
 ### 15.18 调整布局空间
+
+
 
 ui.slide_item
 
@@ -1797,6 +1893,8 @@ ui.splitter
 
 
 ### 15.19 显示多重内容
+
+
 
 ui.tabs
 
@@ -1812,15 +1910,19 @@ ui.pagination
 
 ### 15.20 使用菜单
 
-ui.menu
+
 
 ui.menu_item
+
+ui.menu
 
 ui.context_menu
 
 
 
 ### 15.21 弹出提示信息
+
+
 
 ui.tooltip
 

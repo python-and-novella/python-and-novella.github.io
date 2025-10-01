@@ -8987,9 +8987,17 @@ c_q_2.activatedAmbiguously.connect(lambda :c_q_2.activated.emit())
 app.exec()
 ```
 
-## 25 （待定）
+## 25 弹出菜单（更新中）
 
 
+
+菜单栏点击后弹出菜单，任意按钮点击后弹出菜单，右键弹出菜单，
+
+
+
+
+
+## 26 （待定）
 
 
 

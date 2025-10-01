@@ -1704,19 +1704,19 @@ ui.run(root=index,native=True)
 
 ![2026_15_7](nicegui_pro.assets/2026_15_7.png)
 
-### 15.7 获取用户的间接输入（更新中）
+### 15.7 获取用户的间接输入
 
-除了可以直接获取的用户输入，用户的有些“输入”不是可以直接获取的，需要通过下面的控件转换之后才能获取：
+有些用户输入可以直接获取，有些用户“输入”则需要通过下面的控件转换之后才能获取：
 
-- `ui.slider`控件，
-- `ui.range`
-- `ui.knob`
-- `ui.rating`
-- `ui.color_picker`
-- `ui.upload`
-- ui.date
-- ui.time
-- ui.joystick
+- `ui.slider`控件，用户拖动滑块之后，将滑块位置转换为具体数值。
+- `ui.range`控件，和`ui.slider`控件类似，用户拖动滑块之后，将滑块位置转换为具体数值。不过，与`ui.slider`控件不同的是，该控件有两个滑块，得到的是两个数值，即两个滑块所代表的范围值。
+- `ui.knob`控件，用法上和`ui.slider`控件类似（参数不完全一样），只不过外观上是一个旋钮。
+- `ui.rating`控件，用法上和`ui.slider`控件类似（参数不完全一样），但最小值是固定的，外观上就是常见的评分控件，通过点击确定具体数值。
+- `ui.color_picker`控件，用于弹出调色盘，让用户选择颜色。
+- `ui.upload`控件，让用户上传文件。
+- `ui.joystick`控件，提供一个虚拟的摇杆，捕获用户操作摇杆的具体动作。
+- `ui.date`控件，让用户选择日期。
+- `ui.time`控件，让用户选择时间。
 
 示例如下：
 
@@ -1760,51 +1760,159 @@ ui.run(root=index,native=True)
 
 ![2026_15_8](nicegui_pro.assets/2026_15_8.png)
 
-### 15.8 显示图片（更新中）
+### 15.8 显示图片
 
+在NiceGUI程序中，想要显示图形，通常使用下面的控件：
 
+- `ui.image`控件，简单显示提供的图片。
+- `ui.interactive_image`控件，在显示图片的基础上，提供了额外的内容和交互功能。
 
-ui.image
+示例如下：
 
-ui.interactive_image
+```python3
+from nicegui import ui
 
+def index():
+    ui.image(
+        'https://nicegui.io/static/logo.png'
+    ).classes('w-64 h-64')
+    ui.interactive_image(
+        'https://nicegui.io/static/logo.png'
+    ).classes('w-64 h-64')
 
+ui.run(root=index,native=True)
+```
 
-### 15.9 播放音视频（更新中）
+![2026_15_9](nicegui_pro.assets/2026_15_9.png)
 
+默认情况下，两种控件的基本用法相同，但`ui.interactive_image`控件会自动调整图片的比例，让其适应控件本身的大小。`ui.interactive_image`控件还支持一些额外的交互和SVG内容：
 
+```python3
+from nicegui import ui
 
-ui.audio
+def index():
+    ui.interactive_image(
+        'https://nicegui.io/static/logo.png',
+        size=(100,120),
+        content=f'''
+            <circle
+                cx='120'
+                cy='180' 
+                r='10' 
+                fill='green'
+            />
+        ''',
+        on_mouse=lambda e:e\
+        .sender.set_content(
+            f'''
+                <circle
+                    cx='{e.image_x}'
+                    cy='{e.image_y}' 
+                    r='10' 
+                    fill='red'
+                />
+            '''
+        )
+    )
 
-ui.video
+ui.run(root=index,native=True)
+```
 
+![2026_15_10](nicegui_pro.assets/2026_15_10.png)
 
+### 15.9 播放音视频
+
+在NiceGUI程序中，音频和视频对应的控件用法基本相同，只是外观有所不同：
+
+- `ui.audio`控件，播放音频。
+- `ui.video`控件，播放视频。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.audio('https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3')
+    ui.video('https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4')
+
+ui.run(root=index,native=True)
+```
+
+![2026_15_11](nicegui_pro.assets/2026_15_11.png)
 
 ### 15.10 显示矢量图（SVG）
 
+除了前面提到过的图片文件，NiceGUI还支持矢量图。所谓矢量图，即不是记录所有像素、而是记录图片元素绘制方法的图片，其内容不会因为缩放而变得模糊。
 
+以下控件的内容都是矢量图：
 
-ui.icon
+- `ui.icon`控件，用于显示SVG格式或者PNG格式的图标。
+- `ui.avatar`控件，和`ui.icon`控件支持的图标一样，但该控件默认套了一个边框，用于表示头像。
+- `ui.spinner`控件，提供了一些使用SVG作为基础图形的加载动画。
+- `ui.html`控件，没错，该控件也支持SVG，但是用法没有前面几个控件简单，需要传入SVG源代码，然后该控件会将其渲染为矢量图。
 
-ui.avatar
+示例如下：
 
-ui.spinner
+```python3
+from nicegui import ui
 
-ui.html支持SVG
+def index():
+    ui.icon(
+        'home',
+        size='6em'
+    )
+    ui.avatar(
+        'home',
+        size='6em'
+    )
+    ui.avatar(
+        'img:https://nicegui.io/logo_square.png',
+        size='6em'
+    )
+    ui.spinner(size='6em')
+    ui.html(
+        '''
+        	<svg viewBox='0 0 200 200' width='100' height='100'>
+        	<circle cx='100' cy='100' r='78' fill='#ffde34' stroke='black' stroke-width='3' />
+        	<circle cx='80' cy='85' r='8' />
+        	<circle cx='120' cy='85' r='8' />
+        	<path d='m60,120 C75,150 125,150 140,120' style='fill:none; stroke:black; stroke-width:8; stroke-linecap:round' />
+        	</svg>
+        '''
+    )
 
+ui.run(root=index,native=True)
+```
 
+![2026_15_12](nicegui_pro.assets/2026_15_12.png)
 
-### 15.11 显示进度（更新中）
+### 15.11 显示进度
 
+下面的控件用于显示进度，都是进度条控件：
 
+- `ui.linear_progress`控件，常见的直线进度条。
+- `ui.circular_progress`控件，使用圆形表示进度的进度条。
 
-ui.linear_progress
+示例如下：
 
-ui.circular_progress
+```python3
+from nicegui import ui
 
+def index():
+    ui.linear_progress(
+        0.6
+    )
+    ui.circular_progress(
+        0.6
+    )
 
+ui.run(root=index,native=True)
+```
 
-### 15.12 显示表格
+![2026_15_13](nicegui_pro.assets/2026_15_13.png)
+
+### 15.12 显示表格（更新中）
 
 
 
@@ -1814,7 +1922,7 @@ ui.aggrid
 
 
 
-### 15.13 渲染线形图
+### 15.13 渲染线形图（更新中）
 
 
 
@@ -1828,7 +1936,7 @@ ui.plotly
 
 
 
-### 15.14 渲染图表
+### 15.14 渲染图表（更新中）
 
 
 
@@ -1838,7 +1946,7 @@ ui.echart
 
 
 
-### 15.15 渲染复杂数据
+### 15.15 渲染复杂数据（更新中）
 
 
 
@@ -1850,7 +1958,7 @@ ui.leaflet
 
 
 
-### 15.16 创建布局
+### 15.16 创建布局（更新中）
 
 
 
@@ -1866,7 +1974,7 @@ ui.card
 
 
 
-### 15.17 辅助设计布局
+### 15.17 辅助设计布局（更新中）
 
 
 
@@ -1878,7 +1986,7 @@ ui.skeleton
 
 
 
-### 15.18 调整布局空间
+### 15.18 调整布局空间（更新中）
 
 
 
@@ -1892,23 +2000,23 @@ ui.splitter
 
 
 
-### 15.19 显示多重内容
+### 15.19 管理多页内容（更新中）
 
 
 
 ui.tabs
 
-ui.stepper
-
-ui.timeline
-
 ui.carousel
 
 ui.pagination
 
+ui.stepper
+
+ui.timeline
 
 
-### 15.20 使用菜单
+
+### 15.20 使用菜单（更新中）
 
 
 
@@ -1920,7 +2028,7 @@ ui.context_menu
 
 
 
-### 15.21 弹出提示信息
+### 15.21 弹出提示信息（更新中）
 
 
 
@@ -2468,6 +2576,10 @@ ui.run()
 
 
 ## `ui.run`的参数（更新中）
+
+
+
+## 指定窗口模式使用的webview运行时版本，也可以随应用附加（无需安装）
 
 
 

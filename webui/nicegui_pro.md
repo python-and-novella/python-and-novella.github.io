@@ -32,7 +32,7 @@ NiceGUI还提供了一些可选的依赖：
 
 - `pywebview`库，以Native Mode（窗口模式）运行NiceGUI程序时依赖该库，使用`uv add nicegui[native]`命令添加。
 - `plotly`库，`ui.plotly`控件依赖该库，使用`uv add nicegui[plotly]`命令添加。
-- `matplotlib`库，`ui.matplotlib`控件和`ui.pyplot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
+- `matplotlib`库，`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
 - `nicegui-highcharts`库，`ui.highchart`控件依赖该库，使用`uv add nicegui[highcharts]`命令添加。
 - `libsass`库，`ui.add_scss`方法和`ui.add_sass`方法依赖该库，使用`uv add nicegui[sass]`命令添加。
 - `redis`库，使用Redis存储`app.storage`时（定义环境变量`NICEGUI_REDIS_URL`）依赖该库，使用`uv add nicegui[redis]`命令添加。
@@ -1912,49 +1912,272 @@ ui.run(root=index,native=True)
 
 ![2026_15_13](nicegui_pro.assets/2026_15_13.png)
 
-### 15.12 显示表格（更新中）
+### 15.12 显示表格
 
+NiceGUI提供了两种显示表格的控件：
 
+- `ui.table`控件，为内置的表格实现，由Quasar框架提供，优点是用法简单，但很多功能不够强大。
+- `ui.aggrid`控件，由AG Grid框架提供，功能强大，有付费的企业版本，同时用法也会复杂一些。
 
-ui.table
+示例如下：
 
-ui.aggrid
+```python3
+from nicegui import ui
 
+def index():
+    ui.table(
+        columns=[
+            {
+                'label': 'Name', 
+                'field': 'name'
+            },
+            {
+                'label': 'Age', 
+                'field': 'age'
+            },
+        ],
+        rows=[
+            {'name': 'Alice', 'age': 18},
+            {'name': 'Bob', 'age': 21},
+            {'name': 'Carol'},
+        ]
+    )
+    ui.aggrid(
+        {
+            'columnDefs': [
+                {
+                    'headerName': 'Name', 
+                    'field': 'name'
+                },
+                {
+                    'headerName': 'Age', 
+                    'field': 'age'
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol'},
+            ]
+        }
+    )
 
+ui.run(root=index, native=True)
+```
 
-### 15.13 渲染线形图（更新中）
+![2026_15_14](nicegui_pro.assets/2026_15_14.png)
 
+### 15.13 渲染线形图
 
+以下控件可以将提供的数据渲染为线性图：
 
-ui.pyplot
+- `ui.matplotlib`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入`figure`属性的上下文，调用上下文对象的子对象的`plot`方法绘制线性图。
 
-ui.matplotlib
+  示例如下：
 
-ui.line_plot
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.matplotlib().classes('w-64 h-64').figure as fig:
+          fig.gca().plot(
+              [
+                  0, 1, 2
+              ],
+              [
+                  1, 2, 4
+              ]
+          )
+      with ui.matplotlib().classes('w-64 h-64').figure as fig:
+          fig.add_subplot().plot(
+              [
+                  0, 1, 2
+              ],
+              [
+                  1, 2, 4
+              ]
+          )
+  
+  ui.run(root=index, native=True)
+  ```
 
-ui.plotly
+  ![2026_15_15](nicegui_pro.assets/2026_15_15.png)
 
+- `ui.pyplot`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入控件的上下文，调用上下文对象`fig`属性的子对象的`plot`方法绘制线性图。除了在控件上下文中调用上下文对象`fig`属性的子对象的`plot`方法绘制线性图，也可以直接调用`matplotlib.pyplot`模块的`plot`方法绘制线形图。
 
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.pyplot().classes('w-64 h-64') as plt:
+          plt.fig.gca().plot(
+              [
+                  0, 1, 2
+              ],
+              [
+                  1, 2, 4
+              ]
+          )
+      with ui.pyplot().classes('w-64 h-64') as plt:
+          plt.fig.add_subplot().plot(
+              [
+                  0, 1, 2
+              ],
+              [
+                  1, 2, 4
+              ]
+          )
+  
+      from matplotlib import pyplot
+      with ui.pyplot().classes('w-64 h-64'):
+          pyplot.plot(
+              [
+                  0, 1, 2
+              ],
+              [
+                  1, 2, 4
+              ]
+          )
+  
+  ui.run(root=index, native=True)
+  ```
+
+  ![2026_15_16](nicegui_pro.assets/2026_15_16.png)
+
+- `ui.line_plot`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入控件的上下文，调用上下文对象`fig`属性的子对象的`plot`方法绘制线性图；也可以使用`with`进入控件的上下文或者不进入上下文，直接调用控件的`push`方法绘制线形图。此外，调用`with_legend`方法，还能添加图例。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.line_plot().classes('w-64 h-64') as lp:
+          lp.fig.clear()
+          lp.fig.gca().plot(
+              [
+                  0, 1, 2
+              ],
+              [
+                  1, 2, 4
+              ]
+          )
+          lp.with_legend(['number'])
+  
+      with ui.line_plot().classes('w-64 h-64') as lp:
+          lp.fig.clear()
+          lp.fig.add_subplot().plot(
+              [
+                  0, 1, 2
+              ],
+              [
+                  1, 2, 4
+              ]
+          )
+          lp.with_legend(['number'])
+          
+      with ui.line_plot().classes('w-64 h-64') as lp:
+          lp.push(
+              [
+                  0, 1, 2
+              ],
+              [
+                  [1, 2, 4]
+              ]
+          )
+          lp.with_legend(['number'])
+  
+      ui.line_plot().classes('w-64 h-64').push(
+              [
+                  0, 1, 2
+              ],
+              [
+                  [1, 2, 4]
+              ]
+          )
+      
+      ui.line_plot().classes('w-64 h-64').with_legend(['number']).push(
+              [
+                  0, 1, 2
+              ],
+              [
+                  [1, 2, 4]
+              ]
+          )
+  
+  ui.run(root=index, native=True)
+  ```
+
+  ![2026_15_17](nicegui_pro.assets/2026_15_17.png)
+
+- `ui.plotly`控件，使用`plotly`库绘制线形图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      import plotly.graph_objects as go
+      ui.plotly(
+          go.Figure(
+              go.Scatter(
+                  x=[0, 1, 2],
+                  y=[1, 2, 4]
+              ),
+              layout={
+                  'margin': {
+                      'l': 0,
+                      'r': 0,
+                      't': 0,
+                      'b': 0
+                  }
+              }
+          )
+      ).classes('w-64 h-64')
+      ui.plotly(
+          {
+              'data': [
+                  {
+                      'type': 'scatter',
+                      'x': [0, 1, 2],
+                      'y': [1, 2, 4]
+                  }
+              ],
+              'layout': {
+                  'margin': {
+                      'l': 0,
+                      'r': 0,
+                      't': 0,
+                      'b': 0
+                  }
+              }
+          }
+      ).classes('w-64 h-64')
+  
+  ui.run(root=index, native=True)
+  ```
+
+  ![2026_15_18](nicegui_pro.assets/2026_15_18.png)
 
 ### 15.14 渲染图表（更新中）
 
+以下控件可以将提供的数据渲染为表格图形：
 
-
-ui.highchart
-
-ui.echart
+- ui.highchart
+- ui.echart
 
 
 
 ### 15.15 渲染复杂数据（更新中）
 
+除了前面提到的数据图形化展示方式之外，下面的控件提供了针对特定类型数据、文件的展示方式：
 
-
-ui.tree
-
-ui.scene
-
-ui.leaflet
+- ui.tree
+- ui.leaflet
+- ui.scene
 
 
 
@@ -2846,9 +3069,9 @@ ui.run(native=True)
 
 
 
-## x `Event`类的用法（更新中）
+## x `Event`类（更新中）
 
-
+介绍`Event`类的用法，
 
 （简单说一下类、方法的用途，提供一下NiceGUI框架和Quasar框架（如果有的话）那边的文档地址，写个简单的示例，可以按照实际情况配上说明性图片或者效果图片）
 
@@ -2868,9 +3091,19 @@ ui.run(native=True)
 
 
 
+## x 学习控件——先导篇
 
+NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是简单认识了这些控件，并没有介绍控件的用法。对于想要深入学习控件用法的读者来说，浅尝辄止显然没法满足胃口。
 
-## x `ui.button`控件的用法（模板，更新中）
+但是，本教程是敏捷式教程，事无巨细不符合本教程的风格，介绍控件的用法又需要全面且详细，还要补充大量示例，像前面一样按类别介绍控件用法，会让章节变得冗长。
+
+于是，笔者思量再三，决定采用新的内容结构介绍控件的用法——期刊，每期只介绍一个控件的基本用法，至于难点和相关的实际问题，则放到单独的章节中。
+
+本期为先导内容，不介绍具体控件。从下期开始，每期介绍一个控件的用法。
+
+另外，《学习控件》的每一期不一定按照发布顺序连续发布，有可能穿插在其他内容中。例如，《学习控件》发布一期之后，下一章就是该控件的相关内容，或者其他内容。
+
+## x 学习控件——`ui.button`控件（更新中）
 
 
 

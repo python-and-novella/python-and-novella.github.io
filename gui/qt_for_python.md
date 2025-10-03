@@ -8987,7 +8987,44 @@ c_q_2.activatedAmbiguously.connect(lambda :c_q_2.activated.emit())
 app.exec()
 ```
 
-## 25 弹出菜单（更新中）
+## 25 按钮（更新中）
+
+
+
+筛选基类及其派生类：
+
+```python3
+from PySide6 import QtWidgets
+import inspect
+
+for i in inspect.getmembers(QtWidgets):
+    if inspect.isclass(i[1]) and issubclass(i[1],QtWidgets.QAbstractButton):
+            print(i[0])
+```
+
+
+
+
+
+介绍具备按钮功能（继承自QAbstractButton）的控件，
+
+QAbstractButton
+
+QCheckBox
+
+QCommandLinkButton
+
+QPushButton
+
+QRadioButton
+
+QToolButton
+
+
+
+
+
+## 26 弹出菜单（更新中）
 
 
 
@@ -8997,7 +9034,7 @@ app.exec()
 
 
 
-## 26 （待定）
+## 27 （待定）
 
 
 

@@ -34,7 +34,7 @@ NiceGUI还提供了一些可选的依赖：
 - `plotly`库，`ui.plotly`控件依赖该库，使用`uv add nicegui[plotly]`命令添加。
 - `matplotlib`库，`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
 - `nicegui-highcharts`库，`ui.highchart`控件依赖该库，使用`uv add nicegui[highcharts]`命令添加。
-- `libsass`库，`ui.add_scss`方法和`ui.add_sass`方法依赖该库，使用`uv add nicegui[sass]`命令添加。
+- `libsass`库，`ui.add_sass`方法和`ui.add_scss`方法依赖该库，使用`uv add nicegui[sass]`命令添加。
 - `redis`库，使用Redis存储`app.storage`时（定义环境变量`NICEGUI_REDIS_URL`）依赖该库，使用`uv add nicegui[redis]`命令添加。
 
 如果想要将虚拟环境中的所有库升级至最新稳定版，可以使用`uv sync -U`。
@@ -289,7 +289,11 @@ NiceGUI程序支持两种显示模式：
 - 网页模式，可以将NiceGUI程序部署为网站。
 - 窗口模式，可以将NiceGUI程序部署为桌面程序。
 
-除了前面示例中以网页形式显示NiceGUI程序之外（即网页模式），还可以给`ui.run`方法的`native`参数传入`True`，以窗口形式显示NiceGUI程序（即窗口模式）：
+除了前面示例中以网页形式显示NiceGUI程序之外（即网页模式），还可以给`ui.run`方法的`native`参数传入`True`，以窗口形式显示NiceGUI程序（即窗口模式）。
+
+注意，窗口模式依赖`pywebview`库，需要先安装`pywebview`库才能使用，可以参考安装NiceGUI一章，使用`uv add nicegui[native]`命令提前添加依赖库。
+
+示例如下：
 
 ```python3
 from nicegui import ui
@@ -305,8 +309,6 @@ ui.run(root=index,native=True)
 ```
 
 ![2026_2_4](nicegui_pro.assets/2026_2_4.png)
-
-注意，窗口模式依赖`pywebview`库，需要先安装`pywebview`库才能使用。
 
 ### 2.5 运行方法
 
@@ -1969,9 +1971,11 @@ ui.run(root=index, native=True)
 
 ### 15.13 渲染线形图
 
-以下控件可以将提供的数据渲染为线性图：
+以下控件可以将提供的数据渲染为线形图：
 
-- `ui.matplotlib`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入`figure`属性的上下文，调用上下文对象的子对象的`plot`方法绘制线性图。
+- `ui.matplotlib`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入`figure`属性的上下文，调用上下文对象的子对象的`plot`方法绘制线形图。
+
+  注意，`ui.matplotlib`控件依赖`matplotlib`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[matplotlib]`命令提前添加依赖库。
 
   示例如下：
 
@@ -2003,7 +2007,9 @@ ui.run(root=index, native=True)
 
   ![2026_15_15](nicegui_pro.assets/2026_15_15.png)
 
-- `ui.pyplot`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入控件的上下文，调用上下文对象`fig`属性的子对象的`plot`方法绘制线性图。除了在控件上下文中调用上下文对象`fig`属性的子对象的`plot`方法绘制线性图，也可以直接调用`matplotlib.pyplot`模块的`plot`方法绘制线形图。
+- `ui.pyplot`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入控件的上下文，调用上下文对象`fig`属性的子对象的`plot`方法绘制线形图。除了在控件上下文中调用上下文对象`fig`属性的子对象的`plot`方法绘制线形图，也可以直接调用`matplotlib.pyplot`模块的`plot`方法绘制线形图。
+
+  注意，`ui.pyplot`控件依赖`matplotlib`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[matplotlib]`命令提前添加依赖库。
 
   示例如下：
 
@@ -2046,7 +2052,9 @@ ui.run(root=index, native=True)
 
   ![2026_15_16](nicegui_pro.assets/2026_15_16.png)
 
-- `ui.line_plot`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入控件的上下文，调用上下文对象`fig`属性的子对象的`plot`方法绘制线性图；也可以使用`with`进入控件的上下文或者不进入上下文，直接调用控件的`push`方法绘制线形图。此外，调用`with_legend`方法，还能添加图例。
+- `ui.line_plot`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入控件的上下文，调用上下文对象`fig`属性的子对象的`plot`方法绘制线形图；也可以使用`with`进入控件的上下文或者不进入上下文，直接调用控件的`push`方法绘制线形图。此外，调用`with_legend`方法，还能添加图例。
+
+  注意，`ui.line_plot`控件依赖`matplotlib`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[matplotlib]`命令提前添加依赖库。
 
   示例如下：
 
@@ -2114,6 +2122,8 @@ ui.run(root=index, native=True)
 
 - `ui.plotly`控件，使用`plotly`库绘制线形图。
 
+  注意，`ui.plotly`控件依赖`plotly`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[plotly]`命令提前添加依赖库。
+
   示例如下：
 
   ```python3
@@ -2142,17 +2152,29 @@ ui.run(root=index, native=True)
               'data': [
                   {
                       'type': 'scatter',
+                      'line': {'color': '#636EFA'},
                       'x': [0, 1, 2],
-                      'y': [1, 2, 4]
+                      'y': [1, 2, 4],
                   }
               ],
               'layout': {
                   'margin': {
-                      'l': 0,
+                      'l': 20,
                       'r': 0,
                       't': 0,
-                      'b': 0
-                  }
+                      'b': 25
+                  },
+                  'plot_bgcolor': '#E5ECF6',
+                  'xaxis': {
+                      'gridcolor': 'white',
+                      'dtick': '0.5',
+                      'zeroline': False
+                  },
+                  'yaxis': {
+                      'gridcolor': 'white',
+                      'dtick': '0.5',
+                      'zeroline': False
+                  },
               }
           }
       ).classes('w-64 h-64')
@@ -2162,24 +2184,154 @@ ui.run(root=index, native=True)
 
   ![2026_15_18](nicegui_pro.assets/2026_15_18.png)
 
-### 15.14 渲染图表（更新中）
+### 15.14 渲染图表
 
 以下控件可以将提供的数据渲染为表格图形：
 
-- ui.highchart
-- ui.echart
+- `ui.highchart`控件，使用Highcharts框架渲染图表，支持多种类型的图表。但是，Highcharts框架商用需要付费。
 
+  注意，`ui.highchart`控件依赖`nicegui-highcharts`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[highcharts]`命令提前添加依赖库。
 
+- `ui.echart`控件，使用ECharts框架渲染图表，支持多种类型的图表，商用无需付费。
 
-### 15.15 渲染复杂数据（更新中）
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'title': {'text': 'A and B'},
+            'chart': {'type': 'bar'},
+            'xAxis': {
+                'categories': ['A', 'B']
+            },
+            'yAxis': {
+                'title': False,
+            },
+            'series': [
+                {
+                    'name': '2025',
+                    'data': [0.1, 0.2]
+                },
+                {
+                    'name': '2026',
+                    'data': [0.3, 0.4]
+                },
+            ],
+            'credits': {'enabled': False}
+        }
+    ).classes('w-64 h-64')
+    ui.echart(
+        {
+            'title': {'text': 'A and B'},
+            'xAxis': {'type': 'value'},
+            'yAxis': {
+                'type': 'category',
+                'data': ['A', 'B'],
+                'inverse': True
+            },
+            'legend': {'show': True},
+            'series': [
+                {
+                    'type': 'bar',
+                    'name': '2025',
+                    'data': [0.1, 0.2]
+                },
+                {
+                    'type': 'bar',
+                    'name': '2026',
+                    'data': [0.3, 0.4]
+                },
+            ],
+        }
+    ).classes('w-64 h-64')
+
+ui.run(root=index, native=True)
+```
+
+![2026_15_19](nicegui_pro.assets/2026_15_19.png)
+
+### 15.15 渲染复杂数据
 
 除了前面提到的数据图形化展示方式之外，下面的控件提供了针对特定类型数据、文件的展示方式：
 
-- ui.tree
-- ui.leaflet
-- ui.scene
+- `ui.tree`控件，用于渲染树类型的数据。
 
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.tree(
+          nodes=[
+              {
+                  'id': 'lang',
+                  'label': 'Language',
+                  'icon': 'dashboard',
+                  'children': [
+                      {
+                          'id': '1',
+                          'label': 'Python'
+                      },
+                      {
+                          'id': '2',
+                          'label': 'JavaScript'
+                      }
+                  ]
+              },
+          ],
+          node_key='id',
+          label_key='label',
+          children_key='children',
+          on_select=lambda e: ui.notify(f'选择了 {e.value}'),
+          on_expand=lambda e: ui.notify(f'展开了 {e.value}'),
+          on_tick=lambda e: ui.notify(f'勾选了 {e.value}'),
+      ).expand()
+  
+  ui.run(root=index, native=True)
+  ```
+
+  ![2026_15_20](nicegui_pro.assets/2026_15_20.png)
+
+- `ui.leaflet`控件，用于渲染地图数据。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.leaflet(
+          center=(39.9072, 116.3912),
+          zoom=18,
+          options={
+              'attributionControl':False,
+          }
+      ).classes('w-64 h-64')\
+      .marker(latlng=(39.9072, 116.3912))
+  
+  ui.run(root=index, native=True)
+  ```
+
+  ![2026_15_21](nicegui_pro.assets/2026_15_21.png)
+
+- `ui.scene`控件，使用ThreeJs框架渲染三维模型。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.scene().classes('w-64 h-64').box().material('red')
+  
+  ui.run(root=index, native=True)
+  ```
+
+  ![2026_15_22](nicegui_pro.assets/2026_15_22.png)
 
 ### 15.16 创建布局（更新中）
 
@@ -2298,6 +2450,8 @@ ui.dialog
 - `NICEGUI_STORAGE_PATH`，默认为`'.nicegui'`，表示使用`app.storage`时，需要在服务器磁盘存储数据的空间，具体使用哪个位置，默认为运行命令时当前路径下的`.nicegui`文件夹。
 
 - `NICEGUI_REDIS_URL`，默认未设置（即为`None`），表示使用`app.storage`时，相关数据存储在哪个Redis服务器中，该环境变量需要设置为包含Redis协议的完整地址，比如`'redis://redis_server_host:6379'`，如果不设置（即默认值），则表示相关数据存储在本地文件夹中。
+
+  注意，使用Redis存储`app.storage`时依赖`redis`库，需要先安装依赖库才能使用对应功能。可以参考安装NiceGUI一章，使用`uv add nicegui[redis]`命令提前添加依赖库。
 
 - `NICEGUI_REDIS_KEY_PREFIX`，默认为`'nicegui'`，表示使用`app.storage`，相关数据存储在Redis服务器中时，相关数据的键使用什么作为前缀。
 
@@ -2573,111 +2727,119 @@ ui.run(native=True)
 
 
 
-## 19 给页面添加额外的HTML、CSS代码（更新中）
+## 19 给页面添加额外的HTML、CSS代码
 
 NiceGUI的页面本质上是网页，而网页有时候需要添加一些额外的HTML代码、CSS代码才能使用特定的功能。想要添加额外的外码，就要使用以下方法：
 
 - `ui.add_head_html`方法和`ui.add_body_html`方法。
 - `ui.add_css`方法、`ui.add_scss`方法和`ui.add_sass`方法。
 
-#### x.1 `ui.add_head_html`方法和`ui.add_body_html`方法
+#### 19.1 `ui.add_head_html`方法和`ui.add_body_html`方法
 
-`ui.add_head_html`可以添加HTML代码到页面`head`标签内，`ui.add_body_html`可以添加HTML代码到页面`body`标签内。对于页面加载来说，`head`标签内的内容一般不显示，而且因为是从上到下加载，`head`标签内的内容会先被加载，这里通常放着需要第一时间执行的前置脚本和样式设置。`body`标签内放着页面显示内容的主体，使用`ui.add_body_html`会在NiceGUI其他控件加载前嵌入HTML代码，因此`ui.add_body_html`通常是为了实现在NiceGUI其他内容显示之前放置内容，包括但不限于显示的内容、执行前置脚本和样式设置。
+`ui.add_head_html`方法可以添加HTML代码到页面的`head`标签内，`ui.add_body_html`方法可以添加HTML代码到页面的`body`标签内。对于页面加载来说，`head`标签内的内容一般不显示，而且因为是从上到下加载，`head`标签内的内容会先被加载，这里通常放着需要第一时间执行的前置脚本和样式设置。`body`标签内放着页面显示内容的主体，使用`ui.add_body_html`方法会在NiceGUI其他控件加载前嵌入HTML代码，因此，使用`ui.add_body_html`方法通常是为了实现在NiceGUI其他内容显示之前放置内容，包括但不限于显示的内容、执行前置脚本和样式设置。
 
-这两个方法都有两个参数字符串参数`code`和布尔参数`shared`。前者表示要嵌入的HTML代码，后者表示是否在所有页面（`ui.page`）执行嵌入操作，对于使用`ui.page`装饰的页面，后者可以让嵌入操作的代码只写一次，就能应用于所有页面上。
+这两个方法都有两个参数字符串参数`code`和布尔参数`shared`。前者表示要嵌入的HTML代码，后者表示是否在所有页面执行嵌入操，即在所属页面执行一次嵌入操作，就能在所有页面上生效。
 
-前面说过，`ui.html`也可以添加HTML代码，那和`ui.add_head_html`、`ui.add_body_html`有什么区别？
+注意，单页面应用的子页面从属于主页面或者页面，因此，嵌入操作不会在子页面上生效。
 
-`ui.html`会返回一个元素，可以使用一般元素的方法，`ui.add_head_html`和`ui.add_body_html`是直接将HTML代码嵌入页面，不会返回任何对象，没法调用一般元素的方法。不过，它们支持嵌入JavaScript代码，而`ui.html`只能是纯HTML。
+前面的`ui.html`控件也可以添加HTML代码，那和`ui.add_head_html`方法、`ui.add_body_html`方法有什么区别？
 
-```python3
-from nicegui import ui
+`ui.html`控件是一个控件，可以使用控件的方法，`ui.add_head_html`方法和`ui.add_body_html`方法是直接将HTML代码嵌入页面，不会返回任何对象，没法调用空间的方法。不过，它们支持嵌入JavaScript代码，而`ui.html`控件只能是纯HTML。
 
-ui.add_head_html('<script>alert("yes")</script>')
-ui.add_body_html('<script>alert("yes")</script>')
-#ui.html('<script>alert("yes")</script>')
-
-ui.run(native=True)
-```
-
-#### x.2 `ui.add_css`方法、`ui.add_scss`方法和`ui.add_sass`方法
-
-这三个功能都可以添加CSS代码，只是对应的CSS代码语法规则不同。
-
-`ui.add_scss`和`ui.add_sass`依赖的`libsass`默认不安装，如果想要使用此控件，可以在项目根目录下使用以下命令安装：
-
-```shell
-pdm add nicegui[sass]
-#或者下面这条
-pdm add libsass
-```
-
-如果运行环境是全局环境或者想用pip安装，可以执行下面的命令安装：
-
-```shell
-pip install nicegui[sass]
-#或者下面这条
-pip install libsass
-```
-
-SASS是一款强化 CSS 的辅助工具，它在 CSS 语法的基础上增加了变量 (variables)、嵌套 (nested rules)、混合 (mixins)、导入 (inline imports) 等高级功能，这些拓展令 CSS 更加强大与优雅。简单一点理解的话，SASS是CSS扩展版本。SASS有两种语法风格：以`.scss`为后缀的，是语法风格和CSS一致的版本，即采用大括号表示所属，用分号表示一句内容的结束；以`.sass`为后缀的，是语法风格变成用缩进代替大括号、用换行代替分号的版本。
-
-因此`ui.add_css`、`ui.add_scss`、`ui.add_sass`分别代表可以添加标准CSS代码、scss风格代码、sass风格代码。因为scss语法风格和CSS一致，基本兼容CSS，所以，可以用`ui.add_scss`添加CSS代码，反之不行。
-
-`ui.add_css`：
+示例如下：
 
 ```python3
 from nicegui import ui
 
-ui.add_css('''
-    .red {
-        color: red;
-    }
-''')
-ui.label('This is red with CSS.').classes('red')
+def index():
+    ui.add_head_html(
+        '<script>alert("head")</script>'
+    )
+    ui.add_head_html(
+        '<h3>add_head_html</h3>'
+    )
+    ui.add_body_html(
+        '<script>alert("body")</script>'
+    )
+    ui.add_body_html(
+        '<h3>add_body_html</h3>'
+    )
+    ui.html('<h3>ui.html</h3>')
 
-ui.run()
+ui.run(root=index, native=True)
 ```
 
-`ui.add_scss`：
+![2026_19_1](nicegui_pro.assets/2026_19_1.png)
+
+#### 19.2 `ui.add_css`方法、`ui.add_sass`方法和`ui.add_scss`方法
+
+这三个方法都可以添加样式描述代码，只是对应代码的语法不同。
+
+注意，`ui.add_sass`方法和`ui.add_scss`方法依赖`libsass`库，需要先安装依赖库才能使用对应方法。可以参考安装NiceGUI一章，使用`uv add nicegui[sass]`命令提前添加依赖库。
+
+SASS是一种基于CSS语法实现、可以编译为CSS代码的样式描述语言，它在CSS语法的基础上增加了变量 (variables)、嵌套 (nested rules)、混合 (mixins)、导入 (inline imports) 等高级功能，这些拓展令SASS比CSS更加强大与优雅。简单一点理解的话，SASS是CSS扩展版本。SASS在具体代码中有两种语法：通常以`.scss`为后缀的SASS语法，和CSS语法一致，即采用大括号表示所属，用分号表示一句内容的结束；通常以`.sass`为后缀的SCSS语法，变成用缩进代替大括号、用换行代替分号。
+
+`ui.add_css`方法、`ui.add_sass`方法、`ui.add_scss`方法分别用于添加标准CSS语法的代码、SASS语法的代码、SCSS语法的代码。因为SCSS语法和CSS语法一致，基本兼容CSS语法，所以，可以用`ui.add_scss`方法添加CSS代码，`ui.add_sass`方法则不行。另外，也不能用`ui.add_css`方法添加SCSS语法的SASS代码。
+
+`ui.add_css`方法的示例：
 
 ```python3
 from nicegui import ui
 
-ui.add_scss('''
-    .green {
-        background-color: lightgreen;
-        .blue {
-            color: blue;
+def index():
+    ui.add_css(
+        '''
+        .red {
+            color: red;
         }
-    }
-''')
-with ui.element().classes('green'):
-    ui.label('This is blue on green with SCSS.').classes('blue')
+        '''
+    )
+    ui.label('This is red with CSS.').classes('red')
 
-ui.run()
+ui.run(root=index, native=True)
 ```
 
-`ui.add_sass`：
+`ui.add_sass`方法的示例：
 
 ```python3
 from nicegui import ui
 
-ui.add_sass('''
-    .yellow
-        background-color: yellow
-        .purple
-            color: purple
-''')
-with ui.element().classes('yellow'):
-    ui.label('This is purple on yellow with SASS.').classes('purple')
+def index():
+    ui.add_sass(
+        '''
+        .yellow
+            background-color: yellow
+            .purple
+                color: purple
+        '''
+    )
+    with ui.element().classes('yellow'):
+        ui.label('This is purple on yellow with SASS.').classes('purple')
 
-ui.run()
+ui.run(root=index, native=True)
 ```
 
+`ui.add_scss`方法的示例：
 
+```python3
+from nicegui import ui
 
+def index():
+    ui.add_scss(
+        '''
+        .green {
+            background-color: lightgreen;
+            .blue {
+                color: blue;
+            }
+        }
+        '''
+    )
+    with ui.element().classes('green'):
+        ui.label('This is blue on green with SCSS.').classes('blue')
 
+ui.run(root=index, native=True)
+```
 
 ## 20 修改指定控件（更新中）
 

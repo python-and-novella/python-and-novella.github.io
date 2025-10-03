@@ -1875,12 +1875,15 @@ def index():
     ui.spinner(size='6em')
     ui.html(
         '''
-        	<svg viewBox='0 0 200 200' width='100' height='100'>
-        	<circle cx='100' cy='100' r='78' fill='#ffde34' stroke='black' stroke-width='3' />
-        	<circle cx='80' cy='85' r='8' />
-        	<circle cx='120' cy='85' r='8' />
-        	<path d='m60,120 C75,150 125,150 140,120' style='fill:none; stroke:black; stroke-width:8; stroke-linecap:round' />
-        	</svg>
+        <svg viewBox='0 0 200 200' width='100' height='100'>
+        <circle cx='100' cy='100' r='78' fill='#ffde34' stroke='black' stroke-width='3' />
+        <circle cx='80' cy='85' r='8' />
+        <circle cx='120' cy='85' r='8' />
+        <path 
+        d='m60,120 C75,150 125,150 140,120' 
+        style='fill:none; stroke:black; stroke-width:8; stroke-linecap:round' 
+        />
+        </svg>
         '''
     )
 
@@ -2335,85 +2338,71 @@ ui.run(root=index, native=True)
 
 ### 15.16 创建布局（更新中）
 
+尽管前面介绍布局的时候已经说了几种和布局相关的控件，但那些只是常用的控件，本节开始，将介绍所有和布局有关的控件。
 
+以下是可以创建布局的控件：
 
-ui.column
-
-ui.row
-
-ui.grid
-
-ui.list
-
-ui.card
+- ui.column
+- ui.row
+- ui.grid
+- ui.list
+- ui.card
 
 
 
 ### 15.17 辅助设计布局（更新中）
 
+除了直接创建布局，还有一些控件可以让布局的设计更加灵活、美观、直观：
 
-
-ui.separator
-
-ui.space
-
-ui.skeleton
+- ui.separator
+- ui.space
+- ui.skeleton
 
 
 
 ### 15.18 调整布局空间（更新中）
 
+前面控件创建的布局，所有子控件都是平铺展示，一旦控件较多，布局就会占据较多空间，甚至超出屏幕，只能滚动页面查看超出屏幕的部分。
 
+不过，下面的控件可以调整布局占据的空间：
 
-ui.slide_item
-
-ui.expansion
-
-ui.scroll_area
-
-ui.splitter
+- ui.slide_item
+- ui.expansion
+- ui.scroll_area
+- ui.splitter
 
 
 
 ### 15.19 管理多页内容（更新中）
 
+对于内容多到需要分页的情况，下面的控件可以很好处理这种情况：
 
-
-ui.tabs
-
-ui.carousel
-
-ui.pagination
-
-ui.stepper
-
-ui.timeline
+- ui.tabs
+- ui.carousel
+- ui.pagination
+- ui.stepper
+- ui.timeline
 
 
 
 ### 15.20 使用菜单（更新中）
 
+NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右键点击弹出上下文菜单。想要创建它们，会涉及到以下控件：
 
-
-ui.menu_item
-
-ui.menu
-
-ui.context_menu
+- ui.menu_item
+- ui.menu
+- ui.context_menu
 
 
 
 ### 15.21 弹出提示信息（更新中）
 
+NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
-
-ui.tooltip
-
-ui.notify
-
-ui.notification
-
-ui.dialog
+- ui.tooltip
+- ui.notify
+- ui.notification
+- ui.dialog
 
 
 

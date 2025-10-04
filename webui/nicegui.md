@@ -5646,7 +5646,7 @@ ui.run()
 -   `modifiers`：`KeyboardModifiers`对象，表示当前修饰键（`Ctrl`、`Alt`、`Shift`、`Win`这种可以与字母、数字、功能键等组合使用的按键），该对象有以下属性：
     -   `alt`：`Alt`键（Mac下的`Opt`键）是否被按下。
     -   `ctrl`：`Ctrl`键是否被按下。
-    -   `meta`：`Meta`键（WIn的`Win`键或者Mac下的`Cmd`键）是否被按下。
+    -   `meta`：`Meta`键（Win的`Win`键或者Mac下的`Cmd`键）是否被按下。
     -   `shift`：`Shift`键是否被按下。
 
 为了方便，`KeyboardKey`对象还有以下属性：:

@@ -372,6 +372,14 @@ ui.run_with(
 uvicorn.run(app=fast_app,host='127.0.0.1',port=80)
 ```
 
+### 2.6 退出程序
+
+NiceGUI程序一般是通过终端运行，关闭终端，程序自动退出。
+
+此外，在终端按下`ctrl + c`键，也能强制退出NiceGUI程序。
+
+如果需要通过代码退出NiceGUI程序，则要使用`app.shutdown()`。
+
 ## 3 创建控件
 
 创建控件看似简单，只是了解一下具控件的参数、属性、方法，没有多少难点。但在实际使用时，具体参数、方法的使用，创建的技巧，远没有看上去那么简单。
@@ -796,6 +804,7 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
 
 ```python3
 from nicegui import ui,app
+app.on_disconnect(app.shutdown)
 
 def index():
     ui.button(
@@ -808,6 +817,8 @@ def index():
 app.on_startup(lambda :print('程序已启动……'))
 ui.run(root=index,native=True)
 ```
+
+注意，因为在Windows下，直接关闭窗口不会自动退出NiceGUI程序，代码中使用了`app.on_disconnect(app.shutdown)`实现关闭窗口后自动退出程序，这是一个临时解决方法，且仅适用于窗口模式。如果后续示例中，读者想要实现同样效果，可以自行添加该代码，笔者写相关示例时不再特意添加。
 
 ### 5.3 响应信号（`Event`类）
 
@@ -1138,7 +1149,9 @@ NiceGUI使用异步函数的情况如下：
 
 上一章节介绍异步的时候，可以看到直接执行包含`time.sleep`的同步函数会导致问题，但是，如果在后台任务中执行同步函数，就不会有这样问题。
 
-NiceGUI提供了两种后台执行任务的方法，均为异步函数，由`run`模块提供：
+NiceGUI的`run`模块、`background_tasks`模块都提供了后台执行任务的方法。
+
+其中，由`run`模块提供的是：
 
 -   `run.cpu_bound`方法，常用于占用较多CPU资源的后台任务，该方法会创建新的进程操作，让进程池的进程数扩大。
 -   `run.io_bound`方法，常用于占用较多IO资源的后台任务开，因为这类后台任务不会占用太多CPU资源，因此，该方法只是创建新的线程操作，操作完线程会关闭。
@@ -1166,6 +1179,50 @@ ui.run(root=index,native=True)
 ![2026_8_2](nicegui_pro.assets/2026_8_2.gif)
 
 可以看到，虽然执行的是包含`time.sleep`的同步函数，但因为将其放在后台任务中执行，所以，结果符合预期。
+
+而`background_tasks`模块提供的是：
+
+- `background_tasks.create`方法，在后台运行一个协程任务，需要传入异步函数的调用结果。
+
+-   `background_tasks.create_lazy`方法，在后台无重复地运行一个协程任务，需要传入异步函数的调用结果，还要指定任务名（给`name`参数传入字符串）。所谓无重复地运行，即相同任务名的后台任务没有完成之前，无法重复执行同名任务。
+
+-   `background_tasks.await_on_shutdown`装饰器，如果某些任务需要确保即使程序结束也能顺利完成，则在定义函数时需要使用该装饰器装饰。
+
+    注意，该装饰器无法在窗口模式中正常生效（但不会报错），只有网页模式可以正常使用该装饰器。
+
+示例如下：
+
+```python3
+from nicegui import ui, background_tasks, app
+import asyncio
+
+@background_tasks.await_on_shutdown
+async def do_something():
+    print('start')
+    await asyncio.sleep(10)
+    print('ok')
+
+def index():
+    ui.button(
+        'Do Something',
+        on_click=lambda: background_tasks.create(
+            do_something(),
+            name='print'
+        )
+    )
+    ui.button(
+        'Do Something no repeat',
+        on_click=lambda: background_tasks.create_lazy(
+            do_something(),
+            name='print'
+        )
+    )
+    ui.button('shutdown', on_click=app.shutdown)
+
+ui.run(root=index, native=False)
+```
+
+注意，与`run`模块不同的是，`background_tasks`模块提供的运行后台任务的方法不支持在后台任务中使用NiceGUI的控件。
 
 ## 10 使用定时器
 
@@ -1252,17 +1309,17 @@ ui.run(root=index,native=True)
 -   `key`属性，`KeyboardKey`类型，表示当前按键具体是哪个键（如果是组合键，则表示除了修饰键之外的具体按键）。该属性有以下子属性：
     -   `name`属性，字符串类型，表示按键名。比如：`'a'`、`'Enter'`、`'ArrowLeft'`等。 可以参考 https://developer.mozilla.org/zh-CN/docs/Web/API/UI_Events/Keyboard_event_key_values 提供的按键名清单。
     -   `code`属性，字符串类型，表示按键的代号。比如：`'KeyA'`、`'Enter'`、`'ArrowLeft'`等。
-    -   `location`属性，整数类型，表示按键的位置。`0`表示标准键盘区，`1`表示左边的按键（指的是`Ctrl`、`Alt`、`Shift`这种左右都有的按键），`2`表示右边的按键（指的是`Ctrl`、`Alt`、`Shift`这种左右都有的按键），`3`表示数字键盘区。
--   `modifiers`属性，`KeyboardModifiers`类型，表示组合键中的修饰键（`Ctrl`键、`Alt`键、`Shift`键、`Win`键这种可以与字母键、数字键、功能键等组合使用的按键），该属性有以下子属性：
-    -   `alt`属性，布尔类型，表示修饰键中是否有`Alt`键（Mac下的`Opt`键）。
-    -   `ctrl`属性，布尔类型，表示修饰键中是否有`Ctrl`键。
-    -   `meta`属性，布尔类型，表示修饰键中是否有`Meta`键（WIn的`Win`键或者Mac下的`Cmd`键）。
-    -   `shift`属性，布尔类型，表示修饰键中是否有`Shift`键。
+    -   `location`属性，整数类型，表示按键的位置。`0`表示标准键盘区，`1`表示左边的按键（指的是`ctrl`键、`alt`键、`shift`键这种左右都有的按键），`2`表示右边的按键指的是`ctrl`键、`alt`键、`shift`键这种左右都有的按键），`3`表示数字键盘区。
+-   `modifiers`属性，`KeyboardModifiers`类型，表示组合键中的修饰键（`ctrl`键、`alt`键、`shift`键、`win`键这种可以与字母键、数字键、功能键等组合使用的按键），该属性有以下子属性：
+    -   `alt`属性，布尔类型，表示修饰键中是否有`Alt`键（Mac下的`opt`键）。
+    -   `ctrl`属性，布尔类型，表示修饰键中是否有`ctrl`键。
+    -   `meta`属性，布尔类型，表示修饰键中是否有`meta`键（Windows的`win`键或者Mac下的`cmd`键）。
+    -   `shift`属性，布尔类型，表示修饰键中是否有`shift`键。
 
 为了方便使用，`KeyboardKey`类支持以下属性：:
 
 -   `is_cursorkey`属性，布尔类型，表示方向键是否被按下（数字键盘区的方向键不算）。
--   `number`属性，整数类型，表示按下了哪个主键盘区上方的数字键。`0`-`9`表示对应的数字键，`None` 没有按下上方的数字键。
+-   `number`属性，整数类型，表示按下了哪个主键盘区上方的数字键。`0`到`9`表示对应的数字键，`None` 没有按下上方的数字键。
 -   `backspace`、`tab`、`enter`、`shift`、`control`、`alt`、`pause`、`caps_lock`、`escape`、`space`、`page_up`、`page_down`、`end`、`home`、`arrow_left`、`arrow_up`、`arrow_right`、`arrow_down`、`print_screen`、`insert`、`delete`、`meta`、`f1`、`f2`、`f3`、`f4`、`f5`、`f6`、`f7`、`f8`、`f9`、`f10`、`f11`、`f12`等属性，均为布尔类型，表示对应的按键是否被按下。
 
 示例如下：
@@ -2336,48 +2393,170 @@ ui.run(root=index, native=True)
 
   ![2026_15_22](nicegui_pro.assets/2026_15_22.png)
 
-### 15.16 创建布局（更新中）
+### 15.16 创建布局
 
 尽管前面介绍布局的时候已经说了几种和布局相关的控件，但那些只是常用的控件，本节开始，将介绍所有和布局有关的控件。
 
 以下是可以创建布局的控件：
 
-- ui.column
-- ui.row
-- ui.grid
-- ui.list
-- ui.card
+- `ui.column`控件，在上下文中添加的控件排成一列。
+- `ui.row`控件，在上下文中添加的控件排成一行。
+- `ui.grid`控件，在上下文中添加的控件都放在指定规格（默认为`1x1`）的单元格中。
+- `ui.list`控件，在上下文中添加的`ui.item`控件、`ui.menu_item`控件、`ui.slide_item`控件排成一列，看上去与`ui.column`控件类似，但该控件的子控件之间更加紧凑。
+- `ui.card`控件，在上下文中添加的控件会放在默认带边框的卡片中。
 
+示例如下：
 
+```python3
+from nicegui import ui
 
-### 15.17 辅助设计布局（更新中）
+def index():
+    with ui.list().classes(
+        'border-2 border-red-700'
+    ):
+        for i in range(4):
+            ui.item(str(i))
+    with ui.column().classes(
+        'border-2 border-red-700'
+    ):
+        for i in range(4):
+            ui.item(str(i))
+    with ui.card():
+        ui.label('card')
+
+ui.run(root=index,native=True)
+```
+
+![2026_15_23](nicegui_pro.assets/2026_15_23.png)
+
+### 15.17 辅助设计布局
 
 除了直接创建布局，还有一些控件可以让布局的设计更加灵活、美观、直观：
 
-- ui.separator
-- ui.space
-- ui.skeleton
+- `ui.separator`控件，创建一个占用空间极小且不太明显的分隔符。
+- `ui.space`控件，填充布局方向上可用的剩余空间。
+- `ui.skeleton`控件，创建一个代替控件的占位控件，通常在页面没有完全加载时表示页面的布局。
 
+示例如下：
 
+```python3
+from nicegui import ui
 
-### 15.18 调整布局空间（更新中）
+def index():
+    with ui.column().classes(
+        'border-2 border-red-700 h-64 w-32'
+    ):
+        ui.skeleton('QBtn')
+        ui.space()
+        ui.separator()
+        ui.skeleton('QChip')
+
+ui.run(root=index,native=True)
+```
+
+![2026_15_24](nicegui_pro.assets/2026_15_24.png)
+
+### 15.18 调整布局空间
 
 前面控件创建的布局，所有子控件都是平铺展示，一旦控件较多，布局就会占据较多空间，甚至超出屏幕，只能滚动页面查看超出屏幕的部分。
 
 不过，下面的控件可以调整布局占据的空间：
 
-- ui.slide_item
-- ui.expansion
-- ui.scroll_area
-- ui.splitter
+- `ui.expansion`控件，可以通过向下展开的方式扩展空间，显示原本隐藏的控件。
 
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.card(),ui.expansion(
+          'More',
+          caption='info'
+      ).props('header-class=bg-blue'):
+          ui.button('Hello')
+          ui.button('World')
+      with ui.card(),ui.expansion(
+          'More',
+          caption='info',
+          value=True
+      ).props('header-class=bg-blue'):
+          ui.button('Hello')
+          ui.button('World')
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_25](nicegui_pro.assets/2026_15_25.png)
+
+- `ui.scroll_area`控件，将原本固定大小的区域，变成可以无限扩展的滚动区域，确保可以容纳所有控件。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.card(),ui.scroll_area().classes('w-64 h-64'):
+          for i in range(99):
+              ui.button(str(i))
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_26](nicegui_pro.assets/2026_15_26.png)
+
+- `ui.slide_item`控件，创建一个可以四向滑动的固定区域，向对应方向的反方向滑动，会将当前区域变为对应方向的独立区域，所有区域都可以放置其他控件。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.list().classes('border-2 border-red-700'),ui.slide_item('center').classes('w-32') as slide:
+          ui.label('center')
+      with slide.left('left',on_slide=slide.reset):
+          ui.label('left')
+      with slide.right('right',on_slide=slide.reset):
+          ui.label('right')
+      with slide.top('top',on_slide=slide.reset):
+          ui.label('top')
+      with slide.bottom('bottom',on_slide=slide.reset):
+          ui.label('bottom')
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_27](nicegui_pro.assets/2026_15_27.png)
+
+- `ui.splitter`控件，创建一个划分为左中右（或者上中下）三块区域的区域，可以通过拖动中间区域（实际上是一条间隔线）来改变其余两块区域的大小。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.card():
+          splitter = ui.splitter(value=75).classes('w-64 h-64')
+          with splitter.separator:
+              ui.icon('lightbulb')
+          with splitter.before:
+              ui.card().classes('w-full h-full bg-red')
+          with splitter.after:
+              ui.card().classes('w-full h-full bg-blue')
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_28](nicegui_pro.assets/2026_15_28.png)
 
 ### 15.19 管理多页内容（更新中）
 
 对于内容多到需要分页的情况，下面的控件可以很好处理这种情况：
 
-- ui.tabs
+- ui.tabs、ui.tab、ui.tab_panels、ui.tab_panel
 - ui.carousel
 - ui.pagination
 - ui.stepper
@@ -2461,10 +2640,6 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   
   ui.run(native=True)
   ```
-
-
-
-
 
 ## 17 自定义控件（更新中）
 

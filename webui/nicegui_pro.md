@@ -884,9 +884,13 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-## 7 创建可刷新方法
+## 7 刷新控件
 
-绑定属性可以单向或者双向绑定控件的可绑定属性、对象的属性，无需额外执行控件的刷新方法。比如：
+### 7.1 刷新方法
+
+绑定属性可以单向或者双向绑定控件的可绑定属性、对象的属性，无需额外执行控件的刷新方法，即可刷新控件。
+
+比如：
 
 ```python3
 from nicegui import ui
@@ -901,7 +905,76 @@ ui.run(root=index,native=True)
 
 ![2026_7_1](nicegui_pro.assets/2026_7_1.png)
 
-但是，如果“属性”不是控件的属性，而是诸如个数之类需要重新创建控件的“属性”，绑定属性就没法直接实现，需要做一些额外的事情：
+同样的，如果直接修改控件的这类属性，一般无需额外执行控件的刷新方法，也能刷新控件：
+
+```python3
+from nicegui import ui
+
+def index():
+    my_input = ui.input('输入')
+    def update_input():
+        my_input.value = 'Hello'
+    ui.button(
+        'update input',
+        on_click=update_input
+    )
+
+ui.run(root=index,native=True)
+```
+
+![2026_7_2](nicegui_pro.assets/2026_7_2.png)
+
+但是，控件的部分属性需要刷新控件才能正确显示，就需要调用控件的刷新方法——`update`方法，比如：
+
+```python3
+from nicegui import ui
+
+def index():
+    my_ratio = ui.radio(
+        ['a','b','c'],
+        value='a'
+    )
+    def update_ratio():
+        my_ratio.options += ['Hello']
+        my_ratio.update()
+    ui.button(
+        'update ratio',
+        on_click=update_ratio
+    )
+
+ui.run(root=index,native=True)
+```
+
+![2026_7_3](nicegui_pro.assets/2026_7_3.png)
+
+使用`ui.update`方法和直接调用控件的`update`方法的效果一样，但`ui.update`方法支持传入任意数量控件，可以同时刷新多个控件：
+
+```python3
+from nicegui import ui
+
+def index():
+    my_ratio = ui.radio(
+        ['a','b','c'],
+        value='a'
+    )
+    def update_ratio():
+        my_ratio.options += ['Hello']
+        ui.update(my_ratio)
+    ui.button(
+        'update ratio',
+        on_click=update_ratio
+    )
+
+ui.run(root=index,native=True)
+```
+
+### 7.2 创建可刷新方法
+
+控件的刷新方法不是万能的。
+
+如果控件的个数与某个控件的属性相关，只是调用刷新方法的话，没法重新创建指定数量的控件。需要先清除原来的控件，再重新创建所有控件，才能实现想要的效果。
+
+比如，想要字母的个数与输入框内的数字同步：
 
 ```python3
 from nicegui import ui
@@ -933,7 +1006,7 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-![2026_7_2](nicegui_pro.assets/2026_7_2.png)
+![2026_7_4](nicegui_pro.assets/2026_7_4.png)
 
 字母的个数与输入框内的数字是同步了，但需要使用全局变量存储个数，还需要借助额外的控件作为容器，容器内的多个控件比较紧凑，样式还要额外调整。
 
@@ -964,7 +1037,7 @@ ui.run(root=index,native=True)
 
 代码简洁不少，但效果更好：
 
-![2026_7_3](nicegui_pro.assets/2026_7_3.png)
+![2026_7_5](nicegui_pro.assets/2026_7_5.png)
 
 需要注意的是，在`refreshable`类、`refreshable_method`类装饰的函数（方法）内，所有创建的控件都会在调用`refresh`方法时重新创建，不会保存控件的状态：
 
@@ -1540,6 +1613,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较
 
 - `ui.label`控件，直接显示文本。
 - `ui.link`控件，将文本显示为超链接。
+- `ui.link_target`控件，与超链接相关，用于创建一个锚点，但不显示任何文本。比如，`ui.link_target('link')`可以创建锚点`link`，使用`ui.link('link_target','#link')`可以创建指向该锚点的超链接，点击该超链接，页面会自动跳转到该控件所在位置。对于下面的示例，需要将页面高度调到无法看到全部控件，点击超链接才能看到跳转效果。
 - `ui.chat_message`控件，将文本放入消息气泡。
 - `ui.badge`控件，将文本放入类似按钮的紧凑容器中，常用于当作现有控件的角标。
 
@@ -1549,8 +1623,8 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较
 from nicegui import ui
 
 def index():
+    ui.link('link','#link')
     ui.label('label')
-    ui.link('link','/')
     ui.chat_message('chat_message')
     with ui.button(
         'button'
@@ -1563,6 +1637,7 @@ def index():
         ).props(
             'floating'
         )
+    ui.link_target('link')
 
 ui.run(root=index,native=True)
 ```
@@ -2378,7 +2453,7 @@ ui.run(root=index, native=True)
 
   ![2026_15_21](nicegui_pro.assets/2026_15_21.png)
 
-- `ui.scene`控件，使用ThreeJs框架渲染三维模型。
+- `ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交换的3D视图，后者则是基于前者创建、不可交互的固定视角视图。
 
   示例如下：
 
@@ -2386,11 +2461,13 @@ ui.run(root=index, native=True)
   from nicegui import ui
   
   def index():
-      ui.scene().classes('w-64 h-64').box().material('red')
-  
+      scene = ui.scene().classes('w-64 h-64')
+      scene.box().material('red')
+      ui.scene_view(scene).classes('w-64 h-64')
+      
   ui.run(root=index, native=True)
   ```
-
+  
   ![2026_15_22](nicegui_pro.assets/2026_15_22.png)
 
 ### 15.16 创建布局
@@ -2404,6 +2481,7 @@ ui.run(root=index, native=True)
 - `ui.grid`控件，在上下文中添加的控件都放在指定规格（默认为`1x1`）的单元格中。
 - `ui.list`控件，在上下文中添加的`ui.item`控件、`ui.menu_item`控件、`ui.slide_item`控件排成一列，看上去与`ui.column`控件类似，但该控件的子控件之间更加紧凑。
 - `ui.card`控件，在上下文中添加的控件会放在默认带边框的卡片中。
+- `ui.item`控件、`ui.item_label`控件、`ui.item_section`控件，通常组合在一起使用，共同组成一个内容项目的整体，每个控件对应着内容的指定部分。
 
 示例如下：
 
@@ -2423,6 +2501,16 @@ def index():
             ui.item(str(i))
     with ui.card():
         ui.label('card')
+    with ui.item('item'):
+        with ui.item_section():
+            ui.item_label('label1')
+            ui.item_label('label2').props(
+                'caption'
+            )
+        with ui.item_section().props(
+            'side'
+        ):
+            ui.icon('home')
 
 ui.run(root=index,native=True)
 ```
@@ -2559,8 +2647,8 @@ ui.run(root=index,native=True)
 - ui.tabs、ui.tab、ui.tab_panels、ui.tab_panel
 - ui.carousel
 - ui.pagination
-- ui.stepper
-- ui.timeline
+- ui.stepper，ui.step, ui.stepper_navigation
+- ui.timeline，ui.timeline_entry
 
 
 
@@ -2582,8 +2670,6 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 - ui.notify
 - ui.notification
 - ui.dialog
-
-
 
 
 
@@ -3005,7 +3091,7 @@ def index():
 ui.run(root=index, native=True)
 ```
 
-## 20 修改指定控件（更新中）
+## 20 查询并修改指定控件（更新中）
 
 先说控件的`move`方法可以移动控件的位置，
 
@@ -3059,9 +3145,66 @@ app.storage
 
 
 
-## 25 读写剪贴板（更新中）
+## 25 使用`ui.clipboard`读写剪贴板（更新中）
 
 ui.clipboard
+
+
+
+## 26 使用`ui.download`下载文件（更新中）
+
+
+
+## 27 使用`ui.page_title`修改窗口标题（更新中）
+
+
+
+## 28 使用`ui.on`响应自定义事件（更新中）
+
+
+
+## 29 使用`ui.context`获取当前上下文（更新中）
+
+
+
+client和slot
+
+客户端：
+
+```python3
+from nicegui import ui
+
+async def index():
+    print(
+        ui.context.client.has_socket_connection
+    )
+    ui.label('未连接')
+    await ui.context.client.connected()
+    print(
+        ui.context.client.has_socket_connection
+    )
+    ui.label('已连接')
+
+ui.run(root=index,reload=False,native=True)
+```
+
+
+
+插槽：
+
+```python3
+from nicegui import ui
+
+def index():
+    slot = ui.context.slot
+    with ui.button('my button'):
+        with slot:
+            ui.button('ok')
+
+ui.run(root=index,native=True)
+```
+
+
 
 
 
@@ -3446,6 +3589,14 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 
 控件支持以下方法：
+
+
+
+## x 灵感（待定）
+
+更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
+
+
 
 
 

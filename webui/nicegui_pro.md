@@ -68,9 +68,9 @@ ui.run()
 
 NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程（模式）也有所不同。
 
-从NiceGUI 3.0.0开始，NiceGUI程序按照是否使用`ui.page`创建页面，可划分为两种构建模式：
+从NiceGUI 3.0.0开始，NiceGUI程序按照是否使用`ui.page`创建页面，可划分为三种构建模式：
 
-- 脚本模式。不使用`ui.page`创建页面的话，所有创建的控件都属于“主页面”（地址为网站的根路径）。此时的“主页面”不是真正意义上的“主页面”，虽然每个访问者打开的“主页面”内容互相独立，但这种构建模式只支持一个页面，即“主页面”。
+- 脚本模式。不使用`ui.page`创建页面、不给`ui.run`的第一位置参数`root`传值的话，所有在全局作用域内创建的控件都属于“主页面”（地址为网站的根路径）。此时的“主页面”不是真正意义上的主页面，虽然每个访问者打开的“主页面”内容互相独立，但这种构建模式只支持一个页面，即“主页面”。
 
   以下为脚本模式的示例：
 
@@ -82,53 +82,10 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
   ui.run()
   ```
 
-  除了上面这种直接创建控件，默认以脚本模式构建的代码，还可以将所有创建控件的过程放在函数中，并将构建“主页面”的函数名传给`ui.run`方法的第一位置参数`root`：
-
-  ```python3
-  from nicegui import ui
-  
-  def index():
-      ui.button('Hello')
-  
-  ui.run(root=index)
-  ```
-
-  相比于不用函数打包，这种方式可以自由定义“主页面”其他部分的创建顺序。
-
-  比如，想要在当前内容的前面添加一些文字作为标题，如果不用函数打包，只能这样写：
-
-  ```python3
-  from nicegui import ui
-  
-  ui.label('标题')
-  ui.button('Hello')
-  
-  ui.run()
-  ```
-
-  使用函数打包的话，可以将添加的部分打包到函数中，提前使用，最后定义具体内容：
-
-  ```python3
-  from nicegui import ui
-  
-  def index():
-      title()
-      ui.button('Hello')
-  
-  def title():
-      ui.label('标题')
-  
-  ui.run(root=index)
-  ```
-
-  ![2026_2_1](nicegui_pro.assets/2026_2_1.png)
-
-- 页面模式。脚本模式只支持一个“主页面”，一旦想创建多个页面展示不同的内容，就只能使用`ui.page`创建其他页面，这样的构建模式就是页面模式。
-
-  需要注意的是，一旦使用了`ui.page`创建页面，就不能使用脚本模式的代码结构（即不能在页面之外创建控件，也不能使用`ui.run`的`root`参数），否则会报错。
+- 多页面模式。脚本模式只支持一个“主页面”，一旦想创建多个页面展示不同的内容，就只能使用`ui.page`创建其他页面，这样的构建模式就是多页面模式。
 
   `ui.page`是一个类，其参数`path`表示页面对应的网站路径。但是，这样直接构建出来的页面不包含控件，需要调用`ui.page`对象，并传入函数内创建控件的函数名：
-  
+
   ```python3
   from nicegui import ui
   
@@ -152,16 +109,61 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
   
   ui.run()
   ```
+  
+- 单页面模式、根页面模式。除了上面这种明显使用`ui.page`的多页面模式，还可以将所有创建控件的过程放在函数中用来构建页面，并将构建页面的函数名传给`ui.run`方法的第一位置参数`root`，这种也算多页面模式，但只能创建一个页面，所以叫单页面模式（与后面介绍的单页面应用不同，请注意区分）。换句话说，单页面模式下的网站不支持根路径之外的其他路径，只有一个页面，因此也可以称之为根页面模式。
+  
+  示例如下：
+  
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button('Hello')
+  
+  ui.run(root=index)
+  ```
+  
+  代码看上去有点像脚本模式，但是，相比于不用函数打包的脚本模式，单页面模式可以自由定义“主页面”其他部分的创建顺序。
+  
+  比如，想要在当前内容的前面添加一些文字作为标题，如果是脚本模式，只能这样写：
+  
+  ```python3
+  from nicegui import ui
+  
+  ui.label('标题')
+  ui.button('Hello')
+  
+  ui.run()
+  ```
+  
+  单页面模式的话，可以将添加的部分打包到函数中，提前使用，最后定义具体内容：
+  
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      title()
+      ui.button('Hello')
+  
+  def title():
+      ui.label('标题')
+  
+  ui.run(root=index)
+  ```
+  
+  ![2026_2_1](nicegui_pro.assets/2026_2_1.png)
+
+需要注意的是，三种构建模式，只能同时使用一种，不能同时使用两种。即一旦使用了`ui.page`创建页面（多页面模式），就不能在页面之外创建控件（脚本模式），也不能使用`ui.run`的`root`参数（单页面模式），否则会报错、代码异常、显示异常，其他构建模式亦是如此。
 
 以上只是构建模式的简单介绍，其余参数和更多用法将在后面的章节中展开介绍。
 
 ### 2.3 单页面应用（SPA）
 
-与页面模式效果类似的是单页面应用（Single Page Application，简称SPA），单页面应用可以在不增加普通页面的前提下，增加多个子页面，让脚本模式实现页面模式的效果。
+与多页面模式效果类似的是单页面应用（Single Page Application，简称SPA），单页面应用可以在不增加普通页面的前提下，增加多个子页面，让脚本模式、单页面模式实现多页面模式的效果。
 
 单页面应用需要使用`ui.sub_pages`类，其第一位置参数`routes`是一个字典，网站路径为键，创建控件的函数的函数名为值，表示网站路径与具体内容的对应关系。
 
-示例如下：
+单页面模式的示例如下：
 
 ```python3
 from nicegui import ui
@@ -192,11 +194,43 @@ def b():
 ui.run(root=index)
 ```
 
-可能读者实际运行代码之后，会产生一个疑问：既然效果与页面模式相同，那为何不直接使用页面模式？
+可能读者实际运行代码之后，会产生一个疑问：既然效果与多页面模式相同，那为何不直接使用多页面模式？
 
-这里就要说一下单页面应用的特殊之处：两种构建模式均可以设计为单页面应用。
+这里就要说一下单页面应用的特殊之处：三种构建模式均可以设计为单页面应用。
 
-假如页面模式中，有一个`/main`页面，则可以将上面脚本模式的单页面应用套用到页面模式中：
+上面单页面模式的示例，可以改为脚本模式的示例：
+
+```python3
+from nicegui import ui
+
+def main():
+    ui.link('Page A', '/a')
+    ui.link('Page B', '/b')
+
+def a():
+    ui.link('Page Main', '/')
+    ui.link('Page B', '/b')
+
+def b():
+    ui.link('Page Main', '/')
+    ui.link('Page A', '/a')
+
+ui.label('Main')
+ui.separator()
+ui.sub_pages(
+    {
+        '/': main,
+        '/a': a,
+        '/b': b
+    }
+)
+
+ui.run()
+```
+
+至于将多页面模式设计为单页面应用，用法会更加复杂一些。
+
+假如多页面模式中，有一个`/main`页面，可以将上面单页面模式的单页面应用套用到多页面模式中：
 
 ```python3
 from nicegui import ui
@@ -229,7 +263,7 @@ def b():
 ui.run()
 ```
 
-但与脚本模式的单页面应用不同，页面模式的单页面应用，除了将指定路径关联为子页面之外，还可以同时关联一个普通页面：
+但与单页面模式的单页面应用不同，多页面模式的单页面应用，除了将指定路径关联为子页面之外，还可以同时关联一个普通页面：
 
 ```python3
 from nicegui import ui
@@ -280,7 +314,7 @@ ui.run()
 
 以上只是单页面应用的简单介绍，其余参数和更多用法将在后面的章节中展开介绍。
 
-单页面应用与其他构建模式组合使用时，学习难度会陡然而升，容易遇到很多难以解决的问题。因此，这部分内容不太理解的话可以暂时跳过，等后续学习了其他基础之后再回过头学习。
+单页面应用与不同的构建模式组合使用时，学习难度会陡然而升，容易遇到很多难以解决的问题。因此，这部分内容不太理解的话可以暂时跳过，等后续学习了其他基础之后再回过头学习。
 
 ### 2.4 显示模式
 
@@ -824,9 +858,11 @@ ui.run(root=index,native=True)
 
 事件类——`Event`类（使用`from nicegui import Event`导入）虽然从名字上看应该和事件、响应函数相关，但要是从用法看，该类被称作信号更合适。
 
-信号是NiceGUI 3.0.0引入的新功能。之前版本中类似脚本模式的NiceGUI程序可以共享全局作用域内控件的状态、数据，但在NiceGUI 3.0.0版本中，脚本模式下，全局作用域内的控件相当于放在单独的函数中，无法在全局作用域中共享其状态、数据。为了解决此需求，NiceGUI新增了具备信号功能的`Event`类。
+信号是NiceGUI 3.0.0引入的新功能。之前版本中类似脚本模式的NiceGUI程序可以共享全局作用域内控件的状态、数据，但在NiceGUI 3.0.0版本中，全局作用域内的控件相当于放在单独的函数中，无法在全局作用域中共享其状态、数据。为了解决此需求，NiceGUI新增了具备信号功能的`Event`类。
 
 在全局作用域内创建`Event`类对象之后，可以在定义控件的响应函数时，将控件的状态、数据通过`Event`类对象的`emit`方法发射为信号，其他通过`subscribe`方法订阅信号而定义的响应函数，会在接收到信号时执行响应函数。
+
+注意，因为`Event`类对象必须在全局作用域生效，才能实现各个页面通过信号共享控件的状态、数据，因此，`Event`类对象**不能**在脚本模式中使用。但可以将脚本模式转换为单页面模式，在页面构建函数中订阅、发射信号。
 
 示例如下：
 
@@ -855,7 +891,7 @@ ui.run(root=index,port=80)
 
 ## 6 绑定属性
 
-上一章介绍了如何同步脚本模式同一控件之间的状态、数据，但是，如果想要同步同一页面（脚本模式、页面模式）中不同控件之间、控件与任意对象属性之间的状态、数据，则不用那么复杂，控件提供了简单的属性绑定方法，可以单向或者双向绑定控件的可绑定属性、对象的属性。
+上一章介绍了如何同步脚本模式同一控件之间的状态、数据，但是，如果想要同步同一页面（脚本模式、多页面模式、单页面模式）中不同控件之间、控件与任意对象属性之间的状态、数据，则不用那么复杂，控件提供了简单的属性绑定方法，可以单向或者双向绑定控件的可绑定属性、对象的属性。
 
 如果控件存在可绑定属性，则该控件会存在以下三种相关的属性绑定方法：
 
@@ -1182,7 +1218,7 @@ NiceGUI使用异步函数的情况如下：
 
 - 响应函数可以是异步函数。
 
-- 脚本模式、页面模式、单页面应用创建页面的函数可以是异步函数。
+- 脚本模式、多页面模式、单页面模式、单页面应用创建页面的函数可以是异步函数。
 
   示例如下：
 
@@ -2480,7 +2516,7 @@ ui.run(root=index, native=True)
 - `ui.row`控件，在上下文中添加的控件排成一行。
 - `ui.grid`控件，在上下文中添加的控件都放在指定规格（默认为`1x1`）的单元格中。
 - `ui.list`控件，在上下文中添加的`ui.item`控件、`ui.menu_item`控件、`ui.slide_item`控件排成一列，看上去与`ui.column`控件类似，但该控件的子控件之间更加紧凑。
-- `ui.card`控件，在上下文中添加的控件会放在默认带边框的卡片中。
+- `ui.card`控件、`ui.card_actions`控件、`ui.card_section`控件，`ui.card`控件表示卡片主体，在上下文中添加的控件会放在默认带边框的卡片中；`ui.card_actions`控件表示卡片的动作区域，只能在`ui.card`控件的上下文添加，一般在该控件上下文添加可以点击的控件，并且默认靠左对齐；`ui.card_section`控件表示内容分区，只能在`ui.card`控件的上下文添加，一般在该控件上下文添加只是显示内容的控件，并且默认居中对齐。
 - `ui.item`控件、`ui.item_label`控件、`ui.item_section`控件，通常组合在一起使用，共同组成一个内容项目的整体，每个控件对应着内容的指定部分。
 
 示例如下：
@@ -2501,6 +2537,11 @@ def index():
             ui.item(str(i))
     with ui.card():
         ui.label('card')
+        with ui.card_section():
+            ui.label('card section')
+        with ui.card_actions():
+            ui.button('Yes')
+            ui.button('No')
     with ui.item('item'):
         with ui.item_section():
             ui.item_label('label1')
@@ -2644,10 +2685,115 @@ ui.run(root=index,native=True)
 
 对于内容多到需要分页的情况，下面的控件可以很好处理这种情况：
 
-- ui.tabs、ui.tab、ui.tab_panels、ui.tab_panel
-- ui.carousel
-- ui.pagination
-- ui.stepper，ui.step, ui.stepper_navigation
+- `ui.tabs`控件、`ui.tab`控件、`ui.tab_panels`控件、`ui.tab_panel`控件，共同组成完整的选项卡控件。其中，`ui.tabs`控件为选项卡的页标签容器，用于容纳表示页标签的`ui.tab`控件。`ui.tab_panels`控件是标签页的容器，用于容纳表示标签页的`ui.tab_panel`控件。标签页用于容纳需要分页的内容，点击页标签，标签页容器也会切换到对应的标签页。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.tabs().props('no-caps') as tabs:
+          ui.tab('a',label='标签a')
+          ui.tab('b',label='标签b')
+      with ui.tab_panels(
+          tabs,
+          value='a'
+      ).classes('w-64 h-64 border'):
+          with ui.tab_panel('a'):
+              ui.label('标签页a')
+          with ui.tab_panel('b'):
+              ui.label('标签页b')
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_29](nicegui_pro.assets/2026_15_29.png)
+
+- `ui.carousel`控件、`ui.carousel_slide`控件，共同组成轮播图控件，用法类似选项卡控件，只不过轮播图控件没有页标签，直接就是标签页。`ui.carousel`控件就是`ui.carousel_slide`控件的容器，`ui.carousel_slide`控件用于容纳需要分页的内容。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.carousel(
+          arrows=True,
+          navigation=True,
+          animated=True
+      ).classes('w-64 h-64 border'):
+          with ui.carousel_slide().classes(
+              'border bg-red'
+          ):
+              ui.label('内容a')
+          with ui.carousel_slide().classes(
+              'border bg-blue'
+          ):
+              ui.label('内容b')
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_30](nicegui_pro.assets/2026_15_30.png)
+
+- `ui.pagination`控件，用于切换内容的分页，该控件提供了页码显示和调整功能。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      label = ui.label('当前页为第1页')
+      ui.pagination(
+          1,
+          5,
+          direction_links=True,
+          value=1,
+          on_change=lambda e:label.set_text(
+              f'当前页为第{e.value}页'
+          )
+      )
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_31](nicegui_pro.assets/2026_15_31.png)
+
+- `ui.stepper`控件、`ui.step`控件、`ui.stepper_navigation`控件，共同组成步骤控件，用于将需要分页的内容按步骤显示，具体结构如下图所示：
+
+  ![2026_15_32](nicegui_pro.assets/2026_15_32.png)
+
+  其中，`ui.stepper`控件是所有步骤的容器；`ui.step`控件为具体的步骤，必须设置不重复的`name`参数；`ui.stepper_navigation`控件用于放置控制当前步骤的按钮。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.stepper() as stepper:
+          with ui.step('first'):
+              ui.label('first')
+              with ui.stepper_navigation():
+                  ui.button('next',on_click=stepper.next)
+          with ui.step('second'):
+              ui.label('second')
+              with ui.stepper_navigation():
+                  ui.button('next',on_click=stepper.next)
+                  ui.button('back',on_click=stepper.previous).props('flat')
+          with ui.step('third'):
+              ui.label('third')
+              with ui.stepper_navigation():
+                  ui.button('done',on_click=lambda :ui.notify('done'))
+                  ui.button('back',on_click=stepper.previous).props('flat')
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_33](nicegui_pro.assets/2026_15_33.png)
+
 - ui.timeline，ui.timeline_entry
 
 
@@ -2727,7 +2873,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   ui.run(native=True)
   ```
 
-## 17 自定义控件（更新中）
+## 17 创建自定义控件（更新中）
 
 
 
@@ -3091,19 +3237,353 @@ def index():
 ui.run(root=index, native=True)
 ```
 
-## 20 查询并修改指定控件（更新中）
+## 20 使用`ui.query`方法修改指定元素（更新中）
+
+
+
+在CSS中，有个非常重要的概念叫选择器。
+
+每一条css样式定义由两部分组成，形式如下：
+
+ ```css
+选择器{样式}
+ ```
+
+在`{`之前的部分就是“选择器”。 “选择器”指明了`{样式}`中的“样式”的作用对象，也就是“样式”作用于网页中的哪些元素。
+
+选择器有一套自己的[语法规则](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors)，通过合理设置选择器的规则，可以很精准地选择指定元素。
+
+NiceGUI简化了不少CSS上的操作，但不代表不需要CSS的基础。如果读者掌握了CSS的选择器，与`ui.query`和`ui.teleport`结合使用，那就如同得到了屠龙宝刀，操作界面布局、美化界面将更加得心应手。
+
+注意，前两小节要求读者具备CSS选择器基础，没有相应基础的读者可以搁置前两小节，直接看第三小节。
+
+
+
+前面讲过如何美化控件，即在控件定义时使用`props`、`classes`、`style`等方法美化控件，也可以在控件定义好之后，通过给定的变量名调用相应方法。但是，如果想要美化的控件、元素根本就不是定义出来的，而是框架带出来的，想要美化就有点麻烦。当然，直接修改内置样式、源码很直观，但麻烦。要是有种方法能让想要修改的内容就像被定义为变量一样，后续直接使用，那就方便不少。正巧，`ui.query`就有这样的功能。
+
+注意，`ui.query`的`props`方法修改的是HTML元素的属性（`attribute`），而不是`ui.element`或者Quasar组件的属性（`props`）。
+
+`ui.query`只有一个字符串类型参数`selector`，顾名思义，就是前面提到的选择器。通过给`ui.query`传入选择器语法，`ui.query`将返回CSS选择器能够选择的元素，后续可以直接对该元素执行样式美化的方法。
+
+下面的代码就是使用`ui.query`选择了`body`（网页的主体），并设置`body`的背景颜色：
+
+```python3
+from nicegui import ui
+
+body = ui.query(selector='body')
+body.classes('bg-blue-400')
+
+ui.run(native=True)
+```
+
+![ui_query](nicegui_pro.assets/ui_query.png)
+
+`ui.query`的用法很简单，难点在于确定CSS选择器的写法，这一部分属于CSS基础知识，这里就不再赘述，有能力的读者可以抽时间深入学习CSS选择器的语法。
+
+## 21 使用`ui.teleport`方法传送（移动）控件（更新中）
+
+
 
 先说控件的`move`方法可以移动控件的位置，
 
+```python3
+from nicegui import ui
+
+def index():
+    button = ui.button('ok')
+    card = ui.card()
+    button.move(card)
+
+ui.run(root=index,native=True)
+```
+
+可以用teleport实现
+
+```python3
+from nicegui import ui
+
+def index():
+    card = ui.card()
+    with ui.teleport(card):
+        ui.button('ok')
+
+ui.run(root=index,native=True)
+```
 
 
-再说
 
-ui.query
+其实teleport远比看上去强大，因为其支持选择器，所以可以做到类似query一样的查询效果。
 
-ui.teleport
+比如，使用query查询到的控件、元素，没法在其上下文添加控件，teleport就可以。
 
-ElementFilter
+
+
+肯定有读者在学了`ui.query`美化指定元素之后，突发奇想，想要给指定元素内部添加控件，比如，下面的代码：
+
+```python3
+from nicegui import ui
+
+markdown = ui.markdown('Enter your **name**!')
+with ui.query(f'#c{markdown.id} strong'):
+    ui.input('name').classes('inline-flex').props('dense outlined')
+
+ui.run(native=True)
+```
+
+然而，这段代码并不能成功运行，因为`ui.query`并不支持`add_slot`。如果想要实现类似效果，只需将`ui.query`换成`ui.teleport`即可，不过传递的参数名不是`selector`，而是`to`：
+
+```python3
+from nicegui import ui
+
+markdown = ui.markdown('Enter your **name**!')
+with ui.teleport(to=f'#c{markdown.id} strong'):
+    ui.input('name').classes('inline-flex').props('dense outlined')
+
+ui.run(native=True)
+```
+
+![ui_teleport](nicegui_pro.assets/ui_teleport.png)
+
+`ui.teleport`就是这样一个基于CSS选择器语法将任意控件传送至指定位置的控件。
+
+## 22 使用融合了`ui.query`方法和`ui.teleport`方法的`ElementFilter`类（更新中）
+
+暂时不会CSS选择器语法的读者也不用着急，尽管CSS选择器语法很强大，但在Python中不够直观，想要快速确定选择器还要去网页中开启调试模式。好在NiceGUI提供了另一种不需要CSS选择器的定位指定元素工具，那就是`ElementFilter`。
+
+`ElementFilter`和`ui`模块同级，使用`from nicegui import ElementFilter`来导入。
+
+`ElementFilter`的功能等于`ui.query`加`ui.teleport`，既能设置指定元素的样式，又能将控件传送到指定位置。但与`ui.query`和`ui.teleport`使用CSS选择器语法不同，`ElementFilter`的筛选方式更pythonic，更直观，更契合Python编程习惯。
+
+以下代码是用于匹配的模板内容，以下面的代码为例，分别看看`ElementFilter`不同参数、方法的用途：
+
+```python3
+from nicegui import ui,ElementFilter
+
+with ui.card():
+    ui.button('button A')
+    ui.label('label A_A')
+    ui.label('label A_B')
+
+with ui.card():
+    ui.button('button B')
+    ui.label('label B_A')
+    ui.label('label B_B')
+
+ui.run(native=True)
+```
+
+##### 3.8.3.1 初始化方法
+
+`ElementFilter`类需要初始化为对象实例才能使用。`ElementFilter`类的初始化方法有四个参数，分别是 `kind` 、`marker` 、`content` 、`local_scope`。
+
+`kind`参数，NiceGUI的`ui`类型，表示筛选什么类型的控件。比如，在下面的代码中，传入的参数是`ui.label`，`ElementFilter`就会筛选`ui.label`，这样给`ElementFilter`对象设置背景颜色为红色的时候，页面内所有的`ui.label`的背景颜色就相应变成红色。
+
+```python3
+from nicegui import ui,ElementFilter
+
+with ui.card():
+    ui.button('button A')
+    ui.label('label A_A')
+    ui.label('label A_B')
+
+with ui.card():
+    ui.button('button B')
+    ui.label('label B_A')
+    ui.label('label B_B')
+
+ElementFilter(kind=ui.label).classes('bg-red')
+
+ui.run(native=True)
+```
+
+![ElementFilter_01](nicegui_pro.assets/ElementFilter_01.png)
+
+`marker`参数，字符串类型或者字符串列表类型，表示筛选包含指定marker或者指定marker列表的对象。
+
+在此，需要额外介绍一下控件的`mark`方法，也就是如何给控件添加marker。对于每一个控件，都可以通过`mark`方法定义一组marker，用于`ElementFilter`的筛选。`mark`方法的参数是一个支持解包、分解的字符串类型参数`markers`。也就是说，传入`'A'` 、`'A','B','AB'`、`'B A BA'`、`'A','B BA'`都是可以的。本质上说，`mark`方法就是将传入的字符串转换为该对象的`_markers`列表。对于`'A','B','AB'`这样多个字符串，该方法会转化为`['B','A','AB']`这样的列表来使用。对于`'B A BA'`这样用空格划分的字符串，该方法会自动以空格为分隔符分解为`['B','A','BA']`这样的列表来使用。当然，两种方法混用也没问题，`'A','B BA'`这样的多个字符串，则会转化为`['A','B','BA']`这样的列表。注意，虽然`mark`方法支持串联、重复使用，但最好不要这样做，因为后执行的`mark`方法结果会覆盖先前`mark`方法的结果，如果是想清除之前的marker，倒是可以重复执行。
+
+说完给控件添加marker，下面回归正题，说说如何筛选。`marker`参数和`mark`方法的`markers`参数类似，只不过`marker`参数没有解包过程，想要传入多个字符串，只能使用字符串列表。与`mark`方法的宽松不同，`marker`参数的要求比较严格，要么是纯字符串，带空格的会自动划分、转化为列表，要么是无空格的字符串组成列表，不支持正确解析内含带空格的字符串列表，所以，只有以下格式才是正确的用法：`'A'` 、`['A','B','AB']`、`'B A BA'`。
+
+代码示例如下：
+
+```python3
+from nicegui import ui,ElementFilter
+
+with ui.card():
+    ui.button('button A')
+    ui.label('label A_A').mark('A')
+    ui.label('label A_B').mark('A','B','AB')
+
+with ui.card():
+    ui.button('button B')
+    ui.label('label B_B').mark('B')
+    ui.label('label B_A').mark('B A BA')
+    
+ElementFilter(marker='BA').classes('bg-red')
+#ElementFilter(marker='A B').classes('bg-red')
+#ElementFilter(marker=['A','B']).classes('bg-red')
+
+ui.run(native=True)
+```
+
+![ElementFilter_02](nicegui_pro.assets/ElementFilter_02.png)
+
+`content`参数，字符串类型或者字符串列表类型，表示筛选包含指定内容的对象。筛选范围包括对象的`value`、`text`、`label`、`icon`、`placeholder`等文本属性。匹配要求完全包含指定字符串或者字符串列表。
+
+```python3
+from nicegui import ui,ElementFilter
+
+with ui.card():
+    ui.button('button A')
+    ui.label('label A_A').mark('A')
+    ui.label('label A_B').mark('A','B','AB')
+
+with ui.card():
+    ui.button('button B')
+    ui.label('label B_B').mark('B')
+    ui.label('label B_A').mark('B A BA')
+    
+ElementFilter(content=['B','A']).classes('bg-red')
+
+ui.run(native=True)
+```
+
+![ElementFilter_03](nicegui_pro.assets/ElementFilter_03.png)
+
+`local_scope`参数，布尔类型，表示`ElementFilter`匹配当前范围还是全局，默认为`False`，即匹配全局。如果设置为`True`，则只匹配当前上下文。可以看以下代码，修改了缩进并将此参数设置为`True`，ElementFilter对象就只能匹配同一缩进内的控件：
+
+```python3
+from nicegui import ui,ElementFilter
+
+with ui.card():
+    ui.button('button A')
+    ui.label('label A_A').mark('A')
+    ui.label('label A_B').mark('A','B','AB')
+
+with ui.card():
+    ui.button('button B')
+    ui.label('label B_B').mark('B')
+    ui.label('label B_A').mark('B A BA')
+    ElementFilter(content=['B','A'],local_scope=True).classes('bg-red')
+
+ui.run(native=True)
+```
+
+![ElementFilter_04](nicegui_pro.assets/ElementFilter_04.png)
+
+##### 3.8.3.2 `within`方法和`not_within`方法
+
+顾名思义，这两个方法就是在`ElementFilter`初始化参数的筛选范围内进一步筛选指定的父级对象，得到在指定的父级对象上下文之内、不在指定的父级对象上下文之内的对象。对`within`方法而言，会得到符合该方法匹配条件的对象。对`not_within`方法而言，会排除符合该方法匹配条件的对象
+
+两个方法的参数都一样，都是三个，分别是`kind`、`marker`、`instance`。
+
+`kind`和`marker`与初始化方法的参数一样，这里不再赘述。只是，这里的`marker`不支持字符串列表。
+
+`instance`参数，对象或者对象列表，指定具体对象的范围内是否筛选。以 `within`方法为例，给此参数传递具体对象，`ElementFilter`将只筛选在该对象之内的`ui.label`：
+
+```python3
+from nicegui import ui,ElementFilter
+
+with ui.card() as card1:
+    ui.button('button A')
+    ui.label('label A_A').mark('A')
+    ui.label('label A_B').mark('A','B','AB')
+
+with ui.card() as card2:
+    ui.button('button B')
+    ui.label('label B_B').mark('B')
+    ui.label('label B_A').mark('B A BA')
+
+ElementFilter(kind=ui.label).within(instance=card2).classes('bg-red')
+
+ui.run(native=True)
+```
+
+![ElementFilter_05](nicegui_pro.assets/ElementFilter_05.png)
+
+这两个方法支持串联调用，不过串联就和传递列表给参数一样，是扩展了对应筛选条件的内部列表。对于这两种筛选条件的内部列表，匹配规则是不一样的：对于`within`方法，筛选则是要求列表内元素全部匹配；对于`not_within`方法，筛选则是要求列表内元素任意一个匹配。
+
+##### 3.8.3.3 `exclude`方法
+
+该方法是在`ElementFilter`初始化参数的筛选范围内进一步排除指定的对象。
+
+该方法有三个参数，`kind` 、`marker` 、`content` ，同初始化方法的参数一样，这里简单说一下示例代码，不做详解。不过，该方法的三个参数不支持传入列表，`marker`也不支持根据空格自动划分字符串，这一点需要注意。
+
+```python3
+from nicegui import ui,ElementFilter
+from nicegui.elements.mixins.text_element import TextElement
+
+with ui.card() as card1:
+    ui.button('button A')
+    ui.label('label A_A').mark('A')
+    ui.label('label A_B').mark('A','B','AB')
+
+with ui.card() as card2:
+    ui.button('button B')
+    ui.label('label B_B').mark('B')
+    ui.label('label B_A').mark('B A BA')
+
+ElementFilter(kind=TextElement).exclude(kind=ui.label).classes('bg-red')
+
+ui.run(native=True)
+```
+
+![ElementFilter_06](nicegui_pro.assets/ElementFilter_06.png)
+
+`ui.label`和`ui.button`都继承了`TextElement`，因此匹配`TextElement`会同时匹配到这两种控件，因此，在`exclude`方法中指定`kind`为`ui.label`之后，匹配结果就排除了`ui.label`，只有`ui.button`的颜色变成红色。
+
+##### 3.8.3.4 传送控件到匹配结果
+
+对于`ElementFilter`，想要传送控件到结果也很简单，只需遍历`ElementFilter`对象，就能获取匹配结果。
+
+如下面代码所示，使用`for`遍历`ElementFilter`对象，使用with进入每个元素的上下文，就和正常添加控件到对应slot一样：
+
+```python3
+from nicegui import ui,ElementFilter
+from nicegui.elements.mixins.text_element import TextElement
+
+with ui.card() as card1:
+    ui.button('button A')
+    ui.label('label A_A').mark('A')
+    ui.label('label A_B').mark('A','B','AB')
+
+with ui.card() as card2:
+    ui.button('button B')
+    ui.label('label B_B').mark('B')
+    ui.label('label B_A').mark('B A BA')
+
+for ele in ElementFilter(kind=TextElement).exclude(kind=ui.label).classes('bg-red'):
+    with ele:
+        ui.icon('home')
+
+ui.run(native=True)
+```
+
+![ElementFilter_07](nicegui_pro.assets/ElementFilter_07.png)
+
+##### 3.8.3.5 总结
+
+`ElementFilter`的方法、参数不多，但用法不统一，要是组合使用，需要一些时间思考其匹配模式。而有的读者看到文字太多就头疼，没关系，这里将上面的内容简化为一个表格方便查阅。详细看过一遍文字教程之后，后续开发中再次遇到，可以快速参阅表格来确定匹配模式。
+
+对应参数的匹配模式：
+
+| ElementFilter的方法 | `__init__` | `within` | `not_within` | `exclude` |
+| ------------------- | ---------- | -------- | ------------ | --------- |
+| `kind`参数          | 任意一个   | 全部匹配 | 任意一个     | 任意一个  |
+| `content`参数       | 全部匹配   | 无此参数 | 无此参数     | 任意一个  |
+| `instance`参数      | 无此参数   | 全部匹配 | 任意一个     | 无此参数  |
+| `marker`参数        | 全部匹配   | 全部匹配 | 任意一个     | 任意一个  |
+
+Match type for parameters in `ElementFilter`'s method:
+
+| ElementFilter's method | `__init__` | `within` | `not_within` | `exclude` |
+| ---------------------- | ---------- | -------- | ------------ | --------- |
+| parameter `kind`       | any/or     | all/and  | any/or       | any/or    |
+| parameter `content`    | all/and    | ----     | ----         | any/or    |
+| parameter `instance`   | ----       | all/and  | any/or       | ----      |
+| parameter `marker`     | all/and    | all/and  | any/or       | any/or    |
+
+
 
 
 
@@ -3199,6 +3679,32 @@ def index():
     slot = ui.context.slot
     with ui.button('my button'):
         with slot:
+            ui.button('ok')
+
+ui.run(root=index,native=True)
+```
+
+效果等同于：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.button('my button'):
+        button = ui.button('ok')
+    button.move(ui.context.client.content)
+
+ui.run(root=index,native=True)
+```
+
+或者
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.button('my button'):
+        with ui.teleport('.nicegui-content'):
             ui.button('ok')
 
 ui.run(root=index,native=True)

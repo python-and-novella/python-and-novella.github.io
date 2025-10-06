@@ -2681,7 +2681,7 @@ ui.run(root=index,native=True)
 
   ![2026_15_28](nicegui_pro.assets/2026_15_28.png)
 
-### 15.19 管理多页内容（更新中）
+### 15.19 管理多页内容
 
 对于内容多到需要分页的情况，下面的控件可以很好处理这种情况：
 
@@ -2794,28 +2794,78 @@ ui.run(root=index,native=True)
 
   ![2026_15_33](nicegui_pro.assets/2026_15_33.png)
 
-- ui.timeline，ui.timeline_entry
+- `ui.timeline`控件、`ui.timeline_entry`控件，共同组成时间线控件，其中，`ui.timeline`控件是容器，`ui.timeline_entry`控件是具体时间点对应的内容。
 
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.timeline(side='right'):
+          ui.timeline_entry('first')
+          ui.timeline_entry('second')
+          ui.timeline_entry('third')
+  
+  ui.run(root=index,native=True)
+  ```
 
-### 15.20 使用菜单（更新中）
+  ![2026_15_34](nicegui_pro.assets/2026_15_34.png)
+
+### 15.20 使用菜单
 
 NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右键点击弹出上下文菜单。想要创建它们，会涉及到以下控件：
 
-- ui.menu_item
-- ui.menu
-- ui.context_menu
+- `ui.menu_item`控件，用于创建一般的菜单项，只能用于一般菜单、上下文菜单中。
 
+- `ui.menu`控件，用于创建一般菜单。如果是在其他控件的上下文中创建，则点击其他控件，自动弹出菜单。
 
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.button(icon='menu'):
+          with ui.menu() as menu:
+              ui.menu_item('auto close')
+              ui.menu_item('no auto close',auto_close=False)
+              ui.separator()
+              ui.menu_item('manual close',auto_close=False,on_click=menu.close)
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_35](nicegui_pro.assets/2026_15_35.png)
+
+- `ui.context_menu`控件，用于创建上下文菜单。用法与`ui.menu`控件相同，但只能通过右键弹出菜单。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.button(icon='menu'):
+          with ui.context_menu() as menu:
+              ui.menu_item('auto close')
+              ui.menu_item('no auto close',auto_close=False)
+              ui.separator()
+              ui.menu_item('manual close',auto_close=False,on_click=menu.close)
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_36](nicegui_pro.assets/2026_15_36.png)
 
 ### 15.21 弹出提示信息（更新中）
 
 NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
-- ui.tooltip
-- ui.notify
-- ui.notification
-- ui.dialog
+- `ui.tooltip`控件，
+- `ui.notify`控件，
+- `ui.notification`控件，
+- `ui.dialog`控件，
 
 
 

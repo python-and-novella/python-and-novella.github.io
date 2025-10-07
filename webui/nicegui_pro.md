@@ -1780,7 +1780,7 @@ ui.run(root=index,native=True)
 
 ![2026_14_3](nicegui_pro.assets/2026_14_3.png)
 
-## 15 认识控件（更新中）
+## 15 认识控件
 
 NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较多、功能各异，为了方便读者快速了解，笔者将特点、用途类似的控件划分为一类，先按照类别简单介绍一下这些控件。
 
@@ -3003,12 +3003,94 @@ NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右�
 
 NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
-- `ui.tooltip`控件，
-- `ui.notify`控件，
-- `ui.notification`控件，
-- `ui.dialog`控件，
+- `ui.tooltip`控件，添加到任意控件的上下文，可以给其添加一个鼠标悬停后弹出的工具提示。比如：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.button('tooltip'):
+          ui.tooltip('Hello')
+  
+  ui.run(root=index,native=True)
+  ```
 
+  ![2026_15_37](nicegui_pro.assets/2026_15_37.png)
+
+  另外，大部分控件支持`tooltip`方法，可以实现同样的效果：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button('tooltip').tooltip('Hello')
+  
+  ui.run(root=index,native=True)
+  ```
+
+- `ui.notify`控件，创建之后立马弹出一条文字消息。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'notify',
+          on_click=lambda:ui.notify('Hello')
+      )
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_38](nicegui_pro.assets/2026_15_38.png)
+
+- `ui.notification`控件，用法和效果与`ui.notify`控件基本相同，但该控件允许更新消息的内容，也支持主动通过`dismiss`方法隐藏消息，一般用于提供实时更新的弹出消息。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import asyncio
+  
+  def index():
+      async def notify():
+          n = ui.notification(
+              'Hello',
+              timeout=None
+          )
+          await asyncio.sleep(2)
+          n.message = 'World'
+          await asyncio.sleep(1)
+          n.dismiss()
+      ui.button(
+          'notification',
+          on_click=notify
+      )
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_39](nicegui_pro.assets/2026_15_39.gif)
+
+- `ui.dialog`控件，用于弹出一个基于控件设计界面、非系统原生的对话框。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.dialog() as dialog,ui.card():
+          ui.label('dialog')
+          ui.button('close',on_click=dialog.close)
+      ui.button('dialog',on_click=dialog.open)
+  
+  ui.run(root=index,native=True)
+  ```
+
+  ![2026_15_40](nicegui_pro.assets/2026_15_40.png)
 
 ## 16 使用环境变量
 

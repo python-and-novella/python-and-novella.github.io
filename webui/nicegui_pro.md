@@ -70,16 +70,18 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
 
 从NiceGUI 3.0.0开始，NiceGUI程序按照是否使用`ui.page`创建页面，可划分为三种构建模式：
 
-- 脚本模式。不使用`ui.page`创建页面、不给`ui.run`的第一位置参数`root`传值的话，所有的控件都在全局作用域内创建，这样的构建模式就是脚本模式。此时，虽然每个访问者打开“主页面”（地址为网站的根路径）都能看到所有的控件，但页面的内容互相独立。
+- 脚本模式。不使用`ui.page`创建页面、不给`ui.run`的第一位置参数`root`传值的话，所有的控件都在全局作用域内创建，这样的构建模式就是脚本模式。此时，虽然每个访问者打开“主页面”（地址为网站的根路径）都能看到所有的控件，但多个“主页面”之间的内容互相独立。
 
-  需要注意，这个“主页面”不是真正意义上的主页面，原因如下：
+  在使用脚本模式时，需要**注意**以下几点：
 
-  - 脚本模式只支持一个页面，即“主页面”，并不支持多个页面（后面的单页面应用可以实现脚本模式下支持多个页面，但这里只是为了区分构建模式，暂不展开介绍），也就不存在真正意义上的主页面。
+  - “主页面”**不是**真正意义上的主页面。因为脚本模式只支持一个页面（即“主页面”），并不支持多个页面（后面的单页面应用可以实现脚本模式下支持多个页面，但这里只是为了区分构建模式，暂不展开介绍）。没有其他页面，自然不存在真正意义上的主页面。
 
-  - 这个“主页面”不支持处理页面的参数（没法接收参数，自然没法处理），不具备页面的功能。
-  
+  - “主页面”**不是**完整的页面。脚本模式没法接收、传递页面参数，“主页面”自然没法处理，但页面特殊区域的布局控件依然可以使用。
+
+  - “全局作用域”（脚本模式的全局作用域）**不是**真正意义上的全局作用域。因为所有在全局作用域内创建的对象都会被包装到“主页面”内，对于那些需要全局共享的对象，实际上只是在“主页面”的局部作用域内共享，并非在全局作用域内共享。因此，多个“主页面”之间的内容才会互相独立。对于真正需要在全局作用域内共享的对象，请**不要**使用脚本模式。
+
   以下为示例：
-  
+
   ```python3
   from nicegui import ui
   
@@ -866,9 +868,15 @@ ui.run(root=index,native=True)
 
 信号是NiceGUI 3.0.0引入的新功能。之前版本中类似脚本模式的NiceGUI程序可以共享全局作用域内控件的状态、数据，但在NiceGUI 3.0.0版本中，全局作用域内的控件相当于放在单独的函数中，无法在全局作用域中共享其状态、数据。为了解决此需求，NiceGUI新增了具备信号功能的`Event`类。
 
-在全局作用域内创建`Event`类对象之后，可以在定义控件的响应函数时，将控件的状态、数据通过`Event`类对象的`emit`方法发射为信号，其他通过`subscribe`方法订阅信号而定义的响应函数，会在接收到信号时执行响应函数。
+先创建`Event`类对象，然后通过下面的方法使用`Event`类对象：
 
-注意，因为`Event`类对象必须在全局作用域生效，才能实现各个页面通过信号共享控件的状态、数据，因此，`Event`类对象**不能**在脚本模式中使用。但可以将脚本模式转换为单页面模式，在页面构建函数中订阅、发射信号。
+- `subscribe`方法，该方法用于将指定可调用对象绑定为信号的订阅者，当信号发射、呼叫时，会自动执行对应的可调用对象。
+- `unsubscribe`方法，该方法用于给绑定为订阅者的可调用对象取消绑定。
+- `emit`方法，该方法用于发射信号，可以传入额外参数。如果信号的订阅者支持额外的参数，那么这里传入的额外参数，就会传给订阅者。
+- `emitted`方法，该方法是一个异步方法，可以使用异步等待来等待新的信号发射。
+- `call`方法，该方法是一个异步方法，用于呼叫信号，作用等同于发射信号，但可以使用异步等待来确保信号订阅者执行完毕。
+
+注意，如果需要`Event`类对象在全局作用域内生效，让其他页面通过信号共享控件的状态、数据，就**不能**在脚本模式中使用`Event`类对象，因为脚本模式没有真正意义上的全局作用域，都是局部作用域。但可以将脚本模式转换为单页面模式，划分出全局作用域后使用。
 
 示例如下：
 
@@ -894,6 +902,32 @@ ui.run(root=index,port=80)
 ```
 
 在运行代码之后，可以在浏览器中打开多个标签页，地址为`http://127.0.0.1/`，在任意一个标签页中输入框内输入内容，其他标签页中输入框的内容会自动同步。
+
+除了上面这种使用形式，对于需要在订阅时定义可调用对象的情况，还可以采取装饰器的形式，看上去更加简洁：
+
+```python3
+from nicegui import ui,Event
+
+signal_obj = Event()
+shared_value = ''
+
+# 订阅信号，更新全局变量，以便于新打开的页面自动使用该值作为初始值
+@signal_obj.subscribe
+def update_shared_value(x):
+    global shared_value
+    shared_value=x
+
+def index():
+    input = ui.input(value=shared_value)
+    # 订阅信号
+    @signal_obj.subscribe
+    def update(x):
+        input.set_value(x)
+    # 发射信号
+    input.on_value_change(lambda :signal_obj.emit(input.value))
+
+ui.run(root=index,port=80)
+```
 
 ## 6 绑定属性
 
@@ -1172,6 +1206,8 @@ ui.run(root=index, native=True)
 
 ## 8 使用异步函数
 
+### 8.1 NiceGUI中的异步函数
+
 在Python中，有一种函数叫异步函数。与之相对的，就是同步函数。同步函数就是常见的函数，异步函数就是在定义函数时使用`async`修饰的函数。
 
 一般来说，函数执行之后，就会立即得到结果。但是，如果函数执行的操作比较耗时，程序就会卡住，需要等函数执行完，程序才会恢复。这个就是同步函数的执行过程。
@@ -1259,6 +1295,105 @@ NiceGUI使用异步函数的情况如下：
   ```
   
   ![2026_8_3](nicegui_pro.assets/2026_8_3.gif)
+
+### 8.2 `Event`类的异步函数
+
+部分控件、对象提供了可以异步等待的方法，用于实现在指定动作、状态之后才执行后续操作。这部分内容还有不少示例，所以单开一节，重点说一下。比如，前面介绍的`Event`类，就有两个可以异步等待的方法：`call`方法和`emitted`方法。
+
+先说`call`方法。
+
+如果信号的订阅者需要执行耗时的操作，想要等待操作完成再发射新的信号，使用`emit`方法就不合适，比如下面的代码：
+
+```python3
+from nicegui import ui,Event
+import asyncio
+
+signal_obj = Event()
+shared_value = ''
+
+# 订阅信号，更新全局变量，以便于新打开的页面自动使用该值作为初始值
+@signal_obj.subscribe
+async def update_shared_value(x):
+    global shared_value
+    shared_value=x
+
+async def index():
+    input = ui.input(value=shared_value)
+    button = ui.button('submit')
+    # 订阅信号
+    @signal_obj.subscribe
+    async def update(x):
+        # 模拟耗时操作
+        await asyncio.sleep(3)
+        input.set_value(x)
+    # 发射信号
+    async def submit():
+        button.disable()
+        signal_obj.emit(input.value)
+        button.enable()
+
+    button.on_click(submit)
+
+ui.run(root=index,port=80)
+```
+
+通过模拟耗时操作让其他页面输入框的内容延迟同步，笔者想让提交按钮在内容完成同步之前保持禁用状态，但实际执行时，提交按钮不会等待耗时操作执行完毕才恢复为可用状态，而是立即恢复为可用状态。这个很好理解，因为`emit`方法是同步方法，不支持异步等待，一旦执行就会立刻完成，随即执行后续的代码，将提交按钮恢复为可用状态。
+
+因此，需要将`emit`方法替换为支持异步等待的`call`方法，并添加异步等待，让提交按钮在内容完成同步之前保持禁用状态，只有内容完成同步，才将提交按钮恢复为可用状态：
+
+```python3
+from nicegui import ui,Event
+import asyncio
+
+signal_obj = Event()
+shared_value = ''
+
+# 订阅信号，更新全局变量，以便于新打开的页面自动使用该值作为初始值
+@signal_obj.subscribe
+async def update_shared_value(x):
+    global shared_value
+    shared_value=x
+
+async def index():
+    input = ui.input(value=shared_value)
+    button = ui.button('submit')
+    # 订阅信号
+    @signal_obj.subscribe
+    async def update(x):
+        # 模拟耗时操作
+        await asyncio.sleep(3)
+        input.set_value(x)
+    # 发射信号
+    async def submit():
+        button.disable()
+        await signal_obj.call(input.value)
+        button.enable()
+    button.on_click(submit)
+
+ui.run(root=index,port=80)
+```
+
+![2026_8_4](nicegui_pro.assets/2026_8_4.gif)
+
+至于`emitted`方法，可以实现类似`ui.button`按钮控件`clicked`方法的效果：
+
+```python3
+from nicegui import ui,Event
+
+signal_obj = Event()
+
+async def index():
+    ui.button('Do Something One',on_click=signal_obj.emit)
+    await signal_obj.emitted()
+    ui.button('Do Something Two',on_click=signal_obj.emit)
+    await signal_obj.emitted()
+    ui.button('Do Something Three',on_click=signal_obj.emit)
+    await signal_obj.emitted()
+
+ui.run(root=index,native=True)
+```
+
+![2026_8_3](nicegui_pro.assets/2026_8_3.gif)
 
 ## 9 创建后台任务
 
@@ -4095,28 +4230,6 @@ ui.run(native=True)
 ```
 
 因为代码中的绑定数量很少，因此差异不大，如果将绑定数量放大百倍，就能看出两种绑定的性能差异。
-
-
-
-
-
-## x `Event`类（更新中）
-
-介绍`Event`类的用法，
-
-（简单说一下类、方法的用途，提供一下NiceGUI框架和Quasar框架（如果有的话）那边的文档地址，写个简单的示例，可以按照实际情况配上说明性图片或者效果图片）
-
-
-
-该类支持以下参数：
-
-
-
-该类支持以下属性：
-
-
-
-该类支持以下方法：
 
 
 

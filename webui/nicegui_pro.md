@@ -3363,107 +3363,147 @@ ui.run(root=index, native=True)
 
 自定义控件的核心在`counter.js`文件中，由VUE暴露需要用到的属性和JavaScript方法。在`counter.py`文件中，通过`props`属性接收和设置暴露的属性，使用`run_method`方法执行暴露出的JavaScript方法。如果在`counter.js`文件中发射（`$emit`）了事件，还可以在`counter.py`文件中使用`on`方法响应对应的事件。
 
-## 18 管理静态文件、媒体文件（更新中）
+## 18 管理静态文件、媒体文件
 
 NiceGUI的页面本质上是网页，而网页中通常包含图片、音频、视频、JavaScript代码、CSS代码等文件。NiceGUI提供了一些方法，可以更好管理、使用这些文件：
 
 - `app.add_static_file`方法和`app.add_static_files`方法，用于管理静态文件。
-- `app.add_media_file`方法和`app.add_media_files`方法，，用于管理媒体文件。
+- `app.add_media_file`方法和`app.add_media_files`方法，用于管理媒体文件。
 
-### 18.1 `app.add_static_file`方法和`app.add_static_files`方法（更新中）
+### 18.1 `app.add_static_file`方法和`app.add_static_files`方法
 
+前面提到过`ui.image`控件、`ui.audio`控件、`ui.video`控件用于处理图片、音频、视频文件。不过，前面的示例中只用了网络地址，并没有使用本地地址，肯定有读者在尝试使用本地地址之后发现了异常，以为NiceGUI有bug。
 
-
-
-
-前面提到过`ui.image`、`ui.video`、`ui.audio`等提供视听效果。不过，前面的例子中只用了网络图片地址，并没有使用本地地址，肯定有读者在尝试使用本地地址之后发现了一个奇怪的现象，以为NiceGUI有bug。
-
-以下面的代码为例，`os.path.dirname(os.path.abspath(__file__))`可以获取代码文件的当前目录，在代码文件的同目录下放一个图片文件`LOGO.png`，下面的代码就能显示这个图片。看起来没问题。但是，一旦复制这个图片的地址，将后面的文件名换成其他同目录下的文件名，就会报404错误（文件未找到）。
+以下面的代码为例，`os.path.dirname(os.path.abspath(__file__))`可以获取代码文件的当前目录，在代码文件的同目录下放一个图片文件`LOGO.png`，下面的代码就能显示这个图片。看起来没问题。但是，一旦复制这个图片的地址，将后面的文件名换成其他同目录下的文件名之后，粘贴到浏览器中访问，还是会自动跳转到“主页面”：
 
 ```python3
 from nicegui import ui
 import os
 
-ui.image(f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png')
+def index():
+    ui.image(
+        f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png'
+    ).classes('w-64 h-64')
 
-ui.run(native=True)
+ui.run(root=index)
 ```
 
-其实这不是NiceGUI的bug，而是默认的安全和缓存机制，只有代码中使用的静态文件才会生成地址映射，其他没有使用的文件即使存在，直接输入地址访问也会报不存在。以上面的代码为例，图片文件的地址是`http://127.0.0.1:8000/_nicegui/auto/static/cf276f9ca066376dc8588fbf61afe905/LOGO.png`，中间的`cf276f9ca066376dc8588fbf61afe905`是图片的hash码，而不是真实存在的目录。之所以会变成这样，是因为NiceGUI会对小的静态文件进行缓存，提高访问速度。因为网页中经常存在大量图片、JavaScript代码、CSS代码等文件，使用缓存可以提高访问速度，不必每次刷新都要从服务器获取。而且，采用缓存机制，还能避免黑客恶意猜测服务器的文件目录，进而获取到影响安全的文件。
+![2026_18_1](nicegui_pro.assets/2026_18_1.png)
 
-这个时候，理解这一切的读者已经恍然大悟，随之而来的是另一个问题——如果想创建一个图片的链接但图片随时修改怎么办？总不能每次都用`ui.image`生成一次，然后复制地址过去吧？就算使用代码实现自动化，看上去也不够优雅。
+其实这不是NiceGUI的bug，而是默认的安全和缓存机制，只有代码中使用的静态文件才会生成地址映射，其他没有使用的文件即使存在，直接输入地址访问也无法访问。以上面的代码为例，图片文件的地址是`http://127.0.0.1:8080/_nicegui/auto/static/380768c7e814c88ecab818d3d9850e11/LOGO.png`，中间的`380768c7e814c88ecab818d3d9850e11`是图片的hash码，而不是真实存在的目录。之所以会变成这样，是因为NiceGUI会对小的静态文件进行缓存，提高访问速度。因为网页中通常包含大量图片、JavaScript代码、CSS代码等文件，使用缓存可以提高访问速度，不必每次刷新都要从服务器获取。此外，采用缓存机制，还能避免黑客恶意猜测服务器的文件目录，进而获取到影响安全的文件。
 
-这时，就需要正式介绍一下本节要说的功能——`app.add_static_file`。`app.add_static_file`可以返回本地文件的服务器地址，也可以将本地文件映射为固定的服务器地址。
+这个时候，理解这一切的读者想必已经恍然大悟。但不要高兴得太早，随之而来的是另一个问题——如果`ui.link`控件想使用图片的链接但图片会不定时修改怎么办？总不能每次都用`ui.image`控件生成一次图片地址，然后复制地址过去吧？倒不用那么笨拙，只需使用`ui.image`控件的`auto_route`属性即可：
 
-以代码为例：
+```python3
+from nicegui import ui
+import os
+
+def index():
+    img = ui.image(
+        f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png'
+    ).classes('w-64 h-64')
+    ui.link('pic',img.auto_route)
+
+ui.run(root=index)
+```
+
+`ui.audio`控件、`ui.video`控件也有`auto_route`属性。
+
+不过，这并不能解决文件变化会导致地址随之变化的问题，一旦非NiceGUI程序或者外部网站需要使用图片地址，还是需要一个可以获取或者固定图片地址的方法。
+
+这时，就需要正式介绍一下本节要说的方法——`app.add_static_file`方法。`app.add_static_file`方法可以返回本地文件的服务器地址，也可以将本地文件映射为固定的服务器地址。
+
+还是以代码为例：
 
 ```python3
 from nicegui import ui, app
 import os
 
-src = app.add_static_file(
-    local_file=f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png',
-    url_path=None,
-    single_use=False
-)
+def index():
+    src = app.add_static_file(
+        local_file=f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png',
+        url_path=None,
+        single_use=False
+    )
+    ui.link('pic', src)
+    ui.label(src)
+    ui.image(
+        src
+    ).classes('w-64 h-64')
 
-ui.link('pic', src)
-ui.label(src)
-ui.image(src)
-
-ui.run(native=True)
+ui.run(root=index)
 ```
 
+![2026_18_2](nicegui_pro.assets/2026_18_2.png)
 
+可以看到，给`app_add_static_file`方法的`local_file`参数传入本地文件地址之后，该方法返回的正是服务器地址，和`ui.image`控件的图片地址一致。这样的话，`ui.link`控件可以直接使用该地址，也可以将该地址直接传给其他需要的控件，无需通过特定控件中转。
 
-可以看到，给`app_add_static_file`的`local_file`传入本地文件地址，返回的正是服务器地址，和`ui.image`的图片地址一致，这下，`ui.link`也能使用图片，而不必担心图片变化还要手动复制地址。
+不过，这只是`app_add_static_file`方法其中一个用法，该方法更好用的用法藏在其参数中。
 
-`app_add_static_file`有三个参数：
+`app_add_static_file`支持以下参数（部分）：
 
-`local_file`参数，字符串类型或者`Path`类型，表示本地文件地址。
+- `local_file`参数，字符串类型或者`Path`类型，表示本地文件地址。
+- `url_path`参数，字符串类型，表示服务器地址，默认为`None`，即自动生成服务器地址，也可以传入参数，例如`'/logo.png'`，就是固定的服务器地址。
+- `single_use`参数，布尔类型，表示文件是否在下载一次后移除服务器地址，默认为`False`。
 
-`url_path`参数，字符串类型，表示服务器地址，默认为`None`，即自动生成服务器地址，也可以传入参数，例如`'/logo.png'`，就是固定的服务器地址。
+没错，只需给`url_path`参数传入指定地址，就能将文件映射为固定地址：
 
-`single_use`参数，布尔类型，表示文件是否在下载一次后移除服务器地址，默认为`False`。
+```python3
+from nicegui import ui, app
+import os
 
-假如要添加的图片比较多，但都在一个文件夹内，是不是还要一个一个添加？不用，`app_add_static_files`可以将本地文件夹映射为服务器地址。
+def index():
+    src = app.add_static_file(
+        local_file=f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png',
+        url_path='/logo.png',
+        single_use=False
+    )
+    ui.link('pic', src)
+    ui.label(src)
+    ui.image(
+        src
+    ).classes('w-64 h-64')
 
-`app_add_static_files`有三个参数：
+ui.run(root=index)
+```
 
-`local_directory`参数，字符串类型或者`Path`类型，表示本地文件夹地址。
+![2026_18_3](nicegui_pro.assets/2026_18_3.png)
 
-`url_path`参数，字符串类型，表示服务器目录地址，必须传入'/'开头的字符串，例如`'/pic'`，同时不能为`'/'`，不然会报错。
+假如要添加的图片比较多，但都在一个文件夹内，是不是还要一个一个添加？不用，`app_add_static_files`方法可以将本地文件夹映射为服务器地址。
 
-`follow_symlink`参数，布尔类型，表示是否追踪符号链接，即目录下如果存在符号链接的话，会将符号链接代表的实际路径连接到当前路径下，让服务器地址访问符号链接就和本地访问符号链接一样。这个参数默认为`False`，即不处理符号链接，服务器地址没法访问符号链接。注意，此参数为`True`并且在Windows平台下的话，代码中使用的`os.path.abspath(__file__)`会导致获取到文件路径中的磁盘符号为小写，将导致底层代码出错进而上报404错误。此时应该将`os.path.abspath(__file__)`换成`os.path.realpath(__file__)`。如果后续遇到Windows平台下开启`app_add_static_files`的追踪符号链接后，报404错误，可以按照这个思路检查一下传入的`local_directory`参数中，磁盘符号是不是小写。
+`app_add_static_files`支持以下参数（部分）：
 
-### 18.2 `app.add_media_file`方法和`app.add_media_files`方法（更新中）
+- `local_directory`参数，字符串类型或者`Path`类型，表示本地文件夹地址。
+- `url_path`参数，字符串类型，表示服务器目录地址，必须传入'/'开头的字符串，例如`'/pic'`，同时不能为`'/'`，不然会报错。
+- `follow_symlink`参数，布尔类型，表示是否追踪符号链接，即目录下如果存在符号链接的话，会将符号链接代表的实际路径连接到当前路径下，让服务器地址访问符号链接就和本地访问符号链接一样。这个参数默认为`False`，即不处理符号链接，服务器地址没法访问符号链接。注意，此参数为`True`并且在Windows平台下的话，代码中使用的`os.path.abspath(__file__)`会导致获取到文件路径中的磁盘符号为小写，将导致底层代码出错进而上报404错误。此时应该将`os.path.abspath(__file__)`换成`os.path.realpath(__file__)`。如果后续遇到Windows平台下开启`app_add_static_files`的追踪符号链接后，报404错误，可以按照这个思路检查一下传入的`local_directory`参数中，磁盘符号是不是小写。
 
-前面的`app.add_static_file`、`app.add_static_files`用于添加小的静态文件，本节要介绍的`app.add_media_file`、`app.add_media_files`则用于添加媒体文件。看名字的话，和前两者相似，一个是添加单个文件，一个是添加文件夹，那NiceGUI为何要设计重复的功能？
+### 18.2 `app.add_media_file`方法和`app.add_media_files`方法
 
-重复当然是不可能重复的，既然是用于媒体文件，肯定与静态文件不同。媒体文件通常是音视频等需要流式传输的文件，不会一下子全部加载，而是一点一点加载，这一点与静态文件不同。毕竟媒体文件通常比较大，一下子全部缓存，一不小心就会让缓存空间爆满。之所以采用流式传输，是因为媒体文件需要支持播放时跳转到指定时间点，如果是采用静态文件那种缓存全部再加载的机制，跳转到指定时间点的功能会失效，只有流式传输才支持跳转到指定时间点。
+前面介绍的`app.add_static_file`方法、`app.add_static_files`方法一般用于添加小的静态文件，本节要介绍的`app.add_media_file`方法、`app.add_media_files`方法则用于添加媒体文件。看名字的话，和前两者相似，一个是添加单个文件，一个是添加文件夹，那NiceGUI为何要设计重复的功能？为什么不能将媒体文件当作静态文件处理？
 
-`app.add_media_file`、`app.add_media_files`得到的服务器地址就是采用流式传输，而不是缓存机制。
+重复当然是不可能重复的，既然是用于媒体文件，肯定与静态文件不同。媒体文件通常是音视频等需要流式传输的文件，不会一下子全部加载，而是一点一点加载，这种加载方式就叫流式传输。这一点与静态文件不同。毕竟媒体文件通常比较大，一下子全部缓存，一不小心就会让缓存空间爆满。之所以采用流式传输，是因为媒体文件需要支持播放时跳转到指定时间点，如果是采用静态文件那种缓存全部再加载的机制，跳转到指定时间点的功能会失效，只有流式传输才支持跳转到指定时间点。
+
+`app.add_media_file`方法、`app.add_media_files`方法得到的服务器地址就是采用流式传输，而不是缓存机制。
 
 以下面的代码为例，可以看一下区别，因为此代码需要本地视频文件，这里就不提供直接运行的代码了，视频文件地址由读者自己修改：
 
 ```python3
-from nicegui import ui,app
+from nicegui import ui, app
 
-video = r'{视频文件的本地路径}'
-app.add_static_file(local_file=video,url_path='/video1')
-app.add_media_file(local_file=video,url_path='/video2')
+def index():
+    video = r'mv.mp4'
+    app.add_static_file(local_file=video,url_path='/video1')
+    app.add_media_file(local_file=video,url_path='/video2')
 
-ui.video('/video1')
-ui.video('/video2')
+    ui.video('/video1')
+    ui.video('/video2')
 
-ui.run(native=True)
+ui.run(root=index)
 ```
 
-通常情况下，`app.add_static_file`得到的视频文件地址，在播放器中没法拖动进度条，`app.add_media_file`得到的视频文件地址，在播放器中和正常播放一样，可以自由拖动时间轴。但是，大多数服务器、浏览器、播放器有容错优化，实际上两种方法得到的视频地址都可以正常播放，只有某些要求严格的接口、播放程序才会有区别。一般建议读者使用`app.add_media_file`添加媒体文件，以免特定情况下出现不兼容的问题。
+通常情况下，`app.add_static_file`方法得到的视频文件地址，在播放器中没法自由拖动进度条，只能跳转到关键帧。`app.add_media_file`方法得到的视频文件地址，在播放器中和正常播放一样，可以自由拖动进度条。但是，大多数服务器、浏览器、播放器有优化，实际上两种方法得到的视频地址都可以正常播放、拖动进度条，只有某些要求严格的接口、播放程序才会有区别。一般建议读者使用`app.add_media_file`方法添加媒体文件，以免特定情况下出现不兼容的问题。
 
-`app.add_media_file`的参数和`app.add_static_file`的一样，这里不再赘述。`app.add_media_files`的参数则比`app.add_static_files`少了`follow_symlink`参数。
-
-
+`app.add_media_file`方法的参数和`app.add_static_file`方法的一样，这里不再赘述。`app.add_media_files`方法则相比于`app.add_static_files`方法少了`follow_symlink`参数。
 
 ## 19 给页面添加额外的HTML、CSS代码
 
@@ -3583,6 +3623,10 @@ ui.run(root=index, native=True)
 ```
 
 ## 20 使用`ui.query`方法修改指定HTML标签（更新中）
+
+
+
+（优化引言，说明`ui.query`方法可以解决哪些痛点。）
 
 
 
@@ -3962,13 +4006,19 @@ app.storage
 
 
 
-## 23 使用`ui.navigate`控制地址（更新中）
 
 
 
 
 
-## 24 使用`ui.fullscreen`控制全屏（更新中）
+
+## 2x 使用`ui.navigate`控制地址（更新中）
+
+
+
+
+
+## 2x 使用`ui.fullscreen`控制全屏（更新中）
 
 
 
@@ -4063,6 +4113,44 @@ ui.run(root=index,native=True)
 
 
 
+## 30 通过URL给NiceGUI程序传参
+
+因为NiceGUI是基于FastAPI实现的，所以，FastAPI的URL参数注入（用法参考 https://fastapi.tiangolo.com/tutorial/path-params/ 、https://fastapi.tiangolo.com/tutorial/query-params/ 、https://fastapi.tiangolo.com/advanced/using-request-directly/ ）在NiceGUI程序中也能使用。
+
+NiceGUI程序支持两种URL参数注入：
+
+- 嵌在URL中的路径参数（路径中的部分字段即为参数的值，比如`/icon/star`中的`star`），需要通过定义通配路径来捕获参数的值：`'/icon/{icon}'`。
+- 放在英文问号之后的查询参数（需要显式指明参数和对应的值，比如`/icon/star?amount=5`中的`amount=5`），则会自动捕获参数名和对应的值。
+
+在`ui.page`装饰的函数、页面构建函数的参数列表中创建同名参数后，即可在函数内部使用上面提到的URL参数：
+
+```python3
+from nicegui import ui
+
+@ui.page('/icon/{icon}')
+def icons(icon: str, amount: int = 1):
+    ui.label(icon).classes('text-h3')
+    with ui.row():
+        [
+            ui.icon(icon).classes('text-h3') 
+            for _ in range(amount)
+        ]
+
+@ui.page('/')
+def index():
+    ui.link('Star', '/icon/star?amount=5')
+    ui.link('Home', '/icon/home')
+    ui.link('Water', '/icon/water_drop?amount=3')
+
+ui.run()
+```
+
+访问名为Star的超链接或者访问`http://127.0.0.1:8080/icon/star?amount=5`即可看到：
+
+![2026_30_1](nicegui_pro.assets/2025_12_1.png)
+
+
+
 ## 对话框背景模糊（更新中）
 
 
@@ -4080,6 +4168,33 @@ ui.button('Open', on_click=dialog.open)
 
 ui.run()
 ```
+
+
+
+
+
+
+
+## 点击嵌入按钮的图标时不触发按钮的点击事件
+
+如果在按钮的上下文中嵌入图标，给图标的点击事件设置单独的响应函数，点击图标的话，会同时触发按钮和图标的点击响应函数。这是因为HTML处理子级元素的事件时，会把该事件传播到父级元素中，同时触发父级元素的同类事件。
+
+解决方法也很简单，只需给子级元素的响应函数中，添加JavaScript代码，执行对应事件的`stopPropagation()`方法，来阻止事件的传播即可：
+
+```python3
+from nicegui import ui
+
+with ui.button('Item').classes('w-96') as button:
+    button.on_click(lambda :ui.notify('button'))
+    ui.space()
+    icon = ui.icon('delete')
+    icon.on('click',js_handler='(e)=>{e.stopPropagation()}')
+    icon.on('click',lambda :ui.notify('icon'))
+    
+ui.run(native=True)
+```
+
+![2025_11_1](nicegui_pro.assets/2025_11_1.gif)
 
 
 
@@ -4105,7 +4220,207 @@ ui.run()
 
 
 
-## 指定窗口模式使用的webview运行时版本，也可以随应用附加（无需安装）
+
+
+## 窗口模式相关（更新中）
+
+
+
+窗口模式相关的一些用法、示例，比如配置pywebview相关的配置，和pywebview版本相关的配置项，指定运行时为Qt还是Webview2，指定Webview2的版本等。
+
+
+
+窗口的关闭、弹出、标题修改、窗口大小调整、窗口位置设置等。
+
+
+
+### 3 允许Native Mode的NiceGUI程序弹出下载对话框
+
+默认情况下，在以Native Mode运行的NiceGUI程序中，`ui.download`是不能下载的，这是pywebview框架（Native Mode的依赖）默认的安全配置，这时需要使用`app.native.settings['ALLOW_DOWNLOADS'] = True`来修改pywebview的安全配置，代码如下：
+
+```python3
+from nicegui import ui, app
+
+app.native.settings['ALLOW_DOWNLOADS'] = True
+ui.button('Download', on_click=lambda: ui.download(b'Demo text','demo_file.txt'))
+
+ui.run(native=True)
+```
+
+### 4 让Native Mode的NiceGUI程序使用Qt的QtWebEngine作为运行时
+
+默认情况下，如果Windows系统安装了Webview2，哪怕添加了Qt6相关的Python包（PyQT6、PySide6），以Native Mode运行的NiceGUI程序还是优先采用Webview2当作浏览器运行时。如果想要以Native Mode运行的NiceGUI程序采用QtWebEngine当做浏览器运行时，需要手动指定pywebview框架的Web engine（参考文档见 https://pywebview.flowrl.com/guide/web_engine.html），代码如下：
+
+```python3
+from nicegui import ui, app
+
+app.native.start_args['gui'] = 'qt'
+app.native.start_args['icon'] = 'favicon.ico'
+# For 'gui' arg,you needn't assign it usually,besides you want to change the render; 
+#  'edgechromium' is best on Windows ;
+# qt based is a litte heavy,but it can be used on Windows/Linux/Mac;
+# try to install qt libs by `pip install pywebview[qt]` or else:
+#  'qt' needs ["QtPy", "PyQt6", "PyQt6-WebEngine"];
+#  'qt6' needs ["QtPy", "PyQt6", "PyQt6-WebEngine"];
+#  'pyside6' needs ["QtPy", "PySide6"];
+
+ui.button('Say Hi',on_click=lambda :ui.notify('Hello World!'))
+
+ui.run(native=True)
+```
+
+使用QtWebEngine当做浏览器运行时，窗口图标默认为Windows默认图标，而不是Python的图标，可以像代码中一样，使用`app.native.start_args['icon'] = 'favicon.ico'`指定，路径默认为源代码同目录，可以使用相对路径或者绝对路径。
+
+### 5 让Native Mode的NiceGUI程序使用固定版本或者非系统自带的Webview2作为运行时
+
+默认情况下，如果Windows系统安装了Webview2，以Native Mode运行的NiceGUI程序优先采用系统的Webview2当作浏览器运行时。但是，系统的Webview2更新很快，而且是自动更新，若是开发的程序与最新版Webview2不兼容或者想要避免系统Webview2版本更新导致的潜在问题，则可以设置环境变量`WEBVIEW2_BROWSER_EXECUTABLE_FOLDER`为指定版本Webview2解压之后的路径，让native mode运行时使用固定版本Webview2。
+
+固定版本Webview2可以到Webview2官网（https://developer.microsoft.com/zh-cn/microsoft-edge/webview2）下载，本解决方案参考自微软开发者文档（https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#details-about-the-fixed-version-runtime-distribution-mode）。
+
+代码如下：
+
+```python3
+from nicegui import ui
+import os
+import pathlib
+os.environ['WEBVIEW2_BROWSER_EXECUTABLE_FOLDER'] = str(pathlib.Path(__file__).parent/'Microsoft.WebView2.FixedVersionRuntime.135.0.3179.98.x64')
+
+ui.run(native=True)
+```
+
+这里是将固定版本Webview2解压之后，将包含可执行文件`msedgewebview2.exe`的文件夹（文件夹名字为`'Microsoft.WebView2.FixedVersionRuntime.135.0.3179.98.x64'`）放到源代码的同级目录中，读者在实际使用时可以自行变换路径。
+
+
+
+### 20 在Native Mode的NiceGUI程序中打开对话框（不使用JavaScript）
+
+在以Native Mode运行的NiceGUI程序中，除了使用JavaScript调用确认对话框、文件对话框，还可以基于pywebview，使用Python的接口调用这两种对话框。相比于使用JavaScript，直接使用Python的接口，操作更简单，支持的参数也更多。
+
+#### 20.1 确认对话框
+
+使用`app.native.main_window.create_confirmation_dialog`方法即可创建确认对话框：
+
+```python3
+from nicegui import ui,app
+
+async def open_dialog():
+    # 确认对话框返回布尔值
+    result =  await app.native.main_window.create_confirmation_dialog(
+        title='选择',
+        message='是否继续'
+    )
+    ui.notify(result)
+
+ui.button('Open Dialog', on_click=open_dialog)
+
+ui.run(native=True)
+```
+
+![2025_20_1](nicegui_pro.assets/2025_20_1.png)
+
+`app.native.main_window.create_confirmation_dialog`方法支持以下参数：
+
+- `title`参数，字符串类型，表示对话框的标题。
+- `message`参数，字符串类型，表示对话框的内容。
+
+确认对话框会根据用户的选择返回布尔值，因此，需要使用异步等待获取返回值。
+
+#### 20.2 文件择对话框
+
+使用`app.native.main_window.create_file_dialog`方法即可创建文件对话框：
+
+```python3
+from nicegui import ui,app
+
+async def open_dialog():
+    result =  await app.native.main_window.create_file_dialog()
+    ui.notify(result)
+
+ui.button('Open Dialog', on_click=open_dialog)
+
+ui.run(native=True)
+```
+
+![2025_20_2](nicegui_pro.assets/2025_20_2.png)
+
+`app.native.main_window.create_file_dialog`方法支持以下参数：
+
+- `dialog_type`参数，整数类型，表示文件对话框的类型，默认为`webview.OPEN_DIALOG`。仅支持`[10,20,30]`中的值，分别对应打开文件、打开目录、保存文件。其中保存文件并不会直接创建该文件，只是返回该文件的最终路径，后续需要基于此路径额外执行创建文件的过程，该方法并不负责创建文件。
+
+  除了直接使用整数表示文件对话框的类型，`webview`库还提供了三个预定义常量（也就是该参数默认值的用法），可以根据变量名判断出不同值的含义：
+
+  ```python3
+  OPEN_DIALOG = 10
+  FOLDER_DIALOG = 20
+  SAVE_DIALOG = 30
+  ```
+
+  注意，`webview`库升级为6.0之后，这三个预定义常量已经标记为弃用，推荐改用`webview.FileDialog`的成员`LOAD`（对应`OPEN_DIALOG`）、`FOLDER`（对应`FOLDER_DIALOG`）和 `SAVE`（对应`SAVE_DIALOG`）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui,app
+  
+  async def open_dialog():
+      import webview
+      result =  await app.native.main_window.create_file_dialog(
+          dialog_type = webview.SAVE_DIALOG
+      )
+      ui.notify(result)
+  
+  ui.button('Open Dialog', on_click=open_dialog)
+  
+  ui.run(native=True)
+  ```
+
+- `directory`参数，字符串类型，表示文件对话框的初始路径，默认为`''`，取决于上次打开文件对话框时的路径。
+
+  注意，该参数不支持`r`前缀修饰字符串，也不支持斜杠`'/'`作为路径分隔，仅支持反斜杠`'\'`作为路径分隔，并且为了避免转义导致误解，需要使用双反斜杠代替单反斜杠。比如：
+
+  ```python3
+  from nicegui import ui,app
+  
+  async def open_dialog():
+      result =  await app.native.main_window.create_file_dialog(
+          directory='E:\\'
+      )
+      ui.notify(result)
+  
+  ui.button('Open Dialog', on_click=open_dialog)
+  
+  ui.run(native=True)
+  ```
+
+- `allow_multiple`参数，布尔类型，表示是否允许选择多个文件（按住`ctrl`键可以同时选择多个，仅限打开文件、打开目录），默认为`False`
+
+- `save_filename`参数，字符串类型，表示保存文件时的默认文件名，默认为`''`。
+
+- `file_types`参数，元素为字符串类型的元组，表示默认允许的文件后缀（仅限打开文件、保存文件）。
+
+  在对话框的文件类型下拉框中，元组的每个元素表示一个文件类型选项。而每个元素对应的字符串，其格式为`'{文件类型的简短描述，支持空格} (*.{文件后缀1};*.{文件后缀2};...)'`。一个文件类型选项相当于一个文件格式筛选器，字符串中，英文括号内的文件后缀就是被筛选出来的文件后缀（支持多个，如果只筛选单个文件后缀，则不能添加英文分号）
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui,app
+  
+  async def open_dialog():
+      result =  await app.native.main_window.create_file_dialog(
+          file_types=('Python File (*.py)','CPP File (*.cpp)')
+      )
+      ui.notify(result)
+  
+  ui.button('Open Dialog', on_click=open_dialog)
+  
+  ui.run(native=True)
+  ```
+
+  ![2025_20_3](nicegui_pro.assets/2025_20_3.png)
+
+文件对话框会根据用户的选择返回文件路径，因此，需要使用异步等待获取返回值。
+
+
 
 
 

@@ -2172,7 +2172,7 @@ ui.run(root=index,native=True)
 
 ### 15.10 显示矢量图（SVG）
 
-除了前面提到过的图片文件，NiceGUI还支持矢量图。所谓矢量图，即不是记录所有像素、而是记录图片元素绘制方法的图片，其内容不会因为缩放而变得模糊。
+除了前面提到过的图片文件，NiceGUI还支持矢量图。所谓矢量图，即不是记录所有像素、而是记录图形绘制方法的图片，其内容不会因为缩放而变得模糊。
 
 以下控件的内容都是矢量图：
 
@@ -3278,7 +3278,7 @@ from nicegui import ui, app
 def index():
     ui.add_body_html(
         '''
-        <link rel='stylesheet' href='//unpkg.com/element-plus/dist/index.css'/>
+        <link rel='stylesheet' href='https://unpkg.com/element-plus/dist/index.css'/>
         <script defer src='https://unpkg.com/element-plus'></script>
         <script defer src='https://unpkg.com/naive-ui'></script>
         '''
@@ -3293,10 +3293,52 @@ def index():
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
-ui.run(root=index, native=True)
+ui.run(root=index)
 ```
 
 ![2026_17_3](nicegui_pro.assets/2026_17_3.png)
+
+注意，如果嫌使用网络地址响应太慢（上面的示例不使用窗口模式就是因为加载太慢），想将框架所需的文件下载到本地来使用，则需要使用`app.add_static_file`方法或`app.add_static_files`方法，为所需的文件生成地址映射。这两个方法的用法后续会单开章节，这里不展开介绍。
+
+示例如下：
+
+```python3
+from nicegui import ui, app
+
+def index():
+    app.add_static_file(
+        local_file='element_plus.index.css',
+        url_path='/css/element_plus.index.css'
+    )
+    app.add_static_file(
+        local_file='element_plus.index.full.js',
+        url_path='/js/element_plus.index.full.js'
+    )
+    app.add_static_file(
+        local_file='NaiveUI.index.js',
+        url_path='/js/NaiveUI.index.js'
+    )
+    ui.add_body_html(
+        '''
+        <link rel='stylesheet' href='/css/element_plus.index.css'/>
+        <script defer src='/js/element_plus.index.full.js'></script>
+        <script defer src='/js/NaiveUI.index.js'></script>
+        '''
+    )
+    app.config.vue_config_script += '''
+        app.use(ElementPlus);
+        app.use(naive);
+    '''
+    with ui.element('el-button').props('type=primary'):
+        ui.label('Element Plus button')
+    with ui.element('n-button').props('type=primary'):
+        ui.label('Naive UI button')
+    ui.button('Quasar button')
+
+ui.run(root=index,native=True)
+```
+
+这样就能使用窗口模式运行了。
 
 ### 17.3 创建VUE组件
 
@@ -3454,7 +3496,7 @@ ui.run(root=index)
 
 不过，这只是`app_add_static_file`方法其中一个用法，该方法更好用的用法藏在其参数中。
 
-`app_add_static_file`支持以下参数（部分）：
+`app_add_static_file`支持以下关键字参数（部分）：
 
 - `local_file`参数，字符串类型或者`Path`类型，表示本地文件地址。
 - `url_path`参数，字符串类型，表示服务器地址，默认为`None`，即自动生成服务器地址，也可以传入参数，例如`'/logo.png'`，就是固定的服务器地址。
@@ -3489,7 +3531,7 @@ ui.run(root=index)
 
 - `local_directory`参数，字符串类型或者`Path`类型，表示本地文件夹地址。
 - `url_path`参数，字符串类型，表示服务器目录地址，必须传入'/'开头的字符串，例如`'/pic'`，同时不能为`'/'`，不然会报错。
-- `follow_symlink`参数，布尔类型，表示是否追踪符号链接，即目录下如果存在符号链接的话，会将符号链接代表的实际路径连接到当前路径下，让服务器地址访问符号链接就和本地访问符号链接一样。这个参数默认为`False`，即不处理符号链接，服务器地址没法访问符号链接。注意，此参数为`True`并且在Windows平台下的话，代码中使用的`os.path.abspath(__file__)`会导致获取到文件路径中的磁盘符号为小写，将导致底层代码出错进而上报404错误。此时应该将`os.path.abspath(__file__)`换成`os.path.realpath(__file__)`。如果后续遇到Windows平台下开启`app_add_static_files`的追踪符号链接后，报404错误，可以按照这个思路检查一下传入的`local_directory`参数中，磁盘符号是不是小写。
+- `follow_symlink`参数，布尔类型，关键字参数，表示是否追踪符号链接，即目录下如果存在符号链接的话，会将符号链接代表的实际路径连接到当前路径下，让服务器地址访问符号链接就和本地访问符号链接一样。这个参数默认为`False`，即不处理符号链接，服务器地址没法访问符号链接。注意，此参数为`True`并且在Windows平台下的话，代码中使用的`os.path.abspath(__file__)`会导致获取到文件路径中的磁盘符号为小写，将导致底层代码出错进而上报404错误。此时应该将`os.path.abspath(__file__)`换成`os.path.realpath(__file__)`。如果后续遇到Windows平台下开启`app_add_static_files`的追踪符号链接后，报404错误，可以按照这个思路检查一下传入的`local_directory`参数中，磁盘符号是不是小写。
 
 ### 18.2 `app.add_media_file`方法和`app.add_media_files`方法
 
@@ -3674,58 +3716,58 @@ ui.run(root=index, native=True)
 
 ![2026_19_2](nicegui_pro.assets/2026_19_2.png)
 
-## 20 使用`ui.query`方法修改指定HTML标签（更新中）
-
-
-
-（优化引言，说明`ui.query`方法可以解决哪些痛点。）
-
-
+## 20 精准匹配指定内容（HTML标签、控件）
 
 在CSS中，有个非常重要的概念叫选择器。
 
-每一条css样式定义由两部分组成，形式如下：
+每一条CSS样式定义由两部分组成，形式如下：
 
  ```css
 选择器{样式}
  ```
 
-在`{`之前的部分就是“选择器”。 “选择器”指明了`{样式}`中的“样式”的作用对象，也就是“样式”作用于网页中的哪些元素。
+在`{`之前的部分就是选择器。 选择器指明了`{样式}`中的样式的作用对象或者作用范围，也就是样式作用于网页中的哪些HTML标签。
 
-选择器有一套自己的[语法规则](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors)，通过合理设置选择器的规则，可以很精准地选择指定元素。
+选择器有一套自己的语法规则（https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/Selectors），通过合理设置选择器，可以实现精准匹配指定HTML标签。
 
-NiceGUI简化了不少CSS上的操作，但不代表不需要CSS的基础。如果读者掌握了CSS的选择器，与`ui.query`和`ui.teleport`结合使用，那就如同得到了屠龙宝刀，操作界面布局、美化界面将更加得心应手。
+NiceGUI简化了不少CSS上的操作，但不代表不需要CSS的基础。如果读者掌握了CSS的选择器，与`ui.query`方法和`ui.teleport`方法结合使用，那就如同得到了屠龙宝刀，操作界面布局、美化界面将更加得心应手。
 
-注意，前两小节要求读者具备CSS选择器基础，没有相应基础的读者可以搁置前两小节，直接看第三小节。
+而`ElementFilter`类则另辟蹊径，直接实现了一种新的Python接口，将`ui.query`方法和`ui.teleport`方法的功能完美结合，但无需读者具备CSS的基础。
 
+注意，使用`ui.query`方法和`ui.teleport`方法要求读者具备CSS选择器基础，没有相应基础的读者可以跳过相关内容，直接学习`ElementFilter`类。
 
+### 20.1 使用`ui.query`方法修改指定HTML标签的样式
 
-前面讲过如何美化控件，即在控件定义时使用`props`、`classes`、`style`等方法美化控件，也可以在控件定义好之后，通过给定的变量名调用相应方法。但是，如果想要美化的控件、元素根本就不是定义出来的，而是框架带出来的，想要美化就有点麻烦。当然，直接修改内置样式、源码很直观，但麻烦。要是有种方法能让想要修改的内容就像被定义为变量一样，后续直接使用，那就方便不少。正巧，`ui.query`就有这样的功能。
+前面讲过使用`props`方法、`classes`方法、`style`方法修改控件的样式，也就是在控件定义好之后，直接调用控件或者控件对应变量的相应方法。但是，如果想要修改样式的控件、HTML标签就不是定义出来的，而是框架、程序自带的，想要修改样式就有点麻烦。当然，直接修改内置样式、源码很直观，但麻烦。要是有种方法能直接匹配到这些内容，，那就方便不少。正巧，`ui.query`方法就有这样的功能。
 
-注意，`ui.query`的`props`方法修改的是HTML元素的属性（`attribute`），而不是`ui.element`或者Quasar组件的属性（`props`）。
+注意，`ui.query`方法返回值的`props`方法修改的是HTML标签的属性（`attribute`），而不是控件或者属性（`props`）。
 
-`ui.query`只有一个字符串类型参数`selector`，顾名思义，就是前面提到的选择器。通过给`ui.query`传入选择器语法，`ui.query`将返回CSS选择器能够选择的元素，后续可以直接对该元素执行样式美化的方法。
+`ui.query`方法只有一个字符串类型参数`selector`，顾名思义，就是前面提到的选择器。通过给`ui.query`方法传入选择器，`ui.query`方法将返回该选择器能够选择的内容，然后就能调用`props`方法、`classes`方法、`style`方法修改样式。
 
-下面的代码就是使用`ui.query`选择了`body`（网页的主体），并设置`body`的背景颜色：
+下面的代码就是使用`ui.query`方法匹配了`body`标签（网页的主体），并设置`body`标签的背景颜色：
 
 ```python3
 from nicegui import ui
 
-body = ui.query(selector='body')
-body.classes('bg-blue-400')
+def index():
+    ui.query(
+        'body'
+    ).classes(
+        'bg-blue-400'
+    )
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ui_query](nicegui_pro.assets/ui_query.png)
+![2026_20_1](nicegui_pro.assets/2026_20_1.png)
 
-`ui.query`的用法很简单，难点在于确定CSS选择器的写法，这一部分属于CSS基础知识，这里就不再赘述，有能力的读者可以抽时间深入学习CSS选择器的语法。
+`ui.query`方法的用法很简单，难点在于确定CSS选择器的写法，这一部分属于CSS基础知识，这里就不再赘述，有能力的读者可以抽时间深入学习CSS选择器的语法。
 
-## 21 使用`ui.teleport`方法传送（移动）控件（更新中）
+### 20.2 使用`ui.teleport`方法传送（移动）控件
 
+一般而言，控件创建时的位置是固定，但是，如果想在创建完之后移动位置，倒不用删掉重来，还是有方法可以实现的。
 
-
-先说控件的`move`方法可以移动控件的位置，
+比如，先创建了按钮，后创建了卡片，想要将按钮放到卡片里的话，可以使用`move`方法可以移动按钮的位置：
 
 ```python3
 from nicegui import ui
@@ -3738,7 +3780,9 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-可以用teleport实现
+![2026_20_2](nicegui_pro.assets/2026_20_2.png)
+
+当然，本节主要介绍的是`ui.teleport`方法，自然可以使用`ui.teleport`方法实现：
 
 ```python3
 from nicegui import ui
@@ -3751,55 +3795,88 @@ def index():
 ui.run(root=index,native=True)
 ```
 
+除了传送（移动）控件，`ui.teleport`方法远比看上去强大。因为其不仅支持传入控件，还支持支持选择器，所以可以做到和`ui.query`方法一样的匹配能力。
 
-
-其实teleport远比看上去强大，因为其支持选择器，所以可以做到类似query一样的查询效果。
-
-比如，使用query查询到的控件、元素，没法在其上下文添加控件，teleport就可以。
-
-
-
-肯定有读者在学了`ui.query`美化指定元素之后，突发奇想，想要给指定元素内部添加控件，比如，下面的代码：
+就以上面的示例为基础，稍微改动一下下。还是分别创建按钮和卡片，想要的结果依然是按钮在卡片之中，不过这次卡片没有对应的变量：
 
 ```python3
 from nicegui import ui
 
-markdown = ui.markdown('Enter your **name**!')
-with ui.query(f'#c{markdown.id} strong'):
-    ui.input('name').classes('inline-flex').props('dense outlined')
+def index():
+    ui.card().classes('card')
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-然而，这段代码并不能成功运行，因为`ui.query`并不支持`add_slot`。如果想要实现类似效果，只需将`ui.query`换成`ui.teleport`即可，不过传递的参数名不是`selector`，而是`to`：
+虽然卡片没有对应的变量，但设置了样式。于是，可以借助`ui.query`方法匹配：
 
 ```python3
 from nicegui import ui
 
-markdown = ui.markdown('Enter your **name**!')
-with ui.teleport(to=f'#c{markdown.id} strong'):
-    ui.input('name').classes('inline-flex').props('dense outlined')
+def index():
+    ui.card().classes('card')
+    ui.query('.card').classes('bg-red')
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ui_teleport](nicegui_pro.assets/ui_teleport.png)
+![2026_20_3](nicegui_pro.assets/2026_20_3.png)
 
-`ui.teleport`就是这样一个基于CSS选择器语法将任意控件传送至指定位置的控件。
+肯定有读者看到上面的结果后突发奇想，想要进入其上下文，然后添加控件：
 
-## 22 使用`ElementFilter`类定位指定控件（更新中）
+```python3
+from nicegui import ui
 
+def index():
+    ui.card().classes('card')
+    with ui.query('.card'):
+        ui.button('ok')
 
+ui.run(root=index,native=True)
+```
 
-`ElementFilter`类 = `ui.query`方法 + `ui.teleport`方法
+很可惜，这段代码并不能成功运行，因为`ui.query`方法不支持这样做。如果想要实现目的，需要将`ui.query`换成`ui.teleport`：
 
-暂时不会CSS选择器语法的读者也不用着急，尽管CSS选择器语法很强大，但在Python中不够直观，想要快速确定选择器还要去网页中开启调试模式。好在NiceGUI提供了另一种不需要CSS选择器的定位指定元素工具，那就是`ElementFilter`。
+```python3
+from nicegui import ui
 
-`ElementFilter`和`ui`模块同级，使用`from nicegui import ElementFilter`来导入。
+def index():
+    ui.card().classes('card')
+    with ui.teleport('.card'):
+        ui.button('ok')
 
-`ElementFilter`的功能等于`ui.query`加`ui.teleport`，既能设置指定元素的样式，又能将控件传送到指定位置。但与`ui.query`和`ui.teleport`使用CSS选择器语法不同，`ElementFilter`的筛选方式更pythonic，更直观，更契合Python编程习惯。
+ui.run(root=index,native=True)
+```
 
-以下代码是用于匹配的模板内容，以下面的代码为例，分别看看`ElementFilter`不同参数、方法的用途：
+![2026_20_2](nicegui_pro.assets/2026_20_2.png)
+
+移动已经创建好的控件也可以：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.card().classes('card')
+    button = ui.button('ok')
+    with ui.teleport(
+        '.card'
+    ) as here:
+        button.move(here)
+
+ui.run(root=index,native=True)
+```
+
+`ui.teleport`方法就是这样一个基于CSS选择器语法将任意控件传送至指定位置的控件。
+
+### 20.3 使用`ElementFilter`类匹配指定控件
+
+暂时不会CSS选择器语法的读者也不用着急，尽管CSS选择器语法很强大，但在Python中不够直观，想要快速确定选择器还要去网页中开启调试模式。好在NiceGUI提供了另一种不需要CSS选择器的定位指定标签、控件的工具，那就是`ElementFilter`类。
+
+`ElementFilter`类和`ui`模块同级，使用`from nicegui import ElementFilter`来导入。
+
+`ElementFilter`类的功能等于`ui.query`方法加`ui.teleport`方法。`ElementFilter`类既能设置指定控件的样式，又能将控件传送到指定位置。但与`ui.query`方法和`ui.teleport`方法使用CSS选择器语法来匹配具体HTML标签、控件不同，`ElementFilter`类的匹配方式更直观，更契合Python编程习惯。
+
+以下是用于匹配的模板内容，就以其为基础，分别看看`ElementFilter`类不同参数、方法的用途：
 
 ```python3
 from nicegui import ui,ElementFilter
@@ -3817,226 +3894,336 @@ with ui.card():
 ui.run(native=True)
 ```
 
-##### 3.8.3.1 初始化方法
+#### 20.3.1 初始化方法
 
-`ElementFilter`类需要初始化为对象实例才能使用。`ElementFilter`类的初始化方法有四个参数，分别是 `kind` 、`marker` 、`content` 、`local_scope`。
+`ElementFilter`类需要初始化为实例对象才能使用。`ElementFilter`类的初始化方法有四个关键字参数：
 
-`kind`参数，NiceGUI的`ui`类型，表示筛选什么类型的控件。比如，在下面的代码中，传入的参数是`ui.label`，`ElementFilter`就会筛选`ui.label`，这样给`ElementFilter`对象设置背景颜色为红色的时候，页面内所有的`ui.label`的背景颜色就相应变成红色。
+- `kind`参数，`ui.element`类型，表示匹配什么类型的控件。
+- `marker`参数，字符串类型或者字符串列表类型，表示匹配包含指定记号或者指定记号列表的控件。
+- `content`参数，字符串类型或者字符串列表类型，表示匹配包含指定内容的控件。匹配范围包括控件的`value`属性、`text`属性、`label`属性、`icon`属性、`placeholder`属性等字符串类型属性。只有完全包含指定字符串或者字符串列表才能匹配成功。
+- `local_scope`参数，布尔类型，表示`ElementFilter`类实例对象的匹配范围是当前作用域还是全局作用域，默认为`False`，即匹配全局作用域。如果设置为`True`，则只匹配当前作用域。
+
+在下面的代码中，传给`kind`参数是`ui.label`，`ElementFilter`类实例对象就会匹配`ui.label`控件，这样给匹配结果设置背景颜色为红色的时候，页面内所有`ui.label`控件的背景颜色都会变成红色：
 
 ```python3
 from nicegui import ui,ElementFilter
 
-with ui.card():
-    ui.button('button A')
-    ui.label('label A_A')
-    ui.label('label A_B')
+def index():
+    with ui.card():
+        ui.button('button A')
+        ui.label('label A_A')
+        ui.label('label A_B')
+    with ui.card():
+        ui.button('button B')
+        ui.label('label B_A')
+        ui.label('label B_B')
+    ElementFilter(kind=ui.label).classes('bg-red')
 
-with ui.card():
-    ui.button('button B')
-    ui.label('label B_A')
-    ui.label('label B_B')
-
-ElementFilter(kind=ui.label).classes('bg-red')
-
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ElementFilter_01](nicegui_pro.assets/ElementFilter_01.png)
+![2026_20_4](nicegui_pro.assets/2026_20_4.png)
 
-`marker`参数，字符串类型或者字符串列表类型，表示筛选包含指定marker或者指定marker列表的对象。
+`marker`参数表示匹配包含指定记号或者指定记号列表的控件。
 
-在此，需要额外介绍一下控件的`mark`方法，也就是如何给控件添加marker。对于每一个控件，都可以通过`mark`方法定义一组marker，用于`ElementFilter`的筛选。`mark`方法的参数是一个支持解包、分解的字符串类型参数`markers`。也就是说，传入`'A'` 、`'A','B','AB'`、`'B A BA'`、`'A','B BA'`都是可以的。本质上说，`mark`方法就是将传入的字符串转换为该对象的`_markers`列表。对于`'A','B','AB'`这样多个字符串，该方法会转化为`['B','A','AB']`这样的列表来使用。对于`'B A BA'`这样用空格划分的字符串，该方法会自动以空格为分隔符分解为`['B','A','BA']`这样的列表来使用。当然，两种方法混用也没问题，`'A','B BA'`这样的多个字符串，则会转化为`['A','B','BA']`这样的列表。注意，虽然`mark`方法支持串联、重复使用，但最好不要这样做，因为后执行的`mark`方法结果会覆盖先前`mark`方法的结果，如果是想清除之前的marker，倒是可以重复执行。
+在此，需要额外介绍一下控件的`mark`方法，也就是如何给控件添加记号。对于每一个控件，都可以通过`mark`方法定义一组记号，可通过指定`ElementFilter`类的`marker`参数被`ElementFilter`类实例对象匹配。
 
-说完给控件添加marker，下面回归正题，说说如何筛选。`marker`参数和`mark`方法的`markers`参数类似，只不过`marker`参数没有解包过程，想要传入多个字符串，只能使用字符串列表。与`mark`方法的宽松不同，`marker`参数的要求比较严格，要么是纯字符串，带空格的会自动划分、转化为列表，要么是无空格的字符串组成列表，不支持正确解析内含带空格的字符串列表，所以，只有以下格式才是正确的用法：`'A'` 、`['A','B','AB']`、`'B A BA'`。
+`mark`方法的参数是一个支持解包、分解的字符串类型参数`markers`，可以传入多个字符串，也可以传入包含空格的字符串。其中，包含空格的字符串会被分解为多个子字符串。也就是说，传入`'A'` 、`'A','B','AB'`、`'B A BA'`、`'A','B BA'`都是可以的。
 
-代码示例如下：
+从本质上说，`mark`方法就是将传入的字符串转换为该对象的`_markers`列表。对于`'A','B','AB'`这样多个字符串，该方法会转化为`['B','A','AB']`这样的列表来使用。对于`'B A BA'`这样用空格划分的字符串，该方法会自动以空格为分隔符分解为`['B','A','BA']`这样的列表来使用。当然，两种方法混用也没问题，`'A','B BA'`这样的多个字符串，则会转化为`['A','B','BA']`这样的列表。注意，虽然`mark`方法支持串联、重复使用，但最好不要这样做，因为后执行的`mark`方法结果会覆盖先前`mark`方法的结果，如果是想清除之前的记号，倒是可以重复执行。
+
+说完给控件添加记号，下面回归正题，说说如何筛选记号。`marker`参数和`mark`方法的`markers`参数类似，只不过`marker`参数没有解包过程，想要传入多个字符串，只能使用字符串列表。
+
+与`mark`方法的宽松不同，`marker`参数的要求比较严格：要么是纯字符串，带空格的会自动划分，并转化为列表；要么是无空格的字符串组成列表，不支持正确解析内含带空格字符串的列表。所以，只有以下格式才是正确的用法：`'A'` 、`['A','B','AB']`、`'B A BA'`。
+
+示例如下：
 
 ```python3
 from nicegui import ui,ElementFilter
 
-with ui.card():
-    ui.button('button A')
-    ui.label('label A_A').mark('A')
-    ui.label('label A_B').mark('A','B','AB')
+def index():
+    with ui.card():
+        ui.button('button A')
+        ui.label('label A_A').mark(
+            'A'
+        )
+        ui.label('label A_B').mark(
+            'A','B','AB'
+        )
 
-with ui.card():
-    ui.button('button B')
-    ui.label('label B_B').mark('B')
-    ui.label('label B_A').mark('B A BA')
+    with ui.card():
+        ui.button('button B')
+        ui.label('label B_B').mark(
+            'B'
+        )
+        ui.label('label B_A').mark(
+            'B A BA'
+        )
     
-ElementFilter(marker='BA').classes('bg-red')
-#ElementFilter(marker='A B').classes('bg-red')
-#ElementFilter(marker=['A','B']).classes('bg-red')
+    ElementFilter(
+        marker='BA'
+    ).classes('bg-red')
+    # 下面两行代码的结果相同
+    # ElementFilter(marker='A B').classes('bg-red')
+    # ElementFilter(marker=['A','B']).classes('bg-red')
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ElementFilter_02](nicegui_pro.assets/ElementFilter_02.png)
+![2026_20_5](nicegui_pro.assets/2026_20_5.png)
 
-`content`参数，字符串类型或者字符串列表类型，表示筛选包含指定内容的对象。筛选范围包括对象的`value`、`text`、`label`、`icon`、`placeholder`等文本属性。匹配要求完全包含指定字符串或者字符串列表。
+`content`参数的用法很简单，就不做解释了，直接看示例：
 
 ```python3
 from nicegui import ui,ElementFilter
 
-with ui.card():
-    ui.button('button A')
-    ui.label('label A_A').mark('A')
-    ui.label('label A_B').mark('A','B','AB')
+def index():
+    with ui.card():
+        ui.button('button A')
+        ui.label('label A_A')
+        ui.label('label A_B')
 
-with ui.card():
-    ui.button('button B')
-    ui.label('label B_B').mark('B')
-    ui.label('label B_A').mark('B A BA')
-    
-ElementFilter(content=['B','A']).classes('bg-red')
+    with ui.card():
+        ui.button('button B')
+        ui.label('label B_B')
+        ui.label('label B_A')
+    ElementFilter(
+        content=['B','A']
+    ).classes('bg-red')
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ElementFilter_03](nicegui_pro.assets/ElementFilter_03.png)
+![2026_20_6](nicegui_pro.assets/2026_20_6.png)
 
-`local_scope`参数，布尔类型，表示`ElementFilter`匹配当前范围还是全局，默认为`False`，即匹配全局。如果设置为`True`，则只匹配当前上下文。可以看以下代码，修改了缩进并将此参数设置为`True`，ElementFilter对象就只能匹配同一缩进内的控件：
+`local_scope`参数的示例如下：
 
 ```python3
 from nicegui import ui,ElementFilter
 
-with ui.card():
-    ui.button('button A')
-    ui.label('label A_A').mark('A')
-    ui.label('label A_B').mark('A','B','AB')
+def index():
+    with ui.card():
+        ui.button('button A')
+        ui.label('label A_A')
+        ui.label('label A_B')
 
-with ui.card():
-    ui.button('button B')
-    ui.label('label B_B').mark('B')
-    ui.label('label B_A').mark('B A BA')
-    ElementFilter(content=['B','A'],local_scope=True).classes('bg-red')
+    with ui.card():
+        ui.button('button B')
+        ui.label('label B_B')
+        ui.label('label B_A')
+        ElementFilter(
+            content=['B','A'],
+            local_scope=True
+        ).classes('bg-red')
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ElementFilter_04](nicegui_pro.assets/ElementFilter_04.png)
+![2026_20_7](nicegui_pro.assets/2026_20_7.png)
 
-##### 3.8.3.2 `within`方法和`not_within`方法
+示例中，修改了`ElementFilter`类实例对象的缩进之后，并将`local_scope`参数设置为`True`，此时`ElementFilter`类实例对象就只能匹配同一缩进内的控件。
 
-顾名思义，这两个方法就是在`ElementFilter`初始化参数的筛选范围内进一步筛选指定的父级对象，得到在指定的父级对象上下文之内、不在指定的父级对象上下文之内的对象。对`within`方法而言，会得到符合该方法匹配条件的对象。对`not_within`方法而言，会排除符合该方法匹配条件的对象
+#### 20.3.2 `within`方法和`not_within`方法
 
-两个方法的参数都一样，都是三个，分别是`kind`、`marker`、`instance`。
+顾名思义，这两个方法就是在`ElementFilter`类实例对象的匹配结果中进一步筛选出父控件符合匹配条件的结果——得到在指定父控件上下文之内或者不在指定父控件上下文之内的控件。
 
-`kind`和`marker`与初始化方法的参数一样，这里不再赘述。只是，这里的`marker`不支持字符串列表。
+对`within`方法而言，会筛选出符合该方法匹配条件的控件。对`not_within`方法而言，会排除符合该方法匹配条件的控件。
 
-`instance`参数，对象或者对象列表，指定具体对象的范围内是否筛选。以 `within`方法为例，给此参数传递具体对象，`ElementFilter`将只筛选在该对象之内的`ui.label`：
+两个方法的参数都一样，都是三个：
+
+- `kind`参数。
+- `marker`参数。
+- `instance`参数。
+
+`kind`参数和`marker`参数的用法与初始化方法的同名参数一样，这里不再赘述。只是`within`方法和`not_within`方法的`marker`参数不支持字符串列表。
+
+`instance`参数，控件或者控件列表，表示具体的父控件。
+
+以 `within`方法为例，给`instance`参数传入具体控件，`ElementFilter`类实例对象将筛选出该控件上下文内的`ui.label`控件：
 
 ```python3
 from nicegui import ui,ElementFilter
 
-with ui.card() as card1:
-    ui.button('button A')
-    ui.label('label A_A').mark('A')
-    ui.label('label A_B').mark('A','B','AB')
+def index():
+    with ui.card() as card1:
+        ui.button('button A')
+        ui.label('label A_A')
+        ui.label('label A_B')
 
-with ui.card() as card2:
-    ui.button('button B')
-    ui.label('label B_B').mark('B')
-    ui.label('label B_A').mark('B A BA')
+    with ui.card() as card2:
+        ui.button('button B')
+        ui.label('label B_B')
+        ui.label('label B_A')
 
-ElementFilter(kind=ui.label).within(instance=card2).classes('bg-red')
+    ElementFilter(
+        kind=ui.label
+    ).within(
+        instance=card2
+    ).classes('bg-red')
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ElementFilter_05](nicegui_pro.assets/ElementFilter_05.png)
+![2026_20_8](nicegui_pro.assets/2026_20_8.png)
 
-这两个方法支持串联调用，不过串联就和传递列表给参数一样，是扩展了对应筛选条件的内部列表。对于这两种筛选条件的内部列表，匹配规则是不一样的：对于`within`方法，筛选则是要求列表内元素全部匹配；对于`not_within`方法，筛选则是要求列表内元素任意一个匹配。
+这两个方法都是返回`ElementFilter`类实例对象，这也就意味着它们支持串联调用。串联调用之后相当于扩展了同名方法同名参数所表示的匹配条件的内部列表。
 
-##### 3.8.3.3 `exclude`方法
+#### 20.3.3 `exclude`方法
 
-该方法是在`ElementFilter`初始化参数的筛选范围内进一步排除指定的对象。
+该方法可以在`ElementFilter`类实例对象的匹配结果中，将该方法匹配到的控件排除。
 
-该方法有三个参数，`kind` 、`marker` 、`content` ，同初始化方法的参数一样，这里简单说一下示例代码，不做详解。不过，该方法的三个参数不支持传入列表，`marker`也不支持根据空格自动划分字符串，这一点需要注意。
+该方法有三个参数：
+
+- `kind`参数。
+- `marker` 参数。
+- `content` 参数。
+
+这些参数的用法同初始化方法同名的参数基本一样，只是**不支持**传入列表；`marker`参数**不支持**将带空格的字符串划分、转化为列表。这两点需要注意。
+
+示例如下：
 
 ```python3
 from nicegui import ui,ElementFilter
 from nicegui.elements.mixins.text_element import TextElement
 
-with ui.card() as card1:
-    ui.button('button A')
-    ui.label('label A_A').mark('A')
-    ui.label('label A_B').mark('A','B','AB')
+def index():
+    with ui.card() as card1:
+        ui.button('button A')
+        ui.label('label A_A')
+        ui.label('label A_B')
 
-with ui.card() as card2:
-    ui.button('button B')
-    ui.label('label B_B').mark('B')
-    ui.label('label B_A').mark('B A BA')
+    with ui.card() as card2:
+        ui.button('button B')
+        ui.label('label B_B')
+        ui.label('label B_A')
 
-ElementFilter(kind=TextElement).exclude(kind=ui.label).classes('bg-red')
+    ElementFilter(
+        kind=TextElement
+    ).exclude(
+        kind=ui.label
+    ).classes('bg-red')
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ElementFilter_06](nicegui_pro.assets/ElementFilter_06.png)
+![2026_20_9](nicegui_pro.assets/2026_20_9.png)
 
-`ui.label`和`ui.button`都继承了`TextElement`，因此匹配`TextElement`会同时匹配到这两种控件，因此，在`exclude`方法中指定`kind`为`ui.label`之后，匹配结果就排除了`ui.label`，只有`ui.button`的颜色变成红色。
+`ui.label`控件和`ui.button`控件是`TextElement`类的子类，因此匹配`TextElement`类会同时匹配到这两种控件。因为在`exclude`方法中指定`kind`参数为`ui.label`之后，匹配结果就排除了`ui.label`控件，所以，只有`ui.button`控件的颜色变成红色。
 
-##### 3.8.3.4 传送控件到匹配结果
+`exclude`方法也是返回`ElementFilter`类实例对象，所以，它也支持串联调用。
 
-对于`ElementFilter`，想要传送控件到结果也很简单，只需遍历`ElementFilter`对象，就能获取匹配结果。
+#### 20.3.4 传送（移动）控件
 
-如下面代码所示，使用`for`遍历`ElementFilter`对象，使用with进入每个元素的上下文，就和正常添加控件到对应slot一样：
+对于`ElementFilter`类实例对象，想要传送（移动）控件到匹配结果的上下文中也很简单：只需遍历`ElementFilter`类实例对象，就能访问匹配结果的每一个具体控件；可以进入控件的上下文之后创建控件，也可以使用控件的`move`方法或者`ui.teleport`方法。
+
+如下面代码所示，使用`for`遍历了`ElementFilter`类实例对象之后，然后使用`with`进入每个控件的上下文，添加了`ui.icon`控件：
 
 ```python3
 from nicegui import ui,ElementFilter
-from nicegui.elements.mixins.text_element import TextElement
 
-with ui.card() as card1:
-    ui.button('button A')
-    ui.label('label A_A').mark('A')
-    ui.label('label A_B').mark('A','B','AB')
+def index():
+    with ui.card():
+        ui.button('button A')
+        ui.label('label A_A')
+        ui.label('label A_B')
 
-with ui.card() as card2:
-    ui.button('button B')
-    ui.label('label B_B').mark('B')
-    ui.label('label B_A').mark('B A BA')
+    with ui.card():
+        ui.button('button B')
+        ui.label('label B_B')
+        ui.label('label B_A')
 
-for ele in ElementFilter(kind=TextElement).exclude(kind=ui.label).classes('bg-red'):
-    with ele:
-        ui.icon('home')
+    for ele in ElementFilter(
+        kind=ui.button
+    ).classes('bg-red'):
+        with ele:
+            ui.icon('home')
 
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-![ElementFilter_07](nicegui_pro.assets/ElementFilter_07.png)
+![2026_20_10](nicegui_pro.assets/2026_20_10.png)
 
-##### 3.8.3.5 总结
+需要注意的是，即使匹配结果只有一个控件，也要遍历之后才能操作具体控件：
 
-`ElementFilter`的方法、参数不多，但用法不统一，要是组合使用，需要一些时间思考其匹配模式。而有的读者看到文字太多就头疼，没关系，这里将上面的内容简化为一个表格方便查阅。详细看过一遍文字教程之后，后续开发中再次遇到，可以快速参阅表格来确定匹配模式。
+```python3
+from nicegui import ui,ElementFilter
 
-对应参数的匹配模式：
+def index():
+    with ui.card() as card1:
+        ui.button('button A')
+        ui.label('label A_A')
+        ui.label('label A_B')
 
-| ElementFilter的方法 | `__init__` | `within` | `not_within` | `exclude` |
-| ------------------- | ---------- | -------- | ------------ | --------- |
-| `kind`参数          | 任意一个   | 全部匹配 | 任意一个     | 任意一个  |
-| `content`参数       | 全部匹配   | 无此参数 | 无此参数     | 任意一个  |
-| `instance`参数      | 无此参数   | 全部匹配 | 任意一个     | 无此参数  |
-| `marker`参数        | 全部匹配   | 全部匹配 | 任意一个     | 任意一个  |
+    with ui.card() as card2:
+        ui.button('button B')
+        ui.label('label B_B')
+        ui.label('label B_A')
+    icon = ui.icon('home')
+    for ele in ElementFilter(
+        kind=ui.button
+    ).within(instance=card2).classes('bg-red'):
+        icon.move(ele)
+        with ui.teleport(ele):
+            ui.icon('home')
 
-Match type for parameters in `ElementFilter`'s method:
+ui.run(root=index,native=True)
+```
 
-| ElementFilter's method | `__init__` | `within` | `not_within` | `exclude` |
-| ---------------------- | ---------- | -------- | ------------ | --------- |
-| parameter `kind`       | any/or     | all/and  | any/or       | any/or    |
-| parameter `content`    | all/and    | ----     | ----         | any/or    |
-| parameter `instance`   | ----       | all/and  | any/or       | ----      |
-| parameter `marker`     | all/and    | all/and  | any/or       | any/or    |
+![2026_20_11](nicegui_pro.assets/2026_20_11.png)
 
+#### 20.3.5 修改控件样式
 
+其实前面的示例已经用过修改控件样式的方法，这里还是在详细说一下。
 
+对于`ElementFilter`类实例对象，有两种方法修改匹配结果中的每个控件的样式：
 
+- 遍历之后，调用每个控件的`props`方法、`classes`方法、`style`方法，修改控件的样式。
+- 直接调用`ElementFilter`类实例对象的`props`方法、`classes`方法、`style`方法，相当于调用匹配结果中的每个控件的`props`方法、`classes`方法、`style`方法。
+
+示例如下：
+
+```python3
+from nicegui import ui,ElementFilter
+
+def index():
+    with ui.card() as card1:
+        ui.button('button A')
+        ui.label('label A_A')
+        ui.label('label A_B')
+    with ui.card() as card2:
+        ui.button('button B')
+        ui.label('label B_B')
+        ui.label('label B_A')
+    
+    for ele in ElementFilter(
+        kind=ui.label
+    ).within(instance=card1):
+        ele.classes('bg-red')
+
+    ElementFilter(
+        kind=ui.label
+    ).within(
+        instance=card2
+    ).classes('bg-green')
+
+ui.run(root=index,native=True)
+```
+
+![2026_20_12](nicegui_pro.assets/2026_20_12.png)
 
 ## 21 使用主题（更新中）
 
 ### NiceGUI支持的颜色
 
 颜色表达式的语法
+
+
+
+
+
+### 修改所有控件的样式
+
+通过调用控件的类方法`default_classes`方法、`default_props`方法、`default_style`方法来修改该控件的默认样式，间接实现主题的效果，但比较麻烦，现需要修改所有控件，还要编写较多样式。
 
 
 
@@ -4064,13 +4251,13 @@ app.storage
 
 
 
-## 2x 使用`ui.navigate`控制地址（更新中）
+## 23 使用`ui.navigate`控制地址（更新中）
 
 
 
 
 
-## 2x 使用`ui.fullscreen`控制全屏（更新中）
+## 24 使用`ui.fullscreen`控制全屏（更新中）
 
 
 

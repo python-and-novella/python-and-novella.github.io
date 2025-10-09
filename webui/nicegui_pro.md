@@ -660,7 +660,7 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 在学习修改控件的样式之前，先了解一下NiceGUI的控件支持哪些修改样式的方法：
 
 - `style`方法（属性），支持CSS，可以直接设置具体的Web样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS。
-- `classes`方法（属性），支持tailwindcss，可以设置tailwindcss框架定义的CSS变量或，也可以设置为CSS样式类，让控件应用这些变量或者CSS样式类对应的CSS样式。tailwindcss的语法可参考 https://tailwindcss.com/。
+- `classes`方法（属性），支持Tailwind CSS，可以设置Tailwind CSS框架定义的CSS变量或，也可以设置为CSS样式类，让控件应用这些变量或者CSS样式类对应的CSS样式。Tailwind CSS的语法可参考 https://tailwindcss.com/。
 - `props`方法（属性），支持Quasar控件的属性，可以设置对应Quasar控件的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components。
 
 可能读者看到上面的介绍有点疑惑，为何这些方法后，还用括号补充说明是属性？在NiceGUI最新版本中，这三种方法，可以通过调用的方式添加、修改样式。同时，控件还支持同名的字典（或者列表）属性，可以使用字典（或者列表支持的方式添加、修改样式，字典的键即为样式名。
@@ -721,11 +721,11 @@ ui.run(root=index,native=True)
 
 NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样式使用`!important`修饰，优先级高于没有使用`!important`修饰的普通样式。
 
-虽然tailwindcss的普通样式默认优先级高于Quasar框架的普通样式，但添加“!”为前缀或者后缀（在tailwindcss中等效于使用`!important`修饰）的tailwindcss样式，遇到Quasar框架使用`!important`修饰的相同样式（比如背景颜色）时，优先级反而会比Quasar框架的低。
+虽然Tailwind CSS的普通样式默认优先级高于Quasar框架的普通样式，但添加“!”为前缀或者后缀（在Tailwind CSS中等效于使用`!important`修饰）的Tailwind CSS样式，遇到Quasar框架使用`!important`修饰的相同样式（比如背景颜色）时，优先级反而会比Quasar框架的低。
 
 想要理解这个反常现象，需要先了解两个相关知识：
 
-- 从NiceGUI 3.0.0开始，内部使用了级联层（@layer）决定样式的优先级，具体顺序如下：
+- 从NiceGUI 3.0.0开始，内部使用了级联层（`@layer`）决定样式的优先级，具体顺序如下：
 
   ```css
   theme, 
@@ -733,7 +733,7 @@ NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样�
   quasar(Quasar框架的预定义样式类类名在这一层), 
   nicegui, 
   components, 
-  utilities(tailwindcss框架的预定义样式类类名在这一层), 
+  utilities(Tailwind CSS框架的预定义样式类类名在这一层), 
   overrides
   ```
 
@@ -743,7 +743,7 @@ NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样�
 
   ![2026_4_3](nicegui_pro.assets/2026_4_3.png)
 
-那么，问题来了，默认控件的颜色样式就是使用`!important`修饰的，如果想要将其改为tailwindcss的颜色，怎么解决？
+那么，问题来了，默认控件的颜色样式就是使用`!important`修饰的，如果想要将其改为Tailwind CSS的颜色，怎么解决？
 
 可以使用`props`方法（属性）去掉控件原本的背景色、前景色（文字颜色），再使用`classes`方法（属性）修改为指定的背景色、前景色（文字颜色），此时不用添加“!”为前缀或者后缀：
 
@@ -760,6 +760,20 @@ ui.run(root=index,native=True)
 
 ![2026_4_4](nicegui_pro.assets/2026_4_4.png)
 
+从NiceGUI 3.0.0正式版开始，官方修复了添加“!”为前缀或者后缀（在Tailwind CSS中等效于使用`!important`修饰）的Tailwind CSS样式生效顺序，因此，下面的代码可以正常生效：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.button('Hello').classes('!bg-red-700 !text-green-700')
+    ui.button('World').classes('bg-red-700! text-green-700!')
+
+ui.run(root=index,native=True)
+```
+
+![2026_4_5](nicegui_pro.assets/2026_4_5.png)
+
 ### 4.4 `props`方法（属性）
 
 示例如下：
@@ -775,7 +789,7 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-![2026_4_5](nicegui_pro.assets/2026_4_5.png)
+![2026_4_6](nicegui_pro.assets/2026_4_6.png)
 
 需要注意的是，Quasar控件的属性有两种类型，布尔类型和其他类型。如果是布尔类型的属性，可以不用赋值，添加该属性相当于给该属性赋值为`True`。
 
@@ -3622,6 +3636,44 @@ def index():
 ui.run(root=index, native=True)
 ```
 
+注意，NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样式使用`!important`修饰，优先级高于没有使用`!important`修饰的普通样式。
+
+从NiceGUI 3.0.0开始，内部使用了级联层（`@layer`）决定样式的优先级，具体顺序如下：
+
+```css
+theme, 
+base, 
+quasar(Quasar框架的预定义样式类类名在这一层), 
+nicegui, 
+components, 
+utilities(Tailwind CSS框架的预定义样式类类名在这一层), 
+overrides
+```
+
+对于普通样式，越靠下的层级，优先级越高。
+
+因此，如果想要覆盖NiceGUI的很多控件自带样式，除了添加样式描述代码时需要使用`!important`修饰，还要正确设置级联层，默认使用`quasar`层即可：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.add_css(
+        '''
+        @layer quasar{
+            .red {
+                background: red!important;
+            }
+        }
+        '''
+    )
+    ui.button('This is red with CSS.').classes('red')
+
+ui.run(root=index, native=True)
+```
+
+![2026_19_2](nicegui_pro.assets/2026_19_2.png)
+
 ## 20 使用`ui.query`方法修改指定HTML标签（更新中）
 
 
@@ -4048,6 +4100,8 @@ ui.clipboard
 
 client和slot
 
+### 29.1 客户端
+
 客户端：
 
 ```python3
@@ -4068,6 +4122,21 @@ ui.run(root=index,reload=False,native=True)
 ```
 
 
+
+
+
+在客户端侧（区别于直接在服务端运行Python代码）获取属性、修改属性、执行方法（JavaScript代码）：
+
+- `ui.element.run_method()`: run a method on the client side
+- `ui.element.get_computed_prop()`: get the value of a property that is computed on the client side
+- [`ui.query`](https://nicegui.io/documentation/query): query HTML elements on the client side to modify props, classes and style definitions
+- [`ui.run_javascript`](https://nicegui.io/documentation/run#run_custom_javascript_on_the_client_side): run custom JavaScript on the client side (can use `getElement()`, `getHtmlElement()`, and `emitEvent()`)
+- `ui.element.on()`的`js_handler`参数，可以绑定客户端侧的JavaScript代码。
+- `props`方法中，给属性名前添加英文冒号，可以启用客户端侧计算表达式的功能。
+
+
+
+### 29.2 插槽
 
 插槽：
 
@@ -4722,6 +4791,27 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 ## x 灵感（待定）
 
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
+
+
+
+#### `binding`
+
+[Bind properties of objects to each other](https://nicegui.io/documentation/section_binding_properties).
+
+- [`binding.BindableProperty`](https://nicegui.io/documentation/section_binding_properties#bindable_properties_for_maximum_performance): bindable properties for maximum performance
+- [`binding.bindable_dataclass()`](https://nicegui.io/documentation/section_binding_properties#bindable_dataclass): create a dataclass with bindable properties
+- `binding.bind()`, `binding.bind_from()`, `binding.bind_to()`: methods to bind two properties
+
+
+
+#### `observables`
+
+Observable collections that notify observers when their contents change.
+
+- `ObservableCollection`: base class
+- `ObservableDict`: an observable dictionary
+- `ObservableList`: an observable list
+- `ObservableSet`: an observable set
 
 
 

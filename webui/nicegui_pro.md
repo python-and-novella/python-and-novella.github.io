@@ -4211,45 +4211,191 @@ ui.run(root=index,native=True)
 
 ![2026_20_12](nicegui_pro.assets/2026_20_12.png)
 
-## 21 使用主题（更新中）
+## 21 使用主题
 
-### NiceGUI支持的颜色
+NiceGUI的每个控件都支持单独设置颜色，但是，如果想省点事，统一设置所有控件的颜色，实现类似主题色的效果，那就要用特别的方法了。
 
-颜色表达式的语法
+### 21.1 修改所有控件的颜色
 
+修改所有控件的颜色，简单一些的方法，就是用上一章学过的使用`ElementFilter`类匹配所有控件：
 
+```python3
+from nicegui import ui,ElementFilter
 
+def index():
+    ui.button('Hello')
+    ui.button('World')
+    ElementFilter(
+        kind=ui.button
+    ).classes('bg-red')
 
+ui.run(root=index,native=True)
+```
 
-### 修改所有控件的样式
+![2026_21_1](nicegui_pro.assets/2026_21_1.png)
 
-通过调用控件的类方法`default_classes`方法、`default_props`方法、`default_style`方法来修改该控件的默认样式，间接实现主题的效果，但比较麻烦，现需要修改所有控件，还要编写较多样式。
+不过，使用`ElementFilter`类的话，只能在创建完所有控件之后使用才能生效，想要提前设置的话，需要调用控件的类方法：
 
+- `default_classes`方法。
+- `default_props`方法。
+- `default_style`方法。
 
+示例如下：
 
-### 颜色主题
+```python3
+from nicegui import ui
 
-ui.colors
+def index():
+    ui.button.default_classes('bg-red')
+    ui.button('Hello')
+    ui.button('World')
 
-### 暗黑模式
+ui.run(root=index,native=True)
+```
 
-ui.dark_mode
+### 21.2 颜色主题
 
+调用控件的类方法来修改该控件的默认样式，间接实现主题的效果，并非完美。对于用到的每个控件，都需要调用对应控件的类方法。
 
+幸好，NiceGUI提供了实现颜色主题的特殊类——`ui.colors`类，该类支持以下关键字参数：
 
+- `primary`参数，字符串类型，表示主题的主要颜色，默认值为`'#5898d4'`。
 
+- `secondary`参数，字符串类型，表示主题的次要颜色，默认值为`'#26a69a'`。
 
-## 22 保存数据（更新中）
+- `accent`参数，字符串类型，表示主题的强调颜色，默认值为`'#9c27b0'`。
 
-app.storage
+- `dark`参数，字符串类型，表示主题的暗黑颜色，默认值为`'#1d1d1d'`。
 
+  注意，只有部分控件在暗黑模式下使用暗黑颜色，大部分控件在暗黑模式下使用主要颜色。
 
+- `dark_page`参数，字符串类型，表示页面在暗黑模式下的背景颜色，默认值为`'#121212'`。
 
+- `positive`参数，字符串类型，表示主题的肯定颜色，默认值为`'#21ba45'`。
 
+- `negative`参数，字符串类型，表示主题的否定颜色，默认值为`'#c10015'`。
 
+- `info`参数，字符串类型，表示主题的信息颜色，默认值为`'#31ccec'`。
 
+- `warning`参数，字符串类型，表示主题的警告颜色，默认值为`'#f2c037'`。
 
+- `**custom_colors`参数，字符串类型，表示主题的自定义颜色。不与前面参数同名的其余参数会被映射为自定义颜色，可以传给控件的`color`参数或者当作样式变量使用。
 
+  注意，将参数名映射为自定义颜色名时，如果参数名包含下划线，NiceGUI内部会将下划线（`_`）替换为短横线（`-`）。如果是将自定义颜色名当作样式变量来使用，则实际的变量名为`--q-{自定义颜色名}`。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.colors(
+        primary = 'red',
+        dark='yellow',
+        my_color = 'green'
+    )
+    ui.button('Hello')
+    ui.chip('Hello')
+    ui.avatar('home')
+    with ui.card():
+        ui.button(
+            'Hello',
+            color='my-color'
+        )
+        ui.button(
+            'Hello'
+        ).style(
+            'background-color:var(--q-my-color)!important;'
+        )
+    dark_mode = ui.dark_mode(True)
+    ui.switch().bind_value(
+        dark_mode
+    )
+
+ui.run(root=index,native=True)
+```
+
+![2026_21_2](nicegui_pro.assets/2026_21_2.png)
+
+### 21.3 暗黑模式
+
+上一节提到了暗黑模式——一种以深色为主题基本色的主题，而现在大多数程序也实现了暗黑模式。在NiceGUI中，使用`ui.dark_mode`类，就可以实现自动、手动切换程序的暗黑模式。
+
+将`ui.dark_mode`类的`value`参数设置为`True`或者`False`表示启用或者禁用暗黑模式。如果将此参数设置为`None`或者调用`auto`方法，即可启用自动切换暗黑模式，即程序是否启用暗黑模式取决于系统当前是否为暗黑模式。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.button('Hello')
+    dark_mode = ui.dark_mode(True)
+    ui.switch().bind_value(
+        dark_mode
+    )
+    # 启用跟随系统的自动切换
+    # dark_mode.auto()
+
+ui.run(root=index,native=True)
+```
+
+![2026_21_3](nicegui_pro.assets/2026_21_3.png)
+
+## 22 保存数据
+
+有时候，网页上不同页面、用户需要存储、共享特定数据，不使用现有的库，从零开始实现的话确实麻烦。好在NiceGUI提供了一种简单有效的数据存储功能，那就是`app.storage`属性。 该属性有5个子字典，分别对应着不同的存储空间，有不同的应用范围：
+
+-   `app.storage.tab`字典，数据存储在服务器的内存中，此字典对于每个选项卡、会话都是唯一的，可以存储任意对象。需要注意的是，在实现 `https://github.com/zauberzeug/nicegui/discussions/2841` 之前，重启服务器会导致此字典的数据丢失。对于使用复制选项卡功能（右键选项卡点复制）创建的新选项卡，二者的`tab_id`（`ui.context.client.tab_id`）是相同的，因此，复制的选项卡与原选项卡共享此字典。此外，此字典需要等待客户端建立连接（确保读写此字典的操作在异步函数内的 `await ui.context.client.connected()`之后）。
+-   `app.storage.client`字典，数据存储在服务器的内存中，对于每个客户端连接都是唯一的，并且可以存储任意对象。当页面重新加载或用户导航到另一个页面时，数据将被销毁。不同于能在服务器上保存数据好几天的`app.storage.tab`，`app.storage.client`更适合缓存频繁使用、一次性的数据。比如，需要动态更新的数据或者数据库连接，但希望在用户离开页面或关闭浏览器时立即销毁。
+-   `app.storage.user`字典，数据存储在服务器磁盘中，每个字典都与浏览器cookie中保存的唯一标识符相关联，换句话说，此字典对于每个用户都是唯一的，并与浏览器的其他选项卡共享。可以通过存储在`app.storage.browser['id']`的标识符识别用户、会话。这个字典需要设置`ui.run()`的`storage_secret`参数来签名浏览器会话cookie。
+-   `app.storage.general`字典，数据存储在服务器磁盘中，提供了所有用户都可以访问的共享存储空间。
+-   `app.storage.browser`字典，与前几个字典不同，该字典的数据直接存储为浏览器会话cookie，在同一用户的所有浏览器选项卡之间共享。虽然很多方面看起来很像`app.storage.user`，不过，`app.storage.user`因为其在减少数据负载、增强安全性和提供更大存储容量方面的优势，在实际使用中比`app.storage.browser`更受欢迎。默认情况下，NiceGUI会在`app.storage.browser['id']`中为每个浏览器会话保留一个唯一标识符。此外，这个字典需要设置`ui.run()`的`storage_secret`参数来签名浏览器会话cookie。
+
+如果因为上述介绍看起来不够直观，而在选用存储字典时候头疼，可以参考下面的对比表格快速选用（✅表示是，❌表示否）：
+
+| 存储的子字典                     |   `tab`    |  `client`  |   `user`   | `general`  | `browser` |
+| :------------------------------- | :--------: | :--------: | :--------: | :--------: | :-------: |
+| 存储位置                         | 服务器内存 | 服务器内存 | 服务器磁盘 | 服务器磁盘 |  浏览器   |
+| 是否在不同选项卡之间共享         |     ❌      |     ❌      |     ✅      |     ✅      |     ✅     |
+| 是否在不同浏览器客户端之间共享   |     ❌      |     ❌      |     ❌      |     ✅      |     ❌     |
+| 是否在服务器重启后保留数据       |     ❌      |     ❌      |     ❌      |     ✅      |     ❌     |
+| 是否在页面重载后保留数据         |     ✅      |     ❌      |     ✅      |     ✅      |     ✅     |
+| 是否只能用在ui.page内            |     ✅      |     ✅      |     ✅      |     ❌      |     ✅     |
+| 是否需要客户端建立连接           |     ✅      |     ❌      |     ❌      |     ❌      |     ❌     |
+| 是否只能在响应之前写入           |     ❌      |     ❌      |     ❌      |     ❌      |     ✅     |
+| 是否要求数据可序列化             |     ❌      |     ❌      |     ✅      |     ✅      |     ✅     |
+| 是否需要设置`storage_secret`参数 |     ❌      |     ❌      |     ✅      |     ❌      |     ✅     |
+
+下面是个使用存储字典的简单例子：
+
+```python3
+from nicegui import app, ui
+
+@ui.page('/')
+def index():
+    app.storage.user['count'] = app.storage.user.get('count', 0) + 1
+    with ui.row():
+       ui.label(f'该页面被访问了{app.storage.user['count']}次。')
+
+ui.run(storage_secret='private_key')
+```
+
+每次刷新页面，这里的访问次数就会加一：
+
+![2026_22_1](nicegui_pro.assets/2026_22_1.png)
+
+默认数据是以无缩进的JSON格式存储在`app.storage.user` 和`app.storage.general`中，可以将`app.storage.user.indent`、`app.storage.general.indent`设置为`True`来让对应存储字典的数据采用2个空格的缩进格式。
+
+以下环境变量与`app.storage`属性相关，可以通过修改环境变量来改变默认设置：
+
+- `NICEGUI_STORAGE_PATH`，默认为`'.nicegui'`，表示使用`app.storage`时，需要在服务器磁盘存储数据的空间，具体使用哪个位置，默认为运行命令时当前路径下的`.nicegui`文件夹。
+
+- `NICEGUI_REDIS_URL`，默认未设置（即为`None`），表示使用`app.storage`时，相关数据存储在哪个Redis服务器中，该环境变量需要设置为包含Redis协议的完整地址，比如`'redis://redis_server_host:6379'`，如果不设置（即默认值），则表示相关数据存储在本地文件夹中。
+
+  注意，使用Redis存储`app.storage`时依赖`redis`库，需要先安装依赖库才能使用对应功能。可以参考安装NiceGUI一章，使用`uv add nicegui[redis]`命令提前添加依赖库。
+
+- `NICEGUI_REDIS_KEY_PREFIX`，默认为`'nicegui'`，表示使用`app.storage`，相关数据存储在Redis服务器中时，相关数据的键使用什么作为前缀。
 
 ## 23 使用`ui.navigate`控制地址（更新中）
 
@@ -4257,7 +4403,11 @@ app.storage
 
 
 
+
+
 ## 24 使用`ui.fullscreen`控制全屏（更新中）
+
+
 
 
 

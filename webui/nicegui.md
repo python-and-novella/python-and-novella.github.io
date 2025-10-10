@@ -1363,8 +1363,6 @@ ui.run(native=True)
 
 ![ui_colors](nicegui.assets/ui_colors.png)
 
-
-
 #### 2.3.7 事件和执行
 
 ##### 2.3.7.1 通用事件（2025.05.23更新）

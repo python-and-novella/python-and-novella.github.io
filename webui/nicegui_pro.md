@@ -978,7 +978,7 @@ ui.run(root=index,native=True)
 
 ## 7 刷新控件
 
-### 7.1 刷新方法
+### 7.1 调用手动刷新方法
 
 绑定属性可以单向或者双向绑定控件的可绑定属性、对象的属性，无需额外执行控件的刷新方法，即可刷新控件。
 
@@ -1219,6 +1219,113 @@ def index():
 
 ui.run(root=index, native=True)
 ```
+
+### 7.3 触发自动刷新
+
+除了上面提供的手动刷新控件的方法之外，执行以下操作之后，无需手动刷新，会自动控件的触发刷新：
+
+- 调用（或者修改）`style`方法（属性）、`classes`方法（属性）、`props`方法（属性）。
+- 除了上面提到的属性之外，修改控件中使用`@property`修饰的属性。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ur = ui.range(min=1,max=10,value={'min':5,'max':6})
+    def change_data():
+        ur.min = 9
+    ui.button('change_data',on_click=change_data)
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_7_6](nicegui_pro.assets/2026_7_6.gif)
+
+需要特别注意的是，部分控件的字典类型参数如果有使用`@property`修饰的同名属性，则可以且只能直接修改参数对应的同名属性，然后让其触发控件的自动刷新，无需也无法手动调用刷新方法。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    json = {'a':'abc'}
+    je = ui.json_editor({'content': {'json': json}})
+    def change_data():
+        je.properties['content']['json']['a'] = 'def'
+    ui.button('change_data',on_click=change_data)
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_7_7](nicegui_pro.assets/2026_7_7.gif)
+
+若字典类型参数没有同名属性或者没有使用`@property`修饰的同名属性，则只能在修改字典类型参数的引用值或者未使用`@property`修饰的同名属性之后，手动调用刷新方法来刷新控件。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    up = ui.plotly(
+        {
+            'data': [
+                {
+                    'type': 'scatter',
+                    'line': {'color': '#636EFA'},
+                    'x': [0, 1, 2],
+                    'y': [1, 2, 4],
+                }
+            ],
+            'layout': {
+                'margin': {
+                    'l': 20,
+                    'r': 0,
+                    't': 0,
+                    'b': 25
+                },
+                'plot_bgcolor': '#E5ECF6',
+                'xaxis': {
+                    'gridcolor': 'white',
+                    'dtick': '0.5',
+                    'zeroline': False
+                },
+                'yaxis': {
+                    'gridcolor': 'white',
+                    'dtick': '0.5',
+                    'zeroline': False
+                },
+            }
+        }
+    ).classes('w-64 h-64')
+    def change_data():
+        up.figure['data'] = [
+                {
+                    'type': 'scatter',
+                    'line': {'color': '#636EFA'},
+                    'x': [0, 1, 2],
+                    'y': [1, 2, 3],
+                }
+            ]
+        up.update()
+    ui.button('change_data',on_click=change_data)
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_7_8](nicegui_pro.assets/2026_7_8.gif)
 
 ## 8 使用异步函数
 
@@ -3020,7 +3127,7 @@ NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右�
 
   ![2026_15_36](nicegui_pro.assets/2026_15_36.png)
 
-### 15.21 弹出提示信息（更新中）
+### 15.21 弹出提示信息
 
 NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 

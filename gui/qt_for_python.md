@@ -3217,7 +3217,7 @@ app.exec()
 
 第一个示例需要借用前面加载UI文件的示例，在Python代码中使用控件的`setFixedSize`方法修改控件的样式（大小）：
 
-```python
+```python3
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 

@@ -4399,7 +4399,7 @@ ui.run(storage_secret='private_key')
 
 - `NICEGUI_REDIS_KEY_PREFIX`，默认为`'nicegui'`，表示使用`app.storage`，相关数据存储在Redis服务器中时，相关数据的键使用什么作为前缀。
 
-## 23 使用`ui.navigate`对象控制地址
+## 23 控制地址
 
 如果想要通过代码控制当前页面的地址，可以使用`ui.navigate`对象。该对象本质上是`Navigate`类（使用`from nicegui.functions.navigate import Navigate`导入）的实例对象，手动创建实例对象后调用其方法的效果是一样的。
 
@@ -4445,43 +4445,417 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-## 24 使用`ui.fullscreen`类控制全屏（更新中）
+## 24 控制页面、窗口的全屏状态
+
+想让NiceGUI程序默认全屏打开的话，可以`ui.run`方法的`fullscreen`参数设置为`True`。不过，一旦设置了`fullscreen`参数为`True`，也会同时设置`native`参数为`True`，强制启用窗口模式。因此，通过参数让程序默认全屏的结果，就是以全屏窗口模式运行NiceGUI程序。
+
+对于窗口模式，可以使用`app.native.main_window.toggle_fullscreen`方法切换全屏状态，也可以使用`app.native.main_window.fullscreen`属性获取窗口当前的全屏状态。
+
+若是想要设置网页模式的全屏状态，那就只能使用`ui.fullscreen`类。
+
+`ui.fullscreen`类支持以下参数：
+
+- `require_escape_hold`参数，布尔类型，表示退出网页模式的全屏状态时，是否需要长按`escape`键。
+- `on_value_change`参数，可调用类型，表示当全屏状态切换时执行的操作。
+
+`ui.fullscreen`类支持以下方法：
+
+- `enter`方法，进入全屏状态。
+- `exit`方法，退出全屏状态。
+- `toggle`方法，切换全屏状态。
+
+示例如下：
+
+```python3
+from nicegui import ui,app
+
+def index():
+    ui.button('toggle fullscreen for native mode',on_click=app.native.main_window.toggle_fullscreen)
+    ui.button('toggle fullscreen for page mode',on_click=ui.fullscreen().toggle)
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+在程序弹出窗口的同时，可以使用浏览器访问`http://127.0.0.1:8000`，点击不同的按钮，查看切换全屏的效果。
+
+## 25 读写剪贴板
+
+`ui.clipboard`模块提供了读写剪贴板的功能，可以使用下面的方法读写剪贴板：
+
+- `read`方法，从剪贴板读取内容。
+- `write`方法，向剪贴板写入内容。
+- `read_image`方法，从剪贴板读取图片。
+
+注意，从剪贴板读取内容、图片是异步方法，需要使用异步等待获取结果。另外，因为浏览器、运行时的安全设置，第一次读取剪贴板时，会弹出允许权限的对话框，只有点击允许之后，才能正常读取剪贴板。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.textarea(
+        value='''
+    第一次读取剪贴板时一定要选择弹窗中的允许，
+    允许之后才能正常读取剪贴板。
+    不重启程序的话，后续读取就不再弹窗。
+    如果剪贴板的内容是图片，
+    点击读取按钮会显示图片。
+        '''
+    ).classes('w-96').props('autogrow')
+    ui.button(
+        '写入剪贴板', 
+        on_click=lambda: ui.clipboard.write(
+            '你好！'
+        )
+    )
+
+    async def read() -> None:
+        img = await ui.clipboard.read_image()
+        if img:
+            with ui.dialog() as dialog:
+                with ui.column().classes(
+                    'w-72 items-center'
+                ):
+                    ui.image(img)
+                    ui.button(
+                        '关闭',
+                        on_click=dialog.close
+                    )
+            dialog.open()
+        else:
+            ui.notify(
+                await ui.clipboard.read()
+            )
+    ui.button('读取剪贴板', on_click=read)
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_25_1](nicegui_pro.assets/2026_25_1.gif)
+
+在Python中执行读写剪贴板的操作会让服务器执行相关代码，难免给服务器添加额外的压力。这时可以使用JavaScript的接口读写剪贴板，这样的操作完全由客户端完成，可以减小服务器的压力。当然，JavaScript中同样需要异步读取，所以，JavaScript的实现会复杂一点：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.button('写入剪贴板').on(
+        'click', 
+        js_handler='''
+        () => navigator.clipboard.writeText("你好！")
+        '''
+    )
+    ui.button('读取剪贴板').on(
+        'click', 
+        js_handler='''
+        async () => emitEvent("clipboard", await navigator.clipboard.readText())
+        '''
+    )
+    ui.on('clipboard', lambda e: ui.notify(e.args))
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+除了使用JavaScript读写剪贴板，为了方便查看剪贴板的读写效果，代码中还是额外定义一部分Python代码，不过这部分不是必须的：
+
+由JavaScript代码发射一个名为“clipboard”的自定义事件，并把读取结果通过事件的`args`属性随事件传递；Python代码中通过响应自定义事件（后面会介绍如何响应自定义事件，这里不展开解释）来接收事件并获取`args`属性，完成剪贴板的读取。
+
+## 26 下载文件
+
+用`ui.link`控件提供超链接让用户点击，这是经典的提供下载文件的方法。但是，这样的方法并不完美，如果目标文件是浏览器支持直接浏览的格式，那点击链接就不一定触发下载：
+
+```python3
+from nicegui import ui,app
+
+app.native.settings['ALLOW_DOWNLOADS'] = True
+
+def index():
+    ui.link(
+        '下载',
+        target = app.add_static_file(
+            local_file=__file__
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_26_1](nicegui_pro.assets/2026_26_1.png)
+
+注意，因为`pywebview`默认禁止下载，在测试下载时，需要设置`app.native.settings['ALLOW_DOWNLOADS']`为`True`来允许下载。
+
+为了解决此问题，就需要使用`ui.download`对象的方法（实际上是对`ui.context.client.download`方法的包装，在`ui.context`对象的章节中不再重复介绍）来触发下载，而非点击超链接：
+
+```python3
+from nicegui import ui,app
+
+app.native.settings['ALLOW_DOWNLOADS'] = True
+
+def index():
+    ui.link(
+        '下载',
+        target = app.add_static_file(
+            local_file=__file__
+        )
+    )
+    ui.button(
+        '下载', 
+        on_click=lambda: ui.download(
+            src=__file__
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+`ui.download`对象支持以下方法：
+
+- `__call__`方法，这是一个魔法函数，也就是为什么上面示例中可以将`ui.download`对象当函数一样使用。该方法支持以下参数：
+
+  - `src`参数，字符串类型、`Path`类型、字节类型，表示要下载的文件的路径或者内容。其中，字符串类型表示文件的本地路径或者网络路径；`Path`类型表示文件的本地路径；字节类型表示文件的内容。
+
+    需要注意的是，如果字符串类型的文件路径使用了其他主机的资源，部分格式不一定支持下载，可能会被当做资源引用处理，浏览器会直接查看。遇到这种情况，建议将资源下载到本地，并处理为基于本机的相对、绝对路径。
+
+  - `filename`参数，字符串类型，表示触发下载后，文件保存时的文件名。
+
+  - `media_type`参数，字符串类型，表示下载文件的媒体类型。
+
+- `file`方法，从本地路径下载文件。该方法支持以下参数：
+
+  - `path`参数，字符串类型、`Path`类型，表示下载文件的本地路径。
+  - `filename`参数，字符串类型，表示触发下载后，文件保存时的文件名。
+  - `media_type`参数，字符串类型，表示下载文件的媒体类型。
+
+- `from_url`方法，从网络地址下载文件。该方法支持以下参数：
+
+  - `url`参数，字符串类型，表示下载文件的网络路径。
+  - `filename`参数，字符串类型，表示触发下载后，文件保存时的文件名。
+  - `media_type`参数，字符串类型，表示下载文件的媒体类型。
+
+- `content`方法，将指定内容下载为文件。该方法支持以下参数：
+
+  - `content`参数，字符串类型、字节类型，表示下载文件的内容。
+  - `filename`参数，字符串类型，表示触发下载后，文件保存时的文件名。
+  - `media_type`参数，字符串类型，表示下载文件的媒体类型。
+
+示例如下：
+
+```python3
+from nicegui import ui,app
+
+app.native.settings['ALLOW_DOWNLOADS'] = True
+
+def index():
+    path = __file__
+    ui.button(
+        '下载本地文件', 
+        on_click=lambda: ui.download.file(path)
+    )
+    url = app.add_static_file(
+        local_file=__file__
+    )
+    ui.button(
+        '下载网络文件', 
+        on_click=lambda: ui.download.from_url(url)
+    )
+    content = ''
+    with open(
+        __file__,
+        encoding='utf-8'
+    ) as file:
+        content = ''.join(file.readlines())
+    ui.button(
+        '下载指定内容', 
+        on_click=lambda: ui.download.content(
+            content,
+            filename='main.py'
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_26_2](nicegui_pro.assets/2026_26_2.png)
+
+## 27 修改窗口标题
+
+对于窗口模式，修改窗口标题很简单，最简单的莫过于直接运行JavaScript代码来修改：
+
+```python3
+from nicegui import ui
+
+def index():
+    title = ui.input(
+        '窗口标题',
+        value='NiceGUI程序'
+    )
+    ui.button(
+        '修改', 
+        on_click=lambda:ui.run_javascript(
+            f'document.title = "{title.value}"'
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+对于窗口模式，则可以使用`app.native.main_window.set_title`方法来修改窗口标题：
+
+```python3
+from nicegui import ui,app
+
+def index():
+    title = ui.input(
+        '窗口标题',
+        value='NiceGUI程序'
+    )
+    ui.button(
+        '修改', 
+        on_click=lambda:app.native.main_window.set_title(
+            title.value
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+不过，如果不想针对不同的显示模式使用不同的方法，则可以使用`ui.page_title`方法同时修改窗口模式、网页模式的窗口标题：
+
+```python3
+from nicegui import ui
+
+def index():
+    title = ui.input(
+        '窗口标题',
+        value='NiceGUI程序'
+    )
+    ui.button(
+        '修改', 
+        on_click=lambda:ui.page_title(
+            title.value
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_27_1](nicegui_pro.assets/2026_27_1.png)
+
+## 28 响应自定义事件（更新中）
+
+
+
+使用`ui.on`方法或者控件的`on`方法响应任意事件，
+
+https://nicegui.io/documentation/generic_events#custom_events
+
+在JavaScript中使用`emitEvent`方法发射任意事件，
+
+
+
+（以下为旧版本的内容，可以基于旧版本修改示例，优化表达）
+
+大部分控件都有预定义事件监听，比如，`ui.button`的`on_click`点击事件监听，在传参或者调用方法时定义。除了这种已经定义的事件监听，每个控件还支持通过`on`方法创建任意事件监听，比如使用`on`方法创建点击事件监听，也可以创建鼠标进入、离开的事件监听。正如下面的代码所示：
+
+```python3
+from nicegui import ui
+
+ui.button('A',on_click=lambda: ui.notify('You clicked the button A.'))
+ui.button('B').on('click',lambda: ui.notify('You clicked the button B.'))
+ui.button('C').on('mouseenter',lambda: ui.notify('You entered the button C.'))
+ui.button('D').on('mouseleave',lambda: ui.notify('You left the button D.'))
+
+ui.run(native=True)
+```
+
+以下内容为随 NiceGUI 2.18.0 版本更新增加的`on`方法详解。
+
+`on`方法支持以下参数：
+
+-   `type`参数，字符串类型，表示监听什么事件。
+
+-   `handler`参数，可调用类型，表示服务器端的Python响应函数。响应函数接收一个表示事件对象的`events.GenericEventArguments`类型参数，该参数包含一个`args`属性。
+
+-   `arge`参数，`None`或者元素为字符串的序列或者元素为序列（元素为字符串）的单元素序列，表示客户端的哪些参数及其值会在执行响应函数时，会传给响应函数接收参数的`args`属性（字典形式）。如果为`None`的话，表示将客户端所有的参数传入响应函数接收参数的`args`属性。比如，可以检查客户端响应事件时，有没有按下其他功能键：
+
+    ```python3
+    from nicegui import ui
+    
+    button = ui.button('click')
+    button.on(
+        type='click', 
+        handler=lambda e: ui.notify(f'hello {e}'),
+        args=['ctrlKey','shiftKey','altKey'],
+        #或者[['ctrlKey','shiftKey','altKey']]
+    )
+    
+    ui.run(native=True)
+    ```
+
+-   `throttle`参数，浮点类型，表示事件之间的发生间隔，小于该间隔的事件不会重复处理（默认第一个和最后一个都会处理），该参数默认为`0.0`。从此参数开始，只能通过关键字传入。
+
+-   `leading_events`参数，布尔类型，事件发生间隔内的第一个事件发生时是否立即执行响应函数，默认为`True`。
+
+-   `trailing_events`参数，布尔类型，事件发生间隔内的最后一个事件发生后是否也要执行响应函数，默认为`True`。
+
+-   `js_handler`参数，字符串类型，表示客户端的JavaScript响应函数，默认为`'(...args) => emit(...args)'`。注意，如果JavaScript响应函数内不使用`emit`方法且与`handler`参数同时定义的话，`handler`参数表示的响应函数不会执行。而JavaScript响应函数内使用的`emit`方法，会把传给该方法的参数，传给`handler`参数表示的响应函数的接收参数的`args`属性。
+
+以下为示例代码：
+
+```python3
+from nicegui import ui
+
+button = ui.button('click')
+button.on(
+    type='click', 
+    handler=lambda e: ui.notify(f'hello {e.args}'),
+    js_handler='(e) => emit(123)'
+)
+
+ui.run(native=True)
+```
 
 
 
 
 
-
-
-## 25 使用`ui.clipboard`模块读写剪贴板（更新中）
-
-ui.clipboard
+## 29 获取当前上下文（更新中）
 
 
 
-## 26 使用`ui.download`对象下载文件（更新中）
+使用`ui.context`
 
 
 
-## 27 修改窗口标题（更新中）
-
-
-
-使用`ui.page_title`方法修改窗口模式、网页模式的窗口标题
-
-
-
-使用`app.native.main_window.set_title`方法修改窗口模式的窗口标题
-
-
-
-## 28 使用`ui.on`方法响应自定义事件（更新中）
-
-
-
-
-
-## 29 使用`ui.context`获取当前上下文（更新中）
+什么是上下文，上下文有什么用
 
 
 

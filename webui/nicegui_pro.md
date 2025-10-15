@@ -4876,83 +4876,190 @@ ui.run(
 
 ![2026_27_1](nicegui_pro.assets/2026_27_1.png)
 
-## 28 响应自定义事件（更新中）
+## 28 响应任意事件
 
+在NiceGUI程序中，除了通过指定参数或者指定方法创建指定类型事件的响应函数外，还可以使用控件的`on`方法，创建任意类型事件的响应函数。
 
-
-使用`ui.on`方法或者控件的`on`方法响应任意事件，
-
-https://nicegui.io/documentation/generic_events#custom_events
-
-在JavaScript中使用`emitEvent`方法发射任意事件，
-
-
-
-（以下为旧版本的内容，可以基于旧版本修改示例，优化表达）
-
-大部分控件都有预定义事件监听，比如，`ui.button`的`on_click`点击事件监听，在传参或者调用方法时定义。除了这种已经定义的事件监听，每个控件还支持通过`on`方法创建任意事件监听，比如使用`on`方法创建点击事件监听，也可以创建鼠标进入、离开的事件监听。正如下面的代码所示：
+比如，`ui.button`控件的`on_click`参数（方法）可以创建点击事件的响应函数，也可以使用`on`方法创建同样的响应函数，只不过响应的事件类型是点击事件（对应值为`'click'`）：
 
 ```python3
 from nicegui import ui
 
-ui.button('A',on_click=lambda: ui.notify('You clicked the button A.'))
-ui.button('B').on('click',lambda: ui.notify('You clicked the button B.'))
-ui.button('C').on('mouseenter',lambda: ui.notify('You entered the button C.'))
-ui.button('D').on('mouseleave',lambda: ui.notify('You left the button D.'))
+def index():
+    ui.button('Click me').on(
+        'click',
+        lambda :ui.notify(
+            'You clicked button.'
+        )
+    )
 
-ui.run(native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
-以下内容为随 NiceGUI 2.18.0 版本更新增加的`on`方法详解。
+![2026_28_1](nicegui_pro.assets/2026_28_1.png)
 
-`on`方法支持以下参数：
+对于原本没有参数（方法）创建点击事件响应函数的控件，就可以使用`on`方法创建点击事件响应函数：
 
--   `type`参数，字符串类型，表示监听什么事件。
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('Click me').on(
+        'click',
+        lambda :ui.notify(
+            'You clicked label.'
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_28_2](nicegui_pro.assets/2026_28_2.png)
+
+除了创建点击事件（对应值为`'click'`）的响应函数，还可以创建其他类型事件的响应函数，比如鼠标进入事件（对应值为`'mouseenter'`）：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('Click me').on(
+        'click',
+        lambda :ui.notify(
+            'You clicked label.'
+        )
+    )
+    ui.label('Enter me').on(
+        'mouseenter',
+        lambda :ui.notify(
+            'You entered label.'
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_28_3](nicegui_pro.assets/2026_28_3.png)
+
+控件的`on`方法，可以为控件创建任意类型事件的响应函数。若是使用`ui.on`方法，则可以为页面创建任意类型事件的响应函数：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('Click me')
+    ui.on(
+        'click',
+        lambda e:ui.notify(
+            f'You clicked {e.sender}.'
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_28_4](nicegui_pro.assets/2026_28_4.png)
+
+除了响应已知类型的事件，`ui.on`方法还能为自定义事件创建响应函数。
+
+首先，要在JavaScript中使用`emitEvent`方法发射（除非）自定义事件。然后，使用`ui.on`方法创建对应名字事件的响应函数：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('Click me').on(
+        'click',
+        lambda :ui.run_javascript(
+            'emitEvent("label_clicked")'
+        )
+    )
+    ui.on(
+        'label_clicked',
+        lambda e:ui.notify(
+            f'You clicked a label.'
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_28_5](nicegui_pro.assets/2026_28_5.png)
+
+控件和`ui`的`on`方法支持的参数基本相同（只有控件的`on`方法有`js_handler`参数），接下来就以控件的`on`方法为例，介绍一下`on`方法的参数。
+
+控件的`on`方法支持以下参数：
+
+-   `type`参数，字符串类型，表示响应什么类型的事件。
 
 -   `handler`参数，可调用类型，表示服务器端的Python响应函数。响应函数接收一个表示事件对象的`events.GenericEventArguments`类型参数，该参数包含一个`args`属性。
 
--   `arge`参数，`None`或者元素为字符串的序列或者元素为序列（元素为字符串）的单元素序列，表示客户端的哪些参数及其值会在执行响应函数时，会传给响应函数接收参数的`args`属性（字典形式）。如果为`None`的话，表示将客户端所有的参数传入响应函数接收参数的`args`属性。比如，可以检查客户端响应事件时，有没有按下其他功能键：
+-   `arge`参数，`None`或者元素为字符串的序列或者元素为序列（元素为字符串）的单元素序列，表示客户端的哪些参数及其值在触发事件、执行响应函数时，会传给响应函数接收参数的`args`属性（字典形式）。如果为`None`的话，表示将客户端所有的参数传入响应函数接收参数的`args`属性。比如，可以检查客户端触发事件时，有没有按下`ctrl`键：
 
     ```python3
     from nicegui import ui
     
-    button = ui.button('click')
-    button.on(
-        type='click', 
-        handler=lambda e: ui.notify(f'hello {e}'),
-        args=['ctrlKey','shiftKey','altKey'],
-        #或者[['ctrlKey','shiftKey','altKey']]
+    def index():
+        ui.label('Click me').on(
+            type='click', 
+            handler=lambda e: ui.notify(
+                f'You clicked label{" with ctrl" if e.args["ctrlKey"] else ""}.'
+            ),
+            args=['ctrlKey']
+            # 或者 args = [['ctrlKey']]
+        )
+    ui.run(
+        root=index,
+        native=True
     )
-    
-    ui.run(native=True)
     ```
 
--   `throttle`参数，浮点类型，表示事件之间的发生间隔，小于该间隔的事件不会重复处理（默认第一个和最后一个都会处理），该参数默认为`0.0`。从此参数开始，只能通过关键字传入。
+-   `throttle`参数，浮点类型，表示事件之间的最短触发间隔，两次事件之间的间隔小于该参数值时，不会重复执行响应函数（默认响应第一个和最后一个事件），该参数默认为`0.0`。从此参数开始，只能通过关键字传入。
 
--   `leading_events`参数，布尔类型，事件发生间隔内的第一个事件发生时是否立即执行响应函数，默认为`True`。
+-   `leading_events`参数，布尔类型，表示事件之间的最短触发间隔内的第一个事件触发时是否立即执行响应函数，默认为`True`。
 
--   `trailing_events`参数，布尔类型，事件发生间隔内的最后一个事件发生后是否也要执行响应函数，默认为`True`。
+-   `trailing_events`参数，布尔类型，表示事件之间的最短触发间隔内的最后一个事件触发后是否立即执行响应函数，默认为`True`。
 
--   `js_handler`参数，字符串类型，表示客户端的JavaScript响应函数，默认为`'(...args) => emit(...args)'`。注意，如果JavaScript响应函数内不使用`emit`方法且与`handler`参数同时定义的话，`handler`参数表示的响应函数不会执行。而JavaScript响应函数内使用的`emit`方法，会把传给该方法的参数，传给`handler`参数表示的响应函数的接收参数的`args`属性。
+-   `js_handler`参数，字符串类型，表示客户端的JavaScript响应函数，默认为`'(...args) => emit(...args)'`。
+
+    注意，如果JavaScript响应函数内不使用`emit`方法且与`handler`参数同时定义的话，`handler`参数表示的响应函数不会执行。
+
+    如果JavaScript响应函数内使用了`emit`方法且`handler`参数对应的响应函数接收参数的话，那么传给`emit`方法的参数，会成为响应函数接收参数的`args`属性。
 
 以下为示例代码：
 
 ```python3
 from nicegui import ui
 
-button = ui.button('click')
-button.on(
-    type='click', 
-    handler=lambda e: ui.notify(f'hello {e.args}'),
-    js_handler='(e) => emit(123)'
+def index():
+    ui.label('Click me').on(
+        type='click', 
+        handler=lambda e: ui.notify(
+            f'Event\'s args from client are {e.args}.'
+        ),
+        js_handler='(e)=>emit("Python","Pan")'
+    )
+ui.run(
+    root=index,
+    native=True
 )
-
-ui.run(native=True)
 ```
 
-
-
-
+![2026_28_6](nicegui_pro.assets/2026_28_6.png)
 
 ## 29 获取当前上下文（更新中）
 
@@ -5653,6 +5760,49 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 
 控件支持以下方法：
+
+
+
+
+
+## `ui.separator`控件设置为垂直方向时样式不生效的临时解决方法
+
+
+
+```python3
+from nicegui import ui
+
+
+def index():
+    # 临时解决方法
+    ui.add_css(
+        '''
+    .q-separator--vertical.nicegui-separator {
+        width: 1px;
+    }
+    .q-separator--horizontal.nicegui-separator {
+        width: 100%;
+    }
+        ''',
+        shared=True
+    )
+    with ui.column():
+        ui.button('1')
+        ui.separator()
+        ui.button('2')
+    with ui.row():
+        ui.button('1')
+        ui.separator().props('vertical')
+        ui.button('2')
+
+ui.run(
+    root=index,
+    native=True
+)
+
+```
+
+
 
 
 

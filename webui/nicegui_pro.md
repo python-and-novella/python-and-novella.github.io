@@ -5034,7 +5034,7 @@ ui.run(
 
 -   `trailing_events`参数，布尔类型，表示事件之间的最短触发间隔内的最后一个事件触发后是否立即执行响应函数，默认为`True`。
 
--   `js_handler`参数，字符串类型，表示客户端的JavaScript响应函数，默认为`'(...args) => emit(...args)'`。
+-   `js_handler`参数，字符串类型，表示客户端的JavaScript响应函数，默认为`'(...args) => emit(...args)'`。该参数推荐使用ES6标准的箭头函数，也就是默认值的格式。如果是普通的JavaScript函数，则需要使用括号包围，否则无法使用，比如`'(function click(e){emit("Python","Pan");})'`。
 
     注意，如果JavaScript响应函数内不使用`emit`方法且与`handler`参数同时定义的话，`handler`参数表示的响应函数不会执行。
 

@@ -5061,7 +5061,7 @@ ui.run(
 
 ![2026_28_6](nicegui_pro.assets/2026_28_6.png)
 
-## 29 获取当前上下文（更新中）
+## 29 获取当前上下文
 
 前面讲创建控件的时候，提到过使用`with`进入控件的上下文，也就是控件的插槽。
 
@@ -5154,29 +5154,23 @@ ui.run(
 
 为什么要在客户端连接之后才执行代码？
 
+对于一些需要在客户端获取属性、修改属性、执行JavaScript代码（区别于直接在服务端运行Python代码）的情况，需要确保客户端连接成功，才能正常执行：
 
+- 控件的`run_method`方法，该方法用于在客户端执行控件支持的JavaScript方法。
 
-对于大部分控件来说，当然不需要等客户端连接之后才执行，控件都会正常显示。
+- 控件的`get_computed_prop`方法，该方法用于在客户端获取控件的计算后属性。
 
+- `ui.query`方法，使用选择器匹配对应的HTML标签。
 
+- `ui.run_javascript`方法，在客户端运行JavaScript代码，可以运行JavaScript中的`getElement`方法、`getHtmlElement`方法、`emitEvent`方法。
 
-但是，对于一些需要在客户端获取属性、修改属性、执行JavaScript代码（区别于直接在服务端运行Python代码）的情况，则需要确保客户端成功连接之后才能正常执行：
+- `ui.download`方法，让客户端下载文件。
 
-- `ui.element.run_method()`: run a method on the client side
+- 控件的`on`方法的`js_handler`参数，可以定义事件的响应函数为在客户端执行的JavaScript函数。
 
-- `ui.element.get_computed_prop()`: get the value of a property that is computed on the client side
+- `props`方法中，给属性名前添加英文冒号，可以启用客户端计算表达式的功能。
 
-- [`ui.query`](https://nicegui.io/documentation/query): query HTML elements on the client side to modify props, classes and style definitions
-
-- [`ui.run_javascript`](https://nicegui.io/documentation/run#run_custom_javascript_on_the_client_side): run custom JavaScript on the client side (can use `getElement()`, `getHtmlElement()`, and `emitEvent()`)
-
-- [`ui.download`](https://nicegui.io/documentation/download): download a file to the client
-
-- `ui.element.on()`的`js_handler`参数，可以绑定客户端侧的JavaScript代码。
-
-- `props`方法中，给属性名前添加英文冒号，可以启用客户端侧计算表达式的功能。
-
-  示例如下：
+  比如，通过`props`属性（方法）修改输入框的背景颜色，如果其样式值为字符串，则只有启用了客户端计算表达式的功能之后才能生效：
 
   ```python3
   from nicegui import ui
@@ -5206,8 +5200,10 @@ ui.run(
   )
   ```
 
-  示例2：
+  ![2026_29_3](nicegui_pro.assets/2026_29_3.png)
 
+  不过，当前版本的`props`方法已经支持更加灵活的字典表达方式，可以让代码更简单：
+  
   ```python3
   from nicegui import ui
   
@@ -5234,8 +5230,10 @@ ui.run(
   )
   ```
 
-  复杂示例：
-
+  ![2026_29_4](nicegui_pro.assets/2026_29_4.png)
+  
+  这个功能更多是用于支持复杂配置的控件，其配置项若是支持JavaScript表达式的话，则需要给对应的配置项名字添加英文冒号作为前缀：
+  
   ```python3
   from nicegui import ui
   
@@ -5275,19 +5273,15 @@ ui.run(
       native=True
   )
   ```
-
   
+  ![2026_29_5](nicegui_pro.assets/2026_29_5.png)
 
-（介绍`ui.context.client`的一些常用、有用的属性）
+`ui.context.client`的其他属性也可能经常使用：
 
-客户端的其他属性：
-
-- `content`属性，表示
-- 
-
-
-
-
+- `content`属性，表示所有控件的容器，需要在顶层控件的后面添加控件时，可以使用该属性。
+- `page`属性，表示页面，需要获取页面相关的属性（标题、是否为暗黑模式等）时，可以使用该属性。
+- `page_container`属性，表示页面的容器，也可以视为整个页面，需要修改整个页面的样式时，可以使用该属性。
+- `title`属性，表示页面的标题。
 
 ## 30 通过URL给NiceGUI程序传参
 
@@ -5325,33 +5319,32 @@ ui.run()
 
 ![2026_30_1](nicegui_pro.assets/2025_12_1.png)
 
+## 31 对话框背景模糊
 
+前面更新太多长章节，本章简单一点，提供一个简单的示例。
 
-## 31 对话框背景模糊（更新中）
-
-
+如果想要`ui.dialog`控件弹出时，背景呈现模糊的效果，只需在`props`属性中添加`backdrop-filter`属性（完整用法参考 https://quasar.dev/vue-components/dialog ）即可：
 
 ```python3
 from nicegui import ui
 
-with ui.dialog().props('backdrop-filter="blur(8px) brightness(40%)"') as dialog:
-    ui.label('Press ESC to close').classes('text-3xl text-white')
+def index():
+    with ui.dialog().props(
+        'backdrop-filter="blur(8px) brightness(40%)"'
+    ) as dialog:
+        ui.label('Hello').classes('text-3xl text-white')
 
-dialog.on('show', lambda: ui.notify('Dialog opened'))
-dialog.on('hide', lambda: ui.notify('Dialog closed'))
-dialog.on('escape-key', lambda: ui.notify('ESC pressed'))
-ui.button('Open', on_click=dialog.open)
+    ui.button('Open', on_click=dialog.open)
 
-ui.run()
+ui.run(
+    root=index, 
+    native=True
+)
 ```
 
+![2026_31_1](nicegui_pro.assets/2026_31_1.gif)
 
-
-
-
-
-
-## 点击嵌入按钮的图标时不触发按钮的点击事件
+## 32 点击嵌入按钮的图标时不触发按钮的点击事件
 
 如果在按钮的上下文中嵌入图标，给图标的点击事件设置单独的响应函数，点击图标的话，会同时触发按钮和图标的点击响应函数。这是因为HTML处理子级元素的事件时，会把该事件传播到父级元素中，同时触发父级元素的同类事件。
 
@@ -5370,11 +5363,9 @@ with ui.button('Item').classes('w-96') as button:
 ui.run(native=True)
 ```
 
-![2025_11_1](nicegui_pro.assets/2025_11_1.gif)
+![2026_32_1](nicegui_pro.assets/2026_32_1.gif)
 
-
-
-## 自定义错误页面（更新中）
+## 33 自定义错误页面（更新中）
 
 
 
@@ -5779,7 +5770,29 @@ ui.run(root=index,native=True)
 
 
 
-介绍绑定的技巧，字典、全局变量、性能优化
+x.2 绑定的技巧——strict参数
+
+
+
+x.2 绑定的技巧——绑定字典
+
+
+
+x.2 绑定的技巧——绑定全局变量
+
+
+
+x.2 绑定的技巧——优化绑定的性能
+
+
+
+- [`binding.BindableProperty`](https://nicegui.io/documentation/section_binding_properties#bindable_properties_for_maximum_performance): bindable properties for maximum performance
+- [`binding.bindable_dataclass()`](https://nicegui.io/documentation/section_binding_properties#bindable_dataclass): create a dataclass with bindable properties
+- `binding.bind()`, `binding.bind_from()`, `binding.bind_to()`: methods to bind two properties
+
+
+
+介绍绑定的技巧，strict参数，绑定字典、全局变量，性能优化
 
 与字典绑定：
 
@@ -5860,6 +5873,79 @@ ui.run(native=True)
 因为代码中的绑定数量很少，因此差异不大，如果将绑定数量放大百倍，就能看出两种绑定的性能差异。
 
 
+
+## 不只绑定的可观察类集合（更新中）
+
+当一个集合对象的元素发生变化时，另一个对象的属性值随之发生变化，没错，这就是上一章介绍的绑定字典。
+
+不过，若是想要当一个集合对象（包括但不限于字典，可以是列表或者集合）的元素发生变化时，除了让另一个对象的属性值随之发生变化之外，还要执行一些其他操作，该如何实现？
+
+先不说支持列表或者集合，若只是字典的话，可以修改绑定方法的`backward`参数，给其添加额外的操作：
+
+```python3
+from nicegui import ui
+
+data_dict = {'value':'no value'}
+
+def index():
+    input = ui.input('输入')
+    def change(x):
+        print(x)
+        return x
+    input.bind_value_from(
+        data_dict,
+        'value',
+        backward=change
+    )
+    ui.button(
+        '更新',
+        on_click = lambda :data_dict.update(
+            {'value':'one'}
+        )
+    )
+
+ui.run(root=index,native=True)
+```
+
+不过，笔者并不推荐读者运行上面的代码，因为上面的代码存在以下缺陷：
+
+- 为了实时监测字典的变化，`change`函数会不断执行，并非只有字典变化时才执行。
+- 受限于绑定属性的实现原理，`change`函数内不能使用NiceGUI控件（比如`ui.notify`控件），只能执行一些终端输出或者不产生UI的操作。
+
+问题好似无解，但天无绝人之路。其实，NiceGUI提供了一种更简单、更完美、应用更广泛的解决方案，那就是本章要介绍的可观察类集合，上面使用字典的示例就可以转换为：
+
+```python3
+from nicegui import ui
+from nicegui.observables import ObservableDict
+
+data_dict = ObservableDict({'value':'no value'})
+
+def index():
+    input = ui.input('输入')
+    data_dict.on_change(
+        lambda e:ui.notify(e.sender['value'])
+    )
+    data_dict.on_change(
+        lambda e:input.set_value(e.sender['value'])
+    )
+    ui.button(
+        '更新',
+        on_click = lambda :data_dict.update(
+            {'value':'one'}
+        )
+    )
+
+ui.run(root=index,native=True)
+```
+
+
+
+`nicegui.observables`模块提供了以下类可供使用：
+
+- `ObservableCollection`类，: base class
+- `ObservableDict`: an observable dictionary
+- `ObservableList`: an observable list
+- `ObservableSet`: an observable set
 
 
 
@@ -5943,25 +6029,6 @@ ui.run(
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
 
 
-
-#### `binding`
-
-[Bind properties of objects to each other](https://nicegui.io/documentation/section_binding_properties).
-
-- [`binding.BindableProperty`](https://nicegui.io/documentation/section_binding_properties#bindable_properties_for_maximum_performance): bindable properties for maximum performance
-- [`binding.bindable_dataclass()`](https://nicegui.io/documentation/section_binding_properties#bindable_dataclass): create a dataclass with bindable properties
-- `binding.bind()`, `binding.bind_from()`, `binding.bind_to()`: methods to bind two properties
-
-
-
-#### `observables`
-
-Observable collections that notify observers when their contents change.
-
-- `ObservableCollection`: base class
-- `ObservableDict`: an observable dictionary
-- `ObservableList`: an observable list
-- `ObservableSet`: an observable set
 
 
 

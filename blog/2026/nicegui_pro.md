@@ -5063,57 +5063,17 @@ ui.run(
 
 ## 29 获取当前上下文（更新中）
 
+前面讲创建控件的时候，提到过使用`with`进入控件的上下文，也就是控件的插槽。
 
+而在本章，将要介绍的`ui.context`对象，则是将上下文的概念扩大了。不仅包含控件的插槽，还包括访问页面的客户端。
 
-使用`ui.context`
+使用`ui.context`对象获取到当前上下文之后，有些操作就会更加简单。
 
+### 29.1 插槽
 
+使用`ui.context`对象的`slot`属性，可以获取到相同上下文对应的控件插槽，对于某些没法或者没有分配变量名的控件，可以使用该属性捕获对应的插槽。比如，虽然创建第二个按钮是在第一个上下文之内，但可以事先获取页面的上下文，此时进入页面的插槽，就可以做到创建的第二个按钮依然在页面中，而非第一个按钮中。
 
-什么是上下文，上下文有什么用
-
-
-
-client和slot
-
-### 29.1 客户端
-
-客户端：
-
-```python3
-from nicegui import ui
-
-async def index():
-    print(
-        ui.context.client.has_socket_connection
-    )
-    ui.label('未连接')
-    await ui.context.client.connected()
-    print(
-        ui.context.client.has_socket_connection
-    )
-    ui.label('已连接')
-
-ui.run(root=index,reload=False,native=True)
-```
-
-
-
-
-
-在客户端侧（区别于直接在服务端运行Python代码）获取属性、修改属性、执行方法（JavaScript代码）：
-
-- `ui.element.run_method()`: run a method on the client side
-- `ui.element.get_computed_prop()`: get the value of a property that is computed on the client side
-- [`ui.query`](https://nicegui.io/documentation/query): query HTML elements on the client side to modify props, classes and style definitions
-- [`ui.run_javascript`](https://nicegui.io/documentation/run#run_custom_javascript_on_the_client_side): run custom JavaScript on the client side (can use `getElement()`, `getHtmlElement()`, and `emitEvent()`)
-- `ui.element.on()`的`js_handler`参数，可以绑定客户端侧的JavaScript代码。
-- `props`方法中，给属性名前添加英文冒号，可以启用客户端侧计算表达式的功能。
-
-
-
-### 29.2 插槽
-
-插槽：
+示例如下：
 
 ```python3
 from nicegui import ui
@@ -5124,23 +5084,15 @@ def index():
         with slot:
             ui.button('ok')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
-效果等同于：
+![2026_29_1](nicegui_pro.assets/2026_29_1.png)
 
-```python3
-from nicegui import ui
-
-def index():
-    with ui.button('my button'):
-        button = ui.button('ok')
-    button.move(ui.context.client.content)
-
-ui.run(root=index,native=True)
-```
-
-或者
+如果是想用前面学过的方法实现同样的效果，则可以使用`ui.teleport`方法：
 
 ```python3
 from nicegui import ui
@@ -5150,8 +5102,188 @@ def index():
         with ui.teleport('.nicegui-content'):
             ui.button('ok')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
+
+### 29.2 客户端
+
+如果是一开始没考虑直接在页面的上下文创建控件，想要在创建之后移动到页面的上下文中，那就要使用`ui.context`对象的`client`属性，该属性的`content`属性对应页面这个容器，使用`move`方法就能将任意控件移动到页面的上下文中：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.button('my button'):
+        button = ui.button('ok')
+    button.move(
+        ui.context.client.content
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_29_1](nicegui_pro.assets/2026_29_1.png)
+
+此外，`client`属性还支持其他与客户端相关的功能，比如，`connected`方法是一个表示客户端已经连接的异步方法，异步等待该方法的调用结果，可以确保之后的代码是在客户端连接之后才执行：
+
+```python3
+from nicegui import ui
+
+async def index():
+    ui.label(
+        f'客户端的链接状态为{ui.context.client.has_socket_connection}'
+    )
+    await ui.context.client.connected()
+    ui.label(
+        f'客户端的链接状态为{ui.context.client.has_socket_connection}'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_29_2](nicegui_pro.assets/2026_29_2.png)
+
+为什么要在客户端连接之后才执行代码？
+
+
+
+对于大部分控件来说，当然不需要等客户端连接之后才执行，控件都会正常显示。
+
+
+
+但是，对于一些需要在客户端获取属性、修改属性、执行JavaScript代码（区别于直接在服务端运行Python代码）的情况，则需要确保客户端成功连接之后才能正常执行：
+
+- `ui.element.run_method()`: run a method on the client side
+
+- `ui.element.get_computed_prop()`: get the value of a property that is computed on the client side
+
+- [`ui.query`](https://nicegui.io/documentation/query): query HTML elements on the client side to modify props, classes and style definitions
+
+- [`ui.run_javascript`](https://nicegui.io/documentation/run#run_custom_javascript_on_the_client_side): run custom JavaScript on the client side (can use `getElement()`, `getHtmlElement()`, and `emitEvent()`)
+
+- [`ui.download`](https://nicegui.io/documentation/download): download a file to the client
+
+- `ui.element.on()`的`js_handler`参数，可以绑定客户端侧的JavaScript代码。
+
+- `props`方法中，给属性名前添加英文冒号，可以启用客户端侧计算表达式的功能。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.input('Name0').props.update(
+          {
+              'input-style': {
+                  'backgroundColor': 'red'
+              }
+          }
+      )
+      ui.input('Name1').props.update(
+          {
+              'input-style': "{'backgroundColor':'red'}"
+          }
+      )
+      ui.input('Name1').props.update(
+          {
+              ':input-style': "{'backgroundColor':'red'}"
+          }
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  示例2：
+
+  ```python3
+  from nicegui import ui
+  
+  
+  def index():
+      ui.input('Name0').props.update(
+          {
+              'input-style': {
+                  'backgroundColor': 'red'
+              }
+          }
+      )
+      ui.input('Name1').props.update(
+          {
+              ':input-style': "{'backgroundColor':'red'}"
+          }
+      )
+      ui.input('Name2').props('input-style={"backgroundColor":"red"}')
+      ui.input('Name3').props(f'input-style={dict(backgroundColor="red")}')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  复杂示例：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.echart(
+          {
+              'title': {'text': 'A和B的利润'},
+              'xAxis': {
+                  'type': 'value',
+                  'axisLabel':{
+                      ':formatter': r'(val, idx) => `${val}元`'
+                  }
+              },
+              'yAxis': {
+                  'type': 'category',
+                  'data': ['A', 'B'],
+                  'inverse': True
+              },
+              'legend': {'show': True},
+              'series': [
+                  {
+                      'type': 'bar',
+                      'name': '2025年',
+                      'data': [0.1, 0.2]
+                  },
+                  {
+                      'type': 'bar',
+                      'name': '2026年',
+                      'data': [0.3, 0.4]
+                  },
+              ],
+          }
+      ).classes('w-64 h-64')
+  
+  ui.run(
+      root=index, 
+      native=True
+  )
+  ```
+
+  
+
+（介绍`ui.context.client`的一些常用、有用的属性）
+
+客户端的其他属性：
+
+- `content`属性，表示
+- 
 
 
 

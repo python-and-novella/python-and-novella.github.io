@@ -1,4 +1,4 @@
-# Qt For Python 札记
+# Qt For Python 札记（2025）
 
 [toc]
 
@@ -9084,6 +9084,12 @@ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWizardPage.html
 ## 3x 处理复杂数据——树形图
 
 
+
+
+
+
+
+## Qt For Python 札记（2026）
 
 ## Qt For Python 札记2026版——更新计划
 

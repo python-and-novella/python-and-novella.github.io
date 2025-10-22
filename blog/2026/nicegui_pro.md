@@ -1953,6 +1953,7 @@ ui.run(root=index,native=True)
 - `ui.mermaid`控件，可以将使用Mermaid语法的文本渲染为流程图。
 - `ui.code`控件，可以渲染代码的语法高亮。
 - `ui.log`控件，可以逐条显示日志内容。如果推送日志时额外指定了样式，则该条日志会被渲染为对应样式。
+- `ui.xterm`控件，可以使用Xterm终端渲染包含ANSI控制符的内容。
 
 示例如下：
 
@@ -1981,10 +1982,18 @@ from nicegui import ui
 
 def index():
     ui.code('print("Python Code")')
-    ui.log(3).push(
+    ui.log(3).classes(
+        'w-64 h-16'
+    ).push(
         'log',
         classes='text-red-700'
     )
+    ui.xterm(
+        {
+            'cols':20,
+            'rows':3
+        }
+    ).write('\x1b[31mHello\x1b[0m')
 
 ui.run(root=index,native=True)
 ```
@@ -5319,6 +5328,41 @@ ui.run()
 
 ![2026_30_1](nicegui_pro.assets/2025_12_1.png)
 
+对于单页面模式，则可以给页面构建函数增加`request`参数（必须是这个参数名，`Request`类型，要求NiceGUI 3.1.0版本），进而捕捉相关参数。
+
+查询参数比较简单，直接使用字典类型的`query_params`属性即可。路径参数没有可以直接使用的属性，需要利用正则表达式来匹配路径中所需的部分。
+
+示例如下：
+
+```python3
+from nicegui import ui
+from fastapi import Request
+import re
+
+def index(request:Request):
+    icon = re.match(
+        '^/icon/(.+)',
+        request.url.path
+    ).group(1)
+    amount = int(
+        request.query_params.get(
+            'amount',
+            default=1
+        )
+    )
+    ui.link('Star', '/icon/star?amount=5')
+    ui.link('Home', '/icon/home')
+    ui.link('Water', '/icon/water_drop?amount=3')
+    ui.label(icon).classes('text-h3')
+    with ui.row():
+        [
+            ui.icon(icon).classes('text-h3') 
+            for _ in range(amount)
+        ]
+
+ui.run(root=index)
+```
+
 ## 31 对话框背景模糊
 
 前面更新太多长章节，本章简单一点，提供一个简单的示例。
@@ -5344,7 +5388,16 @@ ui.run(
 
 ![2026_31_1](nicegui_pro.assets/2026_31_1.gif)
 
-## 32 点击嵌入按钮的图标时不触发按钮的点击事件
+## 32 忽略额外的动作
+
+在NiceGUI程序中，经常遇到一个动作触发额外动作的情况：
+
+- 点击嵌入按钮的图标时会触发按钮的点击事件。
+- 使用特定快捷键时，会执行快捷键默认的动作（比如`ctrl+a`键默认执行全选）。
+
+想要让控件或者绑定的快捷键只执行单一动作，忽略额外的动作，那就要在JavaScript中使用`stopPropagation`方法、`preventDefault`方法。
+
+### 32.1 点击嵌入按钮的图标时不触发按钮的点击事件
 
 如果在按钮的上下文中嵌入图标，给图标的点击事件设置单独的响应函数，点击图标的话，会同时触发按钮和图标的点击响应函数。这是因为HTML处理子级元素的事件时，会把该事件传播到父级元素中，同时触发父级元素的同类事件。
 
@@ -5365,31 +5418,104 @@ ui.run(native=True)
 
 ![2026_32_1](nicegui_pro.assets/2026_32_1.gif)
 
-## 33 自定义错误页面（更新中）
+### 32.2 使用特定快捷键时不执行快捷键默认的动作
+
+如果想要绑定的快捷键本身就有默认的动作（比如`enter`键会执行换行，`ctrl+a`键会全选当前页面的所有内容），而不想让这些快捷键执行额外的动作，可以使用`on`方法的`js_handler`参数，在JavaScript中调用参数的`event`属性的`preventDefault`方法，来阻止按键默认动作的执行：
+
+```python3
+from nicegui import ui
+from nicegui.events import KeyEventArguments
+
+def handle_key_ctrl(e: KeyEventArguments):
+    if e.modifiers.ctrl and e.key == 'a':
+        if e.action.keydown:
+            ui.notify(f'按下了 ctrl+{e.key} 键')
+
+def index():
+    ui.label('按下 ctrl+a 不会全选')
+    ui.keyboard(on_key=handle_key_ctrl,active=True).on(
+        'key', 
+        js_handler='''(e) => {
+            if (e.key === 'a' && (e.ctrlKey || e.metaKey) && e.action === 'keydown') {
+                e.event.preventDefault();
+            }
+        }'''
+    )
+
+ui.run(root=index)
+```
+
+## 33 自定义错误页面
+
+在NiceGUI程序中，如果是页面内发生的错误，并不会像在页面外一样导致程序无法运行。很多时候，页面依然正常显示，只是终端和页面中会显示具体的错误信息。如何定义终端显示的内容涉及到框架源码和相关依赖，修改起来没那么简单。但是，如果想要自定义错误发生时页面显示的内容，那就简单不少，NiceGUI提供了比较方便的接口。
+
+页面内发生的错误有两种，对应的自定义功能也有所不同：
+
+- Python程序异常，一般是`Exception`类实例或者其子类实例，使用`raise`触发。
+- HTTP状态码，4或者5开头的状态码表示页面或者服务器发生错误，通常是访问的资源出现异常，由服务器程序检查并触发。
+
+对于Python程序异常，只需像定义普通页面一样，使用`app.on_page_exception`装饰器或者`app.on_page_exception`装饰器装饰页面构建函数，接收具体异常作为参数，并使用该参数展示具体异常信息。
+
+其中，`app.on_page_exception`装饰器用于捕获页面创建时触发的异常：
+
+```python3
+from nicegui import ui, app
+
+@app.on_page_exception
+def error_handler(exception: Exception) -> None:
+    ui.label(f'页面创建时触发的异常为 {exception}')
+   
+@ui.page('/')
+def index():
+    raise Exception('主动触发错误')
+
+ui.run()
+```
+
+`app.on_page_exception`装饰器则用于捕获页面创建完成后触发的异常：
+
+```python3
+from nicegui import ui, app
+
+@app.on_exception
+def error_handler(exception: Exception) -> None:
+    ui.label(f'页面创建完成后触发的异常为 {exception}')
+
+@ui.page('/')
+def index():
+    def error():
+        raise Exception('主动触发错误')
+    ui.button('error',on_click=error)
+
+ui.run()
+```
+
+至于HTTP状态码，这里仅提供示例作为参考，因为其涉及到部分框架相关的原理，故不做展开：
+
+```python3
+from nicegui import ui,app, Client
+from fastapi import Request
+
+@app.exception_handler(404)
+def exception_handler_404(request:Request, exception: Exception):
+    with Client(ui.page('/404'),request=request) as client:
+        ui.label('页面不存在')
+    return client.build_response(request, 404)
+
+ui.run()
+```
+
+## 34 `ui.run`的参数（更新中）
 
 
 
-自定义HTTP错误码对应的页面
-
-
-
-自定义Python异常对应的页面
 
 
 
 
 
 
-
-
-
-## `ui.run`的参数（更新中）
-
-
-
-
-
-## 窗口模式的技巧（更新中）
+## 35 窗口模式的技巧（更新中）
 
 
 
@@ -5591,11 +5717,198 @@ ui.run(native=True)
 
 
 
-## x 单页面应用的扩展内容（更新中）
+## 36 单页面应用（内容大纲需要优化、重构）（更新中）
 
-`ui.sub_pages`的`add`方法，
+### 36.1 基本用法（更新中）
 
-不同的404情况：
+尽管前面已经简单介绍过单页面应用，但怕读者遗忘，也为了加深读者的理解，这里还是有必要详细介绍一下单页面应用（Single Page Application，SPA）。
+
+所谓单页面应用，就是可以将页面的一部分内容划分为子路由的页面（即子页面），刷新子页面内容无需重新加载整个页面（即使路径变化，也只有子页面是变化的，非子页面的部分无需变化）的特殊页面。
+
+单页面应用的基本结构如下图：
+
+![2026_36_1](nicegui_pro.assets/2026_36_1.png)
+
+说是特殊页面，但单页面应用与构建模式并非同级概念，而是特指页面结构。因此，三种构建模式均可以设计为单页面应用。
+
+此外，上面的示意图虽然将子页面与其余部分画得泾渭分明，还像有固定顺序一样，但实际上二者之间可以互相任意排列组合（不能分割完整的子页面），子页面可以放置在整个页面中的任意位置。
+
+111---
+
+（需要认真审查下面内容中的相关概念，确保与前面内容的概念一致）
+
+`ui.sub_pages`类支持以下参数：
+
+- `routes`参数，字典类型（键为表示子路由的字符串，值为对应的页面生成器），表示子路由与具体页面生成器的对应关系。
+
+  注意，如果普通页面中使用了子页面，子路由`'/'`和其对应的页面生成器是必须的，不定义的话，页面会报404错误。
+
+- `root_path`参数，字符串类型，表示子页面所属普通页面的路径。当普通页面的路径非根路径时，必须给该参数传入普通页面对应的路径才能让子路由正常生效。比如：
+
+  ```python3
+  from nicegui import ui
+  from uuid import uuid4
+  
+  @ui.page('/index')
+  @ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+  def index():
+      ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+      ui.label(f'页面ID为 {str(uuid4())[:6]}')
+      ui.separator()
+      ui.sub_pages({'/': main, '/page1': page1},root_path='/index')
+  
+  def main():
+      ui.label('/（子页面）的内容')
+      ui.link('去page1（子页面）', '/index/page1')
+      #ui.link('去pagex（子页面不存在）', '/pagex')
+  
+  def page1():
+      ui.label('page1（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  ui.run(port=80)
+  ```
+
+  从此参数开始，只能通过关键字传入。
+
+- `data`参数，字典类型（键为表示子路由页面生成器参数的字符串，值为参数对应的值），表示传给子路由页面生成器参数的值，以便子页面之间、子页面与普通页面之间共享变量、控件。比如：
+
+  ```python3
+  from nicegui import ui
+  from uuid import uuid4
+  
+  @ui.page('/index')
+  @ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+  def index():
+      title = ui.label('主页面')
+      ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+      ui.label(f'页面ID为 {str(uuid4())[:6]}')
+      ui.separator()
+      ui.sub_pages(
+          routes={'/': main, '/page1': page1},
+          root_path='/index',
+          data={'title':title}
+      )
+  
+  def main(title:ui.label):
+      title.text = '/（子页面）'
+      ui.label('/（子页面）的内容')
+      ui.link('去page1（子页面）', '/index/page1')
+  
+  def page1(title:ui.label):
+      title.text = 'page1（子页面）'
+      ui.label('page1（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  ui.run(port=80)
+  ```
+
+- `show_404`参数，布尔类型，表示如果子路由没有对应的页面生成器，是否显示一段展示该错误的简短字符串，默认为`True`。如果该参数为`False`，则没有任何提示内容。示例如下：
+
+  ```python3
+  from nicegui import ui
+  from uuid import uuid4
+  
+  @ui.page('/index')
+  @ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+  def index():
+      title = ui.label('主页面')
+      ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+      ui.label(f'页面ID为 {str(uuid4())[:6]}')
+      ui.separator()
+      ui.sub_pages(
+          routes={'/': main, '/page1': page1},
+          root_path='/index',
+          data={'title':title},
+          show_404=True
+      )
+  
+  def main(title:ui.label):
+      title.text = '/（子页面）'
+      ui.label('/（子页面）的内容')
+      ui.link('去page1（子页面）', '/index/page1')
+      ui.link('去pagex（子页面不存在）', '/index/pagex')
+  
+  def page1(title:ui.label):
+      title.text = 'page1（子页面）'
+      ui.label('page1（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  ui.run(port=80)
+  ```
+
+  ![2025_21_3](nicegui_pro.assets/2025_21_3.png)
+
+  如果此时刷新页面，将会自动跳转至默认的404的报错页面。
+
+`ui.sub_pages`类支持以下方法：
+
+- `add`方法，添加、更新子路由和其对应的页面生成器。该方法支持以下参数：
+
+  - `path`参数，字符串类型，表示子路由。
+  - `page`参数，可调用类型，表示子路由对应的页面生成器。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  from uuid import uuid4
+  
+  @ui.page('/index')
+  @ui.page('/index/{_:path}')  # 不使用这个的话，刷新子路由时会变成对应的普通页面
+  def index():
+      title = ui.label('主页面')
+      ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
+      ui.label(f'页面ID为 {str(uuid4())[:6]}')
+      ui.separator()
+      pages = ui.sub_pages(
+          routes={'/': main, '/page1': page1},
+          root_path='/index',
+          data={'title':title},
+          show_404=True
+      )
+      pages.add('/page1',page1_x)
+  
+  def main(title:ui.label):
+      title.text = '/（子页面）'
+      ui.label('/（子页面）的内容')
+      ui.link('去page1（子页面）', '/index/page1')
+      ui.link('去pagex（子页面不存在）', '/index/pagex')
+  
+  def page1(title:ui.label):
+      title.text = 'page1（子页面）'
+      ui.label('page1（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  def page1_x(title:ui.label):
+      title.text = 'page1_x（子页面）'
+      ui.label('page1_x（子页面）的内容')
+      ui.link('回到/（子页面）', '/index')
+  
+  ui.run(port=80)
+  ```
+
+  ![2025_21_4](nicegui_pro.assets/2025_21_4.png)
+
+- `refresh`方法，刷新子页面。
+
+
+
+### 36.2 注意事项
+
+（一些注意事项，这部分内容可以视为当前功能的局限性，也可以视为问题，这些注意事项可能会随着版本更新而失效，具体以最新版本为准，本章内容仅保证与本章编写时使用的版本（3.1.0）表现一致）
+
+
+
+（子路由全捕获，以及不同的404情况）
+
+
+
+需要注意的是，代码中，额外使用了`@ui.page('/index/{_:path}')`（`'/{_:path}'`前面的部分与子页面所属的普通页面的路径一致）装饰包含子页面的普通页面，用于捕获子路由相关的路径。如果不使用这行代码的话，当前路径为非根路由的子路由时，刷新当前页面会自动跳转至对应路径的普通页面，而非子页面。示例如下：
+
+
+
+
 
 
 
@@ -5617,7 +5930,29 @@ ui.link('到其他页面（不存在）', '/other')
 ui.run(port=80)
 ```
 
-单页面应用的NiceGUI脚本，情况会有点复杂：
+单页面应用的NiceGUI脚本，情况会有点复杂，脚本模式和单页面模式：
+
+```python3
+from nicegui import ui
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+
+def page1():
+    ui.label('page1（子页面）的内容')
+    ui.link('回到/（子页面）', '/')
+
+ui.link('到其他页面（不存在）', '/other')
+ui.separator()
+ui.sub_pages({'/': main, '/page1': page1})
+
+ui.run(port=80)
+```
+
+
+
+
 
 ```python3
 from nicegui import ui
@@ -5640,11 +5975,11 @@ ui.run(root=index,port=80)
 
 结果如下表所示：
 
-| 当前地址             | 访问不存在的地址后           | 页面内容          | 刷新后内容      |
-| -------------------- | ---------------------------- | ----------------- | --------------- |
-| 根路由`/`            | 地址变为不存在的地址`/other` | 子页面显示404提示 | 页面显示500页面 |
-| 子路由`/page1`       | 地址不变                     | 子页面显示404提示 | 子页面          |
-| 不存在的地址`/other` | 无                           | 页面显示500页面   | 页面显示500页面 |
+| 当前地址             | 访问不存在的地址后 | 页面内容                     | 刷新后内容                   |
+| -------------------- | ------------------ | ---------------------------- | ---------------------------- |
+| 根路由`/`            | 地址不变           | 子页面显示404提示            | 主页面                       |
+| 子路由`/page1`       | 地址不变           | 子页面显示404提示            | 子页面                       |
+| 不存在的地址`/other` | 无                 | 页面显示500页面，但报错为404 | 页面显示500页面，但报错为404 |
 
 如果不是NiceGUI脚本，所有页面都是使用`ui.page`定义的私有页面，则正常显示404页面，也可以自定义404页面。
 
@@ -5675,9 +6010,8 @@ from fastapi import Request
 
 @app.exception_handler(404)
 def exception_handler_404(request:Request, exception: Exception):
-    from urllib.parse import urlparse
     with Client(ui.page(''),request=request) as client:
-        ui.label(f'页面 {urlparse(str(request.url)).path[1:]} 不存在').classes('')
+        ui.label(f'页面不存在')
     return client.build_response(request, 404)
 
 ui.run(port=80)
@@ -5720,7 +6054,7 @@ ui.run(port=80)
 
 
 
-## x 绑定属性的扩展内容（更新中）
+## 37 绑定属性的扩展内容（更新中）
 
 ### x.1 通用绑定方法
 
@@ -5983,47 +6317,6 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 
 
-## `ui.separator`控件设置为垂直方向时样式不生效的临时解决方法
-
-
-
-```python3
-from nicegui import ui
-
-
-def index():
-    # 临时解决方法
-    ui.add_css(
-        '''
-    .q-separator--vertical.nicegui-separator {
-        width: 1px;
-    }
-    .q-separator--horizontal.nicegui-separator {
-        width: 100%;
-    }
-        ''',
-        shared=True
-    )
-    with ui.column():
-        ui.button('1')
-        ui.separator()
-        ui.button('2')
-    with ui.row():
-        ui.button('1')
-        ui.separator().props('vertical')
-        ui.button('2')
-
-ui.run(
-    root=index,
-    native=True
-)
-
-```
-
-
-
-
-
 ## x 灵感（待定）
 
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
@@ -6037,6 +6330,10 @@ ui.run(
 ## NiceGUI札记2027版——更新计划
 
 （先表达教程深受读者喜爱，不少章节的热度远超其他章节甚至其他教程，感谢读者的支持。然后开始说之前更新的内容因为之后版本更新加上受限于当时的能力，在版本更新之后，有不少章节存在错误或者遗漏。而且，很多控件还没介绍或者介绍得不完全。于是，2027年，除了继续介绍控件、补充控件的其他用法之外，还要根据版本更新的内容，补充遗漏、修正错误，让读者始终走在版本更新的第一线，不会因为内容陈旧而停下脚步，为版本更新付出太多学习的时间。）
+
+## 41 （待定）
+
+
 
 
 

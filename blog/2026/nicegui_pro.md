@@ -4814,7 +4814,7 @@ ui.run(
 
 ## 27 修改窗口标题
 
-对于窗口模式，修改窗口标题很简单，最简单的莫过于直接运行JavaScript代码来修改：
+对于网页模式，修改窗口标题很简单，最简单的方式莫过于直接运行JavaScript代码来修改：
 
 ```python3
 from nicegui import ui
@@ -5507,13 +5507,190 @@ ui.run()
 
 注意，脚本模式的单页面应用**不支持**自定义404页面，强行使用会导致单页面应用失效。
 
-## 34 `ui.run`的参数（更新中）
+## 34 `ui.run`方法的参数（更新中）
+
+说起来，前面那么多示例使用了`ui.run`方法，零星使用过该方法的不少参数，还没有完整介绍过该方法的每个参数。为了方便读者使用其参数时不知用法，本章特地介绍一下该方法的各个参数。
+
+`root`参数，可调用类型，表示单页面模式的页面构建函数。该参数为第一个位置参数，可以通过位置、关键字方式传入。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.button('Hello')
+
+ui.run(
+    index
+    #root=index
+)
+```
+
+`host`参数，字符串类型，仅限关键字参数（只能通过关键字传入），并且从该参数开始，后续所有的参数都是仅限关键字参数。该参数表示NiceGUI程序启动服务的监听地址，默认为`127.0.0.1`（窗口模式）或者`0.0.0.0`（网页模式）。
+
+因为NiceGUI程序的本质是网页，程序本身也使用供了服务器程序来渲染网页中的后端部分，所以需要定义监听地址。
+
+注意，`0.0.0.0`表示监听所有可用地址，如果使用网页模式时不想将NiceGUI程序暴露给外网，请务必修改该参数为本地地址。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.button('Hello')
+
+ui.run(
+    root=index,
+    host='127.0.0.1'
+)
+```
+
+`port`参数，字符串类型，表示NiceGUI程序启动服务的监听端口。
+
+示例如下：
+
+```python3
+from nicegui import ui,native
+
+def index():
+    ui.button('Hello')
+
+ui.run(
+    root=index,
+    host='127.0.0.1',
+    port=native.find_open_port(
+        1,
+        9999
+    )
+)
+```
+
+示例中，使用了`native.find_open_port`方法，该方法会返回指定范围内可用的端口号。不过，当指定范围是从0开始，或者指定`port`参数为0时，虽然系统可以自动分配可用端口，但NiceGUI内部做了短路判断，将默认使用`native.find_open_port()`的结果。
+
+`title`参数，字符串类型，表示网页模式、窗口模式默认的窗口标题，默认为`'NiceGUI'`。
+
+`viewport`参数，字符串类型，表示网页的VIewport属性，常用于优化移动端的显示效果，默认为`'width=device-width, initial-scale=1'`，更多用法可以参考 https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Elements/meta/name/viewport。比如，看可以添加`user-scalable=no`来禁止移动端用户缩放网页：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.button('Hello')
+
+ui.run(
+    root=index,
+    viewport='user-scalable=no, width=device-width, initial-scale=1'
+)
+```
+
+`favicon`参数，
 
 
 
+`dark`参数，
 
 
 
+`language`参数，
+
+
+
+`binding_refresh_interval`参数，
+
+
+
+`reconnect_timeout`参数，
+
+
+
+`message_history_length`参数，
+
+
+
+`cache_control_directives`参数，
+
+
+
+`fastapi_docs`参数，
+
+
+
+`show`参数，
+
+
+
+`on_air`参数，
+
+
+
+`native`参数，
+
+
+
+`window_size`参数，
+
+
+
+`fullscreen`参数，
+
+
+
+`frameless`参数，
+
+
+
+`reload`参数，
+
+
+
+`uvicorn_logging_level`参数，
+
+
+
+`uvicorn_reload_dirs`参数，
+
+
+
+`uvicorn_reload_includes`参数，
+
+
+
+`uvicorn_reload_excludes`参数，
+
+
+
+`tailwind`参数，
+
+
+
+`prod_js`参数，
+
+
+
+`endpoint_documentation`参数，
+
+
+
+`storage_secret`参数，
+
+
+
+`session_middleware_kwargs`参数，
+
+
+
+`show_welcome_message`参数，
+
+
+
+`**kwargs`参数，除了上面部分参数外，还可以通过关键字的形式，传入其他`uvicorn.Server`类支持的初始化参数。比如下面两个实用的参数：
+
+- `ssl_certfile`参数，--
+- `ssl_keyfile`参数，--
+
+同时给上面两个参数传入有效值的话，NiceGUI程序将支持通过HTTPS协议访问。
 
 
 
@@ -6506,7 +6683,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 ## NiceGUI札记（2027）
 
-2026版内容更新完之后，将本章的标题改为一级标题。
+2026版内容更新完之后，将本章的标题改为一级标题，并将后续内容存放到`2027`文件夹内的同名文件中。
 
 ## NiceGUI札记2027版——更新计划
 

@@ -5507,7 +5507,7 @@ ui.run()
 
 注意，脚本模式的单页面应用**不支持**自定义404页面，强行使用会导致单页面应用失效。
 
-## 34 `ui.run`方法的参数（更新中）
+## 34 `ui.run`方法的参数
 
 说起来，前面那么多示例使用了`ui.run`方法，零星使用过该方法的不少参数，还没有完整介绍过该方法的每个参数。为了方便读者使用其参数时不知用法，本章特地介绍一下该方法的各个参数。
 
@@ -5585,114 +5585,230 @@ ui.run(
 )
 ```
 
-`favicon`参数，
+`favicon`参数，字符串类型或者`Path`类型，表示网站在标题栏的图标。
 
+如果该参数为单个字符（可以是汉字、emoji符号等单个unicode字符），则标题栏图标直接为该字符，例如：`ui.run(favicon='🚀')`。
 
+![2026_34_1](nicegui_pro.assets/2026_34_1.png)
 
-`dark`参数，
+如果该参数为字符串类型或者`Path`类型的图片文件路径，则使用图片文件作为标题栏图标。
 
+以下为示例，图片文件与源代码在同一目录下：
 
+```python3
+from nicegui import ui
+from pathlib import Path
 
-`language`参数，
+def index():
+    ui.button('Hello')
+    
+ui.run(
+    root = index,
+    # 简单使用字符串表示的路径
+    # favicon='favicon.ico'
+    # favicon = Path('favicon.ico')
+    # 或者使用基于当前文件所在目录的相对路径
+    favicon = Path(
+        __file__
+    ).parent.joinpath(
+        '../nicegui_uv_app/favicon.ico'
+    )
+)
+```
 
+![2026_34_2](nicegui_pro.assets/2026_34_2.png)
 
+对于图片文件，有以下要求：
 
-`binding_refresh_interval`参数，
+- 像素不低于16x16。
+- 图片格式仅支持`.ico`、`.png`、`.jpg`、`.svg`、`.gif`。注意，这里指的是图片格式，并不是后缀，哪怕后缀不是这些格式，但图片本身是这些格式，依然可以。
 
+完整的favicon支持情况，可以参考 https://en.wikipedia.org/wiki/Favicon 。
 
+除了支持单个字符和图片文件，还支持使用字符串表示的图片：
+
+- Base64编码的图片（图片格式仅支持`.ico`、`.png`、`.jpg`、`.svg`、`.gif`）。
+- SVG矢量图。
 
-`reconnect_timeout`参数，
+示例如下：
 
+```python3
+from nicegui import ui
 
+def index():
+    ui.button('Hello')
 
-`message_history_length`参数，
+icon = 'data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAQAQAABMLAAATCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADz8e8ct6md5gUBAP9cUVGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADn4+E4qZqN8KmXiP8aGRf/AAAA/05DQqgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADc19JUnY2A/6OThf+xopb/Ih8c/wAAAP8AAAD/KyYlz9vEwRkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADSysRzmIh6/5+Qg/+wopX/rp+T/xwZF/8AAAD/AAAA/wAAAP8JBATwtpyaOwAAAAAAAAAAAAAAAAAAAADIv7iQloV3/6KUh/+omo//r6GU/6ydj/8ZFxX/AAAA/wAAAP8AAAD/AAAA/wAAAP+bjYtcAAAAAAAAAADHvrYdno6B/6OUiP+omo7/p5mN/7Kilf+lm4//EBQS/wAAAP8AAAD/AAAA/wAAAP8AAAD/CwMD6AAAAAAAAAAAxby0PaOUiP+mmIz/p5mN/6mWiv+srqH/oKqc/wAODv8AAAD/AAAA/wAAAP8AAAD/AAAA/woGBucAAAAAAAAAAMG3sF6gkYT/p5iM/6iXi/+Xsqb/oamb/+9COf+zBAH/EgEB/wAAAP8AAAD/AAAA/wAAAP8AAAD0AAAAAAAAAAC+s6qCoI2A/6Sekv+Tua3/sol8//AaFf//AAD//wwA/+4NAf9VBQH/AAAA/wAAAP8AAAD/AAAA8wAAAAAAAAAAt6acopWilf+YtKb/ymBW//8AAP//AAD//w0A//8MAP//DQD//w4A/58JAf8JAQH/AAAA/wAAAPIAAAAAAAAAAKC/tMWfl4j/5DMs//8AAP//AwD//w4A//8MAP//DAD//wwA//8MAP//DgD/5A0B/0gFAf8AAADyAAAAAAAAAADCXVD//AAA//8AAP//CwD//w0A//8MAP//DAD//wwA//8MAP//DAD//wwA//8PAP//BwD/lgAA/wAAAAAAAAAA8oqDYv8aF9r/AAD//wAA//8NAP//DQD//wwA//8MAP//DAD//w0A//8IAP//AAD//wAA//9kWp0AAAAAAAAAAAAAAAAAAAAA64uHbPscF+X/AAD//wAA//8NAP//DQD//wsA//8AAP//AAD/+EdEuO3DwTcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADh6eUF7IF9d/wSDPD/AAD//wAA//8AAP/6My/N7rCtSwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADe3dgP72Fcj/oqJ9HxkY5jAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAPwfAAD4DwAA+A8AAPwPAAD8DwAA/A8AAPgPAAD4HwAA8B8AAPAfAADwHwAA+AcAAP4PAAD/fwAA/v8AAA=='
 
+smile_icon = '''
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="78" fill="#ffde34" stroke="black" stroke-width="3" />
+        <circle cx="80" cy="85" r="8" />
+        <circle cx="120" cy="85" r="8" />
+        <path d="m60,120 C75,150 125,150 140,120" style="fill:none; stroke:black; stroke-width:8; stroke-linecap:round" />
+    </svg>
+'''
 
+ui.run(
+    root = index,
+    favicon = icon
+    #favicon = smile_icon
+)
+```
 
-`cache_control_directives`参数，
+`dark`参数，布尔类型，表示是否默认启用暗黑模式。使用`None`的话，表示跟随系统。
 
+`language`参数，字符串类型，表示网页默认的语言，默认为`'en-US'`。注意，该参数只会影响框架内提供多语言内容的部分，对于非框架自带的内容，则需要通过其他方法实现多语言功能，无法通过此参数切换语言。
 
+`binding_refresh_interval`参数，浮点类型，表示绑定属性的刷新间隔，单位秒，默认为`0.1`。该参数不宜过小，否则会在添加较多活动链接类（绑定属性种类会在后面的章节介绍，这里不做展开）绑定属性时导致卡顿。
 
-`fastapi_docs`参数，
+`reconnect_timeout`参数，浮点类型，表示服务器等待客户端重新连接的最长时间，超过该时间，服务器就会关闭客户端对应的连接，单位秒，默认为`3.0`。
 
+`message_history_length`参数，整数类型，表示对于服务器而言，每个连接最多缓存多少条WebSocket消息，默认为`1000`。
 
+`cache_control_directives`参数，字符串类型，表示静态文件的缓存策略，默认为`'public, max-age=31536000, immutable, stale-while-revalidate=31536000'`。
 
-`show`参数，
+`fastapi_docs`参数，布尔类型或者`DocsConfig`类型（使用`from nicegui.ui_run import DocsConfig`导入），表示是否启用或者配置FastAPI提供的接口文档，默认为`False`。
 
+如果参数为布尔类型，表示启用、禁用，通过以下地址（可参考https://fastapi.tiangolo.com/tutorial/metadata/#docs-urls）访问默认提供的接口文档：
 
+- `/redoc`是ReDoc框架生成的文档。
+- `/docs`是SwaggerUI框架生成的文档。
 
-`on_air`参数，
+如果参数为`DocsConfig`类型，表示启用接口文档并配置相关参数（可参考https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-api）：
 
+- `title`参数，字符串类型，表示接口文档的标题。
+- `summary`参数，字符串类型，表示接口文档的简要说明。
+- `description`参数，字符串类型，表示接口文档的具体说明。
+- `version`参数，字符串类型，表示接口文档的版本号。
+- `terms_of_service`参数，字符串类型，表示服务协议的链接，可以使用绝对地址或者相对地址。
+- `contact`参数，`ContactDict`类型（使用`from nicegui.ui_run import ContactDict`导入），表示文档所有者的联系方式。`ContactDict`类支持以下参数：
+  - `name`参数，字符串类型，表示所有者的名字（人名或者公司名）。
+  - `url`参数，字符串类型，表示所有者的网站（链接，可以使用绝对地址或者相对地址）。
+  - `email`参数，字符串类型，表示所有者的电子邮箱地址。
+- `license_info`参数，`LicenseInfoDict`类型（使用`from nicegui.ui_run import LicenseInfoDict`导入），表示文档的许可证信息。`LicenseInfoDict`类支持以下参数：
+  - `name`参数，字符串类型，表示许可证的名字。
+  - `identifier`参数，字符串类型，表示许可证识别代码。
+  - `url`参数，字符串类型，表示许可证完整内容的链接，可以使用绝对地址或者相对地址。如果没设置该参数，则框架会根据许可证识别代码，自动使用基于https://spdx.org/licenses/ 拼接的地址作为许可证完整内容的链接。比如，许可证识别代码为`'MIT'`，则完整内容的链接为`https://spdx.org/licenses/MIT.html`。
 
+示例如下：
 
-`native`参数，
+```python3
+from nicegui import ui,app
+from nicegui.ui_run import DocsConfig,ContactDict,LicenseInfoDict
 
 
+@app.get('/api/', tags=['测试接口'])
+async def api_test():
+    return '测试结果'
 
-`window_size`参数，
+@ui.page('/')
+def index():
+    ui.button('Hello')
 
+ui.run(
+    fastapi_docs=DocsConfig(
+        title='文档标题',
+        summary='简单说明',
+        description='具体说明',
+        version='版本号',
+        terms_of_service='http://服务协议.net',
+        contact=ContactDict(
+            name='联系人',
+            url='http://联系网址.net',
+            email='联系人@联系网址.net'
+        ),
+        license_info=LicenseInfoDict(
+            name='使用许可',
+            identifier='许可证识别代码',
+            url='http://许可证正文链接.net'
+        )
+    )
+)
+```
 
+访问`http://127.0.0.1:8080/docs`可以看到：
 
-`fullscreen`参数，
+![2026_34_3](nicegui_pro.assets/2026_34_3.png)
 
+访问`http://127.0.0.1:8080/redoc`可以看到：
 
+![2026_34_4](nicegui_pro.assets/2026_34_4.png)
 
-`frameless`参数，
+`show`参数，布尔类型，表示以网页模式启动时，是否启动默认浏览器，打开主页面，默认为`True`。
 
+`on_air`参数，布尔类型，表示启动程序的同时，是否使用NiceGUI官方提供的地址映射工具，映射一个免费的公网地址，默认为`False`。该功能由https://on-air.io/提供在线转发服务，默认免费使用，付费的高级版功能更强大。
 
+`native`参数，布尔类型，表示是否以窗口模式启动，默认为`False`。
 
-`reload`参数，
+`window_size`参数，元组类型（两个整数元素，分别代表宽度、高度），表示以窗口模式启动时，指定窗口的大小。默认为`None`，由系统决定。注意，设置此参数的话，会同时将`native`参数设置为`True`。
 
+示例如下：
 
+```python3
+from nicegui import ui
 
-`uvicorn_logging_level`参数，
+def index():
+    ui.button('Hello')
 
+ui.run(
+    root=index,
+    window_size=(400,300)
+)
+```
 
+`fullscreen`参数，布尔类型，表示以窗口模式启动时，是否为全屏，默认为`False`。注意，设置此参数为`True`的话，会同时将`native`参数设置为`True`。
 
-`uvicorn_reload_dirs`参数，
+`frameless`参数，布尔类型，表示以窗口模式启动时，是否使用无边框窗口，默认为`False`。注意，设置此参数为`True`的话，会同时将`native`参数设置为`True`。
 
+另外，使用无边框窗口的话，需要额外添加关闭程序的按钮，或者通过终端、任务管理器关闭程序。
 
+`reload`参数，布尔类型，表示当文件被修改时，是否自动刷新界面，默认为`True`。
 
-`uvicorn_reload_includes`参数，
+`uvicorn_logging_level`参数，字符串类型，表示服务器的日志级别，默认为`'warning'`。
 
+`uvicorn_reload_dirs`参数，字符串类型，表示哪个文件夹（含子文件夹）内的文件被修改时触发自动刷新界面，默认为`'.'`，即当前目录。
 
+`uvicorn_reload_includes`参数，字符串类型，表示哪些格式（后缀）的文件被修改时触发自动刷新界面，默认为`'*.py'`。
 
-`uvicorn_reload_excludes`参数，
+`uvicorn_reload_excludes`参数，字符串类型，表示哪些格式（后缀，同Git的匹配规则）的文件被修改时**不会**触发自动刷新界面，默认为`'.*, .py[cod], .sw.*, ~*'`。
 
+`tailwind`参数，布尔类型，表示是否启用Tailwind CSS框架。
 
+`prod_js`参数，布尔类型，表示是否启用Vue、Quasar框架的生产环境版本（去除多余的换行和空格，可以加快客户端的下载速度）。
 
-`tailwind`参数，
+`endpoint_documentation`参数，字符串类型，仅支持中的`['none', 'internal', 'page', 'all']`值，表示启用接口文档时，包含NiceGUI框架提供的哪些接口（都不包含、仅包含内部接口、仅包含页面接口、包含内部接口和页面接口）默认为`none`。
 
+示例如下：
 
+```python3
+from nicegui import ui
 
-`prod_js`参数，
+@ui.page('/')
+def index():
+    ui.context.client.content.classes('absolute-center')
+    ui.button('Hello')
 
+ui.run(
+    fastapi_docs=True,
+    endpoint_documentation='all'
+)
+```
 
+![2026_34_5](nicegui_pro.assets/2026_34_5.png)
 
-`endpoint_documentation`参数，
+`storage_secret`参数，字符串类型，表示用来签名浏览器会话cookie的密钥，在使用部分存储字典时需要定义此密钥。
 
+`session_middleware_kwargs`参数，字典类型，表示传递给`starlette.middleware.sessions.SessionMiddleware`的额外关键字参数，用于创建浏览器会话cookie。
 
-
-`storage_secret`参数，
-
-
-
-`session_middleware_kwargs`参数，
-
-
-
-`show_welcome_message`参数，
-
-
+`show_welcome_message`参数，布尔类型，表示是否在终端显示欢迎信息（即终端显示的可以直接访问主页面的所有地址），默认为`True`。
 
 `**kwargs`参数，除了上面部分参数外，还可以通过关键字的形式，传入其他`uvicorn.Server`类支持的初始化参数。比如下面两个实用的参数：
 
-- `ssl_certfile`参数，--
-- `ssl_keyfile`参数，--
+- `ssl_certfile`参数，字符串类型，表示证书文件的路径。
+- `ssl_keyfile`参数，字符串类型，表示公钥文件的路径。
 
-同时给上面两个参数传入有效值的话，NiceGUI程序将支持通过HTTPS协议访问。
-
-
+同时给上面两个参数传值的话，NiceGUI程序将支持通过HTTPS协议访问。
 
 ## 35 窗口模式的技巧（更新中）
 
@@ -5706,7 +5822,7 @@ ui.run(
 
 
 
-### 3 允许Native Mode的NiceGUI程序弹出下载对话框
+### 35.1 允许Native Mode的NiceGUI程序弹出下载对话框
 
 默认情况下，在以Native Mode运行的NiceGUI程序中，`ui.download`是不能下载的，这是pywebview框架（Native Mode的依赖）默认的安全配置，这时需要使用`app.native.settings['ALLOW_DOWNLOADS'] = True`来修改pywebview的安全配置，代码如下：
 
@@ -5714,9 +5830,20 @@ ui.run(
 from nicegui import ui, app
 
 app.native.settings['ALLOW_DOWNLOADS'] = True
-ui.button('Download', on_click=lambda: ui.download(b'Demo text','demo_file.txt'))
 
-ui.run(native=True)
+def index():
+    ui.button(
+        'Download', 
+        on_click=lambda: ui.download(
+            b'Demo text',
+            'demo_file.txt'
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ### 4 让Native Mode的NiceGUI程序使用Qt的QtWebEngine作为运行时

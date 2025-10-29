@@ -5773,9 +5773,9 @@ ui.run(
 
 `uvicorn_reload_excludes`参数，字符串类型，表示哪些格式（后缀，同Git的匹配规则）的文件被修改时**不会**触发自动刷新界面，默认为`'.*, .py[cod], .sw.*, ~*'`。
 
-`tailwind`参数，布尔类型，表示是否启用Tailwind CSS框架。
+`tailwind`参数，布尔类型，表示是否启用Tailwind CSS框架，默认为`True`。
 
-`prod_js`参数，布尔类型，表示是否启用Vue、Quasar框架的生产环境版本（去除多余的换行和空格，可以加快客户端的下载速度）。
+`prod_js`参数，布尔类型，表示是否启用Vue、Quasar框架的生产环境版本（去除多余的换行和空格，可以加快客户端的下载速度），默认为`True`。
 
 `endpoint_documentation`参数，字符串类型，仅支持中的`['none', 'internal', 'page', 'all']`值，表示启用接口文档时，包含NiceGUI框架提供的哪些接口（都不包含、仅包含内部接口、仅包含页面接口、包含内部接口和页面接口）默认为`none`。
 

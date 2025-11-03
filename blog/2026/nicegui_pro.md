@@ -4711,7 +4711,7 @@ ui.run(
 
 ![2026_26_1](nicegui_pro.assets/2026_26_1.png)
 
-注意，因为`pywebview`默认禁止下载，在测试下载时，需要设置`app.native.settings['ALLOW_DOWNLOADS']`为`True`来允许下载。
+注意，因为PyWebview框架默认禁止下载，在测试下载时，需要设置`app.native.settings['ALLOW_DOWNLOADS']`为`True`来允许下载。
 
 为了解决此问题，就需要使用`ui.download`对象的方法（实际上是对`ui.context.client.download`方法的包装，在`ui.context`对象的章节中不再重复介绍）来触发下载，而非点击超链接：
 
@@ -5326,7 +5326,7 @@ ui.run()
 
 访问名为Star的超链接或者访问`http://127.0.0.1:8080/icon/star?amount=5`即可看到：
 
-![2026_30_1](nicegui_pro.assets/2025_12_1.png)
+![2026_30_1](nicegui_pro.assets/2026_30_1.png)
 
 对于单页面模式，则可以给页面构建函数增加`request`参数（必须是这个参数名，`Request`类型，要求NiceGUI 3.1.0版本），进而捕捉相关参数。
 
@@ -5759,7 +5759,7 @@ ui.run(
 
 `fullscreen`参数，布尔类型，表示以窗口模式启动时，是否为全屏，默认为`False`。注意，设置此参数为`True`的话，会同时将`native`参数设置为`True`。
 
-`frameless`参数，布尔类型，表示以窗口模式启动时，是否使用无边框窗口，默认为`False`。注意，设置此参数为`True`的话，会同时将`native`参数设置为`True`。
+`frameless`参数，布尔类型，表示以窗口模式启动时，是否启用无边框窗口，默认为`False`。注意，设置此参数为`True`的话，会同时将`native`参数设置为`True`。
 
 另外，使用无边框窗口的话，需要额外添加关闭程序的按钮，或者通过终端、任务管理器关闭程序。
 
@@ -5810,218 +5810,789 @@ ui.run(
 
 同时给上面两个参数传值的话，NiceGUI程序将支持通过HTTPS协议访问。
 
-## 35 窗口模式的技巧（更新中）
+## 35 详解窗口模式
 
+窗口模式相关的用法与`app.native`支持的属性相关：
 
+- `settings`属性，表示窗口模式中与网页功能相关的设置。
 
-窗口模式相关的一些用法、示例，比如配置pywebview相关的配置，和pywebview版本相关的配置项，指定运行时为Qt还是Webview2，指定Webview2的版本等。
+- `start_args`属性，表示启动Webview实例时使用的参数，与运行环境相关。
 
+- `window_args`属性，表示创建窗口时使用的参数，与窗口属性相关。
 
+- `main_window`属性，表示窗口对象，常用于执行窗口相关的动作。
 
-窗口的关闭、弹出、标题修改、窗口大小调整、窗口位置设置等。
+### 35.1 `settings`属性
 
+`settings`属性是字典，修改相关功能的设置，实际上就是设置键对应的值。
 
+该属性支持的键如下：
 
-### 35.1 允许Native Mode的NiceGUI程序弹出下载对话框
+- `'ALLOW_DOWNLOADS'`键，布尔类型，表示是否允许触发下载，默认为`False`。需要将该参数设置为`True`，才能在窗口模式中下载文件。
 
-默认情况下，在以Native Mode运行的NiceGUI程序中，`ui.download`是不能下载的，这是pywebview框架（Native Mode的依赖）默认的安全配置，这时需要使用`app.native.settings['ALLOW_DOWNLOADS'] = True`来修改pywebview的安全配置，代码如下：
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.settings['ALLOW_DOWNLOADS'] = True
+  
+  def index():
+      ui.button(
+          'Download', 
+          on_click=lambda: ui.download(
+              b'Demo text',
+              'demo_file.txt'
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'OPEN_EXTERNAL_LINKS_IN_BROWSER'`键，布尔类型，表示点击之后会在新窗口（标签页）打开的链接时，是否使用默认浏览器打开，默认为`True`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.settings['OPEN_EXTERNAL_LINKS_IN_BROWSER'] = False
+  
+  def index():
+      ui.link(
+          '百度',
+          'https://baidu.com',
+          new_tab=True
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  将此键设置为`False`，可以强制所有链接在窗口内打开，不会使用默认浏览器打开。
+
+- `'OPEN_DEVTOOLS_IN_DEBUG'`键，布尔类型，表示启用调试模式（启用方法参考`start_args`属性的用法）之后，是否在启动时同时打开调试工具，默认为`True`。
+
+- `'REMOTE_DEBUGGING_PORT'`键，整数类型，表示调试工具的远程调试端口，默认为`None`。
+
+- `'IGNORE_SSL_ERRORS'`键，布尔类型，表示是否忽略网页中的SSL错误，默认为`False`。
+
+### 35.2 `start_args`属性
+
+`start_args`属性是字典，修改相关功能的设置，实际上就是设置键对应的值。
+
+该属性支持的键如下：
+
+- `'func'`键，可调用类型，表示启动窗口模式时执行一次的操作。
+
+- `'args'`键，可迭代类型，表示给`'func'`键对应的函数传入的参数。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.start_args['func'] = print
+  app.native.start_args['args'] = ['Hello']
+  
+  def index():
+      ui.label('Hello')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'localization'`键，字典类型，表示PyWebview框架内使用的相关文字对应的本地化翻译。具体支持的字段如下：
+
+  ```python3
+  {
+      'global.quitConfirmation': 'Do you really want to quit?',
+      'global.ok': 'OK',
+      'global.quit': 'Quit',
+      'global.cancel': 'Cancel',
+      'global.saveFile': 'Save file',
+      'cocoa.menu.about': 'About',
+      'cocoa.menu.services': 'Services',
+      'cocoa.menu.view': 'View',
+      'cocoa.menu.hide': 'Hide',
+      'cocoa.menu.hideOthers': 'Hide Others',
+      'cocoa.menu.showAll': 'Show All',
+      'cocoa.menu.quit': 'Quit',
+      'cocoa.menu.fullscreen': 'Enter Fullscreen',
+      'windows.fileFilter.allFiles': 'All files',
+      'windows.fileFilter.otherFiles': 'Other file types',
+      'linux.openFile': 'Open file',
+      'linux.openFiles': 'Open files',
+      'linux.openFolder': 'Open folder',
+  }
+  ```
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.window_args['confirm_close'] = True
+  app.native.start_args['localization'] = {
+      'global.quitConfirmation': '确认关闭窗口？\n注意：程序需要手动退出！',
+  }
+  
+  def index():
+      ui.label('Hello')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  关闭窗口时，结果如下：
+
+  ![2026_35_1](nicegui_pro.assets/2026_35_1.png)
+
+- `'gui'`键，字符串类型，仅支持`['qt', 'gtk', 'cef', 'mshtml', 'edgechromium', 'android']`中的值，表示强制窗口使用特定的浏览器外壳。
+
+  注意，虽然该键支持多种值，但系统不同，可用的值也不同，具体参考 https://pywebview.flowrl.com/guide/web_engine.html 。对于Windows系统，仅推荐（支持）`['edgechromium','qt']`。
+
+  `'edgechromium'`为默认值，表示使用Webview2运行时作为浏览器外壳，需要安装：.NET框架（http://dot.net/）和EdgeWebview运行时（微软提供的Webview2运行时，https://developer.microsoft.com/zh-cn/microsoft-edge/webview2）。
+
+  `'qt'`则表示使用Qt的WebEngine作为浏览器外壳，需要安装Python库：`QtPy`（必需），`PyQt6`和`PyQt6-WebEngine`（由PyQt6提供WebEngine，与PySide6二选一），`PySide6`（由PySide6提供WebEngine，与PyQt6二选一）。
+
+  安装Qt的WebEngine所需的Python库，可以使用下面的命令：
+
+  ```shell
+  # 使用PyQt6
+  uv add pywebview[qt]
+  # 或者
+  uv add pywebview[qt6]
+  # 使用PySide6
+  uv add pywebview[pyside6]
+  ```
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.start_args['gui'] = 'qt'
+  
+  def index():
+      ui.label('Hello')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'debug'`键，布尔类型，表示启用调试模式，默认为`False`。启用调试模式后，PyWebview框架的调试信息输出会显示在终端，并根据`settings`属性`'OPEN_DEVTOOLS_IN_DEBUG'`键的值决定是否同时打开调试工具。
+
+- `'user_agent'`键，字符串类型，表示窗口的用户代理信息。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.start_args['user_agent'] = 'NiceGUI of PSF'
+  
+  def index():
+      ui.label(
+          ui.context.client.request.headers.get(
+              'user-agent'
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'private_mode'`键，布尔类型，表示是否启用隐私模式，即cookie和本地存储不会保存，默认为`True`。
+
+- `'storage_path'`键，字符串类型，表示cookie、本地存储以及其他浏览网页产生的数据会保存在哪个位置。
+
+- `'menu'`键，元素为`Menu`类型（使用`from webview.menu import Menu`导入）的列表，表示窗口的菜单栏。
+
+  `Menu`类支持以下参数：
+
+  - `title`参数，字符串类型，表示菜单的文本。
+  - `items`参数，元素为`Menu`类型（可以包含子菜单的菜单）、`MenuSeparator`类型（菜单的分隔符）、`MenuAction`类型（点击之后执行指定操作的菜单）的列表，表示菜单的子菜单。
+
+  `MenuAction`类支持以下参数：
+
+  - `title`参数，字符串类型，表示菜单的文本。
+  - `function`参数，可调用类型，表示点击菜单执行的操作。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  from webview.menu import Menu,MenuAction,MenuSeparator
+  
+  app.native.start_args['menu'] = [
+      Menu(
+          'Hello',
+          [
+              MenuAction(
+                  'Say Hello',
+                  lambda:print('Hello')
+              ),
+              MenuSeparator(),
+              MenuAction(
+                  'Say Hi',
+                  lambda:print('Hi')
+              )
+          ]
+      ),
+      Menu('World')
+  ]
+  
+  
+  def index():
+      ui.label('Hello')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_35_2](nicegui_pro.assets/2026_35_2.png)
+
+- `'icon'`键，字符串类型，表示窗口图标的路径（仅当`'gui'`键为`'qt'`或者`'gtk'`时支持）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.start_args['gui'] = 'qt'
+  app.native.start_args['icon'] = 'favicon.ico'
+  
+  def index():
+      ui.label('Hello')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+### 35.3 `window_args`属性
+
+`window_args`属性是字典，修改相关功能的设置，实际上就是设置键对应的值。
+
+该属性支持的键如下：
+
+- `'resizable'`键，布尔类型，表示是否允许手动调整窗口大小，默认为`True`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.window_args['resizable'] = False
+  
+  def index():
+      ui.label('Hello')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'fullscreen'`键，布尔类型，表示启动时是否为全屏，默认为`False`。
+
+  注意，该键的优先级高于`ui.run`方法的`fullscreen`参数。
+
+- `'min_size'`键，元素为整数的元组，表示窗口可以调整的最小尺寸，默认为`(200,100)`。
+
+- `'hidden'`键，布尔类型，表示是否隐藏窗口，默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.window_args['hidden'] = True
+  
+  def index():
+      ui.label('Hello')
+      ui.timer(3,app.native.main_window.show,once=True)
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  注意，一般不推荐隐藏窗口（通过`window_args`属性的`'hidden'`键或者`main_window`属性的`hide`方法），因为隐藏窗口之后，没法通过交互、按键让窗口再次显示。但上面的示例中使用定时器再次显示了窗口，避免了此问题。
+
+- `'frameless'`键，布尔类型，表示是否启用无边框窗口，默认为`False`。
+
+- `'easy_drag'`键，布尔类型，表示是否允许通过拖动任意空白处来拖动无边框窗口，默认为`True`。
+
+- `'shadow'`键，布尔类型，表示无边框窗口是否添加圆角边框和阴影，默认为`True`。
+
+- `'focus'`键，布尔类型，表示窗口是否支持通过鼠标点击获得焦点（使用系统的窗口管理系统不受限制），默认为`True`。如果为`False`，即使点击窗口，焦点依然不会变为窗口，而是保持在原位置。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.window_args['focus'] = False
+  
+  def index():
+      ui.input(label='无法在输入框中输入')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  只有启动时窗口获取了焦点，可以在输入框中输入；一旦点击了其他窗口，就无法通过点击该窗口的输入框，让该窗口的输入框获得焦点，也无法在输入框中输入。
+
+- `'minimized'`键，布尔类型，表示窗口是否默认为最小化状态，默认为`False`。
+
+- `'maximized'`键，布尔类型，表示窗口是否默认为最大化状态，默认为`False`。
+
+- `'on_top'`键，布尔类型，表示窗口是否默认为置顶状态，默认为`False`。处于置顶状态的窗口无法被其他非置顶状态的窗口覆盖。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.window_args['on_top'] = True
+  
+  def index():
+      ui.label('Hello')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'confirm_close'`键，布尔类型，表示关闭窗口时是否弹出二次确认的对话框，默认为`False`。
+
+- `'background_color'`键，字符串类型，表示窗口的背景色（仅当网页背景色为透明时才能看到），仅支持“#”开头的十六进制RGB颜色，默认为`'#FFFFFF'`。
+
+- `'transparent'`键，布尔类型，表示是否启用透明背景的窗口，默认为`False`。
+
+  想要启用透明背景的窗口，除了该键设置为`True`，还要启用无边框窗口（通过`window_args`属性的`'frameless'`键或者`ui.run`方法的`frameless`参数），并且网页的背景必须是透明的。
+
+  注意，本功能在NiceGUI当前依赖的PyWebview版本（5.4.0）下**无法**正常使用，示例仅作为功能演示，不是当前NiceGUI版本（3.2.0）的可用代码，后续版本升级或许会修复相关问题：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.window_args['transparent'] = True
+  app.native.window_args['frameless'] = True
+  app.native.start_args['gui'] = 'qt'
+  
+  def index():
+      ui.label('Hello').classes('bg-red')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_35_3](nicegui_pro.assets/2026_35_3.png)
+
+- `'text_select'`键，布尔类型，表示是否允许选择窗口内的文字，默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.window_args['text_select'] = True
+  
+  def index():
+      ui.label('Hello')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'zoomable'`键，布尔类型，表示是否允许缩放窗口内的内容，默认为`False`。
+
+- `'draggable'`键，布尔类型，表示是否将网页内所有的超链接和图片设置为可以拖动，默认为`False`。
+
+  不过，需要注意的是，NiceGUI中用于显示图片的控件，需要额外使用`props('draggable')`来允许拖动。如果是`ui.element('img')`之类的普通HTML标签，则无需额外设置。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  app.native.window_args['draggable'] = True
+  
+  def index():
+      ui.link('Hello','/')
+      ui.element('img').props('src="favicon.ico"')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'menu'`键，元素为`Menu`类型（使用`from webview.menu import Menu`导入）的列表，表示窗口的菜单栏。
+
+- `'localization'`键，字典类型，表示PyWebview框架内使用的相关文字对应的本地化翻译。
+
+### 35.4 `main_window`属性
+
+`main_window`属性是`WindowProxy`类型的对象，`WindowProxy`类支持的方法和属性，就是`main_window`属性支持的方法和属性。不过需要注意的是，`WindowProxy`类型的对象是一个代表实际窗口的代理，只有窗口完成初始化并显示的时候，才能调用其支持的方法和属性。
+
+`WindowProxy`类支持的方法如下：
+
+- `create_confirmation_dialog`方法，创建确认对话框。该方法支持以下参数：
+
+  - `title`参数，字符串类型，表示对话框的标题。
+  - `message`参数，字符串类型，表示对话框的内容。
+
+  注意，确认对话框会根据用户的选择返回布尔值，需要使用异步等待获取返回值。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  def index():
+      async def open_dialog():
+      # 确认对话框返回布尔值
+          result =  await app.native.main_window.create_confirmation_dialog(
+              title='选择',
+              message='是否继续'
+          )
+          ui.notify(result)
+      ui.button(
+          'Open Dialog', 
+          on_click=open_dialog
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_35_4](nicegui_pro.assets/2026_35_4.png)
+
+- `create_file_dialog`方法，创建文件对话框。该方法支持以下参数：
+
+  - `dialog_type`参数，整数类型，表示文件对话框的类型，默认为`webview.OPEN_DIALOG`。仅支持`[10,20,30]`中的值，分别对应打开文件、打开目录、保存文件。其中保存文件并不会直接创建该文件，只是返回该文件的最终路径，后续需要基于此路径额外执行创建文件的过程，该方法并不负责创建文件。
+
+    除了直接使用整数表示文件对话框的类型，`webview`库还提供了三个预定义常量（也就是该参数默认值的用法），可以根据变量名判断出不同值的含义：
+
+    ```python3
+    OPEN_DIALOG = 10
+    FOLDER_DIALOG = 20
+    SAVE_DIALOG = 30
+    ```
+
+    注意，`webview`库升级为6.0之后，这三个预定义常量已经标记为弃用，推荐改用`webview.FileDialog`的成员`LOAD`（对应`OPEN_DIALOG`）、`FOLDER`（对应`FOLDER_DIALOG`）和 `SAVE`（对应`SAVE_DIALOG`）。
+
+    示例如下：
+
+    ```python3
+    from nicegui import ui, app
+    import webview
+    
+    def index():
+        async def open_dialog():
+            result = await app.native.main_window.create_file_dialog(
+                dialog_type=webview.SAVE_DIALOG
+            )
+            ui.notify(result)
+        ui.button(
+            'Open Dialog', 
+            on_click=open_dialog
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+  - `directory`参数，字符串类型，表示文件对话框的初始路径，默认为`''`，取决于上次打开文件对话框时的路径。
+
+    注意，该参数不支持`r`前缀修饰字符串，也不支持斜杠`'/'`作为路径分隔，仅支持反斜杠`'\'`作为路径分隔，并且为了避免转义导致误解，需要使用双反斜杠代替单反斜杠。比如：
+
+    ```python3
+    from nicegui import ui, app
+    
+    def index():
+        async def open_dialog():
+            result = await app.native.main_window.create_file_dialog(
+                directory='E:\\'
+            )
+            ui.notify(result)
+    
+        ui.button(
+            'Open Dialog', 
+            on_click=open_dialog
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+  - `allow_multiple`参数，布尔类型，表示是否允许选择多个文件（按住`ctrl`键可以同时选择多个，仅限打开文件、打开目录），默认为`False`
+
+  - `save_filename`参数，字符串类型，表示保存文件时的默认文件名，默认为`''`。
+
+  - `file_types`参数，元素为字符串类型的元组，表示默认允许的文件后缀（仅限打开文件、保存文件）。
+
+    在对话框的文件类型下拉框中，元组的每个元素表示一个文件类型选项。而每个元素对应的字符串，其格式为`'{文件类型的简短描述，支持空格} (*.{文件后缀1};*.{文件后缀2};...)'`。一个文件类型选项相当于一个文件格式筛选器，字符串中，英文括号内的文件后缀就是被筛选出来的文件后缀（支持多个，如果只筛选单个文件后缀，则不能添加英文分号）
+
+    示例如下：
+
+    ```python3
+    from nicegui import ui,app
+    
+    async def open_dialog():
+        result =  await app.native.main_window.create_file_dialog(
+            file_types=('Python File (*.py)','CPP File (*.cpp)')
+        )
+        ui.notify(result)
+    
+    ui.button(
+        'Open Dialog',
+        on_click=open_dialog
+    )
+    
+    ui.run(native=True)
+    ```
+
+    ![2026_35_5](nicegui_pro.assets/2026_35_5.png)
+
+  注意，文件对话框会根据用户的选择返回文件路径，需要使用异步等待获取返回值。
+
+- `destroy`方法，销毁（关闭）窗口。
+
+- `evaluate_js`方法，执行任意JavaScript代码并返回结果。该方法支持以下参数：
+
+  - `script`参数，字符串类型，表示要执行的JavaScript代码。
+
+  注意，需要使用异步等待获取该方法返回的执行结果。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  def index():
+      async def do_sth():
+          result = await app.native.main_window.evaluate_js('1+1')
+          print(result)
+      ui.button(
+          'Hello', 
+          on_click=do_sth
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `get_always_on_top`方法，获取窗口的置顶状态。需要使用异步等待获取该方法的返回值：
+
+  ```python3
+  from nicegui import ui, app
+  
+  def index():
+      async def do_sth():
+          result = await app.native.main_window.get_always_on_top()
+          print(result)
+      ui.button(
+          'Hello', 
+          on_click=do_sth
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `get_cookies`方法，获取cookie。需要使用异步等待获取该方法的返回值。
+
+- `get_current_url`方法，获取当前地址。需要使用异步等待获取该方法的返回值。
+
+- `get_position`方法，获取窗口的位置。需要使用异步等待获取该方法的返回值。
+
+- `get_size`方法，获取窗口的大小。需要使用异步等待获取该方法的返回值。
+
+- `hide`方法，隐藏窗口。
+
+- `load_css`方法，给当前窗口添加指定的CSS代码。该方法支持以下参数：
+
+  - `stylesheet`参数，字符串类型，表示要添加的CSS代码。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  def index():
+      def do_sth():
+          app.native.main_window.load_css(
+              '.a {background:red;}'
+          )
+      ui.button(
+          'Hello', 
+          on_click=do_sth
+      )
+      ui.label('ello').classes('a')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_35_6](nicegui_pro.assets/2026_35_6.gif)
+
+- `load_html`方法，让当前窗口加载指定的HTML代码。该方法支持以下参数：
+
+  - `html`参数，字符串类型，表示要加载的HTML代码。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  def index():
+      def do_sth():
+          app.native.main_window.load_html(
+              '<a href="http://127.0.0.1:8000/">Back</a>'
+          )
+      ui.button(
+          'Hello', 
+          on_click=do_sth
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_35_7](nicegui_pro.assets/2026_35_7.gif)
+
+- `load_url`方法，让当前窗口加载指定的地址。该方法支持以下参数：
+
+  - `url`参数，字符串类型，表示要加载的地址。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  def index():
+      def do_sth():
+          app.native.main_window.load_url(
+              'http://baidu.com/'
+          )
+      ui.button(
+          'Hello', 
+          on_click=do_sth
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `maximize`方法，最大化窗口。
+
+- `minimize`方法，最小化窗口。
+
+- `move`方法，移动窗口到指定位置。该方法支持以下参数：
+
+  - `x`参数，整数类型，表示目标位置的X坐标。
+  - `y`参数，整数类型，表示目标位置的Y坐标。
+
+- `resize`方法，调整窗口为指定大小。该方法支持以下参数：
+
+  - `width`参数，整数类型，表示窗口宽度。
+  - `height`参数，整数类型，表示窗口高度。
+
+- `restore`方法，让窗口从最小化、最大化、贴边、对齐状态恢复为原始的平铺状态。
+
+- `set_always_on_top`方法，设置窗口的置顶状态。该方法支持以下参数：
+
+  - `on_top`参数，布尔类型，表示窗口的置顶状态。
+
+- `set_title`方法，设置窗口的标题。该方法支持以下参数：
+
+  - `title`参数，字符串类型，表示窗口的标题。
+
+- `show`方法，显示窗口。
+
+- `toggle_fullscreen`方法，切换窗口的全屏状态。
+
+### 35.5 扩展用法
+
+#### 35.5.1 使用非系统的EdgeWebview运行时
+
+默认情况下，如果Windows系统安装了EdgeWebview运行时，窗口模式将优先使用系统的EdgeWebview运行时。
+
+但是，系统的EdgeWebview运行时更新很快，而且是自动更新，若是开发的程序与最新版EdgeWebview运行时不兼容或者想要避免系统EdgeWebview运行时更新导致的潜在问题，则可以设置环境变量`WEBVIEW2_BROWSER_EXECUTABLE_FOLDER`为指定版本EdgeWebview运行时解压之后的路径，让窗口模式使用非系统的EdgeWebview运行时。
+
+固定版本EdgeWebview运行时可以到官网（https://developer.microsoft.com/zh-cn/microsoft-edge/webview2）下载，本解决方案参考自微软开发者文档（https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#details-about-the-fixed-version-runtime-distribution-mode）。
+
+示例如下：
 
 ```python3
 from nicegui import ui, app
+import os
+from pathlib import Path
 
-app.native.settings['ALLOW_DOWNLOADS'] = True
+# 修改webview运行时的路径，只能使用绝对路径
+os.environ['WEBVIEW2_BROWSER_EXECUTABLE_FOLDER'] = str(
+    Path(
+        __file__
+    ).parent.joinpath(
+        'webview2'
+    )
+)
 
 def index():
-    ui.button(
-        'Download', 
-        on_click=lambda: ui.download(
-            b'Demo text',
-            'demo_file.txt'
-        )
-    )
-
+    ui.label('Hello')
+    
 ui.run(
     root=index,
     native=True
 )
 ```
 
-### 4 让Native Mode的NiceGUI程序使用Qt的QtWebEngine作为运行时
-
-默认情况下，如果Windows系统安装了Webview2，哪怕添加了Qt6相关的Python包（PyQT6、PySide6），以Native Mode运行的NiceGUI程序还是优先采用Webview2当作浏览器运行时。如果想要以Native Mode运行的NiceGUI程序采用QtWebEngine当做浏览器运行时，需要手动指定pywebview框架的Web engine（参考文档见 https://pywebview.flowrl.com/guide/web_engine.html），代码如下：
-
-```python3
-from nicegui import ui, app
-
-app.native.start_args['gui'] = 'qt'
-app.native.start_args['icon'] = 'favicon.ico'
-# For 'gui' arg,you needn't assign it usually,besides you want to change the render; 
-#  'edgechromium' is best on Windows ;
-# qt based is a litte heavy,but it can be used on Windows/Linux/Mac;
-# try to install qt libs by `pip install pywebview[qt]` or else:
-#  'qt' needs ["QtPy", "PyQt6", "PyQt6-WebEngine"];
-#  'qt6' needs ["QtPy", "PyQt6", "PyQt6-WebEngine"];
-#  'pyside6' needs ["QtPy", "PySide6"];
-
-ui.button('Say Hi',on_click=lambda :ui.notify('Hello World!'))
-
-ui.run(native=True)
-```
-
-使用QtWebEngine当做浏览器运行时，窗口图标默认为Windows默认图标，而不是Python的图标，可以像代码中一样，使用`app.native.start_args['icon'] = 'favicon.ico'`指定，路径默认为源代码同目录，可以使用相对路径或者绝对路径。
-
-### 5 让Native Mode的NiceGUI程序使用固定版本或者非系统自带的Webview2作为运行时
-
-默认情况下，如果Windows系统安装了Webview2，以Native Mode运行的NiceGUI程序优先采用系统的Webview2当作浏览器运行时。但是，系统的Webview2更新很快，而且是自动更新，若是开发的程序与最新版Webview2不兼容或者想要避免系统Webview2版本更新导致的潜在问题，则可以设置环境变量`WEBVIEW2_BROWSER_EXECUTABLE_FOLDER`为指定版本Webview2解压之后的路径，让native mode运行时使用固定版本Webview2。
-
-固定版本Webview2可以到Webview2官网（https://developer.microsoft.com/zh-cn/microsoft-edge/webview2）下载，本解决方案参考自微软开发者文档（https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#details-about-the-fixed-version-runtime-distribution-mode）。
-
-代码如下：
-
-```python3
-from nicegui import ui
-import os
-import pathlib
-os.environ['WEBVIEW2_BROWSER_EXECUTABLE_FOLDER'] = str(pathlib.Path(__file__).parent/'Microsoft.WebView2.FixedVersionRuntime.135.0.3179.98.x64')
-
-ui.run(native=True)
-```
-
-这里是将固定版本Webview2解压之后，将包含可执行文件`msedgewebview2.exe`的文件夹（文件夹名字为`'Microsoft.WebView2.FixedVersionRuntime.135.0.3179.98.x64'`）放到源代码的同级目录中，读者在实际使用时可以自行变换路径。
-
-
-
-### 20 在Native Mode的NiceGUI程序中打开对话框（不使用JavaScript）
-
-在以Native Mode运行的NiceGUI程序中，除了使用JavaScript调用确认对话框、文件对话框，还可以基于pywebview，使用Python的接口调用这两种对话框。相比于使用JavaScript，直接使用Python的接口，操作更简单，支持的参数也更多。
-
-#### 20.1 确认对话框
-
-使用`app.native.main_window.create_confirmation_dialog`方法即可创建确认对话框：
-
-```python3
-from nicegui import ui,app
-
-async def open_dialog():
-    # 确认对话框返回布尔值
-    result =  await app.native.main_window.create_confirmation_dialog(
-        title='选择',
-        message='是否继续'
-    )
-    ui.notify(result)
-
-ui.button('Open Dialog', on_click=open_dialog)
-
-ui.run(native=True)
-```
-
-![2025_20_1](nicegui_pro.assets/2025_20_1.png)
-
-`app.native.main_window.create_confirmation_dialog`方法支持以下参数：
-
-- `title`参数，字符串类型，表示对话框的标题。
-- `message`参数，字符串类型，表示对话框的内容。
-
-确认对话框会根据用户的选择返回布尔值，因此，需要使用异步等待获取返回值。
-
-#### 20.2 文件择对话框
-
-使用`app.native.main_window.create_file_dialog`方法即可创建文件对话框：
-
-```python3
-from nicegui import ui,app
-
-async def open_dialog():
-    result =  await app.native.main_window.create_file_dialog()
-    ui.notify(result)
-
-ui.button('Open Dialog', on_click=open_dialog)
-
-ui.run(native=True)
-```
-
-![2025_20_2](nicegui_pro.assets/2025_20_2.png)
-
-`app.native.main_window.create_file_dialog`方法支持以下参数：
-
-- `dialog_type`参数，整数类型，表示文件对话框的类型，默认为`webview.OPEN_DIALOG`。仅支持`[10,20,30]`中的值，分别对应打开文件、打开目录、保存文件。其中保存文件并不会直接创建该文件，只是返回该文件的最终路径，后续需要基于此路径额外执行创建文件的过程，该方法并不负责创建文件。
-
-  除了直接使用整数表示文件对话框的类型，`webview`库还提供了三个预定义常量（也就是该参数默认值的用法），可以根据变量名判断出不同值的含义：
-
-  ```python3
-  OPEN_DIALOG = 10
-  FOLDER_DIALOG = 20
-  SAVE_DIALOG = 30
-  ```
-
-  注意，`webview`库升级为6.0之后，这三个预定义常量已经标记为弃用，推荐改用`webview.FileDialog`的成员`LOAD`（对应`OPEN_DIALOG`）、`FOLDER`（对应`FOLDER_DIALOG`）和 `SAVE`（对应`SAVE_DIALOG`）。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui,app
-  
-  async def open_dialog():
-      import webview
-      result =  await app.native.main_window.create_file_dialog(
-          dialog_type = webview.SAVE_DIALOG
-      )
-      ui.notify(result)
-  
-  ui.button('Open Dialog', on_click=open_dialog)
-  
-  ui.run(native=True)
-  ```
-
-- `directory`参数，字符串类型，表示文件对话框的初始路径，默认为`''`，取决于上次打开文件对话框时的路径。
-
-  注意，该参数不支持`r`前缀修饰字符串，也不支持斜杠`'/'`作为路径分隔，仅支持反斜杠`'\'`作为路径分隔，并且为了避免转义导致误解，需要使用双反斜杠代替单反斜杠。比如：
-
-  ```python3
-  from nicegui import ui,app
-  
-  async def open_dialog():
-      result =  await app.native.main_window.create_file_dialog(
-          directory='E:\\'
-      )
-      ui.notify(result)
-  
-  ui.button('Open Dialog', on_click=open_dialog)
-  
-  ui.run(native=True)
-  ```
-
-- `allow_multiple`参数，布尔类型，表示是否允许选择多个文件（按住`ctrl`键可以同时选择多个，仅限打开文件、打开目录），默认为`False`
-
-- `save_filename`参数，字符串类型，表示保存文件时的默认文件名，默认为`''`。
-
-- `file_types`参数，元素为字符串类型的元组，表示默认允许的文件后缀（仅限打开文件、保存文件）。
-
-  在对话框的文件类型下拉框中，元组的每个元素表示一个文件类型选项。而每个元素对应的字符串，其格式为`'{文件类型的简短描述，支持空格} (*.{文件后缀1};*.{文件后缀2};...)'`。一个文件类型选项相当于一个文件格式筛选器，字符串中，英文括号内的文件后缀就是被筛选出来的文件后缀（支持多个，如果只筛选单个文件后缀，则不能添加英文分号）
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui,app
-  
-  async def open_dialog():
-      result =  await app.native.main_window.create_file_dialog(
-          file_types=('Python File (*.py)','CPP File (*.cpp)')
-      )
-      ui.notify(result)
-  
-  ui.button('Open Dialog', on_click=open_dialog)
-  
-  ui.run(native=True)
-  ```
-
-  ![2025_20_3](nicegui_pro.assets/2025_20_3.png)
-
-文件对话框会根据用户的选择返回文件路径，因此，需要使用异步等待获取返回值。
-
-
-
-
+这里是将固定版本EdgeWebview运行时解压之后，将包含可执行文件`msedgewebview2.exe`的文件夹改名为`webview2`，然后放到源代码的同级目录中，读者在实际使用时可以根据文件夹名字和位置自行变换路径。
 
 ## 36 详解单页面应用
 
@@ -6794,9 +7365,122 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 
 
-## 40 （待定）
+## 40 让控件始终居中（更新中）
 
 
+
+
+
+```python3
+from nicegui import ui, app
+
+def index():
+    ui.context.client.content.classes('h-lvh')
+    with ui.card().classes('w-full h-full'), ui.element().classes('absolute-center'):
+        ui.button('Hello', on_click=app.shutdown)
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+## 41 （待定）
+
+弹出菜单中
+
+
+
+#### 3.9.13 `ui.menu`补充
+
+`ui.menu`中除了可以嵌入`ui.menu_item`，还可以嵌入其他控件，有时候会有意想不到的效果：
+
+```python3
+from nicegui import ui
+
+with ui.row().classes('w-full items-center'):
+    icon = ui.icon('', size='md').classes('mr-auto') 
+    ui.space()
+    with ui.button(icon='menu')as button:
+        with ui.menu().props('auto-close'):
+            with ui.column():
+                switch =ui.switch('Show icon')
+                toggle = ui.toggle(['fastfood', 'cake', 'icecream'], value='fastfood')
+    icon.bind_name_from(toggle, 'value').bind_visibility_from(switch,'value')
+
+ui.run(native=True)
+```
+
+![ui_menu_2](nicegui_pro.assets/ui_menu_2.png)
+
+
+
+## 42 （待定）
+
+
+
+#### 3.9.14 `ui.tooltip`补充（2025.01.21更新）
+
+对于像`ui.html`、`ui.markdown`、`ui.upload`等不支持添加`tooltip`的元素，可以使用`ui.element`包装来间接实现：
+
+```python3
+from nicegui import ui
+
+with ui.element().tooltip('...with a tooltip!'):
+    ui.html('This is <u>HTML</u>...')
+
+ui.run(native=True)
+```
+
+`tooltip`里除了显示一般的文本，还可以显示图像等其他内容。不过，不建议在`tooltip`内放置需要交互的内容，因为被添加`tooltip`的控件一旦失去焦点，`tooltip`就会消失，里面的交互内容永远无法交互：
+
+```python3
+from nicegui import ui
+
+with ui.label('Mountains...'):
+    with ui.tooltip().classes('bg-transparent'):
+        ui.image('https://picsum.photos/id/377/640/360').classes('w-64')
+
+ui.run(native=True)
+```
+
+![ui_tooltip_2](nicegui_pro.assets/ui_tooltip_2.png)
+
+前面说过`tooltip`方法返回的是控件本身，而不是`tooltip`。但是，这并不是说就没有办法设置`tooltip`方法生成的`tooltip`。如果想要获取到控件`tooltip`方法设置的`tooltip`，可以遍历控件来获取控件内部的其他控件，再判断控件是不是需要的类型：
+
+```python3
+from nicegui import ui
+
+with ui.button(icon='thumb_up'):
+    ui.tooltip('I like this').classes('bg-green')
+
+button = ui.button(icon='thumb_up')
+button.tooltip('I like this')
+for i in button:
+    if isinstance(i,ui.tooltip):
+        i.classes('bg-green')
+
+ui.run(native=True)
+```
+
+也可以使用`ElementFilter`方法，简单快捷地设置控件内部的`tooltip`：
+
+```python3
+from nicegui import ui,ElementFilter
+
+with ui.button(icon='thumb_up'):
+    ui.tooltip('I like this').classes('bg-green')
+
+button = ui.button(icon='thumb_up')
+button.tooltip('I like this')
+
+with button:
+    ElementFilter(kind=ui.tooltip,local_scope=True).classes('bg-green')
+
+ui.run(native=True)
+```
 
 
 
@@ -6816,7 +7500,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 （先表达教程深受读者喜爱，不少章节的热度远超其他章节甚至其他教程，感谢读者的支持。然后开始说之前更新的内容因为之后版本更新加上受限于当时的能力，在版本更新之后，有不少章节存在错误或者遗漏。而且，很多控件还没介绍或者介绍得不完全。于是，2027年，除了继续介绍控件、补充控件的其他用法之外，还要根据版本更新的内容，补充遗漏、修正错误，让读者始终走在版本更新的第一线，不会因为内容陈旧而停下脚步，为版本更新付出太多学习的时间。）
 
-## 41 （待定）
+## 51 （待定）
 
 
 

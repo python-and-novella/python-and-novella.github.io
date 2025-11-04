@@ -7096,81 +7096,55 @@ ui.run()
 - 脚本模式和单页面模式的单页面应用，点击访问不存在页面的超链接后，地址**不变**，子页面显示404页面；刷新后显示地址对应的页面。不过，直接访问不存在的页面的话，显示的是报错为404的**500页面**，而非404页面。
 - 多页面模式的单页面应用，点击访问不存在页面的超链接后，地址**改变**，子页面显示404页面；刷新后显示地址对应的页面，但是因为此时的地址不存在对应的页面，所以显示的是**404页面**。直接访问不存在的页面的话，显示的也是**404页面**。即，只要地址对应的页面不存在，就显示**404页面**。
 
-## 37 绑定属性的扩展内容（更新中）
+## 37 详解绑定属性
 
-### x.1 通用绑定方法
+### 37.1 绑定的类型
 
-通用的绑定方法：
+尽管前面用了不止一次绑定属性，但有个真相一直没有说过，那就是：不同的绑定之间是有区别的。
 
-```python3
-from nicegui.binding import bind_from,bind_to,bind
-```
+在此之前，需要先了解一下给控件绑定属性时使用的特殊属性——可绑定属性（`BindableProperty`）。可绑定属性特殊之处在于，当其作为绑定的源头时，会自动监测属性值的变动，并主动触发其下游属性的变化。对于大部分控件而言，有对应“bind”开头的绑定方法的属性，都是可绑定属性。
 
+因此，根据绑定源头是否为可绑定属性，可以将绑定分成两种：
 
+- 活动链接，绑定源头不是可绑定属性的绑定。
+- 属性绑定，使用可绑定属性作为绑定源头的绑定。
 
-示例如下：
+#### 37.1.1 活动链接
+
+活动链接没有可绑定属性作为源头，只能通过循环执行`refresh_loop`方法来检查相关属性有没有变化，进而触发其下游属性的变化。这个循环的执行间隔取决于`ui.run`方法的`binding_refresh_interval`参数，默认为`0.1`，即一秒检查十次。
+
+注意，如果一个页面内存在太多活动链接，会导致单次检查时间过长，一旦超过`nicegui.binding.MAX_PROPAGATION_TIME`定义的阈值（默认为 0.01 秒），终端就会输出警告。
+
+虽然修改`nicegui.binding.MAX_PROPAGATION_TIME`可以消除警告，但是，这个警告是有意义的，是在告诉开发者性能可能存在问题。比如，CPU在检查绑定花费太长时间的话，主线程就没法做别的事情，程序界面会因此卡住。
+
+为了避免因为绑定出现卡顿问题，请尽量使用属性绑定，而非活动链接。
+
+当然，绑定数量比较少的话，使用活动链接不会对性能产生较大影响，而且可以简化代码，也并非一无是处。
+
+前面绑定属性的示例，就是一个活动链接：
 
 ```python3
 from nicegui import ui
-from nicegui.binding import bind
 
 class data_class:
     value = 'no value'
 
-class data_class2:
-    value = 'no value'
-
 def index():
-    my_input = ui.input('输入')
-    bind(
-        my_input,
-        'value',
+    ui.input('输入').bind_value(
         data_class,
-        'value'
-    )
-    bind(
-        data_class,
-        'value',
-        data_class2,
         'value'
     )
     ui.button(
         '显示',
-        on_click = lambda :ui.notify(data_class2.value)
+        on_click = lambda :ui.notify(data_class.value)
     )
 
 ui.run(root=index,native=True)
 ```
 
+活动链接的典型用法之一就是与字典绑定。与字典绑定时，可以直接使用字典的键作为字典的“属性名”，绑定方法内部会自动识别并处理字典，得到对应的值。
 
-
-
-
-x.2 绑定的技巧——strict参数
-
-
-
-x.2 绑定的技巧——绑定字典
-
-
-
-x.2 绑定的技巧——绑定全局变量
-
-
-
-x.2 绑定的技巧——优化绑定的性能
-
-
-
-- [`binding.BindableProperty`](https://nicegui.io/documentation/section_binding_properties#bindable_properties_for_maximum_performance): bindable properties for maximum performance
-- [`binding.bindable_dataclass()`](https://nicegui.io/documentation/section_binding_properties#bindable_dataclass): create a dataclass with bindable properties
-- `binding.bind()`, `binding.bind_from()`, `binding.bind_to()`: methods to bind two properties
-
-
-
-介绍绑定的技巧，strict参数，绑定字典、全局变量，性能优化
-
-与字典绑定：
+示例如下：
 
 ```python3
 from nicegui import ui
@@ -7190,7 +7164,9 @@ def index():
 ui.run(root=index,native=True)
 ```
 
-与全局变量绑定：
+另一个典型用法则是与全局变量绑定。使用`globals()`即可得到一个包含全局变量的字典，这样就和与字典绑定一样。
+
+示例如下：
 
 ```python3
 from nicegui import ui
@@ -7210,51 +7186,238 @@ def index():
 ui.run(root=index,native=True)
 ```
 
+#### 37.1.2 属性绑定
 
+因为可绑定属性只有在属性值变动时才会触发下游属性的变动，没有活动链接那种无限循环检查绑定的过程，因此属性绑定性能较好，建议优先使用属性绑定。
 
-（下面内容需要优化表达与示例）
+但是，除了绑定控件自带的可绑定属性之外，很多时候都是活动链接那种绑定普通属性、字典、全局变量，该如何尽可能避免潜在的性能问题呢？
 
-在NiceGUI中有两种类型的绑定：
+对于字典、全局变量，除非将其转换为使用可绑定属性的类，否则无能为力。但是，对于普通属性，则可以在定义的时候将其定义为可绑定属性，从一开始避免产生活动链接。
 
-1.   "Bindable properties" （可绑定属性）会自动检测写入访问并触发值变动传播。大多数 NiceGUI 元素使用这种可绑定属性，例如`ui.input`的`value`或 `ui.label`的`text`。基本上所有带有`bind()`方法的属性都支持这种类型的绑定。
-2.   另一种绑定"active links"（活动链接）不会自动检测写入访问并触发值变动传播。如果将标签文本绑定到字典或自定义数据模型的属性，NiceGUI 的绑定模块则需要主动检查值是否发生变化。这个主动检查是通过每 0.1 秒运行一次`refresh_loop()`来完成。主动检查间隔可以通过设置`ui.run()`的参数`binding_refresh_interval`来修改。
+`binding`模块提供了两种定义可绑定属性的方式：
 
-可绑定属性非常高效，只要值不变，就不会产生任何性能开销（相对而言比较小而已）。但活动链接需要每秒检查所有绑定值10 次。这可能会消耗比较多的性能，尤其是活动链接的绑定关系非常复杂、非常多的时候。
+- `BindableProperty`类。
+- `bindable_dataclass`方法。
 
-因为不能让主线程阻塞太久，所以如果太多主动检查导致运行`refresh_loop()`的耗时过长，程序会发出警告。当然，可以配置阈值`binding.MAX_PROPAGATION_TIME`（默认为 0.01 秒）来消除警告。但是，这个警告是有意义的，是在告诉开发者性能可能存在问题。比如，CPU在更新绑定花费太长时间的话，主线程就没法做别的事情，程序界面会因此卡住。
-
-为了避免性能出问题，需要将活动链接改为可绑定属性之间的绑定，需要使用`binding.BindableProperty()`来创建可绑定属性。于是，基于第一小节的代码，将字典改为数据类，在数据类中定义两个可绑定属性，控件的绑定改为与数据类对象的绑定。代码如下：
+实例化`BindableProperty`类即可创建为可绑定属性，绑定时直接使用：
 
 ```python3
-from nicegui import ui, binding
+from nicegui import ui
+from nicegui.binding import BindableProperty
 
-class data_base:
-    name = binding.BindableProperty()
-    age = binding.BindableProperty()
-    def __init__(self) -> None:
-        self.name = 'Bob'
-        self.age = 17
+class DataClass:
+    value = BindableProperty()
+    def __init__(self):
+        self.value = 'no value'
 
-data =data_base()
+def index():
+    data_class = DataClass()
+    ui.input('输入').bind_value(
+        data_class,
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(
+            data_class.value
+        )
+    )
 
-ui.label().bind_text_from(data, 'name', backward=lambda n: f'Name: {n}')
-ui.label().bind_text_from(data, 'age', backward=lambda a: f'Age: {a}')
-
-ui.input(label='name:').bind_value(data,'name')
-ui.number(label='age:').bind_value(data,'age',forward=lambda x:int(x))
-
-ui.run(native=True)
+ui.run(root=index,native=True)
 ```
 
-因为代码中的绑定数量很少，因此差异不大，如果将绑定数量放大百倍，就能看出两种绑定的性能差异。
+`BindableProperty`类的`on_change`参数用于定义属性值变化时执行的操作。该参数对应的可调用对象支持两个参数，分别代表可绑定属性所属的对象、可绑定属性的当前值。
 
+示例如下：
 
+```python3
+from nicegui import ui
+from nicegui.binding import BindableProperty
 
-## 38 不只绑定的可观察类集合（更新中）
+class DataClass:
+    value = BindableProperty(
+        on_change=lambda d,v:print(
+            f'{d.value}:{v}'
+        )
+    )
+    def __init__(self):
+        self.value = 'no value'
 
-当一个集合对象的元素发生变化时，另一个对象的属性值随之发生变化，没错，这就是上一章介绍的绑定字典。
+def index():
+    data_class = DataClass()
+    ui.input('输入').bind_value(
+        data_class,
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(
+            data_class.value
+        )
+    )
 
-不过，若是想要当一个集合对象（包括但不限于字典，可以是列表或者集合）的元素发生变化时，除了让另一个对象的属性值随之发生变化之外，还要执行一些其他操作，该如何实现？
+ui.run(root=index,native=True)
+```
+
+`bindable_dataclass`方法用起来就像一个装饰器，用于代替`@dataclass`创建数据类，只不过，`bindable_dataclass`方法会将所有数据类的字段转换为可绑定属性：
+
+```python3
+from nicegui import ui
+from nicegui.binding import bindable_dataclass
+
+@bindable_dataclass
+class DataClass:
+    value : str = 'no value'
+
+def index():
+    data_class = DataClass()
+    ui.input('输入').bind_value(
+        data_class,
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(
+            data_class.value
+        )
+    )
+
+ui.run(root=index,native=True)
+```
+
+对于不想或者不支持转换为可绑定属性的字段，可以使用`bindable_dataclass`方法的另一种用法，其列表类型的`bindable_fields`参数用于指定要转换为可绑定属性的字段，不在该参数内的字段则不会转换：
+
+```python3
+from nicegui import ui
+from nicegui.binding import bindable_dataclass
+
+@bindable_dataclass(bindable_fields=['value'])
+class DataClass:
+    value : str = 'no value'
+
+def index():
+    data_class = DataClass()
+    ui.input('输入').bind_value(
+        data_class,
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(
+            data_class.value
+        )
+    )
+
+ui.run(root=index,native=True)
+```
+
+### 37.2 通用绑定方法
+
+前面控件使用的属性绑定方法，实际上是借由通用绑定方法实现的。对于前面定义的可绑定属性，除了直接用控件绑定，可以使用通用的绑定方法来绑定。
+
+`binding`模块提供了以下通用的绑定方法：
+
+- `bind_from`方法，将前者的指定属性与后者的指定属性绑定，后者的指定属性发生改变，前者的指定属性同步发生变化，反之不会触发同步。该方法支持以下参数：
+
+  - `self_obj`参数，任意类型，表示前者对象。
+
+  - `self_name`参数，字符串类型，表示前者对象的指定属性。
+
+  - `other_obj`参数，任意类型，表示后者对象。
+
+  - `other_name`参数，字符串类型，表示后者对象的指定属性。
+
+  - `backward`参数，可调用类型，表示后者对象的属性值赋予前者对象的属性之前，如何处理该属性值。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `self_strict`参数，布尔类型，表示是否检查前者对象的指定属性（检查属性是否存在）。
+
+  - `other_strict`参数，布尔类型，表示是否检查后者对象的指定属性（检查属性是否存在）。
+
+- `bind_to`方法，将前者的指定属性与后者的指定属性绑定，前者的指定属性发生改变，后者的指定属性同步发生变化，反之不会触发同步。该方法支持以下参数：
+
+  - `self_obj`参数，任意类型，表示前者对象。
+
+  - `self_name`参数，字符串类型，表示前者对象的指定属性。
+
+  - `other_obj`参数，任意类型，表示后者对象。
+
+  - `other_name`参数，字符串类型，表示后者对象的指定属性。
+
+  - `forward`参数，可调用类型，表示前者对象的属性值赋予后者对象的属性之前，如何处理该属性值。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `self_strict`参数，布尔类型，表示是否检查前者对象的指定属性（检查属性是否存在）。
+
+  - `other_strict`参数，布尔类型，表示是否检查后者对象的指定属性（检查属性是否存在）。
+
+- `bind`方法，将前者的指定属性与后者的指定属性绑定，只要一方发生变化，另一方同步发生变化。该方法支持以下参数：
+
+  - `self_obj`参数，任意类型，表示前者对象。
+
+  - `self_name`参数，字符串类型，表示前者对象的指定属性。
+
+  - `other_obj`参数，任意类型，表示后者对象。
+
+  - `other_name`参数，字符串类型，表示后者对象的指定属性。
+
+  - `forward`参数，可调用类型，表示前者对象的属性值赋予后者对象的属性之前，如何处理该属性值。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `backward`参数，可调用类型，表示后者对象的属性值赋予前者对象的属性之前，如何处理该属性值。
+
+  - `self_strict`参数，布尔类型，表示是否检查前者对象的指定属性（检查属性是否存在）。
+
+  - `other_strict`参数，布尔类型，表示是否检查后者对象的指定属性（检查属性是否存在）。
+
+示例如下：
+
+```python3
+from nicegui import ui
+from nicegui.binding import bind,bindable_dataclass
+
+@bindable_dataclass
+class DataClass:
+    value : str = 'no value'
+
+@bindable_dataclass
+class DataClass2:
+    value : str = 'no value'
+
+def index():
+    data_class = DataClass()
+    data_class2 = DataClass2()
+    my_input = ui.input('输入')
+    bind(
+        my_input,
+        'value',
+        data_class,
+        'value'
+    )
+    bind(
+        data_class,
+        'value',
+        data_class2,
+        'value'
+    )
+    ui.button(
+        '显示',
+        on_click = lambda :ui.notify(
+            data_class2.value
+        )
+    )
+
+ui.run(root=index,native=True)
+```
+
+## 38 可观察类集合
+
+当一个集合对象的元素发生变化时，另一个对象的属性值随之发生变化，听上去很耳熟，没错，这就是上一章介绍的绑定字典。
+
+不过，若是想要当一个集合类对象（包括但不限于字典，可以是列表或者集合）的元素发生变化时，除了让另一个对象的属性值随之发生变化之外，还要执行一些其他操作，该如何实现？
 
 先不说支持列表或者集合，若只是字典的话，可以修改绑定方法的`backward`参数，给其添加额外的操作：
 
@@ -7285,10 +7448,45 @@ ui.run(root=index,native=True)
 
 不过，笔者并不推荐读者运行上面的代码，因为上面的代码存在以下缺陷：
 
-- 为了实时监测字典的变化，`change`函数会不断执行，并非只有字典变化时才执行。
-- 受限于绑定属性的实现原理，`change`函数内不能使用NiceGUI控件（比如`ui.notify`控件），只能执行一些终端输出或者不产生UI的操作。
+- 为了实时监测字典的变化，`change`函数会不断执行，并非只有字典变化时才执行，因为与字典绑定是活动链接，而非属性绑定。
+- 受限于属性绑定的实现原理，`change`函数内不能使用NiceGUI控件（比如`ui.notify`控件），只能执行一些终端输出或者不产生UI的操作。
 
-问题好似无解，但天无绝人之路，NiceGUI提供了一种更简单、更完美、应用更广泛的解决方案——可观察类集合。上面使用字典的示例就可以转换为：
+不过，属性绑定倒是可以实现属性值变化时使用NiceGUI控件：
+
+````python3
+from nicegui import ui
+from nicegui.binding import BindableProperty
+
+class DataClass:
+    value = BindableProperty(
+        on_change=lambda d,v:ui.notify(
+            f'{d.value}:{v}'
+        )
+    )
+    def __init__(self):
+        self.value = 'no value'
+
+def index():
+    data_class = DataClass()
+    ui.input('输入').bind_value(
+        data_class,
+        'value'
+    )
+    ui.button(
+        '更新',
+        on_click = lambda :setattr(
+            data_class,
+            'value',
+            'one'
+        )
+    )
+
+ui.run(root=index,native=True)
+````
+
+但是，即使集合类对象的元素发生变化，可绑定属性也监测不到集合类对象的变化，也就是说，可绑定属性不支持集合类对象。
+
+问题看似无解，但天无绝人之路，NiceGUI提供了一种更简单、更完美、应用更广泛的解决方案——可观察类（源于NiceGUI的`observables`模块）。上面使用字典的示例就可以转换为：
 
 ```python3
 from nicegui import ui
@@ -7314,60 +7512,64 @@ def index():
 ui.run(root=index,native=True)
 ```
 
+`observables`模块提供了以下类可供使用：
+
+- `ObservableDict`类，可观察字典类，用于存储字典类型的数据。该类支持以下参数：
+
+  - `data`参数，字典类型，表示存储的数据。
+
+  - `on_change`参数，可调用类型，表示数据变化时执行的操作。
+
+    该参数对应的可调用对象可以接收0个或者1个参数。当接收1个参数时，该参数为`ObservableChangeEventArguments`类型，参数的`sender`属性即为可观察字典类对象本身。
+
+    示例如下：
+
+    ```python3
+    from nicegui import ui
+    from nicegui.observables import ObservableDict
+    
+    data_dict = ObservableDict(
+        {'value':'no value','name':'data_dict'},
+        on_change=lambda e:print(e.sender)
+    )
+    
+    def index():
+        ui.button(
+            '更新',
+            on_click = lambda :data_dict.update(
+                {'value':'one'}
+            )
+        )
+    
+    ui.run(root=index,native=True)
+    ```
+
+  控件的`_props`属性或者`props`属性其实就是基于`ObservableDict`类实现的，修改这些属性中元素，都会触发自动刷新，无需手动调用控件的刷新方法。
+
+- `ObservableList`类，可观察列表类，用于存储列表类型的数据。该类支持以下参数：
+
+  - `data`参数，列表类型，表示存储的数据。
+
+  - `on_change`参数，可调用类型，表示数据变化时执行的操作。
+
+    该参数对应的可调用对象可以接收0个或者1个参数。当接收1个参数时，该参数为`ObservableChangeEventArguments`类型，参数的`sender`属性即为可观察列表类对象本身。
+
+- `ObservableSet`类，可观察集合类，用于存储字集合类型的数据。该类支持以下参数：
+
+  - `data`参数，集合类型，表示存储的数据。
+
+  - `on_change`参数，可调用类型，表示数据变化时执行的操作。
+
+    该参数对应的可调用对象可以接收0个或者1个参数。当接收1个参数时，该参数为`ObservableChangeEventArguments`类型，参数的`sender`属性即为可观察集合类对象本身。
 
 
-`nicegui.observables`模块提供了以下类可供使用：
-
-- `ObservableCollection`类，: base class
-- `ObservableDict`: an observable dictionary
-- `ObservableList`: an observable list
-- `ObservableSet`: an observable set
+## 39 让控件始终居中（更新中）
 
 
 
-扩展知识：
+按问题的解决思路和过程简单写个记叙文，
 
-`_props`属性或者`props`属性其实就是基于`ObservableDict`类实现的，修改这些属性中元素，都会触发自动刷新，无需手动调用控件的刷新方法。
-
-
-
-## 学习控件——先导篇
-
-NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是简单认识了这些控件，并没有介绍控件的用法。对于想要深入学习控件用法的读者来说，浅尝辄止显然没法满足胃口。
-
-但是，本教程是敏捷式教程，事无巨细不符合本教程的风格，介绍控件的用法又需要全面且详细，还要补充大量示例，像前面一样按类别介绍控件用法，会让章节变得冗长。
-
-于是，笔者思量再三，决定采用新的内容结构介绍控件的用法——期刊，每期只介绍一个控件的基本用法，至于难点和相关的实际问题，则放到单独的章节中。
-
-本期为先导内容，不介绍具体控件。从下期开始，每期介绍一个控件的用法。
-
-另外，《学习控件》的每一期不一定按照发布顺序连续发布，有可能穿插在其他内容中。例如，《学习控件》发布一期之后，下一章就是该控件的相关内容，或者其他内容。
-
-## 39 学习控件——`ui.button`控件（更新中）
-
-
-
-（简单说一下控件的用途，提供一下NiceGUI框架和Quasar框架那边的文档地址，写个简单的示例，配上图片）
-
-
-
-控件支持以下参数：
-
-
-
-控件支持以下属性：
-
-
-
-控件支持以下方法：
-
-
-
-
-
-## 40 让控件始终居中（更新中）
-
-
+由复杂到简单，最后得到完美的解决方案，
 
 
 
@@ -7387,11 +7589,45 @@ ui.run(
 
 
 
+## 学习控件——先导篇
+
+NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是简单认识了这些控件，并没有介绍控件的用法。对于想要深入学习控件用法的读者来说，浅尝辄止显然没法满足胃口。
+
+但是，本教程是敏捷式教程，事无巨细不符合本教程的风格，介绍控件的用法又需要全面且详细，还要补充大量示例，像前面一样按类别介绍控件用法，会让章节变得冗长。
+
+于是，笔者思量再三，决定采用新的内容结构介绍控件的用法——期刊，每期只介绍一个控件的基本用法，至于难点和相关的实际问题，则放到单独的章节中。
+
+本期为先导内容，不介绍具体控件。从下期开始，每期介绍一个控件的用法。
+
+另外，《学习控件》的每一期不一定按照发布顺序连续发布，有可能穿插在其他内容中。例如，《学习控件》发布一期之后，下一章就是该控件的相关内容，或者其他内容。
+
+## 40 学习控件——`ui.button`控件（更新中）
+
+### 40.1 基本用法
+
+（简单说一下控件的用途，提供一下NiceGUI框架和Quasar框架那边的文档地址，写个简单的示例，配上图片）
+
+
+
+控件支持以下参数：
+
+
+
+控件支持以下属性：
+
+
+
+控件支持以下方法：
+
+
+
+
+
 ## 41 （待定）
 
 弹出菜单中
 
-
+这个还是放到具体控件学习介绍中吧。
 
 #### 3.9.13 `ui.menu`补充
 
@@ -7419,7 +7655,7 @@ ui.run(native=True)
 
 ## 42 （待定）
 
-
+这个还是放到具体控件学习介绍中吧。
 
 #### 3.9.14 `ui.tooltip`补充（2025.01.21更新）
 

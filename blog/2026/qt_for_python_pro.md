@@ -83,7 +83,7 @@ app.exec()
   QPushButton(
       QIcon.fromTheme(
           QIcon.ThemeIcon.Battery
-          ),
+      ),
       '普通按钮',
       window
   )
@@ -233,7 +233,7 @@ window.resize(400, 300)
 button = QPushButton(
     QIcon.fromTheme(
         QIcon.ThemeIcon.FolderOpen
-        ),
+    ),
     '有下拉菜单的按钮',
     window
 )

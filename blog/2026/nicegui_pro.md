@@ -7562,24 +7562,22 @@ ui.run(root=index,native=True)
 
     该参数对应的可调用对象可以接收0个或者1个参数。当接收1个参数时，该参数为`ObservableChangeEventArguments`类型，参数的`sender`属性即为可观察集合类对象本身。
 
+## 39 让控件绝对居中
 
-## 39 让控件始终居中（更新中）
+本章灵感来源于笔者浏览官方社区时发现的问题，因为解决和思考的过程包含多个知识点，故将问题的解决过程提炼出来，采用虚拟演绎的形式展示该问题如何解决。因此，故事纯属虚构，切勿对号入座，但相关知识点确实有用，请按需学习。
 
+事情的起因很简单，笔者想要在一个占据全部可用空间的`ui.card`控件中，居中显示其他控件，做到类似登录窗口的效果。
 
+不过，在实现的时候，第一步就出问题了：`ui.card`控件无法占据全部可用空间！
 
-按问题的解决思路和过程简单写个记叙文，
-
-由复杂到简单，最后得到完美的解决方案，
-
-
+已知，`'w-full'`样式可以让控件的宽度占据可用宽度，`'h-full'`样式可以让控件的高度占据可用高度。按理来说，添加这两个样式，就能让`ui.card`控件占据全部可用空间，但实际效果却并非如此：
 
 ```python3
-from nicegui import ui, app
+from nicegui import ui
 
 def index():
-    ui.context.client.content.classes('h-lvh')
-    with ui.card().classes('w-full h-full'), ui.element().classes('absolute-center'):
-        ui.button('Hello', on_click=app.shutdown)
+    with ui.card().classes('w-full h-full'):
+        ui.button('Hello')
 
 ui.run(
     root=index,
@@ -7587,7 +7585,146 @@ ui.run(
 )
 ```
 
+![2026_39_1](nicegui_pro.assets/2026_39_1.png)
 
+宽度是符合预期的，可高度却没有生效，这是为什么？
+
+这就不得不说承载整个页面的容器——带有`'nicegui-content'`样式、使用`div`标签的HTML元素。该元素默认没有高度，是基于内容的高度自动扩充，因此，才会让页面呈现出`'h-full'`样式没有生效的结果。
+
+既然问题已经找到，下一步就是解决问题，如何给该HTML元素设置最大高度？
+
+注意，`'h-full'`样式仅限父容器有具体高度值时，才能让控件的高度占据可用高度，相当于最大高度。现在需要解决的是，给HTML元素设置一个高度值，其父元素也是没有高度值的。如果使用`'h-full'`样式的话，问题依然没有解决。
+
+很简单，只需使用`'h-screen'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-viewport）、`'h-dvh'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-dynamic-viewport）、`'h-lvh'`样式（具体含义参考 https://tailwindcss.com/docs/height#matching-large-viewport）、`'h-svh'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-small-viewport）中的任意一种，该样式可以自动识别浏览器可见区域的高度，并将其作为使用该样式的HTML元素的高度。
+
+根据前面学过的方法，下面两种方式都可以实现所需的效果：
+
+```python3
+# 使用ui.query
+ui.query('.nicegui-content').classes('h-lvh')
+# 使用客户端上下文
+ui.context.client.content.classes('h-lvh')
+```
+
+完整示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.query('.nicegui-content').classes('h-lvh')
+    #ui.context.client.content.classes('h-lvh')
+    with ui.card().classes('w-full h-full'):
+        ui.button('Hello')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_39_2](nicegui_pro.assets/2026_39_2.png)
+
+上面的示例中添加了一个按钮，接下来就想办法让这个按钮居中，来作为目标达成的结果。
+
+根据前面学过的布局知识，很容易想到，使用行、列布局组合，在首尾添加空白，将按钮挤压到行中间，将行挤压到列中间，其布局大致如下：
+
+![2026_39_3](nicegui_pro.assets/2026_39_3.png)
+
+对应到具体代码的话如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.context.client.content.classes('h-lvh')
+    with ui.card().classes('w-full h-full'):
+        with ui.column().classes('w-full h-full'):
+            ui.space()
+            with ui.row().classes('w-full'):
+                ui.space()
+                ui.button('Hello')
+                ui.space()
+            ui.space()
+            
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_39_4](nicegui_pro.assets/2026_39_4.png)
+
+看上去和目标一样了。
+
+注意，行布局作为第二层的时候，需要添加`'w-full'`样式来确保宽度为最大。
+
+当然，行、列布局的嵌套顺序也可以换一下，但是要注意，列布局作为第二层的时候，需要添加`'h-full'`样式来确保高度为最大：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.context.client.content.classes('h-lvh')
+    with ui.card().classes('w-full h-full'):
+        with ui.row().classes('w-full h-full'):
+            ui.space()
+            with ui.column().classes('h-full'):
+                ui.space()
+                ui.button('Hello')
+                ui.space()
+            ui.space()
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+事情到了这一步，似乎已经完美解决了，但是，从代码行数和使用的简洁程度上看，另一个方案更好。
+
+`'absolute-center'`样式（具体含义参考https://quasar.dev/style/positioning）可以让使用该样式的控件处于可用空间的中心，两个方向都是居中：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.context.client.content.classes('h-lvh')
+    with ui.card().classes('w-full h-full'):
+        ui.button('Hello').classes(
+            'absolute-center'
+        )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_39_4](nicegui_pro.assets/2026_39_4.png)
+
+这样的话，就不用搭建复杂的行、列布局，还可以将按钮替换为普通的容器控件，在容器内使用的控件无需额外添加该样式：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.context.client.content.classes('h-lvh')
+    with ui.card().classes('w-full h-full'):
+        with ui.element().classes(
+            'absolute-center'
+        ):
+            with ui.column():
+                ui.button('Hello')
+                ui.button('World')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_39_5](nicegui_pro.assets/2026_39_5.png)
 
 ## 学习控件——先导篇
 

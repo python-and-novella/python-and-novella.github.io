@@ -3374,7 +3374,7 @@ ui.run(root=index, native=True)
 
 虽然可以使用原本深度绑定的Quasar框架提供的控件，但因为大部分控件已经在NiceGUI中实现，几乎很少没有（示例中的控件就已经实现了）。因此，NiceGUI框架提供了另一种扩展控件的途径——使用基于VUE的前端UI框架的控件。
 
-以Element Plus框架（https://cn.element-plus.org/zh-CN/component/button.html）和Naive UI框架（https://www.naiveui.com/zh-CN/os-theme/components/button）为例，需要先使用`ui.add_body_html`方法（该方法的用法后面会介绍，并且只能使用该方法，且该方法所属的作用域会影响构建模式，只能与控件处于同一作用域）添加框架所需的JavaScript文件和CSS文件，然后给`app.config.vue_config_script`属性（该属性的作用域不会影响构建模式）追加其他框架的初始化代码。
+以Element Plus框架（https://cn.element-plus.org/zh-CN/component/button.html）和Naive UI框架（https://www.naiveui.com/zh-CN/os-theme/components/button）为例，需要先使用`ui.add_body_html`方法（该方法的用法后面会介绍，并且只能使用该方法）添加框架所需的JavaScript文件和CSS文件，然后给`app.config.vue_config_script`属性（该属性的作用域不会影响构建模式）追加其他框架的初始化代码。
 
 如果不是给该属性追加初始化代码，而是直接替换的话，需要添加原始的初始化代码到新属性值的最前面：
 
@@ -3415,6 +3415,114 @@ ui.run(root=index)
 ```
 
 ![2026_17_3](nicegui_pro.assets/2026_17_3.png)
+
+注意，使用`ui.add_body_html`方法时，默认该方法必须与控件属于同一页面时才能正常生效。如果该方法与创建的控件不属于同一页面，则需要给该方法的`shared`参数传入`True`，将加载的JavaScript文件和CSS文件共享给其他页面。
+
+单页面模式，但是加载相关文件和初始化代码在全局作用域：
+
+```python3
+from nicegui import ui, app
+
+app.config.vue_config_script += '''
+    app.use(ElementPlus);
+    app.use(naive);
+'''
+
+ui.add_body_html(
+    '''
+    <link rel='stylesheet' href='https://unpkg.com/element-plus/dist/index.css'/>
+    <script defer src='https://unpkg.com/element-plus'></script>
+    <script defer src='https://unpkg.com/naive-ui'></script>
+    ''',
+    shared=True
+)
+
+def index():
+    with ui.element('el-button').props('type=primary'):
+        ui.label('Element Plus button')
+    with ui.element('n-button').props('type=primary'):
+        ui.label('Naive UI button')
+    ui.button('Quasar button')
+
+ui.run(root=index)
+```
+
+多页面模式，加载相关文件和初始化代码在全局作用域，并且建议这样放置：
+
+```python3
+from nicegui import ui, app
+
+app.config.vue_config_script += '''
+    app.use(ElementPlus);
+    app.use(naive);
+'''
+ui.add_body_html(
+    '''
+    <link rel='stylesheet' href='https://unpkg.com/element-plus/dist/index.css'/>
+    <script defer src='https://unpkg.com/element-plus'></script>
+    <script defer src='https://unpkg.com/naive-ui'></script>
+    ''',
+    shared=True
+)
+
+@ui.page('/')
+def index():
+    ui.link('page a', '/a')
+    with ui.element('el-button').props('type=primary'):
+        ui.label('Element Plus button')
+    with ui.element('n-button').props('type=primary'):
+        ui.label('Naive UI button')
+    ui.button('Quasar button')
+
+@ui.page('/a')
+def page_a():
+    ui.link('page index', '/')
+    with ui.element('el-button').props('type=primary'):
+        ui.label('Element Plus button')
+    with ui.element('n-button').props('type=primary'):
+        ui.label('Naive UI button')
+    ui.button('Quasar button')
+
+ui.run()
+```
+
+如果只是放在某个页面中，则必须访问该页面之后，再访问其他页面才能正确创建控件：
+
+```python3
+from nicegui import ui, app
+
+@ui.page('/')
+def index():
+    ui.link('page a', '/a')
+    with ui.element('el-button').props('type=primary'):
+        ui.label('Element Plus button')
+    with ui.element('n-button').props('type=primary'):
+        ui.label('Naive UI button')
+    ui.button('Quasar button')
+
+@ui.page('/a')
+def page_a():
+    app.config.vue_config_script += '''
+        app.use(ElementPlus);
+        app.use(naive);
+    '''
+    ui.add_body_html(
+        '''
+        <link rel='stylesheet' href='https://unpkg.com/element-plus/dist/index.css'/>
+        <script defer src='https://unpkg.com/element-plus'></script>
+        <script defer src='https://unpkg.com/naive-ui'></script>
+        ''',
+        shared=True
+    )
+    ui.link('page index', '/')
+    with ui.element('el-button').props('type=primary'):
+        ui.label('Element Plus button')
+    with ui.element('n-button').props('type=primary'):
+        ui.label('Naive UI button')
+    ui.button('Quasar button')
+
+ui.run()
+```
 
 注意，如果嫌使用网络地址响应太慢（上面的示例不使用窗口模式就是因为加载太慢），想将框架所需的文件下载到本地来使用，则需要使用`app.add_static_file`方法或`app.add_static_files`方法，为所需的文件生成地址映射。这两个方法的用法后续会单开章节，这里不展开介绍。
 

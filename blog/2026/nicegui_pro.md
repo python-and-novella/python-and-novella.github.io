@@ -5735,8 +5735,8 @@ ui.run(
 
 除了支持单个字符和图片文件，还支持使用字符串表示的图片：
 
-- Base64编码的图片（图片格式仅支持`.ico`、`.png`、`.jpg`、`.svg`、`.gif`）。
-- SVG矢量图。
+- Base64编码的图片文件（图片格式仅支持`.ico`、`.png`、`.jpg`、`.svg`、`.gif`）或者原始表达的SVG矢量图。
+- SVG矢量图的原始表达。
 
 示例如下：
 
@@ -5747,6 +5747,17 @@ def index():
     ui.button('Hello')
 
 icon = 'data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAQAQAABMLAAATCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADz8e8ct6md5gUBAP9cUVGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADn4+E4qZqN8KmXiP8aGRf/AAAA/05DQqgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADc19JUnY2A/6OThf+xopb/Ih8c/wAAAP8AAAD/KyYlz9vEwRkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADSysRzmIh6/5+Qg/+wopX/rp+T/xwZF/8AAAD/AAAA/wAAAP8JBATwtpyaOwAAAAAAAAAAAAAAAAAAAADIv7iQloV3/6KUh/+omo//r6GU/6ydj/8ZFxX/AAAA/wAAAP8AAAD/AAAA/wAAAP+bjYtcAAAAAAAAAADHvrYdno6B/6OUiP+omo7/p5mN/7Kilf+lm4//EBQS/wAAAP8AAAD/AAAA/wAAAP8AAAD/CwMD6AAAAAAAAAAAxby0PaOUiP+mmIz/p5mN/6mWiv+srqH/oKqc/wAODv8AAAD/AAAA/wAAAP8AAAD/AAAA/woGBucAAAAAAAAAAMG3sF6gkYT/p5iM/6iXi/+Xsqb/oamb/+9COf+zBAH/EgEB/wAAAP8AAAD/AAAA/wAAAP8AAAD0AAAAAAAAAAC+s6qCoI2A/6Sekv+Tua3/sol8//AaFf//AAD//wwA/+4NAf9VBQH/AAAA/wAAAP8AAAD/AAAA8wAAAAAAAAAAt6acopWilf+YtKb/ymBW//8AAP//AAD//w0A//8MAP//DQD//w4A/58JAf8JAQH/AAAA/wAAAPIAAAAAAAAAAKC/tMWfl4j/5DMs//8AAP//AwD//w4A//8MAP//DAD//wwA//8MAP//DgD/5A0B/0gFAf8AAADyAAAAAAAAAADCXVD//AAA//8AAP//CwD//w0A//8MAP//DAD//wwA//8MAP//DAD//wwA//8PAP//BwD/lgAA/wAAAAAAAAAA8oqDYv8aF9r/AAD//wAA//8NAP//DQD//wwA//8MAP//DAD//w0A//8IAP//AAD//wAA//9kWp0AAAAAAAAAAAAAAAAAAAAA64uHbPscF+X/AAD//wAA//8NAP//DQD//wsA//8AAP//AAD/+EdEuO3DwTcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADh6eUF7IF9d/wSDPD/AAD//wAA//8AAP/6My/N7rCtSwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADe3dgP72Fcj/oqJ9HxkY5jAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAPwfAAD4DwAA+A8AAPwPAAD8DwAA/A8AAPgPAAD4HwAA8B8AAPAfAADwHwAA+AcAAP4PAAD/fwAA/v8AAA=='
+
+icon2 = '''
+    data:image/svg+xml;
+    charset=utf8,
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="78" fill="red" stroke="black" stroke-width="3" />
+        <circle cx="80" cy="85" r="8" />
+        <circle cx="120" cy="85" r="8" />
+        <path d="m60,120 C75,150 125,150 140,120" style="fill:none; stroke:black; stroke-width:8; stroke-linecap:round" />
+    </svg>
+'''
 
 smile_icon = '''
     <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -5760,6 +5771,7 @@ smile_icon = '''
 ui.run(
     root = index,
     favicon = icon
+    #favicon = icon2
     #favicon = smile_icon
 )
 ```
@@ -7848,23 +7860,172 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 ## 40 学习控件——`ui.button`控件（更新中）
 
+`ui.button`控件就是普通的按钮。点击按钮，执行指定操作，按钮用起来就是这么简单。不过，虽然前面的章节使用了不止一次，但没有深入学习过。因此，本章将从参数开始，一点一点拆解该控件的用法，确保读者在日常使用乃至遇到疑难问题时，都有可以参考的示例。
+
+下面是相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/button
+
+Quasar框架文档：https://quasar.dev/vue-components/button
+
 ### 40.1 基本用法
 
-（简单说一下控件的用途，提供一下NiceGUI框架和Quasar框架那边的文档地址，写个简单的示例，配上图片）
+该控件支持以下参数：
+
+- `text`参数，字符串类型，表示显示在按钮中的文字。
+
+- `on_click`参数，可调用类型，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello',
+          on_click=lambda e:print(
+              e.sender.text
+          )
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  从该参数开始，只能通过关键字传入。
+
+- `color`参数，字符串类型，表示按钮的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello',
+          color='red'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_1](nicegui_pro.assets/2026_40_1.png)
+
+- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数支持以下几种图标的表达格式：
+
+  - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
+  - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
+
+  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon。
+
+  示例如下：
+  
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      button = ui.button(
+          'Hello',
+          icon='home'
+      )
+      ui.button(
+          'Hello',
+          icon='img:/favicon.ico'
+      )
+      ui.button(
+          'Hello',
+          icon='img:https://cdn.quasar.dev/logo-v2/svg/logo.svg'
+      )
+      ui.button(
+          'Hello',
+          icon='''img:
+              data:image/svg+xml;
+              charset=utf8,
+              <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="100" cy="100" r="78" fill="yellow" stroke="black" stroke-width="3" />
+                  <circle cx="80" cy="85" r="8" />
+                  <circle cx="120" cy="85" r="8" />
+                  <path d="m60,120 C75,150 125,150 140,120" style="fill:none; stroke:black; stroke-width:8; stroke-linecap:round" />
+              </svg>
+          '''
+      )
+      ui.button(
+          'Hello',
+          icon='img:data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAQAQAABMLAAATCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADz8e8ct6md5gUBAP9cUVGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADn4+E4qZqN8KmXiP8aGRf/AAAA/05DQqgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADc19JUnY2A/6OThf+xopb/Ih8c/wAAAP8AAAD/KyYlz9vEwRkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADSysRzmIh6/5+Qg/+wopX/rp+T/xwZF/8AAAD/AAAA/wAAAP8JBATwtpyaOwAAAAAAAAAAAAAAAAAAAADIv7iQloV3/6KUh/+omo//r6GU/6ydj/8ZFxX/AAAA/wAAAP8AAAD/AAAA/wAAAP+bjYtcAAAAAAAAAADHvrYdno6B/6OUiP+omo7/p5mN/7Kilf+lm4//EBQS/wAAAP8AAAD/AAAA/wAAAP8AAAD/CwMD6AAAAAAAAAAAxby0PaOUiP+mmIz/p5mN/6mWiv+srqH/oKqc/wAODv8AAAD/AAAA/wAAAP8AAAD/AAAA/woGBucAAAAAAAAAAMG3sF6gkYT/p5iM/6iXi/+Xsqb/oamb/+9COf+zBAH/EgEB/wAAAP8AAAD/AAAA/wAAAP8AAAD0AAAAAAAAAAC+s6qCoI2A/6Sekv+Tua3/sol8//AaFf//AAD//wwA/+4NAf9VBQH/AAAA/wAAAP8AAAD/AAAA8wAAAAAAAAAAt6acopWilf+YtKb/ymBW//8AAP//AAD//w0A//8MAP//DQD//w4A/58JAf8JAQH/AAAA/wAAAPIAAAAAAAAAAKC/tMWfl4j/5DMs//8AAP//AwD//w4A//8MAP//DAD//wwA//8MAP//DgD/5A0B/0gFAf8AAADyAAAAAAAAAADCXVD//AAA//8AAP//CwD//w0A//8MAP//DAD//wwA//8MAP//DAD//wwA//8PAP//BwD/lgAA/wAAAAAAAAAA8oqDYv8aF9r/AAD//wAA//8NAP//DQD//wwA//8MAP//DAD//w0A//8IAP//AAD//wAA//9kWp0AAAAAAAAAAAAAAAAAAAAA64uHbPscF+X/AAD//wAA//8NAP//DQD//wsA//8AAP//AAD/+EdEuO3DwTcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADh6eUF7IF9d/wSDPD/AAD//wAA//8AAP/6My/N7rCtSwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADe3dgP72Fcj/oqJ9HxkY5jAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAPwfAAD4DwAA+A8AAPwPAAD8DwAA/A8AAPgPAAD4HwAA8B8AAPAfAADwHwAA+AcAAP4PAAD/fwAA/v8AAA=='
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+  
+  ![2026_40_2](nicegui_pro.assets/2026_40_2.png)
+
+该控件支持以下属性：
+
+- 
+
+该控件支持以下方法：
+
+- `add_dynamic_resource`方法，添加一个动态资源的地址。所谓动态资源，即访问该方法绑定的动态资源地址时，该地址返回的结果是该方法绑定的可调用对象的执行结果。该方法支持以下参数：
+
+  - `name`参数，字符串类型，表示添加的动态资源名。动态资源对应的地址为`'http://{主机}:{端口号}/_nicegui/{NiceGUI的版本号}/dynamic_resources/{动态资源名}'`，可以使用`props['dynamic_resource_path']`获取到动态资源名到端口号之间的部分地址，无需额外获取NiceGUI的版本号。
+  - `function`参数，可调用类型，表示动态资源对应的获取方法，该方法的返回值即为所谓的动态资源。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      button = ui.button(
+          'Hello'
+      )
+      button.add_dynamic_resource('hello',lambda:str(button))
+      ui.link(
+          'go to dynamic_resource',
+          button.props['dynamic_resource_path']+'/hello'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  点击超链接之后，页面的内容为：
+
+  ```python3
+  "Button [label=Hello]"
+  ```
+
+- `add_resource`方法，
+
+- 
 
 
 
-控件支持以下参数：
+```python3
+'add_dynamic_resource', 'add_resource', 'add_slot', 'ancestors', 'bind_enabled', 'bind_enabled_from', 'bind_enabled_to', 'bind_icon', 'bind_icon_from', 'bind_icon_to', 'bind_text', 'bind_text_from', 'bind_text_to', 'bind_visibility', 'bind_visibility_from', 'bind_visibility_to', 'classes', 'clear', 'clicked', 'client', 'component', 'default_classes', 'default_props', 'default_slot', 'default_style', 'delete', 'descendants', 'disable', 'enable', 'enabled', 'exposed_libraries', 'get_computed_prop', 'html_id', 'icon', 'id', 'ignores_events_when_disabled', 'ignores_events_when_hidden', 'is_deleted', 'is_ignoring_events', 'mark', 'move', 'on', 'on_click', 'parent_slot', 'props', 'remove', 'run_method', 'set_enabled', 'set_icon', 'set_text', 'set_visibility', 'slots', 'style', 'tag', 'text', 'tooltip', 'update', 'visible'
+```
 
 
 
-控件支持以下属性：
 
 
+### 40.2 常见问题
 
-控件支持以下方法：
+`on_click`方法支持链式调用。
 
+`on_click`参数和`on_click`方法可以同时使用，对应的响应函数不会被顶替，会同时生效。同样的，多次使用`on_click`方法的话，也是同时生效。
 
+另外，对于任意控件而言，定义了响应函数之后，目前没有方法取消、删除响应函数，除非删除原控件，重新创建控件。
 
 
 
@@ -7968,6 +8129,26 @@ ui.run(native=True)
 ## x 灵感（待定）
 
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
+
+
+
+1，使用`for`遍历控件，可以得到控件的子控件：
+
+```python3
+from nicegui import ui
+
+def index():
+    button = ui.button('Hello')
+    with button:
+        ui.button('ok')
+    for i in button:
+        print(i)
+    print([str(i) for i in button.slots['default']])
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 

@@ -155,7 +155,7 @@ app.exec()
 
 `QPushButton`普通按钮控件支持以下方法（部分，含控件属性）：
 
-- `autoExclusive`方法，---
+- `autoExclusive`方法，获取控件是否启用自动独占。当多个按钮的父控件相同时，这些按钮就属于同一独占组。如果这些按钮启用了勾选和自动独占，那么，将只允许同时勾选最多一个按钮：
 
   ```python3
   from PySide6.QtWidgets import (
@@ -189,7 +189,9 @@ app.exec()
   app.exec()
   ```
 
-  
+  ![2026_25_3](qt_for_python_pro.assets/2026_25_3.gif)
+
+- `autoRepeat`方法，
 
 - 
 

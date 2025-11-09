@@ -661,9 +661,9 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 
 在学习修改控件的样式之前，先了解一下NiceGUI的控件支持哪些修改样式的方法：
 
-- `style`方法（属性），支持CSS，可以直接设置具体的Web样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS。
-- `classes`方法（属性），支持Tailwind CSS，可以设置Tailwind CSS框架定义的CSS变量或，也可以设置为CSS样式类，让控件应用这些变量或者CSS样式类对应的CSS样式。Tailwind CSS的语法可参考 https://tailwindcss.com/。
-- `props`方法（属性），支持Quasar控件的属性，可以设置对应Quasar控件的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components。
+- `style`方法（属性），支持CSS样式，可以直接设置具体的CSS样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS。
+- `classes`方法（属性），支持各种样式类，可以设置为Tailwind CSS框架定义的样式类，也可以设置为在CSS代码中定义并引入的样式类。Tailwind CSS的语法可参考 https://tailwindcss.com/。
+- `props`方法（属性），支持Quasar控件属性（Quasar控件的属性）或者HTML属性（HTML标签的属性），可以设置Quasar控件（大部分NiceGUI控件的前端部分）的属性或者HTML标签（NiceGUI控件对应的顶层HTML标签）的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components。
 
 可能读者看到上面的介绍有点疑惑，为何这些方法后，还用括号补充说明是属性？在NiceGUI最新版本中，这三种方法，可以通过调用的方式添加、修改样式。同时，控件还支持同名的字典（或者列表）属性，可以使用字典（或者列表支持的方式添加、修改样式，字典的键即为样式名。
 
@@ -723,7 +723,7 @@ ui.run(root=index,native=True)
 
 NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样式使用`!important`修饰，优先级高于没有使用`!important`修饰的普通样式。
 
-虽然Tailwind CSS的普通样式默认优先级高于Quasar框架的普通样式，但添加“!”为前缀或者后缀（在Tailwind CSS中等效于使用`!important`修饰）的Tailwind CSS样式，遇到Quasar框架使用`!important`修饰的相同样式（比如背景颜色）时，优先级反而会比Quasar框架的低。
+虽然Tailwind CSS框架的普通样式默认优先级高于Quasar框架的普通样式，但添加“!”为前缀或者后缀（在Tailwind CSS中等效于使用`!important`修饰）的Tailwind CSS框架的样式类，遇到Quasar框架使用`!important`修饰的相同样式（比如背景颜色）时，优先级反而会比Quasar框架的低。
 
 想要理解这个反常现象，需要先了解两个相关知识：
 
@@ -745,7 +745,7 @@ NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样�
 
   ![2026_4_3](nicegui_pro.assets/2026_4_3.png)
 
-那么，问题来了，默认控件的颜色样式就是使用`!important`修饰的，如果想要将其改为Tailwind CSS的颜色，怎么解决？
+那么，问题来了，默认控件的颜色样式就是使用`!important`修饰的，如果想要将其改为Tailwind CSS框架的颜色，该怎么解决？
 
 可以使用`props`方法（属性）去掉控件原本的背景色、前景色（文字颜色），再使用`classes`方法（属性）修改为指定的背景色、前景色（文字颜色），此时不用添加“!”为前缀或者后缀：
 
@@ -762,7 +762,7 @@ ui.run(root=index,native=True)
 
 ![2026_4_4](nicegui_pro.assets/2026_4_4.png)
 
-从NiceGUI 3.0.0正式版开始，官方修复了添加“!”为前缀或者后缀（在Tailwind CSS中等效于使用`!important`修饰）的Tailwind CSS样式生效顺序，因此，下面的代码可以正常生效：
+从NiceGUI 3.0.0正式版开始，官方修复了添加“!”为前缀或者后缀（在Tailwind CSS框架中等效于使用`!important`修饰）的Tailwind CSS框架的样式类生效顺序，因此，下面的代码可以正常生效：
 
 ```python3
 from nicegui import ui
@@ -7969,8 +7969,13 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
 该控件支持以下属性：
 
-- `enabled`属性，表示控件是否被禁用，默认为`False`。
-- 
+- `enabled`属性，布尔类型，表示控件是否被禁用，默认为`False`。
+- `icon`属性，字符串类型，含义与同名参数相同。
+- `text`属性，字符串类型，含义与同名参数相同。
+- `visible`属性，布尔类型，表示控件是否可见，默认为`True`。
+- `classes`属性，作为属性使用时，该属性可以看作是列表类型，表示控件额外的样式类。
+- `props`属性，作为属性使用时，该属性可以看作是字典类型，表示控件额外的Quasar控件属性或者HTML属性。
+- `style`属性，作为属性使用时，该属性可以看作是字典类型，表示控件额外的CSS样式。
 
 该控件支持以下方法：
 
@@ -8088,18 +8093,139 @@ Quasar框架文档：https://quasar.dev/vue-components/button
   )
   ```
 
-- `bind_enabled`方法，将控件的`enabled`属性与指定对象的指定属性双向绑定。
+- `bind_enabled`方法，将控件的`enabled`属性与指定对象的指定属性双向绑定。该方法支持以下参数：
 
-- `ancestors`方法，
+  - `target_object`参数，任意类型，表示目标对象。
 
-- `ancestors`方法，
+  - `target_name`参数，字符串类型，表示目标对象的指定属性，默认为`'enabled'`。
 
-- `ancestors`方法，
+  - `forward`参数，可调用类型，表示控件的`enabled`属性值赋予目标对象的指定属性之前，如何处理该属性值。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `backward`参数，可调用类型，表示目标对象的指定属性值赋予控件的`enabled`属性之前，如何处理该属性值。
+
+  - `strict`参数，布尔类型，表示是否检查目标对象的指定属性（检查属性是否存在）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      switch = ui.switch('button\'s enabled')
+      button = ui.button(
+          'Hello'
+      )
+      button.bind_enabled(
+          switch,
+          'value'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `bind_enabled_from`方法，将控件的`enabled`属性与指定对象的指定属性反向绑定。该方法支持以下参数：
+
+  - `target_object`参数，任意类型，表示目标对象。
+
+  - `target_name`参数，字符串类型，表示目标对象的指定属性，默认为`'enabled'`。
+
+  - `backward`参数，可调用类型，表示目标对象的指定属性值赋予控件的`enabled`属性之前，如何处理该属性值。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `strict`参数，布尔类型，表示是否检查目标对象的指定属性（检查属性是否存在）。
+
+- `bind_enabled_to`方法，将控件的`enabled`属性与指定对象的指定属性正向绑定。该方法支持以下参数：
+
+  - `target_object`参数，任意类型，表示目标对象。
+
+  - `target_name`参数，字符串类型，表示目标对象的指定属性，默认为`'enabled'`。
+
+  - `forward`参数，可调用类型，表示控件的`enabled`属性值赋予目标对象的指定属性之前，如何处理该属性值。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `strict`参数，布尔类型，表示是否检查目标对象的指定属性（检查属性是否存在）。
+
+- `bind_icon`方法，将控件的`icon`属性与指定对象的指定属性双向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_icon_from`方法，将控件的`icon`属性与指定对象的指定属性反向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_icon_to`方法，将控件的`icon`属性与指定对象的指定属性正向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_text`方法，将控件的`text`属性与指定对象的指定属性双向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_text_from`方法，将控件的`text`属性与指定对象的指定属性反向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_text_to`方法，将控件的`text`属性与指定对象的指定属性正向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_visibility`方法，将控件的`visible`属性与指定对象的指定属性双向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_visibility_from`方法，将控件的`visible`属性与指定对象的指定属性反向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_visibility_to`方法，将控件的`visible`属性与指定对象的指定属性正向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `classes`方法，作为方法使用时，用于修改控件的`classes`属性。该方法支持以下参数：
+
+  - `add`参数，字符串类型，表示要给`classes`属性添加的样式类。如果传给该参数的值是使用空格间隔的多个合法变量名，则每个变量名会被当作单独的样式类。比如，传入的是`'a b c'`，会被处理为`'a'`、`;b`、`'c'`三个样式类。下面给几个参数传值时也会执行同样的操作。
+
+  - `remove`参数，字符串类型，表示要从`classes`属性中移除的样式类。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `toggle`参数，字符串类型，表示要在`classes`属性中切换的样式类。所谓切换，即如果`classes`属性有该样式类就移除，没有就添加。
+
+  - `replace`参数，字符串类型，表示将`classes`属性原始的样式类完全替换为指定的样式类。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      button = ui.button(
+          'Hello'
+      )
+      button.classes(
+          'a b c'
+      )
+      print(button.classes)
+      button.classes(
+          'd',
+          remove='a',
+          toggle='b'
+      )
+      print(button.classes)
+      button.classes(
+          replace='a'
+      )
+      print(button.classes)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  输入如下：
+
+  ```python3
+  ['a', 'b', 'c']
+  ['c', 'd']
+  ['a']
+  ```
+
+- `clear`方法，
 
 
 
 ```python3
-'bind_enabled', 'bind_enabled_from', 'bind_enabled_to', 'bind_icon', 'bind_icon_from', 'bind_icon_to', 'bind_text', 'bind_text_from', 'bind_text_to', 'bind_visibility', 'bind_visibility_from', 'bind_visibility_to', 'classes', 'clear', 'clicked', 'client', 'component', 'default_classes', 'default_props', 'default_slot', 'default_style', 'delete', 'descendants', 'disable', 'enable', 'enabled', 'exposed_libraries', 'get_computed_prop', 'html_id', 'icon', 'id', 'ignores_events_when_disabled', 'ignores_events_when_hidden', 'is_deleted', 'is_ignoring_events', 'mark', 'move', 'on', 'on_click', 'parent_slot', 'props', 'remove', 'run_method', 'set_enabled', 'set_icon', 'set_text', 'set_visibility', 'slots', 'style', 'tag', 'text', 'tooltip', 'update', 'visible'
+'clear', 'clicked', 'client', 'component', 'default_classes', 'default_props', 'default_slot', 'default_style', 'delete', 'descendants', 'disable', 'enable', 'exposed_libraries', 'get_computed_prop', 'html_id', 'id', 'ignores_events_when_disabled', 'ignores_events_when_hidden', 'is_deleted', 'is_ignoring_events', 'mark', 'move', 'on', 'on_click', 'parent_slot', 'props', 'remove', 'run_method', 'set_enabled', 'set_icon', 'set_text', 'set_visibility', 'slots', 'style', 'tag', 'tooltip', 'update'
 ```
 
 

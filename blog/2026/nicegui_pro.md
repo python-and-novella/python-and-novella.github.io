@@ -520,7 +520,7 @@ ui.run(root=index,native=True)
 
 ### 3.3 控件的插槽（slot）
 
-前面说了使用上下文管理器进入控件的上下文，进而在控件内嵌入其他控件。其实，这种操作就是进入了控件的`default`插槽（插槽的概念来自Quasar框架的控件，相关资料可以查看 https://quasar.dev/components ，具体控件支持的插槽有所不同）。
+前面说了使用上下文管理器进入控件的上下文，进而在控件内嵌入其他控件。其实，这种操作就是进入了控件的“default”插槽（插槽的概念来自Quasar框架的控件，相关资料可以查看 https://quasar.dev/components ，具体控件支持的插槽有所不同）。
 
 以`ui.input`输入框控件为例，下面示例中两种写法的效果是一样的：
 
@@ -951,9 +951,9 @@ ui.run(root=index,port=80)
 
 如果控件存在可绑定属性，则该控件会存在以下三种相关的属性绑定方法：
 
-- `bind_{属性名}_from`方法，将该属性与其他对象的指定属性绑定，其他对象的指定属性发生改变，该控件的该属性同步发生变化，反之不会触发同步。
-- `bind_{属性名}_to`方法，将该属性与其他对象的指定属性绑定，该控件的该属性发生改变，其他对象的指定属性同步发生变化，反之不会触发同步。
-- `bind_{属性名}`方法，将该属性与其他对象的指定属性绑定，发起绑定和被绑定的属性中，只要一方发生变化，另一方同步发生变化。
+- `bind_{属性名}_from`方法，将该属性与其他对象的指定属性反向绑定，其他对象的指定属性发生改变，该控件的该属性同步发生变化，反之不会触发同步。
+- `bind_{属性名}_to`方法，将该属性与其他对象的指定属性正向绑定，该控件的该属性发生改变，其他对象的指定属性同步发生变化，反之不会触发同步。
+- `bind_{属性名}`方法，将该属性与其他对象的指定属性双向绑定，发起绑定和被绑定的属性中，只要一方发生变化，另一方同步发生变化。
 
 示例如下：
 
@@ -7437,7 +7437,7 @@ ui.run(root=index,native=True)
 
 `binding`模块提供了以下通用的绑定方法：
 
-- `bind_from`方法，将前者的指定属性与后者的指定属性绑定，后者的指定属性发生改变，前者的指定属性同步发生变化，反之不会触发同步。该方法支持以下参数：
+- `bind_from`方法，将前者的指定属性与后者的指定属性反向绑定，后者的指定属性发生改变，前者的指定属性同步发生变化，反之不会触发同步。该方法支持以下参数：
 
   - `self_obj`参数，任意类型，表示前者对象。
 
@@ -7455,7 +7455,7 @@ ui.run(root=index,native=True)
 
   - `other_strict`参数，布尔类型，表示是否检查后者对象的指定属性（检查属性是否存在）。
 
-- `bind_to`方法，将前者的指定属性与后者的指定属性绑定，前者的指定属性发生改变，后者的指定属性同步发生变化，反之不会触发同步。该方法支持以下参数：
+- `bind_to`方法，将前者的指定属性与后者的指定属性正向绑定，前者的指定属性发生改变，后者的指定属性同步发生变化，反之不会触发同步。该方法支持以下参数：
 
   - `self_obj`参数，任意类型，表示前者对象。
 
@@ -7473,7 +7473,7 @@ ui.run(root=index,native=True)
 
   - `other_strict`参数，布尔类型，表示是否检查后者对象的指定属性（检查属性是否存在）。
 
-- `bind`方法，将前者的指定属性与后者的指定属性绑定，只要一方发生变化，另一方同步发生变化。该方法支持以下参数：
+- `bind`方法，将前者的指定属性与后者的指定属性双向绑定，只要一方发生变化，另一方同步发生变化。该方法支持以下参数：
 
   - `self_obj`参数，任意类型，表示前者对象。
 
@@ -7969,6 +7969,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
 该控件支持以下属性：
 
+- `enabled`属性，表示控件是否被禁用，默认为`False`。
 - 
 
 该控件支持以下方法：
@@ -8005,14 +8006,100 @@ Quasar框架文档：https://quasar.dev/vue-components/button
   "Button [label=Hello]"
   ```
 
-- `add_resource`方法，
+- `add_resource`方法，添加一个文件夹为资源目录。将文件夹添加为资源目录之后，文件夹下的所有文件都可以通过资源目录访问。该方法支持以下参数：
 
-- 
+  - `path`参数，字符串类型或者`Path`类型，表示要添加为资源目录的文件夹的路径。添加之后，文件夹对应的地址为`'http://{主机}:{端口号}/_nicegui/{NiceGUI的版本号}/resources/{资源的key}'`，可以使用`props['resource_path']`获取到端口号之后的部分。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  from pathlib import Path
+  import os
+  
+  def index():
+      button = ui.button(
+          'Hello'
+      )
+      button.add_resource(Path(__file__).parent)
+      ui.link(
+          'go to resource',
+          button.props['resource_path']+f'/{os.path.basename(__file__)}'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  点击超链接之后，可以看到上面的源代码。
+
+- `add_slot`方法，给控件添加插槽，修改插槽对应部分的内容，并返回添加的插槽。如果新添加的插槽是已经存在的插槽，则会覆盖原来的内容。该方法支持以下参数：
+
+  - `name`参数，字符串类型，表示插槽的名字。
+  - `template`参数，字符串类型，表示插槽对应的内容模板，支持VUE语法。
+
+  注意，该方法有两种修改插槽内容的途径，一是通过`template`参数，支持VUE语法；二是使用`with`进入该方法返回值的上下文，支持NiceGUI的控件。两种途径同时使用不会互相覆盖，并且`template`参数优先生效。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      button = ui.button(
+          'Hello'
+      )
+      with button.add_slot(
+          'default',
+          '<h6>is</h6>'
+      ):
+          ui.label('World')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_3](nicegui_pro.assets/2026_40_3.png)
+
+- `ancestors`方法，以生成器形式返回控件的所有父级控件（含HTML元素）。该方法支持以下关键字参数：
+
+  - `include_self`参数，表示返回结果时是否包含控件本身。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      button = ui.button(
+          'Hello'
+      )
+      for i in button.ancestors(include_self=True):
+          if i.html_id == button.html_id:
+              print(f'it is {i.html_id}.')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `bind_enabled`方法，将控件的`enabled`属性与指定对象的指定属性双向绑定。
+
+- `ancestors`方法，
+
+- `ancestors`方法，
+
+- `ancestors`方法，
 
 
 
 ```python3
-'add_dynamic_resource', 'add_resource', 'add_slot', 'ancestors', 'bind_enabled', 'bind_enabled_from', 'bind_enabled_to', 'bind_icon', 'bind_icon_from', 'bind_icon_to', 'bind_text', 'bind_text_from', 'bind_text_to', 'bind_visibility', 'bind_visibility_from', 'bind_visibility_to', 'classes', 'clear', 'clicked', 'client', 'component', 'default_classes', 'default_props', 'default_slot', 'default_style', 'delete', 'descendants', 'disable', 'enable', 'enabled', 'exposed_libraries', 'get_computed_prop', 'html_id', 'icon', 'id', 'ignores_events_when_disabled', 'ignores_events_when_hidden', 'is_deleted', 'is_ignoring_events', 'mark', 'move', 'on', 'on_click', 'parent_slot', 'props', 'remove', 'run_method', 'set_enabled', 'set_icon', 'set_text', 'set_visibility', 'slots', 'style', 'tag', 'text', 'tooltip', 'update', 'visible'
+'bind_enabled', 'bind_enabled_from', 'bind_enabled_to', 'bind_icon', 'bind_icon_from', 'bind_icon_to', 'bind_text', 'bind_text_from', 'bind_text_to', 'bind_visibility', 'bind_visibility_from', 'bind_visibility_to', 'classes', 'clear', 'clicked', 'client', 'component', 'default_classes', 'default_props', 'default_slot', 'default_style', 'delete', 'descendants', 'disable', 'enable', 'enabled', 'exposed_libraries', 'get_computed_prop', 'html_id', 'icon', 'id', 'ignores_events_when_disabled', 'ignores_events_when_hidden', 'is_deleted', 'is_ignoring_events', 'mark', 'move', 'on', 'on_click', 'parent_slot', 'props', 'remove', 'run_method', 'set_enabled', 'set_icon', 'set_text', 'set_visibility', 'slots', 'style', 'tag', 'text', 'tooltip', 'update', 'visible'
 ```
 
 
@@ -8031,9 +8118,13 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
 ## 41 （待定）
 
-弹出菜单中
 
-这个还是放到具体控件学习介绍中吧。
+
+其余的学习控件不会像`ui.button`控件那么详细，而是基本介绍一下参数，属性、方法则只介绍常用和不好理解的，并根据实际使用时是否容易出问题再决定是否有额外的常见问题章节。
+
+
+
+这个还是放到具体控件——弹出菜单中学习介绍中吧。
 
 #### 3.9.13 `ui.menu`补充
 

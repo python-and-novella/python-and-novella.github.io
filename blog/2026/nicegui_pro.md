@@ -659,11 +659,11 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 
 ### 4.1 修改样式的方法
 
-在学习修改控件的样式之前，先了解一下NiceGUI的控件支持哪些修改样式的方法：
+在学习修改控件的样式之前，先了解一下NiceGUI的控件支持哪些添加、删除、修改样式的方法：
 
-- `style`方法（属性），支持CSS样式，可以直接设置具体的CSS样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS。
-- `classes`方法（属性），支持各种样式类，可以设置为Tailwind CSS框架定义的样式类，也可以设置为在CSS代码中定义并引入的样式类。Tailwind CSS的语法可参考 https://tailwindcss.com/。
-- `props`方法（属性），支持Quasar控件属性（Quasar控件的属性）或者HTML属性（HTML标签的属性），可以设置Quasar控件（大部分NiceGUI控件的前端部分）的属性或者HTML标签（NiceGUI控件对应的顶层HTML标签）的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components。
+- `style`方法（属性），支持CSS样式，可以为控件添加、删除、修改CSS样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS。
+- `classes`方法（属性），支持各种样式类，可以为控件添加、删除、修改Tailwind CSS框架定义的样式类，也可以添加、删除、修改在CSS代码中定义并引入的样式类。Tailwind CSS的语法可参考 https://tailwindcss.com/。
+- `props`方法（属性），支持Quasar控件属性（Quasar控件的属性）或者HTML属性（HTML标签的属性），可以为控件添加、删除、修改Quasar控件（大部分NiceGUI控件的前端部分）的属性或者HTML标签（NiceGUI控件对应的顶层HTML标签）的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components。
 
 可能读者看到上面的介绍有点疑惑，为何这些方法后，还用括号补充说明是属性？在NiceGUI最新版本中，这三种方法，可以通过调用的方式添加、修改样式。同时，控件还支持同名的字典（或者列表）属性，可以使用字典（或者列表支持的方式添加、修改样式，字典的键即为样式名。
 
@@ -7709,13 +7709,13 @@ ui.run(
 
 宽度是符合预期的，可高度却没有生效，这是为什么？
 
-这就不得不说承载整个页面的容器——带有`'nicegui-content'`样式、使用`div`标签的HTML元素。该元素默认没有高度，是基于内容的高度自动扩充，因此，才会让页面呈现出`'h-full'`样式没有生效的结果。
+这就不得不说承载整个页面的容器——带有`'nicegui-content'`样式的`div`标签。该元素默认没有高度，是基于内容的高度自动扩充，因此，才会让页面呈现出`'h-full'`样式没有生效的结果。
 
-既然问题已经找到，下一步就是解决问题，如何给该HTML元素设置最大高度？
+既然问题已经找到，下一步就是解决问题，如何给该HTML标签设置最大高度？
 
-注意，`'h-full'`样式仅限父容器有具体高度值时，才能让控件的高度占据可用高度，相当于最大高度。现在需要解决的是，给HTML元素设置一个高度值，其父元素也是没有高度值的。如果使用`'h-full'`样式的话，问题依然没有解决。
+注意，`'h-full'`样式仅限父容器有具体高度值时，才能让控件的高度占据可用高度，相当于最大高度。现在需要解决的是，给HTML标签设置一个高度值，其父元素也是没有高度值的。如果使用`'h-full'`样式的话，问题依然没有解决。
 
-很简单，只需使用`'h-screen'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-viewport）、`'h-dvh'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-dynamic-viewport）、`'h-lvh'`样式（具体含义参考 https://tailwindcss.com/docs/height#matching-large-viewport）、`'h-svh'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-small-viewport）中的任意一种，该样式可以自动识别浏览器可见区域的高度，并将其作为使用该样式的HTML元素的高度。
+很简单，只需使用`'h-screen'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-viewport）、`'h-dvh'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-dynamic-viewport）、`'h-lvh'`样式（具体含义参考 https://tailwindcss.com/docs/height#matching-large-viewport）、`'h-svh'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-small-viewport）中的任意一种，该样式可以自动识别浏览器可见区域的高度，并将其作为使用该样式的HTML标签的高度。
 
 根据前面学过的方法，下面两种方式都可以实现所需的效果：
 
@@ -7852,7 +7852,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 但是，本教程是敏捷式教程，事无巨细不符合本教程的风格，介绍控件的用法又需要全面且详细，还要补充大量示例，像前面一样按类别介绍控件用法，会让章节变得冗长。
 
-于是，笔者思量再三，决定采用新的内容结构介绍控件的用法——期刊，每期只介绍一个控件的基本用法，至于难点和相关的实际问题，则放到单独的章节中。
+于是，笔者思量再三，决定采用新的内容结构介绍控件的用法——期刊，每期只介绍一个控件的基本用法，至于难点和相关的实际问题，则随时更新、补充。因为不是所有控件都有难点，所以，部分用法简单的控件就会一笔带过甚至不讲。而大部分控件的部分方法基本相同，因此，这些相同的方法在第一次登场时会详细介绍，后面就不会详细介绍甚至不会列出，以免读者因为重复而感到厌倦。
 
 本期为先导内容，不介绍具体控件。从下期开始，每期介绍一个控件的用法。
 
@@ -7973,9 +7973,21 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 - `icon`属性，字符串类型，含义与同名参数相同。
 - `text`属性，字符串类型，含义与同名参数相同。
 - `visible`属性，布尔类型，表示控件是否可见，默认为`True`。
-- `classes`属性，作为属性使用时，该属性可以看作是列表类型，表示控件额外的样式类。
-- `props`属性，作为属性使用时，该属性可以看作是字典类型，表示控件额外的Quasar控件属性或者HTML属性。
-- `style`属性，作为属性使用时，该属性可以看作是字典类型，表示控件额外的CSS样式。
+- `classes`属性，作为属性使用时，该属性可以看作是可观察列表类型，表示控件额外的样式类。
+- `props`属性，作为属性使用时，该属性可以看作是可观察字典类型，表示控件额外的Quasar控件属性或者HTML属性。
+- `style`属性，作为属性使用时，该属性可以看作是可观察字典类型，表示控件额外的CSS样式。
+- `client`属性，`Client`类型，表示控件所属的客户端。
+- `component`属性，`Component`类型，表示控件使用JavaScript文件或者VUE文件注册的前端组件。因为本控件没有使用JavaScript文件或者VUE文件实现所需的功能，因此该属性为`None`。
+- `default_slot`属性，`Slot`类型，表示控件的“default”插槽。
+- `exposed_libraries`属性，表示创建控件时，使用`dependencies`参数注册的JavaScript依赖库。注意，现在版本已经改用`esm`参数注册JavaScript依赖库，此属性基本都为空。
+- `id`属性，整数类型，表示每个控件的ID，用于查询或者识别控件。
+- `html_id`属性，字符串类型，表示控件HTML属性中的`id`属性。相比于表示控件ID的`id`属性，该属性在前面加了“c”作为前缀，可以直接用于HTML的查询方法。
+- `ignores_events_when_disabled`属性，布尔类型，表示控件被禁用时是否忽略所有事件（即不响应事件），默认为`True`。
+- `ignores_events_when_hidden`属性，布尔类型，表示控件隐藏时是否忽略所有事件（即不响应事件），默认为`True`。
+- `is_deleted`属性，布尔类型，表示控件是否被删除，默认为`False`。
+- `is_ignoring_events`属性，布尔类型，表示控件现在是否忽略所有事件（即不响应事件）。
+- `parent_slot`属性，表示控件所属的插槽。
+- 
 
 该控件支持以下方法：
 
@@ -8070,7 +8082,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   ![2026_40_3](nicegui_pro.assets/2026_40_3.png)
 
-- `ancestors`方法，以生成器形式返回控件的所有父级控件（含HTML元素）。该方法支持以下关键字参数：
+- `ancestors`方法，以生成器的形式返回控件的所有父控件（包括父控件的父控件，含HTML标签，向上追溯到`body`标签的子标签为止）。该方法支持以下关键字参数：
 
   - `include_self`参数，表示返回结果时是否包含控件本身。
 
@@ -8220,12 +8232,147 @@ Quasar框架文档：https://quasar.dev/vue-components/button
   ['a']
   ```
 
-- `clear`方法，
+- `clear`方法，移除所有子控件（如果有的话）。
 
+- `clicked`方法，返回一个可异步等待的协程，直到按钮被点击之后才会完成，并执行后续的代码。
 
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      button = ui.button(
+          'Hello'
+      )
+      await button.clicked()
+      ui.button(
+          'World'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `delete`方法，删除控件（含子控件）。
+
+- `descendants`方法，以生成器的形式返回控件的所有子控件（包括子控件的子控件，含HTML标签，向下追溯到`body`标签的子标签为止）。该方法支持以下关键字参数：
+
+  - `include_self`参数，表示返回结果时是否包含控件本身。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      button = ui.button(
+          'Hello'
+      )
+      for i in button.descendants(include_self=True):
+          if i.html_id == button.html_id:
+              print(f'it is {i.html_id}.')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `disable`方法，禁用控件。
+
+- `enable`方法，启用控件。
+
+- `get_computed_prop`方法，以异步的方式返回需要在客户端计算的HTML属性。该方法支持以下参数：
+
+  - `prop_name`参数，字符串类型，表示属性名。
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+
+- `mark`方法，给控件添加记号，具体用法参考前面章节中`ElementFilter`类的用法介绍（第20章），有该方法的用法说明。
+
+- `move`方法，将控件移动至指定控件的指定插槽内。该方法支持以下参数：
+
+  - `target_container`参数，`Element`类型，表示目标控件。
+  - `target_index`参数，整数类型，表示插入的位置，默认为`-1`，即末尾。
+  - `target_slot`参数，关键字参数，字符串类型，表示目标插槽，默认为`None`，即使用默认插槽。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      button = ui.button(
+          'Hello'
+      )
+      button2 = ui.button(
+          'World'
+      )
+      button2.move(
+          button,
+          target_slot='default'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_4](nicegui_pro.assets/2026_40_4.png)
+
+- `on`方法，为控件的任意事件注册响应函数。该方法支持以下参数：
+
+  - `type`参数，字符串类型，表示事件类型。
+
+  - `handler`参数，可调用类型，表示服务器端的Python响应函数。响应函数接收一个表示事件对象的`events.GenericEventArguments`类型参数，该参数包含一个`args`属性。
+
+  - `arge`参数，`None`或者元素为字符串的序列或者元素为序列（元素为字符串）的单元素序列，表示客户端的哪些参数及其值在执行响应函数时，会传给响应函数接收参数的`args`属性（字典形式）。如果为`None`的话，表示将客户端所有的参数传入响应函数接收参数的`args`属性。比如，可以检查客户端响应事件时，有没有按下其他功能键：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        button = ui.button(
+            'Hello'
+        )
+        button.on(
+            type='click', 
+            handler=lambda e: ui.notify(f'hello {e}'),
+            args=['ctrlKey','shiftKey','altKey'],
+            #或者[['ctrlKey','shiftKey','altKey']]
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+  - `throttle`参数，浮点类型，表示事件之间的发生间隔，小于该间隔的事件不会重复处理（默认第一个和最后一个都会处理），该参数默认为`0.0`。从此参数开始，只能通过关键字传入。
+
+  - `leading_events`参数，布尔类型，事件发生间隔内的第一个事件发生时是否立即执行响应函数，默认为`True`。
+
+  - `trailing_events`参数，布尔类型，事件发生间隔内的最后一个事件发生后是否也要执行响应函数，默认为`True`。
+
+  - `js_handler`参数，字符串类型，表示客户端的JavaScript响应函数，默认为`'(...args) => emit(...args)'`。注意，如果JavaScript响应函数内不执行`emit`方法且与`handler`参数同时定义的话，`handler`参数表示的响应函数不会执行。而JavaScript响应函数内执行`emit`方法，会把传给该方法的参数，传给`handler`参数表示的响应函数中，接收参数的`args`属性。
+
+- `on_click`方法，为控件的点击事件注册响应函数。该方法支持以下参数：
+
+  - `callback`参数，可调用类型，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+
+- `props`方法，
+
+该控件支持以下类方法：
+
+- `default_classes`方法，修改控件`classes`属性的默认值。该方法支持的参数参考`classes`方法。
+- `default_props`方法，修改控件`props`属性的默认值。该方法支持的参数参考`props`方法。
+- `default_style`方法，修改控件`style`属性的默认值。该方法支持的参数参考`style`方法。
 
 ```python3
-'clear', 'clicked', 'client', 'component', 'default_classes', 'default_props', 'default_slot', 'default_style', 'delete', 'descendants', 'disable', 'enable', 'exposed_libraries', 'get_computed_prop', 'html_id', 'id', 'ignores_events_when_disabled', 'ignores_events_when_hidden', 'is_deleted', 'is_ignoring_events', 'mark', 'move', 'on', 'on_click', 'parent_slot', 'props', 'remove', 'run_method', 'set_enabled', 'set_icon', 'set_text', 'set_visibility', 'slots', 'style', 'tag', 'tooltip', 'update'
+'props', 'remove', 'run_method', 'set_enabled', 'set_icon', 'set_text', 'set_visibility', 'slots', 'style', 'tag', 'tooltip', 'update'
 ```
 
 

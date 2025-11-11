@@ -7858,7 +7858,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 另外，《学习控件》的每一期不一定按照发布顺序连续发布，有可能穿插在其他内容中。例如，《学习控件》发布一期之后，下一章就是该控件的相关内容，或者其他内容。
 
-## 40 学习控件——`ui.button`控件（更新中）
+## 40 学习控件——`ui.button`控件
 
 `ui.button`控件就是普通的按钮。点击按钮，执行指定操作，按钮用起来就是这么简单。不过，虽然前面的章节使用了不止一次，但没有深入学习过。因此，本章将从参数开始，一点一点拆解该控件的用法，确保读者在日常使用乃至遇到疑难问题时，都有可以参考的示例。
 
@@ -8478,9 +8478,61 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
 另外，对于任意控件而言，定义了响应函数之后，目前没有方法取消、删除响应函数，除非删除原控件，重新创建控件。
 
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    button = ui.button(
+        'Hello',
+        on_click=lambda:print('World1')
+    )
+    button.on_click(
+        lambda:print('World2')
+    )
+    button.on_click(
+        lambda:print('World3')
+    ).on_click(
+        lambda:print('World4')
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+点击按钮之后，输出如下：
+
+```python3
+World1
+World2
+World3
+World4
+```
+
+## 41 学习控件——显示简单文本（待定）
+
+`ui.button`控件讲得那么细，是因为很多方法、属性是第一次介绍。接下来，就不会重复这些内容，只会详细介绍控件独特的方法、属性，以及控件的参数，避免内容单调重复。
+
+显示简单文本的控件方法都比较简单，因此，本章就合并介绍这些控件：
+
+- `ui.label`控件，直接显示文本。
+- `ui.link`控件，将文本显示为超链接。
+- `ui.link_target`控件，与超链接相关，用于创建一个锚点，但不显示任何文本。
+- `ui.chat_message`控件，将文本放入消息气泡。
+- `ui.badge`控件，将文本放入类似按钮的紧凑容器中，常用于当作现有控件的角标。
+
+### 41.1 `ui.label`控件
 
 
-## 41 （待定）
+
+
+
+
+
+## 42 （待定）
 
 
 

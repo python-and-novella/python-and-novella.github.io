@@ -538,7 +538,7 @@ ui.run(root=index,native=True)
 
 ![2026_3_3](nicegui_pro.assets/2026_3_3.png)
 
-简单来说，插槽可以看作是一个控件中可以插入其他控件的位置，而不少控件有多个插槽，`default`插槽就是默认位置。如果想要在其他插槽中插入其他控件，则要使用`add_slot`方法，指定具体插槽。以输入框控件（具体参考https://quasar.dev/vue-components/input）为例：
+简单来说，插槽可以看作是一个控件中可以插入其他控件的位置，而不少控件有多个插槽，“default”插槽就是默认状态的控件。如果想要在其他插槽中插入其他控件，则要使用`add_slot`方法，指定具体插槽。以输入框控件（具体参考https://quasar.dev/vue-components/input）为例：
 
 ```python3
 from nicegui import ui
@@ -1914,7 +1914,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较
 - `ui.label`控件，直接显示文本。
 - `ui.link`控件，将文本显示为超链接。
 - `ui.link_target`控件，与超链接相关，用于创建一个锚点，但不显示任何文本。比如，`ui.link_target('link')`可以创建锚点`link`，使用`ui.link('link_target','#link')`可以创建指向该锚点的超链接，点击该超链接，页面会自动跳转到该控件所在位置。对于下面的示例，需要将页面高度调到无法看到全部控件，点击超链接才能看到跳转效果。
-- `ui.chat_message`控件，将文本放入消息气泡。
+- `ui.chat_message`控件，将文本放入聊天消息的气泡中。
 - `ui.badge`控件，将文本放入类似按钮的紧凑容器中，常用于当作现有控件的角标。
 
 示例如下：
@@ -8272,9 +8272,34 @@ Quasar框架文档：https://quasar.dev/vue-components/button
       button = ui.button(
           'Hello'
       )
-      for i in button.descendants(include_self=True):
-          if i.html_id == button.html_id:
-              print(f'it is {i.html_id}.')
+      with button:
+          button2 = ui.button('World')
+      with button2:
+          button3 = ui.button('!')
+      for i in button.descendants():
+          print(i)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  除了调用此方法，直接遍历控件，效果是一样的：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      button = ui.button(
+          'Hello'
+      )
+      with button:
+          button2 = ui.button('World')
+      with button2:
+          button3 = ui.button('!')
+      for i in button:
+          print(i)
   
   ui.run(
       root=index,
@@ -8468,9 +8493,9 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 - `default_props`方法，修改控件`props`属性的默认值。该方法支持的参数参考`props`方法。
 - `default_style`方法，修改控件`style`属性的默认值。该方法支持的参数参考`style`方法。
 
-### 40.2 常见问题
+### 40.2 扩展用法
 
-#### 40.2.1 关于响应函数
+#### 40.2.1 绑定多个响应函数
 
 `on_click`参数和`on_click`方法可以同时使用，对应的响应函数不会被顶替，会同时生效。同样的，多次使用`on_click`方法的话，也是同时生效。
 
@@ -8512,7 +8537,39 @@ World3
 World4
 ```
 
-## 41 学习控件——显示简单文本（待定）
+#### 40.2.2 使用“loading”插槽
+
+控件的“loading”插槽对应控件的加载状态，需要在启用Quasar控件属性`'loading'`。默认情况下，处于加载状态的控件会显示一个加载动画，也可以进入“loading”插槽，修改显示的内容。
+
+示例如下：
+
+```python3
+
+from nicegui import ui
+
+def index():
+    ui.button(
+        'Hello'
+    ).props(
+        'loading'
+    )
+    button = ui.button(
+        'Hello'
+    ).props(
+        'loading'
+    )
+    with button.add_slot('loading'):
+        ui.label('loading')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_40_5](nicegui_pro.assets/2026_40_5.png)
+
+## 41 学习控件——显示简单文本（更新中）
 
 `ui.button`控件讲得那么细，是因为很多方法、属性是第一次介绍。接下来，就不会重复这些内容，只会详细介绍控件独特的方法、属性，以及控件的参数，避免内容单调重复。
 
@@ -8524,11 +8581,189 @@ World4
 - `ui.chat_message`控件，将文本放入消息气泡。
 - `ui.badge`控件，将文本放入类似按钮的紧凑容器中，常用于当作现有控件的角标。
 
-### 41.1 `ui.label`控件
+### 41.1 参数简单的控件
+
+部分控件的参数简单，因此合并介绍。
+
+`ui.label`控件支持以下参数：
+
+- `text`参数，字符串类型，表示显示的文本，默认为`''`。
+
+`ui.link`控件支持以下参数：
+
+- `text`参数，字符串类型，表示显示的文本，默认为`''`。
+
+- `target`参数，字符串类型或者可调用类型或者`Element`类型，表示超链接指向的位置，默认为`#`。
+
+  参数为字符串类型时，可以为任意合法的外部网络地址或者内部网络地址（相对路径和绝对路径）。
+
+  参数为可调用类型时，则只能时被`ui.page`对象装饰的页面构建函数，点击链接则跳转到对应页面。
+
+  参数为`Element`类型时，则只能是当前页面内的控件，点击链接则跳转到控件所在位置。
+
+- `new_tab`参数，布尔类型，表示是否在新的标签页打开链接，默认为`False`。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+@ui.page('/')
+def index():
+    link = ui.link(
+        'baidu',
+        'https://www.baidu.com/',
+        new_tab=True
+    )
+    ui.link('page a','/a')
+    ui.link('page a',page_a).classes('h-screen')
+    ui.link('first link',link)
+
+@ui.page('/a')
+def page_a():
+    ui.link('index','/')
+
+ui.run()
+```
+
+`ui.link_target`控件支持以下参数：
+
+- `name`参数，字符串类型，表示锚点的名字，在创建超链接时，可以在锚点所在页面的地址之后加上`'#{锚点名字}'`，点击超链接就会跳转到锚点所在位置。
+
+将上个示例中第一个超链接替换为`ui.link_target`控件，则跳转到该位置的超链接可以改为`ui.link('go to baidu','#baidu')`：
+
+```python3
+from nicegui import ui
+
+@ui.page('/')
+def index():
+    with ui.link_target('baidu'):
+        ui.label('baidu')
+    ui.link('page a','/a')
+    ui.link('page a',page_a).classes('h-screen')
+    ui.link('go to baidu','#baidu')
+
+@ui.page('/a')
+def page_a():
+    ui.link('index','/')
+    ui.link('parent','../')
+
+ui.run()
+```
+
+`ui.badge`控件支持以下参数：
+
+- `text`参数，字符串类型，表示显示的文本，默认为`''`。
+
+- `color`参数，字符串类型，表示控件的背景颜色，默认为`'primary'`，即和主题的主要颜色一致。
+
+  从该参数开始，只能通过关键字传入。
+
+- `text_color`参数，字符串类型，表示文字的颜色。
+
+- `outline`参数，布尔类型，表示是否添加轮廓线，默认为`False`。添加轮廓线之后，背景颜色将变为透明，此时`color`参数表示轮廓线和文字的颜色。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.badge(
+        'Hello',
+        color='red',
+        text_color='green',
+        #outline=True
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+### 41.2 `ui.chat_message`控件（更新中）
+
+`ui.chat_message`控件的参数比较多，也支持较多插槽，因此单开一节介绍。
+
+NiceGUI框架文档：https://nicegui.io/documentation/chat_message
+
+Quasar框架文档：https://quasar.dev/vue-components/chat/
+
+#### 41.2.1 参数
+
+该控件支持以下参数：
+
+- `text`参数，字符串类型或者元素为字符串的列表类型，表示聊天消息的内容。如果为列表，则表示短时间内连续发送的多条消息，会以合并发送者的样式呈现。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.chat_message(
+          text=['Hello','World'],
+          name='Peter'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_41_1](nicegui_pro.assets/2026_41_1.png)
+
+- `name`参数，字符串类型，表示聊天消息发送者的名字。
+
+- `label`参数，字符串类型，表示
+
+- `stamp`参数，字符串类型，表示
+
+- `avatar`参数，字符串类型，表示
+
+- 
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.chat_message(
+        text=['<b>Hello</b>','World'],
+        name='Peter',
+        label='Friday 2026-1-1',
+        stamp='1 minute ago',
+        avatar='/favicon.ico',
+        sent=True,
+        text_html=True,
+        sanitize=False
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 
+#### 41.2.2 插槽
 
+除了“default”插槽之外，该控件还额外支持以下插槽：
+
+- “avatar”插槽，对应聊天消息的头像部分。
+- 
+
+
+
+## 42 （待定）
+
+
+
+## 42 （待定）
 
 
 

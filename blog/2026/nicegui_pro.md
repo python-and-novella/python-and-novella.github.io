@@ -7987,7 +7987,8 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 - `is_deleted`属性，布尔类型，表示控件是否被删除，默认为`False`。
 - `is_ignoring_events`属性，布尔类型，表示控件现在是否忽略所有事件（即不响应事件）。
 - `parent_slot`属性，表示控件所属的插槽。
-- 
+- `slots`属性，表示控件当前拥有的插槽。
+- `tag`属性，表示控件对应的HTML标签的标签名。
 
 该控件支持以下方法：
 
@@ -8184,7 +8185,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
 - `classes`方法，作为方法使用时，用于修改控件的`classes`属性。该方法支持以下参数：
 
-  - `add`参数，字符串类型，表示要给`classes`属性添加的样式类。如果传给该参数的值是使用空格间隔的多个合法变量名，则每个变量名会被当作单独的样式类。比如，传入的是`'a b c'`，会被处理为`'a'`、`;b`、`'c'`三个样式类。下面给几个参数传值时也会执行同样的操作。
+  - `add`参数，字符串类型，表示要给`classes`属性添加的样式类。如果传给该参数的值是使用空格间隔的多个合法变量名，则每个变量名会被当作单独的样式类。比如，传入的是`'a b c'`，会被处理为`'a'`、`'b'`、`'c'`三个样式类。下面给几个参数传值时也会执行同样的操作。
 
   - `remove`参数，字符串类型，表示要从`classes`属性中移除的样式类。
 
@@ -8363,7 +8364,103 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   - `callback`参数，可调用类型，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
 
-- `props`方法，
+- `props`方法，作为方法使用时，用于修改控件的`props`属性。该方法支持以下参数：
+
+  - `add`参数，字符串类型，表示要给`props`属性添加的Quasar控件属性或者HTML属性。如果传给该参数的值是使用空格间隔的多个属性值对（使用“=”连接的属性名及属性值，实际上就是字典的键值对），则每个属性值对会被当作单独的属性值对。比如，传入的是`'a=1 b=2 c=3'`，会被处理为`{'a':1}`、`{'b':2}`、`{'c':3}`三个属性值对。
+
+  - `remove`参数，字符串类型，表示要从`props`属性中移除的Quasar控件属性或者HTML属性。
+
+    从该参数开始，只能通过关键字传入。
+
+- `style`方法，作为方法使用时，用于修改控件的`style`属性。该方法支持以下参数：
+
+  - `add`参数，字符串类型，表示要给`style`属性添加的CSS样式。如果传给该参数的值是使用英文分号间隔的多个CSS样式表达式（使用“:”连接的样式名及值，实际上就是字典的键值对），则每个CSS样式表达式会被当作单独的CSS样式表达式。比如，传入的是`'a:1;b:2;c=3;'`，会被处理为`{'a':1}`、`{'b':2}`、`{'c':3}`三个CSS样式表达式。给`replace`参数传值时也会执行同样的操作。
+
+  - `remove`参数，字符串类型，表示要从`style`属性中移除的CSS样式。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `replace`参数，字符串类型，表示将`style`属性原始的CSS样式完全替换为指定的CSS样式。
+
+- `remove`方法，删除子控件。该方法支持以下参数：
+
+  - `element`参数，`Element`类型或者整数类型，表示要删除的控件或者控件在直接子控件中的位置索引值。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      button = ui.button(
+          'Hello'
+      )
+      with button:
+          button2 = ui.button(
+              'World'
+          )
+      button.remove(
+          button2
+      )
+      # 或者使用索引
+      # button.remove(0)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `run_method`方法，在客户端允许控件支持的JavaScript方法，返回一个可以异步等待的对象。该方法支持以下参数：
+
+  - `name`参数，字符串类型，表示JavaScript方法名。
+  - `*args`参数，任意类型，表示传递给JavaScript方法的参数。注意，该参数为不定参数，支持解包，同时只支持可以转换为JavaScript类型的对象，不是所有Python对象都支持。
+  - `timeout`参数，关键字参数，浮点类型，表示异步等待的超时时间（单位秒），默认为`1`。
+
+  注意，如果需要获取该方法的返回值，就要使用异步等待，这种情况下，只能在异步函数内使用。另外，因为该方法是在客户端执行JavaScript方法，最好先使用`await ui.context.client.connected()`，确保客户端已连接。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      button = ui.button(
+          'Hello',
+          on_click=lambda :print('ok')
+      )
+      await ui.context.client.connected()
+      await button.run_method(
+          'click'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `set_enabled`方法，设置控件的`enabled`属性。该方法支持以下参数：
+
+  - `value`参数，布尔类型，表示`enabled`属性的值。
+
+- `set_icon`方法，设置控件的`icon`属性。该方法支持以下参数：
+
+  - `icon`参数，字符串类型，表示`icon`属性的值。
+
+- `set_text`方法，设置控件的`text`属性。该方法支持以下参数：
+
+  - `text`参数，字符串类型，表示`text`属性的值。
+
+- `set_visibility`方法，设置控件的`visible`属性。该方法支持以下参数：
+
+  - `visible`参数，布尔类型，表示`visible`属性的值。
+
+- `tooltip`方法，为控件添加简单的工具提示。该方法支持以下参数：
+
+  - `text`参数，字符串类型，表示工具提示的内容。
+
+- `update`方法，在客户端刷新控件的显示。
 
 该控件支持以下类方法：
 
@@ -8371,19 +8468,13 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 - `default_props`方法，修改控件`props`属性的默认值。该方法支持的参数参考`props`方法。
 - `default_style`方法，修改控件`style`属性的默认值。该方法支持的参数参考`style`方法。
 
-```python3
-'props', 'remove', 'run_method', 'set_enabled', 'set_icon', 'set_text', 'set_visibility', 'slots', 'style', 'tag', 'tooltip', 'update'
-```
-
-
-
-
-
 ### 40.2 常见问题
 
-`on_click`方法支持链式调用。
+#### 40.2.1 关于响应函数
 
 `on_click`参数和`on_click`方法可以同时使用，对应的响应函数不会被顶替，会同时生效。同样的，多次使用`on_click`方法的话，也是同时生效。
+
+因为`on_click`方法返回的是控件本身，因此，`on_click`方法支持链式调用。链式调用相当于多次调用。
 
 另外，对于任意控件而言，定义了响应函数之后，目前没有方法取消、删除响应函数，除非删除原控件，重新创建控件。
 

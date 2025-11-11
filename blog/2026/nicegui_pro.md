@@ -538,7 +538,7 @@ ui.run(root=index,native=True)
 
 ![2026_3_3](nicegui_pro.assets/2026_3_3.png)
 
-简单来说，插槽可以看作是一个控件中可以插入其他控件的位置，而不少控件有多个插槽，“default”插槽就是默认状态的控件。如果想要在其他插槽中插入其他控件，则要使用`add_slot`方法，指定具体插槽。以输入框控件（具体参考https://quasar.dev/vue-components/input）为例：
+简单来说，插槽可以看作是一个控件中可以插入其他控件的位置，“default”插槽就是默认状态的控件。而不少控件有多个插槽，如果想要在其他插槽中插入其他控件，则要使用`add_slot`方法，指定具体插槽。以输入框控件（具体参考https://quasar.dev/vue-components/input）为例：
 
 ```python3
 from nicegui import ui
@@ -8717,7 +8717,7 @@ Quasar框架文档：https://quasar.dev/vue-components/chat/
 
 - `name`参数，字符串类型，表示聊天消息发送者的名字。
 
-- `label`参数，字符串类型，表示
+- `label`参数，字符串类型，表示---
 
 - `stamp`参数，字符串类型，表示
 

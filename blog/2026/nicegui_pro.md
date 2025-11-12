@@ -8569,7 +8569,7 @@ ui.run(
 
 ![2026_40_5](nicegui_pro.assets/2026_40_5.png)
 
-## 41 学习控件——显示简单文本（更新中）
+## 41 学习控件——显示简单文本
 
 `ui.button`控件讲得那么细，是因为很多方法、属性是第一次介绍。接下来，就不会重复这些内容，只会详细介绍控件独特的方法、属性，以及控件的参数，避免内容单调重复。
 
@@ -8682,7 +8682,7 @@ ui.run(
 )
 ```
 
-### 41.2 `ui.chat_message`控件（更新中）
+### 41.2 `ui.chat_message`控件
 
 `ui.chat_message`控件的参数比较多，也支持较多插槽，因此单开一节介绍。
 
@@ -8717,13 +8717,19 @@ Quasar框架文档：https://quasar.dev/vue-components/chat/
 
 - `name`参数，字符串类型，表示聊天消息发送者的名字。
 
-- `label`参数，字符串类型，表示---
+- `label`参数，字符串类型，表示在整个聊天消息区域最上方中间的内容，常用于显示日期之类的信息。
 
-- `stamp`参数，字符串类型，表示
+- `stamp`参数，字符串类型，表示消息对应的时间戳，显示在聊天气泡内。
 
-- `avatar`参数，字符串类型，表示
+- `avatar`参数，字符串类型，表示消息发送者头像的路径。
 
-- 
+- `sent`参数，布尔类型，表示消息的发送者是当前用户还是其他用户，默认为`False`。`True`表示发送者是当前用户，发送者的头像在消息右侧；`False`表示发送者是其他用户，发送者的头像在消息左侧。
+
+- `text_html`参数，布尔类型，表示是否允许渲染消息内容中的HTML标签，默认为`False`。
+
+- `sanitize`参数，布尔类型或者可调用类型，表示`text_html`参数为`True`时，是否强制过滤`text`参数中的注入攻击。可调用类型表示过滤的方法，同时启用强制过滤。
+
+  官方建议给该值传入`Sanitizer().sanitize`（使用`from html_sanitizer import Sanitizer`导入，需要安装`html-sanitizer`库），但本教程因为默认没有安装`html-sanitizer`库，所以给该参数传入了`False`，禁用了安全过滤功能。但读者在实际使用时，请**不要**这样做。
 
 示例如下：
 
@@ -8748,26 +8754,160 @@ ui.run(
 )
 ```
 
-
+![2026_41_2](nicegui_pro.assets/2026_41_2.png)
 
 #### 41.2.2 插槽
 
+对于“default”插槽，如果插入多个控件，则每个控件都会当作一条信息，但发送者是同一人：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.chat_message(
+        avatar='/favicon.ico'
+    ):
+        ui.html('<b>Hello</b>',sanitize=False)
+        ui.label('World')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_41_3](nicegui_pro.assets/2026_41_3.png)
+
 除了“default”插槽之外，该控件还额外支持以下插槽：
 
-- “avatar”插槽，对应聊天消息的头像部分。
-- 
+- “avatar”插槽，对应`avatar`参数的部分。
+- “name”插槽，对应`name`参数的部分。
+- “stamp”插槽，对应`stamp`参数的部分。
+- “label”插槽，对应`label`参数的部分。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.chat_message() as msg:
+        ui.html('<b>Hello</b>',sanitize=False)
+        ui.label('World')
+    with msg.add_slot('avatar'):
+        ui.spinner().classes('w-8 h-8')
+    with msg.add_slot('name'):
+        ui.html('<b>P</b>eter',sanitize=False)
+    with msg.add_slot('stamp'):
+        ui.html('<b>1</b> minute ago',sanitize=False)
+    with msg.add_slot('label'):
+        ui.link('refresh','/')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_41_4](nicegui_pro.assets/2026_41_4.png)
+
+## 42 学习控件——渲染格式文本（更新中）
+
+有些格式文本会在渲染之后显示，显示出来的不是文本原文，而是特定的内容，比如下面的控件：
+
+- `ui.markdown`控件，可以渲染使用Markdown语法的文本。
+- `ui.restructured_text`控件，可以渲染使用RST语法（规则类似Markdown，但比较复杂且不如Markdown应用范围广）的文本。
+- `ui.mermaid`控件，可以将使用Mermaid语法的文本渲染为流程图。
+- `ui.code`控件，可以渲染代码的语法高亮。
+- `ui.log`控件，可以逐条显示日志内容。如果推送日志时额外指定了样式，则该条日志会被渲染为对应样式。
+- `ui.xterm`控件，可以使用Xterm终端渲染包含ANSI控制符的内容。
+
+### 42.1 `ui.markdown`控件（更新中）
 
 
 
-## 42 （待定）
 
 
 
-## 42 （待定）
 
 
 
-## 42 （待定）
+## 43 学习控件——按钮（更新中）
+
+在NiceGUI中，按钮相关的控件最多，除了前面已经介绍过的`ui.button`控件，还有以下控件：
+
+- `ui.button_group`控件，用于将多个普通按钮组合成一个外观上是单个按钮、功能上每个按钮都可以点击的巨大按钮。
+- `ui.dropdown_button`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容。点击右侧图标，即可弹出嵌入的内容。
+- `ui.fab`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容（建议嵌入`ui.fab_action`控件）。点击控件，即可弹出嵌入的内容。
+- `ui.chip`控件，本身具备按钮功能，还支持选择、删除自身。
+
+### 43.1 `ui.button_group`控件（更新中）
+
+
+
+
+
+
+
+## 44 学习控件——选择（更新中）
+
+想要获取用户的选择，可以使用下面的控件：
+
+- `ui.radio`控件，提供了只能单选的多个选项。
+- `ui.toggle`控件，用法和`ui.radio`控件一样，不同的是，该控件看上去更像一个可以点击切换选项的按钮。
+- `ui.select`控件，需要点击控件才能看到所有选项，允许单选、多选。
+- `ui.checkbox`控件，点击之后可以切换选项选择状态，可用于组成多选的选项，也可以像一个开关一样单独使用。
+- `ui.switch`控件，用法和`ui.checkbox`控件一样，不同的是，该控件看上去更像一个可以点击切换状态的开关。
+
+
+
+
+
+## 45 学习控件——直接输入（更新中）
+
+除了让用户点击控件，从给定的选项中选择，还可以使用下面的控件，让用户直接输入：
+
+- `ui.input`控件，就是一个输入框，用户可以通过键盘输入任何内容。
+- `ui.number`控件，外观、用法与`ui.input`控件基本相同，但该控件只允许输入数字，并提供了额外的按钮，用于快捷调整数字。
+- `ui.input_chips`控件，外观、用法与`ui.input`控件基本相同，但该控件可以在按下`Enter`键之后将当前输入的内容转换为`ui.chip`控件，并支持继续转换后续输入的内容。当然，也可以在创建该控件时传入一个元素为字符串的列表，作为默认已经转换的`ui.chip`控件。
+- `ui.color_input`控件，外观、用法与`ui.input`控件基本相同，但该控件主要用于获取具体颜色的表示方式，并提供了额外的按钮，用于弹出调色盘，用户的选择转换为颜色表达式。
+- `ui.textarea`控件，允许用户输入多行内容。
+- `ui.editor`控件，允许用户输入多行内容，同时该控件提供了一些设置内容格式的按钮。
+- `ui.codemirror`控件，允许用户输入多行代码，并使用指定的编程语言语法高亮渲染输入的内容。
+- `ui.json_editor`控件，允许用户输入JSON格式的内容，并自动验证输入的内容是否符合语法。
+
+
+
+
+
+## 46 学习控件——间接输入（更新中）
+
+有些用户输入可以直接获取，有些用户“输入”则需要通过下面的控件转换之后才能获取：
+
+- `ui.slider`控件，用户拖动滑块之后，将滑块位置转换为具体数值。
+- `ui.range`控件，和`ui.slider`控件类似，用户拖动滑块之后，将滑块位置转换为具体数值。不过，与`ui.slider`控件不同的是，该控件有两个滑块，得到的是两个数值，即两个滑块所代表的范围值。
+- `ui.knob`控件，用法上和`ui.slider`控件类似（参数不完全一样），只不过外观上是一个旋钮。
+- `ui.rating`控件，用法上和`ui.slider`控件类似（参数不完全一样），但最小值是固定的，外观上就是常见的评分控件，通过点击确定具体数值。
+- `ui.color_picker`控件，用于弹出调色盘，让用户选择颜色。
+- `ui.upload`控件，让用户上传文件。
+- `ui.joystick`控件，提供一个虚拟的摇杆，捕获用户操作摇杆的具体动作。
+- `ui.date`控件，让用户选择日期。
+- `ui.time`控件，让用户选择时间。
+
+
+
+## 47 学习控件——显示图片（更新中）
+
+在NiceGUI程序中，想要显示图形，通常使用下面的控件：
+
+- `ui.image`控件，简单显示提供的图片。
+- `ui.interactive_image`控件，在显示图片的基础上，提供了额外的内容和交互功能。
+
+
+
+
+
+## 44 （待定）
 
 
 
@@ -8872,48 +9012,3 @@ ui.run(native=True)
 
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
 
-
-
-1，使用`for`遍历控件，可以得到控件的子控件：
-
-```python3
-from nicegui import ui
-
-def index():
-    button = ui.button('Hello')
-    with button:
-        ui.button('ok')
-    for i in button:
-        print(i)
-    print([str(i) for i in button.slots['default']])
-ui.run(
-    root=index,
-    native=True
-)
-```
-
-
-
-
-
-## NiceGUI札记（2027）
-
-2026版内容更新完之后，将本章的标题改为一级标题，并将后续内容存放到`2027`文件夹内的同名文件中。
-
-## NiceGUI札记2027版——更新计划
-
-（先表达教程深受读者喜爱，不少章节的热度远超其他章节甚至其他教程，感谢读者的支持。然后开始说之前更新的内容因为之后版本更新加上受限于当时的能力，在版本更新之后，有不少章节存在错误或者遗漏。而且，很多控件还没介绍或者介绍得不完全。于是，2027年，除了继续介绍控件、补充控件的其他用法之外，还要根据版本更新的内容，补充遗漏、修正错误，让读者始终走在版本更新的第一线，不会因为内容陈旧而停下脚步，为版本更新付出太多学习的时间。）
-
-## 51 （待定）
-
-
-
-
-
-## x 创作要点
-
-前面系统性介绍基础知识和相关概念，并附上简单的示例，免费发布。
-
-后面针对相关方法、类的具体参数和用法收费发布，内容详细，至少一千字，收费1豆起，最多9豆。
-
-后面具体问题的分析、解决代码大部分收费，少部分免费发布，用于维持热度。

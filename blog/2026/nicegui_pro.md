@@ -30,12 +30,12 @@ NiceGUI（官网https://nicegui.io/）是一款优秀的WebUI、GUI框架，只�
 
 NiceGUI还提供了一些可选的依赖：
 
-- `pywebview`库，以Native Mode（窗口模式）运行NiceGUI程序时依赖该库，使用`uv add nicegui[native]`命令添加。
-- `plotly`库，`ui.plotly`控件依赖该库，使用`uv add nicegui[plotly]`命令添加。
-- `matplotlib`库，`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
-- `nicegui-highcharts`库，`ui.highchart`控件依赖该库，使用`uv add nicegui[highcharts]`命令添加。
-- `libsass`库，`ui.add_sass`方法和`ui.add_scss`方法依赖该库，使用`uv add nicegui[sass]`命令添加。
-- `redis`库，使用Redis存储`app.storage`时（定义环境变量`NICEGUI_REDIS_URL`）依赖该库，使用`uv add nicegui[redis]`命令添加。
+1. `pywebview`库，以Native Mode（窗口模式）运行NiceGUI程序时依赖该库，使用`uv add nicegui[native]`命令添加。
+2. `plotly`库，`ui.plotly`控件依赖该库，使用`uv add nicegui[plotly]`命令添加。
+3. `matplotlib`库，`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
+4. `nicegui-highcharts`库，`ui.highchart`控件依赖该库，使用`uv add nicegui[highcharts]`命令添加。
+5. `libsass`库，`ui.add_sass`方法和`ui.add_scss`方法依赖该库，使用`uv add nicegui[sass]`命令添加。
+6. `redis`库，使用Redis存储`app.storage`时（定义环境变量`NICEGUI_REDIS_URL`）依赖该库，使用`uv add nicegui[redis]`命令添加。
 
 如果想要将虚拟环境中的所有库升级至最新稳定版，可以使用`uv sync -U`。
 
@@ -130,13 +130,15 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
   def index():
       ui.button('Hello')
   
-  ui.run(root=index)
+  ui.run(
+      root=index
+  )
   ```
 
   代码看上去有点像脚本模式，但是，相比于不用函数打包的脚本模式，单页面模式可以自由定义“主页面”其他部分的创建顺序。
 
   比如，想要在当前内容的前面添加一些文字作为标题，如果是脚本模式，只能这样写：
-
+  
   ```python3
   from nicegui import ui
   
@@ -147,7 +149,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
   ```
 
   单页面模式的话，可以将添加的部分打包到函数中，提前使用，最后定义具体内容：
-
+  
   ```python3
   from nicegui import ui
   
@@ -158,9 +160,11 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
   def title():
       ui.label('标题')
   
-  ui.run(root=index)
+  ui.run(
+      root=index
+  )
   ```
-
+  
   ![2026_2_1](nicegui_pro.assets/2026_2_1.png)
 
 需要注意的是，三种构建模式，只能同时使用一种，不能同时使用两种。即一旦使用了`ui.page`创建页面（多页面模式），就不能在页面之外创建控件（脚本模式），也不能使用`ui.run`的`root`参数（单页面模式），否则会报错、代码异常、显示异常，其他构建模式亦是如此。
@@ -201,7 +205,9 @@ def b():
     ui.link('Page Main','/')
     ui.link('Page A','/a')
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 可能读者实际运行代码之后，会产生一个疑问：既然效果与多页面模式相同，那为何不直接使用多页面模式？
@@ -349,7 +355,10 @@ def index():
 def title():
     ui.label('标题')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_2_4](nicegui_pro.assets/2026_2_4.png)
@@ -382,7 +391,11 @@ ui.run_with(
     app=fast_app,
 )
 
-uvicorn.run(app=fast_app,host='127.0.0.1',port=80)
+uvicorn.run(
+    app=fast_app,
+    host='127.0.0.1',
+    port=80
+)
 ```
 
 也可以将NiceGUI程序挂载到指定的路径：
@@ -413,7 +426,11 @@ ui.run_with(
     mount_path='/gui' 
 )
 
-uvicorn.run(app=fast_app,host='127.0.0.1',port=80)
+uvicorn.run(
+    app=fast_app,
+    host='127.0.0.1',
+    port=80
+)
 ```
 
 ### 2.6 退出程序
@@ -439,7 +456,10 @@ def index():
     ui.label('标题')
     ui.button('Hello')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 除了不分配变量的用法，对于某些需要重复使用的控件，想要在后续代码中访问这些控件的属性、方法的话，则要给这些控件分配变量。因为每次实例化都是创建一个控件，即使是相同类型的控件，重复实例化也是重复创建：
@@ -453,14 +473,17 @@ def index():
     ui.button('World')
     button.disable()
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_3_1](nicegui_pro.assets/2026_3_1.png)
 
 ### 3.2 `with`的技巧
 
-NiceGUI本质上是一个基于Quasar框架实现的网页框架，很多控件也都是网页控件。如果读者熟悉网页，知道网页的元素可以多重嵌套，进而实现复杂的效果。当然，读者不熟悉也没关系，可以将控件想象成一个盒子，盒子里可以装另一个盒子，控件也一样。
+NiceGUI本质上是一个基于Quasar框架实现的网页框架，很多控件也都是网页控件。如果读者熟悉网页的话，应该知道网页的元素可以多重嵌套，进而实现复杂的布局。当然，读者不熟悉也没关系，可以将控件想象成一个盒子，盒子里可以装另一个盒子，控件也一样。
 
 对于NiceGUI的控件来说，想要在控件中嵌入另一个控件，只需使用上下文管理器进入控件的上下文，在上下文中创建其他控件，相当于在控件内嵌入其他控件：
 
@@ -471,7 +494,10 @@ def index():
     with ui.button('Hello'):
         ui.button('World')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_3_2](nicegui_pro.assets/2026_3_2.png)
@@ -486,7 +512,10 @@ def index():
         with ui.button('World'):
             ui.button('!')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 或者使用一个`with`，后接英文逗号分隔的多个对象，同样表示嵌套多层（和上个示例效果一样）：
@@ -513,7 +542,10 @@ def index():
     with ui.button('Hello') as button4, ui.button('World') as button5:
         ui.button('!')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 请牢记这些技巧，后续使用具体控件时，这些都是基本操作。
@@ -533,7 +565,10 @@ def index():
     with ui.input('Name').add_slot('default'):
         ui.button('Ok')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_3_3](nicegui_pro.assets/2026_3_3.png)
@@ -550,7 +585,10 @@ def index():
     with my_input.add_slot('after'):
         ui.button('Next')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 可以在输入框控件前后分别添加不同的按钮：
@@ -570,7 +608,10 @@ def index():
     for i in range(4):
         ui.button(i)
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_3_5](nicegui_pro.assets/2026_3_5.png)
@@ -582,9 +623,17 @@ from nicegui import ui
 
 def index():
     for i in range(4):
-        ui.button(i,on_click=lambda :ui.notify(i))
+        ui.button(
+            i,
+            on_click=lambda :ui.notify(
+                i
+            )
+        )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_3_6](nicegui_pro.assets/2026_3_6.png)
@@ -603,7 +652,9 @@ ui.run(root=index,native=True)
 funcs = []
 
 for i in range(4):
-    funcs.append(lambda:print(i))
+    funcs.append(
+        lambda:print(i)
+    )
 
 for func in funcs:
     func()
@@ -624,7 +675,9 @@ for func in funcs:
 funcs = []
 
 for i in range(4):
-    funcs.append(lambda x=i:print(x))
+    funcs.append(
+        lambda x=i:print(x)
+    )
 
 for func in funcs:
     func()
@@ -648,9 +701,17 @@ from nicegui import ui
 
 def index():
     for i in range(4):
-        ui.button(i,on_click=lambda x=i:ui.notify(x))
+        ui.button(
+            i,
+            on_click = lambda x=i:ui.notify(
+                x
+            )
+        )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ## 4 修改样式
@@ -676,10 +737,15 @@ from nicegui import ui
 
 def index():
     button = ui.button('Hello')
-    button.style('color:red!important')
+    button.style(
+        'color:red!important'
+    )
     button.style['background'] = 'green!important'
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_4_1](nicegui_pro.assets/2026_4_1.png)
@@ -693,11 +759,16 @@ from nicegui import ui
 
 def index():
     button = ui.button('Hello')
-    button.props('color text-color')
+    button.props(
+        'color text-color'
+    )
     button.style('color:red')
     button.style['background'] = 'green'
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_4_1](nicegui_pro.assets/2026_4_1.png)
@@ -711,10 +782,17 @@ from nicegui import ui
 
 def index():
     label = ui.label('Hello')
-    label.classes('bg-yellow-400')
-    label.classes.append('text-blue-600')
+    label.classes(
+        'bg-yellow-400'
+    )
+    label.classes.append(
+        'text-blue-600'
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_4_2](nicegui_pro.assets/2026_4_2.png)
@@ -754,10 +832,17 @@ from nicegui import ui
 
 def index():
     button = ui.button('Hello')
-    button.props('color text-color')
-    button.classes('bg-red-700 text-green-700')
+    button.props(
+        'color text-color'
+    )
+    button.classes(
+        'bg-red-700 text-green-700'
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_4_4](nicegui_pro.assets/2026_4_4.png)
@@ -768,10 +853,17 @@ ui.run(root=index,native=True)
 from nicegui import ui
 
 def index():
-    ui.button('Hello').classes('!bg-red-700 !text-green-700')
-    ui.button('World').classes('bg-red-700! text-green-700!')
+    ui.button('Hello').classes(
+        '!bg-red-700 !text-green-700'
+    )
+    ui.button('World').classes(
+        'bg-red-700! text-green-700!'
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_4_5](nicegui_pro.assets/2026_4_5.png)
@@ -785,10 +877,15 @@ from nicegui import ui
 
 def index():
     button = ui.button('Hello')
-    button.props('text-color=green')
+    button.props(
+        'text-color=green'
+    )
     button.props['color'] = 'red'
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_4_6](nicegui_pro.assets/2026_4_6.png)
@@ -813,10 +910,15 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
   def index():
       ui.button(
           'Hello',
-          on_click = lambda :ui.notify('Hello')
+          on_click = lambda :ui.notify(
+              'Hello'
+          )
       )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
 - “on”开头的方法。比如`ui.button`按钮控件的`on_click`方法，该方法的参数为可调用对象。
@@ -830,10 +932,15 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
       ui.button(
           'Hello'
       ).on_click(
-          lambda :ui.notify('Hello')
+          lambda :ui.notify(
+              'Hello'
+          )
       )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
 - `on`方法。效果类似“on”开头的方法，但该方法的第一个参数为事件类型，可以定义任意JavaScript中支持的事件类型。比如，`on_click`方法，效果等于`on`方法的第一个参数为`'click'`。
@@ -848,10 +955,15 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
           'Hello'
       ).on(
           'click',
-          lambda :ui.notify('Hello')
+          lambda :ui.notify(
+              'Hello'
+          )
       )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
 ### 5.2 响应NiceGUI程序的事件
@@ -862,18 +974,29 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
 
 ```python3
 from nicegui import ui,app
-app.on_disconnect(app.shutdown)
+app.on_disconnect(
+    app.shutdown
+)
 
 def index():
     ui.button(
         'Hello'
     ).on(
         'click',
-        lambda :ui.notify('Hello')
+        lambda :ui.notify(
+            'Hello'
+        )
     )
 
-app.on_startup(lambda :print('程序已启动……'))
-ui.run(root=index,native=True)
+app.on_startup(
+    lambda :print(
+        '程序已启动……'
+    )
+)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 注意，因为在Windows下，直接关闭窗口不会自动退出NiceGUI程序，代码中使用了`app.on_disconnect(app.shutdown)`实现关闭窗口后自动退出程序，这是一个临时解决方法，且仅适用于窗口模式。如果后续示例中，读者想要实现同样效果，可以自行添加该代码，笔者写相关示例时不再特意添加。
@@ -907,14 +1030,29 @@ def update_shared_value(x):
 
 def index():
     # 订阅信号，更新全局变量，以便于新打开的页面自动使用该值作为初始值
-    signal_obj.subscribe(update_shared_value)
-    input = ui.input(value=shared_value)
+    signal_obj.subscribe(
+        update_shared_value
+    )
+    input = ui.input(
+        value=shared_value
+    )
     # 订阅信号
-    signal_obj.subscribe(lambda x:input.set_value(x))
+    signal_obj.subscribe(
+        lambda x:input.set_value(
+            x
+        )
+    )
     # 发射信号
-    input.on_value_change(lambda :signal_obj.emit(input.value))
+    input.on_value_change(
+        lambda :signal_obj.emit(
+            input.value
+        )
+    )
 
-ui.run(root=index,port=80)
+ui.run(
+    root=index,
+    port=80
+)
 ```
 
 在运行代码之后，可以在浏览器中打开多个标签页，地址为`http://127.0.0.1/`，在任意一个标签页中输入框内输入内容，其他标签页中输入框的内容会自动同步。
@@ -934,15 +1072,24 @@ def update_shared_value(x):
     shared_value=x
 
 def index():
-    input = ui.input(value=shared_value)
+    input = ui.input(
+        value=shared_value
+    )
     # 订阅信号
     @signal_obj.subscribe
     def update(x):
         input.set_value(x)
     # 发射信号
-    input.on_value_change(lambda :signal_obj.emit(input.value))
+    input.on_value_change(
+        lambda :signal_obj.emit(
+            input.value
+        )
+    )
 
-ui.run(root=index,port=80)
+ui.run(
+    root=index,
+    port=80
+)
 ```
 
 ## 6 绑定属性
@@ -970,10 +1117,15 @@ def index():
     )
     ui.button(
         '显示',
-        on_click = lambda :ui.notify(data_class.value)
+        on_click = lambda :ui.notify(
+            data_class.value
+        )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ## 7 刷新控件
@@ -990,7 +1142,9 @@ from nicegui import ui
 def index():
     my_label = ui.label('')
     my_input = ui.input('输入')
-    my_input.bind_value(my_label,'text')  
+    my_input.bind_value(
+        my_label,
+        'text')  
 
 ui.run(root=index,native=True)
 ```
@@ -1871,6 +2025,7 @@ ui.run(root=index,native=True)
 - `ui.left_drawer`左抽屉控件，对应位置为左抽屉，即主内容区域的左边，该区域的隐藏状态支持动态切换。
 - `ui.right_drawer`右抽屉控件，对应位置为右抽屉，即主内容区域的右边，该区域的隐藏状态支持动态切换。
 - `ui.page_sticky`便签控件，对应位置在主内容区域的八个边角。
+- `ui.page_scroller`页面快速滚动控件，对应位置和`ui.page_sticky`便签控件一样在主内容区域的八个边角。
 
 它们的位置关系如下：
 
@@ -1882,7 +2037,7 @@ ui.run(root=index,native=True)
 from nicegui import ui
 
 def index():
-    ui.label('主内容')
+    ui.label('主内容').classes('h-screen')
     with ui.header():
         ui.label('页头')
     with ui.footer():
@@ -1893,8 +2048,17 @@ def index():
         ui.label('右抽屉')
     with ui.page_sticky():
         ui.button('便签')
+    with ui.page_scroller(
+        position='top-right',
+        scroll_offset=10,
+        reverse=True
+    ):
+        ui.button('到底部')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_14_2](nicegui_pro.assets/2026_14_2.png)
@@ -2164,6 +2328,8 @@ ui.run(root=index,native=True)
 - `ui.joystick`控件，提供一个虚拟的摇杆，捕获用户操作摇杆的具体动作。
 - `ui.date`控件，让用户选择日期。
 - `ui.time`控件，让用户选择时间。
+- `ui.date`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
+- `ui.time`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
 
 示例如下：
 
@@ -2201,8 +2367,13 @@ def index():
     )
     ui.date('2026-01-01')
     ui.time('20:26')
+    ui.date_input(value='2026-01-01')
+    ui.time_input(value='20:26')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_8](nicegui_pro.assets/2026_15_8.png)
@@ -3254,7 +3425,9 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   
   ui.button('Test')
   
-  ui.run(native=True)
+  ui.run(
+    native=True
+  )
   ```
 
 - `NICEGUI_STORAGE_PATH`，默认为`'.nicegui'`，表示使用`app.storage`时，需要在服务器磁盘存储数据的空间，具体使用哪个位置，默认为运行命令时当前路径下的`.nicegui`文件夹。
@@ -3280,7 +3453,9 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   ui.label(f'MARKDOWN_CONTENT_CACHE_SIZE is {markdown.prepare_content.cache_info().maxsize}')
   ui.label(f'RST_CONTENT_CACHE_SIZE is {restructured_text.prepare_content.cache_info().maxsize}')
   
-  ui.run(native=True)
+  ui.run(
+      native=True
+  )
   ```
 
 ## 17 创建自定义控件
@@ -3411,7 +3586,9 @@ def index():
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 ![2026_17_3](nicegui_pro.assets/2026_17_3.png)
@@ -3444,7 +3621,9 @@ def index():
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 多页面模式，加载相关文件和初始化代码在全局作用域，并且建议这样放置：
@@ -3667,7 +3846,9 @@ def index():
         f'{os.path.dirname(os.path.abspath(__file__))}/LOGO.png'
     ).classes('w-64 h-64')
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 ![2026_18_1](nicegui_pro.assets/2026_18_1.png)
@@ -3686,7 +3867,9 @@ def index():
     ).classes('w-64 h-64')
     ui.link('pic',img.auto_route)
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 `ui.audio`控件、`ui.video`控件也有`auto_route`属性。
@@ -3713,7 +3896,9 @@ def index():
         src
     ).classes('w-64 h-64')
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 ![2026_18_2](nicegui_pro.assets/2026_18_2.png)
@@ -3746,7 +3931,9 @@ def index():
         src
     ).classes('w-64 h-64')
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 ![2026_18_3](nicegui_pro.assets/2026_18_3.png)
@@ -3780,7 +3967,9 @@ def index():
     ui.video('/video1')
     ui.video('/video2')
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 通常情况下，`app.add_static_file`方法得到的视频文件地址，在播放器中没法自由拖动进度条，只能跳转到关键帧。`app.add_media_file`方法得到的视频文件地址，在播放器中和正常播放一样，可以自由拖动进度条。但是，大多数服务器、浏览器、播放器有优化，实际上两种方法得到的视频地址都可以正常播放、拖动进度条，只有某些要求严格的接口、播放程序才会有区别。一般建议读者使用`app.add_media_file`方法添加媒体文件，以免特定情况下出现不兼容的问题。
@@ -4117,7 +4306,9 @@ with ui.card():
     ui.label('label B_A')
     ui.label('label B_B')
 
-ui.run(native=True)
+ui.run(
+    native=True
+)
 ```
 
 #### 20.3.1 初始化方法
@@ -5468,7 +5659,9 @@ def index(request:Request):
             for _ in range(amount)
         ]
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 ## 31 对话框背景模糊
@@ -5521,7 +5714,9 @@ with ui.button('Item').classes('w-96') as button:
     icon.on('click',js_handler='(e)=>{e.stopPropagation()}')
     icon.on('click',lambda :ui.notify('icon'))
     
-ui.run(native=True)
+ui.run(
+    native=True
+)
 ```
 
 ![2026_32_1](nicegui_pro.assets/2026_32_1.gif)
@@ -5550,7 +5745,9 @@ def index():
         }'''
     )
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 ## 33 自定义错误页面
@@ -6504,7 +6701,9 @@ ui.run(
         on_click=open_dialog
     )
     
-    ui.run(native=True)
+    ui.run(
+        native=True
+    )
     ```
 
     ![2026_35_5](nicegui_pro.assets/2026_35_5.png)
@@ -6769,7 +6968,9 @@ def b():
     ui.link('Page A', '/a')
 
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 ![2026_36_2](nicegui_pro.assets/2026_36_2.png)
@@ -7045,7 +7246,9 @@ def b():
     ui.link('Page A', '/a')
 
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 再往前，初次介绍单页面应用的章节中，脚本模式的单页面应用示例也没有这一行代码，也可以访问`http://127.0.0.1:8080/b`直达子页面：
@@ -7169,7 +7372,9 @@ def page1():
     ui.label('page1（子页面）的内容')
     ui.link('回到/（子页面）', '/')
 
-ui.run(root=index)
+ui.run(
+    root=index
+)
 ```
 
 结果如下表所示：
@@ -8893,6 +9098,8 @@ ui.run(
 - `ui.joystick`控件，提供一个虚拟的摇杆，捕获用户操作摇杆的具体动作。
 - `ui.date`控件，让用户选择日期。
 - `ui.time`控件，让用户选择时间。
+- `ui.date`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
+- `ui.time`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
 
 
 
@@ -8902,6 +9109,21 @@ ui.run(
 
 - `ui.image`控件，简单显示提供的图片。
 - `ui.interactive_image`控件，在显示图片的基础上，提供了额外的内容和交互功能。
+
+
+
+## 48 学习控件——页面的特殊区域（更新中）
+
+页面除了主内容区域外，还有一些特殊的区域，可以自由添加控件。这些区域的位置都是固定的，并且创建（使用）这些区域并不会影响这些区域的实际位置。
+
+特殊区域相关的控件与其对应位置为：
+
+- `ui.header`页头控件，对应位置为页头，即主内容区域的上方。
+- `ui.footer`页脚控件，对应位置为页脚，即主内容区域的下方。
+- `ui.left_drawer`左抽屉控件，对应位置为左抽屉，即主内容区域的左边，该区域的隐藏状态支持动态切换。
+- `ui.right_drawer`右抽屉控件，对应位置为右抽屉，即主内容区域的右边，该区域的隐藏状态支持动态切换。
+- `ui.page_sticky`便签控件，对应位置在主内容区域的八个边角。
+- `ui.page_scroller`页面快速滚动控件，对应位置和`ui.page_sticky`便签控件一样在主内容区域的八个边角。
 
 
 
@@ -8934,7 +9156,9 @@ with ui.row().classes('w-full items-center'):
                 toggle = ui.toggle(['fastfood', 'cake', 'icecream'], value='fastfood')
     icon.bind_name_from(toggle, 'value').bind_visibility_from(switch,'value')
 
-ui.run(native=True)
+ui.run(
+    native=True
+)
 ```
 
 ![ui_menu_2](nicegui_pro.assets/ui_menu_2.png)
@@ -8947,7 +9171,7 @@ ui.run(native=True)
 
 #### 3.9.14 `ui.tooltip`补充（2025.01.21更新）
 
-对于像`ui.html`、`ui.markdown`、`ui.upload`等不支持添加`tooltip`的元素，可以使用`ui.element`包装来间接实现：
+对于像`ui.html`、`ui.markdown`、`ui.upload`、`ui.table`等不支持添加`tooltip`的元素，可以使用`ui.element`包装来间接实现：
 
 ```python3
 from nicegui import ui
@@ -8955,7 +9179,9 @@ from nicegui import ui
 with ui.element().tooltip('...with a tooltip!'):
     ui.html('This is <u>HTML</u>...')
 
-ui.run(native=True)
+ui.run(
+    native=True
+)
 ```
 
 `tooltip`里除了显示一般的文本，还可以显示图像等其他内容。不过，不建议在`tooltip`内放置需要交互的内容，因为被添加`tooltip`的控件一旦失去焦点，`tooltip`就会消失，里面的交互内容永远无法交互：
@@ -8967,7 +9193,9 @@ with ui.label('Mountains...'):
     with ui.tooltip().classes('bg-transparent'):
         ui.image('https://picsum.photos/id/377/640/360').classes('w-64')
 
-ui.run(native=True)
+ui.run(
+    native=True
+)
 ```
 
 ![ui_tooltip_2](nicegui_pro.assets/ui_tooltip_2.png)
@@ -8986,7 +9214,9 @@ for i in button:
     if isinstance(i,ui.tooltip):
         i.classes('bg-green')
 
-ui.run(native=True)
+ui.run(
+    native=True
+)
 ```
 
 也可以使用`ElementFilter`方法，简单快捷地设置控件内部的`tooltip`：
@@ -9003,7 +9233,9 @@ button.tooltip('I like this')
 with button:
     ElementFilter(kind=ui.tooltip,local_scope=True).classes('bg-green')
 
-ui.run(native=True)
+ui.run(
+    native=True
+)
 ```
 
 

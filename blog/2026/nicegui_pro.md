@@ -30,12 +30,12 @@ NiceGUI（官网https://nicegui.io/）是一款优秀的WebUI、GUI框架，只�
 
 NiceGUI还提供了一些可选的依赖：
 
-1. `pywebview`库，以Native Mode（窗口模式）运行NiceGUI程序时依赖该库，使用`uv add nicegui[native]`命令添加。
-2. `plotly`库，`ui.plotly`控件依赖该库，使用`uv add nicegui[plotly]`命令添加。
-3. `matplotlib`库，`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
-4. `nicegui-highcharts`库，`ui.highchart`控件依赖该库，使用`uv add nicegui[highcharts]`命令添加。
-5. `libsass`库，`ui.add_sass`方法和`ui.add_scss`方法依赖该库，使用`uv add nicegui[sass]`命令添加。
-6. `redis`库，使用Redis存储`app.storage`时（定义环境变量`NICEGUI_REDIS_URL`）依赖该库，使用`uv add nicegui[redis]`命令添加。
+- `pywebview`库，以Native Mode（窗口模式）运行NiceGUI程序时依赖该库，使用`uv add nicegui[native]`命令添加。
+- `plotly`库，`ui.plotly`控件依赖该库，使用`uv add nicegui[plotly]`命令添加。
+- `matplotlib`库，`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
+- `nicegui-highcharts`库，`ui.highchart`控件依赖该库，使用`uv add nicegui[highcharts]`命令添加。
+- `libsass`库，`ui.add_sass`方法和`ui.add_scss`方法依赖该库，使用`uv add nicegui[sass]`命令添加。
+- `redis`库，使用Redis存储`app.storage`时（定义环境变量`NICEGUI_REDIS_URL`）依赖该库，使用`uv add nicegui[redis]`命令添加。
 
 如果想要将虚拟环境中的所有库升级至最新稳定版，可以使用`uv sync -U`。
 
@@ -1146,7 +1146,10 @@ def index():
         my_label,
         'text')  
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_7_1](nicegui_pro.assets/2026_7_1.png)
@@ -1165,7 +1168,10 @@ def index():
         on_click=update_input
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_7_2](nicegui_pro.assets/2026_7_2.png)
@@ -1188,7 +1194,10 @@ def index():
         on_click=update_ratio
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_7_3](nicegui_pro.assets/2026_7_3.png)
@@ -1211,7 +1220,10 @@ def index():
         on_click=update_ratio
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ### 7.2 创建可刷新方法
@@ -1249,7 +1261,10 @@ def index():
     )
     my_input.on_value_change(rebuild)
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_7_4](nicegui_pro.assets/2026_7_4.png)
@@ -1271,14 +1286,19 @@ def index():
     )
     @ui.refreshable
     def rebuild():
-        for i in range(int(my_input.value)):
+        for i in range(
+            int(my_input.value)
+        ):
             ui.label('A')
     my_input.on_value_change(
         rebuild.refresh
     )
     rebuild()
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 代码简洁不少，但效果更好：
@@ -1303,11 +1323,16 @@ def index():
         my_input.on_value_change(
             rebuild.refresh
         )
-        for i in range(int(my_input.value)):
+        for i in range(
+            int(my_input.value)
+        ):
             ui.label('A')
     rebuild()
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 如果想要保存控件的状态，可以使用前面用过的绑定属性：
@@ -1333,11 +1358,16 @@ def index():
         my_input.on_value_change(
             rebuild.refresh
         )
-        for i in range(int(my_input.value)):
+        for i in range(
+            int(my_input.value)
+        ):
             ui.label('A')
     rebuild()
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 也可以使用只与`refreshable`类、`refreshable_method`类配合使用的`ui.state`状态方法。
@@ -1367,11 +1397,16 @@ def index():
         my_input.on_value_change(
             rebuild.refresh
         )
-        for i in range(int(my_input.value)):
+        for i in range(
+            int(my_input.value)
+        ):
             ui.label('A')
     rebuild()
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ### 7.3 触发自动刷新
@@ -1387,10 +1422,20 @@ ui.run(root=index, native=True)
 from nicegui import ui
 
 def index():
-    ur = ui.range(min=1,max=10,value={'min':5,'max':6})
+    ur = ui.range(
+        min=1,
+        max=10,
+        value={
+            'min':5,
+            'max':6
+        }
+    )
     def change_data():
         ur.min = 9
-    ui.button('change_data',on_click=change_data)
+    ui.button(
+        'change_data',
+        on_click=change_data
+    )
 
 ui.run(
     root=index,
@@ -1409,10 +1454,19 @@ from nicegui import ui
 
 def index():
     json = {'a':'abc'}
-    je = ui.json_editor({'content': {'json': json}})
+    je = ui.json_editor(
+        {
+            'content': {
+                'json': json
+            }
+        }
+    )
     def change_data():
         je.properties['content']['json']['a'] = 'def'
-    ui.button('change_data',on_click=change_data)
+    ui.button(
+        'change_data',
+        on_click=change_data
+    )
 
 ui.run(
     root=index,
@@ -1471,7 +1525,10 @@ def index():
                 }
             ]
         up.update()
-    ui.button('change_data',on_click=change_data)
+    ui.button(
+        'change_data',
+        on_click=change_data
+    )
 
 ui.run(
     root=index,
@@ -1505,9 +1562,15 @@ def do_something():
     ui.notify('ok')
 
 def index():
-    ui.button('Do Something',on_click=do_something)
+    ui.button(
+        'Do Something',
+        on_click=do_something
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_8_1](nicegui_pro.assets/2026_8_1.gif)
@@ -1526,9 +1589,15 @@ async def do_something():
     ui.notify('ok')
 
 def index():
-    ui.button('Do Something',on_click=do_something)
+    ui.button(
+        'Do Something',
+        on_click=do_something
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_8_2](nicegui_pro.assets/2026_8_2.gif)
@@ -1551,9 +1620,15 @@ NiceGUI使用异步函数的情况如下：
       ui.notify('ok')
   
   async def index():
-      ui.button('Do Something',on_click=do_something)
+      ui.button(
+          'Do Something',
+          on_click=do_something
+      )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
 - 部分控件、对象提供了可以异步等待的方法，用于实现在指定动作、状态之后才执行后续操作。
@@ -1568,7 +1643,10 @@ NiceGUI使用异步函数的情况如下：
       await ui.button('Do Something Two').clicked()
       await ui.button('Do Something Three').clicked()
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
   
   ![2026_8_3](nicegui_pro.assets/2026_8_3.gif)
@@ -1611,7 +1689,10 @@ async def index():
 
     button.on_click(submit)
 
-ui.run(root=index,port=80)
+ui.run(
+    root=index,
+    port=80
+)
 ```
 
 通过模拟耗时操作让其他页面输入框的内容延迟同步，笔者想让提交按钮在内容完成同步之前保持禁用状态，但实际执行时，提交按钮不会等待耗时操作执行完毕才恢复为可用状态，而是立即恢复为可用状态。这个很好理解，因为`emit`方法是同步方法，不支持异步等待，一旦执行就会立刻完成，随即执行后续的代码，将提交按钮恢复为可用状态。
@@ -1647,7 +1728,10 @@ async def index():
         button.enable()
     button.on_click(submit)
 
-ui.run(root=index,port=80)
+ui.run(
+    root=index,
+    port=80
+)
 ```
 
 ![2026_8_4](nicegui_pro.assets/2026_8_4.gif)
@@ -1660,14 +1744,26 @@ from nicegui import ui,Event
 signal_obj = Event()
 
 async def index():
-    ui.button('Do Something One',on_click=signal_obj.emit)
+    ui.button(
+        'Do Something One',
+        on_click=signal_obj.emit
+    )
     await signal_obj.emitted()
-    ui.button('Do Something Two',on_click=signal_obj.emit)
+    ui.button(
+        'Do Something Two',
+        on_click=signal_obj.emit
+    )
     await signal_obj.emitted()
-    ui.button('Do Something Three',on_click=signal_obj.emit)
+    ui.button(
+        'Do Something Three',
+        on_click=signal_obj.emit
+    )
     await signal_obj.emitted()
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_8_3](nicegui_pro.assets/2026_8_3.gif)
@@ -1698,9 +1794,15 @@ async def do_something():
     ui.notify('ok')
 
 def index():
-    ui.button('Do Something',on_click=do_something)
+    ui.button(
+        'Do Something',
+        on_click=do_something
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_8_2](nicegui_pro.assets/2026_8_2.gif)
@@ -1744,9 +1846,15 @@ def index():
             name='print'
         )
     )
-    ui.button('shutdown', on_click=app.shutdown)
+    ui.button(
+        'shutdown',
+        on_click=app.shutdown
+    )
 
-ui.run(root=index, native=False)
+ui.run(
+    root=index,
+    native=False
+)
 ```
 
 注意，与`run`模块不同的是，`background_tasks`模块提供的运行后台任务的方法不支持在后台任务中使用NiceGUI的控件。
@@ -1771,10 +1879,18 @@ def index():
     button = ui.button('Do Something')
     def do_something():
         button.disable()
-        ui.timer(3,lambda :ui.notify('ok'))
+        ui.timer(
+            3,
+            lambda :ui.notify(
+                'ok'
+            )
+        )
     button.on_click(do_something)
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 点击按钮之后，响应函数先禁用按钮，防止重复点击。然后创建一个定时器，每隔三秒弹出一条通知。
@@ -1788,10 +1904,18 @@ def index():
     button = ui.button('Do Something')
     def do_something():
         button.disable()
-        app.timer(3,lambda :print('ok'))
+        app.timer(
+            3,
+            lambda :print(
+                'ok'
+            )
+        )
     button.on_click(do_something)
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 除此以外，两种定时器还有一个区别：控件的响应函数创建了`ui.timer`定时器，那`ui.timer`定时器就属于这个控件的父控件（或者创建定时器位置所属上下文的控件）；一旦父控件清空所有子控件，`ui.timer`定时器也会随之清除。而`app.timer`定时器属于当前程序，不会因为这样的操作而被清除掉。
@@ -1803,11 +1927,27 @@ from nicegui import ui,app
 
 def index():
     with ui.element() as element:
-        ui.timer(3,lambda :print('ui is ok'))
-        app.timer(3,lambda :print('app is ok'))
-    ui.button('Clear Timers',on_click = element.clear)
+        ui.timer(
+            3,
+            lambda :print(
+                'ui is ok'
+            )
+        )
+        app.timer(
+            3,
+            lambda :print(
+                'app is ok'
+            )
+        )
+    ui.button(
+        'Clear Timers',
+        on_click = element.clear
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 点击按钮之后，终端只会输出`app is ok`，因为`app.timer`定时器属于当前程序，不受影响。
@@ -1870,9 +2010,15 @@ def index():
     with ui.element() as element:
         ui.keyboard(on_key=handle_key_ctrl,active=True)
         ui.keyboard(on_key=handle_key_alt,active=True)
-    ui.button('清除快捷键',on_click = element.clear)
+    ui.button(
+        '清除快捷键',
+        on_click = element.clear
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_11_1](nicegui_pro.assets/2026_11_1.png)
@@ -1892,7 +2038,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_12_1](nicegui_pro.assets/2026_12_1.png)
@@ -1925,7 +2074,10 @@ def index():
         for i in range(4):
             ui.button(i)
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_13_2](nicegui_pro.assets/2026_13_2.png)
@@ -1942,7 +2094,10 @@ def index():
         for i in range(4):
             ui.button(i)
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_13_3](nicegui_pro.assets/2026_13_3.png)
@@ -1953,7 +2108,10 @@ ui.run(root=index,native=True)
 from nicegui import ui
 
 def index():
-    with ui.grid(columns=3,rows=2).classes(
+    with ui.grid(
+        columns=3,
+        rows=2
+    ).classes(
         'border-2 border-red-700 p-1'
     ):
         ui.label('label 1').classes(
@@ -1966,7 +2124,10 @@ def index():
             'border-1 border-black p-1'
         )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_13_4](nicegui_pro.assets/2026_13_4.png)
@@ -1989,7 +2150,10 @@ ui.run(root=index,native=True)
           ui.space()
           ui.button(4)
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_13_5](nicegui_pro.assets/2026_13_5.png)
@@ -2009,9 +2173,12 @@ ui.run(root=index,native=True)
           ui.separator()
           ui.button(4)
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
-
+  
   ![2026_13_6](nicegui_pro.assets/2026_13_6.png)
 
 ## 14 设计页面的特殊区域
@@ -2103,7 +2270,10 @@ def index():
         )
     ui.link_target('link')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_1](nicegui_pro.assets/2026_15_1.png)
@@ -2136,7 +2306,10 @@ def index():
         '''
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_2](nicegui_pro.assets/2026_15_2.png)
@@ -2159,7 +2332,10 @@ def index():
         }
     ).write('\x1b[31mHello\x1b[0m')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_3](nicegui_pro.assets/2026_15_3.png)
@@ -2188,7 +2364,10 @@ def index():
     with html.h1():
         ui.label(text='html')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_4](nicegui_pro.assets/2026_15_4.png)
@@ -2222,9 +2401,16 @@ def index():
     with ui.fab('menu',label='fab'):
         ui.fab_action('home')
         ui.fab_action('replay')
-    ui.chip('chip',selectable=True,removable=True)
+    ui.chip(
+        'chip',
+        selectable=True,
+        removable=True
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_5](nicegui_pro.assets/2026_15_5.png)
@@ -2245,17 +2431,32 @@ ui.run(root=index,native=True)
 from nicegui import ui
 
 def index():
-    ui.radio(['a','b','c'],value='a')
-    ui.toggle(['a','b','c'],value='a')
+    ui.radio(
+        ['a','b','c'],
+        value='a'
+    )
+    ui.toggle(
+        ['a','b','c'],
+        value='a'
+    )
     ui.select(
         ['a','b','c'],
         value='a',
         label='select'
     ).classes('w-32')
-    ui.checkbox('checkbox',value=True)
-    ui.switch('switch',value=True)
+    ui.checkbox(
+        'checkbox',
+        value=True
+    )
+    ui.switch(
+        'switch',
+        value=True
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_6](nicegui_pro.assets/2026_15_6.png)
@@ -2310,7 +2511,10 @@ def index():
         }
     ).classes('h-16')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_7](nicegui_pro.assets/2026_15_7.png)
@@ -2398,7 +2602,10 @@ def index():
         'https://nicegui.io/static/logo.png'
     ).classes('w-64 h-64')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_9](nicegui_pro.assets/2026_15_9.png)
@@ -2420,8 +2627,7 @@ def index():
                 fill='green'
             />
         ''',
-        on_mouse=lambda e:e\
-        .sender.set_content(
+        on_mouse=lambda e:e.sender.set_content(
             f'''
                 <circle
                     cx='{e.image_x}'
@@ -2433,7 +2639,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_10](nicegui_pro.assets/2026_15_10.png)
@@ -2451,10 +2660,17 @@ ui.run(root=index,native=True)
 from nicegui import ui
 
 def index():
-    ui.audio('https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3')
-    ui.video('https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4')
+    ui.audio(
+        'https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3'
+    )
+    ui.video(
+        'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4'
+    )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_11](nicegui_pro.assets/2026_15_11.png)
@@ -2504,7 +2720,10 @@ def index():
         sanitize=False
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_12](nicegui_pro.assets/2026_15_12.png)
@@ -2529,7 +2748,10 @@ def index():
         0.6
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_13](nicegui_pro.assets/2026_15_13.png)
@@ -2584,7 +2806,10 @@ def index():
         }
     )
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_14](nicegui_pro.assets/2026_15_14.png)
@@ -2603,7 +2828,9 @@ ui.run(root=index, native=True)
   from nicegui import ui
   
   def index():
-      with ui.matplotlib().classes('w-64 h-64').figure as fig:
+      with ui.matplotlib().classes(
+          'w-64 h-64'
+      ).figure as fig:
           fig.gca().plot(
               [
                   0, 1, 2
@@ -2612,7 +2839,9 @@ ui.run(root=index, native=True)
                   1, 2, 4
               ]
           )
-      with ui.matplotlib().classes('w-64 h-64').figure as fig:
+      with ui.matplotlib().classes(
+          'w-64 h-64'
+      ).figure as fig:
           fig.add_subplot().plot(
               [
                   0, 1, 2
@@ -2622,7 +2851,10 @@ ui.run(root=index, native=True)
               ]
           )
   
-  ui.run(root=index, native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_15](nicegui_pro.assets/2026_15_15.png)
@@ -2637,7 +2869,9 @@ ui.run(root=index, native=True)
   from nicegui import ui
   
   def index():
-      with ui.pyplot().classes('w-64 h-64') as plt:
+      with ui.pyplot().classes(
+          'w-64 h-64'
+      ) as plt:
           plt.fig.gca().plot(
               [
                   0, 1, 2
@@ -2646,7 +2880,9 @@ ui.run(root=index, native=True)
                   1, 2, 4
               ]
           )
-      with ui.pyplot().classes('w-64 h-64') as plt:
+      with ui.pyplot().classes(
+          'w-64 h-64'
+      ) as plt:
           plt.fig.add_subplot().plot(
               [
                   0, 1, 2
@@ -2657,7 +2893,9 @@ ui.run(root=index, native=True)
           )
   
       from matplotlib import pyplot
-      with ui.pyplot().classes('w-64 h-64'):
+      with ui.pyplot().classes(
+          'w-64 h-64'
+      ):
           pyplot.plot(
               [
                   0, 1, 2
@@ -2667,7 +2905,10 @@ ui.run(root=index, native=True)
               ]
           )
   
-  ui.run(root=index, native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_16](nicegui_pro.assets/2026_15_16.png)
@@ -2682,7 +2923,9 @@ ui.run(root=index, native=True)
   from nicegui import ui
   
   def index():
-      with ui.line_plot().classes('w-64 h-64') as lp:
+      with ui.line_plot().classes(
+          'w-64 h-64'
+      ) as lp:
           lp.fig.clear()
           lp.fig.gca().plot(
               [
@@ -2694,7 +2937,9 @@ ui.run(root=index, native=True)
           )
           lp.with_legend(['number'])
   
-      with ui.line_plot().classes('w-64 h-64') as lp:
+      with ui.line_plot().classes(
+          'w-64 h-64'
+      ) as lp:
           lp.fig.clear()
           lp.fig.add_subplot().plot(
               [
@@ -2706,7 +2951,9 @@ ui.run(root=index, native=True)
           )
           lp.with_legend(['number'])
           
-      with ui.line_plot().classes('w-64 h-64') as lp:
+      with ui.line_plot().classes(
+          'w-64 h-64'
+      ) as lp:
           lp.push(
               [
                   0, 1, 2
@@ -2717,7 +2964,9 @@ ui.run(root=index, native=True)
           )
           lp.with_legend(['number'])
   
-      ui.line_plot().classes('w-64 h-64').push(
+      ui.line_plot().classes(
+          'w-64 h-64'
+      ).push(
               [
                   0, 1, 2
               ],
@@ -2726,7 +2975,11 @@ ui.run(root=index, native=True)
               ]
           )
       
-      ui.line_plot().classes('w-64 h-64').with_legend(['number']).push(
+      ui.line_plot().classes(
+          'w-64 h-64'
+      ).with_legend(
+          ['number']
+      ).push(
               [
                   0, 1, 2
               ],
@@ -2735,7 +2988,10 @@ ui.run(root=index, native=True)
               ]
           )
   
-  ui.run(root=index, native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_17](nicegui_pro.assets/2026_15_17.png)
@@ -2799,9 +3055,12 @@ ui.run(root=index, native=True)
           }
       ).classes('w-64 h-64')
   
-  ui.run(root=index, native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
-
+  
   ![2026_15_18](nicegui_pro.assets/2026_15_18.png)
 
 ### 15.14 渲染图表
@@ -2868,7 +3127,10 @@ def index():
         }
     ).classes('w-64 h-64')
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_19](nicegui_pro.assets/2026_15_19.png)
@@ -2906,12 +3168,21 @@ ui.run(root=index, native=True)
           node_key='id',
           label_key='label',
           children_key='children',
-          on_select=lambda e: ui.notify(f'选择了 {e.value}'),
-          on_expand=lambda e: ui.notify(f'展开了 {e.value}'),
-          on_tick=lambda e: ui.notify(f'勾选了 {e.value}'),
+          on_select=lambda e: ui.notify(
+              f'选择了 {e.value}'
+          ),
+          on_expand=lambda e: ui.notify(
+              f'展开了 {e.value}'
+          ),
+          on_tick=lambda e: ui.notify(
+              f'勾选了 {e.value}'
+          ),
       ).expand()
   
-  ui.run(root=index, native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_20](nicegui_pro.assets/2026_15_20.png)
@@ -2930,10 +3201,16 @@ ui.run(root=index, native=True)
           options={
               'attributionControl':False,
           }
-      ).classes('w-64 h-64')\
-      .marker(latlng=(39.9072, 116.3912))
+      ).classes(
+          'w-64 h-64'
+      ).marker(
+          latlng=(39.9072, 116.3912)
+      )
   
-  ui.run(root=index, native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_21](nicegui_pro.assets/2026_15_21.png)
@@ -2946,11 +3223,20 @@ ui.run(root=index, native=True)
   from nicegui import ui
   
   def index():
-      scene = ui.scene().classes('w-64 h-64')
-      scene.box().material('red')
-      ui.scene_view(scene).classes('w-64 h-64')
+      scene = ui.scene().classes(
+          'w-64 h-64'
+      )
+      scene.box().material(
+          'red'
+      )
+      ui.scene_view(scene).classes(
+          'w-64 h-64'
+      )
       
-  ui.run(root=index, native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
   
   ![2026_15_22](nicegui_pro.assets/2026_15_22.png)
@@ -3002,7 +3288,10 @@ def index():
         ):
             ui.icon('home')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_23](nicegui_pro.assets/2026_15_23.png)
@@ -3029,7 +3318,10 @@ def index():
         ui.separator()
         ui.skeleton('QChip')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_15_24](nicegui_pro.assets/2026_15_24.png)
@@ -3062,7 +3354,10 @@ ui.run(root=index,native=True)
           ui.button('Hello')
           ui.button('World')
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_25](nicegui_pro.assets/2026_15_25.png)
@@ -3075,11 +3370,18 @@ ui.run(root=index,native=True)
   from nicegui import ui
   
   def index():
-      with ui.card(),ui.scroll_area().classes('w-64 h-64'):
+      with ui.card(),ui.scroll_area().classes(
+          'w-64 h-64'
+      ):
           for i in range(99):
-              ui.button(str(i))
+              ui.button(
+                  str(i)
+              )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_26](nicegui_pro.assets/2026_15_26.png)
@@ -3092,18 +3394,39 @@ ui.run(root=index,native=True)
   from nicegui import ui
   
   def index():
-      with ui.list().classes('border-2 border-red-700'),ui.slide_item('center').classes('w-32') as slide:
+      with ui.list().classes(
+          'border-2 border-red-700'
+      ), ui.slide_item(
+          'center'
+      ).classes(
+          'w-32'
+      ) as slide:
           ui.label('center')
-      with slide.left('left',on_slide=slide.reset):
+      with slide.left(
+          'left',
+          on_slide=slide.reset
+      ):
           ui.label('left')
-      with slide.right('right',on_slide=slide.reset):
+      with slide.right(
+          'right',
+          on_slide=slide.reset
+      ):
           ui.label('right')
-      with slide.top('top',on_slide=slide.reset):
+      with slide.top(
+          'top',
+          on_slide=slide.reset
+      ):
           ui.label('top')
-      with slide.bottom('bottom',on_slide=slide.reset):
+      with slide.bottom(
+          'bottom',
+          on_slide=slide.reset
+      ):
           ui.label('bottom')
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_27](nicegui_pro.assets/2026_15_27.png)
@@ -3117,17 +3440,26 @@ ui.run(root=index,native=True)
   
   def index():
       with ui.card():
-          splitter = ui.splitter(value=75).classes('w-64 h-64')
+          splitter = ui.splitter(
+              value=75
+          ).classes('w-64 h-64')
           with splitter.separator:
               ui.icon('lightbulb')
           with splitter.before:
-              ui.card().classes('w-full h-full bg-red')
+              ui.card().classes(
+                  'w-full h-full bg-red'
+              )
           with splitter.after:
-              ui.card().classes('w-full h-full bg-blue')
+              ui.card().classes(
+                  'w-full h-full bg-blue'
+              )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
-
+  
   ![2026_15_28](nicegui_pro.assets/2026_15_28.png)
 
 ### 15.19 管理多页内容
@@ -3142,19 +3474,32 @@ ui.run(root=index,native=True)
   from nicegui import ui
   
   def index():
-      with ui.tabs().props('no-caps') as tabs:
-          ui.tab('a',label='标签a')
-          ui.tab('b',label='标签b')
+      with ui.tabs().props(
+          'no-caps'
+      ) as tabs:
+          ui.tab(
+              'a',
+              label='标签a'
+          )
+          ui.tab(
+              'b',
+              label='标签b'
+          )
       with ui.tab_panels(
           tabs,
           value='a'
-      ).classes('w-64 h-64 border'):
+      ).classes(
+          'w-64 h-64 border'
+      ):
           with ui.tab_panel('a'):
               ui.label('标签页a')
           with ui.tab_panel('b'):
               ui.label('标签页b')
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_29](nicegui_pro.assets/2026_15_29.png)
@@ -3181,7 +3526,10 @@ ui.run(root=index,native=True)
           ):
               ui.label('内容b')
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_30](nicegui_pro.assets/2026_15_30.png)
@@ -3205,7 +3553,10 @@ ui.run(root=index,native=True)
           )
       )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_31](nicegui_pro.assets/2026_15_31.png)
@@ -3226,19 +3577,39 @@ ui.run(root=index,native=True)
           with ui.step('first'):
               ui.label('first')
               with ui.stepper_navigation():
-                  ui.button('next',on_click=stepper.next)
+                  ui.button(
+                      'next',
+                      on_click=stepper.next
+                  )
           with ui.step('second'):
               ui.label('second')
               with ui.stepper_navigation():
-                  ui.button('next',on_click=stepper.next)
-                  ui.button('back',on_click=stepper.previous).props('flat')
+                  ui.button(
+                      'next',
+                      on_click=stepper.next
+                  )
+                  ui.button(
+                      'back',
+                      on_click=stepper.previous
+                  ).props('flat')
           with ui.step('third'):
               ui.label('third')
               with ui.stepper_navigation():
-                  ui.button('done',on_click=lambda :ui.notify('done'))
-                  ui.button('back',on_click=stepper.previous).props('flat')
+                  ui.button(
+                      'done',
+                      on_click=lambda :ui.notify(
+                          'done'
+                      )
+                  )
+                  ui.button(
+                      'back',
+                      on_click=stepper.previous
+                  ).props('flat')
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_33](nicegui_pro.assets/2026_15_33.png)
@@ -3256,9 +3627,12 @@ ui.run(root=index,native=True)
           ui.timeline_entry('second')
           ui.timeline_entry('third')
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
-
+  
   ![2026_15_34](nicegui_pro.assets/2026_15_34.png)
 
 ### 15.20 使用菜单
@@ -3278,11 +3652,21 @@ NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右�
       with ui.button(icon='menu'):
           with ui.menu() as menu:
               ui.menu_item('auto close')
-              ui.menu_item('no auto close',auto_close=False)
+              ui.menu_item(
+                  'no auto close',
+                  auto_close=False
+              )
               ui.separator()
-              ui.menu_item('manual close',auto_close=False,on_click=menu.close)
+              ui.menu_item(
+                  'manual close',
+                  auto_close=False,
+                  on_click=menu.close
+              )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_35](nicegui_pro.assets/2026_15_35.png)
@@ -3298,13 +3682,23 @@ NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右�
       with ui.button(icon='menu'):
           with ui.context_menu() as menu:
               ui.menu_item('auto close')
-              ui.menu_item('no auto close',auto_close=False)
+              ui.menu_item(
+                  'no auto close',
+                  auto_close=False
+              )
               ui.separator()
-              ui.menu_item('manual close',auto_close=False,on_click=menu.close)
+              ui.menu_item(
+                  'manual close',
+                  auto_close=False,
+                  on_click=menu.close
+              )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
-
+  
   ![2026_15_36](nicegui_pro.assets/2026_15_36.png)
 
 ### 15.21 弹出提示信息
@@ -3320,7 +3714,10 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
       with ui.button('tooltip'):
           ui.tooltip('Hello')
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_37](nicegui_pro.assets/2026_15_37.png)
@@ -3331,9 +3728,16 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   from nicegui import ui
   
   def index():
-      ui.button('tooltip').tooltip('Hello')
+      ui.button(
+          'tooltip'
+      ).tooltip(
+          'Hello'
+      )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
 - `ui.notify`控件，创建之后立马弹出一条文字消息。
@@ -3346,10 +3750,15 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   def index():
       ui.button(
           'notify',
-          on_click=lambda:ui.notify('Hello')
+          on_click=lambda:ui.notify(
+              'Hello'
+          )
       )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_38](nicegui_pro.assets/2026_15_38.png)
@@ -3377,7 +3786,10 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
           on_click=notify
       )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
   ![2026_15_39](nicegui_pro.assets/2026_15_39.gif)
@@ -3392,12 +3804,21 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   def index():
       with ui.dialog() as dialog,ui.card():
           ui.label('dialog')
-          ui.button('close',on_click=dialog.close)
-      ui.button('dialog',on_click=dialog.open)
+          ui.button(
+              'close',
+              on_click=dialog.close
+          )
+      ui.button(
+          'dialog',
+          on_click=dialog.open
+      )
   
-  ui.run(root=index,native=True)
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
-
+  
   ![2026_15_40](nicegui_pro.assets/2026_15_40.png)
 
 ## 16 使用环境变量
@@ -3502,7 +3923,10 @@ class ToggleButton(ui.button):
 def index():
     ToggleButton('Toggle')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_17_1](nicegui_pro.assets/2026_17_1.gif)
@@ -3542,7 +3966,10 @@ def index():
             'icon=rocket color=green-5'
         )
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_17_2](nicegui_pro.assets/2026_17_2.png)
@@ -3580,9 +4007,13 @@ def index():
         app.use(ElementPlus);
         app.use(naive);
     '''
-    with ui.element('el-button').props('type=primary'):
+    with ui.element('el-button').props(
+        'type=primary'
+    ):
         ui.label('Element Plus button')
-    with ui.element('n-button').props('type=primary'):
+    with ui.element('n-button').props(
+        'type=primary'
+    ):
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
@@ -3615,9 +4046,13 @@ ui.add_body_html(
 )
 
 def index():
-    with ui.element('el-button').props('type=primary'):
+    with ui.element('el-button').props(
+        'type=primary'
+    ):
         ui.label('Element Plus button')
-    with ui.element('n-button').props('type=primary'):
+    with ui.element('n-button').props(
+        'type=primary'
+    ):
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
@@ -3647,18 +4082,26 @@ ui.add_body_html(
 @ui.page('/')
 def index():
     ui.link('page a', '/a')
-    with ui.element('el-button').props('type=primary'):
+    with ui.element('el-button').props(
+        'type=primary'
+    ):
         ui.label('Element Plus button')
-    with ui.element('n-button').props('type=primary'):
+    with ui.element('n-button').props(
+        'type=primary'
+    ):
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
 @ui.page('/a')
 def page_a():
     ui.link('page index', '/')
-    with ui.element('el-button').props('type=primary'):
+    with ui.element('el-button').props(
+        'type=primary'
+    ):
         ui.label('Element Plus button')
-    with ui.element('n-button').props('type=primary'):
+    with ui.element('n-button').props(
+        'type=primary'
+    ):
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
@@ -3673,9 +4116,13 @@ from nicegui import ui, app
 @ui.page('/')
 def index():
     ui.link('page a', '/a')
-    with ui.element('el-button').props('type=primary'):
+    with ui.element('el-button').props(
+        'type=primary'
+    ):
         ui.label('Element Plus button')
-    with ui.element('n-button').props('type=primary'):
+    with ui.element('n-button').props(
+        'type=primary'
+    ):
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
@@ -3694,9 +4141,13 @@ def page_a():
         shared=True
     )
     ui.link('page index', '/')
-    with ui.element('el-button').props('type=primary'):
+    with ui.element('el-button').props(
+        'type=primary'
+    ):
         ui.label('Element Plus button')
-    with ui.element('n-button').props('type=primary'):
+    with ui.element('n-button').props(
+        'type=primary'
+    ):
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
@@ -3734,13 +4185,20 @@ def index():
         app.use(ElementPlus);
         app.use(naive);
     '''
-    with ui.element('el-button').props('type=primary'):
+    with ui.element('el-button').props(
+        'type=primary'
+    ):
         ui.label('Element Plus button')
-    with ui.element('n-button').props('type=primary'):
+    with ui.element('n-button').props(
+        'type=primary'
+    ):
         ui.label('Naive UI button')
     ui.button('Quasar button')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 这样就能使用窗口模式运行了。
@@ -3815,9 +4273,15 @@ def index():
             f'当前值变为 {e.args['value']}'
         )
     ).classes('border')
-    ui.button('复位', on_click=counter.reset)
+    ui.button(
+        '复位',
+        on_click=counter.reset
+    )
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_17_4](nicegui_pro.assets/2026_17_4.gif)
@@ -3961,8 +4425,12 @@ from nicegui import ui, app
 
 def index():
     video = r'mv.mp4'
-    app.add_static_file(local_file=video,url_path='/video1')
-    app.add_media_file(local_file=video,url_path='/video2')
+    app.add_static_file(
+        local_file=video,url_path='/video1'
+    )
+    app.add_media_file(
+        local_file=video,url_path='/video2'
+    )
 
     ui.video('/video1')
     ui.video('/video2')
@@ -4018,7 +4486,10 @@ def index():
         sanitize=False
     )
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_19_1](nicegui_pro.assets/2026_19_1.png)
@@ -4046,9 +4517,14 @@ def index():
         }
         '''
     )
-    ui.label('This is red with CSS.').classes('red')
+    ui.label(
+        'This is red with CSS.'
+    ).classes('red')
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 `ui.add_sass`方法的示例：
@@ -4066,7 +4542,9 @@ def index():
         '''
     )
     with ui.element().classes('yellow'):
-        ui.label('This is purple on yellow with SASS.').classes('purple')
+        ui.label(
+            'This is purple on yellow with SASS.'
+        ).classes('purple')
 
 ui.run(root=index, native=True)
 ```
@@ -4088,9 +4566,14 @@ def index():
         '''
     )
     with ui.element().classes('green'):
-        ui.label('This is blue on green with SCSS.').classes('blue')
+        ui.label(
+            'This is blue on green with SCSS.'
+        ).classes('blue')
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 注意，NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样式使用`!important`修饰，优先级高于没有使用`!important`修饰的普通样式。
@@ -4124,9 +4607,14 @@ def index():
         }
         '''
     )
-    ui.button('This is red with CSS.').classes('red')
+    ui.button(
+        'This is red with CSS.'
+    ).classes('red')
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_19_2](nicegui_pro.assets/2026_19_2.png)
@@ -4171,7 +4659,10 @@ def index():
         'bg-blue-400'
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_1](nicegui_pro.assets/2026_20_1.png)
@@ -4192,7 +4683,10 @@ def index():
     card = ui.card()
     button.move(card)
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_2](nicegui_pro.assets/2026_20_2.png)
@@ -4207,7 +4701,10 @@ def index():
     with ui.teleport(card):
         ui.button('ok')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 除了传送（移动）控件，`ui.teleport`方法远比看上去强大。因为其不仅支持传入控件，还支持支持选择器，所以可以做到和`ui.query`方法一样的匹配能力。
@@ -4220,7 +4717,10 @@ from nicegui import ui
 def index():
     ui.card().classes('card')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 虽然卡片没有对应的变量，但设置了样式。于是，可以借助`ui.query`方法匹配：
@@ -4232,7 +4732,10 @@ def index():
     ui.card().classes('card')
     ui.query('.card').classes('bg-red')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_3](nicegui_pro.assets/2026_20_3.png)
@@ -4247,7 +4750,10 @@ def index():
     with ui.query('.card'):
         ui.button('ok')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 很可惜，这段代码并不能成功运行，因为`ui.query`方法不支持这样做。如果想要实现目的，需要将`ui.query`换成`ui.teleport`：
@@ -4260,7 +4766,10 @@ def index():
     with ui.teleport('.card'):
         ui.button('ok')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_2](nicegui_pro.assets/2026_20_2.png)
@@ -4278,7 +4787,10 @@ def index():
     ) as here:
         button.move(here)
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 `ui.teleport`方法就是这样一个基于CSS选择器语法将任意控件传送至指定位置的控件。
@@ -4336,7 +4848,10 @@ def index():
         ui.label('label B_B')
     ElementFilter(kind=ui.label).classes('bg-red')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_4](nicegui_pro.assets/2026_20_4.png)
@@ -4408,7 +4923,10 @@ def index():
         content=['B','A']
     ).classes('bg-red')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_6](nicegui_pro.assets/2026_20_6.png)
@@ -4433,7 +4951,10 @@ def index():
             local_scope=True
         ).classes('bg-red')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_7](nicegui_pro.assets/2026_20_7.png)
@@ -4478,7 +4999,10 @@ def index():
         instance=card2
     ).classes('bg-red')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_8](nicegui_pro.assets/2026_20_8.png)
@@ -4520,7 +5044,10 @@ def index():
         kind=ui.label
     ).classes('bg-red')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_9](nicegui_pro.assets/2026_20_9.png)
@@ -4555,7 +5082,10 @@ def index():
         with ele:
             ui.icon('home')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_10](nicegui_pro.assets/2026_20_10.png)
@@ -4578,12 +5108,17 @@ def index():
     icon = ui.icon('home')
     for ele in ElementFilter(
         kind=ui.button
-    ).within(instance=card2).classes('bg-red'):
+    ).within(
+        instance=card2
+    ).classes('bg-red'):
         icon.move(ele)
         with ui.teleport(ele):
             ui.icon('home')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_11](nicegui_pro.assets/2026_20_11.png)
@@ -4623,7 +5158,10 @@ def index():
         instance=card2
     ).classes('bg-green')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_20_12](nicegui_pro.assets/2026_20_12.png)
@@ -4646,7 +5184,10 @@ def index():
         kind=ui.button
     ).classes('bg-red')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_21_1](nicegui_pro.assets/2026_21_1.png)
@@ -4667,7 +5208,10 @@ def index():
     ui.button('Hello')
     ui.button('World')
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ### 21.2 颜色主题
@@ -4729,7 +5273,10 @@ def index():
         dark_mode
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_21_2](nicegui_pro.assets/2026_21_2.png)
@@ -4754,7 +5301,10 @@ def index():
     # 启用跟随系统的自动切换
     # dark_mode.auto()
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ![2026_21_3](nicegui_pro.assets/2026_21_3.png)
@@ -4793,9 +5343,13 @@ from nicegui import app, ui
 def index():
     app.storage.user['count'] = app.storage.user.get('count', 0) + 1
     with ui.row():
-       ui.label(f'该页面被访问了{app.storage.user['count']}次。')
+       ui.label(
+           f'该页面被访问了{app.storage.user['count']}次。'
+       )
 
-ui.run(storage_secret='private_key')
+ui.run(
+    storage_secret='private_key'
+)
 ```
 
 每次刷新页面，这里的访问次数就会加一：
@@ -4855,9 +5409,15 @@ from nicegui import ui
 def index():
     def navigate():
         ui.navigate.to('https://baidu.com')
-    ui.button('goto baidu',on_click=navigate)
+    ui.button(
+        'goto baidu',
+        on_click=navigate
+    )
     
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ## 24 控制页面、窗口的全屏状态
@@ -4885,8 +5445,14 @@ ui.run(root=index,native=True)
 from nicegui import ui,app
 
 def index():
-    ui.button('toggle fullscreen for native mode',on_click=app.native.main_window.toggle_fullscreen)
-    ui.button('toggle fullscreen for page mode',on_click=ui.fullscreen().toggle)
+    ui.button(
+        'toggle fullscreen for native mode',
+        on_click=app.native.main_window.toggle_fullscreen
+    )
+    ui.button(
+        'toggle fullscreen for page mode',
+        on_click=ui.fullscreen().toggle
+    )
     
 ui.run(
     root=index,
@@ -4945,7 +5511,10 @@ def index():
             ui.notify(
                 await ui.clipboard.read()
             )
-    ui.button('读取剪贴板', on_click=read)
+    ui.button(
+        '读取剪贴板',
+        on_click=read
+    )
 
 ui.run(
     root=index,
@@ -4964,16 +5533,20 @@ def index():
     ui.button('写入剪贴板').on(
         'click', 
         js_handler='''
-        () => navigator.clipboard.writeText("你好！")
+        	() => navigator.clipboard.writeText("你好！")
         '''
     )
     ui.button('读取剪贴板').on(
         'click', 
         js_handler='''
-        async () => emitEvent("clipboard", await navigator.clipboard.readText())
+        	async () => emitEvent("clipboard",
+        	await navigator.clipboard.readText())
         '''
     )
-    ui.on('clipboard', lambda e: ui.notify(e.args))
+    ui.on(
+        'clipboard', 
+        lambda e: ui.notify(e.args)
+    )
 
 ui.run(
     root=index,
@@ -5529,15 +6102,19 @@ ui.run(
               ':input-style': "{'backgroundColor':'red'}"
           }
       )
-      ui.input('Name2').props('input-style={"backgroundColor":"red"}')
-      ui.input('Name3').props(f'input-style={dict(backgroundColor="red")}')
+      ui.input('Name2').props(
+          'input-style={"backgroundColor":"red"}'
+      )
+      ui.input('Name3').props(
+          f'input-style={dict(backgroundColor="red")}'
+      )
   
   ui.run(
       root=index,
       native=True
   )
   ```
-
+  
   ![2026_29_4](nicegui_pro.assets/2026_29_4.png)
   
   这个功能更多是用于支持复杂配置的控件，其配置项若是支持JavaScript表达式的话，则需要给对应的配置项名字添加英文冒号作为前缀：
@@ -5677,9 +6254,14 @@ def index():
     with ui.dialog().props(
         'backdrop-filter="blur(8px) brightness(40%)"'
     ) as dialog:
-        ui.label('Hello').classes('text-3xl text-white')
+        ui.label('Hello').classes(
+            'text-3xl text-white'
+        )
 
-    ui.button('Open', on_click=dialog.open)
+    ui.button(
+        'Open',
+        on_click=dialog.open
+    )
 
 ui.run(
     root=index, 
@@ -5711,8 +6293,14 @@ with ui.button('Item').classes('w-96') as button:
     button.on_click(lambda :ui.notify('button'))
     ui.space()
     icon = ui.icon('delete')
-    icon.on('click',js_handler='(e)=>{e.stopPropagation()}')
-    icon.on('click',lambda :ui.notify('icon'))
+    icon.on(
+        'click',
+        js_handler='(e)=>{e.stopPropagation()}'
+    )
+    icon.on(
+        'click',
+        lambda :ui.notify('icon')
+    )
     
 ui.run(
     native=True
@@ -5736,7 +6324,10 @@ def handle_key_ctrl(e: KeyEventArguments):
 
 def index():
     ui.label('按下 ctrl+a 不会全选')
-    ui.keyboard(on_key=handle_key_ctrl,active=True).on(
+    ui.keyboard(
+        on_key=handle_key_ctrl,
+        active=True
+    ).on(
         'key', 
         js_handler='''(e) => {
             if (e.key === 'a' && (e.ctrlKey || e.metaKey) && e.action === 'keydown') {
@@ -6445,7 +7036,11 @@ ui.run(
   
   def index():
       ui.label('Hello')
-      ui.timer(3,app.native.main_window.show,once=True)
+      ui.timer(
+          3,
+          app.native.main_window.show,
+          once=True
+      )
   
   ui.run(
       root=index,
@@ -6564,7 +7159,9 @@ ui.run(
   
   def index():
       ui.link('Hello','/')
-      ui.element('img').props('src="favicon.ico"')
+      ui.element('img').props(
+          'src="favicon.ico"'
+      )
   
   ui.run(
       root=index,
@@ -6993,7 +7590,13 @@ ui.run(
       ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
       ui.label(f'页面ID为 {str(uuid4())[:6]}')
       ui.separator()
-      ui.sub_pages({'/': main, '/page1': page1},root_path='/index')
+      ui.sub_pages(
+          {
+              '/': main,
+              '/page1': page1
+          },
+          root_path='/index'
+      )
   
   def main():
       ui.label('/（子页面）的内容')
@@ -7004,7 +7607,9 @@ ui.run(
       ui.label('page1（子页面）的内容')
       ui.link('回到/（子页面）', '/index')
   
-  ui.run(port=80)
+  ui.run(
+      port=80
+  )
   ```
 
   从此参数开始，只能通过关键字传入。
@@ -7023,9 +7628,14 @@ ui.run(
       ui.label(f'页面ID为 {str(uuid4())[:6]}')
       ui.separator()
       ui.sub_pages(
-          routes={'/': main, '/page1': page1},
+          routes={
+              '/': main,
+              '/page1': page1
+          },
           root_path='/index',
-          data={'title':title}
+          data={
+              'title':title
+          }
       )
   
   def main(title:ui.label):
@@ -7038,7 +7648,9 @@ ui.run(
       ui.label('page1（子页面）的内容')
       ui.link('回到/（子页面）', '/index')
   
-  ui.run(port=80)
+  ui.run(
+      port=80
+  )
   ```
 
 - `show_404`参数，布尔类型，表示如果子页面没有对应的构建函数，是否显示一段展示该错误的简短字符串，默认为`True`。如果该参数为`False`，则没有任何提示内容。示例如下：
@@ -7055,9 +7667,14 @@ ui.run(
       ui.label(f'页面ID为 {str(uuid4())[:6]}')
       ui.separator()
       ui.sub_pages(
-          routes={'/': main, '/page1': page1},
+          routes={
+              '/': main,
+              '/page1': page1
+          },
           root_path='/index',
-          data={'title':title},
+          data={
+              'title':title
+          },
           show_404=True
       )
   
@@ -7072,9 +7689,11 @@ ui.run(
       ui.label('page1（子页面）的内容')
       ui.link('回到/（子页面）', '/index')
   
-  ui.run(port=80)
+  ui.run(
+      port=80
+  )
   ```
-
+  
   ![2026_36_3](nicegui_pro.assets/2026_36_3.png)
 
 
@@ -7099,9 +7718,14 @@ ui.run(
       ui.label(f'页面ID为 {str(uuid4())[:6]}')
       ui.separator()
       pages = ui.sub_pages(
-          routes={'/': main, '/page1': page1},
+          routes={
+              '/': main,
+              '/page1': page1
+          },
           root_path='/index',
-          data={'title':title},
+          data={
+              'title':title
+          },
           show_404=True
       )
       pages.add('/page1',page1_x)
@@ -7122,7 +7746,9 @@ ui.run(
       ui.label('page1_x（子页面）的内容')
       ui.link('回到/（子页面）', '/index')
   
-  ui.run(port=80)
+  ui.run(
+      port=80
+  )
   ```
 
   ![2026_36_4](nicegui_pro.assets/2026_36_4.png)
@@ -7152,7 +7778,13 @@ def index(page_name='Main'):
     ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
     ui.label(f'页面ID为 {str(uuid4())[:6]}')
     ui.separator()
-    ui.sub_pages({'/': main, '/page1': page1},root_path='/index')
+    ui.sub_pages(
+        {
+            '/': main,
+            '/page1': page1
+        },
+        root_path='/index'
+    )
 
 def main():
     ui.label('/（子页面）的内容')
@@ -7162,7 +7794,9 @@ def page1():
     ui.label('page1（子页面）的内容')
     ui.link('回到/（子页面）', '/index')
 
-ui.run(port=80)
+ui.run(
+    port=80
+)
 ```
 
 当然，后面的`':path'`是为了将路径中后面所有的内容都捕获，当子页面的路径包含多级路径时，可以避免出错，这就不做过多解释，简单记住就好。
@@ -7182,7 +7816,13 @@ def index(page_name='Main'):
     ui.label('这部内容为普通页面，切换子页面不会刷新（注意页面ID）。')
     ui.label(f'页面ID为 {str(uuid4())[:6]}')
     ui.separator()
-    ui.sub_pages({'/': main, '/page1': page1},root_path='/index')
+    ui.sub_pages(
+        {
+            '/': main,
+            '/page1': page1
+        },
+        root_path='/index'
+    )
 
 def main():
     ui.label('/（子页面）的内容')
@@ -7192,7 +7832,9 @@ def page1():
     ui.label('page1（子页面）的内容')
     ui.link('回到/（子页面）', '/index')
 
-ui.run(port=80)
+ui.run(
+    port=80
+)
 ```
 
 访问`http://127.0.0.1/index/page1`的结果为：
@@ -7341,7 +7983,12 @@ def page1():
 
 ui.link('到其他页面（不存在）', '/other')
 ui.separator()
-ui.sub_pages({'/': main, '/page1': page1})
+ui.sub_pages(
+    {
+        '/': main,
+        '/page1': page1
+    }
+)
 
 ui.run()
 ```
@@ -7362,7 +8009,12 @@ from nicegui import ui
 def index():
     ui.link('到其他页面（不存在）', '/other')
     ui.separator()
-    ui.sub_pages({'/': main, '/page1': page1})
+    ui.sub_pages(
+        {
+            '/': main,
+            '/page1': page1
+        }
+    )
 
 def main():
     ui.label('/（子页面）的内容')
@@ -7395,7 +8047,12 @@ from nicegui import ui
 def index():
     ui.link('到其他页面（不存在）', '/other')
     ui.separator()
-    ui.sub_pages({'/': main, '/page1': page1})
+    ui.sub_pages(
+        {
+            '/': main,
+            '/page1': page1
+        }
+    )
 
 def main():
     ui.label('/（子页面）的内容')
@@ -7461,10 +8118,15 @@ def index():
     )
     ui.button(
         '显示',
-        on_click = lambda :ui.notify(data_class.value)
+        on_click = lambda :ui.notify(
+            data_class.value
+        )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 活动链接的典型用法之一就是与字典绑定。与字典绑定时，可以直接使用字典的键作为字典的“属性名”，绑定方法内部会自动识别并处理字典，得到对应的值。
@@ -7483,10 +8145,15 @@ def index():
     )
     ui.button(
         '显示',
-        on_click = lambda :ui.notify(data_dict['value'])
+        on_click = lambda :ui.notify(
+            data_dict['value']
+        )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 另一个典型用法则是与全局变量绑定。使用`globals()`即可得到一个包含全局变量的字典，这样就和与字典绑定一样。
@@ -7505,10 +8172,15 @@ def index():
     )
     ui.button(
         '显示',
-        on_click = lambda :ui.notify(globals()['value'])
+        on_click = lambda :ui.notify(
+            globals()['value']
+        )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 #### 37.1.2 属性绑定
@@ -7548,7 +8220,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 `BindableProperty`类的`on_change`参数用于定义属性值变化时执行的操作。该参数对应的可调用对象支持两个参数，分别代表可绑定属性所属的对象、可绑定属性的当前值。
@@ -7581,7 +8256,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 `bindable_dataclass`方法用起来就像一个装饰器，用于代替`@dataclass`创建数据类，只不过，`bindable_dataclass`方法会将所有数据类的字段转换为可绑定属性：
@@ -7607,7 +8285,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 对于不想或者不支持转换为可绑定属性的字段，可以使用`bindable_dataclass`方法的另一种用法，其列表类型的`bindable_fields`参数用于指定要转换为可绑定属性的字段，不在该参数内的字段则不会转换：
@@ -7633,7 +8314,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ### 37.2 通用绑定方法
@@ -7735,7 +8419,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 ## 38 可观察类集合
@@ -7768,7 +8455,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 不过，笔者并不推荐读者运行上面的代码，因为上面的代码存在以下缺陷：
@@ -7806,7 +8496,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ````
 
 但是，即使集合类对象的元素发生变化，可绑定属性也监测不到集合类对象的变化，也就是说，可绑定属性不支持集合类对象。
@@ -7834,7 +8527,10 @@ def index():
         )
     )
 
-ui.run(root=index,native=True)
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
 `observables`模块提供了以下类可供使用：
@@ -7866,7 +8562,10 @@ ui.run(root=index,native=True)
             )
         )
     
-    ui.run(root=index,native=True)
+    ui.run(
+        root=index,
+        native=True
+    )
     ```
 
   控件的`_props`属性或者`props`属性其实就是基于`ObservableDict`类实现的，修改这些属性中元素，都会触发自动刷新，无需手动调用控件的刷新方法。

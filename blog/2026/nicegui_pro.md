@@ -9726,9 +9726,68 @@ ui.run(
 - `ui.log`控件，可以逐条显示日志内容。如果推送日志时额外指定了样式，则该条日志会被渲染为对应样式。
 - `ui.xterm`控件，可以使用Xterm终端渲染包含ANSI控制符的内容。
 
-### 42.1 `ui.markdown`控件（更新中）
+这些控件的参数简单，因此合并介绍，不单独开辟章节。
 
+`ui.markdown`控件支持以下参数：
 
+- `content`参数，字符串类型，
+- `extras`参数，元素为字符串的列表类型，
+  - [admonitions](https://github.com/trentm/python-markdown2/wiki/admonitions): Enable parsing of RST admonitions.
+  - [breaks](https://github.com/trentm/python-markdown2/wiki/breaks): Control where hard breaks are inserted in the markdown.
+  - [code-friendly](https://github.com/trentm/python-markdown2/wiki/code-friendly): Disable `_` and `__` for `em` and `strong`.
+  - [code-color](https://github.com/trentm/python-markdown2/wiki/code-color): (**DEPRECATED** Use `fenced-code-blocks` extra instead.) Pygments-based syntax coloring of `<code>` sections.
+  - [cuddled-lists](https://github.com/trentm/python-markdown2/wiki/cuddled-lists): Allow lists to be cuddled to the preceding paragraph.
+  - [fenced-code-blocks](https://github.com/trentm/python-markdown2/wiki/fenced-code-blocks): Allows a code block to not have to be indented by fencing it with '```' on a line before and after. Based on http://github.github.com/github-flavored-markdown/ with support for syntax highlighting.
+  - [footnotes](https://github.com/trentm/python-markdown2/wiki/footnotes): support footnotes as in use on daringfireball.net and implemented in other Markdown processors (tho not in Markdown.pl v1.0.1).
+  - [header-ids](https://github.com/trentm/python-markdown2/wiki/header-ids): Adds "id" attributes to headers. The id value is a slug of the header text.
+  - `highlightjs-lang`: Allows specifying the language which used for syntax highlighting when using fenced-code-blocks and highlightjs.
+  - `html-classes`: Takes a dict mapping html tag names (lowercase) to a string to use for a "class" tag attribute. Currently only supports "pre", "code", "table" and "img" tags. Add an issue if you require this for other tags.
+  - `latex`: Converts inline and block equations wrapped using `$...$` or `$$...$$` to MathML
+  - [link-patterns](https://github.com/trentm/python-markdown2/wiki/link-patterns): Auto-link given regex patterns in text (e.g. bug number references, revision number references).
+  - [markdown-in-html](https://github.com/trentm/python-markdown2/wiki/markdown-in-html): Allow the use of `markdown="1"` in a block HTML tag to have markdown processing be done on its contents. Similar to http://michelf.com/projects/php-markdown/extra/#markdown-attr but with some limitations.
+  - [metadata](https://github.com/trentm/python-markdown2/wiki/metadata): Extract metadata from a leading '---'-fenced block.
+  - `middle-word-em`: Allows or disallows emphasis syntax in the middle of words, defaulting to allow. Disabling this means that `this_text_here` will not be converted to `this<em>text</em>here`.
+  - [nofollow](https://github.com/trentm/python-markdown2/wiki/nofollow): Add `rel="nofollow"` to all `<a>` tags with an href. See http://en.wikipedia.org/wiki/Nofollow.
+  - [numbering](https://github.com/trentm/python-markdown2/wiki/numbering): Create counters to number tables, figures, equations and graphs.
+  - [pyshell](https://github.com/trentm/python-markdown2/wiki/pyshell): Treats unindented Python interactive shell sessions as `<code>` blocks. (TODO: wiki page for this)
+  - `smarty-pants`: Fancy quote, em-dash and ellipsis handling similar to http://daringfireball.net/projects/smartypants/. See [old issue 42](http://code.google.com/p/python-markdown2/issues/detail?id=42) for discussion. (TODO: wiki page for this)
+  - `spoiler`: A special kind of blockquote commonly hidden behind a click on [SO](https://stackoverflow.com/). Syntax per http://meta.stackexchange.com/a/72878.
+  - `strike`: Parse `~~strikethrough~~` formatting.
+  - `tag-friendly`: Requires atx style headers to have a space between the # and the header text. Useful for applications that require twitter style tags to pass through the parser.
+  - [tables](https://github.com/trentm/python-markdown2/wiki/tables): Tables using the same format as [GFM](https://help.github.com/articles/github-flavored-markdown#tables) and [PHP-Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#table).
+  - `target-blank-links`: Add `target="_blank"` to all `<a>` tags with an href. This causes the link to be opened in a new tab upon a click.
+  - `tg-spoiler`: Special spoiler syntax made by telegram, for more [info](https://core.telegram.org/bots/api#markdownv2-style).
+  - `toc`: The returned HTML string gets a new "toc_html" attribute which is a Table of Contents for the document. (experimental)
+  - [use-file-vars](https://github.com/trentm/python-markdown2/wiki/use-file-vars): Look for an Emacs-style `markdown-extras` file variable to turn on Extras.
+  - wavedrom: Support for generating Wavedrom digital timing diagrams
+  - [wiki-tables](https://github.com/trentm/python-markdown2/wiki/wiki-tables): Google Code Wiki table syntax support.
+  - `xml`: Passes one-liner processing instructions and namespaced XML tags. (TODO: wiki page for this)
+  - `task_list`: Allows github-style task lists (i.e. check boxes), see the [pull request](https://github.com/trentm/python-markdown2/pull/218). (TODO: wiki page for this). Notice: this extra's name `task_list` has an underscore, not a dash.
+  - [mermaid](https://github.com/trentm/python-markdown2/wiki/mermaid): Enables the [mermaid](https://mermaid-js.github.io/) support through the related fenced code block.
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.markdown(
+        '''
+        ```mermaid
+        graph LR;
+        A[NiceGUI] --> |Render| B{mermaid};
+		```
+        ''',
+        extras=[
+            'tables',
+            'fenced-code-blocks',
+            'mermaid'
+        ]
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 

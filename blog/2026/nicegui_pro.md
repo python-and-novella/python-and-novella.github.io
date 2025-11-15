@@ -9774,8 +9774,7 @@ def index():
         ```mermaid
         graph LR;
         A[NiceGUI] --> |Render| B{mermaid};
-		```
-        ''',
+        ```''',
         extras=[
             'tables',
             'fenced-code-blocks',

@@ -8103,7 +8103,7 @@ click taskId call callback(arguments)
 click taskId href URL
 ```
 
-注意，因为Mermaid一般是用来展示流程图，不是用来交互的，因此默认的安全等级不允许执行交互，需要设置安全等级为宽松`{'securityLevel': 'loose'}`，以流程图为例，完整用法参考[官网文档](https://mermaid.js.org/syntax/flowchart.html#interaction)）。
+注意，因为Mermaid一般是用来展示流程图，不是用来交互的，因此默认的安全等级不允许执行交互，需要设置安全等级为宽松`{'securityLevel': 'loose'}`（完整用法参考[官网文档](https://mermaid.js.org/syntax/flowchart.html#interaction)）。
 
 如果想要在Python中响应Mermaid的点击事件，可以在Mermaid中使用JavaScript的`emitEvent`方法注册一个JavaScript事件，然后在Python中使用`ui.on`方法监听Mermaid中注册的事件：
 

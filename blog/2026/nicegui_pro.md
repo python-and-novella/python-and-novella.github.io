@@ -9726,60 +9726,441 @@ ui.run(
 - `ui.log`控件，可以逐条显示日志内容。如果推送日志时额外指定了样式，则该条日志会被渲染为对应样式。
 - `ui.xterm`控件，可以使用Xterm终端渲染包含ANSI控制符的内容。
 
-这些控件的参数简单，因此合并介绍，不单独开辟章节。
+### 42.1 `ui.markdown`控件
 
 `ui.markdown`控件支持以下参数：
 
-- `content`参数，字符串类型，
-- `extras`参数，元素为字符串的列表类型，
-  - [admonitions](https://github.com/trentm/python-markdown2/wiki/admonitions): Enable parsing of RST admonitions.
-  - [breaks](https://github.com/trentm/python-markdown2/wiki/breaks): Control where hard breaks are inserted in the markdown.
-  - [code-friendly](https://github.com/trentm/python-markdown2/wiki/code-friendly): Disable `_` and `__` for `em` and `strong`.
-  - [code-color](https://github.com/trentm/python-markdown2/wiki/code-color): (**DEPRECATED** Use `fenced-code-blocks` extra instead.) Pygments-based syntax coloring of `<code>` sections.
-  - [cuddled-lists](https://github.com/trentm/python-markdown2/wiki/cuddled-lists): Allow lists to be cuddled to the preceding paragraph.
-  - [fenced-code-blocks](https://github.com/trentm/python-markdown2/wiki/fenced-code-blocks): Allows a code block to not have to be indented by fencing it with '```' on a line before and after. Based on http://github.github.com/github-flavored-markdown/ with support for syntax highlighting.
-  - [footnotes](https://github.com/trentm/python-markdown2/wiki/footnotes): support footnotes as in use on daringfireball.net and implemented in other Markdown processors (tho not in Markdown.pl v1.0.1).
-  - [header-ids](https://github.com/trentm/python-markdown2/wiki/header-ids): Adds "id" attributes to headers. The id value is a slug of the header text.
-  - `highlightjs-lang`: Allows specifying the language which used for syntax highlighting when using fenced-code-blocks and highlightjs.
-  - `html-classes`: Takes a dict mapping html tag names (lowercase) to a string to use for a "class" tag attribute. Currently only supports "pre", "code", "table" and "img" tags. Add an issue if you require this for other tags.
-  - `latex`: Converts inline and block equations wrapped using `$...$` or `$$...$$` to MathML
-  - [link-patterns](https://github.com/trentm/python-markdown2/wiki/link-patterns): Auto-link given regex patterns in text (e.g. bug number references, revision number references).
-  - [markdown-in-html](https://github.com/trentm/python-markdown2/wiki/markdown-in-html): Allow the use of `markdown="1"` in a block HTML tag to have markdown processing be done on its contents. Similar to http://michelf.com/projects/php-markdown/extra/#markdown-attr but with some limitations.
-  - [metadata](https://github.com/trentm/python-markdown2/wiki/metadata): Extract metadata from a leading '---'-fenced block.
-  - `middle-word-em`: Allows or disallows emphasis syntax in the middle of words, defaulting to allow. Disabling this means that `this_text_here` will not be converted to `this<em>text</em>here`.
-  - [nofollow](https://github.com/trentm/python-markdown2/wiki/nofollow): Add `rel="nofollow"` to all `<a>` tags with an href. See http://en.wikipedia.org/wiki/Nofollow.
-  - [numbering](https://github.com/trentm/python-markdown2/wiki/numbering): Create counters to number tables, figures, equations and graphs.
-  - [pyshell](https://github.com/trentm/python-markdown2/wiki/pyshell): Treats unindented Python interactive shell sessions as `<code>` blocks. (TODO: wiki page for this)
-  - `smarty-pants`: Fancy quote, em-dash and ellipsis handling similar to http://daringfireball.net/projects/smartypants/. See [old issue 42](http://code.google.com/p/python-markdown2/issues/detail?id=42) for discussion. (TODO: wiki page for this)
-  - `spoiler`: A special kind of blockquote commonly hidden behind a click on [SO](https://stackoverflow.com/). Syntax per http://meta.stackexchange.com/a/72878.
-  - `strike`: Parse `~~strikethrough~~` formatting.
-  - `tag-friendly`: Requires atx style headers to have a space between the # and the header text. Useful for applications that require twitter style tags to pass through the parser.
-  - [tables](https://github.com/trentm/python-markdown2/wiki/tables): Tables using the same format as [GFM](https://help.github.com/articles/github-flavored-markdown#tables) and [PHP-Markdown Extra](https://michelf.ca/projects/php-markdown/extra/#table).
-  - `target-blank-links`: Add `target="_blank"` to all `<a>` tags with an href. This causes the link to be opened in a new tab upon a click.
-  - `tg-spoiler`: Special spoiler syntax made by telegram, for more [info](https://core.telegram.org/bots/api#markdownv2-style).
-  - `toc`: The returned HTML string gets a new "toc_html" attribute which is a Table of Contents for the document. (experimental)
-  - [use-file-vars](https://github.com/trentm/python-markdown2/wiki/use-file-vars): Look for an Emacs-style `markdown-extras` file variable to turn on Extras.
-  - wavedrom: Support for generating Wavedrom digital timing diagrams
-  - [wiki-tables](https://github.com/trentm/python-markdown2/wiki/wiki-tables): Google Code Wiki table syntax support.
-  - `xml`: Passes one-liner processing instructions and namespaced XML tags. (TODO: wiki page for this)
-  - `task_list`: Allows github-style task lists (i.e. check boxes), see the [pull request](https://github.com/trentm/python-markdown2/pull/218). (TODO: wiki page for this). Notice: this extra's name `task_list` has an underscore, not a dash.
-  - [mermaid](https://github.com/trentm/python-markdown2/wiki/mermaid): Enables the [mermaid](https://mermaid-js.github.io/) support through the related fenced code block.
+- `content`参数，字符串类型，表示原始（未渲染）的内容。
+- `extras`参数，元素为字符串的列表类型，表示启用哪些Markdown扩展语法支持（markdown2的扩展），默认为`['fenced-code-blocks', 'tables']`。
+
+`extras`参数常用的Markdown扩展语法（markdown2的扩展）有：
+
+- `'cuddled-lists'`，表示启用无额外换行的无序列表支持，即无序列表的上一行可以不是空白行。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = '''
+      Items:
+      - 1
+      - 2
+      - 3
+      '''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'cuddled-lists'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_1](nicegui_pro.assets/2026_42_1.png)
+
+- `'fenced-code-blocks'`，表示启用代码块支持。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = '''
+      ```python3
+      print('Hello')
+      ```'''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'fenced-code-blocks'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_2](nicegui_pro.assets/2026_42_2.png)
+
+- `'footnotes'`，表示启用脚注支持。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = '''
+      一段简单的文字[^id]
+      [^id]:这是脚注
+      '''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'footnotes'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_3](nicegui_pro.assets/2026_42_3.png)
+
+- `'header-ids'`，表示为标题设置ID属性。
+
+- `'highlightjs-lang'`，表示在启用代码块支持之后，将原本渲染为语法高亮的内容改为无高亮但是添加了表明语言种类的样式类。
+
+- `'latex'`，表示启用LaTeX的公式支持，即将“\$”或者“\$\$”包围的LaTeX公式为MathML（HTML格式的公式表达）。
+
+  注意，该功能需要额外安装`latex2mathml`库。此外，因为LaTeX公式会包含类似转移符号的表达格式，字符串必须为原始字符串（在字符串前加`r`修饰符）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = r'''
+      $x = 2^2$
+  
+      $$
+      x = \frac{-b \pm \sqrt{b^2 -4ac}}{2a}
+      $$
+  
+      $$
+      \sum_{x=1}^5 y^z
+      $$
+  
+      $$
+      \int_1^2 f(x)
+      $$
+  
+      $$
+      \sqrt[x]{y^2}
+      $$
+      '''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'latex'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_4](nicegui_pro.assets/2026_42_4.png)
+
+- `'pyshell'`，表示允许将指定格式的内容渲染为Python Shell。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = '''
+      Python Shell:
+      >>> import sys
+      >>> sys.platform
+      'win32'
+      '''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'pyshell'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_5](nicegui_pro.assets/2026_42_5.png)
+
+  也可以与`'fenced-code-blocks'`同时使用，增加语法高亮：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = '''
+      Python Shell:
+      >>> import sys
+      >>> sys.platform
+      'win32'
+      '''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'pyshell',
+              'fenced-code-blocks'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_6](nicegui_pro.assets/2026_42_6.png)
+
+- `'tables'`，表示启用表格支持。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = '''
+      | 名称 | *内容* |
+      | -------- | -------- |
+      | `Python` | [Python](https://www.python.org/) |
+      | JavaScript| **JavaScript** |
+      '''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'tables'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_7](nicegui_pro.assets/2026_42_7.png)
+
+- `'target-blank-links'`，表示给所有的超链接添加`target='_blank'`，确保点击超链接之后在新窗口打开。
+
+- `'toc'`，表示启用目录支持。
+
+- `'task_list'`，表示启用GItHub风格的任务列表支持。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = '''
+      - [x] 任务1
+      - [ ] 任务2
+      '''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'task_list'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_8](nicegui_pro.assets/2026_42_8.png)
+
+- `'mermaid'`，表示启用Mermaid支持。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      content = '''
+      ```mermaid
+      graph LR;
+      A[NiceGUI] --> |Render| B{mermaid};
+      ```'''
+      # 未启用
+      ui.markdown(
+          content,
+          extras=[]
+      )
+      # 启用后
+      ui.markdown(
+          content,
+          extras=[
+              'mermaid'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_9](nicegui_pro.assets/2026_42_9.png)
+
+完整的Markdown扩展语法（markdown2的扩展）支持可以参考 https://github.com/trentm/python-markdown2/wiki/Extras#implemented-extras ，但不是所有扩展语法都可以启用，因为部分扩展语法需要通过字典传入配置项，`extras`参数无法传入。
+
+### 42.2 `ui.mermaid`控件
+
+`ui.mermaid`控件支持以下参数：
+
+- `content`参数，字符串类型，表示原始（未渲染）的内容（语法规则参考 https://mermaid.js.org/intro/syntax-reference.html ）。
+
+- `config`参数，字典类型，表示传入JavaScript库的配置（支持的配置参考 https://mermaid.js.org/config/schema-docs/config.html#mermaid-config-properties ），默认为`None`，即不传入任何配置。比如，配置流程图的主题：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.mermaid(
+          '''
+          graph LR;
+          A[NiceGUI] --> |Render| B{mermaid};
+          ''',
+          {'theme':'forest'},
+  
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_42_10](nicegui_pro.assets/2026_42_10.png)
+
+- `on_node_click`参数，关键字参数，可调用类型，表示点击节点时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`MermaidNodeClickEventArguments`类型，其`node_id`属性表示触发点击事件的节点ID。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.mermaid(
+          '''
+          graph LR;
+          A[NiceGUI] --> |Render| B{mermaid};
+          ''',
+          on_node_click=lambda e:ui.notify(
+              e.node_id
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+`ui.mermaid`控件支持以下方法：
+
+- `on_node_click`方法，用途同`on_node_click`参数。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.mermaid(
+          '''
+          graph LR;
+          A[NiceGUI] --> |Render| B{mermaid};
+          '''
+      ).on_node_click(
+          lambda e:ui.notify(
+              e.node_id
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+如果想要让流程图支持点击之后的交互动作，可以使用下面的语法：
+
+```
+#点击调用JavaScript函数
+click taskId call callback(arguments)
+#点击访问指定链接
+click taskId href URL
+```
+
+注意，因为流程图一般是用来展示的，不是用来交互的，因此默认的安全等级不允许执行交互，需要设置安全等级为宽松`{'securityLevel': 'loose'}`才可以执行点击之后的交互动作（完整用法参考 https://mermaid.js.org/syntax/flowchart.html#interaction ）。
+
+示例如下：
 
 ```python3
 from nicegui import ui
 
 def index():
-    ui.markdown(
+    ui.mermaid(
         '''
-        ```mermaid
         graph LR;
         A[NiceGUI] --> |Render| B{mermaid};
-        ```''',
-        extras=[
-            'tables',
-            'fenced-code-blocks',
-            'mermaid'
-        ]
+        click A href "https://nicegui.io/";
+        click A call confirm("You clicked A!");
+        click B call emitEvent("mermaid_click", "You clicked B!");
+        ''',
+        {'securityLevel': 'loose'}
+    )
+    ui.on(
+        'mermaid_click',
+        lambda e:ui.notify(
+            e.args
+        )
     )
 
 ui.run(
@@ -9788,7 +10169,86 @@ ui.run(
 )
 ```
 
+![2026_42_11](nicegui_pro.assets/2026_42_11.png)
 
+`ui.mermaid`控件额外支持`error`事件，仅当原始（未渲染）的内容发生语法错误时，才会触发此事件：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.mermaid(
+        '''
+        graph LR;
+        A[NiceGUI] -> |Render| B{mermaid};
+        '''
+    ).on(
+        'error',
+        lambda e: ui.notify(
+            e.args
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_42_12](nicegui_pro.assets/2026_42_12.png)
+
+除了流程图，`ui.mermaid`控件还以绘制其他类型的图，比如饼状图（完整用法参考 https://mermaid.js.org/syntax/pie.html ，更多类型的图可以点击侧边栏的其他目录）：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.mermaid(
+        '''
+        pie title Python GUI框架市场份额（非真实数据）
+        'PySide/PyQt' : 45
+        'Tkinter' : 20
+        'NiceGUI' : 10
+        'Flet' : 10
+        '其他' : 15
+        '''
+    ).classes('w-96 h-96')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_42_13](nicegui_pro.assets/2026_42_13.png)
+
+### 42.3 `ui.xterm`控件（更新中）
+
+`ui.xterm`控件支持以下参数：
+
+- `options`参数，字典类型，表示传入JavaScript库的配置（支持的配置参考 https://xtermjs.org/docs/api/terminal/classes/terminal/#constructor ），默认为`None`，即不传入任何配置。
+
+
+
+`ui.xterm`控件支持以下方法：
+
+- `xxx`方法，
+
+
+
+
+
+### 42.4 参数简单的控件
+
+部分控件的参数简单，因此合并介绍。
+
+
+
+`ui.restructured_text`控件
+
+`ui.code`控件
+
+`ui.log`控件
 
 
 

@@ -2378,7 +2378,7 @@ ui.run(
 
 - `ui.button`控件，就是普通的按钮。
 - `ui.button_group`控件，用于将多个普通按钮组合成一个外观上是单个按钮、功能上每个按钮都可以点击的巨大按钮。
-- `ui.dropdown_button`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容。点击右侧图标，即可弹出嵌入的内容。
+- `ui.dropdown_button`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容。点击右侧图标，会以下拉的形式弹出嵌入的内容。
 - `ui.fab`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容（建议嵌入`ui.fab_action`控件）。点击控件，即可弹出嵌入的内容。
 - `ui.chip`控件，本身具备按钮功能，还支持选择、删除自身。
 
@@ -10558,34 +10558,209 @@ ui.run(
 
   ![2026_42_18](nicegui_pro.assets/2026_42_18.png)
 
-## 43 学习控件——按钮（更新中）
+## 43 学习控件——按钮
 
 在NiceGUI中，按钮相关的控件最多，除了前面已经介绍过的`ui.button`控件，还有以下控件：
 
 - `ui.button_group`控件，用于将多个普通按钮组合成一个外观上是单个按钮、功能上每个按钮都可以点击的巨大按钮。
-- `ui.dropdown_button`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容。点击右侧图标，即可弹出嵌入的内容。
+- `ui.dropdown_button`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容。点击右侧图标，会以下拉的形式弹出嵌入的内容。
 - `ui.fab`控件，本身具备按钮功能，还能在其上下文中嵌入其他内容（建议嵌入`ui.fab_action`控件）。点击控件，即可弹出嵌入的内容。
 - `ui.chip`控件，本身具备按钮功能，还支持选择、删除自身。
 
 `ui.button_group`控件没有参数，因此本章不介绍。
 
-### 43.1 `ui.dropdown_button`控件（更新中）
+### 43.1 `ui.dropdown_button`控件
 
+`ui.dropdown_button`控件支持以下参数：
 
+- `text`参数，字符串类型，表示显示在按钮中的文字。
 
+- `value`参数，布尔类型，表示是否弹出嵌入的内容，默认为`False`。
 
+  从该参数开始，只能通过关键字传入。
 
-### 43.2 `ui.fab`控件（更新中）
+- `on_value_change`参数，可调用类型，表示弹出状态变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前弹出状态，`previous_value`属性表示先前弹出状态。
 
+- `on_click`参数，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
 
+- `color`参数，字符串类型，表示按钮的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
 
+- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数支持以下几种图标的表达格式：
 
+  - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
+  - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
 
-### 43.3 `ui.chip`控件（更新中）
+  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon。
 
+- `auto_close`参数，布尔类型，表示点击弹出的嵌入内容之后是否自动收回，默认为`False`。
 
+- `split`参数，布尔类型，表示是否在按钮的文字和表示可以下拉弹出的图标之间添加分隔线，默认为`False`。
 
+`ui.dropdown_button`控件支持以下方法：
 
+- `on_click`方法，为控件的点击事件注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+- `on_value_change`方法，为控件的弹出状态变化注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示控件的弹出状态变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前弹出状态，`previous_value`属性表示先前弹出状态。
+- `open`方法，弹出嵌入的内容。
+- `close`方法，收起嵌入的内容。
+- `toggle`方法，切换嵌入内容弹出状态。
+
+`ui.dropdown_button`控件支持嵌入复杂布局的控件，比如开关等。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.dropdown_button(
+        '设置',
+        icon='settings',
+        split=True
+    ):
+        with ui.row().classes(
+            'p-4 items-center'
+        ):
+            ui.icon(
+                'volume_up',
+                size='sm'
+            )
+            ui.switch()
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_43_1](nicegui_pro.assets/2026_43_1.png)
+
+### 43.2 `ui.fab`控件
+
+`ui.fab`控件支持以下参数：
+
+- `icon`参数，字符串类型，表示在按钮内显示额外的图标。
+
+  从该参数开始，只能通过关键字传入。
+
+- `value`参数，布尔类型，表示是否弹出嵌入的内容，默认为`False`。
+
+- `label`参数，字符串类型，表示显示在按钮中的文字。
+
+- `color`参数，字符串类型，表示按钮的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
+
+- `direction`参数，字符串类型，仅支持`['up', 'down', 'left', 'right']`中的值，表示嵌入内容的弹出方向，默认为`'right'`。
+
+`ui.fab`控件支持以下方法：
+
+- `on_value_change`方法，为控件的弹出状态变化注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示控件的弹出状态变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前弹出状态，`previous_value`属性表示先前弹出状态。
+- `open`方法，弹出嵌入的内容。
+- `close`方法，收起嵌入的内容。
+- `toggle`方法，切换嵌入内容弹出状态。
+
+`ui.fab_action`控件支持以下参数：
+
+- `icon`参数，字符串类型，表示在按钮内显示额外的图标。
+
+  从该参数开始，只能通过关键字传入。
+
+- `label`参数，字符串类型，表示显示在按钮中的文字。
+
+- `on_click`参数，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+
+- `color`参数，字符串类型，表示按钮的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
+
+- `auto_close`参数，布尔类型，表示点击弹出的嵌入内容之后是否自动收回，默认为`True`。
+
+`ui.fab_action`控件支持以下方法：
+
+- `on_click`方法，为控件的点击事件注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示点击控件时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.fab(
+        'menu',
+        label='fab',
+        direction='down'
+    ):
+        ui.fab_action('home')
+        ui.fab_action('replay')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_43_2](nicegui_pro.assets/2026_43_2.png)
+
+### 43.3 `ui.chip`控件
+
+`ui.chip`控件支持以下参数：
+
+- `text`参数，字符串类型，表示显示在按钮中的文字。
+
+- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数支持以下几种图标的表达格式：
+
+  - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
+  - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
+
+  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon。
+
+  从该参数开始，只能通过关键字传入。
+
+- `color`参数，字符串类型，表示按钮的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
+
+- `text_color`参数，字符串类型，表示按钮内文字、图标的颜色。
+
+- `on_click`参数，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+
+- `selectable`参数，布尔类型，表示按钮是否可以选择，默认为`False`。
+
+- `selected`参数，布尔类型，表示按钮是否为已选择状态，默认为`False`。
+
+- `on_selection_change`参数，可调用类型，表示控件的选择状态变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的选择状态，`previous_value`属性表示先前的选择状态。
+
+- `removable`参数，布尔类型，表示按钮是否可以被移除，默认为`False`。
+
+- `on_value_change`参数，可调用类型，表示控件的移除状态变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前移除状态，`previous_value`属性表示先前移除状态。
+
+`ui.chip`控件支持以下方法：
+
+- `on_click`方法，为控件的点击事件注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示点击控件时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+- `on_selection_change`方法，为控件的选择状态变化注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示控件的选择状态变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的选择状态，`previous_value`属性表示先前的选择状态
+- `on_value_change`方法，为控件的移除状态变化注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示控件的移除状态变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前移除状态，`previous_value`属性表示先前移除状态。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.chip(
+        'chip',
+        icon='home',
+        selectable=True,
+        selected=True,
+        removable=True,
+        text_color='red'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_43_3](nicegui_pro.assets/2026_43_3.png)
 
 ## 44 学习控件——选择（更新中）
 
@@ -11769,4 +11944,10 @@ ui.run(
 ## x 灵感（待定）
 
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
+
+强制刷新页面（忽略缓存，只从服务器加载资源）：
+
+```javascript
+window.location.reload(true)
+```
 

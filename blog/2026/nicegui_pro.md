@@ -10772,7 +10772,201 @@ ui.run(
 - `ui.checkbox`控件，点击之后可以切换选项选择状态，可用于组成多选的选项，也可以像一个开关一样单独使用。
 - `ui.switch`控件，用法和`ui.checkbox`控件一样，不同的是，该控件看上去更像一个可以点击切换状态的开关。
 
+### 44.1 `ui.select`控件
 
+`ui.select`控件支持以下参数：
+
+- `options`参数，列表类型或者字典类型，表示控件的所有选项。如果是列表，每个元素既是当前选择的值，也是显示出来的文本。如果是字典，则键（key）是当前选择的值，值（value）是显示出来的文本。
+
+- `label`参数，字符串类型，表示显示在选择框上方的文本，但不是选择的文本，如果当前选择的内容是空的，点击选择之前会显示在选择框内，点击之后会移动到选择框上方。
+
+  从该参数开始，只能通过关键字传入
+
+- `value`参数，表示控件初始选择的值。
+
+- `on_change`参数，可调用类型，当值变化时执行什么操作。
+
+- `with_input`参数，布尔类型，表示是否在选择框内显示一个输入框，用输入的内容筛选选项，默认为`False`，即不显示输入框，也不支持通过输入的方式筛选选项。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.select(
+          ['a','b','c'],
+          value='a',
+          label='select',
+          with_input=True
+      ).classes('w-32')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_1](nicegui_pro.assets/2026_44_1.png)
+
+- `new_value_mode`参数，字符串类型或`None`，表示在选择框内输入值后直接回车，而不是选择现有选项的话，执行什么样的操作。这个参数只支持以下值：
+
+  - `'add'`表示只能添加没有的值，即根据输入的值筛选当前已有的选项，如果有筛选结果，选择第一个，没有筛选结果则添加这个值。
+
+  - `'add-unique'`表示添加当前值到选项中，哪怕值是相同的，也能添加为新的选项。
+
+  - `'toggle'`表示没有就和`'add-unique'`一样的添加；如果有就删除。
+
+    注意，删除时候需要取消下拉弹出选项的焦点，确保选择框为输入状态，选项不是弹出状态，此时回车才能删除与当前输入框的内容相同的新增选项，`options`参数定义的选项无法被删除。
+
+  - 默认为`None`，表示不会添加新的选项。
+
+  注意，该参数非`None`时，会同时将`with_input`参数设为`True`，并且优先级高于`with_input`参数。
+
+- `multiple`参数，布尔类型，表示选项是否支持多选。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.select(
+          ['a','b','c'],
+          value='a',
+          label='select',
+          multiple=True
+      ).classes('w-32')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_2](nicegui_pro.assets/2026_44_2.png)
+
+- `clearable`参数，布尔类型，表示是否添加一个清除当前选择的按钮。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.select(
+          ['a','b','c'],
+          value='a',
+          label='select',
+          clearable=True
+      ).classes('w-32')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_3](nicegui_pro.assets/2026_44_3.png)
+
+- `validation`参数，可调用类型、字典类型或者`None`，表示验证选择的内容是否有效。默认值为`None`，表示不验证选择的内容。
+
+  如果传入可调用类型参数，该参数返回错误信息表示内容无效，返回`None`表示内容有效。
+
+  如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示内容有效，返回`False`则表示内容有效并输出错误信息。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.select(
+          options=[1, 2, 3],
+          value=1,
+          validation={
+              'value is less than 3': lambda v: v >= 3
+          }
+      ).classes('w-48')
+      ui.select(
+          options=[1, 2, 3],
+          value=1,
+          validation=lambda v: 'value is less than 3' if v < 3 else None,
+      ).classes('w-48')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_4](nicegui_pro.assets/2026_44_4.png)
+
+- `key_generator`参数，生成器类型、迭代器类型或者可调用类型，当`options`为字典类型且`new_value_mode`参数不为`None`时，此参数用于生成字典的键（key）。
+
+  当此参数为生成器类型和迭代器类型，每次新添加选项时，选项的键（key）就是通过依次遍历此参数获得，该选项的显示文本就是输入的内容。当此参数不能继续遍历时，新的选项将无法添加。
+
+  如果此参数为可调用类型，每次新添加选项的键（key）就是将输入内容当做参数、可调用参数返回的执行结果，该选项的显示文本就是输入的内容。
+
+  注意，当`new_value_mode`参数为`'add'`时，此参数必须正确设置，否则会报错。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      slect = ui.select(
+          options={1: 'One', 2: 'Two', 3: 'Three'},
+          value=1,
+          new_value_mode='add',
+          key_generator=(i for i in [ '', 4, 5, 6])
+      ).classes('w-48')
+      ui.button(on_click=lambda:ui.notify(slect.value))
+      ui.select(
+          options={1: 'One', 2: 'Two', 3: 'Three'},
+          value=1,
+          new_value_mode='add',
+          key_generator=iter([4, 5, 6])
+      ).classes('w-48')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  注意，将生成器传给`key_generator`参数的话，控件会先执行一次`next`方法，然后才开始执行`send`方法，这将导致生成器的第一个生成（`yield`）值被抛弃。其中，执行一次`next`方法的目的是确保遍历的每一步都能接收到`send`方法的参数。
+
+  因此，如果是传入的是简易生成器，可以在头部插入任意值，专门用来抛弃，避免可额外添加的选项数少一，或者避免每次添加的选项与实际值错位。
+
+  若是读者不太熟悉生成器语法的话，也可以使用`iter`方法，将生成器转换为迭代器来使用，这样就不用在头部额外插入任意值。
+
+`ui.select`控件支持以下方法（部分）：
+
+- `on_value_change`方法，当值变化时执行什么操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示当值变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前值，`previous_value`属性表示先前值。
+- `without_auto_validation`方法，禁用选项内容有效性的验证并返回控件。
+
+### 44.2 参数简单的控件（更新中）
+
+部分控件的参数简单，因此合并介绍。
+
+`ui.radio`控件支持以下参数：
+
+- 
+
+`ui.toggle`控件支持以下参数：
+
+- 
+
+`ui.checkbox`控件支持以下参数：
+
+- 
+
+`ui.switch`控件支持以下参数：
+
+- 
 
 
 

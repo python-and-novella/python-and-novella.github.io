@@ -10558,7 +10558,7 @@ ui.run(
 
   ![2026_42_18](nicegui_pro.assets/2026_42_18.png)
 
-## 43 学习控件——按钮
+## 43 学习控件——其余按钮
 
 在NiceGUI中，按钮相关的控件最多，除了前面已经介绍过的`ui.button`控件，还有以下控件：
 
@@ -10774,6 +10774,12 @@ ui.run(
 
 ### 44.1 `ui.select`控件
 
+下面是`ui.select`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/select
+
+Quasar框架文档：https://quasar.dev/vue-components/select
+
 `ui.select`控件支持以下参数：
 
 - `options`参数，列表类型或者字典类型，表示控件的所有选项。如果是列表，每个元素既是当前选择的值，也是显示出来的文本。如果是字典，则键（key）是当前选择的值，值（value）是显示出来的文本。
@@ -10947,6 +10953,329 @@ ui.run(
 - `on_value_change`方法，当值变化时执行什么操作。该方法支持以下参数：
   - `callback`参数，可调用类型，表示当值变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前值，`previous_value`属性表示先前值。
 - `without_auto_validation`方法，禁用选项内容有效性的验证并返回控件。
+
+`ui.select`控件支持以下插槽：
+
+- “default”插槽，对应选项框的主要内容，默认添加到当前主要内容的后面。
+
+  示例如下：
+
+  ```python3
+  """ from nicegui import ui
+  
+  def index():
+      ui.radio(
+          ['a','b','c'],
+          value='a'
+      )
+      ui.toggle(
+          ['a','b','c'],
+          value='a'
+      )
+      ui.checkbox(
+          'checkbox',
+          value=True
+      )
+      ui.switch(
+          'switch',
+          value=True
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+   """
+  
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          ['a','b','c'],
+          value='a',
+          label='select'
+      ).classes('w-32')
+      with select.add_slot('default'):
+          ui.label('点击').classes('w-full')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_5](nicegui_pro.assets/2026_44_5.png)
+
+- “prepend”插槽，对应选项框主要内容前面的区域。
+
+- “append”插槽，对应选项框主要内容后面的区域。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          ['a','b','c'],
+          value='a',
+          label='select'
+      ).classes('w-64')
+      with select.add_slot('default'):
+          ui.label(
+              '点击'
+          ).classes('w-full')
+      with select.add_slot('prepend'):
+          ui.icon('home')
+      with select.add_slot('append'):
+          ui.icon('replay')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_6](nicegui_pro.assets/2026_44_6.png)
+
+- “before”插槽，对应选项框前面的区域。
+
+- “after”插槽，对应选项框后的区域。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          ['a','b','c'],
+          value='a',
+          label='select'
+      ).classes('w-64')
+      with select.add_slot('default'):
+          ui.label(
+              '点击'
+          ).classes('w-full')
+      with select.add_slot('before'):
+          ui.icon('home')
+      with select.add_slot('after'):
+          ui.icon('replay')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_7](nicegui_pro.assets/2026_44_7.png)
+
+- “label”插槽，对应`label`参数的部分。注意，只有设置了`label`参数之后，该插槽才能生效，并且`label`参数的值会被忽略。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          ['a','b','c'],
+          value='a',
+          label=''
+      ).classes('w-32')
+      with select.add_slot('label'):
+          ui.icon(
+              'home'
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_8](nicegui_pro.assets/2026_44_8.png)
+
+- “loading”插槽，对应控件的加载状态，需要在启用Quasar控件属性`'loading'`，建议插入同样表示加载动画的`ui.spinner`控件。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.select(
+          options=[1, 2, 3],
+          value=1,
+          validation={
+              'value is less than 3': lambda v: v >= 3
+          }
+      ).classes('w-48').props('loading')
+      
+      select = ui.select(
+          options=[1, 2, 3],
+          value=1,
+          validation={
+              'value is less than 3': lambda v: v >= 3
+          }
+      ).classes('w-48').props('loading')
+      with select.add_slot('loading'):
+          ui.spinner(
+              'box'
+          )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_9](nicegui_pro.assets/2026_44_9.gif)
+
+- “selected”插槽，对应主要内容区域已选选项。注意，使用该插槽会覆盖掉已选选项的显示文本，并且不支持插入已选选项的任何属性值。但是，使用“selected-item”插槽的话可以插入已选选项的任何属性值，并且“selected-item”插槽优先级高于“selected”插槽。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          options=[1, 2, 3],
+          value=1,
+          validation={
+              'value is less than 3': lambda v: v >= 3
+          }
+      ).classes('w-64')
+      with select.add_slot('selected'):
+          ui.label(
+              'selected'
+          )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- “before-options”插槽，对应所有选项前面的部分。
+
+- “after-options”插槽，对应所有选项后面的部分。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          ['a','b','c'],
+          value='a',
+          label='select'
+      ).classes('w-64')
+      with select.add_slot('before-options'):
+          ui.label('home')
+      with select.add_slot('after-options'):
+          ui.icon('replay')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_10](nicegui_pro.assets/2026_44_10.png)
+
+- “no-option”插槽，对应启用筛选选项后、无匹配结果时的下拉菜单。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          ['a','b','c'],
+          value='a',
+          label='select',
+          with_input=True
+      ).classes('w-64')
+      with select.add_slot('no-option'):
+          ui.label('no option')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_11](nicegui_pro.assets/2026_44_11.png)
+
+- “selected-item”插槽，对应主要内容区域已选选项，支持插入已选选项的任何属性值，优先级高于“selected”插槽。
+
+  注意，想要插入已选选项的任何属性值，需要先使用Quasar控件属性`props`绑定指定变量`'scope'`才能使用（需要添加英文冒号前缀，启用客户端计算表达式），并且变量部分要放在双大括号内，此时`props.opt`就代表已选选项。因为该插槽需要一定的VUE基础，故仅提供示例，不做VUE语法的解释。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          options=[1, 2, 3],
+          value=1
+      ).classes('w-64')
+      select.props(
+          ':props="scope"'
+      ).add_slot(
+          'selected-item',
+          '{{props.opt.label}} selected'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_12](nicegui_pro.assets/2026_44_12.png)
+
+- “option”插槽，对应每个选项。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      select = ui.select(
+          options=[1, 2, 3],
+          value=1
+      ).classes('w-64')
+      select.props(
+          ':props="scope"'
+      ).add_slot(
+          'option',
+          '''
+          <q-item :props='scope' clickable @click='props.toggleOption(props.opt)'>
+              <q-item-section>
+                  <span>
+                      <p v-if='props.selected'>选择</p>
+                      option {{props.opt.label}} {{props.selected ? '✔️':''}}
+                      <p v-show='props.selected'>完成</p>
+                  </span>
+              </q-item-section>
+          </q-item>
+          '''
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_44_13](nicegui_pro.assets/2026_44_13.png)
 
 ### 44.2 参数简单的控件（更新中）
 

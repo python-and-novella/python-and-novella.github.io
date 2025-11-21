@@ -10762,7 +10762,7 @@ ui.run(
 
 ![2026_43_3](nicegui_pro.assets/2026_43_3.png)
 
-## 44 学习控件——选择（更新中）
+## 44 学习控件——选择
 
 想要获取用户的选择，可以使用下面的控件：
 
@@ -10786,11 +10786,11 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
 - `label`参数，字符串类型，表示显示在选择框上方的文本，但不是选择的文本，如果当前选择的内容是空的，点击选择之前会显示在选择框内，点击之后会移动到选择框上方。
 
-  从该参数开始，只能通过关键字传入
+  从该参数开始，只能通过关键字传入。
 
 - `value`参数，表示控件初始选择的值。
 
-- `on_change`参数，可调用类型，当值变化时执行什么操作。
+- `on_change`参数，可调用类型，当值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
 
 - `with_input`参数，布尔类型，表示是否在选择框内显示一个输入框，用输入的内容筛选选项，默认为`False`，即不显示输入框，也不支持通过输入的方式筛选选项。
 
@@ -10801,7 +10801,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   
   def index():
       ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label='select',
           with_input=True
@@ -10838,7 +10838,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   
   def index():
       ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label='select',
           multiple=True
@@ -10861,7 +10861,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   
   def index():
       ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label='select',
           clearable=True
@@ -10961,37 +10961,11 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   示例如下：
 
   ```python3
-  """ from nicegui import ui
-  
-  def index():
-      ui.radio(
-          ['a','b','c'],
-          value='a'
-      )
-      ui.toggle(
-          ['a','b','c'],
-          value='a'
-      )
-      ui.checkbox(
-          'checkbox',
-          value=True
-      )
-      ui.switch(
-          'switch',
-          value=True
-      )
-  
-  ui.run(
-      root=index,
-      native=True
-  )
-   """
-  
   from nicegui import ui
   
   def index():
       select = ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label='select'
       ).classes('w-32')
@@ -11003,9 +10977,9 @@ Quasar框架文档：https://quasar.dev/vue-components/select
       native=True
   )
   ```
-
+  
   ![2026_44_5](nicegui_pro.assets/2026_44_5.png)
-
+  
 - “prepend”插槽，对应选项框主要内容前面的区域。
 
 - “append”插槽，对应选项框主要内容后面的区域。
@@ -11017,7 +10991,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   
   def index():
       select = ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label='select'
       ).classes('w-64')
@@ -11049,7 +11023,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   
   def index():
       select = ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label='select'
       ).classes('w-64')
@@ -11079,7 +11053,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   
   def index():
       select = ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label=''
       ).classes('w-32')
@@ -11169,7 +11143,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   
   def index():
       select = ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label='select'
       ).classes('w-64')
@@ -11195,7 +11169,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   
   def index():
       select = ui.select(
-          ['a','b','c'],
+          options=['a','b','c'],
           value='a',
           label='select',
           with_input=True
@@ -11277,27 +11251,47 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   ![2026_44_13](nicegui_pro.assets/2026_44_13.png)
 
-### 44.2 参数简单的控件（更新中）
+### 44.2 参数简单的控件
 
 部分控件的参数简单，因此合并介绍。
 
 `ui.radio`控件支持以下参数：
 
-- 
+- `options`参数，列表类型或者字典类型，表示控件的所有选项。如果是列表，每个元素既是当前选择的值，也是显示出来的文本。如果是字典，则键（key）是当前选择的值，值（value）是显示出来的文本。
+
+  从该参数开始，只能通过关键字传入。
+
+- `value`参数，表示控件初始选择的值。
+
+- `on_change`参数，可调用类型，当值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
 
 `ui.toggle`控件支持以下参数：
 
-- 
+- `options`参数，列表类型或者字典类型，表示控件的所有选项。如果是列表，每个元素既是当前选择的值，也是显示出来的文本。如果是字典，则键（key）是当前选择的值，值（value）是显示出来的文本。
+
+  从该参数开始，只能通过关键字传入。
+
+- `value`参数，表示控件初始选择的值。
+
+- `on_change`参数，可调用类型，当值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
+
+- `clearable`参数，布尔类型，表示是否可以通过点击已选选项清除选择，默认为`False`。
 
 `ui.checkbox`控件支持以下参数：
 
-- 
+- `text`参数，字符串类型，表示选项标签的文字。
+
+  从该参数开始，只能通过关键字传入。
+
+- `value`参数，布尔类型，表示选项初始的勾选状态，默认为`False`。
+
+- `on_change`参数，可调用类型，当勾选状态变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的勾选状态，`previous_value`属性表示先前的勾选状态。
 
 `ui.switch`控件支持以下参数：
 
-- 
-
-
+- `text`参数，字符串类型，表示控件标签的文字。
+- `value`参数，布尔类型，表示控件初始的开关状态，默认为`False`。
+- `on_change`参数，可调用类型，当开关状态变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的开关状态，`previous_value`属性表示先前的开关状态。
 
 ## 45 学习控件——直接输入（更新中）
 
@@ -11311,6 +11305,8 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 - `ui.editor`控件，允许用户输入多行内容，同时该控件提供了一些设置内容格式的按钮。
 - `ui.codemirror`控件，允许用户输入多行代码，并使用指定的编程语言语法高亮渲染输入的内容。
 - `ui.json_editor`控件，允许用户输入JSON格式的内容，并自动验证输入的内容是否符合语法。
+
+
 
 
 

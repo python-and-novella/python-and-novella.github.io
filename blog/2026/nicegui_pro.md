@@ -11306,7 +11306,25 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 - `ui.codemirror`控件，允许用户输入多行代码，并使用指定的编程语言语法高亮渲染输入的内容。
 - `ui.json_editor`控件，允许用户输入JSON格式的内容，并自动验证输入的内容是否符合语法。
 
+### 45.1`ui.input`控件（更新中）
 
+文档地址
+
+
+
+参数
+
+
+
+方法
+
+
+
+插槽
+
+
+
+### 45.2`ui.number`控件（更新中）
 
 
 

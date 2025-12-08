@@ -9445,7 +9445,7 @@ World4
 
 #### 40.2.2 使用“loading”插槽
 
-控件的“loading”插槽对应控件的加载状态，需要在启用Quasar控件属性`'loading'`。默认情况下，处于加载状态的控件会显示一个加载动画，也可以进入“loading”插槽，修改显示的内容。
+控件的“loading”插槽对应控件的加载状态，需要先启用Quasar控件属性`'loading'`。默认情况下，处于加载状态的控件会显示一个加载动画，也可以进入“loading”插槽，修改显示的内容。
 
 示例如下：
 
@@ -10790,7 +10790,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
 - `value`参数，表示控件初始选择的值。
 
-- `on_change`参数，可调用类型，当值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
+- `on_change`参数，可调用类型，当选择的值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
 
 - `with_input`参数，布尔类型，表示是否在选择框内显示一个输入框，用输入的内容筛选选项，默认为`False`，即不显示输入框，也不支持通过输入的方式筛选选项。
 
@@ -11306,23 +11306,502 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 - `ui.codemirror`控件，允许用户输入多行代码，并使用指定的编程语言语法高亮渲染输入的内容。
 - `ui.json_editor`控件，允许用户输入JSON格式的内容，并自动验证输入的内容是否符合语法。
 
-### 45.1`ui.input`控件（更新中）
+### 45.1`ui.input`控件
 
-文档地址
+下面是`ui.input`控件相关文档的地址：
 
+NiceGUI框架文档：https://nicegui.io/documentation/input
 
+Quasar框架文档：https://quasar.dev/vue-components/input
 
-参数
+`ui.input`控件支持以下参数：
 
+- `label`参数，字符串类型，表示显示在输入框上方的文本，但不是输入的文本，如果当前输入的内容是空的，点击输入之前会显示在输入框内，点击之后会移动到输入框上方。
 
+- `placeholder`参数，字符串类型，表示输入框获得焦点且输入框无内容时，显示在输入框内的提示性文本，输入任意内容之后会消失。
 
-方法
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.input(
+          label='姓名',
+          placeholder='仅支持常见的中文'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
+  ![2026_45_1](nicegui_pro.assets/2026_45_1.png)
 
-插槽
+  从该参数开始，只能通过关键字传入。
 
+- `value`参数，字符串类型，表示输入框初始输入的内容。
 
+- `password`参数，布尔类型，表示输入框是否设置为密码输入框，如果设置为`True`，输入的内容将不显示明文，转而显示统一的密码符号。
+
+- `password_toggle_button`参数，布尔类型，表示输入框内是否添加显示密码按钮，显示密码按钮可以切换输入框内的密码、明文状态。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.input(
+          label='密码',
+          value='123',
+          password=True,
+          password_toggle_button=True
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_2](nicegui_pro.assets/2026_45_2.png)
+
+- `on_change`参数，可调用类型，当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+
+- `autocomplete`参数，字符串列表类型，表示在输入框输入内容时候，搜索这个字符串列表，来自动提示、补全要输入的内容，按`tab`键可以补全内容。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.input(
+          label='支持自动补全的输入',
+          autocomplete=[
+              '123',
+              'abc',
+              'qwe'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_3](nicegui_pro.assets/2026_45_3.png)
+
+- `validation`参数，可调用类型、字典类型或者`None`，表示验证输入的内容是否有效。默认值为`None`，表示不验证输入的内容。
+
+  如果传入可调用类型参数，该参数返回错误信息表示内容无效，返回`None`表示内容有效。
+
+  如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示内容有效，返回`False`则表示内容有效并输出错误信息。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.input(
+          label='输入内容的长度不可超过3',
+          validation={
+              '长度不可超过3': lambda v: len(v) <= 3
+          }
+      )
+      ui.input(
+          label='输入内容的长度不可超过3',
+          validation=lambda v: '长度不可超过3' if len(v) > 3 else None,
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_4](nicegui_pro.assets/2026_45_4.png)
+
+`ui.input`控件支持以下属性（部分，其余属性可以参考第40章的`ui.button`控件）：
+
+- `error`属性，字符串类型，表示验证输入的内容无效时的提示信息。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      i = ui.input(
+          label='输入内容的长度不可超过3',
+          validation={
+              '长度不可超过3': lambda v: len(v) <= 3
+          }
+      )
+      ui.label(
+          'No Error'
+      ).bind_text_from(
+          i,
+          'error'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_5](nicegui_pro.assets/2026_45_5.png)
+
+- `label`属性，字符串类型，含义同`label`参数。
+
+- `value`属性，字符串类型，含义同`value`参数。
+
+- `validation`属性，字符串类型，含义同`validation`参数。
+
+`ui.input`控件支持以下方法（部分，其余方法可以参考第40章的`ui.button`控件）：
+
+- `bind_label`方法，将控件的`label`属性与指定对象的指定属性双向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+
+- `bind_label_from`方法，将控件的`label`属性与指定对象的指定属性反向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+
+- `bind_label_to`方法，将控件的`label`属性与指定对象的指定属性正向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+
+- `bind_value`方法，将控件的`value`属性与指定对象的指定属性双向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+
+- `bind_value_from`方法，将控件的`value`属性与指定对象的指定属性反向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+
+- `bind_value_to`方法，将控件的`value`属性与指定对象的指定属性正向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+
+- `on_value_change`方法，当输入框内容变化时执行什么操作。该方法支持以下参数：
+
+  - `callback`参数，可调用类型，表示当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+
+- `set_autocomplete`方法，设置控件的`autocomplete`参数。该方法支持以下参数：
+
+  - `autocomplete`参数，字符串列表类型，表示在输入框输入内容时候，搜索这个字符串列表，来自动提示、补全要输入的内容，按`tab`键可以补全内容。
+
+- `set_label`方法，设置控件的`label`属性。该方法支持以下参数：
+
+  - `label`参数，字符串类型，表示显示在输入框上方的文本，但不是输入的文本，如果当前输入的内容是空的，点击输入之前会显示在输入框内，点击之后会移动到输入框上方。
+
+- `set_value`方法，设置控件的`value`属性。该方法支持以下参数：
+
+  - `value`参数，字符串类型，表示输入框初始输入的内容。
+
+- `validate`方法，在给控件`validation`传入有效值的前提下验证输入的内容是否有效。
+
+- `without_auto_validation`方法，返回一个禁用自动验证输入内容的`ui.input`控件，此时需要手动调用`validate`方法。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      i = ui.input(
+          label='输入内容的长度不可超过3',
+          validation={
+              '长度不可超过3': lambda v: len(v) <= 3
+          }
+      ).without_auto_validation()
+      ui.button(
+          'validate',
+          on_click=i.validate
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_6](nicegui_pro.assets/2026_45_6.png)
+
+`ui.input`控件支持以下插槽：
+
+- “default”插槽，对应输入框的主要内容，默认添加到当前主要内容的后面。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      i = ui.input(
+          label='输入框',
+      )
+      with i:
+          ui.label('default').classes('border')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_7](nicegui_pro.assets/2026_45_7.png)
+
+- “prepend”插槽，对应输入框主要内容前面的区域。
+
+- “append”插槽，对应输入框主要内容后面的区域。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      i = ui.input(
+          label='输入框',
+      )
+      with i.add_slot('prepend'):
+          ui.label('prepend').classes('border')
+      with i.add_slot('append'):
+          ui.label('append').classes('border')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_8](nicegui_pro.assets/2026_45_8.png)
+
+- “before”插槽，对应输入框前面的区域。
+
+- “after”插槽，对应输入框后的区域。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      i = ui.input(
+          label='输入框',
+      )
+      with i.add_slot('before'):
+          ui.label('before').classes('border')
+      with i.add_slot('after'):
+          ui.label('after').classes('border')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_9](nicegui_pro.assets/2026_45_9.png)
+
+- “label”插槽，对应`label`参数的部分。注意，只有设置了`label`参数之后，该插槽才能生效，并且`label`参数的值会被忽略。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      i = ui.input(
+          label='输入框',
+      )
+      with i.add_slot('label'):
+          ui.label('label').classes('border')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_10](nicegui_pro.assets/2026_45_10.png)
+
+- “loading”插槽，对应控件的加载状态，需要在启用Quasar控件属性`'loading'`，建议插入同样表示加载动画的`ui.spinner`控件。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      i = ui.input(
+          label='输入框',
+      ).props('loading')
+      with i.add_slot('loading'):
+          ui.spinner(
+              'box'
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_11](nicegui_pro.assets/2026_45_11.png)
+
+`ui.input`控件支持不少控件属性，全部介绍的话会导致篇幅太长，因此，这里挑了几个使用的控件属性，详细介绍一下。
+
+如果想要快速清除输入的内容，可以使用`clearable`属性（完整用法可以参考 https://quasar.dev/vue-components/input#clearable），使用该属性之后，输入框内将添加一个快速清除输入内容的按钮，同时，可以使用`clear-icon`属性自定义该按钮的图标：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.input(
+        value='输入的内容'
+    ).props(
+        'clearable clear-icon=home'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_12](nicegui_pro.assets/2026_45_12.png)
+
+除了前面提到的几种插槽，还可以使用`prefix`属性和`suffix`属性（完整用法可以参考 https://quasar.dev/vue-components/input#prefix-and-suffix）给输入的内容添加前缀和后缀：
+
+```python3
+from nicegui import ui
+
+def index():
+    i = ui.input(
+        value='输入的内容'
+    ).props(
+        'prefix="姓名：" suffix="先生"'
+    )
+    with i.add_slot('prepend'):
+        ui.label('prepend').classes('border')
+    with i.add_slot('append'):
+        ui.label('append').classes('border')
+    with i.add_slot('before'):
+        ui.label('before').classes('border')
+    with i.add_slot('after'):
+        ui.label('after').classes('border')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_13](nicegui_pro.assets/2026_45_13.png)
+
+对于需要限定输入内容格式的情况，比如，序列号、许可证、电话号码等的只有数字或者字母且格式规整的内容，则可以使用`mask`属性（完整用法可以参考 https://quasar.dev/vue-components/input#mask）：
+
+```python3
+from nicegui import ui
+
+def index():
+    mask = 'SS-SS'
+    i = ui.input(
+        value='ab-cd',
+        placeholder=f'格式掩码为{mask}'
+    ).props(
+        f'mask={mask}'
+    )
+    ui.label().bind_text_from(
+        i,
+        'value'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_14](nicegui_pro.assets/2026_45_14.png)
+
+在`mask`属性中，除了下表中的格式符用于表示一类字符外，其余字符均与实际显示一致，都是用于分隔输入内容的分隔符：
+
+| 格式符 | 含义                               |
+| :----- | :--------------------------------- |
+| `#`    | 数字                               |
+| `S`    | 英文字母（不强制转换大小写）       |
+| `N`    | 数字和英文字母（不强制转换大小写） |
+| `A`    | 英文字母（强制转换为大写）         |
+| `a`    | 英文字母（强制转换为小写）         |
+| `X`    | 数字和英文字母（强制转换为大写）   |
+| `x`    | 数字和英文字母（强制转换为小写）   |
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    mask = 'AA-XX'
+    i = ui.input(
+        value='ab-cd',
+        placeholder=f'格式掩码为{mask}'
+    ).props(
+        f'mask={mask}'
+    )
+    ui.label().bind_text_from(
+        i,
+        'value'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_15](nicegui_pro.assets/2026_45_15.png)
+
+如果不希望输入框的实际值包含分隔符，则可以使用`unmasked-value`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    mask = 'AA-XX'
+    i = ui.input(
+        placeholder=f'格式掩码为{mask}'
+    ).props(
+        f'mask={mask} unmasked-value'
+    )
+    ui.label().bind_text_from(
+        i,
+        'value'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_16](nicegui_pro.assets/2026_45_16.png)
+
+如果需要使用指定字符填充未输入的部分，可以使用`fill-mask`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    mask = 'AA-XX'
+    i = ui.input(
+        value='ab',
+        placeholder=f'格式掩码为{mask}'
+    ).props(
+        f'mask={mask} fill-mask="*"'
+    )
+    ui.label().bind_text_from(
+        i,
+        'value'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_17](nicegui_pro.assets/2026_45_17.png)
 
 ### 45.2`ui.number`控件（更新中）
 
@@ -12407,7 +12886,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
 #### 3.9.14 `ui.tooltip`补充（2025.01.21更新）
 
-对于像`ui.html`、`ui.markdown`、`ui.upload`、`ui.table`等不支持添加`tooltip`的元素，可以使用`ui.element`包装来间接实现：
+对于像`ui.html`、`ui.markdown`、`ui.upload`、`ui.table`等不支持在其上下文内添加`tooltip`的元素，可以使用`ui.element`包装来间接实现：
 
 ```python3
 from nicegui import ui
@@ -12419,6 +12898,27 @@ ui.run(
     native=True
 )
 ```
+
+注意，NiceGUI 3.4版本之后，任何控件都可以使用`tooltip`方法添加工具提示，没有上面的限制。
+
+因此，任意控件的添加工具提示可以改为：
+
+```python3
+from nicegui import ui
+
+def index():
+    markdown = ui.markdown('markdown')
+    tooltip = ui.tooltip('tooltip')
+    tooltip.props['target'] = f'#{markdown.html_id}'
+    tooltip.set_text('tooltip for markdown')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
 
 `tooltip`里除了显示一般的文本，还可以显示图像等其他内容。不过，不建议在`tooltip`内放置需要交互的内容，因为被添加`tooltip`的控件一旦失去焦点，`tooltip`就会消失，里面的交互内容永远无法交互：
 

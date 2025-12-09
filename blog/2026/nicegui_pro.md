@@ -9660,12 +9660,13 @@ ui.run()
 from nicegui import ui
 
 def index():
-    ui.badge(
-        'Hello',
-        color='red',
-        text_color='green',
-        #outline=True
-    )
+    with ui.button('button'):
+        ui.badge(
+            'Hello',
+            color='red',
+            text_color='green',
+            #outline=True
+        ).props('floating')
 
 ui.run(
     root=index,
@@ -10902,9 +10903,9 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
 - `new_value_mode`参数，字符串类型或`None`，表示在选择框内输入值后直接回车，而不是选择现有选项的话，执行什么样的操作。这个参数只支持以下值：
 
-  - `'add'`表示只能添加没有的值，即根据输入的值筛选当前已有的选项，如果有筛选结果，选择第一个，没有筛选结果则添加这个值。
+  - `'add-unique'`表示只能添加没有的值，即根据输入的值筛选当前已有的选项，如果有筛选结果，选择第一个，没有筛选结果则添加这个值。
 
-  - `'add-unique'`表示添加当前值到选项中，哪怕值是相同的，也能添加为新的选项。
+  - `'add'`表示添加当前值到选项中，哪怕值是相同的，也能添加为新的选项。
 
   - `'toggle'`表示没有就和`'add-unique'`一样的添加；如果有就删除。
 
@@ -10912,7 +10913,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   - 默认为`None`，表示不会添加新的选项。
 
-  注意，该参数非`None`时，会同时将`with_input`参数设为`True`，并且优先级高于`with_input`参数。
+  注意，该参数非`None`时，会同时将`with_input`参数设为`True`，并且优先级高于`with_input`参数。该参数相关的几种添加选项的方式都是添加为字符串类型的选项，如果存在看起来相同但是非字符串类型的选项，则被认为是不同的选项。
 
 - `multiple`参数，布尔类型，表示选项是否支持多选。
 
@@ -10964,7 +10965,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   如果传入可调用类型参数，该参数返回错误信息表示内容无效，返回`None`表示内容有效。
 
-  如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示内容有效，返回`False`则表示内容有效并输出错误信息。
+  如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示内容有效，返回`False`则表示内容无效并输出错误信息。
 
   示例如下：
 
@@ -11007,13 +11008,12 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   from nicegui import ui
   
   def index():
-      slect = ui.select(
+      select = ui.select(
           options={1: 'One', 2: 'Two', 3: 'Three'},
           value=1,
           new_value_mode='add',
           key_generator=(i for i in [ '', 4, 5, 6])
       ).classes('w-48')
-      ui.button(on_click=lambda:ui.notify(slect.value))
       ui.select(
           options={1: 'One', 2: 'Two', 3: 'Three'},
           value=1,
@@ -11026,12 +11026,12 @@ Quasar框架文档：https://quasar.dev/vue-components/select
       native=True
   )
   ```
-
-  注意，将生成器传给`key_generator`参数的话，控件会先执行一次`next`方法，然后才开始执行`send`方法，这将导致生成器的第一个生成（`yield`）值被抛弃。其中，执行一次`next`方法的目的是确保遍历的每一步都能接收到`send`方法的参数。
-
-  因此，如果是传入的是简易生成器，可以在头部插入任意值，专门用来抛弃，避免可额外添加的选项数少一，或者避免每次添加的选项与实际值错位。
-
-  若是读者不太熟悉生成器语法的话，也可以使用`iter`方法，将生成器转换为迭代器来使用，这样就不用在头部额外插入任意值。
+  
+注意，将生成器传给`key_generator`参数的话，控件会先执行一次`next`方法，然后才开始执行`send`方法，这将导致生成器的第一个生成（`yield`）值被抛弃。其中，执行一次`next`方法的目的是确保遍历的每一步都能接收到`send`方法的参数。
+  
+因此，如果是传入的是简易生成器，可以在头部插入任意值，专门用来抛弃，避免可额外添加的选项数少一，或者避免每次添加的选项与实际值错位。
+  
+若是读者不太熟悉生成器语法的话，也可以使用`iter`方法，将生成器转换为迭代器来使用，这样就不用在头部额外插入任意值。
 
 `ui.select`控件支持以下方法（部分）：
 
@@ -11484,7 +11484,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   如果传入可调用类型参数，该参数返回错误信息表示内容无效，返回`None`表示内容有效。
 
-  如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示内容有效，返回`False`则表示内容有效并输出错误信息。
+  如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示内容有效，返回`False`则表示内容无效并输出错误信息。
 
   示例如下：
 
@@ -11888,7 +11888,7 @@ ui.run(
 
 ![2026_45_17](nicegui_pro.assets/2026_45_17.png)
 
-### 45.2 `ui.number`控件（更新中）
+### 45.2 `ui.number`控件
 
 `ui.number`控件实际上是`ui.input`控件将控件属性`type`设置为`'number'`的变体，因此大部分参数、属性、方法与`ui.input`控件一致，不过依然存在`ui.number`控件独有的参数、属性、方法。
 
@@ -11959,9 +11959,272 @@ ui.run(
 
   如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示值有效，返回`False`则表示值无效并输出错误信息。
 
+`ui.number`控件支持以下属性（部分，其余属性可以参考`ui.input`控件）：
+
+- `min`属性，含义同`min`参数。
+- `max`属性，含义同`max`参数。
+- `precision`属性，含义同`precision`参数。
+- `out_of_limits`属性，布尔类型，表示输入框输入的值是否超出最小值、最大值的限制。
+
+`ui.number`控件支持以下方法（部分，其余方法可以参考`ui.input`控件）：
+
+- `sanitize`方法，可以将输入框输入的值处理，使其符合要求（精度、最大值、最小值等）。
+
+### 45.3 `ui.input_chips`控件
+
+`ui.input_chips`控件看起来像是和`ui.input`控件类似，但实际上它和`ui.select`控件的关系更近一些，其前端部分使用的标签是一样的，因此用法与`ui.select`控件更接近。但是，部分控件属性让其具备`ui.input`控件的特征，所以放在本章介绍。
+
+`ui.input_chips`控件支持以下参数：
+
+- `label`参数，字符串类型，表示显示在输入框上方的文本，但不是输入的文本，如果当前输入的内容是空的，点击输入之前会显示在输入框内，点击之后会移动到输入框上方。
+
+- `value`参数，元素为字符串的列表类型，表示输入框初始的选项。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.input_chips(
+          value=[
+              '123',
+              'abc',
+              'qwe'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_18](nicegui_pro.assets/2026_45_18.png)
+
+  从该参数开始，只能通过关键字传入。
+
+- `on_change`参数，可调用类型，当输入框内的选项变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入框内的选项，`previous_value`属性表示先前输入框内的选项。
+
+- `new_value_mode`参数，字符串类型，表示在输入框内输入值后直接回车，将当前输入的内容转换为选项时，执行什么样的操作。这个参数只支持以下值：
+
+  - `'add-unique'`表示只能添加没有的值，即根据输入的值筛选当前已有的选项，如果有匹配结果，则不执行任何操作，没有匹配结果则添加这个值。
+  - `'add'`表示将当前值添加为选项，哪怕值是相同的，也能添加为新的选项。
+  - `'toggle'`表示没有就和`'add-unique'`一样的添加；如果有就删除。
+
+  该参数默认为`'toggle'`。
+
+  注意，该参数相关的几种添加选项的方式都是添加为字符串类型的选项，如果存在看起来相同但是非字符串类型的选项，则被认为是不同的选项。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.input_chips(
+          value=[
+              123,
+              'abc',
+              'qwe'
+          ]
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_19](nicegui_pro.assets/2026_45_19.png)
+
+- `clearable`参数，布尔类型，表示是否添加一个清除当前选项的按钮，默认为`False`。
+
+- `validation`参数，可调用类型、字典类型或者`None`，表示验证当前选项是否有效。默认值为`None`，表示不验证当前选项。
+
+  如果传入可调用类型参数，该参数返回错误信息表示当前选项无效，返回`None`表示当前选项有效。
+
+  如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示当前选项有效，返回`False`则表示当前选项无效并输出错误信息。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.input_chips(
+          value=[
+              '123',
+              'abc',
+              'qwe'
+          ],
+          validation={
+              'options is more than 3': lambda v: len(v) <= 3
+          }
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_20](nicegui_pro.assets/2026_45_20.png)
+
+### 45.4 `ui.color_input`控件
+
+`ui.color_input`控件支持以下参数：
+
+- `label`参数，字符串类型，表示显示在输入框上方的文本，但不是输入的文本，如果当前输入的内容是空的，点击输入之前会显示在输入框内，点击之后会移动到输入框上方。
+
+- `placeholder`参数，字符串类型，表示输入框获得焦点且输入框无内容时，显示在输入框内的提示性文本，输入任意内容之后会消失。
+
+  从该参数开始，只能通过关键字传入。
+
+- `value`参数，字符串类型，表示输入框初始输入的内容。
+
+- `on_change`参数，可调用类型，当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+
+- `preview`参数，布尔类型，表示是否将输入框内右侧图标的背景颜色设置为选定的颜色，以便于预览效果，默认为`False`。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.color_input(
+        label='笔迹颜色',
+        value='#ff0000',
+        preview=True
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_21](nicegui_pro.assets/2026_45_21.png)
+
+### 45.5 `ui.textarea`控件
+
+`ui.textarea`控件实际上是`ui.input`控件将控件属性`type`设置为`'textarea'`的变体，因此大部分参数、属性、方法与`ui.input`控件一致。
+
+`ui.textarea`控件支持以下参数：
+
+- `label`参数，字符串类型，表示显示在输入框上方的文本，但不是输入的文本，如果当前输入的内容是空的，点击输入之前会显示在输入框内，点击之后会移动到输入框上方。
+
+- `placeholder`参数，字符串类型，表示输入框获得焦点且输入框无内容时，显示在输入框内的提示性文本，输入任意内容之后会消失。
+
+  从该参数开始，只能通过关键字传入。
+
+- `value`参数，字符串类型，表示输入框初始输入的内容。
+
+- `on_change`参数，可调用类型，当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+
+- `validation`参数，可调用类型、字典类型或者`None`，表示验证输入的内容是否有效。默认值为`None`，表示不验证输入的内容。
+
+  如果传入可调用类型参数，该参数返回错误信息表示内容无效，返回`None`表示内容有效。
+
+  如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示内容有效，返回`False`则表示内容有效并输出错误信息。
+
+### 45.6 `ui.editor`控件（更新中）
+
+下面是`ui.editor`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/editor
+
+Quasar框架文档：https://quasar.dev/vue-components/editor
+
+`ui.editor`控件支持以下关键字参数：
+
+- `placeholder`参数，字符串类型，表示输入框获得焦点且输入框无内容时，显示在输入框内的提示性文本，输入任意内容之后会消失。
+- `value`参数，字符串类型，表示输入框初始输内容的HTML格式源代码。
+- `on_change`参数，可调用类型，当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+
+`ui.editor`控件支持的参数不多，其更多用法主要在控件属性上。
+
+修改`content-class`属性可以自定义内容区域的样式：
+
+```python3
+from nicegui import ui
+
+def index():
+    editor = ui.editor(
+        value='<b>Hello</b>'
+    ).props(
+        'content-class=bg-green-100'
+    )
+    ui.markdown().bind_content_from(
+        editor, 
+        'value',
+        backward=lambda v: f'HTML code:\n```\n{v}\n```'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_22](nicegui_pro.assets/2026_45_22.png)
 
 
-### 45.3 `ui.input_chips`控件（更新中）
+
+重定义现有按钮：
+
+https://quasar.dev/vue-components/editor#example--redefine-bold-command
+
+添加新的按钮：
+
+https://quasar.dev/vue-components/editor#example--add-new-commands
+
+
+
+```python3
+from nicegui import ui
+
+def index():
+    editor = ui.editor().props(''':definitions="{'bold': {'label': '粗体', 'icon': 'home', 'tip': 'My bold tooltip'}}" :toolbar="[['left','center','right','justify'],['bold','italic','underline','strike'], ['undo','redo'],['color','bgcolor','save']]"''').classes('w-[480px]')
+    with editor.add_slot("save"):
+        with ui.button(icon="save", on_click=lambda: ui.notify(f'{len(editor.value)} chars saved!')).props("flat dense size=0.8em").classes("text-black p-0"):
+            ui.tooltip('Save text').props('delay=1200 transition-duration=300')
+    with editor.add_slot("color"):
+        with ui.icon('format_color_text', size='1.2em').classes("p-0") as icon:
+            ui.tooltip('Change color').props(
+                'delay=1200 transition-duration=300')
+            picker = ui.color_picker(
+                on_pick=lambda e: editor.run_method('runCmd', 'foreColor', f'{e.color}')
+            ).props('no-focus no-refocus auto-close')
+            picker.q_color.props('no-header no-footer default-view=palette')
+    with editor.add_slot("bgcolor"):
+        with ui.icon('colorize', size='1.2em').classes('text-black py-0 ps-2'):
+            ui.tooltip('Change bgcolor').props(
+                'delay=1200 transition-duration=300')
+            picker = ui.color_picker(on_pick=lambda e:  editor.run_method(
+                'runCmd', 'backColor', f'{e.color}')).props('no-focus no-refocus auto-close')
+            picker.q_color.props('no-header no-footer default-view=palette')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+### 45.7 `ui.codemirror`控件（更新中）
+
+
+
+
+
+
+
+### 45.8 `ui.json_editor`控件（更新中）
 
 
 
@@ -11984,6 +12247,8 @@ ui.run(
 - `ui.time`控件，让用户选择时间。
 - `ui.date_input`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
 - `ui.time_input`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
+
+
 
 
 

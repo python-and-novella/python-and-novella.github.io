@@ -1108,7 +1108,8 @@ ui.input('Name0').props.update(
     }
 )
 ui.input('Name1').props('input-style={"backgroundColor":"red"}')
-ui.input('Name2').props(f'input-style={{"backgroundColor":"red"}}')
+style = {"backgroundColor":"red"}
+ui.input('Name2').props(f'input-style={style}')
 
 ui.run(native=True)
 ```

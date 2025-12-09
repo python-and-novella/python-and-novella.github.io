@@ -2532,8 +2532,8 @@ ui.run(
 - `ui.joystick`控件，提供一个虚拟的摇杆，捕获用户操作摇杆的具体动作。
 - `ui.date`控件，让用户选择日期。
 - `ui.time`控件，让用户选择时间。
-- `ui.date`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
-- `ui.time`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
+- `ui.date_input`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
+- `ui.time_input`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
 
 示例如下：
 
@@ -4500,6 +4500,8 @@ ui.run(
 
 注意，`ui.add_sass`方法和`ui.add_scss`方法依赖`libsass`库，需要先安装依赖库才能使用对应方法。可以参考安装NiceGUI一章，使用`uv add nicegui[sass]`命令提前添加依赖库。
 
+注意，从NiceGUI 3.4.0版本开始，`ui.add_sass`方法和`ui.add_scss`方法被标记为弃用，同时不再依赖`libsass`库。后续这两个方法将在NiceGUI 4.0.0版本之后彻底移除，以后只能使用`ui.add_css`方法。
+
 SASS是一种基于CSS语法实现、可以编译为CSS代码的样式描述语言，它在CSS语法的基础上增加了变量 (variables)、嵌套 (nested rules)、混合 (mixins)、导入 (inline imports) 等高级功能，这些拓展令SASS比CSS更加强大与优雅。简单一点理解的话，SASS是CSS扩展版本。SASS在具体代码中有两种语法：通常以`.scss`为后缀的SASS语法，和CSS语法一致，即采用大括号表示所属，用分号表示一句内容的结束；通常以`.sass`为后缀的SCSS语法，变成用缩进代替大括号、用换行代替分号。
 
 `ui.add_css`方法、`ui.add_sass`方法、`ui.add_scss`方法分别用于添加标准CSS语法的代码、SASS语法的代码、SCSS语法的代码。因为SCSS语法和CSS语法一致，基本兼容CSS语法，所以，可以用`ui.add_scss`方法添加CSS代码，`ui.add_sass`方法则不行。另外，也不能用`ui.add_css`方法添加SCSS语法的SASS代码。
@@ -6240,6 +6242,46 @@ ui.run(
     root=index
 )
 ```
+
+从NiceGUI 3.4.0开始，单页面应用的子页面将支持路径通配。同时，子页面也支持路径参数和查询参数。
+
+从NiceGUI 3.4.0开始，可以将`show_404`参数设置为`False`，此时子页面的构建函数将额外支持一个添加`PageArguments`类型（使用`from nicegui.page_arguments import PageArguments`导入）注释的参数，该参数的`remaining_path`属性表示额外多出来的几级子路径，即路径参数；该参数的`query_parameters`属性表示查询参数。
+
+示例如下：
+
+```python3
+from nicegui import ui
+from nicegui.page_arguments import PageArguments
+
+@ui.page('/')
+@ui.page('/{_:path}')  # 不使用这个的话，刷新子页面时会变成多页面模式的具体页面
+def index():
+    ui.link('到其他页面（不存在）', '/other')
+    ui.separator()
+    ui.sub_pages(
+        {
+            '/': main,
+            '/page1': page1
+        },
+        show_404=False
+    )
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+    # 包含子路径的子页面，NiceGUI 3.4.0之前、show_404不为False的话都不能正常访问。
+    ui.link('去page1（子页面）的子路径（含查询参数）', '/page1/page1_1?name=page_1')
+
+def page1(args:PageArguments):
+    ui.label('page1（子页面）的内容')
+    ui.label(f'路径参数为：{args.remaining_path}')
+    ui.label(f'查询参数为：{args.query_parameters}')
+    ui.link('回到/（子页面）', '/')
+
+ui.run()
+```
+
+![2026_30_2](nicegui_pro.assets/2026_30_2.png)
 
 ## 31 对话框背景模糊
 
@@ -8079,6 +8121,49 @@ ui.run()
 
 - 脚本模式和单页面模式的单页面应用，点击访问不存在页面的超链接后，地址改变，子页面显示404页面；刷新后显示地址对应的页面。不过，访问不存在的页面的话，显示的是报错为404的**500页面**，而非404页面。
 - 多页面模式的单页面应用，点击访问不存在页面的超链接后，地址改变，子页面显示404页面；刷新后显示地址对应的页面。访问不存在的页面的话，显示的是**404页面**。
+
+#### 36.2.3 路径的通配
+
+从NiceGUI 3.4.0开始，单页面应用的子页面将支持路径通配。
+
+先说没有路径通配的情况。如果访问子页面时，路径的开头一级虽然与子页面匹配，但额外多了几级子路径，按照之前的访问规律，此时应该显示为404页面。
+
+从NiceGUI 3.4.0开始，可以将`show_404`参数设置为`False`，此时子页面的构建函数将额外支持一个添加`PageArguments`类型（使用`from nicegui.page_arguments import PageArguments`导入）注释的参数，该参数的`remaining_path`属性表示额外多出来的几级子路径。这种额外多了几级子路径但子页面依然可以支持访问的情况，就是由路径通配功能实现的。
+
+示例如下：
+
+```python3
+from nicegui import ui
+from nicegui.page_arguments import PageArguments
+
+@ui.page('/')
+@ui.page('/{_:path}')  # 不使用这个的话，刷新子页面时会变成多页面模式的具体页面
+def index():
+    ui.link('到其他页面（不存在）', '/other')
+    ui.separator()
+    ui.sub_pages(
+        {
+            '/': main,
+            '/page1': page1
+        },
+        show_404=False
+    )
+
+def main():
+    ui.label('/（子页面）的内容')
+    ui.link('去page1（子页面）', '/page1')
+    # 包含子路径的子页面，NiceGUI 3.4.0之前、show_404不为False的话都不能正常访问。
+    ui.link('去page1（子页面）的子路径', '/page1/page1_1')
+
+def page1(args:PageArguments):
+    ui.label('page1（子页面）的内容')
+    ui.label(f'通配的路径为：{args.remaining_path}')
+    ui.link('回到/（子页面）', '/')
+
+ui.run()
+```
+
+![2026_36_7](nicegui_pro.assets/2026_36_7.png)
 
 ## 37 详解绑定属性
 
@@ -11306,7 +11391,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 - `ui.codemirror`控件，允许用户输入多行代码，并使用指定的编程语言语法高亮渲染输入的内容。
 - `ui.json_editor`控件，允许用户输入JSON格式的内容，并自动验证输入的内容是否符合语法。
 
-### 45.1`ui.input`控件
+### 45.1 `ui.input`控件
 
 下面是`ui.input`控件相关文档的地址：
 
@@ -11803,7 +11888,17 @@ ui.run(
 
 ![2026_45_17](nicegui_pro.assets/2026_45_17.png)
 
-### 45.2`ui.number`控件（更新中）
+### 45.2 `ui.number`控件（更新中）
+
+`ui.number`控件实际上是`ui.input`控件将控件属性`type`设置为`'number'`的变体，因此大部分参数、属性、方法与`ui.input`控件一致，不过依然存在`ui.number`控件独有的参数、属性、方法。
+
+
+
+
+
+### 45.3 `ui.input_chips`控件（更新中）
+
+
 
 
 
@@ -11822,8 +11917,8 @@ ui.run(
 - `ui.joystick`控件，提供一个虚拟的摇杆，捕获用户操作摇杆的具体动作。
 - `ui.date`控件，让用户选择日期。
 - `ui.time`控件，让用户选择时间。
-- `ui.date`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
-- `ui.time`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
+- `ui.date_input`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
+- `ui.time_input`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
 
 
 

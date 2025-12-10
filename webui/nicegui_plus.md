@@ -1095,7 +1095,7 @@ ui.run(native=True)
 
 ### 22.2 `props`方法支持字典和列表
 
-在2.22.2版本中，使用`props`方法设置HTML标签的属性使，会存在属性为字典的情况（比如`ui.input`的`input-style`），此时不能通过`props`方法修改属性，只能使用`props`字典：
+在2.22.2版本中，使用`props`方法设置HTML标签的属性时，会存在属性为字典的情况（比如`ui.input`的`input-style`），此时不能通过`props`方法修改属性，只能使用`props`字典：
 
 ```python3
 from nicegui import ui
@@ -1108,7 +1108,7 @@ ui.input('Name0').props.update(
     }
 )
 ui.input('Name1').props('input-style={"backgroundColor":"red"}')
-style = {"backgroundColor":"red"}
+style = {'backgroundColor':'red'}
 ui.input('Name2').props(f'input-style={style}')
 
 ui.run(native=True)

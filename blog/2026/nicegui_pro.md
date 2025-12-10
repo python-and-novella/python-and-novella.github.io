@@ -12129,7 +12129,7 @@ ui.run(
 
   如果传入字典类型参数，则字典的键（key）表示错误信息，字典的值（value）为可调用类型参数，字典的值（value）返回`True`表示内容有效，返回`False`则表示内容有效并输出错误信息。
 
-### 45.6 `ui.editor`控件（更新中）
+### 45.6 `ui.editor`控件
 
 下面是`ui.editor`控件相关文档的地址：
 
@@ -12170,41 +12170,22 @@ ui.run(
 
 ![2026_45_22](nicegui_pro.assets/2026_45_22.png)
 
-
-
-重定义现有按钮：
-
-https://quasar.dev/vue-components/editor#example--redefine-bold-command
-
-添加新的按钮：
-
-https://quasar.dev/vue-components/editor#example--add-new-commands
-
-
+如果想要重新定义现有按钮的样式，可以参考 https://quasar.dev/vue-components/editor#example--redefine-bold-command，修改`definitions`属性，示例如下：
 
 ```python3
 from nicegui import ui
 
 def index():
-    editor = ui.editor().props(''':definitions="{'bold': {'label': '粗体', 'icon': 'home', 'tip': 'My bold tooltip'}}" :toolbar="[['left','center','right','justify'],['bold','italic','underline','strike'], ['undo','redo'],['color','bgcolor','save']]"''').classes('w-[480px]')
-    with editor.add_slot("save"):
-        with ui.button(icon="save", on_click=lambda: ui.notify(f'{len(editor.value)} chars saved!')).props("flat dense size=0.8em").classes("text-black p-0"):
-            ui.tooltip('Save text').props('delay=1200 transition-duration=300')
-    with editor.add_slot("color"):
-        with ui.icon('format_color_text', size='1.2em').classes("p-0") as icon:
-            ui.tooltip('Change color').props(
-                'delay=1200 transition-duration=300')
-            picker = ui.color_picker(
-                on_pick=lambda e: editor.run_method('runCmd', 'foreColor', f'{e.color}')
-            ).props('no-focus no-refocus auto-close')
-            picker.q_color.props('no-header no-footer default-view=palette')
-    with editor.add_slot("bgcolor"):
-        with ui.icon('colorize', size='1.2em').classes('text-black py-0 ps-2'):
-            ui.tooltip('Change bgcolor').props(
-                'delay=1200 transition-duration=300')
-            picker = ui.color_picker(on_pick=lambda e:  editor.run_method(
-                'runCmd', 'backColor', f'{e.color}')).props('no-focus no-refocus auto-close')
-            picker.q_color.props('no-header no-footer default-view=palette')
+    ui.editor().props['definitions'] = {
+        'bold': {
+            'label': '粗体', 
+            'icon': 'format_bold', 
+            'tip': '设置为粗体'
+        }
+    }
+    ui.editor().props(
+        ''':definitions="{bold: {label: '粗体', icon: 'format_bold', tip: '设置为粗体'}}"'''
+    )
 
 ui.run(
     root=index,
@@ -12212,15 +12193,207 @@ ui.run(
 )
 ```
 
+![2026_45_23](nicegui_pro.assets/2026_45_23.png)
 
+注意，如果是使用`props`方法设置`definitions`属性，则需要在属性名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效。
 
+`ui.editor`控件自带的按钮有：
 
+- `left`按钮，用于将内容向左对齐。
+- `center`按钮，用于将内容居中对齐。
+- `right`按钮，用于将内容向右对齐。
+- `justify`按钮，用于将内容向两边分散对齐。
+- `bold`按钮，用于将内容的格式设置为粗体。
+- `italic`按钮，用于将内容的格式设置为斜体。
+- `underline`按钮，给内容添加下划线。
+- `strike`按钮，给内容添加删除线。
+- `undo`按钮，撤销内容变动。
+- `redo`按钮，恢复被撤销的操作。
+- `unordered`按钮，将该行内容设置为无序列表。
+- `ordered`按钮，将该行内容设置为有序列表。
+- `subscript`按钮，将内容转换为下标。
+- `superscript`按钮，将内容转换为上标。
+- `link`按钮，将当前内容转换为为超链接。
+- `fullscreen`按钮，将编辑器切换为全屏状态（网页全屏，非屏幕全屏）。
+- `quote`按钮，将该行内容设置为引用。
+- `print`按钮，将编辑器内的当前内容打印。
+- `outdent`按钮，减少列表（无序、有序）的缩进（层级）。
+- `indent`按钮，增加列表（无序、有序）的缩进（层级）。
+- `removeFormat`按钮，将内容转换为纯文本。
+- `code`按钮，将内容转换为编程代码。
+- `p`按钮，将内容转换为段落。
+- `hr`按钮，添加一条水平分隔线。
+- `h1`按钮到`h6`按钮，将内容转换为对应级别的标题（字体变大，级别越小字体越大）。
+- `size-1`按钮到`size-7`按钮，将内容字体大小设置为对应级别（级别越大字体越大）。
+
+注意，仅部分按钮默认显示，其余按钮需要通过`toolbar`属性添加才能显示，并且不是所有按钮都支持重新定义。如果按钮名不是合法变量名（比如`size-1`按钮），使用时必须使用引号包起来。
+
+如果想要添加新的按钮，可以参考 https://quasar.dev/vue-components/editor#example--add-new-commands，修改`toolbar`属性，示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    editor = ui.editor()
+    editor.props['toolbar'] = [
+        ['left','center','right','justify'],
+        ['bold','italic','underline','strike'],
+        [
+            {
+                'icon':'home',
+                'list':'only-icons',
+                'options':['redo','undo']
+            }
+        ],
+        # 添加的自定义按钮
+        ['color','bgcolor','save']
+    ]
+    editor.props['definitions'] = {
+        'color': {
+            'icon': 'format_color_text',
+        },
+        'bgcolor': {
+            'icon': 'colorize'
+        },
+        'save': {
+            'icon': 'save'
+        }
+    }
+    ui.editor().props(
+        '''
+        :toolbar="[['left','center','right','justify'],['bold','italic','underline','strike'], ['undo','redo'],['color','bgcolor','save']]"
+        ':definitions="{'color': {'icon': 'format_color_text'},'bgcolor': {'icon': 'colorize'},'save': {'icon': 'save'}}"
+        '''
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_24](nicegui_pro.assets/2026_45_24.png)
+
+从上面的示例可以了解到，`toolbar`属性的语法规则如下：
+
+- 列表的元素只能是列表，子列表的元素只能是字符串或者字典。每个子列表表示一组按钮；字典表示可以弹出的一组按钮，其中键`'options'`的值表示具体包含的按钮。
+- 子列表的元素如果是`ui.editor`控件自带的按钮，则表示重新排序自带按钮。如果元素不是自带按钮，则表示添加新的按钮，需要同时使用`definitions`属性定义对应新按钮的图标、文本等样式才能正常显示。
+
+虽然成功添加了自定义的按钮，但上面的代码其实是有问题的，那就是按钮没有实际的功能，不能点击！
+
+为了定义这些自定义按钮的功能，让其在点击之后执行特定功能，可以使用按钮名对应的插槽：
+
+```python3
+from nicegui import ui
+
+def index():
+    editor = ui.editor()
+    editor.props['toolbar'] = [
+        ['left','center','right','justify'],
+        ['bold','italic','underline','strike'],
+        ['undo','redo'],
+        # 添加的自定义按钮
+        ['color','bgcolor','save']
+    ]
+    with editor.add_slot('save'):
+        with ui.button(
+            icon='save', 
+            on_click=lambda: ui.notify('已保存！')
+        ).props(
+            'flat dense size=0.8em'
+        ).classes(
+            'text-black ms-2'
+        ):
+            ui.tooltip(
+                '保存文本'
+            ).props(
+                'delay=1200 transition-duration=300'
+            )
+    with editor.add_slot('color'):
+        with ui.icon(
+            'format_color_text', 
+            size='1.2em'
+        ).classes(
+            'ps-2'
+        ) as icon1:
+            ui.tooltip(
+                '修改字体颜色'
+            ).props(
+                'delay=1200 transition-duration=300'
+            )
+            picker1 = ui.color_picker(
+                on_pick=lambda e: editor.run_method(
+                    'runCmd', 
+                    'foreColor', 
+                    f'{e.color}'
+                )
+            ).props(
+                'no-focus no-refocus auto-close'
+            )
+            picker1.q_color.props(
+                'no-header no-footer default-view=palette'
+            )
+            picker1.on_pick(
+                lambda e:icon1.style(
+                    f'color:{e.color}'
+                )
+            )
+    with editor.add_slot('bgcolor'):
+        with ui.icon(
+            'colorize', 
+            size='1.2em'
+        ).classes(
+            'text-black ml-3'
+        ) as icon2:
+            ui.tooltip(
+                '修改背景颜色'
+            ).props(
+                'delay=1200 transition-duration=300'
+            )
+            picker2 = ui.color_picker(
+                on_pick=lambda e:editor.run_method(
+                    'runCmd', 
+                    'backColor', 
+                    f'{e.color}'
+                )
+            ).props(
+                'no-focus no-refocus auto-close'
+            )
+            picker2.q_color.props(
+                'no-header no-footer default-view=palette'
+            )
+            picker2.on_pick(
+                lambda e:icon2.style(
+                    f'background:{e.color}'
+                )
+            )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_25](nicegui_pro.assets/2026_45_25.png)
+
+注意，如果是使用`props`方法设置`toolbar`属性，则需要在属性名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效。
 
 ### 45.7 `ui.codemirror`控件（更新中）
 
+下面是`ui.codemirror`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/codemirror
+
+CodeMirror框架文档：https://codemirror.net/docs/
+
+`ui.codemirror`控件支持以下参数：
+
+- `value`参数，字符串类型，
+- 
 
 
 
+超过140种语言的语法高亮（支持列表参考[这里](https://github.com/codemirror/language-data/blob/main/src/language-data.ts)）、超过30种界面主题（支持列表参考[这里](https://github.com/uiwjs/react-codemirror/tree/master/themes/all)）
 
 
 

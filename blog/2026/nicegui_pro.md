@@ -11027,10 +11027,11 @@ Quasar框架文档：https://quasar.dev/vue-components/select
   )
   ```
   
+
 注意，将生成器传给`key_generator`参数的话，控件会先执行一次`next`方法，然后才开始执行`send`方法，这将导致生成器的第一个生成（`yield`）值被抛弃。其中，执行一次`next`方法的目的是确保遍历的每一步都能接收到`send`方法的参数。
-  
+
 因此，如果是传入的是简易生成器，可以在头部插入任意值，专门用来抛弃，避免可额外添加的选项数少一，或者避免每次添加的选项与实际值错位。
-  
+
 若是读者不太熟悉生成器语法的话，也可以使用`iter`方法，将生成器转换为迭代器来使用，这样就不用在头部额外插入任意值。
 
 `ui.select`控件支持以下方法（部分）：
@@ -11378,7 +11379,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 - `value`参数，布尔类型，表示控件初始的开关状态，默认为`False`。
 - `on_change`参数，可调用类型，当开关状态变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的开关状态，`previous_value`属性表示先前的开关状态。
 
-## 45 学习控件——直接输入（更新中）
+## 45 学习控件——直接输入
 
 除了让用户点击控件，从给定的选项中选择，还可以使用下面的控件，让用户直接输入：
 
@@ -12139,9 +12140,9 @@ Quasar框架文档：https://quasar.dev/vue-components/editor
 
 `ui.editor`控件支持以下关键字参数：
 
-- `placeholder`参数，字符串类型，表示输入框获得焦点且输入框无内容时，显示在输入框内的提示性文本，输入任意内容之后会消失。
-- `value`参数，字符串类型，表示输入框初始输内容的HTML格式源代码。
-- `on_change`参数，可调用类型，当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+- `placeholder`参数，字符串类型，表示编辑器获得焦点且编辑器无内容时，显示在编辑器内的提示性文本，输入任意内容之后会消失。
+- `value`参数，字符串类型，表示编辑器初始内容的HTML格式源代码。
+- `on_change`参数，可调用类型，当编辑器内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
 
 `ui.editor`控件支持的参数不多，其更多用法主要在控件属性上。
 
@@ -12378,7 +12379,7 @@ ui.run(
 
 注意，如果是使用`props`方法设置`toolbar`属性，则需要在属性名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效。
 
-### 45.7 `ui.codemirror`控件（更新中）
+### 45.7 `ui.codemirror`控件
 
 下面是`ui.codemirror`控件相关文档的地址：
 
@@ -12388,22 +12389,282 @@ CodeMirror框架文档：https://codemirror.net/docs/
 
 `ui.codemirror`控件支持以下参数：
 
-- `value`参数，字符串类型，
-- 
+- `value`参数，字符串类型，表示编辑器的初始内容。
 
+- `on_change`参数，可调用类型，当编辑器内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
 
+  从该参数开始，只能通过关键字传入。
 
-超过140种语言的语法高亮（支持列表参考[这里](https://github.com/codemirror/language-data/blob/main/src/language-data.ts)）、超过30种界面主题（支持列表参考[这里](https://github.com/uiwjs/react-codemirror/tree/master/themes/all)）
+- `language`参数，字符串类型，表示编辑器使用的语法高亮方案，即对应的编程语言。可以通过调用控件实例的`supported_languages`属性获取控件支持的语言。
 
+- `theme`参数，字符串类型，表示编辑器使用的主题，默认为`'basicLight'`。可以通过调用控件实例的`supported_themes`属性获取控件支持的主题。
 
+- `indent`参数，字符串类型，表示代码一个级别的缩进使用的字符，默认为4个英文空格。
 
-### 45.8 `ui.json_editor`控件（更新中）
+- `line_wrapping`参数，布尔类型，表示是否自动换行，默认为`False`。
 
+- `highlight_whitespace`参数，布尔类型，表示是否高亮显示出空白字符，默认为`False`。
 
+`ui.codemirror`控件支持以下属性（部分）：
 
+- `theme`属性，含义同`theme`参数。
+- `language`属性，含义同`language`参数。
+- `line_wrapping`属性，含义同`line_wrapping`参数。
+- `supported_themes`属性，表示控件支持的主题。
+- `supported_languages`属性，表示控件支持的语言。
 
+`ui.codemirror`控件支持以下方法（部分）：
 
+- `set_theme`方法，设置`theme`属性。该方法支持以下参数：
+  - `theme`参数，字符串类型，表示编辑器使用的主题。
+- `set_language`方法，设置`language`属性。该方法支持以下参数：
+  - `language`参数，字符串类型，表示编辑器使用的语法高亮方案，即对应的编程语言。
+- `set_line_wrapping`方法，设置`line_wrapping`属性。该方法支持以下参数：
+  - `line_wrapping`参数，布尔类型，表示是否自动换行。
 
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    codemirror = ui.codemirror(
+        value='''print('Hello')''',
+        language='Python'
+    )
+    ui.select(
+        codemirror.supported_languages, 
+        label='Language', 
+        clearable=True
+    ).classes('w-64').bind_value(
+        codemirror, 
+        'language'
+    )
+    ui.select(
+        codemirror.supported_themes, 
+        label='Theme'
+    ).classes('w-64').bind_value(
+        codemirror, 
+        'theme'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_45_26](nicegui_pro.assets/2026_45_26.png)
+
+### 45.8 `ui.json_editor`控件
+
+下面是`ui.json_editor`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/json_editor
+
+svelte-jsoneditor框架文档：https://github.com/josdejong/svelte-jsoneditor
+
+`ui.json_editor`控件支持以下参数：
+
+- `properties`参数，字典类型，表示控件的复合属性，其键（key）是JSON编辑器支持的属性（参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#properties）。常用属性如下：
+
+  - `content`属性，字典类型，表示内容主体（参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#content ）。字典包含`'json'`和`'text'`两个键，分别代表内容的JSON格式和TEXT格式。
+  - `mainMenuBar`属性，布尔类型，表示是否显示编辑器的主菜单栏，默认为`True`。
+  - `navigationBar`属性，布尔类型，表示是否显示编辑器的导航栏，默认为`True`。
+  - `statusBar`属性，布尔类型，表示是否显示编辑器文本模式的状态栏，默认为`True`。
+  - `readOnly`属性，布尔类型，表示是否启用编辑器内容的只读模式，默认为`False`。
+
+  更多属性可参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#properties。
+
+  注意，如果想要在创建控件之后修改`content`属性中的内容主体，虽然其内容对应的是字典，但不能通过修改原始内容的形式修改内容主体，而是要修改控件的`properties`属性。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      json = {
+          'array': [1, 2, 3],
+          'boolean': True,
+          'color': '#82b92c',
+          None: None,
+          'number': 123,
+          'object': {
+              'a': 'b',
+              'c': 'd',
+          },
+          'time': 1575599819000,
+          'string': 'Hello World',
+      }
+      jse = ui.json_editor(
+          {
+              'content': {'json': json},
+          }
+      )
+      jse.properties['content']['json']['string'] = '你好'
+  
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_27](nicegui_pro.assets/2026_45_27.png)
+
+- `on_select`参数，可调用类型，表示当选择编辑器内容时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JsonEditorSelectEventArguments`类型，其`selection`属性表示被选择的内容（类型是键还是值，以及路径）。
+
+- `on_change`参数，可调用类型，表示当编辑器内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JsonEditorChangeEventArguments`类型，其`content`属性表示当前内容主体，`errors`属性表示内容的格式错误（如果存在的话）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      json = {
+          'array': [1, 2, 3],
+          'boolean': True,
+          'color': '#82b92c',
+          None: None,
+          'number': 123,
+          'object': {
+              'a': 'b',
+              'c': 'd',
+          },
+          'time': 1575599819000,
+          'string': 'Hello World',
+      }
+      jse = ui.json_editor(
+          {
+              'content': {'json': json},
+          },
+          on_select=lambda e: ui.notify(f'Select: {e.selection}'),
+          on_change=lambda e: ui.notify(f'Change: {e.content}')
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_28](nicegui_pro.assets/2026_45_28.png)
+
+- `schema`参数，字典类型，表示内容主体的格式限制，其语法可以参考 https://json-schema.org/understanding-json-schema/about 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      json = {
+          'array': [1, 2, 3],
+          'boolean': True,
+          'color': '#82b92c',
+      }
+      schema = {
+          'type':'object',
+          'properties':{
+              'array': {'type':'array'},
+              # 'boolean'会提示类型不符
+              'boolean': {'type':'string'},
+              'color': {'type':'string'},
+          }
+      }
+      jse = ui.json_editor(
+          {
+              'content': {'json': json},
+          },
+          schema=schema
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_29](nicegui_pro.assets/2026_45_29.png)
+
+`ui.json_editor`控件支持以下属性（部分）：
+
+- `properties`属性，含义同`properties`参数。
+
+`ui.json_editor`控件支持以下方法（部分）：
+
+- `on_select`方法，当选择编辑器内容时执行什么操作。该方法支持以下参数：
+
+  - `callback`参数，可调用类型，表示当选择编辑器内容时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JsonEditorSelectEventArguments`类型，其`selection`属性表示被选择的内容（类型是键还是值，以及路径）。
+
+- `on_change`方法，当编辑器内容变化时执行什么操作。该方法支持以下参数：
+
+  - `callback`参数，可调用类型，表示当编辑器内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JsonEditorChangeEventArguments`类型，其`content`属性表示当前内容主体，`errors`属性表示内容的格式错误（如果存在的话）。
+
+- `run_editor_method`方法，运行JSON编辑器支持的方法（参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#methods ）。该方法支持以下参数：
+
+  - `name`参数，字符串类型，表示方法名。
+  - `*args`参数，表示传给被执行方法的参数。
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      json = {
+          'array': [1, 2, 3],
+          'boolean': True,
+          'color': '#82b92c',
+      }
+      jse = ui.json_editor(
+          {
+              'content': {'json': json},
+          }
+      )
+      ui.button(
+          'Expand All', 
+          on_click=lambda: jse.run_editor_method(
+              ':expand',
+              '[]',
+              'path=>true'
+          )
+      )
+      ui.button(
+          'Collapse All', 
+          on_click=lambda: jse.run_editor_method(
+              'collapse',
+              [],
+              True
+          )
+      )
+      ui.button(
+          'Readonly Mode',
+          on_click=lambda: jse.run_editor_method(
+              'updateProps', 
+              {'readOnly': True}
+          )
+      )
+      ui.button(
+          'Edit Mode', 
+          on_click=lambda: jse.run_editor_method(
+              'updateProps', 
+              {'readOnly': False}
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_45_30](nicegui_pro.assets/2026_45_30.png)
+
+  注意，如果传给被执行方法的参数是使用字符串表示的JavaScript代码，则需要在方法名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效。
 
 ## 46 学习控件——间接输入（更新中）
 
@@ -12421,7 +12682,74 @@ CodeMirror框架文档：https://codemirror.net/docs/
 - `ui.date_input`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
 - `ui.time_input`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
 
+### 46.1 `ui.slider`控件（更新中）
 
+下面是`ui.slider`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/slider
+
+Quasar框架文档：https://quasar.dev/vue-components/slider
+
+`ui.slider`控件支持以下参数：
+
+- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.slider(
+        min=0,
+        max=10,
+        value=2
+    )
+    ui.range(
+        min=0,
+        max=10,
+        value={
+            'min':2,
+            'max':4
+        }
+    )
+    ui.knob(
+        2,
+        min=0,
+        max=10
+    )
+    ui.rating(
+        max=10,
+        value=2
+    )
+    with ui.button('color_picker'):
+        ui.color_picker()
+    ui.upload()
+    ui.joystick(
+        on_move=lambda e:print(e)
+    )
+    ui.date('2026-01-01')
+    ui.time('20:26')
+    ui.date_input(value='2026-01-01')
+    ui.time_input(value='20:26')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 

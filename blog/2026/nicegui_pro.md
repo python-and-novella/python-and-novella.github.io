@@ -10667,7 +10667,7 @@ ui.run(
 
 - `on_value_change`参数，可调用类型，表示弹出状态变化时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前弹出状态，`previous_value`属性表示先前弹出状态。
 
-- `on_click`参数，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+- `on_click`参数，可调用类型，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
 
 - `color`参数，字符串类型，表示按钮的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
 
@@ -10752,7 +10752,7 @@ ui.run(
 
 - `label`参数，字符串类型，表示显示在按钮中的文字。
 
-- `on_click`参数，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+- `on_click`参数，可调用类型，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
 
 - `color`参数，字符串类型，表示按钮的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
 
@@ -10804,7 +10804,7 @@ ui.run(
 
 - `text_color`参数，字符串类型，表示按钮内文字、图标的颜色。
 
-- `on_click`参数，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
+- `on_click`参数，可调用类型，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。
 
 - `selectable`参数，布尔类型，表示按钮是否可以选择，默认为`False`。
 
@@ -10876,7 +10876,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
 - `value`参数，表示控件初始选择的值。
 
-- `on_change`参数，可调用类型，当选择的值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
+- `on_change`参数，可调用类型，表示当选择的值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
 
 - `with_input`参数，布尔类型，表示是否在选择框内显示一个输入框，用输入的内容筛选选项，默认为`False`，即不显示输入框，也不支持通过输入的方式筛选选项。
 
@@ -11359,7 +11359,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
 - `value`参数，表示控件初始选择的值。
 
-- `on_change`参数，可调用类型，当值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
+- `on_change`参数，可调用类型，表示当值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的值，`previous_value`属性表示先前选择的值。
 
 - `clearable`参数，布尔类型，表示是否可以通过点击已选选项清除选择，默认为`False`。
 
@@ -11371,13 +11371,13 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
 - `value`参数，布尔类型，表示选项初始的勾选状态，默认为`False`。
 
-- `on_change`参数，可调用类型，当勾选状态变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的勾选状态，`previous_value`属性表示先前的勾选状态。
+- `on_change`参数，可调用类型，表示当勾选状态变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的勾选状态，`previous_value`属性表示先前的勾选状态。
 
 `ui.switch`控件支持以下参数：
 
 - `text`参数，字符串类型，表示控件标签的文字。
 - `value`参数，布尔类型，表示控件初始的开关状态，默认为`False`。
-- `on_change`参数，可调用类型，当开关状态变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的开关状态，`previous_value`属性表示先前的开关状态。
+- `on_change`参数，可调用类型，表示当开关状态变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的开关状态，`previous_value`属性表示先前的开关状态。
 
 ## 45 学习控件——直接输入
 
@@ -11454,7 +11454,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   ![2026_45_2](nicegui_pro.assets/2026_45_2.png)
 
-- `on_change`参数，可调用类型，当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+- `on_change`参数，可调用类型，表示当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
 
 - `autocomplete`参数，字符串列表类型，表示在输入框输入内容时候，搜索这个字符串列表，来自动提示、补全要输入的内容，按`tab`键可以补全内容。
 
@@ -11952,7 +11952,7 @@ ui.run(
   )
   ```
 
-- `on_change`参数，可调用类型，当输入框值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的值，`previous_value`属性表示先前输入的值。
+- `on_change`参数，可调用类型，表示当输入框值变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的值，`previous_value`属性表示先前输入的值。
 
 - `validation`参数，可调用类型、字典类型或者`None`，表示验证输入的值是否有效。默认值为`None`，表示不验证输入的值。
 
@@ -12005,7 +12005,7 @@ ui.run(
 
   从该参数开始，只能通过关键字传入。
 
-- `on_change`参数，可调用类型，当输入框内的选项变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入框内的选项，`previous_value`属性表示先前输入框内的选项。
+- `on_change`参数，可调用类型，表示当输入框内的选项变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入框内的选项，`previous_value`属性表示先前输入框内的选项。
 
 - `new_value_mode`参数，字符串类型，表示在输入框内输入值后直接回车，将当前输入的内容转换为选项时，执行什么样的操作。这个参数只支持以下值：
 
@@ -12084,7 +12084,7 @@ ui.run(
 
 - `value`参数，字符串类型，表示输入框初始输入的内容。
 
-- `on_change`参数，可调用类型，当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+- `on_change`参数，可调用类型，表示当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
 
 - `preview`参数，布尔类型，表示是否将输入框内右侧图标的背景颜色设置为选定的颜色，以便于预览效果，默认为`False`。
 
@@ -12122,7 +12122,7 @@ ui.run(
 
 - `value`参数，字符串类型，表示输入框初始输入的内容。
 
-- `on_change`参数，可调用类型，当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+- `on_change`参数，可调用类型，表示当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
 
 - `validation`参数，可调用类型、字典类型或者`None`，表示验证输入的内容是否有效。默认值为`None`，表示不验证输入的内容。
 
@@ -12142,7 +12142,7 @@ Quasar框架文档：https://quasar.dev/vue-components/editor
 
 - `placeholder`参数，字符串类型，表示编辑器获得焦点且编辑器无内容时，显示在编辑器内的提示性文本，输入任意内容之后会消失。
 - `value`参数，字符串类型，表示编辑器初始内容的HTML格式源代码。
-- `on_change`参数，可调用类型，当编辑器内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+- `on_change`参数，可调用类型，表示当编辑器内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
 
 `ui.editor`控件支持的参数不多，其更多用法主要在控件属性上。
 
@@ -12682,7 +12682,7 @@ svelte-jsoneditor框架文档：https://github.com/josdejong/svelte-jsoneditor
 - `ui.date_input`控件，点击输入框的嵌入图标之后弹出`ui.date`控件，让用户选择日期。
 - `ui.time_input`控件，点击输入框的嵌入图标之后弹出`ui.time`控件，让用户选择时间。
 
-### 46.1 `ui.slider`控件（更新中）
+### 46.1 `ui.slider`控件
 
 下面是`ui.slider`控件相关文档的地址：
 
@@ -12690,19 +12690,193 @@ NiceGUI框架文档：https://nicegui.io/documentation/slider
 
 Quasar框架文档：https://quasar.dev/vue-components/slider
 
-`ui.slider`控件支持以下参数：
+`ui.slider`控件支持以下关键字参数：
+
+- `min`参数，浮点类型，表示滑块在最小值位置时的数值。
+- `max`参数，浮点类型，表示滑块在最大值位置时的数值。
+- `step`参数，浮点类型，表示移动滑块时的最小步进表示的数值，默认为`1.0`。
+- `value`参数，浮点类型，表示滑块当前位置表示的数值。
+- `on_change`参数，可调用类型，表示当拖动滑块时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前滑块位置表示的数值，`previous_value`属性表示先前滑块位置表示的数值。
+
+`ui.slider`控件支持的参数不多，其更多用法主要在控件属性上。
+
+如果想要控件从水平方向改成竖直方向，可以使用`vertical`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.slider(
+        min=2,
+        max=10,
+        value=2
+    ).props('vertical')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_1](nicegui_pro.assets/2026_46_1.png)
+
+如果想要限制滑块的范围在首尾两端额外保留一部分，可以使用`inner-min`属性和`inner-max`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.slider(
+        min=2,
+        max=10,
+        value=4
+    ).props('inner-min=4 inner-max=8')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_2](nicegui_pro.assets/2026_46_2.png)
+
+如果想要让滑块显示当前位置表示的数值，可以使用以下相关的控件属性：
+
+- `label`属性，表示当滑块获得焦点时，在滑块上方显示数值。
+- `inner-max`属性，表示无论滑块是否获得焦点，在滑块上方始终显示数值。
+- `switch-label-side`属性，与前面的两个属性中任一属性组合使用，将数值显示的位置改为另一个方向。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.slider(
+        min=2,
+        max=10,
+        value=4
+    ).props('label')
+    ui.slider(
+        min=2,
+        max=10,
+        value=5
+    ).props('label-always')
+    ui.slider(
+        min=2,
+        max=10,
+        value=6
+    ).props('label-always switch-label-side')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_3](nicegui_pro.assets/2026_46_3.png)
+
+一般来说，滑块都是将左边开始的位置当作起点，但是，如果使用`reverse`属性的话，那右边就成了起点：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.slider(
+        min=2,
+        max=10,
+        value=4
+    ).props('reverse')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_4](nicegui_pro.assets/2026_46_4.png)
+
+如果不希望用户随意修改数值，只是用控件展示数值，则可以启用只读模式（使用`readonly`属性）或者禁用控件（使用`disable`属性）：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.slider(
+        min=2,
+        max=10,
+        value=4
+    ).props('readonly')
+    ui.slider(
+        min=2,
+        max=10,
+        value=4
+    ).props('disable')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_5](nicegui_pro.assets/2026_46_5.png)
+
+### 46.2 `ui.range`控件
+
+下面是`ui.range`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/range
+
+Quasar框架文档：https://quasar.dev/vue-components/range
+
+`ui.range`控件支持以下关键字参数：
+
+- `min`参数，浮点类型，表示滑块在最小值位置时的数值。
+
+- `max`参数，浮点类型，表示滑块在最大值位置时的数值。
+
+- `step`参数，浮点类型，表示移动滑块时的最小步进表示的数值，默认为`1.0`。
+
+- `value`参数，字典类型，表示滑块当前位置表示的数值。
+
+  注意，因为`ui.range`控件有两个滑块，不像`ui.slider`控件只有一个滑块，所以，`ui.slider`控件的`value`参数是一个浮点类型，而`ui.range`控件的`value`参数是字典类型。比如，`{'min': 20, 'max': 80}`。字典的键（key）是字符串，必须包含`'min'`和`'max'`这两个键，对应的值（value）就是左右滑块的当前位置。虽然在交互过程中，左边的滑块可以越过右边的滑块位置，不会影响两个滑块当前位置表示的数值，但在指定`value`参数值的时候，`'min'`键对应的值必须小于`'max'`键对应的值，否则会显示异常。
+
+- `on_change`参数，可调用类型，表示当拖动滑块时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前滑块位置表示的数值，`previous_value`属性表示先前滑块位置表示的数值。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.range(
+        min=2,
+        max=10,
+        value={
+            'min':4,
+            'max':6
+        }
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_6](nicegui_pro.assets/2026_46_6.png)
+
+### 46.3 `ui.knob`控件（更新中）
+
+下面是`ui.knob`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/knob
+
+Quasar框架文档：https://quasar.dev/vue-components/knob
+
+`ui.knob`控件支持以下关键字参数：
 
 - 
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -12712,19 +12886,6 @@ Quasar框架文档：https://quasar.dev/vue-components/slider
 from nicegui import ui
 
 def index():
-    ui.slider(
-        min=0,
-        max=10,
-        value=2
-    )
-    ui.range(
-        min=0,
-        max=10,
-        value={
-            'min':2,
-            'max':4
-        }
-    )
     ui.knob(
         2,
         min=0,

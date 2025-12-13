@@ -13122,7 +13122,7 @@ ui.run(
 
 ![2026_46_15](nicegui_pro.assets/2026_46_15.png)
 
-### 46.6 `ui.upload`控件（更新中）
+### 46.6 `ui.upload`控件
 
 下面是`ui.upload`控件相关文档的地址：
 
@@ -13132,23 +13132,289 @@ Quasar框架文档：https://quasar.dev/vue-components/uploader
 
 `ui.upload`控件支持以下关键字参数：
 
-- 
+- `multiple`参数，布尔类型，表示是否支持上传多个文件，默认为`False`。
+
+- `max_file_size`参数，整数类型，表示上传文件的大小限制，单位字节，默认不限制。
+
+- `max_total_size`参数，整数类型，表示上传文件的总大小限制，单位字节，默认不限制。
+
+- `max_files`参数，整数类型，表示上传文件的数量限制，默认不限制。
+
+- `on_begin_upload`参数，可调用类型，表示开始上传一个文件时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`UiEventArguments`类型。
+
+  通常与完成文件上传之后执行的操作组合使用，比如，在大文件上传过程中禁止操作控件，避免中断上传：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.upload(
+          on_begin_upload=lambda e:e.sender.set_enabled(False),
+          on_upload=lambda e:e.sender.set_enabled(True)
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `on_upload`参数，可调用类型，表示完成一个文件的上传之后执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`UploadEventArguments`类型，其`file`属性（`FileUpload`类型）表示上传的文件。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def read_file(e):
+      result = await e.file.text()
+      ui.notify(result)
+      
+  def index():
+      # 如果文件名为main.py的话，相当于热更新
+      ui.upload(
+          on_upload=lambda e:e.file.save(
+              f'./{e.file.name}'
+          ),
+          label='文件上传完成后保存到当前目录'
+      )
+      ui.upload(
+          on_upload=read_file,
+          label='文件上传完成后立刻读取'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  注意，读取、保存文件等操作需要使用`FileUpload`类提供的属性、方法，受限于篇幅，这里不做展开介绍，下面会单独详细介绍。
+
+- `on_multi_upload`参数，可调用类型，表示完成所有文件上传之后执行的操作（需要`multiple`参数为`True`才能使用该参数）。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`UploadEventArguments`类型，其`file`属性（元素为`FileUpload`类型的列表）表示上传的文件。
+
+- `on_rejected`参数，可调用类型，表示上传文件被拒绝（超出大小限制或者不符合要求的扩展名等）之后执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`UiEventArguments`类型。
+
+- `label`参数，字符串类型，显示在控件上部的说明性文字。
+
+- `auto_upload`参数，布尔类型，表示是否开启自动上传，即完成选择之后就上传，默认为`False`。
+
+  注意，默认情况下，选择完文件之后，需要点击右上角的图标才开始上传：
+
+  ![2026_46_16](nicegui_pro.assets/2026_46_16.png)
+
+  只有将该参数设置为`True`，才不需要点击该图标，选择完之后，立即开始上传。
 
 `ui.upload`控件支持以下方法（部分）：
 
+- `on_begin_upload`方法，开始上传一个文件时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示开始上传一个文件时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`UiEventArguments`类型。
+- `on_upload`方法，完成一个文件的上传之后执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示完成一个文件的上传之后执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`UploadEventArguments`类型，其`file`属性（`FileUpload`类型）表示上传的文件。
+- `on_multi_upload`方法，完成所有文件上传之后执行的操作（需要`multiple`参数为`True`才能使用该方法）。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示完成所有文件上传之后执行的操作。参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`UploadEventArguments`类型，其`file`属性（元素为`FileUpload`类型的列表）表示上传的文件。
+- `on_rejected`方法，上传文件被拒绝（超出大小限制或者不符合要求的扩展名等）之后执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示上传文件被拒绝（超出大小限制或者不符合要求的扩展名等）之后执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`UiEventArguments`类型。
+- `reset`方法，复位上传文件的队列。
+
+前面提到了读取、保存文件等操作需要使用`FileUpload`类提供的属性、方法，而这部分内容不是三言两语能说清的，因此，这里单独介绍一下`FileUpload`类提供的属性、方法。
+
+`FileUpload`类支持以下参数（`FileUpload`类是数据类，因此参数同时也是属性）：
+
+- `name`参数，字符串类型，表示上传文件的文件名。
+- `content_type`参数，字符串类型，表示上传文件的内容类型。
+
+`FileUpload`类支持以下方法：
+
+- `read`方法，异步方法，返回以二进制格式返回上传文件的内容。
+
+- `text`方法，异步方法，返回以字符串格式返回上传文件的内容。该方法支持以下参数：
+
+  - `encoding`参数，字符串类型，表示以什么编码方式编码文件内容为字符串，默认为`'utf-8'`。
+
+- `json`方法，异步方法，返回以JSON格式（字典）返回上传文件的内容。该方法支持以下参数：
+
+  - `encoding`参数，字符串类型，表示以什么编码方式编码文件内容为JSON格式，默认为`'utf-8'`。
+
+  注意，此方法要求文件内容为JSON格式的合法数据，如果不是的话会报错。
+
+- `iterate`方法，将上传文件分割为指定大小的二进制格式分块，以异步迭代器的形式返回。该方法支持以下关键字参数：
+
+  - `chunk_size`参数，整数类型，表示分块大小，单位字节，默认为`1024 * 1024`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def read_file(e):
+      result = e.file.iterate()
+      async for i in result:
+          print(i)
+      
+  def index():
+      ui.upload(
+          on_upload=read_file,
+          label='文件上传完成后立刻读取'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `save`方法，将上传文件保存为指定文件。该方法支持以下参数：
+
+  - `path`参数，字符串类型或者`Path`类型，表示保存文件的路径（含文件名）。
+
+- `size`方法，返回上传文件的大小。
+
+因为底层`starlette`库默认文件大小参数的设置，上传大文件可能会导致一些潜在的问题。为了让上传大文件更平滑，可以调整`starlette`库`MultiPartParser` 类的`max_file_size`属性，将默认的`1024 * 1024`（1 MB）调大。下面的代码就将该参数调大到5MB，来让更大的文件切片保存到服务器内存中。加大此参数并不是解除大文件的限制，而是让缓存到内存的文件块更大，以便快速处理，不然，文件会直接存入磁盘，可能会产生卡顿现象。另外，此参数也不能无限制加大，此参数过大会导致占用太多的内存，反而会导致内存不足的问题。
+
+```python3
+from nicegui import ui
+from starlette.formparsers import MultiPartParser
+
+# 改为 5 MB
+MultiPartParser.max_file_size = 1024 * 1024 * 5  
+
+def index():
+    ui.upload(
+        on_upload=lambda e:print(
+            e.file.name
+        ),
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+### 46.7 `ui.joystick`控件
+
+下面是`ui.joystick`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/joystick
+
+nippleJS框架文档：https://github.com/yoannmoinet/nipplejs
+
+`ui.joystick`控件支持以下关键字参数：
+
+- `on_start`参数，可调用类型，表示当用户开始触摸摇杆（此时虚拟摇杆显示）时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JoystickEventArguments`类型，其`action`属性表示动作类型；其`x`属性和`y`属性表示摇杆当前位置的相对开始触摸位置的坐标。
+
+- `on_move`参数，可调用类型，表示当用户开始移动摇杆时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JoystickEventArguments`类型，其`action`属性表示动作类型；其`x`属性和`y`属性表示摇杆当前位置的相对开始触摸位置的坐标。
+
+- `on_end`参数，可调用类型，表示当用户停止触摸控件（此时虚拟摇杆消失）时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JoystickEventArguments`类型，其`action`属性表示动作类型；其`x`属性和`y`属性表示摇杆当前位置的相对开始触摸位置的坐标。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.joystick(
+          color='blue', size=50,
+          on_move=lambda e: coordinates.set_text(
+              f'{e.x:.3f}, {e.y:.3f}'
+          ),
+          on_end=lambda : coordinates.set_text(
+              '0, 0'
+          ),
+      ).classes('bg-slate-300')
+      coordinates = ui.label('0, 0')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_46_17](nicegui_pro.assets/2026_46_17.png)
+
+- `throttle`参数，浮点类型，表示检测用户移动事件的间隔，默认为`0.05`，单位秒。
+
+- `options`参数，关键字参数，表示通过关键字参数的形式传递给此参数、nippleJS框架支持的其他选项（可以参考下表或者https://github.com/yoannmoinet/nipplejs#options ）：
+
+  ```javascript
+  var options = {
+      zone: Element,                  // active zone
+      color: String,
+      size: Integer,
+      threshold: Float,               // before triggering a directional event
+      fadeTime: Integer,              // transition time
+      multitouch: Boolean,
+      maxNumberOfNipples: Number,     // when multitouch, what is too many?
+      dataOnly: Boolean,              // no dom element whatsoever
+      position: Object,               // preset position for 'static' mode
+      mode: String,                   // 'dynamic', 'static' or 'semi'
+      restJoystick: Boolean|Object,   // Re-center joystick on rest state
+      restOpacity: Number,            // opacity when not 'dynamic' and rested
+      lockX: Boolean,                 // only move on the X axis
+      lockY: Boolean,                 // only move on the Y axis
+      catchDistance: Number,          // distance to recycle previous joystick in
+                                      // 'semi' mode
+      shape: String,                  // 'circle' or 'square'
+      dynamicPage: Boolean,           // Enable if the page has dynamically visible elements
+      follow: Boolean,                // Makes the joystick follow the thumbstick
+  };
+  ```
+
+  常用的选项也就以下几个：
+
+  - `color`：字符串，虚拟摇杆的颜色。
+  - `size`：整数，虚拟摇杆的大小。
+  - `mode`：字符串，虚拟摇杆的显示模式。`'dynamic'`即动态显示，按下的话，不显示虚拟摇杆。`'static'`是静态显示，无论是否按下，虚拟摇杆都一直显示。`'semi'`是半动态，不按下之前，不显示，一旦按下，就会在按下位置始终显示。
+  - `shape`：字符串，虚拟摇杆的形状，`'circle'`圆形或者`'square'`方形。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.joystick(
+          color='blue',
+          size=50,
+          mode='dynamic',
+          shape='square'
+      ).classes('bg-slate-300')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_46_18](nicegui_pro.assets/2026_46_18.png)
+
+`ui.joystick`控件支持以下方法（部分）：
+
+- `on_start`方法，当用户开始触摸摇杆（此时虚拟摇杆显示）时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示当用户开始触摸摇杆（此时虚拟摇杆显示）时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JoystickEventArguments`类型，其`action`属性表示动作类型；其`x`属性和`y`属性表示摇杆当前位置的相对开始触摸位置的坐标。
+- `on_move`方法，当用户开始移动摇杆时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示当用户开始移动摇杆时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JoystickEventArguments`类型，其`action`属性表示动作类型；其`x`属性和`y`属性表示摇杆当前位置的相对开始触摸位置的坐标。
+- `on_end`方法，当用户停止触摸控件（此时虚拟摇杆消失）时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示当用户停止触摸控件（此时虚拟摇杆消失）时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JoystickEventArguments`类型，其`action`属性表示动作类型；其`x`属性和`y`属性表示摇杆当前位置的相对开始触摸位置的坐标。
+
+### 46.8 `ui.date`控件（更新中）
+
+下面是`ui.date`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/date
+
+Quasar框架文档：https://quasar.dev/vue-components/date
+
+`ui.date`控件支持以下参数：
+
 - 
 
 
 
 
 
-### 46.7 `ui.joystick`控件（更新中）
-
-
-
-
-
-### 46.8 `ui.date`控件（更新中）
+属性、方法、插槽
 
 
 
@@ -13156,19 +13422,45 @@ Quasar框架文档：https://quasar.dev/vue-components/uploader
 
 ### 46.9 `ui.time`控件（更新中）
 
+下面是`ui.time`控件相关文档的地址：
 
+NiceGUI框架文档：https://nicegui.io/documentation/time
+
+Quasar框架文档：https://quasar.dev/vue-components/time
+
+`ui.time`控件支持以下关键字参数：
+
+
+
+属性、方法、插槽
 
 
 
 ### 46.10 `ui.date_input`控件（更新中）
 
+下面是`ui.date_input`控件相关文档的地址：
 
+NiceGUI框架文档：https://nicegui.io/documentation/date_input
+
+`ui.date_input`控件支持以下关键字参数：
+
+
+
+属性、方法、插槽
 
 
 
 ### 46.11 `ui.time_input`控件（更新中）
 
+下面是`ui.time_input`控件相关文档的地址：
 
+NiceGUI框架文档：https://nicegui.io/documentation/time_input
+
+`ui.time_input`控件支持以下关键字参数：
+
+
+
+属性、方法、插槽
 
 
 
@@ -13176,10 +13468,6 @@ Quasar框架文档：https://quasar.dev/vue-components/uploader
 from nicegui import ui
 
 def index():
-    ui.upload()
-    ui.joystick(
-        on_move=lambda e:print(e)
-    )
     ui.date('2026-01-01')
     ui.time('20:26')
     ui.date_input(value='2026-01-01')

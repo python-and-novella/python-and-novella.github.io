@@ -12866,7 +12866,7 @@ ui.run(
 
 ![2026_46_6](nicegui_pro.assets/2026_46_6.png)
 
-### 46.3 `ui.knob`控件（更新中）
+### 46.3 `ui.knob`控件
 
 下面是`ui.knob`控件相关文档的地址：
 
@@ -12874,9 +12874,299 @@ NiceGUI框架文档：https://nicegui.io/documentation/knob
 
 Quasar框架文档：https://quasar.dev/vue-components/knob
 
-`ui.knob`控件支持以下关键字参数：
+`ui.knob`控件支持以下参数：
+
+- `value`参数，浮点类型，表示滑块当前位置表示的数值，默认为`0`。
+
+  从该参数开始，只能通过关键字传入。
+
+- `min`参数，浮点类型，表示滑块在最小值位置时的数值，默认为`0`。
+
+- `max`参数，浮点类型，表示滑块在最大值位置时的数值，默认为`1`。
+
+- `step`参数，浮点类型，表示移动滑块时的最小步进表示的数值，默认为`0.01`。
+
+- `color`参数，字符串类型，表示滑块轨迹的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
+
+- `center_color`参数，字符串类型，表示轨道包围的空白区域的颜色。
+
+- `track_color`参数，字符串类型，表示滑块轨迹之外的其余轨道的颜色。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.knob(
+          2,
+          min=0,
+          max=10,
+          color='red',
+          center_color='green',
+          track_color='blue'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_46_7](nicegui_pro.assets/2026_46_7.png)
+
+- `size`参数，字符串类型，表示控件的大小，采用CSS语法的大小表示方式。
+
+- `show_value`参数，布尔类型，是否在轨道包围的空白区域中间显示滑块当前位置表示的数值，默认为`False`。
+
+- `on_change`参数，可调用类型，表示当拖动滑块时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前滑块位置表示的数值，`previous_value`属性表示先前滑块位置表示的数值。
+
+### 46.4 `ui.rating`控件
+
+下面是`ui.rating`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/rating
+
+Quasar框架文档：https://quasar.dev/vue-components/rating
+
+`ui.rating`控件支持以下参数：
+
+- `value`参数，浮点类型，表示初始的分值。
+- `max`参数，整数类型，表示最多的分值，同时也是显示在控件中评分图标的个数，默认为`5`。
+- `icon`参数，字符串类型，表示没有选定的评分图标，默认为`'star'`。
+- `icon_selected`参数，字符串类型，表示选定之后的评分图标，默认同`icon`参数。
+- `icon_half`参数，字符串类型，表示半分的评分图标，默认同`icon`参数。
+- `color`参数，字符串类型或者`None`，表示评分图标的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+- `size`参数，字符串类型，表示评分图标的大小，采用CSS语法的大小表示方式。
+- `on_change`参数，可调用类型，表示评分改变时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的分值，`previous_value`属性表示先前的分值。
+
+如果想让不同的分值图标显示不同的颜色，可以使用`color-selected`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.rating(
+        max=5,
+        value=5
+    ).props(
+        'color-selected=["red","green","blue","yellow","purple"]'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_8](nicegui_pro.assets/2026_46_8.png)
+
+控件除了正常添加工具提示的方法和方式之外，还可以使用`'tip-{name}'`插槽添加工具提示。相比于正常添加的工具提示，该插槽可以给单个评分图标添加工具提示，其中`name`为从1开始的评分图标索引值：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.rating(
+        max=3,
+        size='2em'
+    ).tooltip('选择合适的评分')
+    rating = ui.rating(
+        max=3,
+        size='2em'
+    )
+    with rating.add_slot('tip-1'):
+        ui.tooltip('差')
+    with rating.add_slot('tip-2'):
+        ui.tooltip('中')
+    with rating.add_slot('tip-3'):
+        ui.tooltip('好')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_9](nicegui_pro.assets/2026_46_9.png)
+
+### 46.5 `ui.color_picker`控件
+
+下面是`ui.color_picker`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/color_picker
+
+Quasar框架文档：https://quasar.dev/vue-components/color-picker
+
+`ui.color_picker`控件支持以下关键字参数：
+
+- `on_pick`参数，可调用类型，表示颜色选择器完成选择之后执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ColorPickEventArguments`类型，其`color`属性表示当前选择的颜色。
+- `value`参数，布尔类型，表示默认颜色选择器的弹出状态，默认为`False`，即不弹出。
+
+`ui.color_picker`控件支持以下属性（部分）：
+
+- `q_color`属性，表示实际的颜色选择器，如果需要设置颜色选择器的控件属性，需要先使用该属性。
+
+`ui.color_picker`控件支持以下方法（部分）：
+
+- `set_color`方法，设置当前选择的颜色。该方法支持以下参数：
+  - `color`参数，字符串类型，表示当前选择的颜色。
+- `on_pick`方法，颜色选择器完成选择之后执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示颜色选择器完成选择之后执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ColorPickEventArguments`类型，其`color`属性表示当前选择的颜色。
+
+`ui.color_picker`控件支持的参数不多，其更多用法主要在控件属性上。
+
+默认情况下弹出的颜色选择器包含头尾的额外功能，如果希望颜色选择器界面更加精简，隐藏下图中的对应部分：
+
+![2026_46_10](nicegui_pro.assets/2026_46_10.png)
+
+可以使用以下控件属性：
+
+- `no-header-tabs`属性，可以隐藏`header-tabs`对应的区域。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.button('no-header-tabs'):
+          cp = ui.color_picker()
+          cp.q_color.props(
+              'no-header-tabs'
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_46_11](nicegui_pro.assets/2026_46_11.png)
+
+- `no-header`属性，可以隐藏`header`对应的区域。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.button('no-header'):
+          cp = ui.color_picker()
+          cp.q_color.props(
+              'no-header'
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_46_12](nicegui_pro.assets/2026_46_12.png)
+
+- `no-footer`属性，可以隐藏`footer`对应的区域。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.button('no-footer'):
+          cp = ui.color_picker()
+          cp.q_color.props(
+              'no-footer'
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_46_13](nicegui_pro.assets/2026_46_13.png)
+
+颜色选择器默认提供了三种颜色选择方式，默认选择的是第一种。如果想要修改默认的颜色选择方式，可以使用`default-view`属性（三种颜色选择方式分别对应`'spectrum'`、`'tune'`、`'palette'`）：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.button('color picker'):
+        cp = ui.color_picker()
+        cp.q_color.props(
+            'default-view=palette'
+        )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_14](nicegui_pro.assets/2026_46_14.png)
+
+如果默认的颜色选择方式是`'palette'`，则可以使用`palette`属性定制其允许选择的颜色：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.button('color picker'):
+        cp = ui.color_picker()
+        cp.q_color.props(
+            'default-view=palette palette=["red","green","blue","yellow"]'
+        )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_15](nicegui_pro.assets/2026_46_15.png)
+
+### 46.6 `ui.upload`控件（更新中）
+
+下面是`ui.upload`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/upload
+
+Quasar框架文档：https://quasar.dev/vue-components/uploader
+
+`ui.upload`控件支持以下关键字参数：
 
 - 
+
+`ui.upload`控件支持以下方法（部分）：
+
+- 
+
+
+
+
+
+### 46.7 `ui.joystick`控件（更新中）
+
+
+
+
+
+### 46.8 `ui.date`控件（更新中）
+
+
+
+
+
+### 46.9 `ui.time`控件（更新中）
+
+
+
+
+
+### 46.10 `ui.date_input`控件（更新中）
+
+
+
+
+
+### 46.11 `ui.time_input`控件（更新中）
 
 
 
@@ -12886,17 +13176,6 @@ Quasar框架文档：https://quasar.dev/vue-components/knob
 from nicegui import ui
 
 def index():
-    ui.knob(
-        2,
-        min=0,
-        max=10
-    )
-    ui.rating(
-        max=10,
-        value=2
-    )
-    with ui.button('color_picker'):
-        ui.color_picker()
     ui.upload()
     ui.joystick(
         on_move=lambda e:print(e)

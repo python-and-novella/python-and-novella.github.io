@@ -13363,10 +13363,10 @@ nippleJS框架文档：https://github.com/yoannmoinet/nipplejs
 
   常用的选项也就以下几个：
 
-  - `color`：字符串，虚拟摇杆的颜色。
-  - `size`：整数，虚拟摇杆的大小。
-  - `mode`：字符串，虚拟摇杆的显示模式。`'dynamic'`即动态显示，按下的话，不显示虚拟摇杆。`'static'`是静态显示，无论是否按下，虚拟摇杆都一直显示。`'semi'`是半动态，不按下之前，不显示，一旦按下，就会在按下位置始终显示。
-  - `shape`：字符串，虚拟摇杆的形状，`'circle'`圆形或者`'square'`方形。
+  - `color`参数，字符串类型，表示虚拟摇杆的颜色。
+  - `size`参数，整数类型，表示虚拟摇杆的大小。
+  - `mode`参数，字符串类型，表示虚拟摇杆的显示模式。`'dynamic'`即动态显示，按下的话，不显示虚拟摇杆。`'static'`是静态显示，无论是否按下，虚拟摇杆都一直显示。`'semi'`是半动态，不按下之前，不显示，一旦按下，就会在按下位置始终显示。
+  - `shape`参数，字符串类型，表示虚拟摇杆的形状，`'circle'`圆形或者`'square'`方形。
 
   示例如下：
 
@@ -13408,13 +13408,200 @@ Quasar框架文档：https://quasar.dev/vue-components/date
 
 `ui.date`控件支持以下参数：
 
-- 
+- `value`参数，字符串类型、字典类型、元素为前述的字符串或者字典的列表类型，表示初始选择的日期。
+
+  当该参数为字符串类型时，表示选择单个日期。
+
+  当该参数为字典类型时，表示选择日期范围，键`'from'`对应的值表示范围起点，键`'to'`对应的值表示范围终点，此类选择需要额外启用`range`属性。
+
+  当该参数为列表类型时，表示单个日期和日期范围的混合选择，此类选择需要额外启用`multiple`属性。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      for i in [
+          '2026-01-01',
+          {'from':'2026-01-01','to':'2026-01-02'},
+          ['2026-01-01','2026-01-02'],
+          [{'from':'2026-01-01','to':'2026-01-02'}],
+          [{'from':'2026-01-01','to':'2026-01-02'},'2026-01-03']
+      ]:
+          ui.label(str(i)+'的效果为：')
+          ui.date(i).props('multiple range')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_46_19](nicegui_pro.assets/2026_46_19.png)
+
+- `mask`参数，字符串类型，表示日期的格式，默认为`'YYYY-MM-DD'`。
+
+  `mask`参数使用的格式代码可以参考 https://quasar.dev/quasar-utils/date-utils#format-for-display 或者下表：
+
+  | 时间单位              | 格式代码及效果                                               |
+  | :-------------------- | :----------------------------------------------------------- |
+  | 年                    | **YY**：70，71……29，30 <br/>**YYYY**：1970，1971……2029，2030 |
+  | 月                    | **M**：1，2……11，12 <br/>**Mo**：1st，2nd……11th，12th <br/>**MM**：01，02……11，12 <br/>**MMM**：Jan，Feb……Nov，Dec <br/>**MMMM**：January，February……November，December |
+  | 季度                  | **Q**：1，2，3，4 <br/>**Qo**：1st，2nd，3rd，4th            |
+  | 本月第几天            | **D**：1，2……30，31 <br/>**Do**：1st，2nd……30th，31st <br/>**DD**：01，02……30，31 |
+  | 本年第几天            | **DDD**：1，2……364，365 <br/>**DDDo**：1st，2nd……364th，365th <br/>**DDDD**：001，002……364，365 |
+  | 本周第几天            | **d**：0，1……5，6 <br/>**do**：0th，1st……5th，6th <br/>**dd**：Su，Mo……Fr，Sa <br/>**ddd**：Sun，Mon……Fri，Sat <br/>**dddd**：Sunday，Monday……Friday，Saturday |
+  | 本周第几天（ISO标准） | **E**：1，2……6，7                                            |
+  | 本年第几周            | **w**：1，2……52，53 <br/>**wo**：1st，2nd……52nd，53rd <br/>**ww**：01，02……52，53 |
+
+  更多设计属性可以参考 https://quasar.dev/vue-components/date#qdate-api 。
+
+  从该参数开始，只能通过关键字传入。
+
+- `on_change`参数，可调用类型，表示当选择的日期变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的日期，`previous_value`属性表示先前选择的日期。
+
+`ui.date`控件支持的参数不多，其更多用法主要在控件属性上。
+
+如果不想要控件头部的区域，可以使用`minimal`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01')
+    ui.date('2026-01-01').props('minimal')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_20](nicegui_pro.assets/2026_46_20.png)
+
+如果不想要修改控件头部区域的位置为左侧，可以使用`landscape`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01')
+    ui.date('2026-01-01').props('landscape')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_21](nicegui_pro.assets/2026_46_21.png)
+
+默认情况下，选择日期时，只能单选单个日期，添加`multiple`属性将允许多选，添加`range`属性将允许选择日期范围，同时添加`multiple`属性和`range`属性将允许多选日期范围：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01')
+    ui.date('2026-01-01').props('range')
+    ui.date('2026-01-01').props('multiple')
+    ui.date('2026-01-01').props('range multiple')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 
+标题与副标题
+
+https://quasar.dev/vue-components/date#custom-title-and-subtitle
 
 
-属性、方法、插槽
+
+`default-view`属性，默认视图
+
+`first-day-of-week`属性，每周第一天是周几
+
+`today-btn`属性，添加一个回到今天的按钮
+
+
+
+`locale`属性，本地化的表达
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01')
+    ui.date('2026-01-01').props('''
+        locale={
+            "days":["星期日","星期一","星期二","星期三","星期四","星期五","星期六"],
+            "daysShort":["日","一","二","三","四","五","六"],
+            "months":["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
+            "monthsShort":["一","二","三","四","五","六","七","八","九","十","冬","腊"],
+        }
+    ''')
+
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+`events`属性和`event-color`属性用于定义节假日的高亮，
+
+注意，当`events`属性为JavaScript函数时，日期的格式取决于`mask`参数；当`events`属性为数组时，日期的格式只能是`'YYYY/MM/DD'`。`event-color`属性除了支持字符串，同样支持JavaScript函数，使用时的注意事项与`events`属性相同。
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01')
+    ui.date('2026-01-01').props('''
+        events=['2026/01/02']
+    ''')
+    ui.date('2026-01-01').props('''
+        :events="(date)=>date=='2026/01/03'"
+    ''')
+    ui.date('2026-01-01').props('''
+        :events="(date)=>date.substring(8,10)==7"
+    ''')
+    ui.date('2026-01-01').props('''
+        :events="(date)=>date.slice(8,10)==7"
+    ''')
+    ui.date('2026-01-01').props('''
+        :events="(date)=>date.substring(8,10)%7==0"
+        event-color="blue"
+    ''')
+    ui.date('2026-01-01').props('''
+        :events="(date)=>date.substring(8,10)%7==0"
+        :event-color="(date)=>(date.slice(8,10)>14?'red':'green')"
+    ''')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+`options`属性，用于限制可选的日期，支持JavaScript函数、数组
+
+https://quasar.dev/vue-components/date#limiting-options
+
+
+
+`navigation-min-year-month`属性和`navigation-max-year-month`属性，用于限制可选日期的范围（以月为最小单位），
+
+https://quasar.dev/vue-components/date#applying-navigation-boundaries
 
 
 
@@ -13428,11 +13615,37 @@ NiceGUI框架文档：https://nicegui.io/documentation/time
 
 Quasar框架文档：https://quasar.dev/vue-components/time
 
-`ui.time`控件支持以下关键字参数：
+`ui.time`控件支持以下参数：
+
+- `value`参数，字符串类型，表示初始选择的时间。
+
+- `mask`参数，字符串类型，表示时间的格式，默认为`'HH:mm'`。
+
+  `mask`参数使用的格式代码可以参考 https://quasar.dev/quasar-utils/date-utils#format-for-display 或者下表：
+
+  | 时间单位               | 格式代码及效果                                               |
+  | :--------------------- | :----------------------------------------------------------- |
+  | 时                     | **H**：0，1……22，23<br/>**HH**：00，01……22，23<br/>**h**：0，1……11，12<br/>**hh**：01，02……11，12 |
+  | 分                     | **m**：0，1……58，59<br/>**mm**：00，01……58，59               |
+  | 秒                     | **s**：0，1……58，59<br/>**ss**：00，01……58，59               |
+  | 小数秒（秒的小数部分） | **S**：0，1……8，9<br/>**SS**：00，01……98，99<br/>**SSS**：000，001……998，999 |
+  | 时区                   | **Z**：-07:00，-06:00……+06:00，+07:00<br/>**ZZ**：-0700，-0600……+0600，+0700 |
+  | 上下午                 | **A**：AM，PM<br/>**a**：am，pm<br/>**aa**：a.m，p.m         |
+  | Unix时间戳             | **X**：1360013296<br/>**x**（毫秒）：1360013296123           |
+
+  更多设计属性可以参考 https://quasar.dev/vue-components/time#qtime-api 。
+
+  从该参数开始，只能通过关键字传入。
+
+- `on_change`参数，可调用类型，表示当选择的时间变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的时间，`previous_value`属性表示先前选择的时间。
+
+`ui.time`控件支持的参数不多，其更多用法主要在控件属性上。
 
 
 
-属性、方法、插槽
+`with-seconds`属性
+
+https://quasar.dev/vue-components/time#basic
 
 
 
@@ -13442,7 +13655,7 @@ Quasar框架文档：https://quasar.dev/vue-components/time
 
 NiceGUI框架文档：https://nicegui.io/documentation/date_input
 
-`ui.date_input`控件支持以下关键字参数：
+`ui.date_input`控件支持以下参数：
 
 
 
@@ -13456,7 +13669,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/date_input
 
 NiceGUI框架文档：https://nicegui.io/documentation/time_input
 
-`ui.time_input`控件支持以下关键字参数：
+`ui.time_input`控件支持以下参数：
 
 
 
@@ -13930,7 +14143,7 @@ NiceGUI提供了两种显示表格的控件：
 
 ## 56 学习控件——创建布局（更新中）
 
-尽管前面介绍布局的时候已经说了几种和布局相关的控件，但那些只是常用的控件，本节开始，将介绍所有和布局有关的控件。
+尽管前面介绍布局的时候已经说了几种和布局相关的控件，但那些只是常用的控件，本章开始，将介绍所有和布局有关的控件。
 
 以下是可以创建布局的控件：
 

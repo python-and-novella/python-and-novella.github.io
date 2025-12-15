@@ -13398,7 +13398,7 @@ nippleJS框架文档：https://github.com/yoannmoinet/nipplejs
 - `on_end`方法，当用户停止触摸控件（此时虚拟摇杆消失）时执行的操作。该方法支持以下参数：
   - `callback`参数，可调用类型，表示当用户停止触摸控件（此时虚拟摇杆消失）时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`JoystickEventArguments`类型，其`action`属性表示动作类型；其`x`属性和`y`属性表示摇杆当前位置的相对开始触摸位置的坐标。
 
-### 46.8 `ui.date`控件（更新中）
+### 46.8 `ui.date`控件
 
 下面是`ui.date`控件相关文档的地址：
 
@@ -13514,38 +13514,13 @@ ui.run(
 )
 ```
 
-
-
-标题与副标题
-
-https://quasar.dev/vue-components/date#custom-title-and-subtitle
-
-
-
-`default-view`属性，默认视图
-
-`first-day-of-week`属性，每周第一天是周几
-
-`today-btn`属性，添加一个回到今天的按钮
-
-
-
-`locale`属性，本地化的表达
+控件包含标题与副标题，点击标题切换日视图，点击副标题切换年视图，可以使用`title`属性和`subtitle`属性设置其内容，默认显示的是星期月份、年份：
 
 ```python3
 from nicegui import ui
 
 def index():
-    ui.date('2026-01-01')
-    ui.date('2026-01-01').props('''
-        locale={
-            "days":["星期日","星期一","星期二","星期三","星期四","星期五","星期六"],
-            "daysShort":["日","一","二","三","四","五","六"],
-            "months":["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
-            "monthsShort":["一","二","三","四","五","六","七","八","九","十","冬","腊"],
-        }
-    ''')
-
+    ui.date('2026-01-01').props('title=日视图 subtitle=年视图')
     
 ui.run(
     root=index,
@@ -13553,11 +13528,142 @@ ui.run(
 )
 ```
 
+![2026_46_22](nicegui_pro.assets/2026_46_22.png)
 
+上面提到年视图，可以使用`default-view`属性指定默认视图，注意，该属性仅支持`['Calendar','Months','Years']`中的值。
 
-`events`属性和`event-color`属性用于定义节假日的高亮，
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01').props('default-view=Years')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_23](nicegui_pro.assets/2026_46_23.png)
+
+使用`years-in-month-view`属性，则可以在月视图中显示年份选择器：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01').props('default-view=Months')
+    ui.date('2026-01-01').props('default-view=Months years-in-month-view')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_24](nicegui_pro.assets/2026_46_24.png)
+
+有些地区的每周第一天是周一，有些地区是周日，可以使用`first-day-of-week`属性定义每周的第一天，数`0-9`字依次表示周日、周一到周六：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01')
+    ui.date('2026-01-01').props('first-day-of-week=1')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_25](nicegui_pro.assets/2026_46_25.png)
+
+很多日期选择控件有一个回到今天的按钮，可以参考下面的代码手动添加一个：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.date('2026-01-01') as date:
+        ui.button('today',on_click=lambda:date.run_method('setToday'))
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_26](nicegui_pro.assets/2026_46_26.png)
+
+也可以使用`today-btn`属性启用控件内置的回到今天按钮：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01').props('today-btn')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_27](nicegui_pro.assets/2026_46_27.png)
+
+默认情况下，控件显示的日期表达文字都是英文，如果想要让其显示本地化语言，比如中文，可以给`ui.run`方法的`language`参数传入具体的本地化语言代码（`'zh-CN'`）：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01')
+    
+ui.run(
+    root=index,
+    native=True,
+    language='zh-CN'
+)
+```
+
+![2026_46_28](nicegui_pro.assets/2026_46_28.png)
+
+![2026_46_29](nicegui_pro.assets/2026_46_29.png)
+
+也可以使用`locale`属性（完整用法参考 https://quasar.dev/vue-components/date#custom-ad-hoc-locale ），定制部分本地化的表达（有局限，比如不能定制`title`属性的格式，因此建议额外添加`minimal`属性）：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.date('2026-01-01').props('''
+        locale={
+            "days":["星期日","星期一","星期二","星期三","星期四","星期五","星期六"],
+            "daysShort":["周日","周一","周二","周三","周四","周五","周六"],
+            "months":["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
+            "monthsShort":["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
+            "firstDayOfWeek":1
+        }
+        minimal
+    ''')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_30](nicegui_pro.assets/2026_46_30.png)
+
+使用`events`属性和`event-color`属性可以定义节假日的高亮。
 
 注意，当`events`属性为JavaScript函数时，日期的格式取决于`mask`参数；当`events`属性为数组时，日期的格式只能是`'YYYY/MM/DD'`。`event-color`属性除了支持字符串，同样支持JavaScript函数，使用时的注意事项与`events`属性相同。
+
+示例如下：
 
 ```python3
 from nicegui import ui
@@ -13591,21 +13697,55 @@ ui.run(
 )
 ```
 
+![2026_46_31](nicegui_pro.assets/2026_46_31.png)
 
+`options`属性（完整用法参考 https://quasar.dev/vue-components/date#limiting-options ）用于限制可选的日期（支持JavaScript函数、数组，使用时的注意事项与`events`属性相同），其余日期将被禁用：
 
-`options`属性，用于限制可选的日期，支持JavaScript函数、数组
+```python3
+from nicegui import ui
 
-https://quasar.dev/vue-components/date#limiting-options
+def index():
+    ui.date('2026-01-01')
+    ui.date('2026-01-01').props('''
+        options=['2026/01/02']
+    ''')
+    ui.date('2026-01-01').props('''
+        :options="(date)=>date=='2026/01/03'"
+    ''')
+    ui.date('2026-01-01').props('''
+        :options="(date)=>date.substring(8,10)==7"
+    ''')
+    ui.date('2026-01-01').props('''
+        :options="(date)=>date.slice(8,10)==7"
+    ''')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
 
+![2026_46_32](nicegui_pro.assets/2026_46_32.png)
 
+`navigation-min-year-month`属性和`navigation-max-year-month`属性用于限制可选日期的范围（以月为最小单位，完整用法参考 https://quasar.dev/vue-components/date#applying-navigation-boundaries），示例如下：
 
-`navigation-min-year-month`属性和`navigation-max-year-month`属性，用于限制可选日期的范围（以月为最小单位），
+```python3
+from nicegui import ui
 
-https://quasar.dev/vue-components/date#applying-navigation-boundaries
+def index():
+    ui.date('2026-01-01')
+    ui.date('2026-01-01').props('''
+        navigation-min-year-month="2026/01"
+        navigation-max-year-month="2026/02"
+    ''')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-
-
-
+![2026_46_33](nicegui_pro.assets/2026_46_33.png)
 
 ### 46.9 `ui.time`控件（更新中）
 

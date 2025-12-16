@@ -12666,7 +12666,7 @@ svelte-jsoneditor框架文档：https://github.com/josdejong/svelte-jsoneditor
 
   注意，如果传给被执行方法的参数是使用字符串表示的JavaScript代码，则需要在方法名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效。
 
-## 46 学习控件——间接输入（更新中）
+## 46 学习控件——间接输入
 
 有些用户输入可以直接获取，有些用户“输入”则需要通过下面的控件转换之后才能获取：
 
@@ -13457,6 +13457,10 @@ Quasar框架文档：https://quasar.dev/vue-components/date
 
   更多设计属性可以参考 https://quasar.dev/vue-components/date#qdate-api 。
 
+  注意，如果`mask`参数使用了非格式代码，`value`参数必须使用相同的非格式代码。比如，只有`'2026-01-01'`才能与`'YYYY-MM-DD'`匹配。
+
+  另外，如果想要使用格式代码作为非格式代码，则要使用英文中括号包起来不想被匹配的部分。比如，`'YYYY-MM-DD:2026-01-01'`能与`'[YYYY-MM-DD]:YYYY-MM-DD'`匹配。
+
   从该参数开始，只能通过关键字传入。
 
 - `on_change`参数，可调用类型，表示当选择的日期变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的日期，`previous_value`属性表示先前选择的日期。
@@ -13661,7 +13665,7 @@ ui.run(
 
 使用`events`属性和`event-color`属性可以定义节假日的高亮。
 
-注意，当`events`属性为JavaScript函数时，日期的格式取决于`mask`参数；当`events`属性为数组时，日期的格式只能是`'YYYY/MM/DD'`。`event-color`属性除了支持字符串，同样支持JavaScript函数，使用时的注意事项与`events`属性相同。
+注意，当`events`属性为JavaScript函数时（需要在属性名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效），日期的格式取决于`mask`参数；当`events`属性为数组时，日期的格式只能是`'YYYY/MM/DD'`。`event-color`属性除了支持字符串，同样支持JavaScript函数（需要在属性名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效），使用时的注意事项与`events`属性相同。
 
 示例如下：
 
@@ -13699,7 +13703,7 @@ ui.run(
 
 ![2026_46_31](nicegui_pro.assets/2026_46_31.png)
 
-`options`属性（完整用法参考 https://quasar.dev/vue-components/date#limiting-options ）用于限制可选的日期（支持JavaScript函数、数组，使用时的注意事项与`events`属性相同），其余日期将被禁用：
+`options`属性（完整用法参考 https://quasar.dev/vue-components/date#limiting-options ）用于限制可选的日期（支持JavaScript函数、数组，使用时的注意事项与`events`属性相同。对于值为JavaScript函数的情况下，需要在属性名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效），其余日期将被禁用：
 
 ```python3
 from nicegui import ui
@@ -13747,7 +13751,7 @@ ui.run(
 
 ![2026_46_33](nicegui_pro.assets/2026_46_33.png)
 
-### 46.9 `ui.time`控件（更新中）
+### 46.9 `ui.time`控件
 
 下面是`ui.time`控件相关文档的地址：
 
@@ -13775,21 +13779,151 @@ Quasar框架文档：https://quasar.dev/vue-components/time
 
   更多设计属性可以参考 https://quasar.dev/vue-components/time#qtime-api 。
 
+  注意，如果`mask`参数使用了非格式代码，`value`参数必须使用相同的非格式代码。比如，只有`'01:02:03'`才能与`'HH:mm:ss'`匹配。
+
+  另外，如果想要使用格式代码作为非格式代码，则要使用英文中括号包起来不想被匹配的部分。比如，`'01h02m03s'`能与`'HH[h]mm[m]ss[s]'`匹配。
+
   从该参数开始，只能通过关键字传入。
 
 - `on_change`参数，可调用类型，表示当选择的时间变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前选择的时间，`previous_value`属性表示先前选择的时间。
 
 `ui.time`控件支持的参数不多，其更多用法主要在控件属性上。
 
+想要默认情况下控件显示秒，可以使用`with-seconds`属性增加秒的显示：
 
+```python3
+from nicegui import ui
 
-`with-seconds`属性
+def index():
+    ui.time(
+        '01:02:03',
+        mask='HH:mm:ss'
+    ).props(
+        'with-seconds'
+    )
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-https://quasar.dev/vue-components/time#basic
+![2026_46_34](nicegui_pro.assets/2026_46_34.png)
 
+注意，默认情况下初始选择的时间不包括秒，需要修改`mask`参数。
 
+`landscape`属性和`ui.date`控件的同名属性效果相同：
 
-### 46.10 `ui.date_input`控件（更新中）
+```python3
+from nicegui import ui
+
+def index():
+    ui.time(
+        '01:02:03',
+        mask='HH:mm:ss'
+    ).props(
+        'with-seconds landscape'
+    )
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_35](nicegui_pro.assets/2026_46_35.png)
+
+可能读者也发现了上面的示例中有问题，明明`mask`参数使用的格式代码`'HH'`会给个位数的时添加前导0，可上面的示例中没有。其实，这不是问题，而是因为没有使用24小时制导致的，添加`format24h`属性，即可看到前导0：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.time(
+        '01:02:03',
+        mask='HH:mm:ss'
+    ).props(
+        'with-seconds format24h'
+    )
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_36](nicegui_pro.assets/2026_46_36.png)
+
+很多时间选择控件有一个选择当前时间的按钮，可以参考下面的代码手动添加一个：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.time(
+        '01:02:03',
+        mask='HH:mm:ss'
+    ) as time:
+        ui.button(
+            'now',
+            on_click=lambda:time.run_method('setNow')
+        )
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_37](nicegui_pro.assets/2026_46_37.png)
+
+也可以使用`now-btn`属性启用控件内置的选择当前时间的按钮：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.time(
+        '01:02:03',
+        mask='HH:mm:ss'
+    ).props(
+        'now-btn'
+    )
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_38](nicegui_pro.assets/2026_46_38.png)
+
+`hour-options`属性、`minute-options`属性、`second-options`属性用于限制时、分、秒的可选范围，仅支持数组。也可以使用仅支持JavaScript函数的`options`属性（需要在属性名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效）。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.time(
+        '01:02',
+    ).props(
+        '''
+        hour-options=[1,2,3]
+        :options="(h,m,s)=>m%2==0"
+        '''
+    )
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_46_39](nicegui_pro.assets/2026_46_39.png)
+
+### 46.10 `ui.date_input`控件
 
 下面是`ui.date_input`控件相关文档的地址：
 
@@ -13797,13 +13931,73 @@ NiceGUI框架文档：https://nicegui.io/documentation/date_input
 
 `ui.date_input`控件支持以下参数：
 
+- `label`参数，字符串类型，表示显示在输入框上方的文本，但不是输入的文本，如果当前输入的内容是空的，点击输入之前会显示在输入框内，点击之后会移动到输入框上方。
 
+- `range_input`参数，布尔类型，表示是否允许选择日期范围，默认为`False`。
 
-属性、方法、插槽
+  从该参数开始，只能通过关键字传入。
 
+- `placeholder`参数，字符串类型，表示输入框获得焦点且输入框无内容时，显示在输入框内的提示性文本，输入任意内容之后会消失。
 
+- `value`参数，字符串类型，表示输入框初始输入的内容。
 
-### 46.11 `ui.time_input`控件（更新中）
+- `on_change`参数，可调用类型，表示当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
+
+`ui.date_input`控件支持以下属性（部分）：
+
+- `picker`属性，表示弹出的日期选择器，本质上是`ui.date`控件，因此支持相关的方法：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.date_input(
+          value='2026-01-01',
+      ).picker.props('minimal')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_46_40](nicegui_pro.assets/2026_46_40.png)
+
+- `button`属性，表示点击之后弹出选择器的按钮，本质上是`ui.button`控件，因此支持相关的方法：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      date = ui.date_input(
+          value='2026-01-01',
+      )
+      date.button.set_text('date')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `menu`属性，表示点击之后弹出的选择器的容器，本质上是`ui.menu`控件，因此支持相关的方法：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      date = ui.date_input(
+          value='2026-01-01',
+      )
+      date.menu.open()
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+### 46.11 `ui.time_input`控件
 
 下面是`ui.time_input`控件相关文档的地址：
 
@@ -13811,28 +14005,67 @@ NiceGUI框架文档：https://nicegui.io/documentation/time_input
 
 `ui.time_input`控件支持以下参数：
 
+- `label`参数，字符串类型，表示显示在输入框上方的文本，但不是输入的文本，如果当前输入的内容是空的，点击输入之前会显示在输入框内，点击之后会移动到输入框上方。
 
+- `placeholder`参数，字符串类型，表示输入框获得焦点且输入框无内容时，显示在输入框内的提示性文本，输入任意内容之后会消失。
 
-属性、方法、插槽
+  从该参数开始，只能通过关键字传入。
 
+- `value`参数，字符串类型，表示输入框初始输入的内容。
 
+- `on_change`参数，可调用类型，表示当输入框内容变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前输入的内容，`previous_value`属性表示先前输入的内容。
 
-```python3
-from nicegui import ui
+`ui.time_input`控件支持以下属性（部分）：
 
-def index():
-    ui.date('2026-01-01')
-    ui.time('20:26')
-    ui.date_input(value='2026-01-01')
-    ui.time_input(value='20:26')
+- `picker`属性，表示弹出的时间选择器，本质上是`ui.time`控件，因此支持相关的方法：
 
-ui.run(
-    root=index,
-    native=True
-)
-```
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.time_input(
+          value='01:02',
+      ).picker.props('now-btn')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
+- `button`属性，表示点击之后弹出选择器的按钮，本质上是`ui.button`控件，因此支持相关的方法：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      time = ui.time_input(
+          value='01:02',
+      )
+      time.button.set_text('time')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `menu`属性，表示点击之后弹出的选择器的容器，本质上是`ui.menu`控件，因此支持相关的方法：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      time = ui.time_input(
+          value='01:02',
+      )
+      time.menu.open()
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
 ## 47 学习控件——显示图片（更新中）
 

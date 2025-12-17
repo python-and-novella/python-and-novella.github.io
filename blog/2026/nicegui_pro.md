@@ -6565,7 +6565,7 @@ ui.run(
 
 除了支持单个字符和图片文件，还支持使用字符串表示的图片：
 
-- Base64编码的图片文件（图片格式仅支持`.ico`、`.png`、`.jpg`、`.svg`、`.gif`）或者原始表达的SVG矢量图。
+- DataUrl支持的图片，比如，Base64编码的图片文件（图片格式仅支持`.ico`、`.png`、`.jpg`、`.svg`、`.gif`）或者原始表达的SVG矢量图。
 - SVG矢量图的原始表达。
 
 示例如下：
@@ -14074,9 +14074,403 @@ NiceGUI框架文档：https://nicegui.io/documentation/time_input
 - `ui.image`控件，简单显示提供的图片。
 - `ui.interactive_image`控件，在显示图片的基础上，提供了额外的内容和交互功能。
 
+### 47.1 `ui.image`控件
+
+下面是`ui.image`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/image
+
+Quasar框架文档：https://quasar.dev/vue-components/img
+
+`ui.image`控件支持以下参数：
+
+- `source`参数，字符串类型、`Path`类型（使用`from pathlib import Path`导入）、`Image`类型（使用`from PIL import Image`导入），表示显示的图片。
+
+  如果提供的是网络图片，则可以使用字符串类型的网络路径。
+
+  如果提供的是本地图片，则可以使用字符串类型、`Path`类型的本地路径。
+
+  如果提供的是图片的直接表达，则可以使用DataUrl支持的图片（“data:”开头的字符串）和`Image`类型的图片。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  from pathlib import Path
+  from PIL import Image
+  import numpy as np
+  
+  def index():
+      # 网络地址
+      ui.image(
+          'https://nicegui.io/static/logo.png'
+      ).classes('w-16 h-16')
+      ui.image(
+          '/favicon.ico'
+      ).classes('w-16 h-16')
+      # 本地地址
+      ui.image(
+          './favicon.ico'
+      ).classes('w-16 h-16')
+      ui.image(
+          Path('./favicon.ico')
+      ).classes('w-16 h-16')
+      # 二进制数据
+      ui.image(
+          'data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAQAQAABMLAAATCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADz8e8ct6md5gUBAP9cUVGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADn4+E4qZqN8KmXiP8aGRf/AAAA/05DQqgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADc19JUnY2A/6OThf+xopb/Ih8c/wAAAP8AAAD/KyYlz9vEwRkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADSysRzmIh6/5+Qg/+wopX/rp+T/xwZF/8AAAD/AAAA/wAAAP8JBATwtpyaOwAAAAAAAAAAAAAAAAAAAADIv7iQloV3/6KUh/+omo//r6GU/6ydj/8ZFxX/AAAA/wAAAP8AAAD/AAAA/wAAAP+bjYtcAAAAAAAAAADHvrYdno6B/6OUiP+omo7/p5mN/7Kilf+lm4//EBQS/wAAAP8AAAD/AAAA/wAAAP8AAAD/CwMD6AAAAAAAAAAAxby0PaOUiP+mmIz/p5mN/6mWiv+srqH/oKqc/wAODv8AAAD/AAAA/wAAAP8AAAD/AAAA/woGBucAAAAAAAAAAMG3sF6gkYT/p5iM/6iXi/+Xsqb/oamb/+9COf+zBAH/EgEB/wAAAP8AAAD/AAAA/wAAAP8AAAD0AAAAAAAAAAC+s6qCoI2A/6Sekv+Tua3/sol8//AaFf//AAD//wwA/+4NAf9VBQH/AAAA/wAAAP8AAAD/AAAA8wAAAAAAAAAAt6acopWilf+YtKb/ymBW//8AAP//AAD//w0A//8MAP//DQD//w4A/58JAf8JAQH/AAAA/wAAAPIAAAAAAAAAAKC/tMWfl4j/5DMs//8AAP//AwD//w4A//8MAP//DAD//wwA//8MAP//DgD/5A0B/0gFAf8AAADyAAAAAAAAAADCXVD//AAA//8AAP//CwD//w0A//8MAP//DAD//wwA//8MAP//DAD//wwA//8PAP//BwD/lgAA/wAAAAAAAAAA8oqDYv8aF9r/AAD//wAA//8NAP//DQD//wwA//8MAP//DAD//w0A//8IAP//AAD//wAA//9kWp0AAAAAAAAAAAAAAAAAAAAA64uHbPscF+X/AAD//wAA//8NAP//DQD//wsA//8AAP//AAD/+EdEuO3DwTcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADh6eUF7IF9d/wSDPD/AAD//wAA//8AAP/6My/N7rCtSwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADe3dgP72Fcj/oqJ9HxkY5jAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAPwfAAD4DwAA+A8AAPwPAAD8DwAA/A8AAPgPAAD4HwAA8B8AAPAfAADwHwAA+AcAAP4PAAD/fwAA/v8AAA=='
+      ).classes('w-16 h-16')
+      icon = '''
+          data:image/svg+xml;charset=utf8,
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="100" r="78" fill="red" stroke="black" stroke-width="3" />
+              <circle cx="80" cy="85" r="8" />
+              <circle cx="120" cy="85" r="8" />
+              <path d="m60,120 C75,150 125,150 140,120" style="fill:none; stroke:black; stroke-width:8; stroke-linecap:round" />
+          </svg>
+      '''
+      ui.image(
+          icon
+      ).classes('w-16 h-16')
+      ui.image(
+          Image.fromarray(
+              np.random.randint(
+                  0, 
+                  255, 
+                  (100, 100), 
+                  dtype=np.uint8
+              )
+          )
+      ).classes('w-16 h-16')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_47_1](nicegui_pro.assets/2026_47_1.png)
+
+`ui.image`控件支持以下方法（部分）：
+
+- `set_source`方法，修改显示的图片。该方法支持以下参数：
+  - `source`参数，字符串类型、`Path`类型（使用`from pathlib import Path`导入）、`Image`类型（使用`from PIL import Image`导入），表示修改后的图片。
+- `force_reload`方法，当图片是网络图片时，使用此方法可以重新加载网络图片。
+
+`ui.image`控件支持的参数不多，其更多用法主要在控件属性上。
+
+上面的示例中，使用样式类限制图片的大小，如果不限制的话，效果将会是这个样子：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.image(
+        'https://nicegui.io/static/logo.png'
+    )
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_2](nicegui_pro.assets/2026_47_2.png)
+
+图片保持比例无限缩放，直至宽度或者高度占满所有可用空间，显然不符合要求。
+
+可以使用`'w-[{具体宽度}]'`、`'h-[{具体高度}]'`来指定控件的宽度、高度，让显示效果符合预期：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.image(
+        'https://nicegui.io/static/logo.png'
+    ).classes('w-[100px] h-[120px]')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_3](nicegui_pro.assets/2026_47_3.png)
+
+也可使用`width`属性、`height`属性指定控件的宽度、高度：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.image(
+        'https://nicegui.io/static/logo.png'
+    ).classes('w-[100px] h-[120px]')
+    ui.image(
+        'https://nicegui.io/static/logo.png'
+    ).props('width=100px height=120px')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_4](nicegui_pro.assets/2026_47_4.png)
+
+可能有的读者会苦恼，记不住需要多少像素的宽度、高度，只想让图片按照原来的样式类调整宽度、高度，有没有方法实现？
+
+当然有，使用`fit`属性即可。该属性仅支持`['cover','fill','contain','none','scale-down']`中的值，具体含义可以参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS/Reference/Properties/object-fit 。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    for fit in ['cover','fill','contain','none','scale-down']:
+        ui.label(fit)
+        ui.image(
+            'https://nicegui.io/static/logo.png'
+        ).classes(
+            'w-16 h-16'
+        ).props(
+            f'fit={fit}'
+        )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_5](nicegui_pro.assets/2026_47_5.png)
+
+需要注意的是，`ui.image`控件支持嵌入其他内容，但需要设置内容的样式类来让内容的位置、样式符合预期：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.image(
+        'https://nicegui.io/static/logo.png'
+    ).classes('w-64 h-64'):
+        ui.label('Hello').classes(
+            'absolute-bottom text-center'
+        )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_6](nicegui_pro.assets/2026_47_6.png)
+
+也可以使用透明的内容叠加到图片上：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.image(
+        'https://nicegui.io/static/logo.png'
+    ).classes('w-64 h-64'):
+        ui.html(
+            '''
+                <svg viewBox="0 0 960 960" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="480" cy="640" r="60" fill="none" stroke="red" stroke-width="10" />
+                </svg>
+            ''',
+            sanitize=False
+        ).classes('w-full bg-transparent')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_7](nicegui_pro.assets/2026_47_7.png)
+
+如果想要实现点击图片相当于访问指定超链接的功能，只需将图片嵌入到显示文字（即`text`参数）为空的超链接即可：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.link(target='https://baidu.com'):
+        ui.image(
+            'https://nicegui.io/static/logo.png'
+        ).classes('w-64 h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+### 47.2 `ui.interactive_image`控件（更新中）
+
+下面是`ui.interactive_image`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/image
+
+`ui.interactive_image`控件支持以下参数：
+
+- `source`参数，字符串类型、`Path`类型（使用`from pathlib import Path`导入）、`Image`类型（使用`from PIL import Image`导入），表示显示的图片。
+
+- `content`参数，字符串类型，表示覆盖在图片之上的SVG内容，SVG的画布大小就是图片的大小。
+
+  从该参数开始，只能通过关键字传入。
+
+- `size`参数，元组类型（宽度，高度），表示画布的大小。如果`source`参数没有传值的话，画布的大小同时也是图片的尺寸。
+
+- `on_mouse`参数，可调用类型，表示触发鼠标事件之后要执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`MouseEventArguments`类型，其`image_x`属性表示鼠标交互位置的X坐标，`image_y`属性表示鼠标交互位置的Y坐标。
+
+- `events`参数，字符串列表，表示JavaScript订阅的事件，默认订阅点击事件，即`['click']`，也可以指定其他要订阅的事件。
+
+- `cross`参数，字符串类型或者布尔类型，表示要不要显示十字线来指示鼠标位置，默认为`False`。如果为`True`或者表示颜色的字符串，就会显示指定颜色（即字符串表示的颜色）的十字线。
+
+- `sanitize`参数，布尔类型或者可调用类型，表示是否强制过滤`content`参数中的注入攻击。可调用类型表示过滤的方法，同时启用强制过滤。
+
+  官方建议给该值传入`Sanitizer().sanitize`（使用`from html_sanitizer import Sanitizer`导入，需要安装`html-sanitizer`库），但本教程因为默认没有安装`html-sanitizer`库，所以给该参数传入了`False`，禁用了安全过滤功能。但读者在实际使用时，请**不要**这样做。
+
+`ui.interactive_image`控件支持以下方法（部分）：
+
+- `set_source`方法，修改显示的图片。该方法支持以下参数：
+
+  - `source`参数，字符串类型、`Path`类型（使用`from pathlib import Path`导入）、`Image`类型（使用`from PIL import Image`导入），表示修改后的图片。
+
+- `force_reload`方法，当图片是网络图片时，使用此方法可以重新加载网络图片。
+
+- `on_mouse`方法，触发鼠标事件之后要执行的操作。该方法支持以下参数：
+
+  - `on_mouse`参数，可调用类型，表示触发鼠标事件之后要执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`MouseEventArguments`类型，其`image_x`属性表示鼠标交互位置的X坐标，`image_y`属性表示鼠标交互位置的Y坐标。
+
+- `add_layer`方法，给控件添加一层新的SVG画布，并返回该画布。该方法支持以下关键字参数：
+
+  - `content`参数，字符串类型，表示画布的SVG内容。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ii = ui.interactive_image(
+          'https://nicegui.io/static/logo.png',
+          content='''
+              <svg viewBox="0 0 960 960" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="480" cy="640" r="60" fill="none" stroke="red" stroke-width="10" />
+              </svg>
+          ''',
+          sanitize=False
+      ).classes('w-64 h-64')
+      ii.add_layer(
+          content='''
+              <svg viewBox="0 0 960 960" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="480" cy="640" r="40" fill="none" stroke="green" stroke-width="10" />
+              </svg>
+          '''
+      )
+      
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_47_8](nicegui_pro.assets/2026_47_8.png)
+
+默认情况下，嵌套的内容是在控件的SVG画布之后，因此需要修改嵌套内容位置才能符合预期：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.interactive_image(
+        'https://nicegui.io/static/logo.png',
+        sanitize=False
+    ).classes('w-64 h-64'):
+        ui.html(
+            '''
+                <svg viewBox="0 0 960 960" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="480" cy="640" r="60" fill="none" stroke="red" stroke-width="10" />
+                </svg>
+            ''',
+            sanitize=False
+        ).classes('w-full bg-transparent absolute left-0 top-0')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_9](nicegui_pro.assets/2026_47_9.png)
+
+不过，对于嵌入SVG内容的情况，可以直接将其传给`content`参数：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.interactive_image(
+        'https://nicegui.io/static/logo.png',
+        content='''
+            <svg viewBox="0 0 960 960" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="480" cy="640" r="60" fill="none" stroke="red" stroke-width="10" />
+            </svg>
+        ''',
+        sanitize=False
+    ).classes('w-64 h-64')
+    
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_10](nicegui_pro.assets/2026_47_10.png)
 
 
-## 48 学习控件——页面的特殊区域（更新中）
+
+在画布上绘制内容：
+
+https://nicegui.io/documentation/interactive_image#blank_canvas
+
+响应加载事件：
+
+https://nicegui.io/documentation/interactive_image#loaded_event
+
+修改准星：
+
+https://nicegui.io/documentation/interactive_image#crosshairs
+
+SVG事件：
+
+https://nicegui.io/documentation/interactive_image#svg_events
+
+
+
+
+
+## 48 学习控件——播放音视频（更新中）
+
+在NiceGUI程序中，音频和视频对应的控件用法基本相同，只是外观有所不同：
+
+- `ui.audio`控件，播放音频。
+- `ui.video`控件，播放视频。
+
+
+
+
+
+
+
+## 49 学习控件——页面的特殊区域（更新中）
 
 页面除了主内容区域外，还有一些特殊的区域，可以自由添加控件。这些区域的位置都是固定的，并且创建（使用）这些区域并不会影响这些区域的实际位置。
 
@@ -14090,17 +14484,6 @@ NiceGUI框架文档：https://nicegui.io/documentation/time_input
 - `ui.page_scroller`页面快速滚动控件，对应位置和`ui.page_sticky`便签控件一样在主内容区域的八个边角。
 
 
-
-
-
-
-
-## 49 学习控件——播放音视频（更新中）
-
-在NiceGUI程序中，音频和视频对应的控件用法基本相同，只是外观有所不同：
-
-- `ui.audio`控件，播放音频。
-- `ui.video`控件，播放视频。
 
 
 

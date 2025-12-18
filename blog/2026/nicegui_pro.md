@@ -14067,7 +14067,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/time_input
   )
   ```
 
-## 47 学习控件——显示图片（更新中）
+## 47 学习控件——显示图片
 
 在NiceGUI程序中，想要显示图形，通常使用下面的控件：
 
@@ -14309,7 +14309,7 @@ ui.run(
 )
 ```
 
-### 47.2 `ui.interactive_image`控件（更新中）
+### 47.2 `ui.interactive_image`控件
 
 下面是`ui.interactive_image`控件相关文档的地址：
 
@@ -14410,7 +14410,7 @@ ui.run(
 
 ![2026_47_9](nicegui_pro.assets/2026_47_9.png)
 
-不过，对于嵌入SVG内容的情况，可以直接将其传给`content`参数：
+不过，对于嵌入SVG内容的情况，可以简化为直接将其传给`content`参数：
 
 ```python3
 from nicegui import ui
@@ -14425,7 +14425,6 @@ def index():
         ''',
         sanitize=False
     ).classes('w-64 h-64')
-    
 
 ui.run(
     root=index,
@@ -14435,27 +14434,151 @@ ui.run(
 
 ![2026_47_10](nicegui_pro.assets/2026_47_10.png)
 
+除了在创建控件时给画布添加内容，还可以利用触发鼠标事件之后要执行的操作，实现在点击位置即时绘制：
 
+```python3
+from nicegui import ui
 
-在画布上绘制内容：
+def index():
+    ui.interactive_image(
+        'https://nicegui.io/static/logo.png',
+        sanitize=False,
+        on_mouse=lambda e:e.sender.set_content(
+            f'''
+            <circle cx="{e.image_x}" cy="{e.image_y}" r="10" fill="red" />
+            '''
+        )
+    ).classes('w-64 h-64')
+    
 
-https://nicegui.io/documentation/interactive_image#blank_canvas
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-响应加载事件：
+![2026_47_11](nicegui_pro.assets/2026_47_11.png)
 
-https://nicegui.io/documentation/interactive_image#loaded_event
+如果给`'loaded'`事件创建响应函数，即可实现图片加载完成之后执行指定操作：
 
-修改准星：
+```python3
+from nicegui import ui
 
-https://nicegui.io/documentation/interactive_image#crosshairs
+def index():
+    ii = ui.interactive_image(
+        'https://nicegui.io/static/logo.png'
+    ).classes('w-64 h-64')
+    ii.on('loaded',lambda e:ui.notify(e.args))
+    ui.button('reload',on_click=ii.force_reload)
 
-SVG事件：
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-https://nicegui.io/documentation/interactive_image#svg_events
+![2026_47_12](nicegui_pro.assets/2026_47_12.png)
 
+使用`cross`参数可以使用默认的十字线来指示鼠标位置：
 
+```python3
+from nicegui import ui
 
+def index():
+    ui.interactive_image(
+        'https://nicegui.io/static/logo.png',
+        sanitize=False,
+        on_mouse=lambda e:e.sender.set_content(
+            f'''
+            <circle cx="{e.image_x}" cy="{e.image_y}" r="10" fill="red" />
+            '''
+        ),
+        cross='red'
+    ).classes('w-64 h-64')
 
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_13](nicegui_pro.assets/2026_47_13.png)
+
+使用`'cross'`插槽则可以修改其样式：
+
+```python3
+from nicegui import ui
+
+def index():
+    ii = ui.interactive_image(
+        'https://nicegui.io/static/logo.png',
+        sanitize=False,
+        on_mouse=lambda e:e.sender.set_content(
+            f'''
+            <circle cx="{e.image_x}" cy="{e.image_y}" r="10" fill="red" />
+            '''
+        )
+    ).classes('w-64 h-64')
+    ii.add_slot(
+        'cross',
+        '''
+        <circle :cx="props.x" :cy="props.y" r="30" stroke="red" fill="none" />
+        <line :x1="props.x - 30" :y1="props.y" :x2="props.x + 30" :y2="props.y" stroke="red" />
+        <line :x1="props.x" :y1="props.y - 30" :x2="props.x" :y2="props.y + 30" stroke="red" />
+        '''
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_14](nicegui_pro.assets/2026_47_14.png)
+
+覆盖在图片之上的SVG内容添加了`pointer-events="all"`属性之后，可以使用`on`方法给前缀为“SVG:”的SVG事件添加响应函数。
+
+目前控件支持以下SVG事件：
+
+- `pointermove`事件，鼠标移动时触发。
+- `pointerdown`事件，鼠标按键按下时触发。
+- `pointerup`事件，鼠标按键松开时触发。
+- `pointerover`事件，鼠标进入时触发，支持冒泡。
+- `pointerout`事件，鼠标离开时触发，支持冒泡。
+- `pointerenter`事件，鼠标进入时触发，不支持冒泡。
+- `pointerleave`事件，鼠标离开时触发，不支持冒泡。
+- `pointercancel`事件，鼠标操作被中断时触发。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.interactive_image(
+        'https://nicegui.io/static/logo.png',
+        content='''
+            <svg viewBox="0 0 960 960" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <circle id="A" cx="480" cy="640" r="60" fill="none" stroke="red" stroke-width="10" pointer-events="all" cursor="pointer" />
+            </svg>
+        ''',
+        sanitize=False
+    ).classes(
+        'w-64 h-64'
+    ).on(
+        'svg:pointerdown', 
+        lambda e: ui.notify(
+            f'SVG clicked: {e.args}'
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_47_15](nicegui_pro.assets/2026_47_15.png)
 
 ## 48 学习控件——播放音视频（更新中）
 
@@ -14464,9 +14587,13 @@ https://nicegui.io/documentation/interactive_image#svg_events
 - `ui.audio`控件，播放音频。
 - `ui.video`控件，播放视频。
 
+### 48.1 `ui.audio`控件（更新中）
 
 
 
+
+
+获取视频播放进度的示例，
 
 
 

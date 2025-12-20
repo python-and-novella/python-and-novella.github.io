@@ -2661,7 +2661,7 @@ from nicegui import ui
 
 def index():
     ui.audio(
-        'https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3'
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
     )
     ui.video(
         'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4'
@@ -14580,22 +14580,116 @@ ui.run(
 
 ![2026_47_15](nicegui_pro.assets/2026_47_15.png)
 
-## 48 学习控件——播放音视频（更新中）
+## 48 学习控件——播放音视频
 
-在NiceGUI程序中，音频和视频对应的控件用法基本相同，只是外观有所不同：
+下面是`ui.audio`控件相关文档的地址：
 
-- `ui.audio`控件，播放音频。
-- `ui.video`控件，播放视频。
+NiceGUI框架文档：https://nicegui.io/documentation/audio
 
-### 48.1 `ui.audio`控件（更新中）
+`ui.audio`控件支持以下参数：
 
+- `src`参数，字符串类型、`Path`类型（使用`from pathlib import Path`导入），表示播放的音频。
 
+  如果提供的是网络音频，则可以使用字符串类型的网络路径。
 
+  如果提供的是本地音频，则可以使用字符串类型、`Path`类型的本地路径。
 
+  示例如下：
 
-获取视频播放进度的示例，
+  ```python3
+  from nicegui import ui
+  from pathlib import Path
+  
+  def index():
+      with ui.label('网络音频'):
+          ui.audio(
+              'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+          )
+      # test.mp3 请自行准备并放在源代码同目录下
+      with ui.label('本地音频'):
+          ui.audio(
+              './test.mp3'
+          )
+          ui.audio(
+              Path('./test.mp3')
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
+  ![2026_48_1](nicegui_pro.assets/2026_48_1.png)
 
+- `controls`参数，布尔类型，表示是否显示控制按钮，默认为`True`。该参数配合`autoplay`参数一起使用，可以实现给网页添加背景音乐的功能：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      audio = ui.audio(
+          'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+          controls=False,
+          autoplay=True
+      )
+      ui.switch(
+          '背景音乐',
+          value=True,
+          on_change=lambda e:audio.play() if e.value else audio.pause()
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_48_2](nicegui_pro.assets/2026_48_2.png)
+
+  从该参数开始，只能通过关键字传入。
+
+- `autoplay`参数，布尔类型，表示是否自动开始播放，默认为`False`。
+
+- `muted`参数，布尔类型，表示是否为静音状态，默认为`False`。
+
+- `loop`参数，布尔类型，表示是否循环播放，默认为`False`。
+
+`ui.audio`控件支持以下方法（部分）：
+
+- `set_source`方法，修改播放的音频。该方法支持以下参数：
+  - `source`参数，字符串类型、`Path`类型（使用`from pathlib import Path`导入），表示修改后的音频。
+- `seek`方法，跳转到指定进度。该方法支持以下参数：
+  - `seconds`参数，浮点类型，表示进度，单位秒。
+- `play`方法，播放音频。
+- `pause`方法，暂停音频。
+
+下面是`ui.video`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/video
+
+`ui.video`控件支持的参数、方法与`ui.audio`控件一致，这里不做赘述，仅提供一个获取视频播放进度的示例：
+
+```python3
+from nicegui import ui
+
+def index():
+    v = ui.video(
+        'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4'
+    )
+    label = ui.label(f'当前播放进度为 {0} 秒。')
+    async def get_current_time():
+        time = await ui.run_javascript(f'getHtmlElement({v.id}).currentTime')
+        label.set_text(f'当前播放进度为 {int(time)} 秒。')
+    ui.timer(0.1,get_current_time,immediate=False)
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_48_3](nicegui_pro.assets/2026_48_3.png)
 
 ## 49 学习控件——页面的特殊区域（更新中）
 
@@ -14610,7 +14704,252 @@ ui.run(
 - `ui.page_sticky`便签控件，对应位置在主内容区域的八个边角。
 - `ui.page_scroller`页面快速滚动控件，对应位置和`ui.page_sticky`便签控件一样在主内容区域的八个边角。
 
+### 49.1 `ui.header`控件和`ui.footer`控件
 
+下面是`ui.header`控件和`ui.footer`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/page_layout#reference_for_ui_header
+
+https://nicegui.io/documentation/page_layout#reference_for_ui_footer
+
+Quasar框架文档：https://quasar.dev/layout/header-and-footer
+
+`ui.header`控件和`ui.footer`控件支持的参数、方法基本相同，只是`ui.footer`控件没有`add_scroll_padding`参数，因此合并介绍。下面就以`ui.header`控件为例，介绍其支持的参数、方法。
+
+`ui.header`控件支持以下关键字参数：
+
+- `value`参数，布尔类型，表示是否显示，默认为`True`。
+
+- `fixed`参数，布尔类型，表示是否固定位置，即不随内容一同滚动，默认为`True`。
+
+- `bordered`参数，布尔类型，表示是否显示边框，默认为`False`。
+
+  注意，框架定义该控件的边框样式来源于样式类`'q-header--bordered'`，默认效果不明显，以下示例通过修改该样式让边框变得明显：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.label('主内容').classes('h-screen')
+      with ui.header(
+          bordered=True
+      ):
+          ui.label('页头')
+      ui.query('.q-header--bordered').style('border-bottom: 10px solid rgb(0 0 0)')
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_49_1](nicegui_pro.assets/2026_49_1.png)
+
+- `elevated`参数，布尔类型，表示是否添加悬浮的阴影，默认为`False`。
+
+- `wrap`参数，布尔类型，表示内容宽度超过可用宽度时是否将内容换行显示，默认为`True`。
+
+- `add_scroll_padding`参数，布尔类型，表示点击锚点跳转至页面内指定位置时，跳转滚动的过程是否考虑页头的高度，默认为`True`。
+
+  如果考虑页头的高度，则除了页头区域外的部分，可以视为完整的页面，操作过程符合直觉。如果不考虑，则将页头区域视作悬浮状态，将其当作页面的一部分。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.header(
+          add_scroll_padding=False
+      ):
+         ui.label('页头')
+      for i in range(100):
+          with ui.link_target(f'line{i}'):
+              ui.link(f'Line {i}', f'#line{i}')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  在该参数为`False`时，点击锚点之后，该链接会跳转至包含页头部分的页面最上方，此时会被页头覆盖。
+
+`ui.header`控件支持以下方法（部分）：
+
+- `toggle`方法，切换控件的显示隐藏状态。
+- `show`方法，显示该控件。
+- `toggle`方法，隐藏该控件。
+
+### 49.2 `ui.left_drawer`控件和`ui.right_drawer`控件（更新中）
+
+下面是`ui.left_drawer`控件和`ui.right_drawer`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/page_layout#reference_for_ui_left_drawer
+
+https://nicegui.io/documentation/page_layout#reference_for_ui_right_drawer
+
+Quasar框架文档：https://quasar.dev/layout/drawer
+
+`ui.left_drawer`控件和`ui.right_drawer`控件支持的参数、方法完全相同，因此合并介绍。
+
+`ui.left_drawer`控件和`ui.right_drawer`控件支持以下关键字参数：
+
+- `value`参数，布尔类型，表示是否显示，默认为`None`。
+
+- `fixed`参数，布尔类型，表示是否固定位置，即不随内容一同滚动，默认为`True`。
+
+- `bordered`参数，布尔类型，表示是否显示边框，默认为`False`。
+
+  注意，框架定义该控件的边框样式来源于样式类`'q-drawer--bordered'`，默认效果不明显，以下示例通过修改该样式让边框变得明显：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.label('主内容').classes('h-screen')
+      with ui.left_drawer(
+          bordered=True
+      ).classes('bg-grey'):
+          ui.label('左抽屉')
+      with ui.right_drawer().classes('bg-grey'):
+          ui.label('右抽屉')
+      ui.query('.q-drawer--bordered').style('border-bottom: 10px solid rgb(255 0 0)')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_49_2](nicegui_pro.assets/2026_49_2.png)
+
+- `elevated`参数，布尔类型，表示是否添加悬浮的阴影，默认为`False`。
+
+- `top_corner`参数，布尔类型，表示控件是否向上延伸，占据顶部角落，默认为`False`。
+
+- `bottom_corner`参数，布尔类型，表示控件是否向下延伸，占据底部角落，默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.label('主内容').classes('h-screen')
+      with ui.header():
+          ui.label('页头')
+      with ui.footer():
+          ui.label('页脚')
+      with ui.left_drawer(
+          top_corner=True
+      ).classes('bg-grey'):
+          ui.label('左抽屉')
+      with ui.right_drawer(
+          bottom_corner=True
+      ).classes('bg-grey'):
+          ui.label('右抽屉')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_49_3](nicegui_pro.assets/2026_49_3.png)
+
+`ui.left_drawer`控件和`ui.right_drawer`控件支持以下方法（部分）：
+
+- `toggle`方法，切换控件的显示隐藏状态。
+- `show`方法，显示该控件。
+- `toggle`方法，隐藏该控件。
+
+
+
+移动端行为
+
+
+
+
+
+重叠模式
+
+https://quasar.dev/layout/drawer#overlay-mode
+
+
+
+迷你模式
+
+https://quasar.dev/layout/drawer#mini-mode
+
+
+
+### 49.3 `ui.page_sticky`控件（更新中）
+
+下面是`ui.page_sticky`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/page_layout#reference_for_ui_page_sticky
+
+Quasar框架文档：https://quasar.dev/layout/page-sticky
+
+`ui.page_sticky`控件支持以下参数：
+
+- 
+
+`ui.page_sticky`控件支持以下方法（部分）：
+
+- 
+
+
+
+### 49.4 `ui.page_scroller`控件（更新中）
+
+下面是`ui.page_scroller`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/page_layout#reference_for_ui_page_scroller
+
+Quasar框架文档：https://quasar.dev/layout/page-scroller
+
+`ui.page_scroller`控件支持以下参数：
+
+- 
+
+`ui.page_scroller`控件支持以下方法（部分）：
+
+- 
+
+
+
+
+
+
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('主内容').classes('h-screen')
+    with ui.header():
+        ui.label('页头')
+    with ui.footer():
+        ui.label('页脚')
+    with ui.left_drawer().classes('bg-grey'):
+        ui.label('左抽屉')
+    with ui.right_drawer().classes('bg-grey'):
+        ui.label('右抽屉')
+    with ui.page_sticky():
+        ui.button('便签')
+    with ui.page_scroller(
+        position='top-right',
+        scroll_offset=10,
+        reverse=True
+    ):
+        ui.button('到底部')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 
@@ -15738,3 +16077,6 @@ ui.run(
 window.location.reload(true)
 ```
 
+动画：
+
+https://nicegui.io/documentation/image#lottie_files

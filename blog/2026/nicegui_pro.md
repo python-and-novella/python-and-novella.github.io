@@ -2192,7 +2192,7 @@ ui.run(
 - `ui.left_drawer`左抽屉控件，对应位置为左抽屉，即主内容区域的左边，该区域的隐藏状态支持动态切换。
 - `ui.right_drawer`右抽屉控件，对应位置为右抽屉，即主内容区域的右边，该区域的隐藏状态支持动态切换。
 - `ui.page_sticky`便签控件，对应位置在主内容区域的八个边角。
-- `ui.page_scroller`页面快速滚动控件，对应位置和`ui.page_sticky`便签控件一样在主内容区域的八个边角。
+- `ui.page_scroller`页面快速滚动控件，对应位置和`ui.page_sticky`便签控件一样在主内容区域的八个边角，但该控件多了一个点击之后跳转到页面最顶部、最底部的功能。
 
 它们的位置关系如下：
 
@@ -14691,7 +14691,7 @@ ui.run(
 
 ![2026_48_3](nicegui_pro.assets/2026_48_3.png)
 
-## 49 学习控件——页面的特殊区域（更新中）
+## 49 学习控件——页面的特殊区域
 
 页面除了主内容区域外，还有一些特殊的区域，可以自由添加控件。这些区域的位置都是固定的，并且创建（使用）这些区域并不会影响这些区域的实际位置。
 
@@ -14702,7 +14702,7 @@ ui.run(
 - `ui.left_drawer`左抽屉控件，对应位置为左抽屉，即主内容区域的左边，该区域的隐藏状态支持动态切换。
 - `ui.right_drawer`右抽屉控件，对应位置为右抽屉，即主内容区域的右边，该区域的隐藏状态支持动态切换。
 - `ui.page_sticky`便签控件，对应位置在主内容区域的八个边角。
-- `ui.page_scroller`页面快速滚动控件，对应位置和`ui.page_sticky`便签控件一样在主内容区域的八个边角。
+- `ui.page_scroller`页面快速滚动控件，对应位置和`ui.page_sticky`便签控件一样在主内容区域的八个边角，但该控件多了一个点击之后跳转到页面最顶部、最底部的功能。
 
 ### 49.1 `ui.header`控件和`ui.footer`控件
 
@@ -14780,7 +14780,7 @@ Quasar框架文档：https://quasar.dev/layout/header-and-footer
 - `show`方法，显示该控件。
 - `toggle`方法，隐藏该控件。
 
-### 49.2 `ui.left_drawer`控件和`ui.right_drawer`控件（更新中）
+### 49.2 `ui.left_drawer`控件和`ui.right_drawer`控件
 
 下面是`ui.left_drawer`控件和`ui.right_drawer`控件相关文档的地址：
 
@@ -14863,27 +14863,181 @@ Quasar框架文档：https://quasar.dev/layout/drawer
 - `show`方法，显示该控件。
 - `toggle`方法，隐藏该控件。
 
+注意，当页面尺寸小于一定像素或者客户端为移动设备时，控件的部分样式会变为移动端版本，不受参数、控件属性影响。
 
+示例如下：
 
-移动端行为
+```python3
+from nicegui import ui
 
+def index():
+    with ui.header():
+        ui.label('页头')
+    with ui.footer():
+        ui.label('页脚')
+    with ui.left_drawer().classes(
+        'bg-grey'
+    ) as drawer:
+        ui.label('左抽屉')
+    ui.label('主内容')
+    ui.button('显示、隐藏抽屉',on_click=drawer.toggle)
 
+ui.run(
+    root=index,
+    native=True
+)
+```
 
+虽然`top_corner`参数、`bottom_corner`参数使用默认的`False`，但控件依然向上、向下延伸：
 
+![2026_49_4](nicegui_pro.assets/2026_49_4.png)
 
-重叠模式
+上面的示例中，还展示了移动端版本中的重叠模式。虽然控件遮住了控制显示、隐藏的按钮，但可以点击空白处或者向弹出方向的反方向滑动隐藏控件。如果是非移动端版本，想要让控件在弹出时这不显示的内容，则可以添加`overlay`属性，启用重叠模式。
 
-https://quasar.dev/layout/drawer#overlay-mode
+注意，非移动版本不支持手势、点击空白处处隐藏控件，最好在`ui.header`控件中添加额外的按钮。
 
+示例如下：
 
+```python3
+from nicegui import ui
 
-迷你模式
+def index():
+    with ui.header():
+        ui.button(icon='menu',on_click=lambda:drawer.toggle())
+        ui.label('页头')
+    with ui.footer():
+        ui.label('页脚')
+    with ui.left_drawer().classes(
+        'bg-grey'
+    ).props(
+        'overlay'
+    ) as drawer:
+        ui.label('左抽屉')
+    ui.label('主内容')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-https://quasar.dev/layout/drawer#mini-mode
+![2026_49_5](nicegui_pro.assets/2026_49_5.png)
 
+除了上面常规大小的控件工作模式，控件还支持一种迷你模式（参考 https://quasar.dev/layout/drawer#mini-mode），通过添加、移除`mini`属性来实现迷你模式的切换：
 
+```python3
+from nicegui import ui
 
-### 49.3 `ui.page_sticky`控件（更新中）
+def index():
+    with ui.header():
+        ui.button(
+            icon='menu',
+            on_click=lambda:drawer.props(
+                remove='mini'
+            ) if 'mini' in drawer.props.keys() else drawer.props(
+                'mini'
+            )
+        )
+        ui.label('页头')
+    with ui.footer():
+        ui.label('页脚')
+    with ui.left_drawer().classes(
+        'bg-grey'
+    ).props(
+        'mini'
+    ) as drawer:
+        with ui.item():
+            with ui.item_section().props(
+                'avatar'
+            ):
+                ui.icon('home')
+            with ui.item_section():
+                ui.label('主页')
+    ui.label('主内容')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_49_6](nicegui_pro.assets/2026_49_6.png)
+
+上面的示例中，使用Quasar框架内置的规则，将在添加了`avatar`属性的`ui.item_section`控件中嵌入迷你模式下的内容，实现迷你模式与常规模式的不同效果。
+
+如果想要让迷你模式的内容与常规模式的内容完全不同，则可以使用“mini”插槽：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.header():
+        ui.button(
+            icon='menu',
+            on_click=lambda:drawer.props(
+                remove='mini'
+            ) if 'mini' in drawer.props.keys() else drawer.props(
+                'mini'
+            )
+        )
+        ui.label('页头')
+    with ui.footer():
+        ui.label('页脚')
+    with ui.left_drawer().classes(
+        'bg-grey'
+    ).props(
+        'mini'
+    ) as drawer:
+        ui.label('主页')
+        ui.label('菜单')
+        with drawer.add_slot('mini'):
+            ui.icon('home',size='1.5em')
+            ui.icon('menu',size='1.5em')
+    ui.label('主内容')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+`mini-to-overlay`属性可以让迷你模式变成重叠模式（不影响常规模式）：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.header():
+        ui.button(
+            icon='menu',
+            on_click=lambda:drawer.props(
+                remove='mini'
+            ) if 'mini' in drawer.props.keys() else drawer.props(
+                'mini'
+            )
+        )
+        ui.label('页头')
+    with ui.footer():
+        ui.label('页脚')
+    with ui.left_drawer().classes(
+        'bg-grey'
+    ).props(
+        'mini mini-to-overlay'
+    ) as drawer:
+        ui.label('主页')
+        ui.label('菜单')
+        with drawer.add_slot('mini'):
+            ui.icon('home',size='1.5em')
+            ui.icon('menu',size='1.5em')
+    ui.label('主内容')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+### 49.3 `ui.page_sticky`控件
 
 下面是`ui.page_sticky`控件相关文档的地址：
 
@@ -14893,15 +15047,48 @@ Quasar框架文档：https://quasar.dev/layout/page-sticky
 
 `ui.page_sticky`控件支持以下参数：
 
-- 
+- `position`参数，字符串类型，仅支持`['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top', 'right', 'bottom', 'left']`中的值，表示控件在整个页面的位置，默认为`'bottom-right'`。
 
-`ui.page_sticky`控件支持以下方法（部分）：
+- `x_offset`参数，浮点类型，表示控件在X方向上到页面边界的距离，默认为`0`。
 
-- 
+- `y_offset`参数，浮点类型，表示控件在Y方向上到页面边界的距离，默认为`0`。
 
+- `expand`参数，布尔类型，关键字参数，当`position`参数为`['top', 'right', 'bottom', 'left']`时，是否扩展控件的X方向（控件位置为上下）或者Y方向大小（控件位置为左右）至最大可用值，默认为`False`。
 
+  示例如下：
 
-### 49.4 `ui.page_scroller`控件（更新中）
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.label('主内容').classes('h-screen')
+      with ui.header():
+          ui.label('页头')
+      with ui.footer():
+          ui.label('页脚')
+      with ui.page_sticky(
+          position='top',
+          x_offset=10,
+          y_offset=10
+      ):
+          ui.button('便签').classes('w-full')
+      with ui.page_sticky(
+          position='bottom',
+          x_offset=10,
+          y_offset=10,
+          expand=True
+      ):
+          ui.button('便签').classes('w-full')
+          
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_49_7](nicegui_pro.assets/2026_49_7.png)
+
+### 49.4 `ui.page_scroller`控件
 
 下面是`ui.page_scroller`控件相关文档的地址：
 
@@ -14911,49 +15098,50 @@ Quasar框架文档：https://quasar.dev/layout/page-scroller
 
 `ui.page_scroller`控件支持以下参数：
 
-- 
+- `position`参数，字符串类型，仅支持`['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top', 'right', 'bottom', 'left']`中的值，表示控件在整个页面的位置，默认为`'bottom-right'`。
 
-`ui.page_scroller`控件支持以下方法（部分）：
+- `x_offset`参数，浮点类型，表示控件在X方向上到页面边界的距离，默认为`0`。
 
-- 
+- `y_offset`参数，浮点类型，表示控件在Y方向上到页面边界的距离，默认为`0`。
 
+- `expand`参数，布尔类型，当`position`参数为`['top', 'right', 'bottom', 'left']`时，是否扩展控件的X方向（控件位置为上下）或者Y方向大小（控件位置为左右）至最大可用值，默认为`False`。
 
+  从该参数开始，只能通过关键字传入。
 
+- `scroll_offset`参数，浮点类型，表示页面当前位置距离起点位置多少像素之后才会显示该控件，默认为`1000`。
 
+- `duration`参数，浮点类型，表示点击控件之后在多少时间（单位秒）内完成滚动操作，默认为`0.3`。
 
+- `reverse`参数，布尔类型，表示点击控件之后页面的滚动方向是否为反，默认为`False`。
 
+  参数值为`False`，跳转目标是在页面最底部，起点位置在页面最顶部；参数值为`True`，跳转目标是在页面最顶部，起点位置在页面最底部。
 
-```python3
-from nicegui import ui
+  示例如下：
 
-def index():
-    ui.label('主内容').classes('h-screen')
-    with ui.header():
-        ui.label('页头')
-    with ui.footer():
-        ui.label('页脚')
-    with ui.left_drawer().classes('bg-grey'):
-        ui.label('左抽屉')
-    with ui.right_drawer().classes('bg-grey'):
-        ui.label('右抽屉')
-    with ui.page_sticky():
-        ui.button('便签')
-    with ui.page_scroller(
-        position='top-right',
-        scroll_offset=10,
-        reverse=True
-    ):
-        ui.button('到底部')
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.label('主内容').classes('h-screen')
+      with ui.header():
+          ui.label('页头')
+      with ui.footer():
+          ui.label('页脚')
+      with ui.page_scroller(
+          position='top-right',
+          scroll_offset=1,
+          reverse=True,
+          duration=1
+      ):
+          ui.button('到底部')
+          
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-ui.run(
-    root=index,
-    native=True
-)
-```
-
-
-
-
+  ![2026_49_8](nicegui_pro.assets/2026_49_8.png)
 
 ## 50 学习控件——显示矢量图（更新中）
 
@@ -14966,7 +15154,67 @@ ui.run(
 - `ui.spinner`控件，提供了一些使用SVG作为基础图形的加载动画。
 - `ui.html`控件，没错，该控件也支持SVG，但是用法没有前面几个控件简单，需要传入SVG源代码，然后该控件会将其渲染为矢量图。
 
+### 50.1 `ui.icon`控件（更新中）
 
+下面是`ui.icon`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/icon
+
+Quasar框架文档：https://quasar.dev/vue-components/icon
+
+`ui.icon`控件支持以下参数：
+
+- 
+
+
+
+
+
+### 50.2 `ui.avatar`控件（更新中）
+
+下面是`ui.avatar`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/avatar
+
+Quasar框架文档：https://quasar.dev/vue-components/avatar
+
+`ui.avatar`控件支持以下参数：
+
+
+
+
+
+### 50.3 `ui.spinner`控件（更新中）
+
+下面是`ui.spinner`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/spinner
+
+Quasar框架文档：https://quasar.dev/vue-components/spinners
+
+`ui.spinner`控件支持以下参数：
+
+
+
+### 50.4 `ui.html`控件（更新中）
+
+下面是`ui.html`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/html
+
+`ui.html`控件支持以下参数：
+
+- 
+
+
+
+
+
+`ui.html`控件
+
+动画：
+
+https://nicegui.io/documentation/image#lottie_files
 
 
 
@@ -16077,6 +16325,3 @@ ui.run(
 window.location.reload(true)
 ```
 
-动画：
-
-https://nicegui.io/documentation/image#lottie_files

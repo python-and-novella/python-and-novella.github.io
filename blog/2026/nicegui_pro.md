@@ -2675,7 +2675,7 @@ ui.run(
 
 ![2026_15_11](nicegui_pro.assets/2026_15_11.png)
 
-### 15.10 显示矢量图（SVG）
+### 15.10 显示矢量图（SVG或者其他格式）
 
 除了前面提到过的图片文件，NiceGUI还支持矢量图。所谓矢量图，即不是记录所有像素、而是记录图形绘制方法的图片，其内容不会因为缩放而变得模糊。
 
@@ -12886,7 +12886,7 @@ Quasar框架文档：https://quasar.dev/vue-components/knob
 
 - `step`参数，浮点类型，表示移动滑块时的最小步进表示的数值，默认为`0.01`。
 
-- `color`参数，字符串类型，表示滑块轨迹的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
+- `color`参数，字符串类型，表示滑块轨迹的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让滑块轨迹变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
 
 - `center_color`参数，字符串类型，表示轨道包围的空白区域的颜色。
 
@@ -12936,7 +12936,7 @@ Quasar框架文档：https://quasar.dev/vue-components/rating
 - `icon`参数，字符串类型，表示没有选定的评分图标，默认为`'star'`。
 - `icon_selected`参数，字符串类型，表示选定之后的评分图标，默认同`icon`参数。
 - `icon_half`参数，字符串类型，表示半分的评分图标，默认同`icon`参数。
-- `color`参数，字符串类型或者`None`，表示评分图标的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+- `color`参数，字符串类型或者`None`，表示评分图标的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让评分图标变成默认颜色），默认为`'primary'`，即和主题颜色一致。
 - `size`参数，字符串类型，表示评分图标的大小，采用CSS语法的大小表示方式。
 - `on_change`参数，可调用类型，表示评分改变时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前的分值，`previous_value`属性表示先前的分值。
 
@@ -15143,7 +15143,7 @@ Quasar框架文档：https://quasar.dev/layout/page-scroller
 
   ![2026_49_8](nicegui_pro.assets/2026_49_8.png)
 
-## 50 学习控件——显示矢量图（更新中）
+## 50 学习控件——显示矢量图（SVG或者其他格式）
 
 所谓矢量图，即不是记录所有像素、而是记录图形绘制方法的图片，其内容不会因为缩放而变得模糊。
 
@@ -15154,7 +15154,7 @@ Quasar框架文档：https://quasar.dev/layout/page-scroller
 - `ui.spinner`控件，提供了一些使用SVG作为基础图形的加载动画。
 - `ui.html`控件，没错，该控件也支持SVG，但是用法没有前面几个控件简单，需要传入SVG源代码，然后该控件会将其渲染为矢量图。
 
-### 50.1 `ui.icon`控件（更新中）
+### 50.1 `ui.icon`控件
 
 下面是`ui.icon`控件相关文档的地址：
 
@@ -15164,13 +15164,75 @@ Quasar框架文档：https://quasar.dev/vue-components/icon
 
 `ui.icon`控件支持以下参数：
 
-- 
+- `name`参数，字符串类型，表示显示的图标。该参数支持以下几种图标的表达格式：
 
+  - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。也可以添加其他图标字体所需的文件，使用其他图标字体中的图标。比如使用Eva icons（官网 https://akveo.github.io/eva-icons/）或者Themify icons（官网 https://themify.me/themify-icons）。
+  - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
 
+  对于Material Icons图标字体而言，图标名（具体名称可以参考https://fonts.google.com/icons?icon.set=Material+Icons）的前缀对应不同的风格版本：
 
+  - 无前缀表示实心填充。
+  - “o_”前缀表示空心。
+  - “r_”前缀表示圆角风格（实心填充）。
+  - “s_”前缀表示锐角风格（实心填充）。
+  - “sym_o_”前缀表示空心的符号化版本。
+  - “sym_r_”前缀表示圆角风格（实心填充）的符号化版本。
+  - “sym_s_”前缀表示锐角风格（实心填充）的符号化版本。
 
+- `size`参数，字符串类型，表示图标的大小，采用CSS语法的大小表示方式。
 
-### 50.2 `ui.avatar`控件（更新中）
+  从该参数开始，只能通过关键字传入。
+
+- `color`参数，字符串类型或者`None`，表示图标的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让图标变成默认颜色），默认为`'None'`。
+
+介绍`name`参数时说过可以使用其他图标字体中的图标，这里单独说一下注意事项：
+
+- 只有使用`i`标签渲染图标的图标字体，`ui.icon`控件才支持其图标名。如果是其他标签渲染的，可以参考后面使用`ui.html`控件渲染矢量图内容的方法。
+- 引用图标字体的相关文件时，只能使用`add_head_html`方法引用。
+- 如果通过本地地址引用，则必须先使用`app.add_static_files`方法，为所需的文件生成地址映射，再使用`add_head_html`方法引用。
+
+示例如下：
+
+```python3
+from nicegui import ui,app
+
+def index():
+    ui.icon(
+        'home',
+        size='6em'
+    )
+
+    ui.add_head_html(
+        '<link href="https://unpkg.com/eva-icons/style/eva-icons.css" rel="stylesheet" />'
+    )
+    ui.icon('eva-shield-outline',size='6em')
+
+    # 下载地址 https://themify.me/files/themify-icons-font/themify-icons-font.zip
+    # 将压缩包内顶层文件夹解压到源代码同目录下
+    app.add_static_files(
+        # 使用压缩文件解压之后顶层文件夹的路径
+        local_directory='themify-icons/',
+        url_path='/themify-icons/'
+    )
+    ui.add_head_html(
+        '<link href="/themify-icons/themify-icons.css" rel="stylesheet" />'
+    )
+    ui.icon('ti-car',size='6em')
+
+    ui.icon(
+        'img:https://nicegui.io/logo_square.png',
+        size='6em'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_50_1](nicegui_pro.assets/2026_50_1.png)
+
+### 50.2 `ui.avatar`控件
 
 下面是`ui.avatar`控件相关文档的地址：
 
@@ -15180,11 +15242,62 @@ Quasar框架文档：https://quasar.dev/vue-components/avatar
 
 `ui.avatar`控件支持以下参数：
 
+- `icon`参数，字符串类型，表示控件内的图标。只用法与`ui.icon`控件的`name`参数完全一样，甚至直接将上一节示例中的`icon`全部替换为`avatar`都不会出错：
 
+  ```python3
+  from nicegui import ui,app
+  
+  def index():
+      ui.avatar(
+          'home',
+          size='6em'
+      )
+  
+      ui.add_head_html(
+          '<link href="https://unpkg.com/eva-icons/style/eva-icons.css" rel="stylesheet" />'
+      )
+      ui.avatar('eva-shield-outline',size='6em')
+  
+      # 下载地址 https://themify.me/files/themify-icons-font/themify-icons-font.zip
+      # 将压缩包内顶层文件夹解压到源代码同目录下
+      app.add_static_files(
+          # 使用压缩文件解压之后顶层文件夹的路径
+          local_directory='themify-icons/',
+          url_path='/themify-icons/'
+      )
+      ui.add_head_html(
+          '<link href="/themify-icons/themify-icons.css" rel="stylesheet" />'
+      )
+      ui.avatar('ti-car',size='6em')
+  
+      ui.avatar(
+          'img:https://nicegui.io/logo_square.png',
+          size='6em'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
+  ![2026_50_2](nicegui_pro.assets/2026_50_2.png)
 
+- `color`参数，字符串类型或者`None`，表示控件背景的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让背景变成默认颜色），默认为`'primary'`，即和主题颜色一致。
 
-### 50.3 `ui.spinner`控件（更新中）
+  从该参数开始，只能通过关键字传入。
+
+- `text_color`参数，字符串类型或者`None`，表示控件内文字（含图标字体）的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让文字变成默认颜色），默认为`'None'`。
+
+- `size`参数，字符串类型，表示控件的大小，采用CSS语法的大小表示方式。
+
+- `font_size`参数，字符串类型，表示文字的大小，采用CSS语法的大小表示方式。
+
+- `square`参数，布尔类型，控件是否使用正方形作为外轮廓，默认为`False`。
+
+- `rounded`参数，布尔类型，控件是否使用圆角矩形作为外轮廓，默认为`False`。
+
+### 50.3 `ui.spinner`控件
 
 下面是`ui.spinner`控件相关文档的地址：
 
@@ -15194,9 +15307,41 @@ Quasar框架文档：https://quasar.dev/vue-components/spinners
 
 `ui.spinner`控件支持以下参数：
 
+- `type`参数，字符串类型，仅支持`['default', 'audio', 'ball', 'bars', 'box', 'clock', 'comment', 'cube', 'dots', 'facebook', 'gears', 'grid', 'hearts', 'hourglass', 'infinity', 'ios', 'orbit', 'oval', 'pie', 'puff', 'radio', 'rings', 'tail']`中的值，表示动画类型。
 
+  示例如下：
 
-### 50.4 `ui.html`控件（更新中）
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      spinner_type = ['default','audio','ball','bars','box','clock',
+                  'comment','cube','dots','facebook','gears','grid',
+                  'hearts','hourglass','infinity','ios','orbit','oval',
+                  'pie','puff','radio','rings','tail']
+      with ui.card().classes('w-64'),ui.label('All Spinners:'),ui.row():
+          for i in spinner_type:
+              with ui.element():
+                  ui.spinner(i,size='lg')
+                  ui.label(i)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_50_3](nicegui_pro.assets/2026_50_3.gif)
+
+- `size`参数，字符串类型，表示图标的大小，采用CSS语法的大小表示方式，默认为`'1em'`。
+
+  从该参数开始，只能通过关键字传入。
+
+- `color`参数，字符串类型或者`None`，表示图标的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让图标变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+
+- `thickness`参数，浮点类型，表示当`type`参数为`'default'`时圆环的宽度，默认为`5.0`。
+
+### 50.4 `ui.html`控件
 
 下面是`ui.html`控件相关文档的地址：
 
@@ -15204,19 +15349,156 @@ NiceGUI框架文档：https://nicegui.io/documentation/html
 
 `ui.html`控件支持以下参数：
 
-- 
+- `content`参数，字符串类型，表示标签闭合区间内的具体内容。
 
+- `sanitize`参数，布尔类型或者可调用类型，表示是否强制过滤`content`参数中的注入攻击。可调用类型表示过滤的方法，同时启用强制过滤。
 
+  官方建议给该值传入`Sanitizer().sanitize`（使用`from html_sanitizer import Sanitizer`导入，需要安装`html-sanitizer`库），但本教程因为默认没有安装`html-sanitizer`库，所以给该参数传入了`False`，禁用了安全过滤功能。但读者在实际使用时，请**不要**这样做。
 
+  从该参数开始，只能通过关键字传入。
 
+- `tag`参数，字符串类型，表示该控件使用什么HTML标签作为最外围的标签，默认为`'div'`。
 
-`ui.html`控件
+介绍`ui.icon`控件时说过，如果是其他标签渲染的图标，则要使用`ui.html`控件渲染矢量图内容的方法。
 
-动画：
+没错，因为`ui.html`控件可以使用任意标签，并指定标签闭合区间内的具体内容，就可以使用该控件模拟`ui.icon`控件：
 
-https://nicegui.io/documentation/image#lottie_files
+```python3
+from nicegui import ui
 
+def index():
+    ui.icon('home',size='6em')
+    ui.html(
+        'home',
+        tag='i',
+        sanitize=False
+    ).classes(
+        'material-icons'
+    ).style(
+        'font-size:6em'
+    )
 
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_50_4](nicegui_pro.assets/2026_50_4.png)
+
+当然，这种平添代码复杂度的示例，除非是让领导看到更多的工作量，一般人不会这么做的。真正需要使用`ui.html`控件的地方，自然是现有控件没有提供的功能，比如直接渲染SVG图形的原始内容。
+
+因为SVG图形的原始内容和HTML代码的语法一致，因此可以使用`ui.html`控件渲染：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.html(
+        '''
+        <svg viewBox='0 0 200 200' width='100' height='100'>
+        <circle cx='100' cy='100' r='78' fill='#ffde34' stroke='black' stroke-width='3' />
+        <circle cx='80' cy='85' r='8' />
+        <circle cx='120' cy='85' r='8' />
+        <path 
+        d='m60,120 C75,150 125,150 140,120' 
+        style='fill:none; stroke:black; stroke-width:8; stroke-linecap:round' 
+        />
+        </svg>
+        ''',
+        sanitize=False
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_50_5](nicegui_pro.assets/2026_50_5.png)
+
+虽然`ui.html`控件从某种程度上看和`ui.element`控件很像，但在实际使用中，除非现有控件无法满足需求，一般不建议使用`ui.html`控件，因为有时候需要写很多HTML代码，或者需要调试很久才能实现相同样式。但`ui.html`控件的自由度更高，仅推荐对前端比较熟悉的读者深度学习。
+
+比如，下面的示例中，为了模拟前面使用其他前端UI框架的控件，使用`ui.html`控件代替`ui.element`控件：
+
+```python3
+from nicegui import ui, app
+
+def index():
+    ui.add_body_html(
+        '''
+        <link rel='stylesheet' href='https://unpkg.com/element-plus/dist/index.css'/>
+        <script defer src='https://unpkg.com/element-plus'></script>
+        <script defer src='https://unpkg.com/naive-ui'></script>
+        '''
+    )
+    app.config.vue_config_script += '''
+        app.use(ElementPlus);
+        app.use(naive);
+    '''
+    ui.label('from ui.element:')
+    with ui.element('el-button').props(
+        'type=primary'
+    ):
+        ui.label('Element Plus button')
+    with ui.element('n-button').props(
+        'type=primary'
+    ):
+        ui.label('Naive UI button')
+    ui.button('Quasar button')
+    ui.label('from ui.html:')
+    ui.html(
+        'Element Plus button',
+        tag='el-button',
+        sanitize=False
+    ).props(
+        'type=primary'
+    )
+    ui.html(
+        'Naive UI button',
+        tag='n-button',
+        sanitize=False
+    ).props(
+        'type=primary'
+    )
+    ui.html(
+        'Quasar button',
+        tag='q-btn',
+        sanitize=False
+    ).props(
+        'color=primary'
+    )
+
+ui.run(
+    root=index
+)
+```
+
+![2026_50_6](nicegui_pro.assets/2026_50_6.png)
+
+扯远了，回到本章主题。上一节介绍过内置的矢量图动画，其实，NiceGUI框架还可以使用其他矢量图动画框架，比如LottieFiles框架（相关文档 https://nicegui.io/documentation/image#lottie_files，官网 https://lottiefiles.com/）。
+
+参考上面`ui.html`控件和`ui.element`控件的等效表达方式，下面的示例中包含了两种使用LottieFiles框架的方式：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.add_body_html('<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>')
+
+    src = 'https://assets5.lottiefiles.com/packages/lf20_MKCnqtNQvg.json'
+    
+    ui.element('lottie-player').props(f'src="{src}" loop autoplay').classes('w-24')
+    ui.html(f'<lottie-player src="{src}" loop autoplay />', sanitize=False).classes('w-24')
+    
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_50_7](nicegui_pro.assets/2026_50_7.gif)
 
 ## 51 学习控件——显示进度（更新中）
 

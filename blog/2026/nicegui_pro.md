@@ -15632,7 +15632,35 @@ NiceGUI提供了两种显示表格的控件：
 - `ui.table`控件，为内置的表格实现，由Quasar框架提供，优点是用法简单，但很多功能不够强大。
 - `ui.aggrid`控件，由AG Grid框架提供，功能强大，有付费的企业版本，同时用法也会复杂一些
 
+### 52.1 `ui.table`控件（更新中）
 
+#### 52.1.1 基本用法（更新中）
+
+下面是`ui.table`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/table
+
+Quasar框架文档：https://quasar.dev/vue-components/table
+
+`ui.table`控件支持以下参数：
+
+- 
+
+
+
+
+
+### 52.1 `ui.aggrid`控件（更新中）
+
+#### 52.1.1 基本用法（更新中）
+
+下面是`ui.aggrid`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/icon
+
+Quasar框架文档：https://quasar.dev/vue-components/icon
+
+`ui.aggrid`控件支持以下参数：
 
 
 

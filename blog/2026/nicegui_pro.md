@@ -15500,16 +15500,130 @@ ui.run(
 
 ![2026_50_7](nicegui_pro.assets/2026_50_7.gif)
 
-## 51 学习控件——显示进度（更新中）
+## 51 学习控件——显示进度
 
 下面的控件用于显示进度，都是进度条控件：
 
 - `ui.linear_progress`控件，常见的直线进度条。
 - `ui.circular_progress`控件，使用圆形表示进度的进度条。
 
+下面是`ui.linear_progress`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/linear_progress
+
+Quasar框架文档：https://quasar.dev/vue-components/linear-progress
+
+`ui.linear_progress`控件支持以下参数：
+
+- `value`参数，浮点类型，表示当前进度（`0.0`到`1.0`），默认为`0.0`。
+
+- `size`参数，字符串类型，表示控件的大小，采用CSS语法的大小表示方式。
+
+  从该参数开始，只能通过关键字传入。
+
+- `show_value`参数，布尔类型，表示是否在控件中显示当前进度，默认为`True`。
+
+- `color`参数，字符串类型或者`None`，表示控件的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让控件变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+
+下面是`ui.circular_progress`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/circular_progress
+
+Quasar框架文档：https://quasar.dev/vue-components/circular-progress
+
+`ui.circular_progress`控件支持以下参数：
+
+- `value`参数，浮点类型，表示当前进度（`0.0`到`1.0`），默认为`0.0`。
+
+- `min`参数，浮点类型，表示进度条的起点，默认为`0.0`。
+
+  从该参数开始，只能通过关键字传入。
+
+- `max`参数，浮点类型，表示进度条的终点，默认为`1.0`。
+
+- `size`参数，字符串类型，表示控件的大小，采用CSS语法的大小表示方式，默认为`'xl'`。
+
+- `show_value`参数，布尔类型，表示是否在控件中显示当前进度，默认为`True`。
+
+- `color`参数，字符串类型或者`None`，表示控件的颜色，支持传入字符串类型的颜色类（Quasar、 Tailwind、CSS的颜色名）或者`None`（即让控件变成默认颜色），默认为`'primary'`，即和主题颜色一致。
+
+`ui.linear_progress`控件和`ui.circular_progress`控件支持的参数不多，其更多用法主要在控件属性上。
+
+如果想调换进度条的起点、终点位置，可以使用`reverse`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.linear_progress(
+        0.6
+    ).props('reverse')
+    ui.circular_progress(
+        0.6,
+        min=0.5,
+        max=0.7
+    ).props('reverse')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_51_1](nicegui_pro.assets/2026_51_1.png)
+
+如果想要以动画的形式展示当前进度不确定，可以使用`indeterminate`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.linear_progress(
+        0.6
+    ).props('indeterminate')
+    ui.circular_progress(
+        0.6,
+        min=0.5,
+        max=0.7
+    ).props('indeterminate')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_51_2](nicegui_pro.assets/2026_51_2.gif)
+
+默认情况下，修改当前进度的话，控件显示为新的进度时，会自动添加过渡动画，让变化过程没那么唐突。但是，有时候这个动画会让进度变化过程显得有点“迟钝”。因此，如果想要禁用动画，让变化过程变得更快，可以使用`instant-feedback`属性：
+
+```python3
+from nicegui import ui
+
+def index():
+    slider = ui.slider(
+        min=0,
+        max=1,
+        step=0.1,
+        value=0.6
+    )
+    ui.linear_progress().bind_value_from(slider)
+    ui.linear_progress().props(
+        'instant-feedback'
+    ).bind_value_from(slider)
+    ui.circular_progress().bind_value_from(slider)
+    ui.circular_progress().props(
+        'instant-feedback'
+    ).bind_value_from(slider)
 
 
+ui.run(
+    root=index,
+    native=True
+)
+```
 
+![2026_51_3](nicegui_pro.assets/2026_51_3.gif)
 
 ## 52 学习控件——显示表格（更新中）
 

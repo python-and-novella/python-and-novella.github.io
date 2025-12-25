@@ -8849,7 +8849,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 另外，《学习控件》的每一期不一定按照发布顺序连续发布，有可能穿插在其他内容中。例如，《学习控件》发布一期之后，下一章就是该控件的相关内容，或者其他内容。
 
-## 40 学习控件——`ui.button`控件
+## 40 学习控件——`ui.button`控件（更新中）
 
 `ui.button`控件就是普通的按钮。点击按钮，执行指定操作，按钮用起来就是这么简单。不过，虽然前面的章节使用了不止一次，但没有深入学习过。因此，本章将从参数开始，一点一点拆解该控件的用法，确保读者在日常使用乃至遇到疑难问题时，都有可以参考的示例。
 
@@ -9559,6 +9559,141 @@ ui.run(
 ```
 
 ![2026_40_5](nicegui_pro.assets/2026_40_5.png)
+
+#### 40.2.3 使用控件属性（更新中）
+
+控件属性除了可以控制控件的样式之外，还可以修改控件的行为、内容，可以提供NiceGUI框架没有实现的功能。
+
+在介绍`ui.button`控件的具体控件属性之前，需要先学习一下使用`props`方法（属性）设置控件属性的要点。
+
+`props`作为方法使用时，支持以下参数：
+
+- `add`参数，字符串类型，表示要添加的控件属性名及其属性值，使用`'{控件属性名}={属性值}'`的格式。
+
+  注意，默认属性值为字符串类型，对于非字符串类型的值（比如布尔值、列表），需要在控件属性名前添加英文冒号（`':'`）前缀。添加布尔类型的控件属性时，可以不指定属性值并省略等号，此时表示该控件属性的值为`True`。
+
+- `remove`参数，关键字参数，字符串类型，表示要移除的控件属性。
+
+`props`作为属性使用时，可以将其看作字典，一般的字典操作都支持。此时，控件属性名就是字典的键，控件属性的值就是键对应的值。因此，添加控件属性，就是给字典添加元素；更新控件属性，就是更新指定元素的值；移除控件属性，就是移除指定元素。
+
+以禁用按钮文字全部大写的`no-cpas`属性为例，示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.button(
+        'Hello'
+    ).props(
+        'no-caps'
+    )
+    ui.button(
+        'Hello'
+    ).props[
+        'no-caps'
+    ] = True
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_40_6](nicegui_pro.assets/2026_40_6.png)
+
+除了上面这些常规用法之外，`props`方法（属性）还有一些特殊的进阶用法：
+
+- 在控件属性名前添加英文冒号（`':'`）前缀，启用计算表达式功能。
+
+  如果属性值是非字符串类型的值、以字符串形式表示的JavaScript语法中非字符串类型的值（比如布尔值、列表），而非直接使用Python中对应类型的值，则需要启用计算表达式功能，在客户端完成计算。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      ).props(
+          ':no-caps=true'
+      )
+      ui.button(
+          'Hello'
+      ).props[
+          ':no-caps'
+      ] = 'true'
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- 控件属性名不是Python中合法变量名时，在使用控件属性名时**可以**或者**必须**将其转换为小驼峰命名法（即去掉蛇形命名法的下划线或者连字符之后，除了第一个字段，每个字段的首字母都大写），比如，`'no-caps'`转换成`'noCaps'`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      ).props(
+          'noCaps'
+      )
+      ui.button(
+          'Hello'
+      ).props.update(
+          noCaps=True
+      )
+      ui.button(
+          'Hello'
+      ).props[
+          'noCaps'
+      ] = True
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- 启用计算表达式功能可以和小驼峰命名法同时使用。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      ).props(
+          ':noCaps=true'
+      )
+      ui.button(
+          'Hello'
+      ).props[
+          ':noCaps'
+      ] = 'true'
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+
+
+
+
+（介绍其他控件属性）
+
+
+
+
 
 ## 41 学习控件——显示简单文本
 
@@ -15632,6 +15767,12 @@ NiceGUI提供了两种显示表格的控件：
 - `ui.table`控件，为内置的表格实现，由Quasar框架提供，优点是用法简单，但很多功能不够强大。
 - `ui.aggrid`控件，由AG Grid框架提供，功能强大，有付费的企业版本，同时用法也会复杂一些
 
+在学习表格控件之前，先简单介绍一下下HTML的表格结构。在HTML中，定义表格常用这几种标签：`table`、`tbody`、`thead`、`tr`、`td`、`th`。`table`表示整个表格，`thead`表示表头，`tbody`表示表格内容主体，`tr`表示一整行，`td`表示每个单元格，`th`表示表头中的单元格。具体结构如下图所示：
+
+![2026_52_1](nicegui_pro.assets/2026_52_1.png)
+
+想要定义一个表格，需要写一堆标签。哪怕有插件，对于每个单元格内的数据，操作起来也没那么简单。好在表格控件简化了这个过程，让开发者更加专注于数据的处理，无需过分关心这些标签
+
 ### 52.1 `ui.table`控件（更新中）
 
 #### 52.1.1 基本用法（更新中）
@@ -15642,25 +15783,193 @@ NiceGUI框架文档：https://nicegui.io/documentation/table
 
 Quasar框架文档：https://quasar.dev/vue-components/table
 
+在正式介绍`ui.table`控件的参数、用法前，先对照下面的示例学习一下列定义（完整用法参考 https://quasar.dev/vue-components/table#defining-the-columns）：
+
+```python3
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'required': True, 
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_52_2](nicegui_pro.assets/2026_52_2.png)
+
+在上面的示例中，`columns`变量是一个元素为字典的列表。其中，每个字典表示一列，字典中的键、值表示该列相关的定义，所以，接收该变量的`columns`参数表示的是列定义。
+
+在列定义字典中，不同的键对应不同配置项：
+
+- `'name'`键，字符串类型，表示表格每一列的独特的ID。这个配置项并不是该列的表头，只是表示这一列的变量标识符，就和在Python中定义一个变量一样。这个配置项的值后续会用在“body-cell-[{name}]” 插槽中的`name`、`pagination`控件属性值的`sortBy`属性等一系列API中使用列名（Column name）的地方。
+
+- `'label'`键，字符串类型，表示每一列表头显示的内容。如果没有传入列定义，则会取`rows`参数里行数据字典中对应列的键当表头（详见后面创建表格最简代码）。
+
+- `'field'`键，字符串类型，表示在行数据字典中，该行哪个键的值在该列对应位置显示。
+
+- `'required'`键，布尔类型，表示该列的数据是否为必需的。数据为必需的列，将不受`visible-columns`控件属性的影响，始终显示。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'required': True, 
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).props('visible-columns=[]')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `align`：对齐，表示这一列的对齐方向。
+
+`sortable`：是否可排序，即点击表头可以启用该列数据的排序。
+
+`sort`：排序的计算方法，使用JavaScript语法的函数定义。根据`(a, b, rowA, rowB) => parseInt(a, 10) - parseInt(b, 10)`返回值是否小于0来判断前者是否小于后者。此方法需要JavaScript基础和对相关API的了解，读者可以按需使用。
+
+`rawSort`：排序的计算方法，使用JavaScript语法的函数定义。根据`(a, b, rowA, rowB) => parseInt(a, 10) - parseInt(b, 10)`返回值是否小于0来判断前者是否小于后者。此方法需要JavaScript基础和对相关API的了解，读者可以按需使用。
+
+`format`：使用JavaScript语法的函数定义该列的数据显示为什么格式。比如：
+
+```
+(val, row) => `${val}%`
+val => val ? "\u2611":"\u2610"
+```
+
+注意，以上三个需要使用JavaScript函数表达式的参数，在Python中传参时，需要在前面加冒号，如：`':format':'val => val ? "\u2611":"\u2610"'`。这样才能启用计算表达式功能，不然不会生效。
+
+`sortOrder`：点击表头时，先使用从小到大排序（递增）还是先使用从大到小排序（递减）。只支持`'ad`‘或`'da'`，并且此参数会覆盖`'column-sort-order'`属性。
+
+下面两个参数只对单元格内容生效：
+
+`style`：内容样式，采用CSS语法。
+
+`classes`：内容样式类名。
+
+下面两个参数只对表头生效：
+
+`headerStyle`：表头样式，采用CSS语法。
+
+`headerClasses`：表头样式类名。
+
+
+
 `ui.table`控件支持以下参数：
 
 - 
 
+`ui.table`控件支持以下属性（部分）：
+
+- 
+
+`ui.table`控件支持以下方法（部分）：
+
+- 
+
+#### 52.1.2 扩展用法（更新中）
+
+##### 52.1.2.1 控件属性（更新中）
+
+介绍列定义字典的`'required'`键时，提到了`visible-columns`控件属性，因此，这里先介绍一下啊`visible-columns`属性的含义和用法。
+
+设置`visible-columns`属性为字符串列表之后，只有列的`name`在字符串列表中，列才会显示出来。比如`table.props['visible-columns'] = ["age","firstname"]`、`table.props.update(visibleColumns = ["age","firstname"])`、`table.props(''' :visible-columns="['firstname','age']" ''')`、`table.props(f''' :visible-columns="{['firstname','ages']}" ''')`等。
 
 
 
 
-### 52.1 `ui.aggrid`控件（更新中）
 
-#### 52.1.1 基本用法（更新中）
+##### 52.1.2.2 控件方法（更新中）
+
+
+
+##### 52.1.2.3 插槽（更新中）
+
+
+
+### 52.2 `ui.aggrid`控件（更新中）
+
+#### 52.2.1 基本用法（更新中）
 
 下面是`ui.aggrid`控件相关文档的地址：
 
-NiceGUI框架文档：https://nicegui.io/documentation/icon
+NiceGUI框架文档：https://nicegui.io/documentation/aggrid
 
-Quasar框架文档：https://quasar.dev/vue-components/icon
+AG Grid框架文档：https://www.ag-grid.com/javascript-data-grid/reference/
 
 `ui.aggrid`控件支持以下参数：
+
+- 
+
+
 
 
 

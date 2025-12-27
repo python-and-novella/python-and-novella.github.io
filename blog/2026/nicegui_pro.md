@@ -8849,7 +8849,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过，前面只是
 
 另外，《学习控件》的每一期不一定按照发布顺序连续发布，有可能穿插在其他内容中。例如，《学习控件》发布一期之后，下一章就是该控件的相关内容，或者其他内容。
 
-## 40 学习控件——`ui.button`控件（更新中）
+## 40 学习控件——`ui.button`控件
 
 `ui.button`控件就是普通的按钮。点击按钮，执行指定操作，按钮用起来就是这么简单。不过，虽然前面的章节使用了不止一次，但没有深入学习过。因此，本章将从参数开始，一点一点拆解该控件的用法，确保读者在日常使用乃至遇到疑难问题时，都有可以参考的示例。
 
@@ -9560,9 +9560,9 @@ ui.run(
 
 ![2026_40_5](nicegui_pro.assets/2026_40_5.png)
 
-#### 40.2.3 使用控件属性（更新中）
+#### 40.2.3 使用控件属性
 
-控件属性除了可以控制控件的样式之外，还可以修改控件的行为、内容，可以提供NiceGUI框架没有实现的功能。
+控件属性除了可以控制控件的样式之外，还可以修改控件的行为、内容，可以提供NiceGUI框架没有实现的功能。因此，控件属性也是NiceGUI控件不可或缺的部分。
 
 在介绍`ui.button`控件的具体控件属性之前，需要先学习一下使用`props`方法（属性）设置控件属性的要点。
 
@@ -9576,7 +9576,7 @@ ui.run(
 
 `props`作为属性使用时，可以将其看作字典，一般的字典操作都支持。此时，控件属性名就是字典的键，控件属性的值就是键对应的值。因此，添加控件属性，就是给字典添加元素；更新控件属性，就是更新指定元素的值；移除控件属性，就是移除指定元素。
 
-以禁用按钮文字全部大写的`no-cpas`属性为例，示例如下：
+以禁用按钮文字全部大写的`no-caps`属性为例，示例如下：
 
 ```python3
 from nicegui import ui
@@ -9685,15 +9685,541 @@ ui.run(
   )
   ```
 
+以`ui.button`控件为例，支持的控件属性有：
 
+- `loading`属性，布尔类型，表示控件是否处于加载状态。
 
+- `disable`属性，布尔类型，表示控件是否处于禁用状态。
 
+- `percentage`属性，整数类型，当控件处于加载状态时，在背景之上显示一个进度条，该属性表示当前进度，限定属性值为`0`到`100`。
 
-（介绍其他控件属性）
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      ).props(
+          'percentage=20 loading'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
+  ![2026_40_7](nicegui_pro.assets/2026_40_7.png)
 
+- `dark-percentage`属性，布尔类型，表示`percentage`属性对应的进度条是否使用暗色系。
 
+- `icon-right`属性，字符串类型，默认按钮内额外显示的图标在文字左边，此属性表示文字右边额外显示的图标。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello',
+          icon='home'
+      ).props(
+          'icon-right=menu'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_8](nicegui_pro.assets/2026_40_8.png)
+
+- `no-caps`属性，布尔类型，表示是否禁用按钮文字全部大写。
+
+- `no-wrap`属性，布尔类型，表示是否禁用按钮文字自动换行。
+
+- `align`属性，字符串类型，表示按钮文字的对齐方向，仅支持`['left','right','center','around','between','evenly']`中的值。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      for i in [
+          'left','right','center',
+          'around','between','evenly'
+      ]:
+          ui.label(i+':')
+          ui.button(
+              'Hello',
+              icon='home'
+          ).props(
+              f'align={i} icon-right=menu'
+          ).classes('w-64')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_9](nicegui_pro.assets/2026_40_9.png)
+
+- `stack`属性，布尔类型，表示是否将按钮内额外显示的图标放在文字的上下。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello',
+          icon='home'
+      ).props(
+          'stack icon-right=menu'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_10](nicegui_pro.assets/2026_40_10.png)
+
+- `stretch`属性，布尔类型，表示是否扩展控件的高度（或者宽度）直至填满父控件的可用空间。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      with ui.element().classes('w-64 h-64 border-2 flex flex-col'):
+          ui.button(
+              'Hello'
+          ).props(
+              'stretch'
+          )
+      with ui.element().classes('w-64 h-64 border-2 flex flex-row'):
+          ui.button(
+              'World'
+          ).props(
+              'stretch'
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_11](nicegui_pro.assets/2026_40_11.png)
+
+- `size`属性，字符串类型，表示按钮的整体大小。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'size=xl'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_12](nicegui_pro.assets/2026_40_12.png)
+
+- `outline`属性，布尔类型，表示是否将按钮风格改为轮廓线版本。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'outline'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_13](nicegui_pro.assets/2026_40_13.png)
+
+- `flat`属性，布尔类型，表示是否将按钮风格改为扁平版本。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'flat'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_14](nicegui_pro.assets/2026_40_14.png)
+
+- `unelevated`属性，布尔类型，表示是否去掉按钮的阴影。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'unelevated'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_15](nicegui_pro.assets/2026_40_15.png)
+
+- `rounded`属性，布尔类型，表示是否将按钮形状改为腰圆形。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'rounded'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_16](nicegui_pro.assets/2026_40_16.png)
+
+- `push`属性，布尔类型，表示是否给按钮添加额外的点击动画（同时形状有细微改变）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'push'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_17](nicegui_pro.assets/2026_40_17.gif)
+
+- `square`属性，布尔类型，表示是否将按钮形状改为矩形（相比于默认去掉了原本不易察觉的圆角）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'square'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_18](nicegui_pro.assets/2026_40_18.png)
+
+- `glossy`属性，布尔类型，表示是否给按钮添加立体效果。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'glossy'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_19](nicegui_pro.assets/2026_40_19.png)
+
+- `fab`属性，布尔类型，表示是否将按钮形状改为类似`ui.fab`控件的形状（腰圆形）。
+
+  注意，只是形状改变，功能上与`ui.fab`控件不相同。
+
+- `fab-mini`属性，布尔类型，表示是否将按钮形状改为类似`ui.fab`控件的形状（腰圆形）的迷你版本（更紧凑）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      ).props(
+          'rounded'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'fab'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'fab-mini'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_20](nicegui_pro.assets/2026_40_20.png)
+
+- `dense`属性，布尔类型，表示是否将按钮风格改为紧凑版本。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'dense'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_21](nicegui_pro.assets/2026_40_21.png)
+
+- `round`属性，布尔类型，表示是否将按钮形状改为圆形。
+
+  示例如下：
+
+  ````python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'round'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ````
+
+  ![2026_40_22](nicegui_pro.assets/2026_40_22.png)
+
+- `ripple`属性，布尔类型或者字典类型，表示点击按钮之后的涟漪动画效果。
+
+  使用布尔值可以禁用或者启用默认的涟漪动画效果，默认为`True`。
+
+  使用字典定义涟漪动画的效果、触发按键。字典支持以下键：
+
+  - `'color'`键，字符串类型，表示涟漪动画的颜色。
+  - `'center'`键，布尔类型，表示是否在按钮中心触发动画，默认为`False`，在鼠标位置触发动画。
+  - `'early'`键，布尔类型，表示是否在鼠标按键按下时触发，默认为`False`，在鼠标按键松开时才触发动画。
+  - `'keyCodes'`键，元素为整数的列表类型，表示在按钮获得焦点的情况下，可以触发动画的快捷键，其键码参考 https://developer.mozilla.org/zh-CN/docs/Web/API/KeyboardEvent/keyCode#%E5%B8%B8%E6%95%B0%E5%80%BC%E7%9A%84%E9%94%AE%E7%A0%81 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props['ripple'] = {
+          'color':'red',
+          'center':True,
+          'early':True,
+          # 参考 https://developer.mozilla.org/zh-CN/docs/Web/API/KeyboardEvent/keyCode#%E5%B8%B8%E6%95%B0%E5%80%BC%E7%9A%84%E9%94%AE%E7%A0%81
+          'keyCodes':[
+              13, # enter键
+              65, # a键
+              32  # space键
+          ]
+      }
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_23](nicegui_pro.assets/2026_40_23.png)
+
+  注意，如果是使用`props`方法，则要启用计算表达式功能，并且要将整个字典放在字符串内，其中字符串类型的值要用反单引号包围：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          ':ripple="{color:`red`,center:true,early:true,keyCodes:[13,65,32]}"'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `padding`属性，字符串类型，表示按钮中文字到按钮边界的距离（内边距）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'padding=30px'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_24](nicegui_pro.assets/2026_40_24.png)
+
+- `text-color`属性，字符串类型，表示按钮中文字的颜色。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.button(
+          'Hello'
+      )
+      ui.button(
+          'Hello'
+      ).props(
+          'text-color=red'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_40_25](nicegui_pro.assets/2026_40_25.png)
 
 ## 41 学习控件——显示简单文本
 
@@ -15890,7 +16416,7 @@ ui.run(
   )
   ```
 
-- `align`：对齐，表示这一列的对齐方向。
+- `align`：对齐，表示这一列的对齐方向---
 
 `sortable`：是否可排序，即点击表头可以启用该列数据的排序。
 

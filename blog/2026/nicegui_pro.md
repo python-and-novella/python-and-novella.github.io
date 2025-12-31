@@ -16297,7 +16297,7 @@ NiceGUI提供了两种显示表格的控件：
 
 ![2026_52_1](nicegui_pro.assets/2026_52_1.png)
 
-想要定义一个表格，需要写一堆标签。哪怕有插件，对于每个单元格内的数据，操作起来也没那么简单。好在表格控件简化了这个过程，让开发者更加专注于数据的处理，无需过分关心这些标签
+想要定义一个表格，需要写一堆标签。哪怕有插件，对于每个单元格内的数据，操作起来也没那么简单。好在表格控件简化了这个过程，让开发者更加专注于数据的处理，无需过分关心这些标签。
 
 ### 52.1 `ui.table`控件（更新中）
 
@@ -16361,7 +16361,7 @@ ui.run(
 
 在列定义字典中，不同的键对应不同配置项：
 
-- `'name'`键，字符串类型，表示表格每一列的独特的ID。这个配置项并不是该列的表头，只是表示这一列的变量标识符，就和在Python中定义一个变量一样。这个配置项的值后续会用在“body-cell-[{name}]” 插槽中的`name`、`pagination`控件属性值的`sortBy`属性等一系列API中使用列名（Column name）的地方。
+- `'name'`键，字符串类型，表示表格每一列的独特的ID。这个配置项并不是该列的表头，只是表示这一列的变量标识符，就和在Python中定义一个变量一样。这个配置项的值后续会用在“body-cell-[{name}]” 插槽中的`name`、`pagination`控件属性值的`sortBy`属性等一系列API中使用列名（column name）的地方。
 
 - `'label'`键，字符串类型，表示每一列表头显示的内容。如果没有传入列定义，则会取`rows`参数里行数据字典中对应列的键当表头（详见后面创建表格最简代码）。
 
@@ -16416,42 +16416,432 @@ ui.run(
   )
   ```
 
-- `align`：对齐，表示这一列的对齐方向---
+- `'align'`键，字符串类型，表示该列内容的对齐方向。
 
-`sortable`：是否可排序，即点击表头可以启用该列数据的排序。
+  示例如下：
 
-`sort`：排序的计算方法，使用JavaScript语法的函数定义。根据`(a, b, rowA, rowB) => parseInt(a, 10) - parseInt(b, 10)`返回值是否小于0来判断前者是否小于后者。此方法需要JavaScript基础和对相关API的了解，读者可以按需使用。
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'right'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-`rawSort`：排序的计算方法，使用JavaScript语法的函数定义。根据`(a, b, rowA, rowB) => parseInt(a, 10) - parseInt(b, 10)`返回值是否小于0来判断前者是否小于后者。此方法需要JavaScript基础和对相关API的了解，读者可以按需使用。
+- `'sortable'`键，布尔类型，表示该列的数据是否可以排序（支持从小到大、从大到小、不排序），默认数据不排序，点击表头可以排序该列数据。
 
-`format`：使用JavaScript语法的函数定义该列的数据显示为什么格式。比如：
+- `'sort'`键，使用字符串表达的JavaScript函数，表示排序该列数据使用的计算方法。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-```
-(val, row) => `${val}%`
-val => val ? "\u2611":"\u2610"
-```
+  - `valA`参数，字符串类型，表示用于比较的第一行数据。
+  - `valB`参数，字符串类型，表示用于比较的第二行数据。
+  - `rowA`参数，表示用于比较的第一行对象，其支持的属性与该行数据字典包含的键相同。
+  - `rowB`参数，表示用于比较的第二行对象。
 
-注意，以上三个需要使用JavaScript函数表达式的参数，在Python中传参时，需要在前面加冒号，如：`':format':'val => val ? "\u2611":"\u2610"'`。这样才能启用计算表达式功能，不然不会生效。
+  根据函数的返回值是否小于0来判断前者是否小于后者。
 
-`sortOrder`：点击表头时，先使用从小到大排序（递增）还是先使用从大到小排序（递减）。只支持`'ad`‘或`'da'`，并且此参数会覆盖`'column-sort-order'`属性。
+  注意，因为是使用字符串表达的JavaScript函数，所以需要在键名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效。
 
-下面两个参数只对单元格内容生效：
+  示例如下：
 
-`style`：内容样式，采用CSS语法。
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True,
+              ':sort':'(valA, valB, rowA, rowB) => parseInt(valA, 10) - parseInt(valB, 10)',
+              # ':sort':'(valA, valB, rowA, rowB) => parseInt(rowA.age, 10) - parseInt(rowB.age, 10)'
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-`classes`：内容样式类名。
+- `'rawSort'`键的用法与`'sort'`键完全相同，优先级比`'sort'`键高，但与`'sort'`键不同的是，使用该键的话，点击表头排序该列数据时，不会处理数据为空的行。
 
-下面两个参数只对表头生效：
+  示例如下：
 
-`headerStyle`：表头样式，采用CSS语法。
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True,
+              ':rawSort':'(a, b, rowA, rowB) => parseInt(a, 10) - parseInt(b, 10)'
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-`headerClasses`：表头样式类名。
+- `'format'`键，使用字符串表达的JavaScript函数，表示每一行对应该列的数据使用什么方法格式化，并得到最终显示的内容。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
+  - `val`参数，字符串类型，表示每一行对应该列的数据。
+  - `row`参数，表示每一行的行对象，其支持的属性与该行数据字典包含的键相同。
 
+  函数的返回值是最终显示的内容。
 
-`ui.table`控件支持以下参数：
+  示例如下：
 
-- 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True,
+              ':format':'(val, row) => val?`${val}岁`:`未定义`',
+              # ':format':'(val, row) => row.age?`${row.age}岁`:`未定义`',
+              # ':format':'val => val?`${val}岁`:`未定义`'
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'sortOrder'`键，字符串类型，表示点击表头排序该列数据时，是先使用递增还是先使用递减。只支持`'ad`‘（递增）或`'da'`（递减），默认先使用递增。注意，此键优先于`column-sort-order`属性生效。也就是说，如果定义了此键，`column-sort-order`属性会失效。
+
+- `'style'`键，字符串类型，表示非表头部分的内容使用的样式。
+
+- `'classes'`键，字符串类型，表示非表头部分的内容使用的样式类。
+
+- `'headerStyle'`键，字符串类型，表示表头部分的内容使用的样式。
+
+- `'headerClasses'`键，字符串类型，表示表头部分的内容使用的样式类。
+
+`ui.table`控件支持以下关键字参数：
+
+- `rows`参数，元素为字典（行数据字典）的列表，表示表格的数据。
+
+- `columns`参数，元素为字典（列定义，具体定义的含义参考上面内容）的列表，表示表格每一个列如何显示。如果没有此参数，控件会自动选取行数据字典的键来生成表头。只使用`rows`参数，也可以正常显示，但显示的内容不一定符合要求：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18,            
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          rows=rows
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_3](nicegui_pro.assets/2026_52_3.png)
+
+- `column_defaults`参数，字典类型，表示默认的列定义。对于每列都相同的列定义，为了减少重复操作的工作量，可以使用此参数传递。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          column_defaults={'sortable': True}
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `row_key`参数，字符串类型，表示确定每行数据唯一性的键（取自于行数据字典的键），默认是`'id'`。注意，如果该参数使用了某个键，请确保所有行数据字典中该键对应的值**没有**重复，否则会导致数据异常。
+
+- `title`参数，字符串类型，表示表格的标题。
+
+- `selection`参数，字符串类型，仅支持`[None, 'single', 'multiple']`中的值，表示是否启用选择指定行的勾选框，以及选择的类型是单选还是多选。如果启用了单选或者多选，控件的`selected`属性会返回当前选择的行。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='single'
+      )
+      ui.button(
+          'Selected',
+          on_click=lambda:ui.notify(
+              table.selected
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_4](nicegui_pro.assets/2026_52_4.png)
+
+- `pagination`参数，字典类型或整数类型，表示表格的分页方式，默认为`None`，不分页。
+
+  如果为整数类型，表示分页时每页显示几行数据，可以手动修改。`0`表示无数行，等于不分页。
+
+  如果为字典类型，则不同的键有不同的含义：
+
+  - `'rowsPerPage'`键，整数类型，分页时每页显示几行数据，可以手动修改。
+  - `'sortBy'`键，字符串类型，表示分页时使用行数据字典中哪个键对应的数据作为排序依据，
+  - `'descending'`键，布尔类型，表示分页时非排序方式是否为递减，默认为`False`。
+  - `'page'`键，整数类型，表示分页时的默认显示第几页（使用自然排序，非索引值），默认为`1`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          pagination={
+              'rowsPerPage':2,
+              'sortedBy':'age',
+              'page':2
+          }
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_5](nicegui_pro.assets/2026_52_5.png)
+
+- `on_select`参数，可调用类型，表示当选择的行变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`TableSelectionEventArguments`类型，其`selection`属性表示当前选择的行。
+
+- `on_pagination_change`参数，可调用类型，表示当分页相关属性（每页多少行、当前页、排序等）变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前分页方式字典，`previous_value`属性表示先前分页方式字典。
 
 `ui.table`控件支持以下属性（部分）：
 
@@ -16461,7 +16851,29 @@ val => val ? "\u2611":"\u2610"
 
 - 
 
+`ui.table`控件支持以下类方法（部分）
+
+- 
+
+需要额外安装pandas、polars库
+
+
+
 #### 52.1.2 扩展用法（更新中）
+
+
+
+插槽
+
+
+
+控件属性
+
+
+
+与实际场景相关的部分技巧
+
+
 
 ##### 52.1.2.1 控件属性（更新中）
 

@@ -16820,7 +16820,7 @@ ui.run(
               'firstname': 'Carol'
           },
       ]
-      table = ui.table(
+      ui.table(
           columns=columns, 
           rows=rows, 
           row_key='firstname',
@@ -16845,41 +16845,184 @@ ui.run(
 
 `ui.table`控件支持以下属性（部分）：
 
-- 
+- `rows`属性，含义与同名参数相同。
+
+- `columns`属性，含义与同名参数相同。
+
+- `column_defaults`属性，含义与同名参数相同。
+
+- `row_key`属性，含义与同名参数相同。
+
+- `selected`属性，元素为字典的列表，表示当前选择的行。需要通过`selection`参数启用勾选，该属性才能获取到有效值。
+
+- `selection`属性，含义与同名参数相同。
+
+- `pagination`属性，含义与同名参数相同。
+
+- `is_fullscreen`属性，布尔类型，表示表格是否为全屏显示。可以通过设置该属性值切换表格的全屏显示状态：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+      )
+      def toggle_fullscreen():
+          table.is_fullscreen = not table.is_fullscreen
+      with table.add_slot('top'):
+          ui.button('toggle_fullscreen',on_click=toggle_fullscreen)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_6](nicegui_pro.assets/2026_52_6.png)
+
+- `filter`属性，字符串类型，表示用于在表格中搜索包含指定内容的单元格时的关键字。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+      )
+      ui.input('Search').bind_value_to(
+          table,
+          'filter'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_7](nicegui_pro.assets/2026_52_7.png)
 
 `ui.table`控件支持以下方法（部分）：
 
-- 
+- `on_select`方法，当选择的行变化时执行什么操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示当选择的行变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`TableSelectionEventArguments`类型，其`selection`属性表示当前选择的行。
+- `on_pagination_change`方法，当分页相关属性（每页多少行、当前页、排序等）变化时执行什么操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示当分页相关属性（每页多少行、当前页、排序等）变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前分页方式字典，`previous_value`属性表示先前分页方式字典。
+- `bind_filter`方法，将控件的`filter`属性与指定对象的指定属性双向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+- `bind_filter_from`方法，将控件的`filter`属性与指定对象的指定属性反向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+- `bind_filter_to`方法，将控件的`filter`属性与指定对象的指定属性正向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+- `set_selection`方法，设置控件的`filter`属性。该方法支持以下参数：
+  - `filter_`参数，字符串类型，表示用于在表格中搜索包含指定内容的单元格时的关键字。
+- `set_fullscreen`方法，
+- `set_filter`方法，
+- `get_filtered_sorted_rows`方法，
+- `get_computed_rows`方法，
+- `get_computed_rows_number`方法，
+- `toggle_fullscreen`方法，
+- `add_rows`方法，
+- `add_row`方法，
+- `remove_rows`方法，
+- `remove_row`方法，
+- `update_rows`方法，
+- `update_from_pandas`方法，使用此方法需要需要额外安装`pandas`库，
+- `update_from_polars`方法，使用此方法需要需要额外安装`polars`库，
 
 `ui.table`控件支持以下类方法（部分）
 
-- 
-
-需要额外安装pandas、polars库
+- `from_pandas`方法，使用此方法需要需要额外安装`pandas`库，
+- `from_polars`方法，使用此方法需要需要额外安装`polars`库，
 
 
 
 #### 52.1.2 扩展用法（更新中）
 
-
-
-插槽
-
-
-
-控件属性
-
-
-
-与实际场景相关的部分技巧
-
-
-
 ##### 52.1.2.1 控件属性（更新中）
 
 介绍列定义字典的`'required'`键时，提到了`visible-columns`控件属性，因此，这里先介绍一下啊`visible-columns`属性的含义和用法。
 
-设置`visible-columns`属性为字符串列表之后，只有列的`name`在字符串列表中，列才会显示出来。比如`table.props['visible-columns'] = ["age","firstname"]`、`table.props.update(visibleColumns = ["age","firstname"])`、`table.props(''' :visible-columns="['firstname','age']" ''')`、`table.props(f''' :visible-columns="{['firstname','ages']}" ''')`等。
+设置`visible-columns`属性为字符串列表之后，只有列的`name`在字符串列表中，列才会显示出来。比如：
+
+```python3
+table.props['visible-columns'] = [
+    'age',
+    'firstname'
+]
+table.props.update(
+    visibleColumns = [
+        'age',
+        'firstname'
+    ]
+)
+table.props(
+    ''' :visible-columns="['firstname','age']" '''
+)
+table.props(
+    f''' :visible-columns="{['firstname','ages']}" '''
+)
+```
+
+
+
+
 
 
 

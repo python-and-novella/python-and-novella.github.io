@@ -4216,7 +4216,7 @@ ui.run(
 export default {
   template: `
   <button @click="handle_click">
-    <strong>{{title}}: {{value}}</strong>
+    <strong>{% raw %}{{title}}: {{value}}{% endraw %}</strong>
   </button>`,
   data() {
     return {
@@ -11950,7 +11950,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
           ':props="scope"'
       ).add_slot(
           'selected-item',
-          '{{props.opt.label}} selected'
+          '{% raw %}{{props.opt.label}}{% endraw %} selected'
       )
       
   ui.run(
@@ -11982,7 +11982,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
               <q-item-section>
                   <span>
                       <p v-if='props.selected'>选择</p>
-                      option {{props.opt.label}} {{props.selected ? '✔️':''}}
+                      option {% raw %}{{props.opt.label}} {{props.selected ? '✔️':''}}{% endraw %}
                       <p v-show='props.selected'>完成</p>
                   </span>
               </q-item-section>

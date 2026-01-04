@@ -2651,7 +2651,7 @@ ui.run(native=True)
 export default {
   template: `
   <button @click="handle_click">
-    <strong>{% raw %}{{{{title}}: {{value}}{% endraw %}{{</strong>
+    <strong>{% raw %}{{title}}: {{value}}{% endraw %}</strong>
   </button>`,
   data() {
     return {

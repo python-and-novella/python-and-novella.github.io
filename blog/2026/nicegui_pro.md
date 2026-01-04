@@ -16899,7 +16899,10 @@ ui.run(
       def toggle_fullscreen():
           table.is_fullscreen = not table.is_fullscreen
       with table.add_slot('top'):
-          ui.button('toggle_fullscreen',on_click=toggle_fullscreen)
+          ui.button(
+              'toggle_fullscreen',
+              on_click=toggle_fullscreen
+          )
   
   ui.run(
       root=index,
@@ -16964,26 +16967,166 @@ ui.run(
 `ui.table`控件支持以下方法（部分）：
 
 - `on_select`方法，当选择的行变化时执行什么操作。该方法支持以下参数：
+
   - `callback`参数，可调用类型，表示当选择的行变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`TableSelectionEventArguments`类型，其`selection`属性表示当前选择的行。
+
 - `on_pagination_change`方法，当分页相关属性（每页多少行、当前页、排序等）变化时执行什么操作。该方法支持以下参数：
+
   - `callback`参数，可调用类型，表示当分页相关属性（每页多少行、当前页、排序等）变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ValueChangeEventArguments`类型，其`value`属性表示当前分页方式字典，`previous_value`属性表示先前分页方式字典。
+
 - `bind_filter`方法，将控件的`filter`属性与指定对象的指定属性双向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+
 - `bind_filter_from`方法，将控件的`filter`属性与指定对象的指定属性反向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
+
 - `bind_filter_to`方法，将控件的`filter`属性与指定对象的指定属性正向绑定。支持的参数可以参考第40章的`ui.button`控件类似方法。
-- `set_selection`方法，设置控件的`filter`属性。该方法支持以下参数：
+
+- `set_selection`方法，设置控件的`selection`属性。该方法支持以下参数：
+
+  - `value`参数，字符串类型，仅支持`[None, 'single', 'multiple']`中的值，表示是否启用选择指定行的勾选框，以及选择的类型是单选还是多选。
+
+- `set_fullscreen`方法，设置控件的`is_fullscreen`属性。该方法支持以下参数：
+
+  - `value`参数，布尔类型，表示表格是否为全屏显示。
+
+- `set_filter`方法，设置控件的`filter`属性。该方法支持以下参数：
+
   - `filter_`参数，字符串类型，表示用于在表格中搜索包含指定内容的单元格时的关键字。
-- `set_fullscreen`方法，
-- `set_filter`方法，
-- `get_filtered_sorted_rows`方法，
-- `get_computed_rows`方法，
-- `get_computed_rows_number`方法，
-- `toggle_fullscreen`方法，
+
+- `get_filtered_sorted_rows`方法，异步方法，按当前顺序、当前搜索状态（`filter`属性）返回表格所有数据。该方法支持以下参数：
+
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+              'sortable':True
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+      )
+      ui.input('Search').bind_value_to(
+          table,
+          'filter'
+      )
+      
+      async def get_result():
+          result =  await table.get_filtered_sorted_rows()
+          ui.notify(result)
+          
+      ui.button(
+          'get_filtered_sorted_rows',
+          on_click=get_result
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_8](nicegui_pro.assets/2026_52_8.png)
+
+- `get_computed_rows`方法，异步方法，按当前顺序、当前搜索状态（`filter`属性）、当前分页状态返回表格当前页的数据。该方法支持以下参数：
+
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+
+- `get_computed_rows_number`方法，异步方法，按当前顺序、当前搜索状态（`filter`属性）、当前分页状态返回表格所有数据的行数。该方法支持以下参数：
+
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+
+- `toggle_fullscreen`方法，切换表格的全屏显示状态。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+      )
+      with table.add_slot('top'):
+          ui.button(
+              'toggle_fullscreen',
+              on_click=table.toggle_fullscreen
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
 - `add_rows`方法，
+
 - `add_row`方法，
+
 - `remove_rows`方法，
+
 - `remove_row`方法，
+
 - `update_rows`方法，
+
 - `update_from_pandas`方法，使用此方法需要需要额外安装`pandas`库，
+
 - `update_from_polars`方法，使用此方法需要需要额外安装`polars`库，
 
 `ui.table`控件支持以下类方法（部分）

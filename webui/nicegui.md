@@ -5953,7 +5953,7 @@ table = ui.table(columns=columns, rows=rows, row_key='name')
 table.add_slot('body-cell-age', '''
     <q-td key="age" :props="props">
         <q-badge :color="props.value < 21 ? 'red' : 'green'">
-            {%{{ props.value }}%}
+            {% raw %}{{ props.value }}{% endraw %}
         </q-badge>
     </q-td>
 ''')

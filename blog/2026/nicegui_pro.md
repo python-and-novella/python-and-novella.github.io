@@ -16301,7 +16301,7 @@ NiceGUI提供了两种显示表格的控件：
 
 ### 52.1 `ui.table`控件（更新中）
 
-#### 52.1.1 基本用法（更新中）
+#### 52.1.1 基本用法
 
 下面是`ui.table`控件相关文档的地址：
 
@@ -16992,7 +16992,7 @@ ui.run(
 
   - `filter_`参数，字符串类型，表示用于在表格中搜索包含指定内容的单元格时的关键字。
 
-- `get_filtered_sorted_rows`方法，异步方法，按当前顺序、当前搜索状态（`filter`属性）返回表格所有数据。该方法支持以下参数：
+- `get_filtered_sorted_rows`方法，异步方法，按当前顺序、当前搜索状态（`filter`属性）、当前分页状态返回表格所有页的数据。该方法支持以下参数：
 
   - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
 
@@ -17115,26 +17115,457 @@ ui.run(
   )
   ```
 
-- `add_rows`方法，
+- `add_rows`方法，一次添加多行数据。该方法支持以下参数：
 
-- `add_row`方法，
+  - `rows`参数，元素为字典（行数据字典）的列表，表示添加的数据。
 
-- `remove_rows`方法，
+- `add_row`方法，一次添加一行数据。该方法支持以下参数：
 
-- `remove_row`方法，
+  - `row`参数，字典类型（行数据字典），表示添加的数据。
 
-- `update_rows`方法，
+  使用`add_rows`方法、`add_row`方法添加数据和直接操作`rows`属性的效果是一样的。示例如下：
 
-- `update_from_pandas`方法，使用此方法需要需要额外安装`pandas`库，
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+              'sortable':True
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+      )
+      table.rows.extend(
+          [
+              {
+                  'firstname': 'Duke', 
+                  'age': 17
+              }
+          ]
+      )
+      table.add_rows(
+          [
+              {
+                  'firstname': 'Duke', 
+                  'age': 17
+              }
+          ]
+      )
+      table.rows.append(
+          {
+              'firstname': 'Eric', 
+              'age': 25
+          }
+      )
+      table.add_row(
+          {
+              'firstname': 'Eric', 
+              'age': 25
+          }
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `update_from_polars`方法，使用此方法需要需要额外安装`polars`库，
+  ![2026_52_9](nicegui_pro.assets/2026_52_9.png)
+
+- `remove_rows`方法，一次删除多行数据。该方法支持以下参数：
+
+  - `rows`参数，元素为字典（行数据字典）的列表，表示要删除的数据。
+
+- `remove_row`方法，一次删除一行数据。该方法支持以下参数：
+
+  - `row`参数，字典类型（行数据字典），表示要删除的数据。
+
+  注意，删除数据是基于`row_key`参数对应的键查找数据，如果该键对应的值**有**重复，都会一并删除：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age',
+              'sortable':True
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice', 
+              
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+      )
+      # 添加数据
+      table.add_rows(
+          [
+              {
+                  'firstname': 'Duke', 
+                  'age': 17
+              },
+              {
+                  'firstname': 'Duke', 
+                  'age': 18
+              }
+          ]
+      )
+      # 删除数据
+      table.remove_row(
+              {
+                  'firstname': 'Duke', 
+                  'age': 17
+              }
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_10](nicegui_pro.assets/2026_52_10.png)
+
+  相比之下，直接操作`rows`属性的话，想要删除的数据必须与被删除的数据完全一致：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname',
+              'label': 'Name',
+              'field': 'firstname',
+          },
+          {
+              'name': 'age',
+              'label': 'Age',
+              'field': 'age',
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice',
+  
+          },
+          {
+              'firstname': 'Bob',
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns,
+          rows=rows,
+          row_key='firstname',
+      )
+      # 添加数据
+      table.add_rows(
+          [
+              {
+                  'firstname': 'Duke',
+                  'age': 17
+              },
+              {
+                  'firstname': 'Duke',
+                  'age': 18
+              }
+          ]
+      )
+      # 删除数据
+      table.rows.remove(
+          {
+              'firstname': 'Duke',
+              'age': 17
+          }
+      )
+      table.rows.remove(
+          {
+              'firstname': 'Duke',
+              'age': 18
+          }
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `update_rows`方法，一次更新多行数据。该方法支持以下参数：
+
+  - `rows`参数，元素为字典（行数据字典）的列表，表示要更新的数据。
+  - `clear_selection`参数，关键字参数，布尔类型，表示更新数据的同时是否清除原本选择的行，默认为`True`。
+
+  注意，使用更新数据方法（该方法和下面介绍的两个方法）会完全覆盖原始的数据，不会保留原始数据。
+
+- `update_from_pandas`方法，使用此方法需要需要额外安装`pandas`库，该方法可以使用`pandas`库提供的`DataFrame`类型数据更新表格。该方法支持以下参数：
+
+  - `df`参数，`DataFrame`类型，表示要更新的数据。
+
+  - `clear_selection`参数，布尔类型，表示更新数据的同时是否清除原本选择的行，默认为`True`。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `columns`参数，元素为字典（列定义，具体定义的含义参考上面内容）的列表，表示数据更新之后表格每一个列如何显示。
+
+  - `column_defaults`参数，字典类型，表示数据更新之后默认的列定义。
+
+  注意，不同于常规字典类型的行数据，`DataFrame`类型表示的行数据虽然类似字典，但其键为列定义中相应列`'field'`键对应的值，其键对应的值是列表类型，表示该列的所有数据。此外，每一列的数据数量应当**相同**，对于空白单元格，使用`None`占位。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import pandas as pd
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname',
+              'label': 'Name',
+              'field': 'firstname',
+          },
+          {
+              'name': 'age',
+              'label': 'Age',
+              'field': 'age',
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice',
+  
+          },
+      ]
+      table = ui.table(
+          columns=columns,
+          rows=rows,
+          row_key='firstname',
+      )
+      # 更新数据
+      table.update_from_pandas(
+          pd.DataFrame(
+              {
+                  'firstname':['Alice','Bob'],
+                  'age':[19,21],
+              }
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_11](nicegui_pro.assets/2026_52_11.png)
+
+- `update_from_polars`方法，使用此方法需要需要额外安装`polars`库，该方法可以使用`polars`库提供的`DataFrame`类型数据更新表格。该方法支持以下参数：
+
+  - `df`参数，`DataFrame`类型，表示要更新的数据。
+
+  - `clear_selection`参数，布尔类型，表示更新数据的同时是否清除原本选择的行，默认为`True`。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `columns`参数，元素为字典（列定义，具体定义的含义参考上面内容）的列表，表示数据更新之后表格每一个列如何显示。
+
+  - `column_defaults`参数，字典类型，表示数据更新之后默认的列定义。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import polars as pl
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname',
+              'label': 'Name',
+              'field': 'firstname',
+          },
+          {
+              'name': 'age',
+              'label': 'Age',
+              'field': 'age',
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'age': 18,
+              'firstname': 'Alice',
+  
+          },
+      ]
+      table = ui.table(
+          columns=columns,
+          rows=rows,
+          row_key='firstname',
+      )
+      # 更新数据
+      table.update_from_polars(
+          pl.DataFrame(
+              {
+                  'firstname':['Alice','Carol'],
+                  'age':[20,None],
+              }
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_12](nicegui_pro.assets/2026_52_12.png)
 
 `ui.table`控件支持以下类方法（部分）
 
-- `from_pandas`方法，使用此方法需要需要额外安装`pandas`库，
-- `from_polars`方法，使用此方法需要需要额外安装`polars`库，
+- `from_pandas`方法，使用此方法需要需要额外安装`pandas`库，该方法可以使用`pandas`库提供的`DataFrame`类型数据创建表格。该方法支持以下参数：
 
+  - `df`参数，`DataFrame`类型，表示表格的数据。
 
+  - `columns`参数，元素为字典（列定义，具体定义的含义参考上面内容）的列表，表示表格每一个列如何显示。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `column_defaults`参数，字典类型，表示默认的列定义
+
+  - `row_key`参数，字符串类型，表示确定每行数据唯一性的键（取自于行数据字典的键），默认是`'id'`。
+
+  - `title`参数，字符串类型，表示表格的标题。
+
+  - `selection`参数，字符串类型，仅支持`[None, 'single', 'multiple']`中的值，表示是否启用选择指定行的勾选框，以及选择的类型是单选还是多选。
+
+  - `pagination`参数，字典类型或整数类型，表示表格的分页方式，默认为`None`，不分页。具体含义参考前面`pagination`参数的介绍。
+
+  - `on_select`参数，可调用类型，表示当选择的行变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`TableSelectionEventArguments`类型，其`selection`属性表示当前选择的行。
+
+- `from_polars`方法，使用此方法需要需要额外安装`polars`库，该方法可以使用`polars`库提供的`DataFrame`类型数据创建表格。该方法支持以下参数：
+
+  - `df`参数，`DataFrame`类型，表示表格的数据。
+
+  - `columns`参数，元素为字典（列定义，具体定义的含义参考上面内容）的列表，表示表格每一个列如何显示。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `column_defaults`参数，字典类型，表示默认的列定义
+
+  - `row_key`参数，字符串类型，表示确定每行数据唯一性的键（取自于行数据字典的键），默认是`'id'`。
+
+  - `title`参数，字符串类型，表示表格的标题。
+
+  - `selection`参数，字符串类型，仅支持`[None, 'single', 'multiple']`中的值，表示是否启用选择指定行的勾选框，以及选择的类型是单选还是多选。
+
+  - `pagination`参数，字典类型或整数类型，表示表格的分页方式，默认为`None`，不分页。具体含义参考前面`pagination`参数的介绍。
+
+  - `on_select`参数，可调用类型，表示当选择的行变化时执行什么操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`TableSelectionEventArguments`类型，其`selection`属性表示当前选择的行。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import pandas as pd
+  import polars as pl
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname',
+              'label': 'Name',
+              'field': 'firstname',
+          },
+          {
+              'name': 'age',
+              'label': 'Age',
+              'field': 'age',
+              'sortable': True
+          },
+      ]
+      ui.table.from_pandas(
+          pd.DataFrame(
+              {
+                  'firstname':['Alice','Bob'],
+                  'age':[19,21],
+              }
+          ),
+          columns=columns
+      )
+      ui.table.from_polars(
+          pl.DataFrame(
+              {
+                  'firstname':['Alice','Carol'],
+                  'age':[20,None],
+              }
+          ),
+          columns=columns
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_13](nicegui_pro.assets/2026_52_13.png)
 
 #### 52.1.2 扩展用法（更新中）
 
@@ -17142,7 +17573,7 @@ ui.run(
 
 介绍列定义字典的`'required'`键时，提到了`visible-columns`控件属性，因此，这里先介绍一下啊`visible-columns`属性的含义和用法。
 
-设置`visible-columns`属性为字符串列表之后，只有列的`name`在字符串列表中，列才会显示出来。比如：
+设置`visible-columns`属性为字符串列表之后，只有该列的`name`在字符串列表中，该列才会显示出来。比如：
 
 ```python3
 table.props['visible-columns'] = [
@@ -17175,7 +17606,11 @@ table.props(
 
 
 
+
+
 ##### 52.1.2.3 插槽（更新中）
+
+
 
 
 

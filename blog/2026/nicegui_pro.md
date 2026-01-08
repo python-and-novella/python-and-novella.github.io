@@ -2054,7 +2054,7 @@ ui.run(
 
 - 列（column）布局，所有的子控件排成一列。
 - 行（row）布局，所有的子控件排成一行。
-- 网格（gird）布局，所有的子控件都放在指定规格（默认为`1x1`）的单元格中。
+- 网格（grid）布局，所有的子控件都放在指定规格（默认为`1x1`）的单元格中。
 
 三种基本布局的示意图如下：
 
@@ -8907,7 +8907,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   ![2026_40_1](nicegui_pro.assets/2026_40_1.png)
 
-- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数支持以下几种图标的表达格式：
+- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数、图标类控件属性支持以下几种图标的表达格式：
 
   - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
   - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
@@ -11332,7 +11332,7 @@ ui.run(
 
 - `color`参数，字符串类型，表示按钮的颜色。支持各种字符串类型的颜色类（可以是Quasar框架、 Tailwind CSS框架、CSS的颜色名）或者`None`（即让按钮变成默认颜色），默认为`'primary'`，即和主题的主要颜色一致。
 
-- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数支持以下几种图标的表达格式：
+- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数、图标类控件属性支持以下几种图标的表达格式：
 
   - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
   - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
@@ -11452,7 +11452,7 @@ ui.run(
 
 - `text`参数，字符串类型，表示显示在按钮中的文字。
 
-- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数支持以下几种图标的表达格式：
+- `icon`参数，字符串类型，表示在按钮内显示额外的图标。该参数支持的图标表达格式和`ui.icon`控件`name`参数支持的格式一致，这里先提前介绍一下。`ui.icon`控件的`name`参数或者其他控件的`icon`参数、图标类控件属性支持以下几种图标的表达格式：
 
   - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
   - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
@@ -17594,6 +17594,304 @@ table.props(
 )
 ```
 
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+    table.props['visible-columns'] = [
+        'firstname'
+    ]
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_52_14](nicegui_pro.assets/2026_52_14.png)
+
+表格控件除了上面示例中“常规”的表格模式之外，还支持网格模式（完整用法参考 https://quasar.dev/vue-components/table#grid-style），可以使用类似网格布局的形式，使用单独的卡片展示每一行数据：
+
+```python3
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname',
+        selection='multiple'
+    ).classes('border-2')
+    table.props('grid')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_52_15](nicegui_pro.assets/2026_52_15.png)
+
+与网格模式相关控件属性如下：
+
+- `grid`属性，布尔类型，表示是否启用网格模式。
+
+- `grid-header`属性，布尔类型，表示是否显示网格模式的表头。因为网格模式是使用单独的卡片展示每一行数据，如果想要排序某一列的数据，则需要点击网格模式的表头。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple'
+      ).classes('border-2')
+      table.props('grid grid-header')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_16](nicegui_pro.assets/2026_52_16.png)
+
+- `card-container-style`属性，字符串类型，表示卡片容器使用的样式。
+
+- `card-container-class`属性，字符串类型，表示卡片容器使用的样式类。
+
+- `card-style`属性，字符串类型，表示卡片使用的样式。
+
+- `card-class`属性，字符串类型，表示卡片使用的样式类。
+
+- `card-style-fn`属性，使用字符串表达的JavaScript函数，表示卡片使用的样式。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `row`参数，表示每一行的行对象，其支持的属性与该行数据字典包含的键相同。
+
+- `card-class-fn`属性，使用字符串表达的JavaScript函数，表示卡片使用的样式类。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `row`参数，表示每一行的行对象，其支持的属性与该行数据字典包含的键相同。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple'
+      ).classes('border-2')
+      table.props(
+          '''
+          grid grid-header
+          :card-class-fn='row=>row.age>20?`bg-red`:`bg-green`'
+          '''
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_17](nicegui_pro.assets/2026_52_17.png)
+
+在介绍分页相关的图标类控件属性之前，需要先回顾一下图标类控件属性支持的图标表达格式：
+
+- 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
+- “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
+
+关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon。
+
+了解了图标类控件属性支持的图标表达格式之后，接下来正式介绍和分页相关的图标类控件属性：
+
+- `icon-first-page`属性，字符串类型，表示首页按钮的图标。注意，只有分页数超过3页时才会显示首页按钮。
+- `icon-prev-page`属性，字符串类型，表示前一页按钮的图标。
+- `icon-next-page`属性，字符串类型，表示后一页按钮的图标。
+- `icon-last-page`属性，字符串类型，表示末页按钮的图标。注意，只有分页数超过3页时才会显示末页按钮。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname',
+        pagination=1
+    ).classes('border-2')
+    table.props('icon-first-page="img:/favicon.ico" icon-prev-page=左 icon-next-page=arrow_right_alt')
+    table.props['icon-last-page'] = '''img:
+        data:image/svg+xml;
+        charset=utf8,
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="78" fill="yellow" stroke="black" stroke-width="3" />
+            <circle cx="80" cy="85" r="8" />
+            <circle cx="120" cy="85" r="8" />
+            <path d="m60,120 C75,150 125,150 140,120" style="fill:none; stroke:black; stroke-width:8; stroke-linecap:round" />
+        </svg>
+    '''
+    ui.icon('left-arrow')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_52_18](nicegui_pro.assets/2026_52_18.png)
+
 
 
 
@@ -17627,6 +17925,79 @@ AG Grid框架文档：https://www.ag-grid.com/javascript-data-grid/reference/
 `ui.aggrid`控件支持以下参数：
 
 - 
+
+
+
+
+
+## 53 版本速览——3.5.0版本新增对anywidget的支持（更新中）
+
+NiceGUI 3.5.0 其实早就更新了，笔者在版本更新的第一时间了解了版本主要新增的内容，并确定了相关内容的创作计划。但是，因为当时其他内容已经成形，并且陆续发布中，不宜大改，故将其插入到当时尚未完成的章节之前，优先更新该版本的新增内容。
+
+不过，完成后不会立即发布，各位读者看到这一章的时候，可能已经“过时”，NiceGUI的版本早已更新了好几个。没关系，在主要内容完成之后，笔者就可以释放出足够的创作资源，攒下的存货也会随之减少，让笔者的更新进度追上版本的更新速度，为读者第一时间带来版本变动。《版本速览》也会成为《学习控件》之后，持续更新的主题内容。
+
+### 53.1 `ui.altair`控件（更新中）
+
+注意，使用本控件需要额外安装`altair`库和`anywidget`库。
+
+
+
+（简单介绍一下控件的用途，不含具体用法、扩展用法）
+
+
+
+```python3
+from nicegui import ui
+
+def index():
+    import altair
+    ui.altair(
+        altair.Chart(
+            altair.datasets.data.cars()
+        ).encode(
+            x='Horsepower', 
+            y='Miles_per_Gallon', 
+            color='Origin'
+        ).mark_point()
+    )
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+控件的完整用法，将在后面更新的《学习控件——渲染图表》一章中介绍，这里不做展开。
+
+https://nicegui.io/documentation/altair
+
+### 53.2 `ui.anywidget`控件（更新中）
+
+注意，使用本控件需要额外安装`anywidget`库和具体用法相关的依赖库。
+
+
+
+
+
+（简单介绍一下控件的用途，不含具体用法、扩展用法）
+
+
+
+控件的完整用法，将在后面更新的《创建自定义控件（新增）》一章详细介绍，这里不做展开。同时，《创建自定义控件（新增）》一章将作为《创建自定义控件》一章的补充，用于将 NiceGUI 3.5.0 中新增的相关内容关联至《创建自定义控件》。后续可能会发布《创建自定义控件（更新）》一章，完整融合两部分内容。
+
+参考资料（也放在后面的章节）：
+
+https://nicegui.io/documentation/anywidget
+
+https://anywidget.dev/
+
+https://try.anywidget.dev/
+
+https://anywidget.dev/en/getting-started/
+
+https://github.com/zauberzeug/nicegui/pull/5137
 
 
 

@@ -17892,11 +17892,573 @@ ui.run(
 
 ![2026_52_18](nicegui_pro.assets/2026_52_18.png)
 
+除了表头和数据之外，表格还会显示一些额外区域。这些区域可能是展示特定的信息，也可能是执行特定功能的按钮。不过，在实际使用中，可能开发者希望隐藏这些额外区域甚至表头，只展示表格的数据，那就要用到以下的属性：
 
+- `hide-header`属性，布尔类型，表示是否隐藏表头。
 
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).classes('border-2')
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+      ).classes(
+          'border-2'
+      ).props(
+          'hide-header'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
+  ![2026_52_19](nicegui_pro.assets/2026_52_19.png)
 
+- `hide-pagination`属性，布尔类型，表示是否底部区域中分页相关的部分。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).classes('border-2')
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).classes(
+          'border-2'
+      ).props(
+          'hide-pagination'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_20](nicegui_pro.assets/2026_52_20.png)
+
+- `hide-selected-banner`属性，布尔类型，表示是否底部区域中选择信息的部分。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).classes('border-2')
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).classes(
+          'border-2'
+      ).props(
+          'hide-selected-banner'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_21](nicegui_pro.assets/2026_52_21.png)
+
+- `hide-no-data`属性，布尔类型，表示是否底部区域中提示无数据的警告。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=[]
+      ).classes('border-2')
+      ui.table(
+          columns=columns, 
+          rows=[],
+      ).classes(
+          'border-2'
+      ).props(
+          'hide-no-data'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_22](nicegui_pro.assets/2026_52_22.png)
+
+- `hide-bottom`属性，布尔类型，表示是否底部区域。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).classes('border-2')
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).classes(
+          'border-2'
+      ).props(
+          'hide-bottom'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_23](nicegui_pro.assets/2026_52_23.png)
+
+虽然默认每行数据之间有分隔线，让多行数据看起来没那么容易串行，但难免在数据少的时候，想要隐藏分隔线，或者在列数多的时候额外添加每列数据之间的分隔线，亦或是只显示列之间的分隔线，那就要用到`separator`属性。该属性为字符串类型，仅支持`['horizontal','vertical','cell','none']`中的值，实际使用时的效果如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    with ui.row():
+        for separator in ['horizontal','vertical','cell','none']:
+            with ui.card():
+                ui.label(separator)
+                ui.table(
+                    columns=columns, 
+                    rows=rows, 
+                    row_key='firstname'
+                ).props(f'separator={separator}')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_52_24](nicegui_pro.assets/2026_52_24.png)
+
+`wrap-cells`属性，布尔类型，表示是否启用单元格的自动换行样式。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol  very long'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    ).classes('border-2 w-32')
+    table.props('wrap-cells ')
+    
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_52_25](nicegui_pro.assets/2026_52_25.png)
+
+虽然给`ui.run`方法的`language`参数传入具体的本地化语言代码（`'zh-CN'`）可以让控件的部分提示语显示为本地化语言，比如中文：
+
+```python3
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname',
+        pagination=1
+    ).classes('border-2')
+    
+ui.run(
+    root=index,
+    native=True,
+    language='zh-CN'
+)
+```
+
+![2026_52_26](nicegui_pro.assets/2026_52_26.png)
+
+但有时候时想修改提示语为自定义内容，而非只是让其显示为本地化语言，那就可以使用下面几个的属性：
+
+- `rows-per-page-label`属性，
+
+- `pagination-label`属性，
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          pagination=1
+      ).classes('border-2')
+      table.props(
+          ':pagination-label="(start, end, total) => `本页自第${start}行起，至第${end}行止，表格共包含${total}行数据。`"'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
+- `selected-rows-label`属性，
+
+- `no-results-label`属性，
+
+- `no-data-label`属性，
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=[], 
+          row_key='firstname',
+          pagination=1
+      ).classes('border-2')
+      table.props('no-data-label=无数据')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
+- `loading-label`属性，
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=[], 
+          row_key='firstname',
+          pagination=1
+      ).classes('border-2')
+      table.props('loading loading-label=加载中')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
 
 
 
@@ -17936,9 +18498,13 @@ NiceGUI 3.5.0 其实早就更新了，笔者在版本更新的第一时间了解
 
 不过，完成后不会立即发布，各位读者看到这一章的时候，可能已经“过时”，NiceGUI的版本早已更新了好几个。没关系，在主要内容完成之后，笔者就可以释放出足够的创作资源，攒下的存货也会随之减少，让笔者的更新进度追上版本的更新速度，为读者第一时间带来版本变动。《版本速览》也会成为《学习控件》之后，持续更新的主题内容。
 
+注意，该版本新增的控件存在问题（https://github.com/zauberzeug/nicegui/issues/5626），如果需要使用该版本新增的控件，请参考问题的修复情况，更新至问题修复的版本（待定，本章创作时问题未修复）。
+
 ### 53.1 `ui.altair`控件（更新中）
 
 注意，使用本控件需要额外安装`altair`库和`anywidget`库。
+
+
 
 
 

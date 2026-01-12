@@ -17569,7 +17569,7 @@ ui.run(
 
 #### 52.1.2 扩展用法（更新中）
 
-##### 52.1.2.1 控件属性（更新中）
+##### 52.1.2.1 控件属性
 
 介绍列定义字典的`'required'`键时，提到了`visible-columns`控件属性，因此，这里先介绍一下啊`visible-columns`属性的含义和用法。
 
@@ -18331,9 +18331,7 @@ ui.run(
 
 但有时候时想修改提示语为自定义内容，而非只是让其显示为本地化语言，那就可以使用下面几个的属性：
 
-- `rows-per-page-label`属性，
-
-- `pagination-label`属性，
+- `rows-per-page-label`属性，字符串类型，表示每页行数前的提示语。比如，可以使用下面的代码，实现与上面示例相同的效果：
 
   ```python3
   from nicegui import ui
@@ -18373,7 +18371,7 @@ ui.run(
           pagination=1
       ).classes('border-2')
       table.props(
-          ':pagination-label="(start, end, total) => `本页自第${start}行起，至第${end}行止，表格共包含${total}行数据。`"'
+          'rows-per-page-label=每页的行数:'
       )
       
   ui.run(
@@ -18382,13 +18380,232 @@ ui.run(
   )
   ```
 
+  ![2026_52_27](nicegui_pro.assets/2026_52_27.png)
+
+- `pagination-label`属性，使用字符串表达的JavaScript函数，表示分页的行数状况（当前页的首尾行、总行数）。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `start`参数，整数类型，表示当前页第一行数据为整个表格总行数的第几行。
+  - `end`参数，整数类型，表示当前页最后一行数据为整个表格总行数的第几行。
+  - `total`参数，整数类型，表示整个表格的总行数。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
   
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          pagination=1
+      ).classes('border-2')
+      table.props(
+          ':pagination-label="(start, end, total) => `表格共${total}行数据，本页自第${start}行起，至第${end}行止。`"'
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `selected-rows-label`属性，
+  ![2026_52_28](nicegui_pro.assets/2026_52_28.png)
 
-- `no-results-label`属性，
+  可能有细心的读者发现了，`rows-per-page-label`属性的示例效果和前面切换语言的效果相比，有一点小差异。没错，就是因为`pagination-label`属性没有根据语言对应的格式同步修改。因此，读者可以使用下面的代码，完美复刻切换语言的效果：
 
-- `no-data-label`属性，
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          pagination=1
+      ).classes('border-2')
+      table.props(
+          '''
+          rows-per-page-label=每页的行数:
+          :pagination-label="(start, end, total) => `${start}-${end}/${total}`"
+          '''
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_29](nicegui_pro.assets/2026_52_29.png)
+
+- `selected-rows-label`属性，使用字符串表达的JavaScript函数，表示选择了几行。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `numberOfRows`参数，整数类型，表示选择了几行。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).classes('border-2')
+      table.props(
+          '''
+          rows-per-page-label=每页的行数:
+          :selected-rows-label="(numberOfRows) => `选择了${numberOfRows}行`"
+          '''
+      )
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_30](nicegui_pro.assets/2026_52_30.png)
+
+- `no-results-label`属性，字符串类型，表示在表格中搜索包含指定内容的单元格，没有匹配结果时的提示语。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).classes('border-2')
+      table.set_filter('test')
+      table.props('no-results-label=无结果')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_31](nicegui_pro.assets/2026_52_31.png)
+
+- `no-data-label`属性，字符串类型，表示表格无数据时的提示语。
+
+  示例如下：
 
   ```python3
   from nicegui import ui
@@ -18411,8 +18628,7 @@ ui.run(
       table = ui.table(
           columns=columns, 
           rows=[], 
-          row_key='firstname',
-          pagination=1
+          row_key='firstname'
       ).classes('border-2')
       table.props('no-data-label=无数据')
       
@@ -18422,9 +18638,11 @@ ui.run(
   )
   ```
 
-  
+  ![2026_52_32](nicegui_pro.assets/2026_52_32.png)
 
-- `loading-label`属性，
+- `loading-label`属性，字符串类型，表示表格处于加载状态时的提示语。注意，仅在使用`loading`属性且表格无数据时，该属性才会生效，并且优先级比`no-data-label`属性高。
+
+  示例如下：
 
   ```python3
   from nicegui import ui
@@ -18447,10 +18665,420 @@ ui.run(
       table = ui.table(
           columns=columns, 
           rows=[], 
+          row_key='firstname'
+      ).classes('border-2')
+      table.props('no-data-label=无数据 loading loading-label=加载中')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_33](nicegui_pro.assets/2026_52_33.png)
+
+控件还有一些与样式相关的属性：
+
+- `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
           row_key='firstname',
+          selection='single',
           pagination=1
       ).classes('border-2')
-      table.props('loading loading-label=加载中')
+      table.props('color=red loading')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_34](nicegui_pro.assets/2026_52_34.png)
+
+- `dense`属性，布尔类型，表示是否启用紧凑风格。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).classes('border-2')
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).classes('border-2')
+      table.props('dense')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_35](nicegui_pro.assets/2026_52_35.png)
+
+- `dark`属性，布尔类型，表示是否启用暗黑主题。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).classes('border-2')
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).classes('border-2')
+      table.props('dark')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_36](nicegui_pro.assets/2026_52_36.png)
+
+- `flat`属性，布尔类型，表示是否启用扁平化风格（移除边框的阴影）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      table.props('flat')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_37](nicegui_pro.assets/2026_52_37.png)
+
+- `bordered`属性，布尔类型，表示是否添加边框。注意，因为表格默认有阴影效果，添加边框并不会特别明显。因此，可以与`flat`属性组合使用，查看效果：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).props('flat')
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      table.props('bordered flat')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_38](nicegui_pro.assets/2026_52_38.png)
+
+- `square`属性，布尔类型，表示是否移除边框的圆角。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      ).props('bordered flat')
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      table.props('bordered flat square')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_39](nicegui_pro.assets/2026_52_39.png)
+
+- `table-style`属性，字符串类型，表示整个表格使用的样式。
+
+- `table-class`属性，字符串类型，表示整个表格使用的样式类。
+
+- `table-header-style`属性，字符串类型，表示表头使用的样式。
+
+- `table-header-class`属性，字符串类型，表示表头使用的样式类。
+
+- `table-row-style-fn`属性，使用字符串表达的JavaScript函数，表示除了表头外的每行使用的样式。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `row`参数，表示每一行的行对象，其支持的属性与该行数据字典包含的键相同。
+
+- `table-row-class-fn`属性，使用字符串表达的JavaScript函数，表示除了表头外的每行的样式类。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `row`参数，表示每一行的行对象，其支持的属性与该行数据字典包含的键相同。
+
+- `title-class`属性，字符串类型，表示表格标题使用的样式类。
+
+##### 52.1.2.2 控件方法（更新中）
+
+在正式学习本节之前，需要先解答以下问题：
+
+- 什么是控件方法？和控件属性类似，控件方法是由Quasar控件提供的JavaScript函数，在NiceGUI中，需要借助`run_method`方法调用。
+- 为什么要用控件方法？虽然NiceGUI的控件提供了足够日常使用的Python函数，但依然无法满足所有的需求。因此，如果Quasar控件提供的JavaScript函数正好符合要求，那就可以直接使用控件方法，不用创建单独的Python函数或者JavaScript函数。
+
+`ui.table`控件支持以下控件方法：
+
+- `toggleFullscreen`方法，
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      )
+      method = "toggleFullscreen"
+      with table.add_slot('top-left'):
+          ui.button(
+              f'run method "{method}"',
+              on_click=lambda:table.run_method(
+                  f'{method}'
+              )
+          ).props('no-caps')
       
   ui.run(
       root=index,
@@ -18460,17 +19088,83 @@ ui.run(
 
   
 
-
-
-##### 52.1.2.2 控件方法（更新中）
-
-
+- 
 
 
 
 ##### 52.1.2.3 插槽（更新中）
 
+注意，和一般的控件不同，`ui.table`控件不支持“default”插槽。另外，因为很多插槽与具体数据相关，如果使用插槽，需要用到较难的前端知识（主要是VUE），因此，这部分插槽仅介绍对应的区域，不提供具体示例。
 
+好吧，其实是笔者不擅长VUE，也许以后遇到具体问题而不得不使用这些插槽时，笔者会抽时间深入学习VUE，并提供相关的示例。
+
+`ui.table`控件支持以下插槽：
+
+- “loading”插槽，
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).props('loading')
+      table2 = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      ).props('loading')
+      # 使用现有控件实现
+      with table.add_slot('loading'):
+          with ui.element('q-inner-loading').props('showing'):
+              ui.spinner(size='5em')
+      # 使用样式类实现
+      with table2.add_slot('loading'):
+          with ui.element().classes('absolute-full flex-center column bg-white/60'):
+              ui.spinner(size='5em')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
+- 
 
 
 

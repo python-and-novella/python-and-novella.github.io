@@ -16857,7 +16857,7 @@ ui.run(
 
 - `selection`属性，含义与同名参数相同。
 
-- `pagination`属性，含义与同名参数相同。
+- `pagination`属性，字典类型，含义与同名参数相同。注意，修改该属性时仅支持字典类型，不支持整数类型。
 
 - `is_fullscreen`属性，布尔类型，表示表格是否为全屏显示。可以通过设置该属性值切换表格的全屏显示状态：
 
@@ -19024,14 +19024,16 @@ ui.run(
 
 ##### 52.1.2.2 控件方法（更新中）
 
-在正式学习本节之前，需要先解答以下问题：
+在正式学习本节之前，需要先了解以下问题：
 
 - 什么是控件方法？和控件属性类似，控件方法是由Quasar控件提供的JavaScript函数，在NiceGUI中，需要借助`run_method`方法调用。
 - 为什么要用控件方法？虽然NiceGUI的控件提供了足够日常使用的Python函数，但依然无法满足所有的需求。因此，如果Quasar控件提供的JavaScript函数正好符合要求，那就可以直接使用控件方法，不用创建单独的Python函数或者JavaScript函数。
 
 `ui.table`控件支持以下控件方法：
 
-- `toggleFullscreen`方法，
+- `toggleFullscreen`方法，切换表格的全屏显示状态。
+
+  示例如下：
 
   ```python3
   from nicegui import ui
@@ -19086,9 +19088,145 @@ ui.run(
   )
   ```
 
-  
+- `setFullscreen`方法，加入表格的全屏显示状态。
 
-- 
+- `exitFullscreen`方法，退出表格的全屏显示状态。
+
+- `requestServerInteraction`方法，让表格发射一次“reques”事件（JavaScript事件，可以在Python代码中使用`on`方法响应）。与控件有关的独特属性会成为事件参数`args`属性的字典类型属性，因此，`args`属性的键对应着不同的值：
+
+  - `'pagination'`键，其值为字典类型，含义同控件的`pagination`参数。
+  - `'filter'`键，其值为字符串类型，含义同控件的`filter`属性。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      )
+      method = "requestServerInteraction"
+      table.set_filter('a')
+      table.on('request',lambda e:print(e))
+      with table.add_slot('top-left'):
+          ui.button(
+              f'run method "{method}"',
+              on_click=lambda:table.run_method(
+                  f'{method}',
+              )
+          ).props('no-caps')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `setPagination`方法，修改表格的分页方式。该方法支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不需要参数名）：
+
+  - `pagination`参数，字典类型（同控件的`pagination`参数），表示表格的分页方式。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      )
+      method = "setPagination"
+      with table.add_slot('top-left'):
+          ui.button(
+              f'run method "{method}"',
+              on_click=lambda:table.run_method(
+                  f'{method}',
+                  {
+                      'rowsPerPage':2,
+                      'sortedBy':'age',
+                      'page':2
+                  }
+              )
+          ).props('no-caps')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `firstPage`方法，
+
+- `prevPage`方法，
+
+- `nextPage`方法，
+
+- `lastPage`方法，
+
+- `isRowSelected`方法，
 
 
 

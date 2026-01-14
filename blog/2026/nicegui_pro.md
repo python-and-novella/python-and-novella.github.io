@@ -9530,7 +9530,7 @@ World4
 
 #### 40.2.2 使用“loading”插槽
 
-控件的“loading”插槽对应控件的加载状态，需要先启用Quasar控件属性`'loading'`。默认情况下，处于加载状态的控件会显示一个加载动画，也可以进入“loading”插槽，修改显示的内容。
+控件的“loading”插槽对应控件的加载状态，需要先启用Quasar控件属性`loading`。默认情况下，处于加载状态的控件会显示一个加载动画，也可以进入“loading”插槽，修改显示的内容。
 
 示例如下：
 
@@ -11817,7 +11817,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   ![2026_44_8](nicegui_pro.assets/2026_44_8.png)
 
-- “loading”插槽，对应控件的加载状态，需要在启用Quasar控件属性`'loading'`，建议插入同样表示加载动画的`ui.spinner`控件。
+- “loading”插槽，对应控件的加载状态，需要在启用Quasar控件属性`loading`，建议插入同样表示加载动画的`ui.spinner`控件。
 
   示例如下：
 
@@ -12363,7 +12363,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   ![2026_45_10](nicegui_pro.assets/2026_45_10.png)
 
-- “loading”插槽，对应控件的加载状态，需要在启用Quasar控件属性`'loading'`，建议插入同样表示加载动画的`ui.spinner`控件。示例如下：
+- “loading”插槽，对应控件的加载状态，需要在启用Quasar控件属性`loading`，建议插入同样表示加载动画的`ui.spinner`控件。示例如下：
 
   ```python3
   from nicegui import ui
@@ -17830,7 +17830,7 @@ ui.run(
 - `icon-first-page`属性，字符串类型，表示首页按钮的图标。注意，只有分页数超过3页时才会显示首页按钮。
 - `icon-prev-page`属性，字符串类型，表示前一页按钮的图标。
 - `icon-next-page`属性，字符串类型，表示后一页按钮的图标。
-- `icon-last-page`属性，字符串类型，表示末页按钮的图标。注意，只有分页数超过3页时才会显示末页按钮。
+- `icon-last-page`属性，字符串类型，表示尾页按钮的图标。注意，只有分页数超过3页时才会显示尾页按钮。
 
 示例如下：
 
@@ -19022,14 +19022,14 @@ ui.run(
 
 - `title-class`属性，字符串类型，表示表格标题使用的样式类。
 
-##### 52.1.2.2 控件方法（更新中）
+##### 52.1.2.2 控件方法
 
 在正式学习本节之前，需要先了解以下问题：
 
 - 什么是控件方法？和控件属性类似，控件方法是由Quasar控件提供的JavaScript函数，在NiceGUI中，需要借助`run_method`方法调用。
 - 为什么要用控件方法？虽然NiceGUI的控件提供了足够日常使用的Python函数，但依然无法满足所有的需求。因此，如果Quasar控件提供的JavaScript函数正好符合要求，那就可以直接使用控件方法，不用创建单独的Python函数或者JavaScript函数。
 
-`ui.table`控件支持以下控件方法：
+`ui.table`控件支持以下控件方法（部分）：
 
 - `toggleFullscreen`方法，切换表格的全屏显示状态。
 
@@ -19073,7 +19073,7 @@ ui.run(
           selection='multiple',
           pagination=1
       )
-      method = "toggleFullscreen"
+      method = 'toggleFullscreen'
       with table.add_slot('top-left'):
           ui.button(
               f'run method "{method}"',
@@ -19137,7 +19137,7 @@ ui.run(
           selection='multiple',
           pagination=1
       )
-      method = "requestServerInteraction"
+      method = 'requestServerInteraction'
       table.set_filter('a')
       table.on('request',lambda e:print(e))
       with table.add_slot('top-left'):
@@ -19198,7 +19198,7 @@ ui.run(
           selection='multiple',
           pagination=1
       )
-      method = "setPagination"
+      method = 'setPagination'
       with table.add_slot('top-left'):
           ui.button(
               f'run method "{method}"',
@@ -19218,27 +19218,156 @@ ui.run(
   )
   ```
 
-- `firstPage`方法，
+- `firstPage`方法，跳转至首页。
 
-- `prevPage`方法，
+- `prevPage`方法，跳转至前一页。
 
-- `nextPage`方法，
+- `nextPage`方法，跳转至下一页。
 
-- `lastPage`方法，
+- `lastPage`方法，跳转至尾页。
 
-- `isRowSelected`方法，
+- `isRowSelected`方法，判断某一行是否被选中。该方法支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不需要参数名）：
 
+  - `key`参数，字符串类型，表示被检查行确定唯一性的键对应的值。
 
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      )
+      method = 'isRowSelected'
+      async def get_result():
+          result = await table.run_method(
+              f'{method}',
+              'Bob'
+          )
+          if result:
+              ui.notify('Bob 被选中了！')
+      with table.add_slot('top-left'):
+          ui.button(
+              f'run method "{method}"',
+              on_click=get_result
+          ).props('no-caps')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_40](nicegui_pro.assets/2026_52_40.png)
+
+- `sort`方法，将某一列设为排序状态。该方法支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不需要参数名）：
+
+  - `col`参数，字符串类型，表示要设定为排序状态的列名（即列的`'name'`键对应的值）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+          pagination=1
+      )
+      method = 'sort'
+      with table.add_slot('top-left'):
+          ui.button(
+              f'run method "{method}"',
+              on_click=lambda:table.run_method(
+                  f'{method}',
+                  'firstname'
+              )
+          ).props('no-caps')
+      
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
 ##### 52.1.2.3 插槽（更新中）
 
-注意，和一般的控件不同，`ui.table`控件不支持“default”插槽。另外，因为很多插槽与具体数据相关，如果使用插槽，需要用到较难的前端知识（主要是VUE），因此，这部分插槽仅介绍对应的区域，不提供具体示例。
+注意，和一般的控件不同，`ui.table`控件不支持“default”插槽。
 
-好吧，其实是笔者不擅长VUE，也许以后遇到具体问题而不得不使用这些插槽时，笔者会抽时间深入学习VUE，并提供相关的示例。
+考虑到直接写模板会用到较难的前端知识（主要是VUE），而读者的前端知识不一定丰富，因此，部分插槽仅介绍对应的区域，不提供具体示例。
+
+不过，虽然直接写模板是插槽的基本用法，但为了降低对读者前端知识的要求，笔者还是为部分插槽提供了特殊的简化用法示例。
+
+简化用法有以下要点：
+
+- JavaScript变量`props`对应插槽的当前作用域（scope），当前作用域支持的属性，也是`props`变量的属性。因此，可以使用`props`变量得到单元格对应的相关数据。
+- 控件属性`innerHTML`表示控件的“default”插槽或者HTML标签的子节点内容。因此，在Python代码中，可以在该控件属性中使用包含`props`变量的表达式，尽可能少地写前端代码。
 
 `ui.table`控件支持以下插槽：
 
-- “loading”插槽，
+- “loading”插槽，对应控件的加载状态。建议使用`ui.spinner`控件，并适当调整控件显示的位置和背景：
 
   ```python3
   from nicegui import ui
@@ -19300,7 +19429,79 @@ ui.run(
   )
   ```
 
+  ![2026_52_41](nicegui_pro.assets/2026_52_41.gif)
+
+- “item”插槽，对应网格模式的每一行数据。该插槽的当前作用域支持以下属性：
+
+  - `key`属性，字符串类型，表示该行确定唯一性的键对应的值。
+  - `row`属性，表示每一行的行对象，其支持的属性与行数据字典包含的键相同。
+  - `rowIndex`属性，整数类型，表示当前排序、筛选状态下，该行位置的索引值。
+  - `pageIndex`属性，整数类型，表示当前排序、筛选状态下，该行所属页的索引值。
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，
+  - `expand`属性，
+  - `color`属性，
+  - `dark`属性，
+  - `dense`属性，
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
   
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+      ).props('grid')
+      table.add_slot('item','''
+          {{props.row.age}}
+          '''               
+      )
+      with table.add_slot('item'):
+          with ui.card():
+              ui.label().props(':innerHTML=props.row.firstname')
+              ui.separator()
+              ui.label().props(':innerHTML=props.row.age')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_42](nicegui_pro.assets/2026_52_42.png)
 
 - 
 

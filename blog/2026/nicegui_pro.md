@@ -16299,7 +16299,7 @@ NiceGUI提供了两种显示表格的控件：
 
 想要定义一个表格，需要写一堆标签。哪怕有插件，对于每个单元格内的数据，操作起来也没那么简单。好在表格控件简化了这个过程，让开发者更加专注于数据的处理，无需过分关心这些标签。
 
-### 52.1 `ui.table`控件（更新中）
+### 52.1 `ui.table`控件
 
 #### 52.1.1 基本用法
 
@@ -16786,7 +16786,7 @@ ui.run(
   - `'rowsPerPage'`键，整数类型，分页时每页显示几行数据，可以手动修改。
   - `'sortBy'`键，字符串类型，表示分页时使用行数据字典中哪个键对应的数据作为排序依据，
   - `'descending'`键，布尔类型，表示分页时非排序方式是否为递减，默认为`False`。
-  - `'page'`键，整数类型，表示分页时的默认显示第几页（使用自然排序，非索引值），默认为`1`。
+  - `'page'`键，整数类型，表示分页时的当前显示第几页（使用自然排序，非索引值），默认为`1`。
 
   示例如下：
 
@@ -17567,7 +17567,7 @@ ui.run(
 
   ![2026_52_13](nicegui_pro.assets/2026_52_13.png)
 
-#### 52.1.2 扩展用法（更新中）
+#### 52.1.2 扩展用法
 
 ##### 52.1.2.1 控件属性
 
@@ -18603,7 +18603,7 @@ ui.run(
 
   ![2026_52_31](nicegui_pro.assets/2026_52_31.png)
 
-- `no-data-label`属性，字符串类型，表示表格无数据时的提示语。
+- `no-data-label`属性，字符串类型，表示表格无可展示数据（无数据或者未搜索到包含`filter`属性的单元格）时的提示语。
 
   示例如下：
 
@@ -18640,7 +18640,7 @@ ui.run(
 
   ![2026_52_32](nicegui_pro.assets/2026_52_32.png)
 
-- `loading-label`属性，字符串类型，表示表格处于加载状态时的提示语。注意，仅在使用`loading`属性且表格无数据时，该属性才会生效，并且优先级比`no-data-label`属性高。
+- `loading-label`属性，字符串类型，表示表格处于加载状态时的提示语。注意，仅在使用`loading`属性且表格无可展示数据（无数据或者未搜索到包含`filter`属性的单元格）时，该属性才会生效，并且优先级比`no-data-label`属性高。
 
   示例如下：
 
@@ -19352,7 +19352,7 @@ ui.run(
   )
   ```
 
-##### 52.1.2.3 插槽（更新中）
+##### 52.1.2.3 插槽
 
 注意，和一般的控件不同，`ui.table`控件不支持“default”插槽。
 
@@ -19706,7 +19706,7 @@ ui.run(
   - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
   - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
   - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
-  - `selected`属性，布尔类型，表示该行是否被选择。
+  - `selected`属性，布尔类型，表示所有行是否被选择（`true`表示全选，`false`表示全不选，`null`表示部分选择）。
   - `expand`属性，布尔类型，表示该行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
   - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
   - `dark`属性，布尔类型，表示是否启用暗黑主题。
@@ -19771,7 +19771,7 @@ ui.run(
   - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
   - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
   - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
-  - `selected`属性，布尔类型，表示该行是否被选择。
+  - `selected`属性，布尔类型，表示所有行是否被选择（`true`表示全选，`false`表示全不选，`null`表示部分选择）。
   - `expand`属性，布尔类型，表示该行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
   - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
   - `dark`属性，布尔类型，表示是否启用暗黑主题。
@@ -19833,7 +19833,7 @@ ui.run(
   - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
   - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
   - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
-  - `selected`属性，布尔类型，表示单元格所属行是否被选择。
+  - `selected`属性，布尔类型，表示所有行是否被选择（`true`表示全选，`false`表示全不选，`null`表示部分选择）。
   - `expand`属性，布尔类型，表示单元格所属行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
   - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
   - `dark`属性，布尔类型，表示是否启用暗黑主题。
@@ -19889,9 +19889,31 @@ ui.run(
 
   ![2026_52_48](nicegui_pro.assets/2026_52_48.png)
 
-- “body-selection”插槽，对应表格的内容主体的每一行中选择该行的勾选框区域。
+- “body-selection”插槽，对应表格的内容主体的每一行中选择该行的勾选框区域。该插槽的当前作用域支持以下属性：
 
-- “header-selection”插槽，对应表头中选择所有行的勾选框区域。
+  - `key`属性，字符串类型，表示该行确定唯一性的键对应的值。
+  - `row`属性，表示每一行的行对象，其支持的属性与行数据字典包含的键相同。
+  - `rowIndex`属性，整数类型，表示当前排序、筛选状态下，该行位置的索引值。
+  - `pageIndex`属性，整数类型，表示当前排序、筛选状态下，该行所属页的索引值。
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，布尔类型，表示该行是否被选择。
+  - `expand`属性，布尔类型，表示该行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
+
+- “header-selection”插槽，对应表头中选择所有行的勾选框区域。该插槽的当前作用域支持以下属性：
+
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，布尔类型，表示所有行是否被选择（`true`表示全选，`false`表示全不选，`null`表示部分选择）。
+  - `expand`属性，布尔类型，表示该行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
 
   示例如下：
 
@@ -19953,11 +19975,316 @@ ui.run(
   )
   ```
 
+  ![2026_52_49](nicegui_pro.assets/2026_52_49.png)
+
+- “top-row”插槽、“bottom-row”插槽，对应主要内容中所有数据最上面、最下面的额外一行（默认不显示）。建议参考本章开头的表格结构，使用`tr`标签内嵌套`td`标签的结构作为该插槽的模板。该插槽的当前作用域支持以下属性：
+
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
   
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      with table.add_slot('top-row'):
+          with ui.element('q-tr'):
+              with ui.element('q-td'):
+                  ui.badge().props(':innerHTML="props.cols[0].label"')
+              with ui.element('q-td'):
+                  ui.badge().props(':innerHTML="props.cols[1].label"')
+      with table.add_slot('bottom-row'):
+          with ui.element('q-tr'):
+              with ui.element('q-td'):
+                  ui.badge().props(':innerHTML="props.cols[0].label"')
+              with ui.element('q-td'):
+                  ui.badge().props(':innerHTML="props.cols[1].label"')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- 
+  ![2026_52_50](nicegui_pro.assets/2026_52_50.png)
 
+- “pagination”插槽，对应表格底部与分页相关的区域。该插槽的当前作用域支持以下属性：
 
+  - `pagination`属性，表示表格的分页方式，支持的属性与`pagination`参数为字典类型时包含的键相同。
+  - `pagesNumber`属性，整数类型，表示表格一共多少页。
+  - `isFirstPage`属性，布尔类型，表示当前页是否为表格的第一页。
+  - `isLastPage`属性，布尔类型，表示当前页是否为表格的最后一页。
+  - `firstPage`属性，JavaScript函数类型，用法同`firstPage`方法（控件方法）。
+  - `prevPage`属性，JavaScript函数类型，用法同`prevPage`方法（控件方法）。
+  - `nextPage`属性，JavaScript函数类型，用法同`nextPage`方法（控件方法）。
+  - `lastPage`属性，JavaScript函数类型，用法同`lastPage`方法（控件方法）。
+  - `inFullscreen`属性，布尔类型，表示表格是否为全屏显示。
+  - `toggleFullscreen`属性，JavaScript函数类型，用法同`toggleFullscreen`方法（控件方法）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          pagination=1
+      )
+      with table.add_slot('pagination'):
+          ui.label().props(':innerHTML="`当前为第`+props.pagination.page+`页`"')
+          ui.button(
+              '<',
+              on_click=lambda:table.run_method('prevPage')
+          ).props('flat')
+          ui.button(
+              '>',
+              on_click=lambda:table.run_method('nextPage')
+          ).props('flat')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_51](nicegui_pro.assets/2026_52_51.png)
+
+- “top”插槽、“top-left”插槽、“top-right”插槽、“bottom”插槽，对应表格顶部、顶部左半部分、顶部右半部分、底部的区域。该插槽的当前作用域支持的属性同“pagination”插槽。
+
+  注意，“top-left”插槽、“top-right”插槽均不能与“top”插槽同时使用。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          pagination=1
+      )
+      table2 = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          pagination=1
+      )
+      with table.add_slot('top-left'):
+          ui.label('top-left')
+      with table.add_slot('top-right'):
+          ui.label('top-right')
+      with table2.add_slot('top'):
+          ui.label('top')
+      with table2.add_slot('bottom'):
+          ui.label('bottom')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_52](nicegui_pro.assets/2026_52_52.png)
+
+- “top-selection”插槽，对应选择了任意一行以上数据时才显示的表格顶部区域。该插槽的当前作用域支持的属性同“pagination”插槽。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple'
+      )
+      with table.add_slot('top-selection'):
+          ui.label('top-selection')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_53](nicegui_pro.assets/2026_52_53.png)
+
+- “no-data”插槽，对应表格无可展示数据（无数据或者未搜索到包含`filter`属性的单元格）时提示语的区域。该插槽的当前作用域支持以下属性：
+
+  - `message`属性，字符串类型，表示Quasar框架提供的默认消息文字。
+  - `icon`属性，字符串类型，表示Quasar框架提供的默认图标。
+  - `filter`属性，含义与同名控件属性相同。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=[], 
+          row_key='firstname'
+      )
+      ui.input('关键字').bind_value_to(table,'filter')
+      with table.add_slot('no-data'):
+          with ui.column():
+              with ui.row():
+                  ui.icon('',size='2em').props(':name=props.icon')
+                  ui.label().props(':innerHTML=props.message')
+              with ui.row():
+                  ui.icon('',size='2em').props(
+                      '''
+                      :name="props.filter?`search`:`warning`"
+                      '''
+                  )
+                  ui.label().props(
+                      '''
+                      :innerHTML="props.filter?`未搜索到包含“`+props.filter+`”的单元格`:`表格无数据`"
+                      '''
+                  )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_54](nicegui_pro.assets/2026_52_54.gif)
 
 ### 52.2 `ui.aggrid`控件（更新中）
 

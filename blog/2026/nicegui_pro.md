@@ -19440,11 +19440,11 @@ ui.run(
   - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
   - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
   - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
-  - `selected`属性，
-  - `expand`属性，
-  - `color`属性，
-  - `dark`属性，
-  - `dense`属性，
+  - `selected`属性，布尔类型，表示该行是否被选择。
+  - `expand`属性，布尔类型，表示该行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
 
   示例如下：
 
@@ -19485,10 +19485,6 @@ ui.run(
           row_key='firstname',
           selection='multiple',
       ).props('grid')
-      table.add_slot('item','''
-          {{props.row.age}}
-          '''               
-      )
       with table.add_slot('item'):
           with ui.card():
               ui.label().props(':innerHTML=props.row.firstname')
@@ -19502,6 +19498,462 @@ ui.run(
   ```
 
   ![2026_52_42](nicegui_pro.assets/2026_52_42.png)
+
+- “body”插槽，对应表格的内容主体的每一行区域。建议参考本章开头的表格结构，使用`tr`标签内嵌套`td`标签的结构作为该插槽的模板。该插槽的当前作用域支持以下属性：
+
+  - `key`属性，字符串类型，表示该行确定唯一性的键对应的值。
+  - `row`属性，表示每一行的行对象，其支持的属性与行数据字典包含的键相同。
+  - `rowIndex`属性，整数类型，表示当前排序、筛选状态下，该行位置的索引值。
+  - `pageIndex`属性，整数类型，表示当前排序、筛选状态下，该行所属页的索引值。
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，布尔类型，表示该行是否被选择。
+  - `expand`属性，布尔类型，表示该行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      with table.add_slot('body'):
+          with ui.element('q-tr'):
+              with ui.element('q-td'):
+                  ui.badge().props(':innerHTML=props.row.firstname')
+              with ui.element('q-td'):
+                  ui.label().props(':innerHTML=props.row.age')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_43](nicegui_pro.assets/2026_52_43.png)
+
+- “body-cell”插槽，对应表格的内容主体的每一行中的每个单元格区域。建议参考本章开头的表格结构，使用`td`标签作为该插槽的模板。该插槽的当前作用域支持以下属性：
+
+  - `col`属性，表示每个单元格对应列的列定义。该属性支持的属性与列定义对应字典包含的键相同。
+  - `value`属性，表示每个单元格的值。
+  - `key`属性，字符串类型，表示单元格所属行确定唯一性的键对应的值。
+  - `row`属性，表示单元格所属行的行对象，其支持的属性与行数据字典包含的键相同。
+  - `rowIndex`属性，整数类型，表示当前排序、筛选状态下，单元格所属行位置的索引值。
+  - `pageIndex`属性，整数类型，表示当前排序、筛选状态下，单元格所属行的所属页的索引值。
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，布尔类型，表示单元格所属行是否被选择。
+  - `expand`属性，布尔类型，表示单元格所属行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      with table.add_slot('body-cell'):
+          with ui.element('q-td'):
+              ui.badge().props(':innerHTML="props.value?props.value:`无效值`"')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_44](nicegui_pro.assets/2026_52_44.png)
+
+- “body-cell-[{name}]”插槽，对应表格的内容主体的每一行中的指定列（列名为插槽名中`name`的列）单元格区域。建议参考本章开头的表格结构，使用`td`标签作为该插槽的模板。该插槽的当前作用域支持以下属性：
+
+  - `col`属性，表示每个单元格对应列的列定义。该属性支持的属性与列定义对应字典包含的键相同。
+  - `value`属性，表示每个单元格的值。
+  - `key`属性，字符串类型，表示单元格所属行确定唯一性的键对应的值。
+  - `row`属性，表示单元格所属行的行对象，其支持的属性与行数据字典包含的键相同。
+  - `rowIndex`属性，整数类型，表示当前排序、筛选状态下，单元格所属行位置的索引值。
+  - `pageIndex`属性，整数类型，表示当前排序、筛选状态下，单元格所属行的所属页的索引值。
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，布尔类型，表示单元格所属行是否被选择。
+  - `expand`属性，布尔类型，表示单元格所属行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      with table.add_slot('body-cell-age'):
+          with ui.element('q-td'):
+              ui.badge().props(':innerHTML="props.value?props.value:`无效值`"')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_45](nicegui_pro.assets/2026_52_45.png)
+
+- “header”插槽，对应表格表头的区域。建议参考本章开头的表格结构，使用`tr`标签内嵌套`th`标签的结构作为该插槽的模板。该插槽的当前作用域支持以下属性：
+
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，布尔类型，表示该行是否被选择。
+  - `expand`属性，布尔类型，表示该行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      with table.add_slot('header'):
+          with ui.element('q-tr'):
+              with ui.element('q-th'):
+                  ui.badge().props(':innerHTML="props.cols[0].label"')
+              with ui.element('q-th'):
+                  ui.badge().props(':innerHTML="props.cols[1].label"')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_46](nicegui_pro.assets/2026_52_46.png)
+
+- “header-cell”插槽，对应表格表头的每一个单元格区域。建议参考本章开头的表格结构，使用`th`标签作为该插槽的模板。该插槽的当前作用域支持以下属性：
+
+  - `col`属性，表示每个单元格对应列的列定义。该属性支持的属性与列定义对应字典包含的键相同。
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，布尔类型，表示该行是否被选择。
+  - `expand`属性，布尔类型，表示该行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      with table.add_slot('header-cell'):
+          with ui.element('q-th'):
+              ui.badge().props(':innerHTML=props.col.label')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_47](nicegui_pro.assets/2026_52_47.png)
+
+- “header-cell-[{name}]”插槽，对应表头中的指定列（列名为插槽名中`name`的列）单元格区域。建议参考本章开头的表格结构，使用`th`标签作为该插槽的模板。该插槽的当前作用域支持以下属性：
+
+  - `col`属性，表示单元格对应列的列定义。该属性支持的属性与列定义对应字典包含的键相同。
+  - `cols`属性，元素为列定义的数组，与`columns`参数相同。每个元素支持的属性与`columns`参数中每个元素对应字典包含的键相同。
+  - `colsMap`属性，将列名（column name）映射为列定义的对象，其支持的属性与列名相同，通过子属性可以访问列名对应列的列定义。
+  - `sort`属性，JavaScript函数类型，用法同`sort`方法（控件方法）。
+  - `selected`属性，布尔类型，表示单元格所属行是否被选择。
+  - `expand`属性，布尔类型，表示单元格所属行是否被展开。注意，该属性默认没有相关的交互动作，需要手动实现相关代码和前端样式。
+  - `color`属性，字符串类型，表示勾选框、加载进度条、分页按钮、分页选择器的颜色。
+  - `dark`属性，布尔类型，表示是否启用暗黑主题。
+  - `dense`属性，布尔类型，表示是否启用紧凑风格。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname'
+      )
+      with table.add_slot('header-cell-age'):
+          with ui.element('q-th'):
+              ui.badge().props(':innerHTML=props.col.label')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_48](nicegui_pro.assets/2026_52_48.png)
+
+- “body-selection”插槽，对应表格的内容主体的每一行中选择该行的勾选框区域。
+
+- “header-selection”插槽，对应表头中选择所有行的勾选框区域。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      columns = [
+          {
+              'name': 'firstname', 
+              'label': 'Name', 
+              'field': 'firstname',
+              'align': 'left'
+          },
+          {
+              'name': 'age', 
+              'label': 'Age', 
+              'field': 'age', 
+              'sortable': True
+          },
+      ]
+      rows = [
+          {
+              'firstname': 'Alice', 
+              'age': 18
+          },
+          {
+              'firstname': 'Bob', 
+              'age': 21
+          },
+          {
+              'firstname': 'Carol'
+          },
+      ]
+      table = ui.table(
+          columns=columns, 
+          rows=rows, 
+          row_key='firstname',
+          selection='multiple',
+      )
+      with table.add_slot('header-selection'):
+          ui.label().props(
+              ':innerHTML="props.selected?`✅`:(props.selected===false?`⬛`:`🔲`)"'
+          ).on(
+              'click',
+              js_handler='() => {props.selected = !props.selected}'
+          )
+      with table.add_slot('body-selection'):
+          ui.label().props(
+              ':innerHTML="props.selected?`✅`:`⬛`"'
+          ).on(
+              'click',
+              js_handler='() => {props.selected = !props.selected}'
+          )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
 
 - 
 

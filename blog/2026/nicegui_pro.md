@@ -4103,7 +4103,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   )
   ```
 
-## 17 创建自定义控件（更新中）
+## 17 创建自定义控件
 
 虽然NiceGUI内置了数量丰富的控件，但总会遇到控件功能无法满足需求的情况。此时，就可以创建自定义控件，来实现所需的功能。
 
@@ -4512,13 +4512,122 @@ ui.run(
 
 自定义控件的核心在`counter.js`文件中，由VUE暴露需要用到的属性和JavaScript方法。在`counter.py`文件中，通过`props`属性接收和设置暴露的属性，使用`run_method`方法执行暴露出的JavaScript方法。如果在`counter.js`文件中发射（`$emit`）了事件，还可以在`counter.py`文件中使用`on`方法响应对应的事件。
 
-### 17.4 使用、创建anywidget控件（更新中）
+### 17.4 创建、使用anywidget控件
+
+anywidget控件相关的文档：
+
+- NiceGUI文档：https://nicegui.io/documentation/anywidget
+- `anywidget`库文档：https://anywidget.dev/en/getting-started/
+- anywidget官方示例：https://try.anywidget.dev/
+
+不同于创建VUE组件需要单独创建JavaScript文件，需要熟悉JavaScript、VUE语法，还要了解NiceGUI框架的实现原理，每个部分缺一不可；创建自定义的anywidget控件可以简单到只需一个Python类，更别说anywidget控件丰富的生态带来大量现成的控件，可以简单到如同使用其他前端UI框架一样。
+
+先通过示例看一下如何创建一个自定义的anywidget控件，其实这个示例在前面版本速览里已经看过，这里简化了无关的Python代码：
+
+```python3
+from nicegui import ui
+import anywidget
+import traitlets
+
+class CounterWidget(anywidget.AnyWidget):
+    _esm = '''
+        function render({ model, el }) {
+            const button = document.createElement("button");
+            button.innerHTML = `Count is ${model.get("value")}`;
+            button.addEventListener("click", () => {
+                model.set("value", model.get("value") + 1);
+                model.save_changes();
+            });
+            model.on("change:value", () => {
+                button.innerHTML = `Count is ${model.get("value")}`;
+            });
+            el.classList.add("counter-widget");
+            el.appendChild(button);
+        }
+        export default { render };
+    '''
+    _css = '''
+        .counter-widget button {
+            color: white;
+            background-color: DarkOrange;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+    '''
+    value = traitlets.Int(0).tag(sync=True)
+
+    def increment(self) -> None:
+        self.value += 1
+
+def index():
+    counter = CounterWidget(value=42)
+    ui.anywidget(counter)
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_17_5](nicegui_pro.assets/2026_17_5.gif)
+
+创建自定义anywidget控件主要有以下几个要点：
+
+- 继承`anywidget.AnyWidget`类，并在给类变量`_esm`传入创建控件的JavaScript代码（VUE语法），这是最基本、最简单的必要操作，其余类变量则根据实际所需的功能添加。创建控件的JavaScript代码有固定的格式，定义参数为`{ model, el }`的JavaScript函数`render`（函数名固定）之后，必须将其导出（使用`export default { render }`，模块语法要求）。注意，这部分涉及到VUE、模块相关知识，笔者不擅长VUE、JavaScript，可能存在描述不准确的地方，具体语法请读者以VUE官方文档为准。
+- 类变量`_css`负责定义控件所需的CSS样式，定义的CSS样式类可以在类变量`_esm`中直接使用。
+- 使用`traitlets`提供的类实例化的Python类变量（在示例中为`value`），根据其是否使用`tag(sync=True)`，可以定义为Python端与前端共享（可在JavaScript代码中访问）的控件变量，或者纯Python端（后端，只能在Python代码中访问）的控件变量。
+- 至于多出来的函数，则是Python端按需定义的接口函数，当控件变量前后端共享时，可以在Python端通过该接口函数影响前端显示。
+
+总的来说，创建自定义anywidget控件可以在Python端一个文件内完成，方便了一些，但依然需要VUE相关基础，对于笔者这样目前不太擅长VUE的Python代码使用者，有一定门槛。
+
+不过，anywidget控件丰富的生态带来大量现成的控件，如果有合适的控件，可以跳过这一步，直接学习如何使用现成的anywidget控件。
+
+anywidget官方示例（https://try.anywidget.dev/）中有不少基于Jupyter的示例代码，对于NiceGUI来说，使用时可以照搬其代码，只需最后将anywidget控件实例传给`ui.anywidget`控件的`widget`参数即可。
+
+`ui.anywidget`控件支持以下参数：
+
+- `widget`参数，表示要在NiceGUI中使用的anywidget控件。
+- `throttle`参数，关键字参数，浮点类型，表示anywidget控件在Python端与前端更新相关控件变量的时间间隔（单位秒），默认为`0`，即最短间隔（即时更新）。
+
+就以anywidget官方示例中的ITables（官方仓库 https://github.com/mwouts/itables）为例，其在NiceGUI中的示例为：
+
+```python3
+from nicegui import ui
+import pandas as pd
+from itables.widget import ITable
+
+def index():
+    table = ITable(
+        pd.DataFrame(
+            {
+                'x': [
+                    'A', 'B', 'C', 'D', 'E'
+                ],
+                'y': [
+                    5, 3, 6, 7, 2
+                ]
+            }
+        )
+    )
+    ui.anywidget(
+        table
+    )
 
 
+ui.run(
+    root=index,
+    native=True
+)
+```
 
+![2026_17_6](nicegui_pro.assets/2026_17_6.png)
 
-
-
+受限于篇幅，更多更详细的anywidget控件示例这里就不展开介绍了，等后续有机会再结合实际情况介绍相关示例。
 
 ## 18 管理静态文件、媒体文件
 

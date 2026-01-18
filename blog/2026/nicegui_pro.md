@@ -43,6 +43,40 @@ NiceGUI还提供了一些可选的依赖：
 
 升级指定库至最新测试版。因为本章节创作时，NiceGUI的3.0.0版本尚未正式发布，需要升级至最新测试版才行，或者读者想要使用其他最新测试版的功能，则可以使用`uv sync -P nicegui --prerelease allow`命令，将指定库升级至最新测试版。
 
+## 1 安装NiceGUI（3.5.0版本更新）
+
+更新说明：
+
+官方在3.4.0版本移除了`libsass`库的依赖，在3.5.0版本新增`altair`库、`anywidget`库的依赖，故合并在在3.5.0版本更新之后修改本章内容，并移除了测试版的使用说明。
+
+以下为正文：
+
+之前《NiceGUI的中文入门教程》使用PDM作为环境管理工具，这一次，将使用uv管理环境。
+
+为什么要用uv？
+
+原因只有一个，那就是快！速度对比如下：
+
+![2026_1_1](nicegui_pro.assets/2026_1_1.png)
+
+首先，新建一个空白文件夹，笔者这里新建了`nicegui_uv_app`文件夹。进入该文件夹，运行`uv init`，即可初始化该文件夹为项目文件夹（`uv`命令需要使用`pip install uv`安装）。
+
+此时创建的项目是空白项目，没有添加任何依赖，还需要使用`uv add nicegui`添加依赖，并自动创建虚拟环境。
+
+NiceGUI还提供了一些可选的依赖：
+
+- `pywebview`库，以Native Mode（窗口模式）运行NiceGUI程序时依赖该库，使用`uv add nicegui[native]`命令添加。
+- `plotly`库，`ui.plotly`控件依赖该库，使用`uv add nicegui[plotly]`命令添加。
+- `matplotlib`库，`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件依赖该库，使用`uv add nicegui[matplotlib]`命令添加。
+- `nicegui-highcharts`库，`ui.highchart`控件依赖该库，使用`uv add nicegui[highcharts]`命令添加。
+- `redis`库，使用Redis存储`app.storage`时（定义环境变量`NICEGUI_REDIS_URL`）依赖该库，使用`uv add nicegui[redis]`命令添加。
+- `altair`库，`ui.altair`控件依赖该库，使用`uv add nicegui[altair]`命令添加。
+- `anywidget`库，`ui.anywidget`控件、`ui.altair`控件依赖该库，使用`uv add nicegui[anywidget]`命令添加。
+
+如果想要将虚拟环境中的所有库升级至最新稳定版，可以使用`uv sync -U`。
+
+若是只想升级指定库，比如`nicegui`，则使用`uv sync -P nicegui`。
+
 ## 2 认识NiceGUI程序
 
 ### 2.1 基本结构
@@ -2023,6 +2057,175 @@ ui.run(
 
 ![2026_11_1](nicegui_pro.assets/2026_11_1.png)
 
+## 版本速览——3.5.0版本新增对anywidget控件的支持
+
+NiceGUI 3.5.0 主要新增了两个控件：`ui.altair`控件和`ui.anywidget`控件。从本质上说，它们都是基于`anywidget.AnyWidget`实现的NiceGUI控件，尤其是后者，可以将任意anywidget控件包装为NiceGUI控件，可以说，该版本属于引入anywidget控件的里程碑。
+
+从该版本开始，NiceGUI新增了两个可选的依赖：
+
+- `altair`库，`ui.altair`控件依赖该库，使用`uv add nicegui[altair]`命令添加。
+- `anywidget`库，`ui.anywidget`控件、`ui.altair`控件依赖该库，使用`uv add nicegui[anywidget]`命令添加。
+
+### 1 `ui.altair`控件
+
+注意，使用该控件需要额外安装`altair`库和`anywidget`库，可参考上面的安装命令。
+
+`ui.altair`控件可以使用`altair`库渲染图表，并将其转换为NiceGUI控件（示例需要额外安装`pandas`库）：
+
+```python3
+from nicegui import ui
+import altair
+import pandas as pd
+
+def index():
+    ui.altair(
+        altair.Chart(
+            pd.DataFrame(
+                {
+                    'x': [
+                        'A', 'B', 'C', 'D', 'E'
+                    ],
+                    'y': [
+                        5, 3, 6, 7, 2
+                    ]
+                }
+            )
+        ).mark_bar().encode(
+            x='x',
+            y='y',
+        )
+    )
+
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_3.5.0_1](nicegui_pro.assets/2026_3.5.0_1.png)
+
+控件的完整用法，将在后面更新的《学习控件——渲染图表》一章中介绍，这里不做展开。
+
+有兴趣的读者可以参考下面的资料提前学习：
+
+-  NiceGUI文档：https://nicegui.io/documentation/altair
+- `altair`库文档：https://altair-viz.github.io/user_guide/data.html
+- altair官方示例：https://altair-viz.github.io/gallery/index.html
+
+### 2 `ui.anywidget`控件
+
+注意，使用该控件需要额外安装`anywidget`库和具体用法相关的依赖库，可参考上面的安装命令。
+
+`ui.anywidget`控件可以将任意anywidget控件包装为NiceGUI控件，上面介绍的`ui.altair`控件就是其中一种。因此，可以使用`ui.anywidget`控件实现与`ui.altair`控件相同的效果，但需要额外安装`altair`库：
+
+```python3
+from nicegui import ui
+import altair
+import pandas as pd
+
+def index():
+    ui.anywidget(
+        altair.JupyterChart(
+            altair.Chart(
+                pd.DataFrame(
+                    {
+                        'x': [
+                            'A', 'B', 'C', 'D', 'E'
+                        ],
+                        'y': [
+                            5, 3, 6, 7, 2
+                        ]
+                    }
+                )
+            ).mark_bar().encode(
+                x='x',
+                y='y',
+            )
+        )
+    )
+
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_3.5.0_1](nicegui_pro.assets/2026_3.5.0_1.png)
+
+当然，增加`ui.anywidget`控件更多是为了引入anywidget控件的丰富生态，只是复刻`ui.altair`控件的话，不如直接使用`ui.altair`控件。因此，用`ui.anywidget`控件渲染自定义的控件，实现和anywidget控件一样效果，才是`ui.anywidget`控件存在的意义：
+
+```python3
+from nicegui import ui
+import anywidget
+import traitlets
+
+class CounterWidget(anywidget.AnyWidget):
+    _esm = '''
+        function render({ model, el }) {
+            const button = document.createElement("button");
+            button.innerHTML = `Count is ${model.get("value")}`;
+            button.addEventListener("click", () => {
+                model.set("value", model.get("value") + 1);
+                model.save_changes();
+            });
+            model.on("change:value", () => {
+                button.innerHTML = `Count is ${model.get("value")}`;
+            });
+            el.classList.add("counter-widget");
+            el.appendChild(button);
+        }
+        export default { render };
+    '''
+    _css = '''
+        .counter-widget button {
+            color: white;
+            background-color: DarkOrange;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+    '''
+    value = traitlets.Int(0).tag(sync=True)
+
+    def increment(self) -> None:
+        self.value += 1
+
+def index():
+    counter = CounterWidget(value=42)
+    ui.anywidget(counter)
+    ui.label('↑ anywidget')
+    ui.separator()
+    ui.label('↓ NiceGUI')
+    ui.button(
+        on_click=counter.increment
+    ).bind_text_from(
+        counter, 
+        'value', 
+        backward=lambda c: f'Count is {c}'
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_3.5.0_2](nicegui_pro.assets/2026_3.5.0_2.png)
+
+控件的完整用法，将在后面更新的《创建自定义控件》一章详细介绍，这里不做展开。
+
+有兴趣的读者可以参考下面的资料提前学习：
+
+- NiceGUI文档：https://nicegui.io/documentation/anywidget
+- `anywidget`库文档：https://anywidget.dev/en/getting-started/
+- anywidget官方示例：https://try.anywidget.dev/
+
 ## 12 运行JavaScript代码
 
 NiceGUI的页面本质上是网页，而网页的很多操作离不开JavaScript代码。因此，NiceGUI程序虽然是用Python写的，但支持运行JavaScript代码，只需调用`ui.run_javascript`方法即可：
@@ -3073,10 +3276,14 @@ ui.run(
 
 - `ui.echart`控件，使用ECharts框架渲染图表，支持多种类型的图表，商用无需付费。
 
+- `ui.altair`控件，使用`altair`库渲染交互式图表。
+
 示例如下：
 
 ```python3
 from nicegui import ui
+import altair
+import pandas as pd
 
 def index():
     ui.highchart(
@@ -3126,6 +3333,23 @@ def index():
             ],
         }
     ).classes('w-64 h-64')
+    ui.altair(
+        altair.Chart(
+            pd.DataFrame(
+                {
+                    'x': [
+                        'A', 'B', 'C', 'D', 'E'
+                    ],
+                    'y': [
+                        5, 3, 6, 7, 2
+                    ]
+                }
+            )
+        ).mark_bar().encode(
+            x='y',
+            y='x',
+        )
+    )
 
 ui.run(
     root=index,
@@ -3879,7 +4103,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   )
   ```
 
-## 17 创建自定义控件
+## 17 创建自定义控件（更新中）
 
 虽然NiceGUI内置了数量丰富的控件，但总会遇到控件功能无法满足需求的情况。此时，就可以创建自定义控件，来实现所需的功能。
 
@@ -4288,6 +4512,14 @@ ui.run(
 
 自定义控件的核心在`counter.js`文件中，由VUE暴露需要用到的属性和JavaScript方法。在`counter.py`文件中，通过`props`属性接收和设置暴露的属性，使用`run_method`方法执行暴露出的JavaScript方法。如果在`counter.js`文件中发射（`$emit`）了事件，还可以在`counter.py`文件中使用`on`方法响应对应的事件。
 
+### 17.4 使用、创建anywidget控件（更新中）
+
+
+
+
+
+
+
 ## 18 管理静态文件、媒体文件
 
 NiceGUI的页面本质上是网页，而网页中通常包含图片、音频、视频、JavaScript代码、CSS代码等文件。NiceGUI提供了一些方法，可以更好管理、使用这些文件：
@@ -4494,13 +4726,11 @@ ui.run(
 
 ![2026_19_1](nicegui_pro.assets/2026_19_1.png)
 
-#### 19.2 `ui.add_css`方法、`ui.add_sass`方法和`ui.add_scss`方法
+#### 19.2 `ui.add_css`方法、`ui.add_sass`方法（不推荐）和`ui.add_scss`方法（不推荐）
 
 这三个方法都可以添加样式描述代码，只是对应代码的语法不同。
 
-注意，`ui.add_sass`方法和`ui.add_scss`方法依赖`libsass`库，需要先安装依赖库才能使用对应方法。可以参考安装NiceGUI一章，使用`uv add nicegui[sass]`命令提前添加依赖库。
-
-注意，从NiceGUI 3.4.0版本开始，`ui.add_sass`方法和`ui.add_scss`方法被标记为弃用，同时不再依赖`libsass`库。后续这两个方法将在NiceGUI 4.0.0版本之后彻底移除，以后只能使用`ui.add_css`方法。
+注意，从NiceGUI 3.4.0版本开始，`ui.add_sass`方法和`ui.add_scss`方法被标记为弃用（不推荐使用，在移除前依然可用），同时不再依赖`libsass`库。后续这两个方法将在NiceGUI 4.0.0版本之后彻底移除，以后只能使用`ui.add_css`方法。
 
 SASS是一种基于CSS语法实现、可以编译为CSS代码的样式描述语言，它在CSS语法的基础上增加了变量 (variables)、嵌套 (nested rules)、混合 (mixins)、导入 (inline imports) 等高级功能，这些拓展令SASS比CSS更加强大与优雅。简单一点理解的话，SASS是CSS扩展版本。SASS在具体代码中有两种语法：通常以`.scss`为后缀的SASS语法，和CSS语法一致，即采用大括号表示所属，用分号表示一句内容的结束；通常以`.sass`为后缀的SCSS语法，变成用缩进代替大括号、用换行代替分号。
 
@@ -18603,7 +18833,7 @@ ui.run(
 
   ![2026_52_31](nicegui_pro.assets/2026_52_31.png)
 
-- `no-data-label`属性，字符串类型，表示表格无可展示数据（无数据或者未搜索到包含`filter`属性的单元格）时的提示语。
+- `no-data-label`属性，字符串类型，表示表格无数据时的提示语。
 
   示例如下：
 
@@ -18640,7 +18870,7 @@ ui.run(
 
   ![2026_52_32](nicegui_pro.assets/2026_52_32.png)
 
-- `loading-label`属性，字符串类型，表示表格处于加载状态时的提示语。注意，仅在使用`loading`属性且表格无可展示数据（无数据或者未搜索到包含`filter`属性的单元格）时，该属性才会生效，并且优先级比`no-data-label`属性高。
+- `loading-label`属性，字符串类型，表示表格处于加载状态时的提示语。注意，仅在使用`loading`属性且表格无可展示数据（无数据或者未搜索到包含`filter`属性的单元格）时，该属性才会生效，并且优先级比`no-data-label`属性、`no-results-label`属性高。
 
   示例如下：
 
@@ -19451,7 +19681,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -19519,7 +19749,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -19589,7 +19819,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -19656,7 +19886,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -19717,7 +19947,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -19782,7 +20012,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -19844,7 +20074,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -19920,7 +20150,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -19986,7 +20216,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -20058,7 +20288,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -20120,7 +20350,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -20184,7 +20414,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -20231,8 +20461,8 @@ ui.run(
 
 - “no-data”插槽，对应表格无可展示数据（无数据或者未搜索到包含`filter`属性的单元格）时提示语的区域。该插槽的当前作用域支持以下属性：
 
-  - `message`属性，字符串类型，表示Quasar框架提供的默认消息文字。
-  - `icon`属性，字符串类型，表示Quasar框架提供的默认图标。
+  - `message`属性，字符串类型，表示Quasar框架提供的消息文字（会被`no-data-label`属性、`no-results-label`属性修改）。
+  - `icon`属性，字符串类型，表示Quasar框架提供的表格无可展示数据（无数据或者未搜索到包含`filter`属性的单元格）时的图标。
   - `filter`属性，含义与同名控件属性相同。
 
   示例如下：
@@ -20240,7 +20470,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       columns = [
           {
               'name': 'firstname', 
@@ -20296,86 +20526,96 @@ NiceGUI框架文档：https://nicegui.io/documentation/aggrid
 
 AG Grid框架文档：https://www.ag-grid.com/javascript-data-grid/reference/
 
-`ui.aggrid`控件支持以下参数：
-
-- 
-
-
-
-
-
-## 53 版本速览——3.5.0版本新增对anywidget的支持（更新中）
-
-NiceGUI 3.5.0 其实早就更新了，笔者在版本更新的第一时间了解了版本主要新增的内容，并确定了相关内容的创作计划。但是，因为当时其他内容已经成形，并且陆续发布中，不宜大改，故将其插入到当时尚未完成的章节之前，优先更新该版本的新增内容。
-
-不过，完成后不会立即发布，各位读者看到这一章的时候，可能已经“过时”，NiceGUI的版本早已更新了好几个。没关系，在主要内容完成之后，笔者就可以释放出足够的创作资源，攒下的存货也会随之减少，让笔者的更新进度追上版本的更新速度，为读者第一时间带来版本变动。《版本速览》也会成为《学习控件》之后，持续更新的主题内容。
-
-注意，该版本新增的控件存在问题（https://github.com/zauberzeug/nicegui/issues/5626），如果需要使用该版本新增的控件，请参考问题的修复情况，更新至问题修复的版本（待定，本章创作时问题未修复）。
-
-### 53.1 `ui.altair`控件（更新中）
-
-注意，使用本控件需要额外安装`altair`库和`anywidget`库。
-
-
-
-
-
-（简单介绍一下控件的用途，不含具体用法、扩展用法）
-
-
+在正式介绍`ui.aggrid`控件之前，先看示例：
 
 ```python3
 from nicegui import ui
 
 def index():
-    import altair
-    ui.altair(
-        altair.Chart(
-            altair.datasets.data.cars()
-        ).encode(
-            x='Horsepower', 
-            y='Miles_per_Gallon', 
-            color='Origin'
-        ).mark_point()
+    options = {
+        'columnDefs': [
+            {'headerName': 'Name', 'field': 'name'},
+            {'headerName': 'Age', 'field': 'age'},
+        ],
+        'rowData': [
+            {'name': 'Alice', 'age': 18},
+            {'name': 'Bob', 'age': 21},
+            {'name': 'Carol', 'age': None},
+        ]
+    }
+    ui.aggrid(
+        options=options
     )
-    
+
 ui.run(
     root=index,
     native=True
 )
 ```
 
+![2026_52_55](nicegui_pro.assets/2026_52_55.png)
+
+从上面的示例可知，和同为表格控件的`ui.table`控件类似，`ui.aggrid`控件（本节中以下简称该控件）有类似列定义的表格定义——`options`参数，该控件的数据也是相似的数据结构。
+
+但与`ui.table`控件不同的是，该控件不是由Quasar框架实现，而是来自AG Grid框架的社区版（使用企业版需要到框架官网付费，NiceGUI社区有使用企业版的方法，这里不做展开），因此很多用法又存在差异：
+
+- 数据不是传给单独的参数，而是融合在`options`参数中。
+- 列定义与数据一样融合在`options`参数中。
+- 没有定义表格交互行为的单独参数，可以使用`on`方法、`options`参数的表格定义、`options`参数的数据嵌入等形式定义交互行为。
+
+上面介绍的那些差异也导致该控件支持参数不多，只有以下参数：
+
+- `options`参数，字典类型，表示表格定义（包含数据和列定义）。表格定义以及列定义具体键的含义需要介绍的内容较多，故放在扩展用法中单独介绍，这里不做展开。有兴趣或者需求的读者可以直接跳至对应章节。
+
+- `html_columns`参数，元素为整数的列表，表示哪些列的数据当作HTML来渲染，元素为列的索引值，默认为空列表，即所有列的数据不当作HTML格式渲染。
+
+  从该参数开始，只能通过关键字传入。
+
+- `theme`参数，字符串类型，仅支持`l['quartz', 'balham', 'material', 'alpine']`中的值，表示表格的样式主题，默认为`'quartz'`。
+
+- `auto_size_columns`参数，布尔类型，表示是否根据表格可用空间自动调节列宽，默认为`True`。
+
+该控件支持以下属性（部分）：
+
+- 
+
+该控件支持以下方法（部分）：
+
+- 
+
+该控件支持以下类方法：
+
+- 
 
 
-控件的完整用法，将在后面更新的《学习控件——渲染图表》一章中介绍，这里不做展开。
 
-https://nicegui.io/documentation/altair
+#### 52.2.2 扩展用法（更新中）
 
-### 53.2 `ui.anywidget`控件（更新中）
+##### 52.2.2.1 表格定义（包含数据和列定义）（更新中）
 
-注意，使用本控件需要额外安装`anywidget`库和具体用法相关的依赖库。
+表格定义的参考文档：https://www.ag-grid.com/javascript-data-grid/grid-options/
+
+列定义的参考文档：https://www.ag-grid.com/javascript-data-grid/column-properties/
+
+表格定义支持的键（部分）如下：
+
+- `'columnDefs'`键，
+- `'rowData'`键，
+- `'rowSelection'`键，
+- 
+
+列定义支持的键（部分）如下：
+
+- `'headerName'`键，
+- `'field'`键，
 
 
 
 
 
-（简单介绍一下控件的用途，不含具体用法、扩展用法）
+##### 52.2.2.2 控件方法（更新中）
 
 
-
-控件的完整用法，将在后面更新的《创建自定义控件（新增）》一章详细介绍，这里不做展开。同时，《创建自定义控件（新增）》一章将作为《创建自定义控件》一章的补充，用于将 NiceGUI 3.5.0 中新增的相关内容关联至《创建自定义控件》。后续可能会发布《创建自定义控件（更新）》一章，完整融合两部分内容。
-
-参考资料（也放在后面的章节）：
-
-https://nicegui.io/documentation/anywidget
-
-https://anywidget.dev/
-
-https://try.anywidget.dev/
-
-https://anywidget.dev/en/getting-started/
-
-https://github.com/zauberzeug/nicegui/pull/5137
 
 
 
@@ -20641,6 +20881,8 @@ https://github.com/zauberzeug/nicegui/pull/5137
   注意，`ui.highchart`控件依赖`nicegui-highcharts`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[highcharts]`命令提前添加依赖库。
 
 - `ui.echart`控件，使用ECharts框架渲染图表，支持多种类型的图表，商用无需付费。
+
+- `ui.altair`控件，使用`altair`库渲染交互式图表。
 
 
 

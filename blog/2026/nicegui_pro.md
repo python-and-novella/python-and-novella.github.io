@@ -4112,6 +4112,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 - 继承现有控件。比较简单，只需了解原控件，有Python基础即可实现，推荐此方法。
 - 使用Quasar框架或者其他基于VUE的前端UI框架的控件。稍微难一些，需要了解具体前端UI框架的用法，最好懂一些JavaScript、VUE基础，有一定基础的读者可以使用此方法。
 - 创建VUE组件并在Python中创建对应的控件。比较困难，需要熟悉JavaScript、VUE语法，还要了解NiceGUI框架的实现原理，仅推荐有前端基础、熟悉NiceGUI框架的读者使用此方法。
+- 创建自定义anywidget控件、使用anywidget控件。创建自定义anywidget控件需要需要熟悉JavaScript、VUE语法，比较困难。但是，使用的话，可以选择使用现有的anywidget控件，会简单不少，推荐熟悉anywidget控件的读者直接使用。
 
 ### 17.1 继承现有控件
 
@@ -4594,7 +4595,7 @@ anywidget官方示例（https://try.anywidget.dev/）中有不少基于Jupyter�
 - `widget`参数，表示要在NiceGUI中使用的anywidget控件。
 - `throttle`参数，关键字参数，浮点类型，表示anywidget控件在Python端与前端更新相关控件变量的时间间隔（单位秒），默认为`0`，即最短间隔（即时更新）。
 
-就以anywidget官方示例中的ITables（官方仓库 https://github.com/mwouts/itables）为例，其在NiceGUI中的示例为：
+就以anywidget官方示例中的ITables（官方仓库 https://github.com/mwouts/itables）为例，看看其在NiceGUI中的示例：
 
 ```python3
 from nicegui import ui

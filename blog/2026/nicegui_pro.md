@@ -2384,6 +2384,149 @@ ui.run(
   
   ![2026_13_6](nicegui_pro.assets/2026_13_6.png)
 
+## 版本速览——3.6.0版本新增的功能（更新中）
+
+NiceGUI 3.6.0 新增的功能比较零碎，没有明确的主题，主要分两方面：
+
+- 颜色相关
+- 功能相关
+
+颜色相关新增功能
+
+颜色主题：
+
+app.colors
+
+
+
+```python3
+from nicegui import ui,app
+
+def index():
+    app.colors(
+        primary = 'red',
+        dark='yellow',
+        my_color = 'green'
+    )
+    ui.link('go to page_a','/page_a')
+    ui.button('Hello')
+    ui.chip('Hello')
+    ui.avatar('home')
+    with ui.card():
+        ui.button(
+            'Hello',
+            color='my-color'
+        )
+        ui.button(
+            'Hello'
+        ).style(
+            'background-color:var(--q-my-color)!important;'
+        )
+    dark_mode = ui.dark_mode(True)
+    ui.switch().bind_value(
+        dark_mode
+    )
+
+@ui.page('/page_a')
+def page_a():
+    ui.link('go to index','/')
+    ui.button('Hello')
+    ui.chip('Hello')
+    ui.avatar('home')
+    with ui.card():
+        ui.button(
+            'Hello',
+            color='my-color'
+        )
+        ui.button(
+            'Hello'
+        ).style(
+            'background-color:var(--q-my-color)!important;'
+        )
+    dark_mode = ui.dark_mode(True)
+    ui.switch().bind_value(
+        dark_mode
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+background_color 和text_color 属性
+
+
+
+ui.on_exception
+
+ui.run(show=...)
+
+
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.colors(
+        primary = 'red',
+        dark='yellow',
+        my_color = 'green'
+    )
+    ui.link('go to page_a','/page_a')
+    ui.button('Hello')
+    ui.chip('Hello')
+    ui.avatar('home')
+    with ui.card():
+        ui.button(
+            'Hello',
+            color='my-color'
+        )
+        ui.button(
+            'Hello'
+        ).style(
+            'background-color:var(--q-my-color)!important;'
+        )
+    dark_mode = ui.dark_mode(True)
+    ui.switch().bind_value(
+        dark_mode
+    )
+
+@ui.page('/page_a')
+def page_a():
+    ui.link('go to index','/')
+    ui.button('Hello')
+    ui.chip('Hello')
+    ui.avatar('home')
+    with ui.card():
+        ui.button(
+            'Hello',
+            color='my-color'
+        )
+        ui.button(
+            'Hello'
+        ).style(
+            'background-color:var(--q-my-color)!important;'
+        )
+    dark_mode = ui.dark_mode(True)
+    ui.switch().bind_value(
+        dark_mode
+    )
+
+ui.run(
+    root=index,
+    show='/page_a'
+)
+```
+
+
+
+
+
 ## 14 设计页面的特殊区域
 
 页面除了主内容区域外，还有一些特殊的区域，可以自由添加控件。这些区域的位置都是固定的，并且创建（使用）这些区域并不会影响这些区域的实际位置。
@@ -5560,7 +5703,7 @@ ui.run(
 
 调用控件的类方法来修改该控件的默认样式，间接实现主题的效果，并非完美。对于用到的每个控件，都需要调用对应控件的类方法。
 
-幸好，NiceGUI提供了实现颜色主题的特殊类——`ui.colors`类，该类支持以下关键字参数：
+幸好，NiceGUI提供了实现颜色主题的特殊类——`ui.colors`类（当前页面生效）和`app.colors`类（所有页面生效），该类支持以下关键字参数：
 
 - `primary`参数，字符串类型，表示主题的主要颜色，默认值为`'#5898d4'`。
 
@@ -7025,7 +7168,7 @@ ui.run(
 
 ![2026_34_4](nicegui_pro.assets/2026_34_4.png)
 
-`show`参数，布尔类型，表示以网页模式启动时，是否启动默认浏览器，打开主页面，默认为`True`。
+`show`参数，布尔类型或者字符串类型，表示以网页模式启动时，是否启动默认浏览器，打开主页面或者指定页面，默认为`True`。当该参数为基于网站主机表示的绝对路径字符串时，则表示打开指定页面而非主页面。
 
 `on_air`参数，布尔类型，表示启动程序的同时，是否使用NiceGUI官方提供的地址映射工具，映射一个免费的公网地址，默认为`False`。该功能由https://on-air.io/提供在线转发服务，默认免费使用，付费的高级版功能更强大。
 
@@ -20628,7 +20771,7 @@ ui.run(
 
 ### 52.2 `ui.aggrid`控件（更新中）
 
-#### 52.2.1 基本用法（更新中）
+#### 52.2.1 基本用法
 
 下面是`ui.aggrid`控件相关文档的地址：
 
@@ -20687,17 +20830,133 @@ ui.run(
 
 该控件支持以下属性（部分）：
 
-- 
+- `options`属性，含义与同名参数相同。
+- `html_columns`属性，含义与同名参数相同。
+- `theme`属性，含义与同名参数相同。
+- `auto_size_columns`属性，含义与同名参数相同。
 
 该控件支持以下方法（部分）：
 
-- 
+- `run_grid_method`方法，运行单元格支持的方法（参考 https://www.ag-grid.com/javascript-data-grid/grid-api/ ）。该方法支持以下参数：
+
+  - `name`参数，字符串类型，表示方法名。
+  - `*args`参数，表示传给被执行方法的参数。
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+
+- `run_row_method`方法，运行行对象支持的方法（参考 https://www.ag-grid.com/javascript-data-grid/row-object/ ）。该方法支持以下参数：
+
+  - `row_id`参数，字符串类型，表示行对象的ID（行的索引值或者表格定义中JavaScript函数类型`'getRowId'`键的返回值）。
+  - `name`参数，字符串类型，表示方法名。
+  - `*args`参数，表示传给被执行方法的参数。
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+
+- `get_selected_rows`方法，异步方法，以列表形式返回多个勾选行的数据。
+
+- `get_selected_row`方法，异步方法，返回首次勾选行的数据。
+
+- `get_client_data`方法，异步方法，以列表形式返回客户端当前状态的表格数据。该方法支持以下关键字参数：
+
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+  - `method`参数，字符串类型，仅支持`['all_unsorted', 'filtered_unsorted', 'filtered_sorted', 'leaf']`中的值，表示获取数据的方法（所有行不排序、过滤后的行不排序、过滤后的行排序、仅限树形结构数据的叶子节点），默认为 `'all_unsorted'`。
+
+  对于该方法而言，如果表格数据支持编辑，编辑之后没有同步数据到后端的话，该方法返回的数据就与后端方法获取到的数据不同，示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ]
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      async def get_data():
+          result = await aggrid.get_client_data()
+          print(result)
+      ui.button('print client data',on_click=get_data)
+      ui.button('print server data',on_click=lambda:print(aggrid.options['rowData']))
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_56](nicegui_pro.assets/2026_52_56.png)
+
+  如上图所示，修改了数据之后，依次点击两个按钮，得到的数据不相同。
+
+- `load_client_data`方法，将表格客户端的数据同步到后端。
+
+  如果表格数据支持编辑，编辑之后使用该方法将表格客户端的数据同步到后端，`get_client_data`方法返回的数据就与后端方法获取到的数据相同，示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ]
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      async def get_data():
+          result = await aggrid.get_client_data()
+          print(result)
+      ui.button('print client data',on_click=get_data)
+      ui.button('update data',on_click=aggrid.load_client_data)
+      ui.button('print server data',on_click=lambda:print(aggrid.options['rowData']))
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_57](nicegui_pro.assets/2026_52_57.png)
 
 该控件支持以下类方法：
 
-- 
+- `from_pandas`方法，使用此方法需要需要额外安装`pandas`库，该方法可以使用`pandas`库提供的`DataFrame`类型数据创建表格。该方法支持以下参数：
 
+  - `df`参数，`DataFrame`类型，表示表格的数据。
 
+  - `html_columns`参数，元素为整数的列表，表示哪些列的数据当作HTML来渲染，元素为列的索引值，默认为空列表，即所有列的数据不当作HTML格式渲染。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `theme`参数，字符串类型，仅支持`l['quartz', 'balham', 'material', 'alpine']`中的值，表示表格的样式主题，默认为`'quartz'`。
+
+  - `auto_size_columns`参数，布尔类型，表示是否根据表格可用空间自动调节列宽，默认为`True`。
+
+- `from_polars`方法，使用此方法需要需要额外安装`polars`库，该方法可以使用`polars`库提供的`DataFrame`类型数据创建表格。该方法支持以下参数：
+
+  - `df`参数，`DataFrame`类型，表示表格的数据。
+
+  - `html_columns`参数，元素为整数的列表，表示哪些列的数据当作HTML来渲染，元素为列的索引值，默认为空列表，即所有列的数据不当作HTML格式渲染。
+
+    从该参数开始，只能通过关键字传入。
+
+  - `theme`参数，字符串类型，仅支持`l['quartz', 'balham', 'material', 'alpine']`中的值，表示表格的样式主题，默认为`'quartz'`。
+
+  - `auto_size_columns`参数，布尔类型，表示是否根据表格可用空间自动调节列宽，默认为`True`。
 
 #### 52.2.2 扩展用法（更新中）
 
@@ -20709,21 +20968,136 @@ ui.run(
 
 表格定义支持的键（部分）如下：
 
-- `'columnDefs'`键，
-- `'rowData'`键，
-- `'rowSelection'`键，
+- `'columnDefs'`键，元素为字典的列表，依照列表元素的排序，依次表示对应列的列定义。列定义支持的键可以参考后面的详细介绍，这里不做展开。
+
+- `'rowData'`键，元素为字典的列表，依照列表元素的排序，依次表示对应行的行数据。行数据字典中的键对应列定义中`'field'`键的值。行数据字典中，键对应的值，则是该行对应该列的单元格的数据（最终显示内容取决于渲染方式）。
+
+- `'rowSelection'`键，字典类型，表示行数据的选择方式。不使用该键，表示行数据无法选择。字典的`'mode'`键可以指定单选、多选模式，`'singleRow'`表示单选，`'multiRow'`表示多选。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+          'rowSelection':{
+              'mode':'multiRow'
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_58](nicegui_pro.assets/2026_52_58.png)
+
+- `'rowHeight'`键，整数类型，表示所有行统一的行高。
+
+- `'getRowHeight'`键，使用字符串表达的JavaScript函数，表示每一行确定行高的方法。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`RowHeightParams`类型，为该函数专用的参数。`RowHeightParams`类型参数支持以下属性：
+    - `data`属性，表示表格每一行的数据，该属性的子属性名与行数据字典的键名相同，对应的子属性即为对应列单元格的数据。
+    - `node`属性，表示单元格每一行的节点对象（支持更多的相关属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/）。
+    - `api`属性，表示接口对象，用于调用该行的支持的方法。
+    - `context`属性，表示上下文对象，用于调用当前上下文的支持的方法。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+          ':getRowHeight':'params => (params.data.age>18?50:25)'
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_59](nicegui_pro.assets/2026_52_59.png)
+
+- `'getRowId'`键，与`run_row_method`方法`row_id`参数相关，https://nicegui.io/documentation/aggrid#run_row_methods
+
 - 
 
 列定义支持的键（部分）如下：
 
 - `'headerName'`键，
 - `'field'`键，
+- `'filter'`键，https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
+- `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
 
 
 
 
 
 ##### 52.2.2.2 控件方法（更新中）
+
+单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/ 。
+
+行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ 。
+
+单元格支持的控件方法（部分）如下：
+
+- 
+
+行对象支持的控件方法（部分）如下：
+
+- 
+
+
+
+实例：
+
+https://nicegui.io/documentation/aggrid#run_row_methods
+
+
+
+##### 52.2.2.3 其他（更新中）
+
+
+
+响应表格的事件：
+
+https://nicegui.io/documentation/aggrid#respond_to_an_ag_grid_event
+
+复合数据的使用：
+
+https://nicegui.io/documentation/aggrid#ag_grid_with_complex_objects
+
+使用箭头函数作为控件方法名：
+
+https://nicegui.io/documentation/aggrid#filter_return_values
 
 
 

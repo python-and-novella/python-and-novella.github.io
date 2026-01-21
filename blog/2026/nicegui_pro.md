@@ -2384,20 +2384,16 @@ ui.run(
   
   ![2026_13_6](nicegui_pro.assets/2026_13_6.png)
 
-## 版本速览——3.6.0版本新增的功能（更新中）
+## 版本速览——3.6.0版本新增的功能
 
-NiceGUI 3.6.0 新增的功能比较零碎，没有明确的主题，主要分两方面：
+NiceGUI 3.6.0 新增的功能有点零碎，没有单一的主题，主要分两方面：
 
 - 颜色相关
 - 功能相关
 
-颜色相关新增功能
+颜色相关的新增功能之一就是颜色主题类——`app.colors`类，用于定义控件的颜色主题，用法和`ui.colors`类一样（之后会有专门的章节介绍具体用法，这里简单说一下，不做展开），但可以在所有页面生效，而`ui.colors`类只能在当前页面生效。
 
-颜色主题：
-
-app.colors
-
-
+读者可以修改下面示例中的`app.colors`为`ui.colors`之后再运行一次，分别点击最上面的超链接，跳转至其他页面，看看效果：
 
 ```python3
 from nicegui import ui,app
@@ -2454,19 +2450,67 @@ ui.run(
 )
 ```
 
+颜色相关的另一个新增功能，就是控件新增表示背景色的`background_color`属性和表示前景色（文本颜色）的`text_color`属性。
 
+注意，不是所有控件都有两个属性，可能只有其中一个属性或者都没有。与这两个属性同时增加的，还有以下方法（如果控件有对应属性的话），用于修改、绑定对应的属性：
 
+- `set_background_color`方法，修改`background_color`属性为指定值。
+- `set_text_color`方法，修改`text_color`属性为指定值。
+- `bind_background_color`方法，将控件的`background_color`属性与指定对象的指定属性双向绑定。
+- `bind_background_color_from`方法，将控件的`background_color`属性与指定对象的指定属性反向绑定。
+- `bind_background_color_to`方法，将控件的`background_color`属性与指定对象的指定属性正向绑定。
+- `bind_text_color`方法，将控件的`text_color`属性与指定对象的指定属性双向绑定。
+- `bind_text_color_from`方法，将控件的`text_color`属性与指定对象的指定属性反向绑定。
+- `bind_text_color_to`方法，将控件的`text_color`属性与指定对象的指定属性正向绑定。
 
+具体方法支持的参数将在后面的章节详细介绍，这里仅提供简单演示的示例：
 
-background_color 和text_color 属性
+```python3
+from nicegui import ui
 
+def index():
+    color =  ui.button('test button')
+    ui.color_input(
+        'choose test button\'s background color'
+    ).bind_value_to(
+        color,
+        'background_color'
+    )
 
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-ui.on_exception
+![2026_3.6.0_1](nicegui_pro.assets/2026_3.6.0_1.png)
 
-ui.run(show=...)
+功能相关，一是`ui.on_exception`方法，用于响应客户端连接之后、页面内控件交互时触发的异常：
 
+```python3
+from nicegui import ui
 
+async def index():
+    ui.on_exception(
+        lambda e:print(e)
+    )
+    def raise_error():
+        raise Exception('erro has happened')
+    # 点击按钮之后看终端输出
+    ui.button('raise error',on_click=raise_error)
+    await ui.context.client.connected()
+    # 客户端连接之后看终端输出
+    raise Exception('erro has happened')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_3.6.0_2](nicegui_pro.assets/2026_3.6.0_2.png)
+
+二是`ui.run`方法的布尔类型`show`参数增加字符串类型的支持。当该参数为字符串类型时，表示以网页模式启动后，使用默认浏览器打开指定页面，而非主页面：
 
 ```python3
 from nicegui import ui
@@ -2523,9 +2567,7 @@ ui.run(
 )
 ```
 
-
-
-
+注意，更新3.6.0版本之后，热重载功能存在问题，无法自动刷新页面，如果需要使用该功能，请及时更新至3.6.1版本。
 
 ## 14 设计页面的特殊区域
 
@@ -9443,6 +9485,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
 该控件支持以下属性：
 
+- `background_color`属性，字符串类型，表示按钮的颜色。
 - `enabled`属性，布尔类型，表示控件是否被禁用，默认为`False`。
 - `icon`属性，字符串类型，含义与同名参数相同。
 - `text`属性，字符串类型，含义与同名参数相同。
@@ -9656,6 +9699,12 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 - `bind_visibility_from`方法，将控件的`visible`属性与指定对象的指定属性反向绑定。该方法支持的参数参考前面类似的属性绑定方法。
 
 - `bind_visibility_to`方法，将控件的`visible`属性与指定对象的指定属性正向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_background_color`方法，将控件的`background_color`属性与指定对象的指定属性双向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_background_color_from`方法，将控件的`background_color`属性与指定对象的指定属性反向绑定。该方法支持的参数参考前面类似的属性绑定方法。
+
+- `bind_background_color_to`方法，将控件的`background_color`属性与指定对象的指定属性正向绑定。该方法支持的参数参考前面类似的属性绑定方法。
 
 - `classes`方法，作为方法使用时，用于修改控件的`classes`属性。该方法支持以下参数：
 
@@ -9954,6 +10003,10 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 - `set_visibility`方法，设置控件的`visible`属性。该方法支持以下参数：
 
   - `visible`参数，布尔类型，表示`visible`属性的值。
+
+- `set_background_color`方法，设置控件的`background_color`属性。该方法支持以下参数：
+
+  - `background_color`参数，字符串类型，表示`background_color`属性的值。
 
 - `tooltip`方法，为控件添加简单的工具提示。该方法支持以下参数：
 

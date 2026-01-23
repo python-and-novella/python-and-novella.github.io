@@ -20984,6 +20984,56 @@ ui.run(
   ```
 
   ![2026_52_57](nicegui_pro.assets/2026_52_57.png)
+  
+- `on`方法，为控件的任意事件注册响应函数。该方法支持以下参数：
+
+  - `type`参数，字符串类型，表示事件类型。支持的事件可以参考 https://www.ag-grid.com/javascript-data-grid/grid-events/ 和 https://www.ag-grid.com/javascript-data-grid/column-events/ 。
+
+  - `handler`参数，可调用类型，表示服务器端的Python响应函数。响应函数接收一个表示事件对象的`events.GenericEventArguments`类型参数，该参数包含一个`args`属性。
+
+  - `arge`参数，`None`或者元素为字符串的序列或者元素为序列（元素为字符串）的单元素序列，表示客户端的哪些参数及其值在执行响应函数时，会传给响应函数接收参数的`args`属性（字典形式）。如果为`None`的话，表示将客户端所有的参数传入响应函数接收参数的`args`属性。
+
+  - `throttle`参数，浮点类型，表示事件之间的发生间隔，小于该间隔的事件不会重复处理（默认第一个和最后一个都会处理），该参数默认为`0.0`。从此参数开始，只能通过关键字传入。
+
+  - `leading_events`参数，布尔类型，事件发生间隔内的第一个事件发生时是否立即执行响应函数，默认为`True`。
+
+  - `trailing_events`参数，布尔类型，事件发生间隔内的最后一个事件发生后是否也要执行响应函数，默认为`True`。
+
+  - `js_handler`参数，字符串类型，表示客户端的JavaScript响应函数，默认为`'(...args) => emit(...args)'`。注意，如果JavaScript响应函数内不执行`emit`方法且与`handler`参数同时定义的话，`handler`参数表示的响应函数不会执行。而JavaScript响应函数内执行`emit`方法，会把传给该方法的参数，传给`handler`参数表示的响应函数中，接收参数的`args`属性。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      ).on(
+          'cellClicked', 
+          lambda event: ui.notify(
+              f'Cell value: {event.args["value"]}'
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_58](nicegui_pro.assets/2026_52_58.png)
 
 该控件支持以下类方法：
 
@@ -21057,7 +21107,7 @@ ui.run(
   )
   ```
 
-  ![2026_52_58](nicegui_pro.assets/2026_52_58.png)
+  ![2026_52_59](nicegui_pro.assets/2026_52_59.png)
 
 - `'rowHeight'`键，整数类型，表示所有行统一的行高。
 
@@ -21097,7 +21147,7 @@ ui.run(
   )
   ```
 
-  ![2026_52_59](nicegui_pro.assets/2026_52_59.png)
+  ![2026_52_60](nicegui_pro.assets/2026_52_60.png)
 
 - `'getRowId'`键，使用字符串表达的JavaScript函数，表示获取每一行ID的方法。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
@@ -21139,7 +21189,7 @@ ui.run(
   )
   ```
 
-  ![2026_52_60](nicegui_pro.assets/2026_52_60.png)
+  ![2026_52_61](nicegui_pro.assets/2026_52_61.png)
 
 - `'defaultColDef'`键，字典类型，表示默认的列定义，如果列没有指定同名列定义，那该键定义的列定义就会生效。
 
@@ -21173,9 +21223,21 @@ ui.run(
   )
   ```
 
+- `'defaultColGroupDef'`键，字典类型，表示默认的列组定义，如果列没有指定同名列组定义，那该键定义的列组定义就会生效。列组定义支持的键与列定义基本相同。
+
+  注意，受限于篇幅，列组的含义、相关用法、示例将在后面的章节介绍，本节中与列组相关的键均不提供示例代码。
+
+- `'floatingFiltersHeight'`键，整数类型，表示浮动过滤器所在行的行高。
+
+  注意，受限于篇幅，过滤器的含义、相关用法、示例将在后面的章节介绍，本节中与过滤器相关的键均不提供示例代码。
+
+- `'groupHeaderHeight'`键，---
+
+- `'hidePaddedHeaderRows'`键，
+
 - `'headerHeight'`键，整数类型，表示表头的高度。
 
-- `'suppressMovableColumns'`键，布尔类型，---
+- `'suppressMovableColumns'`键，布尔类型，
 
 - 
 
@@ -21184,6 +21246,7 @@ ui.run(
 - `'headerName'`键，
 - `'field'`键，
 - `'filter'`键，https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
+- `'floatingFilter'`键，
 - `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
 
 
@@ -21212,17 +21275,15 @@ https://nicegui.io/documentation/aggrid#run_row_methods
 
 
 
-##### 52.2.2.3 其他（更新中）
+使用箭头函数作为控件方法名：
+
+https://nicegui.io/documentation/aggrid#filter_return_values
 
 
 
-响应表格的事件：
+##### 52.2.2.3 列组与复合数据（更新中）
 
-https://nicegui.io/documentation/aggrid#respond_to_an_ag_grid_event
 
-复合数据的使用：
-
-https://nicegui.io/documentation/aggrid#ag_grid_with_complex_objects
 
 列组的使用：
 
@@ -21266,13 +21327,15 @@ ui.run(
 
 
 
+复合数据的使用：
+
+https://nicegui.io/documentation/aggrid#ag_grid_with_complex_objects
 
 
-使用箭头函数作为控件方法名：
-
-https://nicegui.io/documentation/aggrid#filter_return_values
 
 
+
+##### 52.2.2.4 过滤器（更新中）
 
 过滤器相关：
 
@@ -21308,8 +21371,6 @@ ui.run(
     native=True
 )
 ```
-
-
 
 
 

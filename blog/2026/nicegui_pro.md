@@ -21099,7 +21099,83 @@ ui.run(
 
   ![2026_52_59](nicegui_pro.assets/2026_52_59.png)
 
-- `'getRowId'`键，与`run_row_method`方法`row_id`参数相关，https://nicegui.io/documentation/aggrid#run_row_methods
+- `'getRowId'`键，使用字符串表达的JavaScript函数，表示获取每一行ID的方法。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`RowHeightParams`类型，为该函数专用的参数。
+
+  该方法与`run_row_method`方法的`row_id`参数相关，可以定义该方法，在使用`run_row_method`方法时，给其`row_id`参数传入该方法的返回值，相当于定义哪一列的数据（或者处理后的数据）为ID（要求数据具备唯一性）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+          ':getRowId': '(params) => params.data.name'
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      aggrid.run_row_method(
+          'Bob',
+          'setDataValue', 
+          'age', 
+          99
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_60](nicegui_pro.assets/2026_52_60.png)
+
+- `'defaultColDef'`键，字典类型，表示默认的列定义，如果列没有指定同名列定义，那该键定义的列定义就会生效。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+          'defaultColDef':{
+              'editable':True
+          }
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'headerHeight'`键，整数类型，表示表头的高度。
+
+- `'suppressMovableColumns'`键，布尔类型，---
 
 - 
 
@@ -21148,9 +21224,90 @@ https://nicegui.io/documentation/aggrid#respond_to_an_ag_grid_event
 
 https://nicegui.io/documentation/aggrid#ag_grid_with_complex_objects
 
+列组的使用：
+
+https://www.ag-grid.com/javascript-data-grid/column-groups/
+
+`'defaultColGroupDef'`键，`'groupHeaderHeight'`键，`'hidePaddedHeaderRows'`键，
+
+示例：
+
+```python3
+from nicegui import ui
+
+def index():
+    options = {
+        'columnDefs': [
+            {'headerName': 'Name', 'field': 'name'},
+            {
+                'headerName': 'Info', 
+                'openByDefault':True,
+                'children': [
+                    {'headerName': 'Name', 'field': 'name','columnGroupShow':'open'},
+                    {'headerName': 'Age', 'field': 'age','columnGroupShow':'closed'},
+                ]
+            },
+        ],
+        'rowData': [
+            {'name': 'Alice', 'age': 18},
+            {'name': 'Bob', 'age': 21},
+            {'name': 'Carol', 'age': None},
+        ]
+    }
+    ui.aggrid(
+        options=options
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
 使用箭头函数作为控件方法名：
 
 https://nicegui.io/documentation/aggrid#filter_return_values
+
+
+
+过滤器相关：
+
+`'floatingFiltersHeight'`键，`'floatingFilter'`键，列定义的`'filter'`键，
+
+
+
+```python3
+from nicegui import ui
+
+def index():
+    options = {
+        'columnDefs': [
+            {'headerName': 'Name', 'field': 'name'},
+            {'headerName': 'Age', 'field': 'age',
+             'filter': 'agNumberColumnFilter',
+             'floatingFilter':True
+            }
+        ],
+        'rowData': [
+            {'name': 'Alice', 'age': 18},
+            {'name': 'Bob', 'age': 21},
+            {'name': 'Carol', 'age': None},
+        ],
+        'floatingFiltersHeight':100,
+    }
+    ui.aggrid(
+        options=options
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 

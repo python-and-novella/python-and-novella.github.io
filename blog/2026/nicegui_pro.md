@@ -5027,7 +5027,7 @@ ui.run(
 
 注意，从NiceGUI 3.4.0版本开始，`ui.add_sass`方法和`ui.add_scss`方法被标记为弃用（不推荐使用，在移除前依然可用），同时不再依赖`libsass`库。后续这两个方法将在NiceGUI 4.0.0版本之后彻底移除，以后只能使用`ui.add_css`方法。
 
-SASS是一种基于CSS语法实现、可以编译为CSS代码的样式描述语言，它在CSS语法的基础上增加了变量 (variables)、嵌套 (nested rules)、混合 (mixins)、导入 (inline imports) 等高级功能，这些拓展令SASS比CSS更加强大与优雅。简单一点理解的话，SASS是CSS扩展版本。SASS在具体代码中有两种语法：通常以`.scss`为后缀的SASS语法，和CSS语法一致，即采用大括号表示所属，用分号表示一句内容的结束；通常以`.sass`为后缀的SCSS语法，变成用缩进代替大括号、用换行代替分号。
+SASS是一种基于CSS语法实现、可以编译为CSS代码的样式描述语言，它在CSS语法的基础上增加了变量 (variables)、嵌套 (nested rules)、混合 (mixins)、导入 (inline imports) 等高级功能，这些拓展令SASS比CSS更加强大与优雅。简单一点理解的话，SASS是CSS扩展版本。SASS在具体代码中有两种语法：文件扩展名通常为`.scss`的SASS语法，和CSS语法一致，即采用大括号表示所属，用分号表示一句内容的结束；文件扩展名通常为`.sass`的SCSS语法，变成用缩进代替大括号、用换行代替分号。
 
 `ui.add_css`方法、`ui.add_sass`方法、`ui.add_scss`方法分别用于添加标准CSS语法的代码、SASS语法的代码、SCSS语法的代码。因为SCSS语法和CSS语法一致，基本兼容CSS语法，所以，可以用`ui.add_scss`方法添加CSS代码，`ui.add_sass`方法则不行。另外，也不能用`ui.add_css`方法添加SCSS语法的SASS代码。
 
@@ -21227,17 +21227,238 @@ ui.run(
 
   注意，受限于篇幅，列组的含义、相关用法、示例将在后面的章节介绍，本节中与列组相关的键均不提供示例代码。
 
-- `'floatingFiltersHeight'`键，整数类型，表示浮动过滤器所在行的行高。
+- `'floatingFiltersHeight'`键，整数类型，表示浮动过滤器所在行的行高，默认与一般行的行高相同。
 
   注意，受限于篇幅，过滤器的含义、相关用法、示例将在后面的章节介绍，本节中与过滤器相关的键均不提供示例代码。
 
-- `'groupHeaderHeight'`键，---
+- `'groupHeaderHeight'`键，整数类型，列组表头的高度，默认与一般行的行高相同。
 
-- `'hidePaddedHeaderRows'`键，
+- `'hidePaddedHeaderRows'`键，布尔类型，表示是否隐藏列组折叠之后不可见层级对应的行（即行高只等于可见层级数乘以列组表头的高度，列组折叠**会**导致表头的高度发生变化），默认为`False`（即行高等于总层级数乘以列组表头的高度，列组折叠**不会**导致表头的高度发生变化）。
 
 - `'headerHeight'`键，整数类型，表示表头的高度。
 
-- `'suppressMovableColumns'`键，布尔类型，
+- `'suppressMovableColumns'`键，布尔类型，表示是否禁止通过拖动表头来调整列的顺序，默认为`False`。
+
+- `'suppressMoveWhenColumnDragging'`键，布尔类型，在拖动表头来调整列的顺序时，表示是否禁止调整结果实时生效，默认为`False`。
+
+- `'suppressColumnMoveAnimation'`键，布尔类型，在拖动表头来调整列的顺序时，表示是否禁止调整结果实时生效的动画效果，默认为`False`。
+
+- `'suppressDragLeaveHidesColumns'`键，布尔类型，在拖动表头到表格外时，表示是否禁止隐藏该列的操作生效，默认为`False`。
+
+- `'colResizeDefault'`键，字符串类型，表示调整列宽时，按下哪个键并调整列宽时本列与右边列的列宽总和不变，默认为`'shift'`。
+
+- `'autoSizeStrategy'`键，字典类型，表示自动调整列宽的策略（完整用法参考 https://www.ag-grid.com/javascript-data-grid/column-sizing/#reference-columnSizing-autoSizeStrategy）。
+
+  字典的`'type'`键表示策略类型，支持`['fitGridWidth','fitProvidedWidth','fitCellContents']`中的值，当该键使用不同的值时，字典支持的键也有所不同。
+
+  `'type'`键为`'fitGridWidth'`时，将自动调整所有列宽，使其总和等于表格总宽度。此时字典额外支持以下键：
+
+  - `'columnLimits'`键，元素为字典的列表类型，表示特定列的列宽限制。字典的键及其含义参考下表：
+
+    | 键名         | 值类型 | 含义                          |
+    | ------------ | ------ | ----------------------------- |
+    | `'colId'`    | 字符串 | 列的ID（`'field'`键对应的值） |
+    | `'minWidth'` | 整数   | 列宽最小值                    |
+    | `'maxWidth'` | 整数   | 列宽最大值                    |
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+          'autoSizeStrategy':{
+              'type':'fitGridWidth',
+              'columnLimits':[
+                  {
+                      'colId':'age',
+                      'maxWidth':100,
+                      'minWidth':100
+                  }
+              ]
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_62](nicegui_pro.assets/2026_52_62.png)
+
+  `'type'`键为`'fitProvidedWidth'`时，将调整所有列宽，使其总和等于指定的宽度。此时字典额外支持以下键：
+
+  - `'width'`键，整数类型，表示指定的宽度。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+          'autoSizeStrategy':{
+              'type':'fitProvidedWidth',
+              'width':200
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_63](nicegui_pro.assets/2026_52_63.png)
+
+  `'type'`键为`'fitCellContents'`时，将根据单元格内容调整列宽。此时字典额外支持以下键：
+
+  - `'skipHeader'`键，布尔类型，表示是否将表头的内容考虑在内，默认为`False`。
+
+  - `'colIds'`键，元素为字符串（列的ID）的列表类型，表示该策略仅适用于哪些列。
+
+  - `'columnLimits'`键，元素为字典的列表类型，表示特定列的列宽限制。字典的键及其含义参考下表：
+
+    | 键名         | 值类型 | 含义                          |
+    | ------------ | ------ | ----------------------------- |
+    | `'colId'`    | 字符串 | 列的ID（`'field'`键对应的值） |
+    | `'minWidth'` | 整数   | 列宽最小值                    |
+    | `'maxWidth'` | 整数   | 列宽最大值                    |
+
+  - `'scaleUpToFitGridWidth'`键，布尔类型，表示是否按比例扩宽列以填满剩余空间，默认为`False`。
+
+  - `'defaultMinWidth'`键，整数类型，表示默认最小列宽。
+
+  - `'defaultMaxWidth'`键，整数类型，表示默认最大列宽。
+
+- `'suppressAutoSize'`键，布尔类型，表示是否禁止通过双击调整列宽的区域手动触发列宽自动调整（将根据单元格内容调整列宽），默认为`False`。
+
+- `'autoSizePadding'`键，整数类型，表示通过双击调整列宽的区域手动触发列宽自动调整之后，内容水平方向到单元格边界之间留白的宽度，默认为`20`。
+
+- `'skipHeaderOnAutoSize'`键，布尔类型，表示在自动调整列宽时是否将表头排除在外，默认为`False`。
+
+- `'animateColumnResizing'`键，布尔类型，表示在自动调整列宽时是否启用动画效果，默认为`False`。
+
+- `'editType'`键，字符串类型，表示当该行的一列或者多列支持编辑时，双击单元格（或者按下`enter`键）之后使用的编辑模式类型，仅支持`['singleCell','fullRow']`中的值，对应单个单元格编辑、整行编辑，默认为`'singleCell'`。单个单元格编辑时，每次只能编辑一个单元格，如果需要切换到其他单元格，只能双击。整行编辑时，每次可以编辑一行支持编辑的单元格，切换同一行的其他单元格，只需单击，不用双击。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name','editable':True},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+          'editType':'fullRow'
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_64](nicegui_pro.assets/2026_52_64.png)
+
+- `'singleClickEdit'`键，布尔类型，表示是否允许单击进入编辑模式，默认为`False`。
+
+- `'suppressClickEdit'`键，布尔类型，表示是否禁止单击、双击进入编辑模式（可以使用`enter`键进入），默认为`False`。
+
+- `'stopEditingWhenCellsLoseFocus'`键，布尔类型，表示进入编辑模式后，是否在编辑框失去焦点时退出编辑模式，默认为`False`。
+
+- `'suppressStartEditOnTab'`键，布尔类型，表示进入编辑模式后，按`tab`键时，是否切换下一个单元格（或者下一行，取决于编辑模式的类型）时退出编辑模式，默认为`False`。
+
+- `'enterNavigatesVertically'`键，布尔类型，表示按`enter`键时，焦点是否切换到下一行的单元格，默认为`False`。
+
+- `'enterNavigatesVerticallyAfterEdit'`键，布尔类型，表示进入编辑模式后，按`enter`键时，焦点是否切换下一行的单元格并保持编辑模式，默认为`False`。
+
+- `'enableCellEditingOnBackspace'`键，布尔类型，表示对于MacOS用户来说，是否可以按下`enter`键进入编辑模式，默认为`False`。
+
+- `'undoRedoCellEditing'`键，布尔类型，表示退出编辑模式之后，是否允许撤销、重做对单元格内容的修改，默认为`False`。
+
+- `'undoRedoCellEditingLimit'`键，整数类型，表示单元格内容修改记录的条数，会影响撤销或重做次数，默认为`10`。
+
+- `'readOnlyEdit'`键，布尔类型，表示是否启用只读编辑模式（编辑单元格内容之后不会自动更新表格数据，而是触发`cellEditRequest`事件，由事件的响应函数处理编辑前后的相关内容以及更新单元格），默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import asyncio
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name','editable':True},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': None},
+          ],
+          'readOnlyEdit':True
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      async def on_event(event):
+          args = event.args
+          row = aggrid.options['rowData'][args['rowIndex']]
+          await asyncio.sleep(3)
+          row[args['colId']] = args['newValue']
+          ui.notify('Updated!')
+      aggrid.on(
+          'cellEditRequest', 
+          on_event
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_65](nicegui_pro.assets/2026_52_65.png)
+
+- `'xxx'`键，---
 
 - 
 
@@ -21245,8 +21466,10 @@ ui.run(
 
 - `'headerName'`键，
 - `'field'`键，
+- `'editable'`键，布尔类型，表示该列的单元格是否支持编辑模式（双击、单击、按下`enter`键、按下`backspace`键进入，具体是否支持取决于其他配置项），默认为`False`。
+- `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
 - `'filter'`键，https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
-- `'floatingFilter'`键，
+- `'floatingFilter'`键，布尔类型，---
 - `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
 
 

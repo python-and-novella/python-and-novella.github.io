@@ -21458,7 +21458,80 @@ ui.run(
 
   ![2026_52_65](nicegui_pro.assets/2026_52_65.png)
 
-- `'defaultCsvExportParams'`键，---
+- `'quickFilterText'`键，字符串类型，表示用于在表格中搜索包含指定内容的行的关键字。如果包含空格，则先使用空格分割出多个关键字，结果的内容必须同时包含每个关键字。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import asyncio
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ]
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      ui.input(
+          'quickFilterText'
+      ).bind_value_to(aggrid.options,'quickFilterText')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_66](nicegui_pro.assets/2026_52_66.png)
+
+- `'cacheQuickFilter'`键，布尔类型，表示是否开启针对`'quickFilterText'`键的缓存，默认为`False`。
+
+- `'includeHiddenColumnsInQuickFilter'`键，布尔类型，表示使用关键字搜索时是否包含隐藏的列，默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import asyncio
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','hide':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'includeHiddenColumnsInQuickFilter':True
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      ui.input(
+          'quickFilterText'
+      ).bind_value_to(aggrid.options,'quickFilterText')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_67](nicegui_pro.assets/2026_52_67.png)
+
+- `'quickFilterParser'`键，---
 
 - 
 
@@ -21467,10 +21540,12 @@ ui.run(
 - `'headerName'`键，
 - `'field'`键，
 - `'editable'`键，布尔类型，表示该列的单元格是否支持编辑模式（双击、单击、按下`enter`键、按下`backspace`键进入，具体是否支持取决于其他配置项），默认为`False`。
+- `'hide'`键，布尔类型，表示该列是否隐藏。
 - `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
 - `'filter'`键，https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
 - `'floatingFilter'`键，布尔类型，---
 - `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
+- `'getQuickFilterText'`键，---
 
 
 

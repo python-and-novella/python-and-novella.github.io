@@ -21464,7 +21464,6 @@ ui.run(
 
   ```python3
   from nicegui import ui
-  import asyncio
   
   def index():
       options = {
@@ -21501,7 +21500,6 @@ ui.run(
 
   ```python3
   from nicegui import ui
-  import asyncio
   
   def index():
       options = {
@@ -21531,7 +21529,121 @@ ui.run(
 
   ![2026_52_67](nicegui_pro.assets/2026_52_67.png)
 
-- `'quickFilterParser'`键，---
+- `'localeText'`键，字典类型，表示控件界面指定内容对应的本地化内容。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'pagination':True,
+          'localeText':{
+              'page':'页',
+              'of':'共',
+              'to':'到',
+              'pageSizeSelectorLabel':'每页行数'
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_68](nicegui_pro.assets/2026_52_68.png)
+
+  当然，这样设置本地化内容属实费劲。其实，AG Grid框架提供了不少语言的本地化文件，只需从 https://github.com/ag-grid/ag-grid/releases 下载特定版本的`@ag-grid-community-locale.tgz`（企业版已经包含，社区版需要额外下载），然后将压缩包内的`@ag-grid-community-locale.tar\package\dist\umd\@ag-grid-community\locale.js`或者`@ag-grid-community-locale.tar\package\dist\umd\@ag-grid-community\locale.min.js`复制出来，粘贴到任意路径（这里粘贴到`main.py`的同目录下）。使用`app.add_static_file`方法创建该文件的URL，再用`ui.add_head_html`方法使用该文件，即可给该键设置格式为`'AG_GRID_LOCALE_{语言代码}'`的值，使用该语言包。其他语言对应的语言代码可参考 https://www.ag-grid.com/javascript-data-grid/localisation/ 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui, app
+  
+  def index():
+      app.add_static_file(
+          local_file='./locale.js',
+          url_path='/ag-grid-community-locale'
+      )
+      ui.add_head_html(
+          '''
+          <script src='/ag-grid-community-locale'></script>
+          '''
+      )
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'pagination': True,
+          ':localeText': 'AG_GRID_LOCALE_CN'
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_69](nicegui_pro.assets/2026_52_69.png)
+
+  如果读者不方便下载官方提供的本地化文件，可以直接使用CDN服务商提供的地址`https://unpkg.com/@ag-grid-community/locale/dist/umd/@ag-grid-community/locale.js`或者`https://unpkg.com/@ag-grid-community/locale/dist/umd/@ag-grid-community/locale.min.js`，代码如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.add_head_html(
+          '''
+          <script src='https://unpkg.com/@ag-grid-community/locale/dist/umd/@ag-grid-community/locale.min.js'></script>
+          '''
+      )
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'pagination': True,
+          ':localeText': 'AG_GRID_LOCALE_CN'
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `'initialState'`键，---
 
 - 
 

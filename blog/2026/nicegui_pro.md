@@ -21151,7 +21151,7 @@ ui.run(
 
 - `'getRowId'`键，使用字符串表达的JavaScript函数，表示获取每一行ID的方法。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-  - `params`参数，`RowHeightParams`类型，为该函数专用的参数。
+  - `params`参数，`GetRowIdParams`类型，为该函数专用的参数。`GetRowIdParams`类型，支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-ids/#reference-rowModels-getRowId 。
 
   该方法与`run_row_method`方法的`row_id`参数相关，可以定义该方法，在使用`run_row_method`方法时，给其`row_id`参数传入该方法的返回值，相当于定义哪一列的数据（或者处理后的数据）为ID（要求数据具备唯一性）。
 
@@ -21643,21 +21643,261 @@ ui.run(
   )
   ```
 
-- `'initialState'`键，---
+- `'initialState'`键，字典类型，表示当前表格的状态，支持的键类似列定义（`'columnDefs'`键）。
+
+  注意，虽然表格状态和列定义都可以实现某些效果（比如下面示例中的隐藏指定列），但表格状态优先级高于列定义，并且可以通过传入空值来恢复表格的默认状态，而不用像列定义那种必须传入初始的列定义。另外，表格状态支持的配置项比列定义更多（可以参考 https://www.ag-grid.com/javascript-data-grid/grid-state/#state-contents ）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'initialState':{
+              'columnVisibility':{
+                  'hiddenColIds':['age']
+              }
+          },
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      # 获取当前表格状态
+      async def get_state():
+          result = await aggrid.run_grid_method(
+              'getState'
+          )
+          ui.notify(result)
+      ui.button('get state',on_click=get_state)
+      # 修改当前表格状态
+      def set_state():
+          aggrid.options['initialState'] = {
+              'columnVisibility':{
+                  'hiddenColIds':['name']
+              }
+          }
+      ui.button('set state',on_click=set_state)
+      # 重置当前表格状态
+      def reset_state():
+          aggrid.options['initialState'] = None
+      ui.button('reset state',on_click=reset_state)
+      # 隐藏所有列
+      def hide_cols():
+          aggrid.options['columnDefs'] = [
+              {'headerName': 'Name', 'field': 'name','hide':True},
+              {'headerName': 'Age', 'field': 'age','hide':True},
+          ]
+      ui.button('hide cols',on_click=hide_cols)
+      # 显示所有列
+      def show_cols():
+          aggrid.options['columnDefs'] = [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ]
+      ui.button('show cols',on_click=show_cols)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_70](nicegui_pro.assets/2026_52_70.png)
+
+- `'valueCache'`键，布尔类型，表示是否启用计算值缓存，默认为`False`。计算值缓存可以在较多单元格内容需要计算时改善表格的性能。
+
+- `'valueCacheNeverExpires'`键，布尔类型，表示是否计算值缓存是否永不过期，默认为`False`。
+
+- `'enableCellExpressions'`键，布尔类型，表示单元格是否计算包含公式的字符串，默认为`False`。
+
+  所谓公式，就是类似Excel中，单元格使用“=”开头，后接表达式（可以包含函数调用等语法）的字符串。最终单元格显示的是计算之后的结果。
+
+  出于安全考虑，**不建议**在启用该键的同时允许用户编辑单元格的内容，因为用户可以通过表达式执行敏感操作。下面的示例仅为了方便对比效果，**不推荐**实际使用时允许编辑。
+
+  对于想要在年龄的基础上实时计算出生年份的情况，不使用表达式的话，可能要这样写：
+
+  ```python3
+  from nicegui import ui
+  from datetime import datetime
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+              {'headerName': 'Year','field': 'year'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18,'year':datetime.now().year-18},
+              {'name': 'Bob', 'age': 21,'year':datetime.now().year-21},
+              {'name': 'Carol', 'age': 20,'year':datetime.now().year-20},
+          ],
+          'enableCellExpressions':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_71](nicegui_pro.assets/2026_52_71.png)
+
+  但是上面这种写法需要手动记录每行数据的年龄列，数据多了或者有修改的话，就不太方便。如果启用了该键，就可以使用统一的公式，示例如下：
+
+  ```python3
+  from nicegui import ui
+  from datetime import datetime
+  
+  def index():
+      formula = f'={datetime.now().year}-getValue("age")'
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+              {'headerName': 'Year','field': 'year'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18,'year':formula},
+              {'name': 'Bob', 'age': 21,'year':formula},
+              {'name': 'Carol', 'age': 20,'year':formula},
+          ],
+          'enableCellExpressions':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_71](nicegui_pro.assets/2026_52_71.png)
+
+  读者可以编辑每行的年龄，看到出生年份的实时变化。
+
+- `'suppressTouch'`键，布尔类型，表示是否禁用触摸操作的支持（但浏览器通过模拟鼠标交互提供的触摸支持不受影响），默认为`False`。
+
+- `'suppressFocusAfterRefresh'`键，布尔类型，表示是否禁止在刷新之后恢复焦点位置，默认为`False`。
+
+- `'suppressChangeDetection'`键，布尔类型，表示是否禁用单元格的数据变化监测（数据变化时自动刷新相关显示、计算），默认为`False`。
+
+- `'debug'`键，布尔类型，表示是否启用调试模式，将调试信息输出到浏览器的控制台，默认为`False`。
+
+- `'loading'`键，布尔类型，---
 
 - 
 
 列定义支持的键（部分）如下：
 
 - `'headerName'`键，
+
 - `'field'`键，
+
+  复合数据的使用：
+
+  https://nicegui.io/documentation/aggrid#ag_grid_with_complex_objects
+
 - `'editable'`键，布尔类型，表示该列的单元格是否支持编辑模式（双击、单击、按下`enter`键、按下`backspace`键进入，具体是否支持取决于其他配置项），默认为`False`。
+
 - `'hide'`键，布尔类型，表示该列是否隐藏。
+
 - `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
+
 - `'filter'`键，https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
+
 - `'floatingFilter'`键，布尔类型，---
+
 - `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
+
 - `'getQuickFilterText'`键，---
+
+- `'valueGetter'`键，使用字符串表达的JavaScript函数或者表达式，表示每行对应该列的单元格内容获取来源。
+
+  该键为表达式时，可以直接使用前面介绍`'enableCellExpressions'`键时引入的单元格公式，但与之不同的是，因为不是在单元格内使用，不用“=”开头，也不用启用`'enableCellExpressions'`键。
+
+  因此，复刻`'enableCellExpressions'`键的示例会简单一些：
+
+  ```python3
+  from nicegui import ui
+  from datetime import datetime
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+              {'headerName': 'Year','valueGetter':f'{datetime.now().year}-getValue("age")'}
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_71](nicegui_pro.assets/2026_52_71.png)
+
+  该键为JavaScript函数时支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`ValueGetterParams`类型，为该函数专用的参数。`ValueGetterParams`类型，支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/value-getters/#reference-columns-valueGetter 。
+
+  虽然同样不用启用`'enableCellExpressions'`键，但字符串变成了JavaScript函数，如果想要正确生效，需要在该键的键名前添加英文冒号，示例如下：
+
+  ```python3
+  from nicegui import ui
+  from datetime import datetime
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+              {'headerName': 'Year',':valueGetter':f'(params)=>{datetime.now().year}-params.getValue("age")'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_71](nicegui_pro.assets/2026_52_71.png)
+
+- `'xxx'`键，---
 
 
 
@@ -21691,7 +21931,7 @@ https://nicegui.io/documentation/aggrid#filter_return_values
 
 
 
-##### 52.2.2.3 列组与复合数据（更新中）
+##### 52.2.2.3 列组（更新中）
 
 
 
@@ -21737,9 +21977,7 @@ ui.run(
 
 
 
-复合数据的使用：
 
-https://nicegui.io/documentation/aggrid#ag_grid_with_complex_objects
 
 
 
@@ -22858,6 +23096,10 @@ ui.run(
     native=True
 )
 ```
+
+
+
+## 62 学习控件——`ui.anywidget`控件（更新中）
 
 
 

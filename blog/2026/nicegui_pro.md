@@ -21836,7 +21836,41 @@ ui.run(
 
   ![2026_52_72](nicegui_pro.assets/2026_52_72.gif)
 
-- `'xxx'`键，
+- `'suppressNoRowsOverlay'`键，布尔类型，仅在`'loading'`键为`False`时生效，此时如果没有行数据，表格将会显示无数据提示，该键表示是否禁用该提示，默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'loading':False,
+          'suppressNoRowsOverlay':True
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      def show():
+          aggrid.options['suppressNoRowsOverlay'] = False
+      ui.button('show',on_click=show)
+      def hide():
+          aggrid.options['suppressNoRowsOverlay'] = True
+      ui.button('hide',on_click=hide)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_73](nicegui_pro.assets/2026_52_73.png)
+
+- `'pagination'`键，布尔类型，---
 
 - 
 

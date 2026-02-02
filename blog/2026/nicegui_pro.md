@@ -21799,7 +21799,44 @@ ui.run(
 
 - `'debug'`键，布尔类型，表示是否启用调试模式，将调试信息输出到浏览器的控制台，默认为`False`。
 
-- `'loading'`键，布尔类型，---
+- `'loading'`键，布尔类型或者`None`（对应JavaScript的`undefined`），表示是否显示加载状态覆盖层（背景模糊，无法操作表格，并多一个表示加载状态文本）。其中，JavaScript的`undefined`表示仅在列定义和行数据同时提供的情况下不显示加载状态覆盖层。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'loading':None
+          # 或者使用JavaScript的undefined
+          # ':loading':'undefined'
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      def add_data():
+          aggrid.options['rowData'] = [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ]
+      ui.button('add data',on_click=add_data)
+      def clear_data():
+          aggrid.options['rowData'] = None
+      ui.button('clear data',on_click=clear_data)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_72](nicegui_pro.assets/2026_52_72.gif)
+
+- `'xxx'`键，
 
 - 
 

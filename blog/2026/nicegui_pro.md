@@ -4230,6 +4230,52 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
   
   ![2026_15_40](nicegui_pro.assets/2026_15_40.png)
 
+## 版本速览——3.7.0版本新增对UnoCSS框架的支持
+
+NiceGUI 3.7.0 新增对UnoCSS框架（https://unocss.dev/）的支持，成为替代Tailwind CSS框架（https://tailwindcss.com/）的轻量级选择，并且具备以下特点：
+
+- 文件体积更小，加载速度更快。
+- 兼容Tailwind CSS框架（仅限`'wind3'`和`'wind4'`版本）的语法。
+
+注意，因为UnoCSS框架是Tailwind CSS框架的替代，一旦启用，NiceGUI将自动禁用Tailwind CSS框架。
+
+`ui.run`方法增加`unocss`参数，用于启用UnoCSS框架。该参数的三个值对应框架的三个版本：
+
+- `'mini'`表示迷你版本，该版本仅支持最基本、必要的功能，但文件体积最小。完整用法可参考 https://unocss.dev/presets/mini 。
+- `'wind3'`表示Tailwind CSS框架3.0版本，该版本兼容Tailwind CSS框架3.0版本的语法，一定程度上算是Tailwind CSS框架3.0版本的平替。完整用法可参考 https://unocss.dev/presets/wind3 。
+- `'wind4'`表示Tailwind CSS框架4.0版本，该版本兼容Tailwind CSS框架4.0版本的语法，一定程度上算是Tailwind CSS框架4.0版本的平替，同时兼容Tailwind CSS框架3.0版本的语法。完整用法可参考 https://unocss.dev/presets/wind4 。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('Hello').classes('bg-blue-500')
+
+ui.run(
+    root=index,
+    native=True,
+    unocss='mini',
+    tailwind=False
+)
+```
+
+![2026_3.7.0_1](nicegui_pro.assets/2026_3.7.0_1.png)
+
+读者可以依次注释掉`unocss`参数、`tailwind`参数所在行，查看样式的效果，借此判断相关样式框架是否生效。
+
+注意，如果读者使用的是Windows系统，并且安装了可以打开`.mjs`文件的编辑器或者开发工具，升级NiceGUI 3.7.0可能会导致程序无法正常显示，可以将下面代码添加到程序开头临时解决：
+
+```python3
+import mimetypes
+mimetypes.add_type('text/javascript', '.mjs')
+```
+
+或者更新至NiceGUI 3.7.1及以上版本。
+
+或者修改注册表`\HKEY_CLASSES_ROOT\.mjs`下`Content Type`键的值为`text/javascript`（这个方法不推荐，因为不太稳定，有可能被其他软件再次修改）。
+
 ## 16 使用环境变量
 
 原文参考自 https://nicegui.io/documentation/section_configuration_deployment#environment_variables 。
@@ -7249,6 +7295,8 @@ ui.run(
 `uvicorn_reload_excludes`参数，字符串类型，表示哪些格式（后缀，同Git的匹配规则）的文件被修改时**不会**触发自动刷新界面，默认为`'.*, .py[cod], .sw.*, ~*'`。
 
 `tailwind`参数，布尔类型，表示是否启用Tailwind CSS框架，默认为`True`。
+
+`unocss`参数，字符串类型，仅支持`['mini', 'wind3', 'wind4'] `中的值，表示是否启用以及启用哪个版本（迷你版本、Tailwind CSS框架3.0版本、Tailwind CSS框架4.0版本）的UnoCSS框架，默认为`None`，即不启用。注意，因为UnoCSS框架是Tailwind CSS框架的替代，一旦启用，NiceGUI将自动禁用Tailwind CSS框架。
 
 `prod_js`参数，布尔类型，表示是否启用Vue、Quasar框架的生产环境版本（去除多余的换行和空格，可以加快客户端的下载速度），默认为`True`。
 
@@ -21910,9 +21958,83 @@ ui.run(
 
   ![2026_52_74](nicegui_pro.assets/2026_52_74.png)
 
-- `'paginationNumberFormatter'`键，使用字符串表达的JavaScript函数，表示每行对应该列的单元格内容获取来源。
+- `'paginationNumberFormatter'`键，使用字符串表达的JavaScript函数，表示每行对应该列的单元格内容获取来源。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-- `'paginationAutoPageSize'`键，
+  - `params`参数，`PaginationNumberFormatterParams`类型，为该函数专用的参数。`PaginationNumberFormatterParams`类型，支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-pagination/#reference-pagination-paginationNumberFormatter 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'pagination':True,
+          'paginationPageSize':5,
+          'paginationPageSizeSelector':[
+              1,2,5
+          ],
+          ':paginationNumberFormatter':'params => `[`+params.value.toLocaleString()+`]`'
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_75](nicegui_pro.assets/2026_52_75.png)
+
+- `'paginationAutoPageSize'`键，布尔类型，表示是否根据表格的高度自动调整每页显示多少行，确保表格不显示额外的滚动条。注意，该键优先级比`'paginationPageSize'`键高。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'pagination':True,
+          'paginationAutoPageSize':True
+      }
+      ui.aggrid(
+          options=options
+      ).classes('h-[300px]')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_76](nicegui_pro.assets/2026_52_76.png)
 
 - `'paginateChildRows'`键，
 
@@ -22139,29 +22261,17 @@ ui.run(
 
 
 
-## 版本速览——3.7.0版本新增的功能（待发布）
-
-NiceGUI 3.7.0 新增对UnoCSS框架（https://unocss.dev/）的支持，
 
 
+## 样式技巧——先导篇
 
-（34章的`ui.run`方法增加`unocss`参数）
+在NiceGUI新增了对UnoCSS框架（https://unocss.dev/）的支持之后，同时受第39章的启发以及公众号粉丝的要求，笔者想到之前没怎么说过样式的使用。虽说NiceGUI降低了前端的基础要求，但要是想让界面好看，还是不可避免地用到样式。
 
-## CSS技巧——先导篇（更新中）
+因此，笔者决定针对样式的使用开一个系列《样式技巧》，专门介绍使用样式遇到的各种实际问题，内容主要涉及Tailwind CSS框架（https://tailwindcss.com/）、UnoCSS框架的相关用法。如果框架未提供相关功能或者不想使用框架，也会有纯CSS的用法。
 
+本期为先导内容，不介绍具体控件。从下期开始，不定期介绍使用样式的技巧和具体示例。
 
-
-缘起NiceGUI增加对UnoCSS框架的支持，受第39章启发，以及公众号粉丝的需求，决定针对样式（CSS）的使用开一个系列，介绍使用样式遇到的各种实际问题。。。
-
-
-
-内容主要涉及Tailwind CSS框架（https://tailwindcss.com/）、UnoCSS框架（https://unocss.dev/），也会有不使用框架的纯CSS示例
-
-
-
-
-
-## 5x CSS技巧——（待定）（更新中）
+## 5x 样式技巧——（待定）（更新中）
 
 
 

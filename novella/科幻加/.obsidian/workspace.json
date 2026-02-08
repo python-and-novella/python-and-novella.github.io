@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "7adefc3ffa3f24df",
+        "id": "3377877dec4d17d3",
         "type": "tabs",
         "children": [
           {
-            "id": "2cf5fc03d4dab51d",
+            "id": "079d9fd15e2355ce",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "空间站疑云.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "空间站疑云"
             }
           }
         ]
@@ -49,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "![[007.jpg]]",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -153,7 +157,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "bases:创建新数据库": false,
+      "bases:新建数据库": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
       "canvas:新建白板": false,
@@ -162,6 +166,20 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "2cf5fc03d4dab51d",
-  "lastOpenFiles": []
+  "active": "079d9fd15e2355ce",
+  "lastOpenFiles": [
+    "空间站疑云.assets/04 - wPpANVz.jpg",
+    "空间站疑云.assets",
+    "007.jpg",
+    "空间站疑云.md",
+    "科幻+推理/真假绑架.md",
+    "灵感集/平行地球.md",
+    "灵感集/星际异闻录.md",
+    "001.md",
+    "006.md",
+    "002.md",
+    "科幻+推理/为战而死.md",
+    "LOGO2.png",
+    "LOGO.png"
+  ]
 }

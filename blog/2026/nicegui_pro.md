@@ -22036,9 +22036,207 @@ ui.run(
 
   ![2026_52_76](nicegui_pro.assets/2026_52_76.png)
 
-- `'paginateChildRows'`键，
+- `'suppressPaginationPanel'`键，布尔类型，表示是否隐藏分页控制按钮所属区域，默认为`False`。
 
-- `'suppressPaginationPanel'`键，
+- `'animateRows'`键，布尔类型，表示是否启用行的动画效果（点击表头排序时可以看到行的动画），默认为`True`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'animateRows':False
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      ui.switch(
+          'animateRows'
+      ).bind_value_to(
+          aggrid.options,
+          'animateRows'
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_77](nicegui_pro.assets/2026_52_77.png)
+
+  可以通过开关对比启用、禁用动画效果后，排序行数据有无动画的效果。
+
+- `'cellFlashDuration'`键，整数类型，表示当单元格的数据发生变化时，闪烁动画的持续时间，单位毫秒，默认为`500`。注意，需要在列定义中启用`'enableCellChangeFlash'`键。
+
+- `'cellFadeDuration'`键，整数类型，表示当单元格的数据发生变化时，闪烁动画的淡出时间，单位毫秒，默认为`1000`。注意，需要在列定义中启用`'enableCellChangeFlash'`键。
+
+- `'domLayout'`键，字符串类型，仅限`['normal', 'autoHeight','print']`中的值，表示表格高度的渲染方式（固定高度、高度随内容高度变化、专为打印优化），默认为`'normal'`。
+
+- `'ensureDomOrder'`键，布尔类型，表示DOM元素顺序是否与数据逻辑顺序一致，默认为`False`。当该键为`False`时，性能较好，适合于数据量比较大的情况。但是，如果数据量不大且需要按照DOM元素的顺序访问对应数据模型中的对应行，则需要启用该键。
+
+- `'gridId'`键，字符串类型，表示表格实例的唯一标识符。
+
+- `'enableRtl'`键，布尔类型，表示是否启用从右到左的布局支持，默认为`False`。
+
+- `'suppressColumnVirtualisation'`键，布尔类型，表示是否禁用列虚拟化，默认为`False`。当该键为`False`时，性能较好，适合于列比较多的情况。但是，如果列不多且需要依据DOM的结构直接访问所有列，则需要启用该键。
+
+- `'suppressRowVirtualisation'`键，布尔类型，布尔类型，表示是否禁用行虚拟化，默认为`False`。当该键为`False`时，性能较好，适合于行比较多的情况。但是，如果行不多且需要依据DOM的结构直接访问所有行，则需要启用该键。
+
+- `'suppressMaxRenderedRowRestriction'`键，布尔类型，表示是否禁用渲染行数限制，默认为`False`。启用渲染行数限制可以在行数较多时减少渲染数量，减少内存占用，避免网页崩溃。
+
+- `'enableCellSpan'`键，布尔类型，表示是否允许合并单元格，默认为`False`。想要查看合并单元格的效果，需要在列定义中启用`'spanRows'`键：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name','spanRows':True},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+              {'name': 'Carol', 'age': 21},
+          ],
+          'enableCellSpan':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_78](nicegui_pro.assets/2026_52_78.png)
+
+- `'rowDragManaged'`键，布尔类型，表示是否托管拖动行的操作，默认为`False`。
+
+  注意，启用`'rowDragEntireRow'`键或者在列定义中启用`'rowDrag'`键，只是允许拖动行，但如果想要被拖动的行正确执行拖动操作，需要额外启用`'rowDragManaged'`键。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name','rowDrag':True},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'rowDragManaged':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_79](nicegui_pro.assets/2026_52_79.png)
+
+- `'rowDragEntireRow'`键，布尔类型，表示是否允许该行任意位置支持拖动，默认为`False`。
+
+- `'rowDragMultiRow'`键，布尔类型，表示是否允许拖动多行，默认为`False`。
+
+  注意，想要拖动多行，除了启用该键，还要启用多选：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name',},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'rowDragManaged':True,
+          'rowDragEntireRow':True,
+          'rowDragMultiRow':True,
+          'rowSelection': {'mode': 'multiRow'}
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_80](nicegui_pro.assets/2026_52_80.png)
+
+- `'suppressRowDrag'`键，布尔类型，表示是否禁止拖动行，默认为`False`。该键的优先级高于`'rowDragEntireRow'`键、列定义的`'rowDrag'`键。
+
+- `'suppressMoveWhenRowDragging'`键，布尔类型，表示是否禁止拖动行时，实时生成拖动操作的结果，默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name',},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'rowDragManaged':True,
+          'rowDragEntireRow':True,
+          'rowDragMultiRow':True,
+          'rowSelection': {'mode': 'multiRow'},
+          'suppressMoveWhenRowDragging':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_81](nicegui_pro.assets/2026_52_81.png)
+
+- `'rowDragText'`键，
 
 - 
 
@@ -22136,7 +22334,54 @@ ui.run(
 
   ![2026_52_71](nicegui_pro.assets/2026_52_71.png)
 
-- `'xxx'`键，---
+- `'enableCellChangeFlash'`键，布尔类型，表示当单元格的数据发生变化时，是否闪烁一次，默认为`False`。注意，只有通过框架方法或者前端交互产生的数据变化才有闪烁，直接在Python代码中修改数据不会触发。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True,'enableCellChangeFlash':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      def set_data():
+          aggrid.options['rowData'][0] = {
+              'name': 'Alice', 
+              'age': 19
+          }
+      ui.button('set data',on_click=set_data)
+      def reset_data():
+          aggrid.options['rowData'] = [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ]
+      ui.button('reset data',on_click=reset_data)
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  （运行效果动图）
+
+- `'spanRows'`键，布尔类型或者字符串表示的JavaScript函数，表示是否跨行合并邻值相同的单元格，默认为`False`。
+
+- `'rowDrag'`键，布尔类型，表示是否允许通过拖动每行对应该列的单元格来拖动该行，默认为`False`。
 
 
 

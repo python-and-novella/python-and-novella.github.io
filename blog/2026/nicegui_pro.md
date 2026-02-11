@@ -21123,7 +21123,7 @@ ui.run(
 
 - `'rowData'`键，元素为字典的列表，依照列表元素的排序，依次表示对应行的行数据。行数据字典中的键对应列定义中`'field'`键的值。行数据字典中，键对应的值，则是该行对应该列的单元格的数据（最终显示内容取决于渲染方式）。
 
-- `'rowSelection'`键，字典类型，表示行数据的选择方式。不使用该键，表示行数据无法选择。字典的`'mode'`键可以指定单选、多选模式，`'singleRow'`表示单选，`'multiRow'`表示多选。
+- `'rowSelection'`键，字典类型，表示行数据的选择方式。不使用该键，表示行数据无法选择。字典的`'mode'`键可以指定单选、多选模式，`'singleRow'`表示单选，`'multiRow'`表示多选。其他字典键的用法可参考 https://www.ag-grid.com/javascript-data-grid/grid-options/#reference-selection-rowSelection，本章后续章节也会详细介绍。
 
   示例如下：
 
@@ -22236,7 +22236,244 @@ ui.run(
 
   ![2026_52_81](nicegui_pro.assets/2026_52_81.png)
 
-- `'rowDragText'`键，
+- `'rowDragText'`键，使用字符串表达的JavaScript函数，表示拖动行时鼠标旁边显示的提示性文字。
+
+  该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`IRowDragItem`类型，为该函数专用的参数。`IRowDragItem`类型，支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-dragging-customisation/#reference-rowDragging-rowDragText 。
+  - `dragItemCount`参数，整数类型，表示一共拖动了多少行。
+
+  注意，列定义中也有同名键，用法一样，但列定义中的同名键优先级更高。比如，在下面的示例中，如果拖动的是列定义中启用`'rowDrag'`键的列（需要拖动该列的拖动图标），则显示的是列定义中的同名键。若是拖动该行的其他位置，则显示的是表格定义中的同名键：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name', 
+                  'field': 'name',
+                  'rowDrag':True,
+                  ':rowDragText':'(params,dragItemCount) => `总共`+dragItemCount+`行`'
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'rowDragManaged':True,
+          'rowDragEntireRow':True,
+          'rowDragMultiRow':True,
+          'rowSelection': {'mode': 'multiRow'},
+          'suppressMoveWhenRowDragging':True,
+          ':rowDragText':'(params,dragItemCount) => `共`+dragItemCount+`行`',
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_82](nicegui_pro.assets/2026_52_82.png)
+
+  ![2026_52_83](nicegui_pro.assets/2026_52_83.png)
+
+- `'enableRowPinning'`键，布尔类型或者字符串类型（仅支持`['top','bottom']`中的值），表示是否启用行固定（被固定的行不随其他行一起上下滚动），或者行固定的位置（顶部、底部）。
+
+- `'isRowPinnable'`键，使用字符串表达的JavaScript函数，函数返回的布尔值表示哪些行可以被手动固定。
+
+  该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `node`参数，` IRowNode`类型，表示每一行的节点对象（支持的属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/）。
+
+- `'isRowPinned'`键，使用字符串表达的JavaScript函数，函数返回值（仅支持JavaScript中的`['top','bottom',null,undefined]`）表示行的固定状态（顶部、底部、不固定、不固定）。
+
+  该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `node`参数，` IRowNode`类型，表示每一行的节点对象（支持的属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name', 
+                  'field': 'name',
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'enableRowPinning':True,
+          ':isRowPinned':'node => (node.data.age <= 18?`top`:null)',
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_84](nicegui_pro.assets/2026_52_84.png)
+
+- `'pinnedTopRowData'`键，元素为字典的列表（具体要求同`'rowData'`键），表示固定在顶部的数据。注意，只有`'enableRowPinning'`键为`False`时，该键才会生效。
+
+- `'pinnedBottomRowData'`键，元素为字典的列表（具体要求同`'rowData'`键），表示固定在底部的数据。注意，只有`'enableRowPinning'`键为`False`时，该键才会生效。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name', 
+                  'field': 'name',
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'pinnedTopRowData':[
+              {'name': '第一行'},
+          ],
+          'pinnedBottomRowData':[
+              {'name': '最后一行'},
+          ]
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_85](nicegui_pro.assets/2026_52_85.png)
+
+- `'alwaysShowHorizontalScroll'`键，布尔类型，表示是否始终显示水平滚动条，默认为`False`。
+
+- `'alwaysShowVerticalScroll'`键，布尔类型，表示是否始终显示垂直滚动条，默认为`False`。
+
+- `'debounceVerticalScrollbar'`键，布尔类型，表示是否对垂直滚动条进行防抖处理，默认为`False`。建议在性能比较差的场景下开启，但可能存在渲染延迟，性能比较好的场景下不建议开启。
+
+- `'suppressHorizontalScroll'`键，布尔类型，表示是否完全禁用水平滚动（不显示水平滚动条，也不允许水平滚动），默认为`False`。
+
+- `'suppressScrollWhenPopupsAreOpen'`键，布尔类型，当弹窗元素（如右键菜单、列菜单、筛选器等）打开时，表示是否禁止行滚动，默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name', 
+                  'field': 'name',
+                  'filter':True
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'suppressScrollWhenPopupsAreOpen':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_86](nicegui_pro.assets/2026_52_86.png)
+
+- `'selectionColumnDef'`键，字典类型，表示行选择列（即启用行选择之后，每行勾选框对应列）的列定义。注意，该列定义仅支持**部分**表格列定义的键，具体支持的键可以参考 https://www.ag-grid.com/javascript-data-grid/row-selection-single-row/#reference-selection-selectionColumnDef 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name', 
+                  'field': 'name'
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'rowSelection':{
+              'mode':'multiRow'
+          },
+          'selectionColumnDef':{
+              'headerName':'选择'
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_87](nicegui_pro.assets/2026_52_87.png)
+
+- `'suppressCellFocus'`键，布尔类型，---
+
+- `'suppressHeaderFocus'`键，布尔类型，---
+
+- `'enableCellTextSelection'`键，布尔类型，---
 
 - 
 
@@ -22505,6 +22742,42 @@ ui.run(
 ```
 
 
+
+
+
+##### 52.2.2.5 选择（更新中）
+
+`'rowSelection'`键的其他键（https://www.ag-grid.com/javascript-data-grid/grid-options/#reference-selection-rowSelection），
+
+
+
+总述
+
+https://www.ag-grid.com/javascript-data-grid/row-selection/
+
+单选技巧
+
+https://www.ag-grid.com/javascript-data-grid/row-selection-single-row/
+
+多选技巧
+
+https://www.ag-grid.com/javascript-data-grid/row-selection-multi-row/
+
+接口文档
+
+https://www.ag-grid.com/javascript-data-grid/row-selection-api-reference/
+
+
+
+##### 52.2.2.6 排序（更新中）
+
+
+
+##### 52.2.2.7 美化（样式与主题）（更新中）
+
+
+
+##### 52.2.2.8 工具提示（更新中）
 
 
 

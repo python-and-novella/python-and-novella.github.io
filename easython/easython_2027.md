@@ -1,16 +1,24 @@
 # 202701期
 
-## 1 《易森》（英文名《Easython》）的名字有何含义
+## 0 《易森》（英文名《Easython》）的名字有何含义
 
 
 
-## 2 学习Python的基础——安装Python解释器
+## 1 学习Python的基础——安装Python解释器
 
 
 
-## 3 学习Python的方法——适合自己的才是最好的
+不光有官方安装的方法，还有一些绿色的渠道（winpython和python-build-standalone）
+
+https://github.com/winpython/winpython/releases
+
+https://github.com/astral-sh/python-build-standalone/releases
 
 
+
+## 2 学习Python的方法——适合自己的才是最好的
+
+官方文档、电子书、视频教程、AI和搜索引擎
 
 # 202702期
 
@@ -18,7 +26,19 @@
 
 
 
-## 2 （待定）
+常用关键字、不常用关键字、组合关键字（async系列）
+
+
+
+## 2 Python的表达式
+
+海象运算符、列表推导式
+
+
+
+
+
+Python基础部分主要参考官方文档，可以加入一些容易错的（遍历嵌套等）、不常用的（for-else等）的语法解析。
 
 
 

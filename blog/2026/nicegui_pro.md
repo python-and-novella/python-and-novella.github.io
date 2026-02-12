@@ -21111,11 +21111,9 @@ ui.run(
 
 #### 52.2.2 扩展用法（更新中）
 
-##### 52.2.2.1 表格定义（包含数据和列定义）（更新中）
+##### 52.2.2.1 表格定义
 
 表格定义的参考文档：https://www.ag-grid.com/javascript-data-grid/grid-options/
-
-列定义的参考文档：https://www.ag-grid.com/javascript-data-grid/column-properties/
 
 表格定义支持的键（部分）如下：
 
@@ -21199,7 +21197,7 @@ ui.run(
 
 - `'getRowId'`键，使用字符串表达的JavaScript函数，表示获取每一行ID的方法。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-  - `params`参数，`GetRowIdParams`类型，为该函数专用的参数。`GetRowIdParams`类型，支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-ids/#reference-rowModels-getRowId 。
+  - `params`参数，`GetRowIdParams`类型，为该函数专用的参数。`GetRowIdParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-ids/#reference-rowModels-getRowId 。
 
   该方法与`run_row_method`方法的`row_id`参数相关，可以定义该方法，在使用`run_row_method`方法时，给其`row_id`参数传入该方法的返回值，相当于定义哪一列的数据（或者处理后的数据）为ID（要求数据具备唯一性）。
 
@@ -21960,7 +21958,7 @@ ui.run(
 
 - `'paginationNumberFormatter'`键，使用字符串表达的JavaScript函数，表示每行对应该列的单元格内容获取来源。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-  - `params`参数，`PaginationNumberFormatterParams`类型，为该函数专用的参数。`PaginationNumberFormatterParams`类型，支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-pagination/#reference-pagination-paginationNumberFormatter 。
+  - `params`参数，`PaginationNumberFormatterParams`类型，为该函数专用的参数。`PaginationNumberFormatterParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-pagination/#reference-pagination-paginationNumberFormatter 。
 
   示例如下：
 
@@ -22240,7 +22238,7 @@ ui.run(
 
   该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-  - `params`参数，`IRowDragItem`类型，为该函数专用的参数。`IRowDragItem`类型，支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-dragging-customisation/#reference-rowDragging-rowDragText 。
+  - `params`参数，`IRowDragItem`类型，为该函数专用的参数。`IRowDragItem`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-dragging-customisation/#reference-rowDragging-rowDragText 。
   - `dragItemCount`参数，整数类型，表示一共拖动了多少行。
 
   注意，列定义中也有同名键，用法一样，但列定义中的同名键优先级更高。比如，在下面的示例中，如果拖动的是列定义中启用`'rowDrag'`键的列（需要拖动该列的拖动图标），则显示的是列定义中的同名键。若是拖动该行的其他位置，则显示的是表格定义中的同名键：
@@ -22469,13 +22467,261 @@ ui.run(
 
   ![2026_52_87](nicegui_pro.assets/2026_52_87.png)
 
-- `'suppressCellFocus'`键，布尔类型，---
+- `'suppressCellFocus'`键，布尔类型，表示是否禁止除了表头外的单元格通过方向键切换焦点，默认为`False`。
 
-- `'suppressHeaderFocus'`键，布尔类型，---
+- `'suppressHeaderFocus'`键，布尔类型，布尔类型，表示是否禁止表头的单元格通过方向键切换焦点，默认为`False`。
 
-- `'enableCellTextSelection'`键，布尔类型，---
+- `'enableCellTextSelection'`键，布尔类型，表示是否允许选择单元格内的文字，默认为`False`。
 
-- 
+- `'accentedSort'`键，布尔类型，表示排序时是否区分带重音符号的字符（比如“á”和“à”），默认为`False`。
+
+- `'suppressMultiSort'`键，布尔类型，表示是否禁用多列同时排序（按住`shift`键依次点击表头各列），默认为`False`。
+
+- `'alwaysMultiSort'`键，布尔类型，表示是否总是启用多列同时排序，无需按住`shift`键，只要依次点击表头各列即可，默认为`False`。
+
+- `'multiSortKey'`键，字符串类型，表示通过按键进行多列同时排序时的快捷键，默认为`shift`键。
+
+- `'icons'`键，字典类型，表示表格中的图标。虽然表格默认使用了内部统一的图标，但依然可以通过指定键（键名可参考 https://www.ag-grid.com/javascript-data-grid/custom-icons/#icon-names 中左边的名字）修改其图标。支持以下两种图标表达方式：
+
+  - （方法简单，比较推荐）字符串即为图标，比如`'⬇️'`。
+
+  - （格式复杂，但功能强大）字符串为HTML格式的图标，可以为图标字体、SVG，比如`'<i class="material-icons">keyboard_arrow_up</i>'`（源于`ui.icon`控件），或者：
+
+    ```html
+    <svg viewBox='0 0 200 200' width='20' height='20'>
+    <circle cx='100' cy='100' r='78' fill='#ffde34' stroke='black' stroke-width='3' />
+    <circle cx='80' cy='85' r='8' />
+    <circle cx='120' cy='85' r='8' />
+    <path d='m60,120 C75,150 125,150 140,120' style='fill:none; stroke:black; stroke-width:8; stroke-linecap:round'/>
+    </svg>
+    ```
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+                  'unSortIcon': True
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'icons': {
+              'sortAscending': '<i class="material-icons">keyboard_arrow_up</i>',
+              'sortDescending': '⬇️',
+              'sortUnSort': '''<svg viewBox='0 0 200 200' width='20' height='20'>
+  <circle cx='100' cy='100' r='78' fill='#ffde34' stroke='black' stroke-width='3' />
+  <circle cx='80' cy='85' r='8' />
+  <circle cx='120' cy='85' r='8' />
+  <path d='m60,120 C75,150 125,150 140,120' style='fill:none; stroke:black; stroke-width:8; stroke-linecap:round'/>
+  </svg>
+          '''
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_88](nicegui_pro.assets/2026_52_88.png)
+
+- `'rowStyle'`键，字典类型，表示行的样式。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'rowStyle':{
+              'background':'gray'
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_89](nicegui_pro.assets/2026_52_89.png)
+
+- `'getRowStyle'`键，使用字符串表达的JavaScript函数，表示行的样式。该键为JavaScript函数时支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`RowClassParams`类型，为该函数专用的参数。`RowClassParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-styles/#reference-styling-getRowStyle 。
+
+  不同于`'rowStyle'`键只能设置所有行的样式，该键可以根据条件设置指定行的样式：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          ':getRowStyle':'params => !(params.node.rowIndex % 2)?{"background":"gray"}:{}'
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_90](nicegui_pro.assets/2026_52_90.png)
+
+- `'rowClass'`键，字符串类型，表示行的样式类。
+
+- `'getRowClass'`键，使用字符串表达的JavaScript函数，表示行的样式类。该键为JavaScript函数时支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`RowClassParams`类型，为该函数专用的参数。`RowClassParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/row-styles/#reference-styling-getRowClass 。
+
+  不同于`'rowClass'`键只能设置所有行的样式类，该键可以根据条件设置指定行的样式类。
+
+- `'rowClassRules'`键，字典类型（键为样式类，值为使用字符串表达的JavaScript函数或者表达式），表示行的样式类。不同于`'rowClass'`键只能设置所有行的样式类，该键可以将符合字典值对应条件的行，设置为字典键同名的样式类。完整用法可参考 https://www.ag-grid.com/javascript-data-grid/row-styles/#reference-styling-rowClassRules 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'rowClassRules':{
+              'bg-red':'data.age === 18',
+              ':bg-green':'params => (params.data.age === 20)'
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_91](nicegui_pro.assets/2026_52_91.png)
+
+- `'suppressRowHoverHighlight'`键，布尔类型，表示是否在鼠标悬停某一行时禁止高亮该行，默认为`False`。
+
+- `'columnHoverHighlight'`键，布尔类型，表示是否在鼠标悬停某一列时高亮该列，默认为`False`。
+
+- `'enableBrowserTooltips'`键，布尔类型，表示是否启用浏览器原生的工具提示（性能好但样式固定，且不支持后续的相关配置），默认为`False`。
+
+- `'tooltipShowDelay'`键，整数类型，表示鼠标悬停之后多长时间显示工具提示，单位毫秒，默认为`2000`。
+
+- `'tooltipSwitchShowDelay'`键，整数类型，表示鼠标切换可显示工具提示的元素时，间隔多长时间显示另一个工具提示，单位毫秒，默认为`200`。
+
+- `'tooltipHideDelay'`键，整数类型，表示工具提示显示之后，持续多长时间才消失，单位毫秒，默认为`10000`。
+
+- `'tooltipMouseTrack'`键，布尔类型，表示工具提示的位置是否跟随鼠标移动，默认为`False`。
+
+- `'tooltipShowMode'`键，字符串类型（仅支持`['standard','whenTruncated']`中的值），表示工具提示在什么时候显示（始终显示工具提示，还是仅在内容无法完整显示时显示工具提示），默认为`'standard'`。
+
+- `'tooltipTrigger'`键，字符串类型（仅支持`['hover','focus']`中的值），表示工具提示的触发方式（悬停、获得焦点），默认为`'hover'`。
+
+- `'tooltipInteraction'`键，布尔类型，表示工具提示是否允许交互（鼠标移动到工具提示上时，工具提示会持续显示，而不是超时消失），默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+                  'headerTooltip':'姓名'
+              },
+              {
+                  'headerName': 'Age', 
+                  'field': 'age'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'enableBrowserTooltips':False,
+          'tooltipHideDelay':1000,
+          'tooltipInteraction':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_92](nicegui_pro.assets/2026_52_92.png)
+
+##### 52.2.2.2 列定义（更新中）
+
+列定义的参考文档：https://www.ag-grid.com/javascript-data-grid/column-properties/
 
 列定义支持的键（部分）如下：
 
@@ -22538,7 +22784,7 @@ ui.run(
 
   该键为JavaScript函数时支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-  - `params`参数，`ValueGetterParams`类型，为该函数专用的参数。`ValueGetterParams`类型，支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/value-getters/#reference-columns-valueGetter 。
+  - `params`参数，`ValueGetterParams`类型，为该函数专用的参数。`ValueGetterParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/value-getters/#reference-columns-valueGetter 。
 
   虽然同样不用启用`'enableCellExpressions'`键，但字符串变成了JavaScript函数，如果想要正确生效，需要在该键的键名前添加英文冒号，示例如下：
 
@@ -22619,36 +22865,6 @@ ui.run(
 - `'spanRows'`键，布尔类型或者字符串表示的JavaScript函数，表示是否跨行合并邻值相同的单元格，默认为`False`。
 
 - `'rowDrag'`键，布尔类型，表示是否允许通过拖动每行对应该列的单元格来拖动该行，默认为`False`。
-
-
-
-
-
-##### 52.2.2.2 控件方法（更新中）
-
-单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/ 。
-
-行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ 。
-
-单元格支持的控件方法（部分）如下：
-
-- 
-
-行对象支持的控件方法（部分）如下：
-
-- 
-
-
-
-实例：
-
-https://nicegui.io/documentation/aggrid#run_row_methods
-
-
-
-使用箭头函数作为控件方法名：
-
-https://nicegui.io/documentation/aggrid#filter_return_values
 
 
 
@@ -22773,11 +22989,51 @@ https://www.ag-grid.com/javascript-data-grid/row-selection-api-reference/
 
 
 
-##### 52.2.2.7 美化（样式与主题）（更新中）
+https://www.ag-grid.com/javascript-data-grid/row-sorting/
 
 
 
-##### 52.2.2.8 工具提示（更新中）
+##### 52.2.2.7 美化（更新中）
+
+样式：
+
+https://www.ag-grid.com/javascript-data-grid/row-styles/
+
+
+
+图标：
+
+https://www.ag-grid.com/javascript-data-grid/custom-icons/
+
+
+
+##### 52.2.2.8 控件方法（更新中）
+
+单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/ 。
+
+行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ 。
+
+单元格支持的控件方法（部分）如下：
+
+- 
+
+行对象支持的控件方法（部分）如下：
+
+- 
+
+
+
+实例：
+
+https://nicegui.io/documentation/aggrid#run_row_methods
+
+
+
+使用箭头函数作为控件方法名：
+
+https://nicegui.io/documentation/aggrid#filter_return_values
+
+
 
 
 

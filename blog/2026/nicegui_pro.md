@@ -22614,7 +22614,7 @@ ui.run(
 
   ![2026_52_90](nicegui_pro.assets/2026_52_90.png)
 
-- `'rowClass'`键，字符串类型，表示行的样式类。
+- `'rowClass'`键，字符串类型或者元素为字符串的列表，表示行的样式类。
 
 - `'getRowClass'`键，使用字符串表达的JavaScript函数，表示行的样式类。该键为JavaScript函数时支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
@@ -22719,19 +22719,224 @@ ui.run(
 
   ![2026_52_92](nicegui_pro.assets/2026_52_92.png)
 
+- `'columnTypes'`键，字典类型，表示自定义的列类型，其中键名为类型名，值为字典（该字典的支持的键同列定义）。该键一般与列定义的`'type'`键组合使用，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/column-definitions/#column-types 。
+
+- `'dataTypeDefinitions'`键，字典类型，表示自定义的数据类型，其中键名为类型名，值为字典（该字典部分支持列定义的键）。该键一般与列定义的`'cellDataType'`键组合使用，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/cell-data-types/#reference-columns-dataTypeDefinitions 。
+
 ##### 52.2.2.2 列定义（更新中）
 
 列定义的参考文档：https://www.ag-grid.com/javascript-data-grid/column-properties/
 
 列定义支持的键（部分）如下：
 
-- `'headerName'`键，
+- `'field'`键，字符串类型，表示在行数据字典中，该行哪个键的值在该列对应位置显示。除了简单使用单层行数据字典，对于多层行数据字典，还可以用`'{第一层字典的键}.{第二层字典的键}...{最后一层字典的键}'`的格式，直接使用多层行数据字典的数据。
 
-- `'field'`键，
+  示例如下：
 
-  复合数据的使用：
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'FirstName',
+                  'field': 'name.first',
+              },
+              {
+                  'headerName': 'LastName',
+                  'field': 'name.last',
+              },
+              {
+                  'headerName': 'Age', 
+                  'field': 'age'
+              },
+          ],
+          'rowData': [
+              {
+                  'name': {
+                      'first':'Alice',
+                      'last':'Ash'
+                  }, 
+                  'age': 18
+              },
+              {
+                  'name': {
+                      'first':'Bob',
+                      'last':'Bluce'
+                  }, 
+                  'age': 21
+              },
+              {
+                  'name': {
+                      'first':'Carol',
+                      'last':'Cart'
+                  }, 
+                  'age': 20
+              },
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
 
-  https://nicegui.io/documentation/aggrid#ag_grid_with_complex_objects
+  ![2026_52_93](nicegui_pro.assets/2026_52_93.png)
+
+- `'colId'`键，字符串类型，表示列的ID（不可重复）。如果该键为空，则会自动生成。
+
+- `'type'`键，字符串类型或者元素为字符串的列表，表示该列的列类型。
+
+  所谓列类型，可以理解为多个特定列定义组合之后的简化别名，能够一步到位设置指定列的多个列定义。
+
+  默认提供了`'rightAligned'`和`'numericColumn'`两种预定义的列类型（完整用法参考 https://www.ag-grid.com/javascript-data-grid/column-definitions/#provided-column-types）：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  'type':'numericColumn'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_94](nicegui_pro.assets/2026_52_94.png)
+
+  也可以通过表格定义的`'columnTypes'`键添加自定义的列类型：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnTypes':{
+              'inputCol':{
+                  'editable':True
+              }
+          },
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  'type':'inputCol'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_95](nicegui_pro.assets/2026_52_95.png)
+
+- `'cellDataType'`键，布尔类型或者字符串类型，表示单元格的数据类型，默认为`True`。字符串类型表示设定了单元格的数据类型，则该列的所有单元格只能使用指定类型的数据，其他类型的数据会报数据无效。布尔类型则表示启用自动推断数据类型或者禁用数据类型限制。
+
+  默认提供了几个预定义的数据类型（完整用法参考 https://www.ag-grid.com/javascript-data-grid/cell-data-types/#pre-defined-cell-data-types），也可以通过表格定义的`'dataTypeDefinitions'`键添加自定义的数据类型。但自定义数据类型需要对框架用法、JavaScript语法比较了解，这里就不提供相关介绍，仅提供简单示例：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'dataTypeDefinitions':{
+              'myDate':{
+                  'baseDataType':'date',
+                  'extendsDataType':'date',
+                  ':valueFormatter':'''(params) => {
+                      if (!params.value) return '未定义';
+                      const date = new Date(params.value);
+                      return `${date.getFullYear()}年${String(date.getMonth()+1).padStart(2,'0')}月${String(date.getDate()).padStart(2,'0')}日`;
+                  }'''
+              }
+          },
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+              },
+              {
+                  'headerName': '生日', 
+                  'field': 'birthday',
+                  'cellDataType':'myDate'
+              },
+              {
+                  'headerName': 'Birthday（可编辑）', 
+                  'field': 'birthday',
+                  'cellDataType':'dateString',
+                  'editable':True
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18,'birthday':'2026-01-01'},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_96](nicegui_pro.assets/2026_52_96.png)
+
+- `'valueGetter'`键，---
+
+- `'valueFormatter'`键，---
+
+- 
+
+- `'headerName'`键，---
 
 - `'editable'`键，布尔类型，表示该列的单元格是否支持编辑模式（双击、单击、按下`enter`键、按下`backspace`键进入，具体是否支持取决于其他配置项），默认为`False`。
 
@@ -22868,7 +23073,43 @@ ui.run(
 
 
 
-##### 52.2.2.3 列组（更新中）
+
+
+##### 52.2.2.3 控件方法（更新中）
+
+单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/ 。
+
+行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ 。
+
+单元格支持的控件方法（部分）如下：
+
+- 
+
+行对象支持的控件方法（部分）如下：
+
+- 
+
+
+
+实例：
+
+https://nicegui.io/documentation/aggrid#run_row_methods
+
+
+
+使用箭头函数作为控件方法名：
+
+https://nicegui.io/documentation/aggrid#filter_return_values
+
+
+
+
+
+#### 52.2.3 总结（更新中）
+
+受限于篇幅，前面详细介绍定义、方法时，部分用法没有提供示例，并且部分用法虽然常用但没做汇总介绍。因此，在讲完用法之后，这里再做个简单的总结，汇总介绍一些可以合并为一类用法的相关用法，并提供必要的概念解释和一些清晰的示例。
+
+##### 52.2.3.1 列组（更新中）
 
 
 
@@ -22920,7 +23161,7 @@ ui.run(
 
 
 
-##### 52.2.2.4 过滤器（更新中）
+##### 52.2.3.2 过滤器（更新中）
 
 过滤器相关：
 
@@ -23004,34 +23245,6 @@ https://www.ag-grid.com/javascript-data-grid/row-styles/
 图标：
 
 https://www.ag-grid.com/javascript-data-grid/custom-icons/
-
-
-
-##### 52.2.2.8 控件方法（更新中）
-
-单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/ 。
-
-行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ 。
-
-单元格支持的控件方法（部分）如下：
-
-- 
-
-行对象支持的控件方法（部分）如下：
-
-- 
-
-
-
-实例：
-
-https://nicegui.io/documentation/aggrid#run_row_methods
-
-
-
-使用箭头函数作为控件方法名：
-
-https://nicegui.io/documentation/aggrid#filter_return_values
 
 
 

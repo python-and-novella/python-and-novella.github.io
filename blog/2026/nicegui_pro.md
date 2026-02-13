@@ -22930,29 +22930,7 @@ ui.run(
 
   ![2026_52_96](nicegui_pro.assets/2026_52_96.png)
 
-- `'valueGetter'`键，---
-
-- `'valueFormatter'`键，---
-
-- 
-
-- `'headerName'`键，---
-
-- `'editable'`键，布尔类型，表示该列的单元格是否支持编辑模式（双击、单击、按下`enter`键、按下`backspace`键进入，具体是否支持取决于其他配置项），默认为`False`。
-
-- `'hide'`键，布尔类型，表示该列是否隐藏。
-
-- `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
-
-- `'filter'`键，https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
-
-- `'floatingFilter'`键，布尔类型，---
-
-- `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
-
-- `'getQuickFilterText'`键，---
-
-- `'valueGetter'`键，使用字符串表达的JavaScript函数或者表达式，表示每行对应该列的单元格内容获取来源。
+- `'valueGetter'`键，使用字符串表达的JavaScript函数或者表达式，表示每行对应该列的单元格内容获取来源，优先级高于`'field'`键。
 
   该键为表达式时，可以直接使用前面介绍`'enableCellExpressions'`键时引入的单元格公式，但与之不同的是，因为不是在单元格内使用，不用“=”开头，也不用启用`'enableCellExpressions'`键。
 
@@ -23021,6 +22999,176 @@ ui.run(
   ```
 
   ![2026_52_71](nicegui_pro.assets/2026_52_71.png)
+
+- `'valueFormatter'`键，使用字符串表达的JavaScript函数或者表达式，表示每行对应该列的单元格内容呈现格式，直接编辑时**不会**影响原始内容。用法类似`'valueGetter'`键，但`'valueGetter'`键中用于获取任意列数据的`getValue`函数被换成了表示当前单元格数据的`value`属性。
+
+  该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`ValueFormatterParams`类型，为该函数专用的参数。`ValueFormatterParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/value-formatters/#reference-columns-valueFormatter 。
+
+  因此，使用字符串表达的JavaScript函数，就不能使用`getValue`函数，需要改用其他方法：
+
+  ```python3
+  from nicegui import ui
+  from datetime import datetime
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+              {'headerName': 'Year',':valueFormatter':f'(params)=>{datetime.now().year}-params.data.age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_71](nicegui_pro.assets/2026_52_71.png)
+
+  至于表达式，也要做相应修改：
+
+  ```python3
+  from nicegui import ui
+  from datetime import datetime
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+              {'headerName': 'Year','valueFormatter':f'{datetime.now().year}-data.age'}
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_71](nicegui_pro.assets/2026_52_71.png)
+
+  当然，上面用来复刻`'valueGetter'`键的用法属于少数，更多时候，该键是用来修改单元格内容呈现格式，使用`value`属性足矣，无需获取其他列的数据：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  'editable':True,
+                  'valueFormatter':'value+"岁"'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_97](nicegui_pro.assets/2026_52_97.png)
+
+- `'refData'`键，字典类型，表示每行对应该列的单元格内容最终呈现结果，直接编辑时**会**影响原始内容。`'refData'`键与`'valueFormatter'`键作用类似，但用法上完全不同：`'refData'`键使用字典映射关系将原始内容转换为最终结果，而不是使用表达式或者函数套用固定格式。
+
+  因此，`'refData'`键相比于`'valueFormatter'`键，有以下特点：
+
+  - 最终结果存在多种格式的情况下，`'refData'`键更灵活、简单。
+  - 最终结果使用相同格式时，不如`'valueFormatter'`键简单。
+  - 直接编辑时会影响原始内容。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  'editable':True,
+                  'refData':{
+                      18:'18岁',
+                      20:'二十岁',
+                      21:'21岁',
+                  }
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_98](nicegui_pro.assets/2026_52_98.png)
+
+- `'keyCreator'`键，---
+
+- 
+
+- `'headerName'`键，---
+
+- `'editable'`键，布尔类型，表示该列的单元格是否支持编辑模式（双击、单击、按下`enter`键、按下`backspace`键进入，具体是否支持取决于其他配置项），默认为`False`。
+
+- `'hide'`键，布尔类型，表示该列是否隐藏。
+
+- `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
+
+- `'filter'`键，https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
+
+- `'floatingFilter'`键，布尔类型，---
+
+- `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
+
+- `'getQuickFilterText'`键，---
+
+- 
 
 - `'enableCellChangeFlash'`键，布尔类型，表示当单元格的数据发生变化时，是否闪烁一次，默认为`False`。注意，只有通过框架方法或者前端交互产生的数据变化才有闪烁，直接在Python代码中修改数据不会触发。
 

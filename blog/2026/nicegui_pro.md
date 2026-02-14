@@ -23148,7 +23148,128 @@ ui.run(
 
   ![2026_52_98](nicegui_pro.assets/2026_52_98.png)
 
-- `'keyCreator'`键，---
+- `'columnGroupShow'`键，字符串类型（仅支持`['open','closed']`中的值），当该列为列组的子列时，表示该列在列组展开、收起时显示。如果该键未定义，则表示始终显示。
+
+  示例如下（为了方便看出列组的展开状态，额外配置了`'icons'`键）：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Info', 
+                  'children': [
+                      {'headerName': '展开时显示', 'field': 'name','columnGroupShow':'open'},
+                      {'headerName': '收起时显示', 'field': 'name','columnGroupShow':'closed'},
+                      {'headerName': '始终显示', 'field': 'age'},
+                  ]
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'icons':{
+              'columnGroupOpened':'已展开',
+              'columnGroupClosed':'已收起'
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_99](nicegui_pro.assets/2026_52_99.png)
+
+- `'icons'`键，用法同表格定义的`'icons'`键，但优先级更高。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+                  'unSortIcon': True,
+                  'icons':{
+                      'sortUnSort': '〓'
+                  }
+              },
+              {'headerName': 'Age', 'field': 'age','unSortIcon': True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'icons': {
+              'sortUnSort': '<i class="material-icons">menu</i>'
+          }
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_100](nicegui_pro.assets/2026_52_100.png)
+
+- `'suppressNavigable'`键，布尔类型或者使用字符串表达的JavaScript函数，表示是否禁止通过键盘切换焦点到该列的单元格，默认为`False`。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`SuppressNavigableCallbackParams`类型，为该函数专用的参数。`SuppressNavigableCallbackParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-columns-suppressNavigable 。
+
+  使用JavaScript函数的话，可以根据条件决定是否禁用：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+                  ':suppressNavigable':'params => params.data.age%2 === 0'
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_101](nicegui_pro.assets/2026_52_101.png)
+
+- `'suppressKeyboardEvent'`键，---
+
+- `'suppressPaste'`键，---
 
 - 
 
@@ -23275,21 +23396,24 @@ from nicegui import ui
 def index():
     options = {
         'columnDefs': [
-            {'headerName': 'Name', 'field': 'name'},
             {
                 'headerName': 'Info', 
-                'openByDefault':True,
                 'children': [
-                    {'headerName': 'Name', 'field': 'name','columnGroupShow':'open'},
-                    {'headerName': 'Age', 'field': 'age','columnGroupShow':'closed'},
+                    {'headerName': '展开时显示', 'field': 'name','columnGroupShow':'open'},
+                    {'headerName': '收起时显示', 'field': 'name','columnGroupShow':'closed'},
+                    {'headerName': '始终显示', 'field': 'age'},
                 ]
             },
         ],
         'rowData': [
             {'name': 'Alice', 'age': 18},
             {'name': 'Bob', 'age': 21},
-            {'name': 'Carol', 'age': None},
-        ]
+            {'name': 'Carol', 'age': 20},
+        ],
+        'icons':{
+            'columnGroupOpened':'已展开',
+            'columnGroupClosed':'已收起'
+        }
     }
     ui.aggrid(
         options=options

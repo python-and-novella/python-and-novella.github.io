@@ -21760,6 +21760,57 @@ ui.run(
 
   ![2026_52_70](nicegui_pro.assets/2026_52_70.png)
 
+- `'context'`键，任意值类型（JavaScript中有相同的数据类型，比如字典、列表、集合、字符串、整数、小数等），表示自定义的上下文数据。所谓上下文数据，可以理解为一个实时共享的数据，一个地方修改该数据，其他使用该数据的地方也会随之变化。
+
+  使用时，JavaScript函数的参数支持的`context`属性即为该键对应的值。如果该键对应的值是字典，则字典的键名为`context`属性的子属性，子属性的值即为字典中对应键的值。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name'
+              },
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  ':valueFormatter':'params => `${params.value}${params.context}`'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'context':'岁',
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      input = ui.input(
+          '单位',
+          value='岁'
+      )
+      def update_context():
+          aggrid.options['context'] = input.value
+      ui.button(
+          'Update context',
+          on_click=update_context
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_102](nicegui_pro.assets/2026_52_102.png)
+
 - `'valueCache'`键，布尔类型，表示是否启用计算值缓存，默认为`False`。计算值缓存可以在较多单元格内容需要计算时改善表格的性能。
 
 - `'valueCacheNeverExpires'`键，布尔类型，表示是否计算值缓存是否永不过期，默认为`False`。
@@ -23267,17 +23318,152 @@ ui.run(
 
   ![2026_52_101](nicegui_pro.assets/2026_52_101.png)
 
-- `'suppressKeyboardEvent'`键，---
+- `'suppressKeyboardEvent'`键，布尔类型或者使用字符串表达的JavaScript函数，表示是否禁止响应键盘事件，默认为`False`。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-- `'suppressPaste'`键，---
+  - `params`参数，`SuppressKeyboardEventParams`类型，为该函数专用的参数。`SuppressKeyboardEventParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/keyboard-navigation/#reference-columns-suppressKeyboardEvent 。
+
+- `'suppressPaste'`键，布尔类型或者使用字符串表达的JavaScript函数，表示是否禁止粘贴，默认为`False`。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`SuppressPasteCallbackParams`类型，为该函数专用的参数。`SuppressPasteCallbackParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-columns-suppressPaste 。
+
+- `'context'`键，含义、用法类似表格定义的`'context'`键，表示该列的自定义上下文数据。
+
+  但在使用时，JavaScript函数的参数支持的`context`属性不是该键对应的值。而是挂载在`colDef`属性下`context`属性：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name'
+              },
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  'context':'岁',
+                  ':valueFormatter':'params => `${params.value}${params.colDef.context}`'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      input = ui.input(
+          '单位',
+          value='岁'
+      )
+      def update_context():
+          aggrid.options['columnDefs'][1]['context'] = input.value
+      ui.button(
+          'Update context',
+          on_click=update_context
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_102](nicegui_pro.assets/2026_52_102.png)
+
+- `'hide'`键，布尔类型，表示该列是否隐藏，默认为`False`。
+
+- `'initialHide'`键，大部分情况下和`'hide'`键含义、用法一样，用起来没有差异。但使用控件方法`setGridOption`修改表格定义的话，该键不会像`'hide'`键一样生效。
+
+  对比示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+                  'hide': False,
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'initialHide': False
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      ui.label('开关会永久影响表格定义：')
+      ui.switch(
+          'switch Name hide',
+          value=False
+      ).bind_value_to(
+          aggrid.options['columnDefs'][0],
+          'hide'
+      )
+      ui.switch(
+          'switch Age initialHide',
+          value=False
+      ).bind_value_to(
+          aggrid.options['columnDefs'][1],
+          'initialHide'
+      )
+      ui.button('reset',on_click=aggrid.update)
+      ui.label('控件方法setColumnsVisible对二者来说没有区别：')
+      async def setColumnsVisible():
+          await aggrid.run_grid_method('setColumnsVisible', ['name','age'], False)
+      ui.button('setColumnsVisible', on_click=setColumnsVisible).props('no-caps')
+      ui.label('控件方法setGridOption修改表格定义无法让initialHide生效：')
+      async def setGridOption():
+          await aggrid.run_grid_method(
+              'setGridOption',
+              'columnDefs',
+              [
+                  {
+                      'headerName': 'Name',
+                      'field': 'name',
+                      'hide': True,
+                  },
+                  {
+                      'headerName': 'Age',
+                      'field': 'age',
+                      'initialHide': True
+                  },
+              ]
+          )
+      ui.button('setGridOption', on_click=setGridOption).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_103](nicegui_pro.assets/2026_52_103.png)
+
+  注意，这里为了区分`'hide'`键和`'initialHide'`键，特意使用了控件方法`setGridOption`来修改表格定义，但这种修改不会永久影响表格定义，因为表格定义由NiceGUI存储在Python的字典中，只有Python侧的修改才能生效。但该示例引出另一个概念，就是在AG Grid框架中，额外标记了`Initial`的配置项（即定义字典的键）。这些配置项就是仅在初始化时生效的配置项，后续使用控件方法`setGridOption`修改后不会生效，比如`'initialHide'`键。但在NiceGUI中，因为NiceGUI做了特殊处理，这类配置项在大部分情况下用起来和普通配置项一样（只要修改了就会生效，因为表格会重新创建），因此前面没有单独标明这些配置项（定义字典的键）。如果读者需要使用这样的配置项，可以额外关注一下该特性，避免产生意料之外的问题。
+
+- `'lockVisible'`键，布尔类型，---
 
 - 
 
 - `'headerName'`键，---
 
 - `'editable'`键，布尔类型，表示该列的单元格是否支持编辑模式（双击、单击、按下`enter`键、按下`backspace`键进入，具体是否支持取决于其他配置项），默认为`False`。
-
-- `'hide'`键，布尔类型，表示该列是否隐藏。
 
 - `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
 

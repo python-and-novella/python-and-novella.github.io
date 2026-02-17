@@ -23457,13 +23457,264 @@ ui.run(
 
   注意，这里为了区分`'hide'`键和`'initialHide'`键，特意使用了控件方法`setGridOption`来修改表格定义，但这种修改不会永久影响表格定义，因为表格定义由NiceGUI存储在Python的字典中，只有Python侧的修改才能生效。但该示例引出另一个概念，就是在AG Grid框架中，额外标记了`Initial`的配置项（即定义字典的键）。这些配置项就是仅在初始化时生效的配置项，后续使用控件方法`setGridOption`修改后不会生效，比如`'initialHide'`键。但在NiceGUI中，因为NiceGUI做了特殊处理，这类配置项在大部分情况下用起来和普通配置项一样（只要修改了就会生效，因为表格会重新创建），因此前面没有单独标明这些配置项（定义字典的键）。如果读者需要使用这样的配置项，可以额外关注一下该特性，避免产生意料之外的问题。
 
-- `'lockVisible'`键，布尔类型，---
+- `'lockVisible'`键，布尔类型，表示是否锁定用户手动修改列可见性的操作（不锁定通过接口执行相关操作），默认为`False`。
+
+- `'lockPosition'`键，布尔类型或者字符串类型（仅支持`['left','right']`中的值），表示是否将该列的位置固定以及固定到哪个位置（`True`的话视作最左边），默认为`False`。注意，该键的作用和后面将要介绍的`'Pinned'`键相同，但该键会禁止用户手动修改固定列，`'Pinned'`键不会。
+
+- `'suppressMovable'`键，布尔类型，表示是否禁止拖动该列，默认为`False`。
+
+- `'useValueFormatterForExport'`键，布尔类型，表示导出表格数据时，是否使用`'valueFormatter'`键处理之后的数据，默认为`True`。
+
+- `'editable'`键，布尔类型或者使用字符串表达的JavaScript函数，表示该列的单元格的内容是否可以编辑（双击、单击、按下`enter`键、按下`backspace`键进入编辑状态，具体是否支持取决于其他配置项），默认为`False`。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`EditableCallbackParams`类型，为该函数专用的参数。`EditableCallbackParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-editing-editable 。
+
+- `'valueSetter'`键，使用字符串表达的JavaScript函数或者表达式，根据表达式或者函数的返回值是否为`true`来确定单元格的数据是否发生变化，进而将其修改。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`ValueSetterParams`类型，为该函数专用的参数。`ValueSetterParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/value-setters/#reference-editing-valueSetter 。
+
+  因此，可以使用`'false'`这个表达式实现单元格可以编辑但数据不会保存的效果（类似启用表格定义的`'readOnlyEdit'`键）：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+                  'valueSetter':'false'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_104](nicegui_pro.assets/2026_52_104.gif)
+
+  启用表格定义`'readOnlyEdit'`键的效果是一样的：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'readOnlyEdit':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+- `'valueParser'`键，使用字符串表达的JavaScript函数或者表达式，表示如何解析输入的内容。因为默认输入的内容是字符串，通过该键可以将输入的内容转换为所需的数据类型。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`ValueParserParams`类型，为该函数专用的参数。`ValueParserParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/value-parsers/#reference-editing-valueParser 。
+
+  示例如下（四舍五入取整）：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+                  'valueParser':'Math.round(parseFloat(newValue))'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_105](nicegui_pro.assets/2026_52_105.gif)
+
+- `'cellEditor'`键，字符串类型，表示编辑单元格内容时使用的编辑器。注意，不同于其他键与企业版功能严格绑定，该键部分功能为企业版专属，本章不做介绍，仅介绍部分社区版可用的功能（本章介绍的功能基本上都是社区版可用）。关于该键的支持的全部功能，可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors/ 。
+
+  该键支持以下值，分别代表不同类型的编辑器：
+
+  - `'agTextCellEditor'`，表示单行文本编辑器，会生成一个单元格大小的输入框，仅支持单行文本。实际上前面很多编辑单元格内容的示例就是使用该编辑器：
+
+    ![2026_52_106](nicegui_pro.assets/2026_52_106.png)
+
+  - `'agLargeTextCellEditor'`，表示多行文本编辑器，会生成一个宽度固定、高度可调的文本框，可以输入多行文本（`shift + enter`键可换行）。对于包含多行文本或者文本较长的单元格，应当使用该编辑器：
+
+    ![2026_52_107](nicegui_pro.assets/2026_52_107.png)
+
+  - `'agSelectCellEditor'`，表示下拉选择编辑器，会生成下拉选择框，可以从给定的选项中选择。对于仅允许选择指定内容的单元格，应当使用该编辑器：
+
+    ![2026_52_108](nicegui_pro.assets/2026_52_108.png)
+
+  - `'agNumberCellEditor'`，表示数字编辑器，---
+
+  - `'agDateCellEditor'`，表示日期编辑器，---
+
+  - `'agCheckboxCellEditor'`，表示勾选编辑器，---
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+                  'cellEditor':'agSelectCellEditor',
+                  'cellEditorParams':{
+                      'values':[i for i in range(14,25)]
+                  }
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      ).classes('h-96')
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_108](nicegui_pro.assets/2026_52_108.png)
+
+- `'cellEditorParams'`键，字典类型，表示单元格内容编辑器支持的配置项。注意，不同编辑器支持的配置项有所不同。
+
+  `'agTextCellEditor'`单行文本编辑器支持以下配置（完成用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-text/#api-reference）：
+
+  - `'maxLength'`键，整数类型，表示可输入内容的最大长度，默认为`524288`。
+  - `'useFormatter'`键，布尔类型，---
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  async def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+                  'cellEditor':'agTextCellEditor',
+                  'cellEditorParams':{
+                      'maxLength':2
+                  }
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  `'agLargeTextCellEditor'`多行文本编辑器支持以下配置（完成用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-large-text/#api-reference）：
+
+  - `'maxLength'`键，整数类型，表示可输入内容的最大长度，默认为`200`。
+  - `'rows'`键，整数类型，---
+
+  `'agSelectCellEditor'`下拉选择编辑器支持以下配置（完成用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-select/#api-reference）：
+
+  - `'values'`键，元素为值类型（整数、小数、字符串）的列表，---
+
+  
+
+- `'cellEditorSelector'`键，使用字符串表达的JavaScript函数，表示编辑单元格使用什么编辑器。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`ICellEditorParams`类型，为该函数专用的参数。`ICellEditorParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/cell-editors/#reference-editing-cellEditorSelector 。
+
+- `'cellEditorPopup'`键，---
+
+- `'cellEditorPopupPosition'`键，---
 
 - 
 
 - `'headerName'`键，---
-
-- `'editable'`键，布尔类型，表示该列的单元格是否支持编辑模式（双击、单击、按下`enter`键、按下`backspace`键进入，具体是否支持取决于其他配置项），默认为`False`。
 
 - `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
 
@@ -23558,11 +23809,17 @@ https://nicegui.io/documentation/aggrid#filter_return_values
 
 
 
+##### 52.2.2.4 控件事件（更新中）
+
+
+
+https://www.ag-grid.com/javascript-data-grid/column-events/
+
 
 
 #### 52.2.3 总结（更新中）
 
-受限于篇幅，前面详细介绍定义、方法时，部分用法没有提供示例，并且部分用法虽然常用但没做汇总介绍。因此，在讲完用法之后，这里再做个简单的总结，汇总介绍一些可以合并为一类用法的相关用法，并提供必要的概念解释和一些清晰的示例。
+受限于篇幅，前面详细介绍定义、方法时，部分用法没有提供示例，或者虽然常用但没做汇总介绍。因此，在讲完用法之后，这里再做个简单的总结，汇总介绍一些可以合并为一类用法的相关用法，并提供必要的概念解释和一些清晰的示例。
 
 ##### 52.2.3.1 列组（更新中）
 
@@ -23619,7 +23876,7 @@ ui.run(
 
 
 
-##### 52.2.3.2 过滤器（更新中）
+##### 52.2.3.2 过滤（或者叫筛选）（更新中）
 
 过滤器相关：
 
@@ -23658,13 +23915,32 @@ ui.run(
 
 
 
+##### 52.2.2.3 编辑（更新中）
+
+
+
+https://www.ag-grid.com/javascript-data-grid/cell-editors/
+
+
+
+这个类型下相关的键：https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-editing
+
+`'editable'`键，`'valueSetter'`键，`'valueParser'`键，`'cellEditor'`键，`'cellEditorParams'`键，`'cellEditorSelector'`键，`'cellEditorPopup'`键，`'cellEditorPopupPosition'`键，
+
+
+
 
 
 ##### 52.2.2.5 选择（更新中）
 
 `'rowSelection'`键的其他键（https://www.ag-grid.com/javascript-data-grid/grid-options/#reference-selection-rowSelection），
 
+获取已选择的行：
 
+- `get_selected_rows`方法，异步方法，以列表形式返回多个勾选行的数据。
+- `get_selected_row`方法，异步方法，返回首次勾选行的数据。
+- `get_client_data`方法，异步方法，以列表形式返回客户端当前状态的表格数据。
+- `load_client_data`方法，将表格客户端的数据同步到后端。
 
 总述
 

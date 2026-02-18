@@ -23602,11 +23602,17 @@ ui.run(
 
     ![2026_52_108](nicegui_pro.assets/2026_52_108.png)
 
-  - `'agNumberCellEditor'`，表示数字编辑器，---
+  - `'agNumberCellEditor'`，表示数字编辑器，会生成一个单元格大小的输入框，仅支持数字，可以使用上下方向键调整数字。对于内容为数字的单元格，建议使用该编辑器。
 
-  - `'agDateCellEditor'`，表示日期编辑器，---
+  - `'agDateCellEditor'`或者`'agDateStringCellEditor'`，表示日期编辑器，会生成一个单元格大小的输入框，只能输入日期。与文本编辑器不同，输入框内的日期有固定格式，无法修改；每个数字可以使用上下方向键调整或者手动输入；也可以点击输入框右侧的图标，在弹出的日期选择器中快捷选择。对于内容为日期的单元格，建议使用该编辑器：
 
-  - `'agCheckboxCellEditor'`，表示勾选编辑器，---
+    ![2026_52_109](nicegui_pro.assets/2026_52_109.png)
+
+    注意，`'agDateCellEditor'`和`'agDateStringCellEditor'`虽然都是日期编辑器，但在实际使用时，`'agDateStringCellEditor'`的要求会更加严格，表格数据必须是字符串表示的日期，否则无法正常使用。
+
+  - `'agCheckboxCellEditor'`，表示勾选编辑器，会生成一个勾选框，仅支持布尔值或`None`，对应三种显示状态。对于内容为布尔值的单元格，建议使用该编辑器：
+
+    ![2026_52_110](nicegui_pro.assets/2026_52_110.png)
 
   示例如下：
 
@@ -23650,7 +23656,7 @@ ui.run(
 
 - `'cellEditorParams'`键，字典类型，表示单元格内容编辑器支持的配置项。注意，不同编辑器支持的配置项有所不同。
 
-  `'agTextCellEditor'`单行文本编辑器支持以下配置（完成用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-text/#api-reference）：
+  `'agTextCellEditor'`单行文本编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-text/#api-reference）：
 
   - `'maxLength'`键，整数类型，表示可输入内容的最大长度，默认为`524288`。
   - `'useFormatter'`键，布尔类型，---
@@ -23693,16 +23699,22 @@ ui.run(
   )
   ```
 
-  `'agLargeTextCellEditor'`多行文本编辑器支持以下配置（完成用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-large-text/#api-reference）：
+  `'agLargeTextCellEditor'`多行文本编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-large-text/#api-reference）：
 
   - `'maxLength'`键，整数类型，表示可输入内容的最大长度，默认为`200`。
   - `'rows'`键，整数类型，---
 
-  `'agSelectCellEditor'`下拉选择编辑器支持以下配置（完成用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-select/#api-reference）：
+  `'agSelectCellEditor'`下拉选择编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-select/#api-reference）：
 
   - `'values'`键，元素为值类型（整数、小数、字符串）的列表，---
 
-  
+  `'agNumberCellEditor'`数字编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-number/#api-reference）：
+
+  - `'min'`键，---
+
+  `'agDateCellEditor'`或者`'agDateStringCellEditor'`日期编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-date/#api-reference）：
+
+  - `'min'`键，---
 
 - `'cellEditorSelector'`键，使用字符串表达的JavaScript函数，表示编辑单元格使用什么编辑器。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 

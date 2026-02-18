@@ -191,7 +191,7 @@ app.exec()
 
   ![2026_25_3](qt_for_python_pro.assets/2026_25_3.gif)
 
-- `autoRepeat`方法，
+- `autoRepeat`方法，---
 
 - 
 
@@ -439,6 +439,83 @@ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWizardPage.html
 - Qt Test：https://doc.qt.io/qt-6/zh/qttest-index.html
 - Additional Modules：https://doc.qt.io/qt-6/zh/qt-additional-modules.html
 - Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
+
+
+
+后台运行+系统托盘+托盘的菜单+点击托盘显示主窗口：
+
+`QApplication`实例的`setQuitOnLastWindowClosed`方法可以实现后台运行。配合托盘图标的右键菜单（在右键菜单中可以添加退出`QApplication`实例、显示主窗口的菜单项），能够实现完善的后台运行、恢复前台的功能。
+
+完整的示例代码（通过勾选复选框启用后台运行功能）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QCheckBox,
+    QMenu
+)
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    # 注意，只有系统支持托盘时才能这样用，否则只能使用快捷键或者命令行强制退出程序
+    # 关闭最后一个窗口时不退出程序
+    # app.setQuitOnLastWindowClosed(False)
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    tray.showMessage(
+        '提示',
+        '系统托盘可用，可以启用后台运行。'
+    )
+    # show方法必须单独执行。
+    # visible为True的话，show方法不是必须执行的。
+    # tray.show()
+
+    # 任意类型的点击托盘图标都会显示主窗口
+    # tray.activated.connect(lambda:window.show())
+    # 只有左键单击托盘图标才会显示主窗口
+    tray.activated.connect(lambda e:window.show() if e == QSystemTrayIcon.ActivationReason.Trigger else None)
+    # 给托盘添加一个右键菜单，可以退出
+    tray_menu = QMenu()
+    tray_menu.addAction(
+        '显示主窗口'
+    ).triggered.connect(lambda:window.show())
+    tray_menu.addAction(
+        '退出程序'
+    ).triggered.connect(app.quit)
+    tray.setContextMenu(tray_menu)
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+# 虽然下面判断的是字符串，但仍然需要导入Qt类
+from PySide6.QtCore import Qt  # noqa: E402, F401
+checkbox = QCheckBox(
+    '后台运行',
+    window,
+)
+checkbox.checkStateChanged.connect(
+    # 判断枚举对象
+    # lambda e: (app.setQuitOnLastWindowClosed(False) if e == Qt.CheckState.Checked else app.setQuitOnLastWindowClosed(True))
+    lambda e: (app.setQuitOnLastWindowClosed(False) if str(e) == 'CheckState.Checked' else app.setQuitOnLastWindowClosed(True))
+)
+checkbox.setToolTip('最好在显示系统托盘后启用后台运行')
+
+window.show()
+app.exec()
+```
+
+
 
 
 

@@ -23659,7 +23659,7 @@ ui.run(
   `'agTextCellEditor'`单行文本编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-text/#api-reference）：
 
   - `'maxLength'`键，整数类型，表示可输入内容的最大长度，默认为`524288`。
-  - `'useFormatter'`键，布尔类型，---
+  - `'useFormatter'`键，布尔类型，表示编辑时是否直接使用`'valueFormatter'`键呈现的结果。
 
   示例如下：
 
@@ -23677,9 +23677,11 @@ ui.run(
                   'headerName': 'Age',
                   'field': 'age',
                   'editable':True,
+                  'valueFormatter':'value+"岁"',
                   'cellEditor':'agTextCellEditor',
                   'cellEditorParams':{
-                      'maxLength':2
+                      'maxLength':2,
+                      'useFormatter':True
                   }
               },
           ],
@@ -23691,7 +23693,7 @@ ui.run(
       }
       ui.aggrid(
           options=options
-      )
+      ).classes('h-96')
   
   ui.run(
       root=index,
@@ -23699,14 +23701,18 @@ ui.run(
   )
   ```
 
+  ![2026_52_111](nicegui_pro.assets/2026_52_111.png)
+
   `'agLargeTextCellEditor'`多行文本编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-large-text/#api-reference）：
 
   - `'maxLength'`键，整数类型，表示可输入内容的最大长度，默认为`200`。
-  - `'rows'`键，整数类型，---
+  - `'rows'`键，整数类型，表示文本框初始可显示文本的行数，默认为`10`。
+  - `'cols'`键，整数类型，表示文本框初始可显示文本的列数，默认为`60`。
 
   `'agSelectCellEditor'`下拉选择编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-select/#api-reference）：
 
-  - `'values'`键，元素为值类型（整数、小数、字符串）的列表，---
+  - `'values'`键，元素为值类型（整数、小数、字符串）的列表，表示选项。
+  - `'valueListGap'`键，整数类型，---
 
   `'agNumberCellEditor'`数字编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-number/#api-reference）：
 

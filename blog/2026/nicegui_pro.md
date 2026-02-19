@@ -7076,7 +7076,7 @@ ui.run(
 )
 ```
 
-示例中，使用了`native.find_open_port`方法，该方法会返回指定范围内可用的端口号。不过，当指定范围是从0开始，或者指定`port`参数为0时，虽然系统可以自动分配可用端口，但NiceGUI内部做了短路判断，将默认使用`native.find_open_port()`的结果。
+示例中，使用了`native.find_open_port`方法，该方法会返回指定范围内可用的端口号。不过，当指定范围是从0开始，或者指定`port`参数为`0`时，虽然系统可以自动分配可用端口，但NiceGUI内部做了短路判断，将默认使用`native.find_open_port()`的结果（默认范围为8000~8999）。
 
 `title`参数，字符串类型，表示网页模式、窗口模式默认的窗口标题，默认为`'NiceGUI'`。
 
@@ -7300,7 +7300,7 @@ ui.run(
 
 `prod_js`参数，布尔类型，表示是否启用Vue、Quasar框架的生产环境版本（去除多余的换行和空格，可以加快客户端的下载速度），默认为`True`。
 
-`endpoint_documentation`参数，字符串类型，仅支持中的`['none', 'internal', 'page', 'all']`值，表示启用接口文档时，包含NiceGUI框架提供的哪些接口（都不包含、仅包含内部接口、仅包含页面接口、包含内部接口和页面接口）默认为`none`。
+`endpoint_documentation`参数，字符串类型，仅支持`['none', 'internal', 'page', 'all']`中的值，表示启用接口文档时，包含NiceGUI框架提供的哪些接口（都不包含、仅包含内部接口、仅包含页面接口、包含内部接口和页面接口）默认为`none`。
 
 示例如下：
 
@@ -23384,7 +23384,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       options = {
           'columnDefs': [
               {
@@ -23478,7 +23478,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       options = {
           'columnDefs': [
               {
@@ -23515,7 +23515,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       options = {
           'columnDefs': [
               {
@@ -23554,7 +23554,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       options = {
           'columnDefs': [
               {
@@ -23602,7 +23602,7 @@ ui.run(
 
     ![2026_52_108](nicegui_pro.assets/2026_52_108.png)
 
-  - `'agNumberCellEditor'`，表示数字编辑器，会生成一个单元格大小的输入框，仅支持数字，可以使用上下方向键调整数字。对于内容为数字的单元格，建议使用该编辑器。
+  - `'agNumberCellEditor'`，表示数字编辑器，会生成一个单元格大小的输入框，仅支持数字（整数、浮点数），可以使用上下方向键调整数字。对于内容为数字的单元格，建议使用该编辑器。
 
   - `'agDateCellEditor'`或者`'agDateStringCellEditor'`，表示日期编辑器，会生成一个单元格大小的输入框，只能输入日期。与文本编辑器不同，输入框内的日期有固定格式，无法修改；每个数字可以使用上下方向键调整或者手动输入；也可以点击输入框右侧的图标，在弹出的日期选择器中快捷选择。对于内容为日期的单元格，建议使用该编辑器：
 
@@ -23619,7 +23619,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       options = {
           'columnDefs': [
               {
@@ -23644,7 +23644,7 @@ ui.run(
       }
       ui.aggrid(
           options=options
-      ).classes('h-96')
+      )
   
   ui.run(
       root=index,
@@ -23666,7 +23666,7 @@ ui.run(
   ```python3
   from nicegui import ui
   
-  async def index():
+  def index():
       options = {
           'columnDefs': [
               {
@@ -23693,7 +23693,7 @@ ui.run(
       }
       ui.aggrid(
           options=options
-      ).classes('h-96')
+      )
   
   ui.run(
       root=index,
@@ -23712,23 +23712,190 @@ ui.run(
   `'agSelectCellEditor'`下拉选择编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-select/#api-reference）：
 
   - `'values'`键，元素为值类型（整数、小数、字符串）的列表，表示选项。
-  - `'valueListGap'`键，整数类型，---
+  - `'valueListGap'`键，整数类型，表示单元格到弹出的下拉选项之间的距离（单位为像素），默认为`4`。
+  - `'valueListMaxHeight'`键，整数类型或者字符串，表示下拉选项的最大高度。其中，整数的单位为像素；字符串的话，则是CSS语法中的尺寸的表达式。
+  - `'valueListMaxWidth'`键，整数类型或者字符串，表示下拉选项的最大宽度。其中，整数的单位为像素；字符串的话，则是CSS语法中的尺寸的表达式。
 
   `'agNumberCellEditor'`数字编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-number/#api-reference）：
 
-  - `'min'`键，---
+  - `'min'`键，浮点类型，表示单元格允许的最小值。
+
+  - `'max'`键，浮点类型，表示单元格允许的最大值。
+
+  - `'precision'`键，整数类型，表示小数点后允许保留多少位。
+
+  - `'step'`键，浮点类型，表示每次按方向键增减的大小。注意，单元格的内容会以`'min'`键为起点、以该键为步长，计算出调整的节点值，如果当前值不属于节点值，调整一次之后会自动选取最近的节点值。
+
+  - `'showStepperButtons'`键，布尔类型，表示是否在输入框右侧显示可以调整数字的按钮，默认为`False`。效果如下：
+
+    ![2026_52_112](nicegui_pro.assets/2026_52_112.png)
+
+  - `'preventStepping'`键，布尔类型，表示是否禁用通过方向键、按钮快捷数字的功能，默认为`False`。
 
   `'agDateCellEditor'`或者`'agDateStringCellEditor'`日期编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-date/#api-reference）：
 
-  - `'min'`键，---
+  - `'min'`键，字符串类型，表示单元格允许的最小值。
+
+  - `'max'`键，字符串类型，表示单元格允许的最大值。
+
+  - `'step'`键，整数类型，表示每次按方向键增减的大小。注意，单元格的内容会以`'min'`键为起点、以该键为步长，计算出调整的节点值，如果当前值不属于节点值，则无法成功设置：
+
+    ![2026_52_113](nicegui_pro.assets/2026_52_113.png)
+
+  - `'includeTime'`键，布尔类型，表示是否允许同时设置时间，默认为`False`。注意，如果该键为`True`，则`'step'`键会被强制设置为`1`：
+
+    ![2026_52_114](nicegui_pro.assets/2026_52_114.png)
 
 - `'cellEditorSelector'`键，使用字符串表达的JavaScript函数，表示编辑单元格使用什么编辑器。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
   - `params`参数，`ICellEditorParams`类型，为该函数专用的参数。`ICellEditorParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/cell-editors/#reference-editing-cellEditorSelector 。
 
-- `'cellEditorPopup'`键，---
+- `'cellEditorPopup'`键，布尔类型，表示是否让除了`'agLargeTextCellEditor'`多行文本编辑器之外的其他编辑器在弹出层显示，默认为`False`。
 
-- `'cellEditorPopupPosition'`键，---
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+                  'cellEditor':'agTextCellEditor',
+                  'cellEditorPopup':True,
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_115](nicegui_pro.assets/2026_52_115.png)
+
+- `'cellEditorPopupPosition'`键，字符串类型（仅支持`['over','under']`中的值），表示编辑器在弹出层显示时的位置（覆盖单元格、单元格下方），默认为`'over'`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+                  'cellEditor':'agTextCellEditor',
+                  'cellEditorPopup':True,
+                  'cellEditorPopupPosition':'under'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_116](nicegui_pro.assets/2026_52_116.png)
+
+- `'singleClickEdit'`键，布尔类型，表示是否允许单击进入编辑模式，默认为`False`。
+
+- `'onCellValueChanged'`键，使用字符串表达的JavaScript函数，表示单元格的内容发生变化时执行的操作。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `event`参数，`NewValueParams`类型，为该函数专用的参数。`NewValueParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-events-onCellValueChanged 。
+
+  注意，该键实际上是`CellValueChanged`事件的响应函数。虽然这里可以用JavaScript函数定义响应函数，但使用Python侧的`on`方法定义响应函数更便捷。有关该控件的其他事件会在后面介绍，这里不展开。这里只提供一个简单的示例，后面几个同类的键不再提供示例：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+                  ':onCellValueChanged':'event => alert(event.newValue)',
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      ).on(
+          'CellValueChanged',
+          lambda event: ui.notify(
+              event.args['newValue']
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  ![2026_52_117](nicegui_pro.assets/2026_52_117.png)
+
+- `'onCellClicked'`键，使用字符串表达的JavaScript函数，表示单击单元格时执行的操作。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `event`参数，`CellClickedEvent`类型，为该函数专用的参数。`CellClickedEvent`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-events-onCellClicked 。
+
+- `'onCellDoubleClicked'`键，使用字符串表达的JavaScript函数，表示双击单元格时执行的操作。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `event`参数，`CellDoubleClickedEvent`类型，为该函数专用的参数。`CellDoubleClickedEvent`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-events-onCellDoubleClicked 。
+
+- `'onCellContextMenu'`键，使用字符串表达的JavaScript函数，表示右击单元格时执行的操作。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `event`参数，`CellContextMenuEvent`类型，为该函数专用的参数。`CellContextMenuEvent`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-events-onCellContextMenu 。
+
+- `'filter'`键，---
+
+  https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
+
+- `'filterParams'`键，---
 
 - 
 
@@ -23736,15 +23903,11 @@ ui.run(
 
 - `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
 
-- `'filter'`键，https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
-
 - `'floatingFilter'`键，布尔类型，---
 
 - `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
 
 - `'getQuickFilterText'`键，---
-
-- 
 
 - `'enableCellChangeFlash'`键，布尔类型，表示当单元格的数据发生变化时，是否闪烁一次，默认为`False`。注意，只有通过框架方法或者前端交互产生的数据变化才有闪烁，直接在Python代码中修改数据不会触发。
 
@@ -23829,11 +23992,11 @@ https://nicegui.io/documentation/aggrid#filter_return_values
 
 ##### 52.2.2.4 控件事件（更新中）
 
-
+https://www.ag-grid.com/javascript-data-grid/grid-events/
 
 https://www.ag-grid.com/javascript-data-grid/column-events/
 
-
+https://www.ag-grid.com/javascript-data-grid/row-events/
 
 #### 52.2.3 总结（更新中）
 

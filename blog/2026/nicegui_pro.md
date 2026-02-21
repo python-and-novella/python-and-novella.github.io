@@ -23891,11 +23891,17 @@ ui.run(
 
   - `event`参数，`CellContextMenuEvent`类型，为该函数专用的参数。`CellContextMenuEvent`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-events-onCellContextMenu 。
 
-- `'filter'`键，---
+- `'filter'`键，布尔类型或者字符串类型，表示过滤单元格内容时使用的筛选器。注意，不同于其他键与企业版功能严格绑定，该键部分功能为企业版专属，本章不做介绍，仅介绍部分社区版可用的功能（本章介绍的功能基本上都是社区版可用）。关于该键的支持的全部功能，可参考 https://www.ag-grid.com/javascript-data-grid/filtering/#column-filter-types 。
 
-  https://nicegui.io/documentation/aggrid#filter_rows_using_mini_filters
+  该键支持以下值，分别代表不同类型的编辑器：
 
-- `'filterParams'`键，---
+  - `'agTextColumnFilter'`或者`True`，表示文本筛选器，---
+
+- `'filterParams'`键，字典类型，表示单元格内容筛选器支持的配置项。注意，不同筛选器支持的配置项有所不同。
+
+  `'agTextColumnFilter'`文本筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-parameters）：
+
+  - `'buttons'`键，元素为字符串的列表，---
 
 - 
 
@@ -25040,6 +25046,8 @@ ui.run(
 
 
 
+
+
 ## 61 学习控件——弹出提示信息（更新中）
 
 NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
@@ -25270,3 +25278,16 @@ ui.run(
 window.location.reload(true)
 ```
 
+## 动画兼容性测试
+
+webp动画
+
+![动画](nicegui_pro.assets/动画.webp)
+
+png动画
+
+![动画](nicegui_pro.assets/动画.png)
+
+gif动画
+
+![动画](nicegui_pro.assets/动画.gif)

@@ -25278,16 +25278,7 @@ ui.run(
 window.location.reload(true)
 ```
 
-## 动画兼容性测试
 
-webp动画
 
-![动画](nicegui_pro.assets/动画.webp)
 
-png动画
 
-![动画](nicegui_pro.assets/动画.png)
-
-gif动画
-
-![动画](nicegui_pro.assets/动画.gif)

@@ -7029,21 +7029,125 @@ ui.run(
 
   该键支持以下值，分别代表不同类型的编辑器：
 
-  - `'agTextColumnFilter'`或者`True`，表示文本筛选器，---
+  - `'agTextColumnFilter'`或者`True`，表示文本筛选器，支持字符串相关的筛选操作（包含、开头是、结尾是等），推荐用于筛选字符串：
+
+    ![2026_52_118](nicegui_pro.assets/2026_52_118.png)
+
+  - `'agNumberColumnFilter'`，表示数字筛选器，支持数字相关的筛选操作（相等、大于、小于等），推荐用于筛选数字：
+
+    ![2026_52_119](nicegui_pro.assets/2026_52_119.png)
+
+  - `'agDateColumnFilter'`，表示日期筛选器，支持日期相关的筛选操作（相等、早于、晚于等），只能用于筛选日期：
+
+    ![2026_52_120](nicegui_pro.assets/2026_52_120.png)
 
 - `'filterParams'`键，字典类型，表示单元格内容筛选器支持的配置项。注意，不同筛选器支持的配置项有所不同。
 
-  `'agTextColumnFilter'`文本筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-parameters）：
+  `'agTextColumnFilter'`文本筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-parameters ）：
 
-  - `'buttons'`键，元素为字符串的列表，---
+  - `'buttons'`键，元素为字符串的列表（仅支持`['apply','clear','reset','cancel']`中的值），表示在筛选器界面额外显示的功能按钮（应用、清除、复位、取消）：
+
+    ![2026_52_121](nicegui_pro.assets/2026_52_121.png)
+
+  - `'caseSensitive'`键，布尔类型，表示筛选器是否对大小写敏感，默认为`False`。
+
+  - `'closeOnApply'`键，布尔类型，表示是否在点击应用按钮是关闭筛选器，默认为`False`。
+
+  - `'debounceMs'`键，整数类型，表示没有应用按钮、自动应用条件时，输入条件后间隔多少毫秒才会自动应用，默认为`500`。
+
+  - `'defaultJoinOperator'`键，字符串类型（仅支持`['AND','OR']`中的值），表示添加第二个及以上的筛选条件时，默认的逻辑运算符（与、或），默认为`'AND'`。
+
+  - `'defaultOption'`键，字符串类型，表示添加筛选条件时默认的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
+
+  - `'filterOptions'`键，元素为字符串或者字典的列表，表示添加筛选条件时允许的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
+
+    如果元素为字典，则表示自定义的筛选条件类型，支持以下键（完整用法可以参考 https://www.ag-grid.com/javascript-data-grid/filter-conditions/#custom-filter-options）：
+
+    - `'displayKey'`键，字符串类型，表示自定义筛选条件类型的唯一识别符，不能与内置的筛选条件类型（内置的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）或者其他自定义的相同。
+    - `'displayName'`键，字符串类型，表示自定义筛选条件类型的显示名（即界面中看到的内容）。如果该键使用框架可以本地化的英文文本，则控件切换本地化语言时也会同步翻译。
+    - `'predicate'`键，使用字符串表达的JavaScript函数，表示判断单元格内容与筛选条件匹配的函数。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+      - `filterValues`参数，可选参数、任意类型或者数组，参数类型与筛选条件允许输入值的个数有关，表示筛选条件允许输入值。
+      - `cellValue`参数，任意类型，表示单元格的内容。
+    - `'numberOfInputs'`键，整数类型（仅支持`[0,1,2]`中的值），表示筛选条件允许输入值的个数，默认为`1`。
+
+    示例如下：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                    'filter':'agTextColumnFilter',
+                    'filterParams':{
+                        'filterOptions':[
+                            'equals',
+                            {
+                                'displayKey':'相等',
+                                'displayName':'完全相等',
+                                ':predicate':'(filterValues,cellValue) => filterValues[0] == cellValue',
+                                'numberOfInputs':1
+                            }
+                        ]
+                    }
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', 'age': 20},
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+    ![2026_52_122](nicegui_pro.assets/2026_52_122.png)
+
+  - `'filterPlaceholder'`键，---
+
+    https://www.ag-grid.com/javascript-data-grid/filter-text/#reference-ITextFilterParams-filterPlaceholder
+
+  - `'maxNumConditions'`键，---
+
+  - `'numAlwaysVisibleConditions'`键，---
+
+  `'agNumberColumnFilter'`数字筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#number-filter-parameters ）：
+
+  - `'allowedCharPattern'`键，字符串类型，---
+  - `'buttons'`键，元素为字符串的列表（仅支持`['apply','clear','reset','cancel']`中的值），表示在筛选器界面额外显示的功能按钮（应用、清除、复位、取消）。
+  - `'debounceMs'`键，整数类型，表示没有应用按钮、自动应用条件时，输入条件后间隔多少毫秒才会自动应用，默认为`500`。
+
+  `'agDateColumnFilter'`日期筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#date-filter-parameters ）：
+
+  - `'browserDatePicker'`键，布尔类型，---
+  - `'buttons'`键，元素为字符串的列表（仅支持`['apply','clear','reset','cancel']`中的值），表示在筛选器界面额外显示的功能按钮（应用、清除、复位、取消）。
+  - `'debounceMs'`键，整数类型，表示没有应用按钮、自动应用条件时，输入条件后间隔多少毫秒才会自动应用，默认为`0`。
+
+- `'filterValueGetter'`键，---
+
+- `'getQuickFilterText'`键，---
+
+- `'floatingFilter'`键，布尔类型，---
 
 - 
 
 - `'headerName'`键，---
 
 - `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
-
-- `'floatingFilter'`键，布尔类型，---
 
 - `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
 
@@ -8433,10 +8537,5 @@ ui.run(
 ```javascript
 window.location.reload(true)
 ```
-
-
-
-
-
 
 

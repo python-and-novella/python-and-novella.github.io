@@ -7117,13 +7117,61 @@ ui.run(
 
     ![2026_52_122](nicegui_pro.assets/2026_52_122.png)
 
-  - `'filterPlaceholder'`键，---
+  - `'filterPlaceholder'`键，字符串类型或者使用字符串表达的JavaScript函数，表示筛选条件输入框内的占位符（提示文本，输入任意内容后消失）。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-    https://www.ag-grid.com/javascript-data-grid/filter-text/#reference-ITextFilterParams-filterPlaceholder
+    - `params`参数，`IFilterPlaceholderFunctionParams`类型，为该函数专用的参数。`IFilterPlaceholderFunctionParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#reference-ITextFilterParams-filterPlaceholder 。
 
-  - `'maxNumConditions'`键，---
+    示例如下：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                    'filter':'agTextColumnFilter',
+                    'filterParams':{
+                        #'filterPlaceholder':'输入字符串'
+                        ':filterPlaceholder':'params => params.filterOption === "Contains"?"包含":"输入字符串"'
+                    }
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', 'age': 20},
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+    ![2026_52_123](nicegui_pro.assets/2026_52_123.png)
+
+  - `'maxNumConditions'`键，整数类型，---
 
   - `'numAlwaysVisibleConditions'`键，---
+
+  - `'readOnly'`键，---
+
+  - `'textFormatter'`键，---
+
+  - `'textMatcher'`键，---
+
+  - `'trimInput'`键，---
 
   `'agNumberColumnFilter'`数字筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#number-filter-parameters ）：
 
@@ -8537,5 +8585,4 @@ ui.run(
 ```javascript
 window.location.reload(true)
 ```
-
 

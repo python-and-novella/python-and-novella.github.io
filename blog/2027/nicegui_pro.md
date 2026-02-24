@@ -7161,11 +7161,11 @@ ui.run(
 
     ![2026_52_123](nicegui_pro.assets/2026_52_123.png)
 
-  - `'maxNumConditions'`键，整数类型，---
+  - `'maxNumConditions'`键，整数类型，表示最多允许同时使用多少个筛选条件，默认为`2`。
 
-  - `'numAlwaysVisibleConditions'`键，---
+  - `'numAlwaysVisibleConditions'`键，整数类型，表示初始或者至少显示多少个筛选条件（默认情况下，只显示1个，只有第一个筛选条件应用之后才会显示第二个），默认为`1`。
 
-  - `'readOnly'`键，---
+  - `'readOnly'`键，布尔类型，表示是否开启只读模式（不能修改筛选条件），默认为`False`。
 
   - `'textFormatter'`键，---
 
@@ -7178,12 +7178,14 @@ ui.run(
   - `'allowedCharPattern'`键，字符串类型，---
   - `'buttons'`键，元素为字符串的列表（仅支持`['apply','clear','reset','cancel']`中的值），表示在筛选器界面额外显示的功能按钮（应用、清除、复位、取消）。
   - `'debounceMs'`键，整数类型，表示没有应用按钮、自动应用条件时，输入条件后间隔多少毫秒才会自动应用，默认为`500`。
+  - 
 
   `'agDateColumnFilter'`日期筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#date-filter-parameters ）：
 
   - `'browserDatePicker'`键，布尔类型，---
   - `'buttons'`键，元素为字符串的列表（仅支持`['apply','clear','reset','cancel']`中的值），表示在筛选器界面额外显示的功能按钮（应用、清除、复位、取消）。
   - `'debounceMs'`键，整数类型，表示没有应用按钮、自动应用条件时，输入条件后间隔多少毫秒才会自动应用，默认为`0`。
+  - 
 
 - `'filterValueGetter'`键，---
 
@@ -7302,7 +7304,9 @@ https://www.ag-grid.com/javascript-data-grid/row-events/
 
 https://www.ag-grid.com/javascript-data-grid/column-groups/
 
-`'defaultColGroupDef'`键，`'groupHeaderHeight'`键，`'hidePaddedHeaderRows'`键，
+表格定义的`'defaultColGroupDef'`键，`'groupHeaderHeight'`键，`'hidePaddedHeaderRows'`键，
+
+列定义的---
 
 示例：
 
@@ -7353,7 +7357,9 @@ ui.run(
 
 过滤器相关：
 
-`'floatingFiltersHeight'`键，`'floatingFilter'`键，列定义的`'filter'`键，
+表格定义的`'floatingFiltersHeight'`键，`'floatingFilter'`键，---
+
+列定义的`'filter'`键，`'filterParams'`键，---
 
 
 
@@ -7398,7 +7404,9 @@ https://www.ag-grid.com/javascript-data-grid/cell-editors/
 
 这个类型下相关的键：https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-editing
 
-`'editable'`键，`'valueSetter'`键，`'valueParser'`键，`'cellEditor'`键，`'cellEditorParams'`键，`'cellEditorSelector'`键，`'cellEditorPopup'`键，`'cellEditorPopupPosition'`键，
+表格定义的---
+
+列定义的`'editable'`键，`'valueSetter'`键，`'valueParser'`键，`'cellEditor'`键，`'cellEditorParams'`键，`'cellEditorSelector'`键，`'cellEditorPopup'`键，`'cellEditorPopupPosition'`键，
 
 
 
@@ -7435,7 +7443,9 @@ https://www.ag-grid.com/javascript-data-grid/row-selection-api-reference/
 
 ##### 52.2.2.6 排序（更新中）
 
+表格定义的---
 
+列定义的---
 
 https://www.ag-grid.com/javascript-data-grid/row-sorting/
 

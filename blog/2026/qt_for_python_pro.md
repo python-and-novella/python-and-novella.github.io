@@ -442,6 +442,187 @@ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWizardPage.html
 
 
 
+QtWidgets程序槽函数
+
+前面说过槽函数与直接使用函数没什么区别，就好像下面改自前面的示例，使用普通函数代替槽函数：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+
+# 信号，支持连接多个槽
+button.clicked.connect(lambda :print('button is clicked'))
+# 定义槽函数（伪），其实就是一般函数，可以勉强用，但功能上不如真的槽函数强大
+def on_clicked():
+    print('button is clicked2')
+
+button.clicked.connect(on_clicked)
+
+window.show()
+app.exec()
+```
+
+
+
+执行效果是一样的，但为什么还要定义槽函数呢？这就不得不说槽函数的自动连接功能，即无需手动连接所有的信号和槽，有一个简单的方法自动将槽函数与特定信号链接。
+
+想要自动连接生效，有以下关键点：
+
+- 发出信号的控件必须设置`objectName`（在UI文件中定义，或者使用`setObjectName`方法显式设置）。
+
+- 槽函数必须在类（继承自`QWidget`）内定义，并且命名符合要求。
+
+  示例如下：
+
+  ```python3
+  @Slot()
+  def on_{objectName}_{signalName}(self, ...):
+      ...
+  ```
+
+  命名要求如下：
+
+  - “on_”:，必须的前缀。
+
+  - “{objectName}”， 发送信号的控件的对象名（ `objectName`）。
+  - “{signalName}”， 信号的名称（信号的参数签名与槽函数装饰器一致）。
+
+- 在控件挂载、初始化完毕之后，调用`QMetaObject.connectSlotsByName(self)`。
+
+具体示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,QMetaObject
+
+app = QApplication()
+
+class Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('自动连接槽函数')
+        self.resize(400,300)
+        self.button = QPushButton('click',self)
+        self.button.setObjectName('button')
+        QMetaObject.connectSlotsByName(self)
+    @Slot()
+    def on_button_clicked(self):
+        print('clicked!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+
+
+与自定义信号结合：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,QMetaObject,Signal
+
+app = QApplication()
+
+class Window(QWidget):
+    mySignal = Signal(str)
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('自动连接槽函数（自定义信号）')
+        self.resize(400,300)
+        self.button = QPushButton('click',self)
+        self.button.clicked.connect(lambda:self.mySignal.emit('Hello'))
+        self.setObjectName('window')
+        QMetaObject.connectSlotsByName(self)
+    
+    @Slot(str)
+    def on_window_mySignal(self,string):
+        print(string)
+        print('window is clicked!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+
+
+
+
+重载信号：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,Signal
+
+app = QApplication()
+
+class Window(QWidget):
+    # 支持的其他类型必须使用元组来表明同级
+    mySignal = Signal((),(str,),(int,))
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('重载信号')
+        self.resize(400,300)
+        self.mySignal.connect(self.on_mySignal)
+        self.mySignal[str].connect(self.on_mySignal_str)
+        self.mySignal[int].connect(self.on_mySignal_int)
+        self.button1 = QPushButton('click[]',self)
+        self.button1.clicked.connect(lambda:self.mySignal.emit())
+        self.button2 = QPushButton('click[str]',self)
+        self.button2.clicked.connect(lambda:self.mySignal[str].emit('Hello'))
+        self.button2.move(0,30)
+        self.button3 = QPushButton('click[int]',self)
+        self.button3.clicked.connect(lambda:self.mySignal[int].emit(2026))
+        self.button3.move(0,60)
+
+    @Slot()
+    def on_mySignal(self):
+        print('window[] is clicked!!!')
+
+    @Slot(str)
+    def on_mySignal_str(self,string):
+        print(string)
+        print('window[str] is clicked!!!')
+
+    @Slot(int)
+    def on_mySignal_int(self,integer):
+        print(integer)
+        print('window[int] is clicked!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+
+
+
+
 后台运行+系统托盘+托盘的菜单+点击托盘显示主窗口：
 
 `QApplication`实例的`setQuitOnLastWindowClosed`方法可以实现后台运行。配合托盘图标的右键菜单（在右键菜单中可以添加退出`QApplication`实例、显示主窗口的菜单项），能够实现完善的后台运行、恢复前台的功能。

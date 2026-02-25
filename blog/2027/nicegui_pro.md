@@ -7329,7 +7329,7 @@ ui.run(
 
   `'agNumberColumnFilter'`数字筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#number-filter-parameters ）：
 
-  - `'allowedCharPattern'`键，字符串类型，表示允许输入字符的匹配表达式（比如`'0-9'`表示仅允许输入数字，`'abc'`表示仅允许输入“abc”中的字母）。
+  - `'allowedCharPattern'`键，字符串类型，表示允许输入字符的匹配表达式（比如`'0-9'`表示仅允许输入数字，`'abc'`表示仅允许输入“abc”中的字母，实际上最终的正则表达式为“[{`'allowedCharPattern'`键}]”）。
 
     示例如下：
 
@@ -7384,24 +7384,117 @@ ui.run(
 
   - `'filterPlaceholder'`键，字符串类型或者使用字符串表达的JavaScript函数，表示筛选条件输入框内的占位符（提示文本，输入任意内容后消失）。
 
-  - `'inRangeInclusive'`键，布尔类型，---
+  - `'inRangeInclusive'`键，布尔类型，表示筛选条件为范围型时是否包含边界值。
 
-  - `'includeBlanksInEquals'`键，布尔类型，---
+    示例如下：
 
-  - `'includeBlanksInGreaterThan'`键，布尔类型，---
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                    'filter':'agNumberColumnFilter',
+                    'filterParams':{
+                        'inRangeInclusive':True
+                    }
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', 'age': 20},
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
 
-  - `'includeBlanksInLessThan'`键，布尔类型，---
+    ![2026_52_125](nicegui_pro.assets/2026_52_125.png)
 
-  - `'includeBlanksInNotEqual'`键，布尔类型，---
+  - `'includeBlanksInEquals'`键，布尔类型，表示筛选条件为相等时是否认为空值单元格也符合条件。
 
-  - `'includeBlanksInRange'`键，布尔类型，---
+    示例如下：
 
-  - 
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                    'filter':'agNumberColumnFilter',
+                    'filterParams':{
+                        'includeBlanksInEquals':True
+                    }
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', },
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+    ![2026_52_126](nicegui_pro.assets/2026_52_126.png)
+
+  - `'includeBlanksInGreaterThan'`键，布尔类型，表示筛选条件为大于时是否认为空值单元格也符合条件。
+
+  - `'includeBlanksInLessThan'`键，布尔类型，表示筛选条件为小于时是否认为空值单元格也符合条件。
+
+  - `'includeBlanksInNotEqual'`键，布尔类型，表示筛选条件为不相等时是否认为空值单元格也符合条件。
+
+  - `'includeBlanksInRange'`键，布尔类型，表示筛选条件为范围型时是否认为空值单元格也符合条件。
+
+  - `'maxNumConditions'`键，整数类型，表示最多允许同时使用多少个筛选条件，默认为`2`。
+
+  - `'numAlwaysVisibleConditions'`键，整数类型，表示初始或者至少显示多少个筛选条件（默认情况下，只显示1个，只有第一个筛选条件应用之后才会显示第二个），默认为`1`。
+
+  - `'numberFormatter'`键，使用字符串表达的JavaScript函数，通常与`'allowedCharPattern'`键一起使用，表示如何调整（格式化）原始输入的筛选关键字。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名，完整可以参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#reference-INumberFilterParams-numberFormatter ）：
+
+    - `value`参数，浮点类型，表示原始输入的筛选关键字。
+
+  - `'numberParser'`键，使用字符串表达的JavaScript函数，通常与`'allowedCharPattern'`键一起使用，表示如何将原始输入的筛选关键字转换为数字（浮点类型）。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名，完整可以参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#reference-INumberFilterParams-numberParser ）：
+
+    - `text`参数，字符串类型，表示原始输入的筛选关键字。
+
+  - `'readOnly'`键，布尔类型，表示是否开启只读模式（不能修改筛选条件），默认为`False`。
 
   `'agDateColumnFilter'`日期筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#date-filter-parameters ）：
 
-  - `'browserDatePicker'`键，布尔类型，---
+  - `'browserDatePicker'`键，布尔类型，表示是否使用日期选择器，默认没有设置，将在浏览器支持日期选择器时使用日期选择器，在浏览器不支持时只用普通输入框。
   - `'buttons'`键，元素为字符串的列表（仅支持`['apply','clear','reset','cancel']`中的值），表示在筛选器界面额外显示的功能按钮（应用、清除、复位、取消）。
+  - `'closeOnApply'`键，布尔类型，表示是否在点击应用按钮是关闭筛选器，默认为`False`。
+  - `comparator`键，---
+  - 
   - `'debounceMs'`键，整数类型，表示没有应用按钮、自动应用条件时，输入条件后间隔多少毫秒才会自动应用，默认为`0`。
   - 
 

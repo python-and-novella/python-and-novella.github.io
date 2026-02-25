@@ -4823,6 +4823,40 @@ ui.run(
   )
   ```
 
+  注意，NiceGUI 3.8.0版本新增`ui.aggrid.VERSION`属性，用于表示`ui.aggrid`控件使用的AG Grid框架的版本，为了避免版本不同导致的翻译文本不兼容，上面的示例应当改为：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      ui.add_head_html(
+          f'''
+          <script src='https://unpkg.com/@ag-grid-community/locale@{ui.aggrid.VERSION}/dist/umd/@ag-grid-community/locale.min.js'></script>
+          '''
+      )
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'pagination': True,
+          ':localeText': 'AG_GRID_LOCALE_CN'
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
 - `'initialState'`键，字典类型，表示当前表格的状态，支持的键类似列定义（`'columnDefs'`键）。
 
   注意，虽然表格状态和列定义都可以实现某些效果（比如下面示例中的隐藏指定列），但表格状态优先级高于列定义，并且可以通过传入空值来恢复表格的默认状态，而不用像列定义那种必须传入初始的列定义。另外，表格状态支持的配置项比列定义更多（可以参考 https://www.ag-grid.com/javascript-data-grid/grid-state/#state-contents ）。
@@ -7167,17 +7201,201 @@ ui.run(
 
   - `'readOnly'`键，布尔类型，表示是否开启只读模式（不能修改筛选条件），默认为`False`。
 
-  - `'textFormatter'`键，---
+  - `'textFormatter'`键，使用字符串表达的JavaScript函数，表示如何调整（格式化）原始输入的筛选关键字。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名，完整可以参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#reference-ITextFilterParams-textFormatter ）：
 
-  - `'textMatcher'`键，---
+    - `from`参数，字符串类型，表示原始输入的筛选关键字。
 
-  - `'trimInput'`键，---
+    示例如下：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                    'filter':'agTextColumnFilter',
+                    'filterParams':{
+                        ':textFormatter':'from => from+"l"',
+                    }
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', 'age': 20},
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+    ![2026_52_124](nicegui_pro.assets/2026_52_124.png)
+
+  - `'textMatcher'`键，使用字符串表达的JavaScript函数，表示自定义的筛选方法，将覆盖所有内置的筛选条件。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+    - `params`参数，`TextMatcherParams`类型，为该函数专用的参数。`TextMatcherParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#reference-ITextFilterParams-textMatcher 。
+
+    示例如下：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                    'filter':'agTextColumnFilter',
+                    'filterParams':{
+                        ':textFormatter':'from => from+"l"',
+                        ':textMatcher':'params => params.value.toLowerCase().includes(params.filterText.toLowerCase())'
+                    }
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', 'age': 20},
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+    ![2026_52_124](nicegui_pro.assets/2026_52_124.png)
+
+  - `'trimInput'`键，布尔类型，表示是否移除筛选条件中关键字的前缀、后缀空格（移除结果直接体现在输入框中，并非隐式处理），默认为`False`。
+
+    示例如下：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                    'filter':'agTextColumnFilter',
+                    'filterParams':{
+                        'trimInput':True
+                    }
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', 'age': 20},
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
 
   `'agNumberColumnFilter'`数字筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#number-filter-parameters ）：
 
-  - `'allowedCharPattern'`键，字符串类型，---
+  - `'allowedCharPattern'`键，字符串类型，表示允许输入字符的匹配表达式（比如`'0-9'`表示仅允许输入数字，`'abc'`表示仅允许输入“abc”中的字母）。
+
+    示例如下：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                    'filter':'agNumberColumnFilter',
+                    'filterParams':{
+                        'allowedCharPattern':'0-9'
+                    }
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', 'age': 20},
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
   - `'buttons'`键，元素为字符串的列表（仅支持`['apply','clear','reset','cancel']`中的值），表示在筛选器界面额外显示的功能按钮（应用、清除、复位、取消）。
+
+  - `'closeOnApply'`键，布尔类型，表示是否在点击应用按钮是关闭筛选器，默认为`False`。
+
   - `'debounceMs'`键，整数类型，表示没有应用按钮、自动应用条件时，输入条件后间隔多少毫秒才会自动应用，默认为`500`。
+
+  - `'defaultJoinOperator'`键，字符串类型（仅支持`['AND','OR']`中的值），表示添加第二个及以上的筛选条件时，默认的逻辑运算符（与、或），默认为`'AND'`。
+
+  - `'defaultOption'`键，字符串类型，表示添加筛选条件时默认的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
+
+  - `'filterOptions'`键，元素为字符串或者字典的列表，表示添加筛选条件时允许的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
+
+    如果元素为字典，则表示自定义的筛选条件类型，完整用法可以参考 https://www.ag-grid.com/javascript-data-grid/filter-conditions/#custom-filter-options 。
+
+  - `'filterPlaceholder'`键，字符串类型或者使用字符串表达的JavaScript函数，表示筛选条件输入框内的占位符（提示文本，输入任意内容后消失）。
+
+  - `'inRangeInclusive'`键，布尔类型，---
+
+  - `'includeBlanksInEquals'`键，布尔类型，---
+
+  - `'includeBlanksInGreaterThan'`键，布尔类型，---
+
+  - `'includeBlanksInLessThan'`键，布尔类型，---
+
+  - `'includeBlanksInNotEqual'`键，布尔类型，---
+
+  - `'includeBlanksInRange'`键，布尔类型，---
+
   - 
 
   `'agDateColumnFilter'`日期筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#date-filter-parameters ）：
@@ -7278,11 +7496,19 @@ https://nicegui.io/documentation/aggrid#run_row_methods
 
 
 
-使用箭头函数作为控件方法名：
+注意，NiceGUI 3.8.0版本之后，出于安全考虑，`ui.aggrid`控件的`run_grid_method`方法、`run_row_method`方法不再支持使用箭头函数作为控件方法名实现自定义操作（虽然很神奇，但不太安全），但可以使用`ui.run_javascript`方法等效替代（虽然复杂一点，但依然满足要求）。
 
-https://nicegui.io/documentation/aggrid#filter_return_values
+比如下面的操作：
 
+```python3
+row = await grid.run_grid_method('(g) => g.getDisplayedRowAtIndex(0).data')
+```
 
+需要改为：
+
+```python3
+row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedRowAtIndex(0).data')
+```
 
 ##### 52.2.2.4 控件事件（更新中）
 

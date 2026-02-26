@@ -7091,13 +7091,13 @@ ui.run(
 
   - `'defaultJoinOperator'`键，字符串类型（仅支持`['AND','OR']`中的值），表示添加第二个及以上的筛选条件时，默认的逻辑运算符（与、或），默认为`'AND'`。
 
-  - `'defaultOption'`键，字符串类型，表示添加筛选条件时默认的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
+  - `'defaultOption'`键，字符串类型，表示添加筛选条件时默认的筛选条件类型（支持的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options ）。
 
   - `'filterOptions'`键，元素为字符串或者字典的列表，表示添加筛选条件时允许的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
 
-    如果元素为字典，则表示自定义的筛选条件类型，支持以下键（完整用法可以参考 https://www.ag-grid.com/javascript-data-grid/filter-conditions/#custom-filter-options）：
+    如果元素为字典，则表示自定义的筛选条件类型，支持以下键（完整用法可以参考 https://www.ag-grid.com/javascript-data-grid/filter-conditions/#custom-filter-options ）：
 
-    - `'displayKey'`键，字符串类型，表示自定义筛选条件类型的唯一识别符，不能与内置的筛选条件类型（内置的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）或者其他自定义的相同。
+    - `'displayKey'`键，字符串类型，表示自定义筛选条件类型的唯一识别符，不能与内置的筛选条件类型（内置的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）或者其他自定义的相同。
     - `'displayName'`键，字符串类型，表示自定义筛选条件类型的显示名（即界面中看到的内容）。如果该键使用框架可以本地化的英文文本，则控件切换本地化语言时也会同步翻译。
     - `'predicate'`键，使用字符串表达的JavaScript函数，表示判断单元格内容与筛选条件匹配的函数。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
       - `filterValues`参数，可选参数、任意类型或者数组，参数类型与筛选条件允许输入值的个数有关，表示筛选条件允许输入值。
@@ -7376,13 +7376,15 @@ ui.run(
 
   - `'defaultJoinOperator'`键，字符串类型（仅支持`['AND','OR']`中的值），表示添加第二个及以上的筛选条件时，默认的逻辑运算符（与、或），默认为`'AND'`。
 
-  - `'defaultOption'`键，字符串类型，表示添加筛选条件时默认的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
+  - `'defaultOption'`键，字符串类型，表示添加筛选条件时默认的筛选条件类型（支持的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#number-filter-options ）。
 
-  - `'filterOptions'`键，元素为字符串或者字典的列表，表示添加筛选条件时允许的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
+  - `'filterOptions'`键，元素为字符串或者字典的列表，表示添加筛选条件时允许的筛选条件类型（支持的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#number-filter-options ）。
 
     如果元素为字典，则表示自定义的筛选条件类型，完整用法可以参考 https://www.ag-grid.com/javascript-data-grid/filter-conditions/#custom-filter-options 。
 
-  - `'filterPlaceholder'`键，字符串类型或者使用字符串表达的JavaScript函数，表示筛选条件输入框内的占位符（提示文本，输入任意内容后消失）。
+  - `'filterPlaceholder'`键，字符串类型或者使用字符串表达的JavaScript函数，表示筛选条件输入框内的占位符（提示文本，输入任意内容后消失）。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+    - `params`参数，`IFilterPlaceholderFunctionParams`类型，为该函数专用的参数。`IFilterPlaceholderFunctionParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/filter-number/#reference-INumberFilterParams-filterPlaceholder 。
 
   - `'inRangeInclusive'`键，布尔类型，表示筛选条件为范围型时是否包含边界值。
 
@@ -7491,12 +7493,198 @@ ui.run(
   `'agDateColumnFilter'`日期筛选器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#date-filter-parameters ）：
 
   - `'browserDatePicker'`键，布尔类型，表示是否使用日期选择器，默认没有设置，将在浏览器支持日期选择器时使用日期选择器，在浏览器不支持时只用普通输入框。
+
   - `'buttons'`键，元素为字符串的列表（仅支持`['apply','clear','reset','cancel']`中的值），表示在筛选器界面额外显示的功能按钮（应用、清除、复位、取消）。
+
   - `'closeOnApply'`键，布尔类型，表示是否在点击应用按钮是关闭筛选器，默认为`False`。
-  - `comparator`键，---
-  - 
+
+  - `comparator`键，使用字符串表达的JavaScript函数，当单元格数据不是原生JavaScript的`Date`对象时，表示比较筛选条件与单元格数据的方法。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名，完整可以参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#reference-IDateFilterParams-comparator ）：
+
+    - `filterLocalDateAtMidnight`参数，JavaScript的`Date`类型，表示筛选条件的日期。
+    - `cellValue`参数，表示单元格的数据。
+
+    该键为JavaScript函数时，返回不同的数字表示不同的比较结果：
+
+    - **负数（`<0`）**表示单元格日期**早于**筛选条件的日期。
+    - **零（`==0`）**表示单元格日期**等于**筛选条件的日期。
+    - **正数（`<0`）**表示单元格日期**晚于**筛选条件的日期。
+
+    示例如下（根据年龄计算其出生年份）：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                },
+                {
+                    'headerName': 'Age',
+                    'field': 'age',
+                    'filter':'agDateColumnFilter',
+                    'filterParams':{
+                        ':comparator':'''
+                        (filterLocalDateAtMidnight, cellValue) => {
+                        const currentYear = new Date().getFullYear();
+                        const birthYear = currentYear - cellValue;
+                        const filterYear = filterLocalDateAtMidnight.getFullYear();
+                    
+                        // 直接返回年份差值
+                        return birthYear - filterYear;
+                        }
+                        '''            
+                    }
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'age': 18},
+                {'name': 'Bob', 'age': 21},
+                {'name': 'Carol', },
+            ],
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+    ![2026_52_127](nicegui_pro.assets/2026_52_127.png)
+
+    注意，因为使用该键时，单元格数据不是原生JavaScript的`Date`对象，可能存在不符合要求的数据（比如空值、非日期字符串），最好同时定义`'isValidDate'`键，用于验证单元格数据是否为合法的日期表达方式。
+
   - `'debounceMs'`键，整数类型，表示没有应用按钮、自动应用条件时，输入条件后间隔多少毫秒才会自动应用，默认为`0`。
-  - 
+
+  - `'defaultJoinOperator'`键，字符串类型（仅支持`['AND','OR']`中的值），表示添加第二个及以上的筛选条件时，默认的逻辑运算符（与、或），默认为`'AND'`。
+
+  - `'defaultOption'`键，字符串类型，表示添加筛选条件时默认的筛选条件类型（支持的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#filter-options ）。
+
+  - `'filterOptions'`键，元素为字符串或者字典的列表，表示添加筛选条件时允许的筛选条件类型（支持的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#filter-options ）。
+
+    如果元素为字典，则表示自定义的筛选条件类型，完整用法可以参考 https://www.ag-grid.com/javascript-data-grid/filter-conditions/#custom-filter-options 。
+
+  - `'filterPlaceholder'`键，字符串类型或者使用字符串表达的JavaScript函数，表示筛选条件输入框内的占位符（提示文本，输入任意内容后消失）。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+    - `params`参数，`IFilterPlaceholderFunctionParams`类型，为该函数专用的参数。`IFilterPlaceholderFunctionParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#reference-IDateFilterParams-filterPlaceholder 。
+
+  - `'inRangeFloatingFilterDateFormat'`键，字符串类型，表示浮动过滤器（需要启用列定义的`'floatingFilter'`键）中显示筛选条件为范围型的日期的格式，默认为`'YYYY-MM-DD'`。
+
+    示例如下：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                },
+                {
+                    'headerName': 'Birth',
+                    'field': 'birth',
+                    'filter':'agDateColumnFilter',
+                    'floatingFilter':True,
+                    'filterParams':{
+                        'inRangeFloatingFilterDateFormat':'YYYY年MM月DD日'          
+                    }
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'birth': '2026-01-01'},
+                {'name': 'Bob', 'birth': '2026-01-01'},
+                {'name': 'Carol', },
+            ],
+            
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+    ![2026_52_128](nicegui_pro.assets/2026_52_128.png)
+
+  - `'inRangeInclusive'`键，布尔类型，表示筛选条件为范围型时是否包含边界值。
+
+  - `'includeBlanksInEquals'`键，布尔类型，表示筛选条件为相等时是否认为空值单元格也符合条件。
+
+  - `'includeBlanksInGreaterThan'`键，布尔类型，表示筛选条件为大于时是否认为空值单元格也符合条件。
+
+  - `'includeBlanksInLessThan'`键，布尔类型，表示筛选条件为小于时是否认为空值单元格也符合条件。
+
+  - `'includeBlanksInNotEqual'`键，布尔类型，表示筛选条件为不相等时是否认为空值单元格也符合条件。
+
+  - `'includeBlanksInRange'`键，布尔类型，表示筛选条件为范围型时是否认为空值单元格也符合条件。
+
+  - `'includeTime'`键，布尔类型，表示对比时是否包含时间，默认为`False`。注意，如果为`True`，弹出的日期选择器会附带时间选择器：
+
+    ```python3
+    from nicegui import ui
+    
+    def index():
+        options = {
+            'columnDefs': [
+                {
+                    'headerName': 'Name',
+                    'field': 'name',
+                },
+                {
+                    'headerName': 'Birth',
+                    'field': 'birth',
+                    'filter':'agDateColumnFilter',
+                    'filterParams':{
+                        'includeTime':True        
+                    }
+                },
+            ],
+            'rowData': [
+                {'name': 'Alice', 'birth': '2026-01-01'},
+                {'name': 'Bob', 'birth': '2026-01-01'},
+                {'name': 'Carol', },
+            ],
+            
+        }
+        ui.aggrid(
+            options=options
+        )
+    
+    ui.run(
+        root=index,
+        native=True
+    )
+    ```
+
+    ![2026_52_129](nicegui_pro.assets/2026_52_129.png)
+
+  - `'isValidDate'`键，使用字符串表达的JavaScript函数，当单元格数据不是原生JavaScript的`Date`对象时，表示验证单元格数据是否为有效日期的方法。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名，完整可以参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#reference-IDateFilterParams-isValidDate ）：
+
+    - `value`参数，表示单元格的数据。
+
+  - `'maxNumConditions'`键，整数类型，表示最多允许同时使用多少个筛选条件，默认为`2`。
+
+  - `'maxValidDate'`键，字符串类型，表示允许筛选的最晚日期，格式为`'YYYY-MM-DD'`。注意，该键会覆盖`'maxValidYear'`键的设置。
+
+  - `'maxValidYear'`键，整数类型，表示允许筛选的最晚年份。
+
+  - `'minValidDate'`键，字符串类型，表示允许筛选的最早日期，格式为`'YYYY-MM-DD'`。注意，该键会覆盖`'minValidYear'`键的设置。
+
+  - `'minValidYear'`键，整数类型，表示允许筛选的最早年份，默认值为`1000`。
+
+  - `'numAlwaysVisibleConditions'`键，整数类型，表示初始或者至少显示多少个筛选条件（默认情况下，只显示1个，只有第一个筛选条件应用之后才会显示第二个），默认为`1`。
+
+  - `'readOnly'`键，布尔类型，表示是否开启只读模式（不能修改筛选条件），默认为`False`。
 
 - `'filterValueGetter'`键，---
 
@@ -7676,9 +7864,9 @@ ui.run(
 
 过滤器相关：
 
-表格定义的`'floatingFiltersHeight'`键，`'floatingFilter'`键，---
+表格定义的`'floatingFiltersHeight'`键，---
 
-列定义的`'filter'`键，`'filterParams'`键，---
+列定义的`'filter'`键，`'filterParams'`键，`'floatingFilter'`键，---
 
 
 

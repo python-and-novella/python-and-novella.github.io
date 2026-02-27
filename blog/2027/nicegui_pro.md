@@ -7602,7 +7602,6 @@ ui.run(
                 {'name': 'Bob', 'birth': '2026-01-01'},
                 {'name': 'Carol', },
             ],
-            
         }
         ui.aggrid(
             options=options
@@ -7686,21 +7685,120 @@ ui.run(
 
   - `'readOnly'`键，布尔类型，表示是否开启只读模式（不能修改筛选条件），默认为`False`。
 
-- `'filterValueGetter'`键，---
+- `'filterValueGetter'`键，使用字符串表达的JavaScript函数或者表达式，用法类似`'valueGetter'`键，但与其不同的是，该键得到的结果将用于筛选条件，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-filtering-filterValueGetter 。
 
-- `'getQuickFilterText'`键，---
+  示例如下：
 
-- `'floatingFilter'`键，布尔类型，---
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'filter':'agTextColumnFilter',
+                  'filterValueGetter':'getValue("name")'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_130](nicegui_pro.assets/2026_52_130.png)
+
+- `'getQuickFilterText'`键，使用字符串表达的JavaScript函数或者表达式，表示在表格中搜索包含指定内容的行（即使用`'quickFilterText'`键）时，每行对应该列的单元格如何获取用于匹配的内容。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`GetQuickFilterTextParams`类型，为该函数专用的参数。`GetQuickFilterTextParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/filter-quick/#reference-filtering-getQuickFilterText 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  ':getQuickFilterText':'params => params.data.age === 18?"ok":params.data'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ]
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      ui.input(
+          'quickFilterText'
+      ).bind_value_to(aggrid.options,'quickFilterText')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_131](nicegui_pro.assets/2026_52_131.png)
+
+- `'floatingFilter'`键，布尔类型，表示是否启用浮动过滤器，默认为`False`。
+
+- `'headerName'`键，字符串类型，表示表头显示的内容。
+
+- `'headerValueGetter'`键，使用字符串表达的JavaScript函数或者表达式，表示每行对应该列的表头单元格内容获取来源，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-header-headerValueGetter 。
+
+- `'headerTooltipValueGetter'`键，---
+
+- `'headerTooltip'`键，---
+
+- `'headerStyle'`键，---
+
+- `'headerClass'`键，---
+
+- `'wrapHeaderText'`键，---
+
+- `'autoHeaderHeight'`键，---
+
+- `'menuTabs'`键，---
+
+- `'suppressHeaderMenuButton'`键，---
+
+- `'suppressHeaderFilterButton'`键，---
+
+- `'suppressHeaderContextMenu'`键，---
+
+- `'suppressHeaderKeyboardEvent'`键，---
+
+- `'suppressFloatingFilterButton'`键，---
 
 - 
-
-- `'headerName'`键，---
 
 - `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
 
 - `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
-
-- `'getQuickFilterText'`键，---
 
 - `'enableCellChangeFlash'`键，布尔类型，表示当单元格的数据发生变化时，是否闪烁一次，默认为`False`。注意，只有通过框架方法或者前端交互产生的数据变化才有闪烁，直接在Python代码中修改数据不会触发。
 

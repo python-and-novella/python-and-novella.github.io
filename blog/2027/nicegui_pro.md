@@ -7844,9 +7844,9 @@ ui.run(
 
   ![2026_52_133](nicegui_pro.assets/2026_52_133.png)
 
-- `'wrapHeaderText'`键，布尔类型，表示在表头文字长度超过行宽时是否自动换行，默认为`False`。
+- `'wrapHeaderText'`键，布尔类型，表示在表头文字长度超过列宽时是否自动换行，默认为`False`。
 
-- `'autoHeaderHeight'`键，布尔类型，表示在表头文字长度超过行宽进行自动换行时是否自动调整表头的行高，默认为`False`。
+- `'autoHeaderHeight'`键，布尔类型，表示在表头文字长度超过列宽进行自动换行时是否自动调整表头的行高，默认为`False`。
 
   示例如下：
 
@@ -7890,13 +7890,21 @@ ui.run(
 
 - `'suppressFloatingFilterButton'`键，布尔类型，表示是否隐藏显示在浮动过滤器旁边的过滤器弹出按钮，默认为`False`。
 
-- `'pinned'`键，---
+- `'pinned'`键，布尔类型或者字符串类型（仅支持`['left','right']`中的值），表示是否将该列的位置固定以及固定到哪个位置（`True`的话视作最左边），默认为`False`。
 
-- 
+- `'initialPinned'`键（对应`'pinned'`键的`Initial`配置项），布尔类型或者字符串类型（仅支持`['left','right']`中的值），表示是否将该列的位置固定以及固定到哪个位置（`True`的话视作最左边），默认为`False`。
 
-- `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
+- `'lockPinned'`键，布尔类型，表示是否禁止用户修改该列的固定状态，默认为`False`。
 
-- `'cellClassRules'`键，https://nicegui.io/documentation/aggrid#ag_grid_with_conditional_cell_formatting
+- `'cellStyle'`键，字典类型或者使用字符串表达的JavaScript函数，表示该列单元格的样式，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/cell-styles/#reference-styling-cellStyle 。
+
+- `'cellClass'`键，字符串类型、元素为字符串的列表或元组、使用字符串表达的JavaScript函数，表示该列单元格的样式类，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/cell-styles/#reference-styling-cellClass 。
+
+- `'cellClassRules'`键，字典类型（键为样式类，值为使用字符串表达的JavaScript函数或者表达式），表示单元格的样式类。不同于`'cellClass'`键只能设置该列所有单元格的样式类，该键可以将符合字典值对应条件的行，设置为字典键同名的样式类。完整用法可参考 https://www.ag-grid.com/javascript-data-grid/row-styles/#reference-styling-rowClassRules 。
+
+- `'autoHeight'`键，布尔类型，表示在单元格文字长度超过行、列宽进行自动换行时是否自动调整该行的行高，默认为`False`。
+
+- `'wrapText'`键，布尔类型，表示在单元格文字长度超过列宽时是否自动换行，默认为`False`。
 
 - `'enableCellChangeFlash'`键，布尔类型，表示当单元格的数据发生变化时，是否闪烁一次，默认为`False`。注意，只有通过框架方法或者前端交互产生的数据变化才有闪烁，直接在Python代码中修改数据不会触发。
 
@@ -7941,11 +7949,28 @@ ui.run(
   )
   ```
 
-  （运行效果动图）
+  ![2026_52_135](nicegui_pro.assets/2026_52_135.gif)
+
+- `'rowDrag'`键，布尔类型，表示是否允许通过拖动每行对应该列的单元格来拖动该行，默认为`False`。
+
+- `'rowDragText'`键，使用字符串表达的JavaScript函数，表示拖动行时鼠标旁边显示的提示性文字。
+
+  该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`IRowDragItem`类型，为该函数专用的参数。`IRowDragItem`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-row%20dragging-rowDragText 。
+  - `dragItemCount`参数，整数类型，表示一共拖动了多少行。
+
+  注意，表格定义中也有同名键，用法一样，但列定义中的同名键优先级更高。
+
+- `'dndSource'`键，布尔类型或者使用字符串表达的JavaScript函数，---
+
+- 
+
+- `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
 
 - `'spanRows'`键，布尔类型或者字符串表示的JavaScript函数，表示是否跨行合并邻值相同的单元格，默认为`False`。
 
-- `'rowDrag'`键，布尔类型，表示是否允许通过拖动每行对应该列的单元格来拖动该行，默认为`False`。
+- 
 
 
 

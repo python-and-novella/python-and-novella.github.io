@@ -7770,29 +7770,127 @@ ui.run(
 
 - `'headerValueGetter'`键，使用字符串表达的JavaScript函数或者表达式，表示每行对应该列的表头单元格内容获取来源，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-header-headerValueGetter 。
 
-- `'headerTooltipValueGetter'`键，---
+- `'headerTooltip'`键，字符串类型，表示悬停在表头时显示的工具提示。
 
-- `'headerTooltip'`键，---
+- `'headerStyle'`键，字典类型或者使用字符串表达的JavaScript函数，表示表头的样式，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-header-headerStyle 。
 
-- `'headerStyle'`键，---
+  示例如下：
 
-- `'headerClass'`键，---
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  'headerStyle':{
+                      'color':'red'
+                  },
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `'wrapHeaderText'`键，---
+  ![2026_52_132](nicegui_pro.assets/2026_52_132.png)
 
-- `'autoHeaderHeight'`键，---
+- `'headerClass'`键，字符串类型、元素为字符串的列表或元组、使用字符串表达的JavaScript函数，表示表头的样式类，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-header-headerClass 。
 
-- `'menuTabs'`键，---
+  示例如下：
 
-- `'suppressHeaderMenuButton'`键，---
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  'headerClass':('text-red','bg-green'),
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `'suppressHeaderFilterButton'`键，---
+  ![2026_52_133](nicegui_pro.assets/2026_52_133.png)
 
-- `'suppressHeaderContextMenu'`键，---
+- `'wrapHeaderText'`键，布尔类型，表示在表头文字长度超过行宽时是否自动换行，默认为`False`。
 
-- `'suppressHeaderKeyboardEvent'`键，---
+- `'autoHeaderHeight'`键，布尔类型，表示在表头文字长度超过行宽进行自动换行时是否自动调整表头的行高，默认为`False`。
 
-- `'suppressFloatingFilterButton'`键，---
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+                  'wrapHeaderText':True,
+                  'autoHeaderHeight':True
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_134](nicegui_pro.assets/2026_52_134.png)
+
+- `'suppressHeaderFilterButton'`键，布尔类型，表示是否隐藏显示在表头中的过滤器弹出按钮，默认为`False`。
+
+- `'suppressHeaderKeyboardEvent'`键，使用字符串表达的JavaScript函数，表示是否禁止表头响应键盘事件。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`SuppressHeaderKeyboardEventParams`类型，为该函数专用的参数。`SuppressHeaderKeyboardEventParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-header-suppressHeaderKeyboardEvent 。
+
+- `'suppressFloatingFilterButton'`键，布尔类型，表示是否隐藏显示在浮动过滤器旁边的过滤器弹出按钮，默认为`False`。
+
+- `'pinned'`键，---
 
 - 
 
@@ -9200,4 +9298,12 @@ ui.run(
 ```javascript
 window.location.reload(true)
 ```
+
+
+
+
+
+
+
+
 

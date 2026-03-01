@@ -491,10 +491,10 @@ app.exec()
 
   命名要求如下：
 
-  - “on_”:，必须的前缀。
+  - 必须使用“on_”为前缀。
 
-  - “{objectName}”， 发送信号的控件的对象名（ `objectName`）。
-  - “{signalName}”， 信号的名称（信号的参数签名与槽函数装饰器一致）。
+  - 必须包含“{objectName}”——发送信号的控件的对象名（ 控件属性`objectName`）。
+  - 必须包含“{signalName}”，——信号的变量名（即信号被分配给哪个变量，并且信号的参数签名与槽函数装饰器一致）。
 
 - 在控件挂载、初始化完毕之后，调用`QMetaObject.connectSlotsByName(self)`。
 

@@ -5119,7 +5119,10 @@ def index():
             'This is purple on yellow with SASS.'
         ).classes('purple')
 
-ui.run(root=index, native=True)
+ui.run(
+    root=index, 
+    native=True
+)
 ```
 
 `ui.add_scss`方法的示例：
@@ -5888,9 +5891,9 @@ ui.run(
 
 -   `app.storage.tab`字典，数据存储在服务器的内存中，此字典对于每个选项卡、会话都是唯一的，可以存储任意对象。需要注意的是，在实现 `https://github.com/zauberzeug/nicegui/discussions/2841` 之前，重启服务器会导致此字典的数据丢失，但是，使用Redis持久化存储时，重启服务器此字典的数据不会丢失。对于使用复制选项卡功能（右键选项卡点复制）创建的新选项卡，二者的`tab_id`（`ui.context.client.tab_id`）是相同的，因此，复制的选项卡与原选项卡共享此字典。此外，此字典需要等待客户端建立连接（确保读写此字典的操作在异步函数内的 `await ui.context.client.connected()`之后）。
 -   `app.storage.client`字典，数据存储在服务器的内存中，对于每个客户端连接都是唯一的，并且可以存储任意对象。当页面重新加载或用户导航到另一个页面时，数据将被销毁。不同于能在服务器上保存数据好几天的`app.storage.tab`，`app.storage.client`更适合缓存频繁使用、一次性的数据。比如，需要动态更新的数据或者数据库连接，但希望在用户离开页面或关闭浏览器时立即销毁。
--   `app.storage.user`字典，数据存储在服务器磁盘中，每个字典都与浏览器cookie中保存的唯一标识符相关联，换句话说，此字典对于每个用户都是唯一的，并与浏览器的其他选项卡共享。可以通过存储在`app.storage.browser['id']`的标识符识别用户、会话。这个字典需要设置`ui.run()`的`storage_secret`参数来签名浏览器会话cookie。
+-   `app.storage.user`字典，数据存储在服务器磁盘中，每个字典都与浏览器cookie中保存的唯一标识符相关联，换句话说，此字典对于每个用户都是唯一的，并与浏览器的其他选项卡共享。可以通过存储在`app.storage.browser['id']`的标识符识别用户、会话。这个字典需要设置`ui.run`方法的`storage_secret`参数来签名浏览器会话cookie。
 -   `app.storage.general`字典，数据存储在服务器磁盘中，提供了所有用户都可以访问的共享存储空间。
--   `app.storage.browser`字典，与前几个字典不同，该字典的数据直接存储为浏览器会话cookie，在同一用户的所有浏览器选项卡之间共享。虽然很多方面看起来很像`app.storage.user`，不过，`app.storage.user`因为其在减少数据负载、增强安全性和提供更大存储容量方面的优势，在实际使用中比`app.storage.browser`更受欢迎。默认情况下，NiceGUI会在`app.storage.browser['id']`中为每个浏览器会话保留一个唯一标识符。此外，这个字典需要设置`ui.run()`的`storage_secret`参数来签名浏览器会话cookie。
+-   `app.storage.browser`字典，与前几个字典不同，该字典的数据直接存储为浏览器会话cookie，在同一用户的所有浏览器选项卡之间共享。虽然很多方面看起来很像`app.storage.user`，不过，`app.storage.user`因为其在减少数据负载、增强安全性和提供更大存储容量方面的优势，在实际使用中比`app.storage.browser`更受欢迎。默认情况下，NiceGUI会在`app.storage.browser['id']`中为每个浏览器会话保留一个唯一标识符。此外，这个字典需要设置`ui.run`方法的`storage_secret`参数来签名浏览器会话cookie。
 
 如果因为上述介绍看起来不够直观，而在选用存储字典时候头疼，可以参考下面的对比表格快速选用（✅表示是，❌表示否）：
 

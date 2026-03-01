@@ -7962,25 +7962,316 @@ ui.run(
 
   注意，表格定义中也有同名键，用法一样，但列定义中的同名键优先级更高。
 
-- `'dndSource'`键，布尔类型或者使用字符串表达的JavaScript函数，---
+- `'sortable'`键，布尔类型，表示该列是否支持排序，默认为`True`。
 
-- 
+- `'sort'`键，字符串类型（仅支持`['asc','desc',None]`中的值，对应升序、降序、不排序），表示默认的排序状态。
 
-- `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
+- `'initialSort'`键（对应`'sort'`键的`Initial`配置项），字符串类型（仅支持`['asc','desc',None]`中的值，对应升序、降序、不排序），表示默认的排序状态。
+
+- `'sortIndex'`键，整数类型，表示当多列同时排序时的优先级（值越小，优先级越高）。
+
+- `'initialSortIndex'`键（对应`'sortIndex'`键的`Initial`配置项），整数类型，表示当多列同时排序时的优先级（值越小，优先级越高）。
+
+- `'unSortIcon'`键，布尔类型，表示在该列未排序时是否显示该状态的相应图标，默认为`False`。
+
+- `'colSpan'`键，使用字符串表达的JavaScript函数，表示如何跨列合并单元格。
+
+  该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+
+  - `params`参数，`ColSpanParams`类型，为该函数专用的参数。`ColSpanParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-spanning-colSpan 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+                  ':colSpan':'params => params.data.name == "Header"?2:1'
+              },
+              {
+                  'headerName': 'Age', 
+                  'field': 'age',
+              },
+          ],
+          'rowData': [
+              {'name':'Header'},
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_136](nicegui_pro.assets/2026_52_136.png)
 
 - `'spanRows'`键，布尔类型或者字符串表示的JavaScript函数，表示是否跨行合并邻值相同的单元格，默认为`False`。
 
-- 
+  该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
+  - `params`参数，`SpanRowsParams`类型，为该函数专用的参数。`SpanRowsParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-spanning-spanRows 。
 
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name', 
+                  'field': 'name',
+                  ':spanRows':'params => (params.valueA === "Carol") && (params.valueA === params.valueB)'
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Bob', 'age': 20},
+              {'name': 'Carol', 'age': 20},
+              {'name': 'Carol', 'age': 21},
+          ],
+          'enableCellSpan':True
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
+  ![2026_52_137](nicegui_pro.assets/2026_52_137.png)
+
+- `'tooltipField'`键，字符串类型，表示在行数据字典中，该行哪个键的值对应该列所属单元格的工具提示。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name', 
+                  'field': 'name',
+                  'tooltipField':'age'
+              },
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_138](nicegui_pro.assets/2026_52_138.png)
+
+- `'tooltipValueGetter'`键，使用字符串表达的JavaScript函数或者表达式，表示该列所属单元格的工具提示获取来源，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-tooltips-tooltipValueGetter 。
+
+- `'width'`键，整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
+
+- `'initialWidth'`键（对应`'width'`键的`Initial`配置项），整数类型，表示列宽，优先于自动调整列宽的策略，默认为`200`。
+
+- `'minWidth'`键，整数类型，表示最小列宽。
+
+- `'maxWidth'`键，整数类型，表示最大列宽。
+
+- `'resizable'`键，布尔类型，表示是否允许调整该列的列宽，默认为`True`。
+
+- `'suppressSizeToFit'`键，布尔类型，在初始化时，表示是否禁止该列因为受自动调整列宽策略影响而调整列宽，默认为`False`。
+
+- `'suppressAutoSize'`键，布尔类型，表示是否禁止通过双击调整列宽的区域手动触发列宽自动调整（将根据单元格内容调整列宽），默认为`False`。
+
+- `'children'`键，元素为字典（列定义）的列表，表示该列此时为列组，该键对应的值表示包含的子列。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+               {
+                  'headerName': 'Info', 
+                  'children': [
+                      {'headerName': 'Name', 'field': 'name',},
+                      {'headerName': 'Age', 'field': 'age'},
+                  ]
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_139](nicegui_pro.assets/2026_52_139.png)
+
+- `'groupId'`键，字符串类型，表示列组的ID。注意，该键并非强制，默认会自动生成列组的ID，但是，如果存在多层列组嵌套，建议手动设置，方便使用相关方法交互。
+
+- `'marryChildren'`键（仅限列组），布尔类型，表示是否允许列组的子列直接插入其他非该列组的列，默认为`False`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+               {
+                  'headerName': 'Info', 
+                  'children': [
+                      {'headerName': 'Name', 'field': 'name'},
+                      {'headerName': 'Age', 'field': 'age'},
+                  ],
+                  #'marryChildren':True
+              },
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  可以在取消示例中的注释之后尝试得到下图的结果，观察该键的效果：
+
+  ![2026_52_140](nicegui_pro.assets/2026_52_140.png)
+
+- `'openByDefault'`键（仅限列组），布尔类型，表示表示列组是否默认展开，默认为`False`。
+
+- `'suppressSpanHeaderHeight'`键，布尔类型，表示当存在列组时，该列的表头是否禁止自动扩展高度以及让表头内容上下居中，默认为`True`。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+               {
+                  'headerName': 'Info', 
+                  'children': [
+                      {'headerName': 'Name', 'field': 'name'},
+                      {'headerName': 'Age', 'field': 'age'},
+                  ],
+              },
+              {'headerName': 'Name（列组外）', 'field': 'name'},
+              {'headerName': 'Age（列组外）', 'field': 'age','suppressSpanHeaderHeight':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_141](nicegui_pro.assets/2026_52_141.png)
+
+- `'suppressStickyLabel'`键（仅限列组），布尔类型，表示是否禁止固定列组的表头，默认为`False`。当列组的子列较多或者宽度超过表格的左右宽度，导致需要水平滚动才能看到其余内容时，默认会固定列组的表头，确保列组的表示始终可见。示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+               {
+                  'headerName': 'Info', 
+                  'children': [
+                      {'headerName': 'Name', 'field': 'name'},
+                      {'headerName': 'Age', 'field': 'age'},
+                  ],
+                  #'suppressStickyLabel':True
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      )
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_142](nicegui_pro.assets/2026_52_142.png)
 
 ##### 52.2.2.3 控件方法（更新中）
 
 单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/ 。
 
 行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ 。
+
+前面提到过---
+
+
 
 单元格支持的控件方法（部分）如下：
 
@@ -8014,11 +8305,15 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
 ##### 52.2.2.4 控件事件（更新中）
 
+
+
 https://www.ag-grid.com/javascript-data-grid/grid-events/
 
 https://www.ag-grid.com/javascript-data-grid/column-events/
 
 https://www.ag-grid.com/javascript-data-grid/row-events/
+
+
 
 #### 52.2.3 总结（更新中）
 

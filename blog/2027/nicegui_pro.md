@@ -4059,7 +4059,7 @@ ui.run(
 
   从该参数开始，只能通过关键字传入。
 
-- `theme`参数，字符串类型，仅支持`l['quartz', 'balham', 'material', 'alpine']`中的值，表示表格的样式主题，默认为`'quartz'`。
+- `theme`参数，字符串类型，仅支持`['quartz', 'balham', 'material', 'alpine']`中的值，表示表格的样式主题，默认为`'quartz'`。
 
 - `auto_size_columns`参数，布尔类型，表示是否根据表格可用空间自动调节列宽，默认为`True`。
 
@@ -4092,7 +4092,7 @@ ui.run(
 - `get_client_data`方法，异步方法，以列表形式返回客户端当前状态的表格数据。该方法支持以下关键字参数：
 
   - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
-  - `method`参数，字符串类型，仅支持`['all_unsorted', 'filtered_unsorted', 'filtered_sorted', 'leaf']`中的值，表示获取数据的方法（所有行不排序、过滤后的行不排序、过滤后的行排序、仅限树形结构数据的叶子节点），默认为 `'all_unsorted'`。
+  - `method`参数，字符串类型，仅支持`['all_unsorted', 'filtered_unsorted', 'filtered_sorted', 'leaf']`中的值，表示获取数据的方法（所有行不排序、筛选后的行不排序、筛选后的行排序、仅限树形结构数据的叶子节点），默认为 `'all_unsorted'`。
 
   对于该方法而言，如果表格数据支持编辑，编辑之后没有同步数据到后端的话，该方法返回的数据就与后端方法获取到的数据不同，示例如下：
 
@@ -4407,9 +4407,9 @@ ui.run(
 
   注意，受限于篇幅，列组的含义、相关用法、示例将在后面的章节介绍，本节中与列组相关的键均不提供示例代码。
 
-- `'floatingFiltersHeight'`键，整数类型，表示浮动过滤器所在行的行高，默认与一般行的行高相同。
+- `'floatingFiltersHeight'`键，整数类型，表示浮动筛选器所在行的行高，默认与一般行的行高相同。
 
-  注意，受限于篇幅，过滤器的含义、相关用法、示例将在后面的章节介绍，本节中与过滤器相关的键均不提供示例代码。
+  注意，受限于篇幅，筛选器的含义、相关用法、示例将在后面的章节介绍，本节中与筛选器相关的键均不提供示例代码。
 
 - `'groupHeaderHeight'`键，整数类型，列组表头的高度，默认与一般行的行高相同。
 
@@ -5942,7 +5942,7 @@ ui.run(
 
 - `'dataTypeDefinitions'`键，字典类型，表示自定义的数据类型，其中键名为类型名，值为字典（该字典部分支持列定义的键）。该键一般与列定义的`'cellDataType'`键组合使用，完整用法可参考 https://www.ag-grid.com/javascript-data-grid/cell-data-types/#reference-columns-dataTypeDefinitions 。
 
-##### 52.2.2.2 列定义（更新中）
+##### 52.2.2.2 列定义
 
 列定义的参考文档：https://www.ag-grid.com/javascript-data-grid/column-properties/
 
@@ -7059,7 +7059,7 @@ ui.run(
 
   - `event`参数，`CellContextMenuEvent`类型，为该函数专用的参数。`CellContextMenuEvent`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-events-onCellContextMenu 。
 
-- `'filter'`键，布尔类型或者字符串类型，表示过滤单元格内容时使用的筛选器。注意，不同于其他键与企业版功能严格绑定，该键部分功能为企业版专属，本章不做介绍，仅介绍部分社区版可用的功能（本章介绍的功能基本上都是社区版可用）。关于该键的支持的全部功能，可参考 https://www.ag-grid.com/javascript-data-grid/filtering/#column-filter-types 。
+- `'filter'`键，布尔类型或者字符串类型，表示筛选单元格内容时使用的筛选器。注意，不同于其他键与企业版功能严格绑定，该键部分功能为企业版专属，本章不做介绍，仅介绍部分社区版可用的功能（本章介绍的功能基本上都是社区版可用）。关于该键的支持的全部功能，可参考 https://www.ag-grid.com/javascript-data-grid/filtering/#column-filter-types 。
 
   该键支持以下值，分别代表不同类型的编辑器：
 
@@ -7573,7 +7573,7 @@ ui.run(
 
     - `params`参数，`IFilterPlaceholderFunctionParams`类型，为该函数专用的参数。`IFilterPlaceholderFunctionParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/filter-date/#reference-IDateFilterParams-filterPlaceholder 。
 
-  - `'inRangeFloatingFilterDateFormat'`键，字符串类型，表示浮动过滤器（需要启用列定义的`'floatingFilter'`键）中显示筛选条件为范围型的日期的格式，默认为`'YYYY-MM-DD'`。
+  - `'inRangeFloatingFilterDateFormat'`键，字符串类型，表示浮动筛选器（需要启用列定义的`'floatingFilter'`键）中显示筛选条件为范围型的日期的格式，默认为`'YYYY-MM-DD'`。
 
     示例如下：
 
@@ -7764,7 +7764,7 @@ ui.run(
 
   ![2026_52_131](nicegui_pro.assets/2026_52_131.png)
 
-- `'floatingFilter'`键，布尔类型，表示是否启用浮动过滤器，默认为`False`。
+- `'floatingFilter'`键，布尔类型，表示是否启用浮动筛选器，默认为`False`。
 
 - `'headerName'`键，字符串类型，表示表头显示的内容。
 
@@ -7882,13 +7882,13 @@ ui.run(
 
   ![2026_52_134](nicegui_pro.assets/2026_52_134.png)
 
-- `'suppressHeaderFilterButton'`键，布尔类型，表示是否隐藏显示在表头中的过滤器弹出按钮，默认为`False`。
+- `'suppressHeaderFilterButton'`键，布尔类型，表示是否隐藏显示在表头中的筛选器弹出按钮，默认为`False`。
 
 - `'suppressHeaderKeyboardEvent'`键，使用字符串表达的JavaScript函数，表示是否禁止表头响应键盘事件。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
   - `params`参数，`SuppressHeaderKeyboardEventParams`类型，为该函数专用的参数。`SuppressHeaderKeyboardEventParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-header-suppressHeaderKeyboardEvent 。
 
-- `'suppressFloatingFilterButton'`键，布尔类型，表示是否隐藏显示在浮动过滤器旁边的过滤器弹出按钮，默认为`False`。
+- `'suppressFloatingFilterButton'`键，布尔类型，表示是否隐藏显示在浮动筛选器旁边的筛选器弹出按钮，默认为`False`。
 
 - `'pinned'`键，布尔类型或者字符串类型（仅支持`['left','right']`中的值），表示是否将该列的位置固定以及固定到哪个位置（`True`的话视作最左边），默认为`False`。
 
@@ -8145,7 +8145,7 @@ ui.run(
 
   ![2026_52_139](nicegui_pro.assets/2026_52_139.png)
 
-- `'groupId'`键，字符串类型，表示列组的ID。注意，该键并非强制，默认会自动生成列组的ID，但是，如果存在多层列组嵌套，建议手动设置，方便使用相关方法交互。
+- `'groupId'`键（仅限列组），字符串类型，表示列组的ID。注意，该键并非强制，默认会自动生成列组的ID，但是，如果存在多层列组嵌套，建议手动设置，方便使用相关方法交互。
 
 - `'marryChildren'`键（仅限列组），布尔类型，表示是否允许列组的子列直接插入其他非该列组的列，默认为`False`。
 
@@ -8269,13 +8269,248 @@ ui.run(
 
 行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ 。
 
-前面提到过---
-
-
+前面提到过，`run_grid_method`方法可以运行单元格支持的方法，`run_row_method`方法可以运行行对象支持的方法。因此，本节介绍一下单元格、行对象支持的控件方法（因为这些方法是AG Grid框架提供的，而不是由NiceGUI框架实现的）。
 
 单元格支持的控件方法（部分）如下：
 
+- `showColumnFilter`方法，显示（弹出）筛选器。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-accessories-showColumnFilter ）：
+
+  - `colKey`参数，字符串类型，表示列的ID（列定义`'field'`键对应的值）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','filter':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'showColumnFilter'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              'age'
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_143](nicegui_pro.assets/2026_52_143.gif)
+
+- `hideColumnFilter`方法，隐藏已经显示（弹出）的筛选器。
+
+- `showColumnMenu`方法，显示（弹出）列菜单。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-accessories-showColumnMenu ）：
+
+  - `colKey`参数，字符串类型，表示列的ID（列定义`'field'`键对应的值）。
+
+  注意，筛选器属于列菜单的一种，其他类型的列菜单则属于企业版功能，也可以使用该方法显示。
+
+- `hidePopupMenu`方法，隐藏已经显示（弹出）的菜单。
+
+- `getColumnDefs`方法，获取表格定义。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'getColumnDefs'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method
+          )
+          ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_144](nicegui_pro.assets/2026_52_144.png)
+
+- `setColumnsVisible`方法，设置指定列的可见性。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-Visibility%20and%20Display-setColumnsVisible ）：
+
+  - `keys`参数，元素为字符串（列的ID）的列表、元组，表示指定的列。
+  - `visible`参数，布尔类型，表示可见性。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'setColumnsVisible'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              [
+                  'name',
+                  'age'
+              ],
+              False
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_145](nicegui_pro.assets/2026_52_145.gif)
+
+- `setColumnGroupOpened`方法，设置指定列组的展开状态。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-colGroups-setColumnGroupOpened ）：
+
+  - `group`参数，字符串类型，表示列组的ID。
+  - `newValue`参数，布尔类型，表示是否展开。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+               {
+                  'headerName': 'Info', 
+                  'children': [
+                      {'headerName': 'Name（展开时显示）', 'field': 'name','columnGroupShow':'open'},
+                      {'headerName': 'Age（收起时显示）', 'field': 'age','columnGroupShow':'closed'},
+                  ],
+                  'groupId':'info'
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'setColumnGroupOpened'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              'info',
+              True
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_146](nicegui_pro.assets/2026_52_146.gif)
+
+- `moveColumns`方法，---
+
+  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnMoving-moveColumns
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'moveColumns'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              [
+                  'age',
+              ],
+              0
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
+- `moveColumnByIndex`方法，---
+
 - 
+
+- `xxx`方法，xxx方法的作用。该方法支持以下位置参数（完整用法参考 xxx ）：
+
+  - `xxx`参数，字符串类型，表示xxx。
 
 行对象支持的控件方法（部分）如下：
 
@@ -8291,10 +8526,10 @@ https://nicegui.io/documentation/aggrid#run_row_methods
 
 注意，NiceGUI 3.8.0版本之后，出于安全考虑，`ui.aggrid`控件的`run_grid_method`方法、`run_row_method`方法不再支持使用箭头函数作为控件方法名实现自定义操作（虽然很神奇，但不太安全），但可以使用`ui.run_javascript`方法等效替代（虽然复杂一点，但依然满足要求）。
 
-比如下面的操作：
+比如获取当前页第一行数据的操作（NiceGUI 3.8.0版本之后无效）：
 
 ```python3
-row = await grid.run_grid_method('(g) => g.getDisplayedRowAtIndex(0).data')
+row = await aggrid.run_grid_method('(g) => g.getDisplayedRowAtIndex(0).data')
 ```
 
 需要改为：
@@ -8376,9 +8611,9 @@ ui.run(
 
 
 
-##### 52.2.3.2 过滤（或者叫筛选）（更新中）
+##### 52.2.3.2 筛选（更新中）
 
-过滤器相关：
+筛选器相关：
 
 表格定义的`'floatingFiltersHeight'`键，---
 

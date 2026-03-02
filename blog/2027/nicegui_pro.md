@@ -8713,7 +8713,91 @@ ui.run(
 
 - `autoSizeColumns`方法，---
 
+  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnSizing-autoSizeColumns
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','headerClass':'bg-red'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'autoSizeColumns'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              {
+                  'colIds':[
+                      'name',
+                      'age'
+                  ],
+              }
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
 - `autoSizeAllColumns`方法，---
+
+  参数同`autoSizeColumns`方法，但该方法默认不指定列的话会调整所有列。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','headerClass':'bg-red'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'autoSizeAllColumns'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
+- `getColumnState`方法，---
 
 - 
 

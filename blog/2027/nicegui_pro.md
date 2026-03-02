@@ -8460,9 +8460,10 @@ ui.run(
 
   ![2026_52_146](nicegui_pro.assets/2026_52_146.gif)
 
-- `moveColumns`方法，---
+- `moveColumns`方法，移动多个指定列到指定位置。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnMoving-moveColumns ）：
 
-  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnMoving-moveColumns
+  - `columnsToMoveKeys`参数，元素为字符串（列的ID）的列表、元组，表示指定的列。
+  - `toIndex`参数，整数类型，表示目标位置的索引值。
 
   示例如下：
 
@@ -8502,9 +8503,217 @@ ui.run(
   )
   ```
 
-  
+  ![2026_52_147](nicegui_pro.assets/2026_52_147.gif)
 
-- `moveColumnByIndex`方法，---
+- `moveColumnByIndex`方法，移动指定列到指定位置。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnMoving-moveColumnByIndex ）：
+
+  - `fromIndex`参数，整数类型，表示指定的列。
+  - `toIndex`参数，整数类型，表示目标位置的索引值。
+
+- `isPinning`方法，当前是否有列被固定。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+    
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'isPinning'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method
+          )
+          ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+    
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_148](nicegui_pro.assets/2026_52_148.gif)
+
+- `isPinningLeft`方法，当前是否有列被固定在左边。
+
+- `isPinningRight`方法，当前是否有列被固定在右边。
+
+- `setColumnsPinned`方法，固定多个指定列到指定位置。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnPinning-setColumnsPinned ）：
+
+  - `keys`参数，元素为字符串（列的ID）的列表、元组，表示指定的列。
+  - `pinned`参数，字符串类型（仅支持`['left','right']`中的值）或者布尔类型，表示是否固定或者固定到哪边。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'setColumnsPinned'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              [
+                  'age',
+              ],
+              'left'
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_149](nicegui_pro.assets/2026_52_149.gif)
+
+- `setColumnWidths`方法，设置指定列的宽度。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnSizing-setColumnWidths ）：
+
+  - `columnWidths`参数，元素为字典（`'key'`键表示列的ID，`'newWidth'`键表示该列的宽度）的列表、元组，表示指定的列及对应的宽度。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','headerClass':'bg-red'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'setColumnWidths'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              [
+                  {
+                      'key':'age',
+                      'newWidth':100
+                  },
+              ],
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_150](nicegui_pro.assets/2026_52_150.gif)
+
+- `sizeColumnsToFit`方法，让所有列基于给定要求自动调整宽度，确保占据全部可用空间。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnSizing-sizeColumnsToFit ）：
+
+  - `paramsOrGridWidth`参数，元素为字典的列表、元组，表示对列宽的要求。
+
+    字典支持以下键：
+
+    - `'columnLimits'`键，元素为字典的列表、元组，表示特定列的列宽要求。
+
+      字典支持以下键：
+
+      - `'key'`键，字符串类型，表示指定列的ID。
+      - `'minWidth'`键，整数类型，表示指定列的最小宽度。
+      - `'maxWidth'`键，整数类型，表示指定列的最大宽度。
+
+    - `'defaultMinWidth'`键，整数类型，表示列的默认最小宽度。
+
+    - `'defaultMaxWidth'`键，整数类型，表示列的默认最大宽度。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','headerClass':'bg-red'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'sizeColumnsToFit'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              {
+                  'columnLimits':[
+                      {
+                          'key':'age',
+                          'minWidth':100,
+                          'maxWidth':120
+                      },
+                  ],
+                  'defaultMinWidth':150,
+                  'defaultMaxWidth':500
+              }
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_151](nicegui_pro.assets/2026_52_151.gif)
+
+- `autoSizeColumns`方法，---
+
+- `autoSizeAllColumns`方法，---
 
 - 
 

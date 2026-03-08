@@ -8648,7 +8648,7 @@ ui.run(
 
 - `sizeColumnsToFit`方法，让所有列基于给定要求自动调整宽度，确保占据全部可用空间。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnSizing-sizeColumnsToFit ）：
 
-  - `paramsOrGridWidth`参数，元素为字典的列表、元组，表示对列宽的要求。
+  - `paramsOrGridWidth`参数，字典类型或者整数类型，表示对列宽的要求或者指定的列宽。
 
     字典支持以下键：
 
@@ -8711,9 +8711,28 @@ ui.run(
 
   ![2026_52_151](nicegui_pro.assets/2026_52_151.gif)
 
-- `autoSizeColumns`方法，---
+- `autoSizeColumns`方法，自动调整指定列的列宽，使制定列的单元格能够显示所有内容。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnSizing-autoSizeColumns ）：
 
-  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-columnSizing-autoSizeColumns
+  - `params`参数，字典类型，表示对列宽的要求。
+
+    字典支持以下键：
+
+    - `'colIds'`键，元素为字符串（列的ID）的列表、元组，表示哪些列自动调整列宽。
+
+    - `'skipHeader'`键，布尔类型，表示是否忽略表头的内容（即不考虑表头内容的多少，只考虑其他单元格）。
+
+    - `'columnLimits'`键，元素为字典的列表、元组，表示特定列的列宽要求。
+
+      字典支持以下键：
+
+      - `'key'`键，字符串类型，表示指定列的ID。
+      - `'minWidth'`键，整数类型，表示指定列的最小宽度。
+      - `'maxWidth'`键，整数类型，表示指定列的最大宽度。
+
+    - `'defaultMinWidth'`键，整数类型，表示列的默认最小宽度。
+
+    - `'defaultMaxWidth'`键，整数类型，表示列的默认最大宽度。
+
 
   示例如下：
 
@@ -8755,11 +8774,7 @@ ui.run(
   )
   ```
 
-  
-
-- `autoSizeAllColumns`方法，---
-
-  参数同`autoSizeColumns`方法，但该方法默认不指定列的话会调整所有列。
+- `autoSizeAllColumns`方法，参数同`autoSizeColumns`方法，但该方法在没有参数时会调整所有列的列宽。
 
   示例如下：
 
@@ -8795,9 +8810,177 @@ ui.run(
   )
   ```
 
-  
+- `getColumnState`方法，获取所有列的当前状态（常用于保存列的状态），完整用法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-state-getColumnState 。
 
-- `getColumnState`方法，---
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','headerClass':'bg-red'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'getColumnState'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method
+          )
+          ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_152](nicegui_pro.assets/2026_52_152.png)
+
+- `applyColumnState`方法，给指定列应用指定状态。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-state-applyColumnState ）：
+
+  - `params`参数，`ApplyColumnStateParams`类型（字典类型），为该函数专用的参数。`ApplyColumnStateParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-state-applyColumnState 。
+
+    字典支持以下键：
+
+    - `'state'`键，元素为字典（包含列的ID及列的状态）的列表、元组，表示指定列的状态。
+
+      字典支持以下键（部分）：
+
+      - `'colId'`键，字符串类型，表示列的ID（不可重复）。
+      - `'hide'`键，布尔类型，表示该列是否隐藏。
+      - `'width'`键，整数类型，表示列宽。
+      - `'flex'`键，整数类型，表示浮动布局的份数。如果两个以上的列采用浮动布局，则这些列会占据所有可用宽度，并依据各列的份数占比分配宽度。
+      - `'sort'`键，字符串类型（仅支持`['asc','desc',None]`中的值，对应升序、降序、不排序），表示列的排序状态。
+      - `'sortIndex'`键，整数类型，表示当多列同时排序时的优先级（值越小，优先级越高）。
+      - `'pinned'`键，整数类型，表示当多列同时排序时的优先级（值越小，优先级越高）。
+
+    - `'applyOrder'`键，布尔类型，表示是否应用`'state'`键中列的顺序。
+
+    - `'defaultState'`键，字典类型，表示其他不在`'state'`键中的列，其状态是什么。支持`'state'`键除了`'colId'`键外的所有键。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','headerClass':'bg-red'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'applyColumnState'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              {
+                  'state':[
+                      {
+                          'colId':'age',
+                          'width':50
+                      }
+                  ]
+              }
+          )
+          ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_153](nicegui_pro.assets/2026_52_153.gif)
+
+- `resetColumnState`方法，复位所有列为初始状态。
+
+- `getColumnGroupState`方法，获取所有列组的当前状态。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Info', 
+                  'children': [
+                      {'headerName': '展开时显示', 'field': 'name','columnGroupShow':'open'},
+                      {'headerName': '收起时显示', 'field': 'name','columnGroupShow':'closed'},
+                      {'headerName': '始终显示', 'field': 'age'},
+                  ]
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'getColumnGroupState'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+          )
+          ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_154](nicegui_pro.assets/2026_52_154.png)
+
+- `setColumnGroupState`方法，给指定列组应用指定状态。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-state-setColumnGroupState ）：
+
+  - `stateItems`参数，元素为字典（包含列组的ID及列组的状态）的列表、元组，表示指定列的状态。
+
+    字典支持以下键：
+
+    - `'groupId'`键，字符串类型，表示列组的ID（不可重复）。
+    - `'open'`键，布尔类型，表示列组是否展开。
+
+- `resetColumnGroupState`方法，复位所有列组为初始状态。
+
+- `startEditingCell`方法，---
 
 - 
 

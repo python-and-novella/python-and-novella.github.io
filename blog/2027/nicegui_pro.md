@@ -8867,7 +8867,7 @@ ui.run(
       - `'flex'`键，整数类型，表示浮动布局的份数。如果两个以上的列采用浮动布局，则这些列会占据所有可用宽度，并依据各列的份数占比分配宽度。
       - `'sort'`键，字符串类型（仅支持`['asc','desc',None]`中的值，对应升序、降序、不排序），表示列的排序状态。
       - `'sortIndex'`键，整数类型，表示当多列同时排序时的优先级（值越小，优先级越高）。
-      - `'pinned'`键，整数类型，表示当多列同时排序时的优先级（值越小，优先级越高）。
+      - `'pinned'`键，布尔类型或者字符串类型（仅支持`['left','right']`中的值），表示是否将该列的位置固定以及固定到哪个位置（`True`的话视作最左边）。
 
     - `'applyOrder'`键，布尔类型，表示是否应用`'state'`键中列的顺序。
 
@@ -8980,7 +8980,63 @@ ui.run(
 
 - `resetColumnGroupState`方法，复位所有列组为初始状态。
 
-- `startEditingCell`方法，---
+- `startEditingCell`方法，让指定单元格进入编辑状态（需要该列启用编辑）。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-editing-startEditingCell ）：
+
+  - `params`参数，`StartEditingCellParams`类型（字典类型），为该函数专用的参数。`StartEditingCellParams`类型支持的属性可以参考 https://www.ag-grid.com/javascript-data-grid/cell-editing-start-stop/#reference-editing-startEditingCell 。
+
+    字典支持以下键：
+
+    - `'rowIndex'`键，整数类型，表示当前排序、筛选状态下，单元格所属行的位置索引值。
+    - `'colKey'`键，字符串类型，表示单元格所属列的ID。
+    - `'rowPinned'`键，字符串类型（仅支持`['top','bottom']`中的值），表示是否编辑固定行（顶部、底部）中的单元格。
+    - `'key'`键，字符串类型，表示通过模拟触发哪个按键来进入编辑状态。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'startEditingCell'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              {
+                  'rowIndex':1,
+                  'colKey':'age'
+              }
+          )
+          ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_155](nicegui_pro.assets/2026_52_155.gif)
+
+- `stopEditing`方法，---
+
+- `isEditing`方法，---
 
 - 
 

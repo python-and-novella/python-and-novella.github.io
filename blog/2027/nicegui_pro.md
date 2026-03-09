@@ -9034,9 +9034,288 @@ ui.run(
 
   ![2026_52_155](nicegui_pro.assets/2026_52_155.gif)
 
-- `stopEditing`方法，---
+- `stopEditing`方法，退出单元格编辑状态。该方法支持以下位置参数：
 
-- `isEditing`方法，---
+  - `cancel`参数，布尔类型，表示是否撤销对单元格内容的修改。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'stopEditing'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              True
+          )
+          # 无返回结果的不用显示
+          #ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_156](nicegui_pro.assets/2026_52_156.gif)
+
+- `getQuickFilter`方法，获取用于在表格中搜索包含指定内容的行的关键字。
+
+- `resetQuickFilter`方法，重置用于在表格中搜索包含指定内容的行的关键字。
+
+- `getGridOption`方法，获取表格定义中指定键的值。该方法支持以下位置参数：
+
+  - `key`参数，字符串类型，表示表格定义的指定键。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'getGridOption'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              'rowData'
+          )
+          # 无返回结果的不用显示
+          ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_157](nicegui_pro.assets/2026_52_157.png)
+
+- `setGridOption`方法，修改表格定义中指定键的值。该方法支持以下位置参数：
+
+  - `key`参数，字符串类型，表示表格定义的指定键。
+  - `value`参数，表示指定键对应的值。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'setGridOption'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              'rowData',
+              [
+                  {'name': 'Alice', 'age': 18},
+              ]
+          )
+          # 无返回结果的不用显示
+          #ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `updateGridOptions`方法，更新表格定义。该方法支持以下位置参数：
+
+  - `options`参数，字典类型，表示要更新的表格定义（仅更新同名键，无同名键的不更新）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'updateGridOptions'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              {
+                  'rowData':[
+                      {'name': 'Alice', 'age': 18},
+                  ]
+              }
+          )
+          # 无返回结果的不用显示
+          #ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `getState`方法，获取表格的当前状态（常用于设置表格的状态），完整用法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-gridState-getState 。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'getState'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+          )
+          # 无返回结果的不用显示
+          ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_52_158](nicegui_pro.assets/2026_52_158.png)
+
+- `setState`方法，设置表格的当前状态。---
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'setState'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              {
+                  'columnOrder':{
+                      'orderedColIds':['age','name']
+                  }
+              }
+          )
+          # 无返回结果的不用显示
+          #ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
+- `xxx`方法，---
+
+- `xxx`方法，---
+
+- `xxx`方法，---
 
 - 
 

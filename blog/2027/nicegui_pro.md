@@ -9266,6 +9266,8 @@ ui.run(
 
 - `setState`方法，设置表格的当前状态。---
 
+  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-gridState-setState
+
   示例如下：
 
   ```python3

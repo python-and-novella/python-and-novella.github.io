@@ -9222,7 +9222,7 @@ ui.run(
   )
   ```
 
-- `getState`方法，获取表格的当前状态（常用于设置表格的状态），完整用法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-gridState-getState 。
+- `getState`方法，获取表格的当前状态（常用于保存表格的状态），完整用法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-gridState-getState 。
 
   示例如下：
 
@@ -9264,9 +9264,24 @@ ui.run(
 
   ![2026_52_158](nicegui_pro.assets/2026_52_158.png)
 
-- `setState`方法，设置表格的当前状态。---
+- `setState`方法，设置表格的当前状态。该方法支持以下位置参数（完整用法参考 https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-gridState-setState ）：
 
-  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-gridState-setState
+  - `state`参数，`GridState`类型（字典类型），表示表格的状态。
+
+    `GridState`类型（字典类型）支持以下键（部分）：
+
+    - `'columnGroup'`键，字典类型，表示列组的状态。该字典支持`'openColumnGroupIds'`键，是元素为字符串（列组的ID）的列表、元组，表示哪些列组为展开状态。
+    - `'columnOrder'`键，字典类型，表示列的顺序。该字典支持`'orderedColIds'`键，是元素为字符串（列组的ID）的列表、元组，表示列的顺序。
+    - `'columnPinning'`键，字典类型，表示列的固定状态。该字典支持`'leftColIds'`键和`'rightColIds'`键，是元素为字符串（列组的ID）的列表、元组，表示左边、右边固定的列。
+    - `'columnSizing'`键，---
+    - `'columnVisibility'`键，---
+    - `'focusedCell'`键，---
+    - `'pagination'`键，---
+    - `'rowPinning'`键，---
+    - `'sort'`键，---
+    - `'partialColumnState'`键，---
+
+  - `propertiesToIgnore`参数，元素为字符串（表格状态的键名）的列表、元组，表示哪些表格状态保持现状。
 
   示例如下：
 
@@ -9313,6 +9328,26 @@ ui.run(
 
   
 
+- `getFocusedCell`方法，---
+
+  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-navigation-getFocusedCell
+
+- `setFocusedCell`方法，---
+
+- `clearFocusedCell`方法，---
+
+- `tabToNextCell`方法，---
+
+- `tabToPreviousCell`方法，---
+
+- `setFocusedHeader`方法，---
+
+- `getCellValue`方法，---
+
+  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-miscellaneous-getCellValue
+
+- `expireValueCache`方法，---
+
 - `xxx`方法，---
 
 - `xxx`方法，---
@@ -9325,19 +9360,18 @@ ui.run(
 
   - `xxx`参数，字符串类型，表示xxx。
 
+运行行对象的控件控件方法需要额外设置表格选项的`'getRowId'`键，用于设定行ID的获取方法，并将可以通过获取方法得到的唯一ID传给`run_row_method`方法的第一个参数，具体参考 https://nicegui.io/documentation/aggrid#run_row_methods 。
+
 行对象支持的控件方法（部分）如下：
 
+- `xxx`方法，---
 - 
+- `xxx`方法，xxx方法的作用。该方法支持以下位置参数（完整用法参考 xxx ）：
+  - `xxx`参数，字符串类型，表示xxx。
 
 
 
-实例：
-
-https://nicegui.io/documentation/aggrid#run_row_methods
-
-
-
-注意，NiceGUI 3.8.0版本之后，出于安全考虑，`ui.aggrid`控件的`run_grid_method`方法、`run_row_method`方法不再支持使用箭头函数作为控件方法名实现自定义操作（虽然很神奇，但不太安全），但可以使用`ui.run_javascript`方法等效替代（虽然复杂一点，但依然满足要求）。
+注意，NiceGUI 3.8.0版本之后，出于安全考虑，`ui.aggrid`控件的`run_grid_method`方法、`run_row_method`方法不再支持使用箭头函数作为控件方法名实现自定义操作（虽然很神奇，但不太安全），但可以使用`ui.run_javascript`方法等效替代（虽然复杂一点，但依然满足要求），具体参考 https://nicegui.io/documentation/aggrid#access_grid_api_via_javascript 。
 
 比如获取当前页第一行数据的操作（NiceGUI 3.8.0版本之后无效）：
 

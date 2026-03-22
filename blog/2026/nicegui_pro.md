@@ -2622,7 +2622,7 @@ ui.run(
 
 ![2026_14_3](nicegui_pro.assets/2026_14_3.png)
 
-## 15 认识控件
+## 15 认识控件（3.9.0版本更新）
 
 NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较多、功能各异，为了方便读者快速了解，笔者将特点、用途类似的控件划分为一类，先按照类别简单介绍一下这些控件。
 
@@ -2970,14 +2970,15 @@ ui.run(
 
 ![2026_15_8](nicegui_pro.assets/2026_15_8.png)
 
-### 15.8 显示图片
+### 15.8 显示图片（3.9.0版本更新）
 
 在NiceGUI程序中，想要显示图形，通常使用下面的控件：
 
 - `ui.image`控件，简单显示提供的图片。
 - `ui.interactive_image`控件，在显示图片的基础上，提供了额外的内容和交互功能。
+- `ui.parallax`控件，使用视差显示图片，可以增加网站的层次感。
 
-示例如下：
+示例如下（`ui.parallax`控件用单独的示例）：
 
 ```python3
 from nicegui import ui
@@ -3034,6 +3035,26 @@ ui.run(
 ```
 
 ![2026_15_10](nicegui_pro.assets/2026_15_10.png)
+
+`ui.parallax`控件显示图片时需要同一区域的内容可以滚动，才能触发视差效果（内容和图片的滚动方向相反）：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.scroll_area():
+        ui.label('上面的文本').classes('border h-32 w-full')
+        with ui.parallax('https://cdn.quasar.dev/img/parallax2.jpg', height=200):
+            ui.label('中间的文本').classes('text-white')
+        ui.label('下面的文本').classes('border h-32 w-full')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_15_9_1](nicegui_pro.assets/2026_15_9_1.gif)
 
 ### 15.9 播放音视频
 
@@ -6038,6 +6059,83 @@ ui.run(
 
 在程序弹出窗口的同时，可以使用浏览器访问`http://127.0.0.1:8000`，点击不同的按钮，查看切换全屏的效果。
 
+## 版本速览——3.9.0版本新增`ui.parallax`控件和窗口模式的事件支持
+
+NiceGUI 3.9.0 新增以下功能（控件）：
+
+- `ui.parallax`控件，使用视差显示图片，可以增加网站的层次感，基于Quasar框架的视差控件（https://quasar.dev/vue-components/parallax）实现。
+- 针对窗口模式，添加了事件支持（终于可以响应窗口事件了，可以参考 https://pywebview.flowrl.com/guide/usage.html#window-events ，了解支持的事件）。
+- `app.clients`方法传入`None`（默认值）时，返回所有客户端链接。
+
+`ui.parallax`控件显示图片时需要同一区域的内容可以滚动，才能触发视差效果（内容和图片的滚动方向相反）：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.scroll_area():
+        ui.label('上面的文本').classes('border h-32 w-full')
+        with ui.parallax('https://cdn.quasar.dev/img/parallax2.jpg', height=200):
+            ui.label('中间的文本').classes('text-white')
+        ui.label('下面的文本').classes('border h-32 w-full')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_15_9_1](nicegui_pro.assets/2026_15_9_1.gif)
+
+在全局作用域，使用`app.native.on`方法为窗口模式的事件注册响应函数：
+
+```python3
+from nicegui import ui,app
+
+app.native.on(
+   'shown',
+   lambda :print(
+      'window is shown'
+   )
+)
+
+def index():
+   ...
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_3.9.0_1](nicegui_pro.assets/2026_3.9.0_1.png)
+
+给`app.clients`方法传入`None`（默认值）时，可以获取所有客户端链接，可用于广播、消息发送、信息收集等。
+
+示例如下：
+
+```python3
+from nicegui import ui,app
+
+def index():
+   def notify():
+      clients = app.clients()
+      for i in clients:
+         with i:
+            ui.notify(i.id)
+   ui.button(
+      'Notify',
+      on_click=notify
+   )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_3.9.0_2](nicegui_pro.assets/2026_3.9.0_2.png)
+
 ## 25 读写剪贴板
 
 `ui.clipboard`模块提供了读写剪贴板的功能，可以使用下面的方法读写剪贴板：
@@ -8125,6 +8223,69 @@ ui.run(
 ```
 
 这里是将固定版本EdgeWebview运行时解压之后，将包含可执行文件`msedgewebview2.exe`的文件夹改名为`webview2`，然后放到源代码的同级目录中，读者在实际使用时可以根据文件夹名字和位置自行变换路径。
+
+#### 35.5.2 响应事件
+
+在全局作用域，使用`app.native.on`方法为窗口模式的事件注册响应函数。
+
+窗口模式支持以下事件（部分完整可参考 https://pywebview.flowrl.com/guide/usage.html#window-events）：
+
+- `drop`事件，拖动文件到窗口后触发。
+- `closed`事件，窗口关闭后触发。
+- `loaded`事件，窗口载入后触发。
+- `shown`事件，窗口显示后触发。
+- `minimized`事件，窗口最小化后触发。
+- `maximized`事件，窗口最大化后触发。
+- `restored`事件，窗口从最小化、最大化状态恢复之后触发。
+- `resized`事件，窗口尺寸调整之后触发。注意，窗口进入最小化、最大化状态或者从该状态恢复，也会触发。
+- `moved`事件，窗口位置移动之后触发。注意，窗口从最小化、最大化状态恢复前也会触发。
+
+示例如下：
+
+```python3
+from nicegui import ui, app
+
+for i in [
+    'drop',
+    'closed',
+    'loaded',
+    'shown',
+    'minimized',
+    'maximized',
+    'restored',
+    'resized',
+    'moved'
+]:
+    app.native.on(
+        i,
+        lambda e: print(
+            e or i
+        )
+    )
+
+def index():
+    ...
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+不同事件触发时，事件参数的`args`属性（字典）如下：
+
+```shell
+NativeEventArguments(type='shown', args={})
+NativeEventArguments(type='loaded', args={})
+NativeEventArguments(type='maximized', args={})
+NativeEventArguments(type='restored', args={})
+NativeEventArguments(type='minimized', args={})
+NativeEventArguments(type='restored', args={})
+NativeEventArguments(type='drop', args={'files': ['E:\\PSF\\nicegui_uv_app\\main.py']})
+NativeEventArguments(type='closed', args={})
+NativeEventArguments(type='moved', args={'x': 246, 'y': 153})
+NativeEventArguments(type='resized', args={'width': 987, 'height': 733})
+```
 
 ## 36 详解单页面应用
 
@@ -15705,7 +15866,7 @@ ui.run(
 
 ![2026_47_11](nicegui_pro.assets/2026_47_11.png)
 
-如果给`'loaded'`事件创建响应函数，即可实现图片加载完成之后执行指定操作：
+如果给`loaded`事件创建响应函数，即可实现图片加载完成之后执行指定操作：
 
 ```python3
 from nicegui import ui
@@ -15825,6 +15986,42 @@ ui.run(
 ```
 
 ![2026_47_15](nicegui_pro.assets/2026_47_15.png)
+
+### 47.3 `ui.parallax`控件
+
+下面是`ui.parallax`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/parallax
+
+`ui.parallax`控件支持以下参数：
+
+- `source`参数，字符串类型、`Path`类型（使用`from pathlib import Path`导入）、`Image`类型（使用`from PIL import Image`导入），表示显示的图片。
+
+- `height`参数，浮点类型，表示图片显示区域的高度，默认为`500`。
+
+  从该参数开始，只能通过关键字传入。
+
+- `speed`参数，浮点类型，表示图片滚动的速度（使用小数表示的百分比），默认为`1.0`。
+
+注意，`ui.parallax`控件显示图片时需要同一区域的内容可以滚动，才能触发视差效果（内容和图片的滚动方向相反）：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.scroll_area():
+        ui.label('上面的文本').classes('border h-32 w-full')
+        with ui.parallax('https://cdn.quasar.dev/img/parallax2.jpg', height=200):
+            ui.label('中间的文本').classes('text-white')
+        ui.label('下面的文本').classes('border h-32 w-full')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_15_9_1](nicegui_pro.assets/2026_15_9_1.gif)
 
 ## 48 学习控件——播放音视频
 

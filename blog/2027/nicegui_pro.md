@@ -9625,19 +9625,259 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
 ##### 52.2.2.4 控件事件（更新中）
 
-单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-events/ 。
+单元格支持的控件事件可参考 https://www.ag-grid.com/javascript-data-grid/grid-events/ 。
 
-列对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/column-events/ 。
+列对象支持的控件事件可参考 https://www.ag-grid.com/javascript-data-grid/column-events/ 。
 
-行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-events/  。
+行对象支持的控件事件可参考 https://www.ag-grid.com/javascript-data-grid/row-events/  。
 
+使用控件的`on`方法即可为控件事件创建响应函数。
 
+单元格支持的控件事件（部分）如下：
 
+- `columnVisible`事件，列的可见性改变时触发。事件参数的`args`属性字典支持以下键：
 
+  - `'source'`键，字符串类型，表示事件触发的来源（即前置事件，参考 https://www.ag-grid.com/javascript-data-grid/column-events/ ）。
+  - `'visible'`键，布尔类型，表示触发事件后列的可见性。
+  - `'colId'`键，字符串类型，表示触发事件的列的ID。
 
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      ui.aggrid(
+          options=options
+      ).on(
+          'columnVisible',
+          lambda e: ui.notify(
+              e.args
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
 
+  ![2026_52_159](nicegui_pro.assets/2026_52_159.png)
 
+- `columnPinned`事件，列的固定位置改变时触发。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型，表示事件触发的来源（即前置事件，参考 https://www.ag-grid.com/javascript-data-grid/column-events/ ）。
+  - `'pinned'`键，字符串类型（仅支持`['left','right',None]`中的值），表示触发事件后列的固定位置。
+  - `'colId'`键，字符串类型，表示触发事件的列的ID。
+
+- `columnResized`事件，列宽改变时触发。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型，表示事件触发的来源（即前置事件，参考 https://www.ag-grid.com/javascript-data-grid/column-events/ ）。
+  - `'finished'`键，布尔类型，表示触发事件后列宽是否完成调整。
+  - `'colId'`键，字符串类型，表示触发事件的列的ID。
+
+- `columnMoved`事件，---
+
+- `columnValueChanged`事件，---
+
+- `columnGroupOpened`事件，---
+
+- `displayedColumnsChanged`事件，---
+
+- `columnHeaderMouseOver`事件，---
+
+- `columnHeaderMouseLeave`事件，---
+
+- `columnHeaderClicked`事件，---
+
+- `columnHeaderContextMenu`事件，---
+
+- `columnsReset`事件，---
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      ).on(
+          'columnsReset',
+          lambda e: ui.notify(
+              e.args
+          )
+      )
+      grid_method = 'resetColumnState'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              None
+          )
+          # 无返回结果的不用显示
+          #ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  
+
+- `cellValueChanged`事件，---
+
+- `cellEditRequest`事件，---
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'readOnlyEdit':True
+      }
+      ui.aggrid(
+          options=options
+      ).on(
+          'cellEditRequest',
+          lambda e: ui.notify(
+              e.args
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  
+
+- `rowValueChanged`事件，---
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {
+                  'headerName': 'Name',
+                  'field': 'name',
+              },
+              {
+                  'headerName': 'Age',
+                  'field': 'age',
+                  'editable':True,
+              },
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol', 'age': 20},
+          ],
+          'editType':'fullRow'
+      }
+      ui.aggrid(
+          options=options
+      ).on(
+          'rowValueChanged',
+          lambda e: ui.notify(
+              e.args
+          )
+      )
+  
+  ui.run(
+      root=index,
+      native=True,
+  )
+  ```
+
+  
+
+- `cellEditingStarted`事件，---
+
+- `xxx`事件，---
+
+- `xxx`事件，---
+
+- 
+
+- `xxx`事件，xxx时触发。事件参数的`args`属性字典支持以下键：
+
+  - `'xxx'`键，---
+
+列对象支持的控件事件（部分）如下：
+
+- 
+- `xxx`事件，xxx时触发。事件参数的`args`属性字典支持以下键：
+  - `'xxx'`键，---
+
+行对象支持的控件事件（部分）如下：
+
+- 
+- `xxx`事件，xxx时触发。事件参数的`args`属性字典支持以下键：
+  - `'xxx'`键，---
 
 
 

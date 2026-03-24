@@ -8263,7 +8263,7 @@ ui.run(
 
   ![2026_52_142](nicegui_pro.assets/2026_52_142.png)
 
-##### 52.2.2.3 控件方法（更新中）
+##### 52.2.2.3 控件方法
 
 单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-api/ 。
 
@@ -9271,15 +9271,78 @@ ui.run(
     `GridState`类型（字典类型）支持以下键（部分）：
 
     - `'columnGroup'`键，字典类型，表示列组的状态。该字典支持`'openColumnGroupIds'`键，是元素为字符串（列组的ID）的列表、元组，表示哪些列组为展开状态。
-    - `'columnOrder'`键，字典类型，表示列的顺序。该字典支持`'orderedColIds'`键，是元素为字符串（列组的ID）的列表、元组，表示列的顺序。
-    - `'columnPinning'`键，字典类型，表示列的固定状态。该字典支持`'leftColIds'`键和`'rightColIds'`键，是元素为字符串（列组的ID）的列表、元组，表示左边、右边固定的列。
-    - `'columnSizing'`键，---
-    - `'columnVisibility'`键，---
-    - `'focusedCell'`键，---
-    - `'pagination'`键，---
-    - `'rowPinning'`键，---
-    - `'sort'`键，---
-    - `'partialColumnState'`键，---
+
+    - `'columnOrder'`键，字典类型，表示列的顺序。该字典支持`'orderedColIds'`键，是元素为字符串（列的ID）的列表、元组，表示列的顺序。
+
+    - `'columnPinning'`键，字典类型，表示列的固定状态。该字典支持`'leftColIds'`键和`'rightColIds'`键，是元素为字符串（列的ID）的列表、元组，表示左边、右边固定的列。
+
+    - `'columnSizing'`键，字典类型，表示列宽状态。该字典支持`'columnSizingModel'`键，是元素为字典（字典的`'colId'`键表示列的ID，字典的`'width'`键表示该列的宽度）的列表、元组，表示列宽状态。
+
+    - `'columnVisibility'`键，字典类型，表示列的可见性。该字典支持`'hiddenColIds'`键，是元素为字符串（列的ID）的列表、元组，表示隐藏的列。
+
+    - `'focusedCell'`键，字典类型，表示哪个单元格当前获得焦点。字典支持以下键：
+
+      - `'colId'`键，字符串类型，表示单元格所属列的ID。
+      - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+      - `'rowPinned'`键，字符串类型（仅支持`['top','bottom']`中的值），表示是否为固定行（顶部、底部）中的单元格。
+
+    - `'pagination'`键，字典类型，表示分页状态。字典支持以下键：
+
+      - `'page'`键，整数类型，表示当前第几页。
+      - `'pageSize'`键，整数类型，表示总共多少页。
+
+    - `'rowPinning'`键，字典类型，表示行的固定状态。字典支持以下键：
+
+      - `'top'`键，元素为字符串（行的ID）的列表、元组，表示顶部固定的行。
+      - `'bottom'`键，元素为字符串（行的ID）的列表、元组，表示底部固定的行。
+
+      注意，只有启用`'enableRowPinning'`键并正确设置`'getRowId'`键时，该键才能正常生效：
+
+      ```python3
+      from nicegui import ui
+      
+      def index():
+          options = {
+              'columnDefs': [
+                  {'headerName': 'Name', 'field': 'name'},
+                  {'headerName': 'Age', 'field': 'age'},
+              ],
+              'rowData': [
+                  {'name': 'Alice', 'age': 18},
+                  {'name': 'Bob', 'age': 21},
+                  {'name': 'Carol','age': 20}, 
+              ],
+              'enableRowPinning':True,
+              ':getRowId': '(params) => params.data.name'
+          }
+          aggrid = ui.aggrid(
+              options=options
+          )
+          grid_method = 'setState'
+          async def run_grid_method_async():
+              result = await aggrid.run_grid_method(
+                  grid_method,
+                  {
+                      'rowPinning':{
+                          'top':['Bob'],
+                          'bottom':[]
+                      }
+                  }
+              )
+              # 无返回结果的不用显示
+              #ui.notify(result)
+          ui.button(
+              grid_method,
+              on_click=run_grid_method_async
+          ).props('no-caps')
+      
+      ui.run(
+          root=index,
+          native=True
+      )
+      ```
+
+    - `'sort'`键，字典类型，表示排序状态。该字典支持`'sortModel'`键，是元素为字典（字典的`'colId'`键表示列的ID，字典的`'sort'`键表示该列的排序状态）的列表、元组，表示排序状态。
 
   - `propertiesToIgnore`参数，元素为字符串（表格状态的键名）的列表、元组，表示哪些表格状态保持现状。
 
@@ -9326,50 +9389,225 @@ ui.run(
   )
   ```
 
+- `setFocusedCell`方法，让指定单元格获得焦点。该方法支持以下位置参数：
+
+  - `rowIndex`参数，整数类型，表示单元格所属行的位置索引值。
+  - `colKey`参数，字符串类型，表示单元格所属列的ID。
+  - `rowPinned`参数，字符串类型（仅支持`['top','bottom']`中的值），表示是否为固定行（顶部、底部）中的单元格。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
   
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+          'enableRowPinning':True,
+          ':getRowId': '(params) => params.data.name'
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'setFocusedCell'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+              1,
+              'age'
+          )
+          # 无返回结果的不用显示
+          #ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `getFocusedCell`方法，---
+- `clearFocusedCell`方法，清除单元格获得的焦点。
 
-  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-navigation-getFocusedCell
+- `tabToNextCell`方法，执行类似`tab`键的效果，切换到下一个单元格。
 
-- `setFocusedCell`方法，---
+- `tabToPreviousCell`方法，执行类似`shift + tab`键的效果，切换到前一个单元格。
 
-- `clearFocusedCell`方法，---
+- `expireValueCache`方法，让计算值缓存过期。
 
-- `tabToNextCell`方法，---
+- `destroy`方法，销毁表格实例，释放相关资源。
 
-- `tabToPreviousCell`方法，---
+- `isDestroyed`方法，返回表格实例是否已被销毁。
 
-- `setFocusedHeader`方法，---
+- `paginationGetPageSize`方法，返回每页显示多少行。
 
-- `getCellValue`方法，---
+- `paginationGetCurrentPage`方法，返回当前页索引值。
 
-  https://www.ag-grid.com/javascript-data-grid/grid-api/#reference-miscellaneous-getCellValue
+- `paginationGetTotalPages`方法，返回一共多少页。
 
-- `expireValueCache`方法，---
+- `paginationGetRowCount`方法，返回一共多少行。
 
-- `xxx`方法，---
+- `paginationGoToPage`方法，跳转到指定页。该方法支持以下位置参数：
 
-- `xxx`方法，---
+  - `page`参数，整数类型，表示指定页的索引值。
 
-- `xxx`方法，---
+- `paginationGoToNextPage`方法，跳转到下一页。
 
-- 
+- `paginationGoToPreviousPage`方法，跳转到上一页。
 
-- `xxx`方法，xxx方法的作用。该方法支持以下位置参数（完整用法参考 xxx ）：
+- `paginationGoToFirstPage`方法，跳转到第一页。
 
-  - `xxx`参数，字符串类型，表示xxx。
+- `paginationGoToLastPage`方法，跳转到最后一页。
+
+- `getPinnedTopRowCount`方法，返回固定在顶部的行数。
+
+- `getPinnedBottomRowCount`方法，返回固定在底部的行数。
+
+- `ensureIndexVisible`方法，自动滚动到指定行。该方法支持以下位置参数：
+
+  - `index`参数，整数类型，表示指定行的索引值。
+  - `position`参数，字符串类型（仅支持`['top','bottom','middle']`中的值），表示让指定行显示在可见区域的哪个位置。
+
+- `ensureColumnVisible`方法，自动滚动到指定列。该方法支持以下位置参数：
+
+  - `key`参数，字符串类型，表示指定列的ID。
+  - `position`参数，字符串类型（仅支持`['auto','start','middle','end']`中的值），表示让指定列显示在可见区域的哪个位置。
+
+- `getHorizontalPixelRange`方法，返回表格的水平方向像素范围。
+
+- `getVerticalPixelRange`方法，返回表格的垂直方向像素范围。
+
+- `selectAll`方法，选择所有行。
+
+- `deselectAll`方法，取消选择所有行。
+
+- `undoCellEditing`方法，撤销对单元格的编辑。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','editable':True},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+          'undoRedoCellEditing':True
+          #':getRowId': '(params) => params.data.name'
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'undoCellEditing'
+      async def run_grid_method_async():
+          result = await aggrid.run_grid_method(
+              grid_method,
+          )
+          # 无返回结果的不用显示
+          #ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `redoCellEditing`方法，恢复之前撤销的编辑操作。
+
+- `getCurrentUndoSize`方法，返回可撤销的操作步数。
+
+- `getCurrentRedoSize`方法，返回可恢复的操作步数。
 
 运行行对象的控件控件方法需要额外设置表格选项的`'getRowId'`键，用于设定行ID的获取方法，并将可以通过获取方法得到的唯一ID传给`run_row_method`方法的第一个参数，具体参考 https://nicegui.io/documentation/aggrid#run_row_methods 。
 
 行对象支持的控件方法（部分）如下：
 
-- `xxx`方法，---
-- 
-- `xxx`方法，xxx方法的作用。该方法支持以下位置参数（完整用法参考 xxx ）：
-  - `xxx`参数，字符串类型，表示xxx。
+- `updateData`方法，更新指定行的数据。该方法支持以下位置参数：
 
+  - `data`参数，字典类型，表示更新后的数据。
 
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20}, 
+          ],
+          ':getRowId': '(params) => params.data.name'
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'updateData'
+      async def run_grid_method_async():
+          result = await aggrid.run_row_method(
+              'Carol',
+              grid_method,
+              {'name': 'Carol','age': 23}, 
+          )
+          # 无返回结果的不用显示
+          #ui.notify(result)
+      ui.button(
+          grid_method,
+          on_click=run_grid_method_async
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+- `setData`方法，设置指定行的数据，用法同`updateData`方法。
+
+- `setDataValue`方法，设置指定行的指定单元格（对应指定列）的数据。该方法支持以下位置参数：
+
+  - `colKey`参数，字符串类型，表示列的ID（列定义`'field'`键对应的值）。
+  - `newValue`参数，表示单元格的值。
+  - `eventSource`参数，字符串类型（仅支持`['data','api','edit']`中的值），表示数据更新操作的触发来源。
+
+- `setRowHeight`方法，设置指定行的行高。该方法支持以下位置参数：
+
+  - `rowHeight`参数，整数类型，表示行高。
+
+- `isRowPinned`方法，返回该行是否被固定。
+
+- `setSelected`方法，选择指定行。该方法支持以下位置参数：
+
+  - `newValue`参数，布尔类型，表示当前行的选择状态。
+  - `clearSelection`参数，布尔类型，表示是否清除其他行的选择状态。
+
+- `isSelected`方法，返回当前行的选择状态。
 
 注意，NiceGUI 3.8.0版本之后，出于安全考虑，`ui.aggrid`控件的`run_grid_method`方法、`run_row_method`方法不再支持使用箭头函数作为控件方法名实现自定义操作（虽然很神奇，但不太安全），但可以使用`ui.run_javascript`方法等效替代（虽然复杂一点，但依然满足要求），具体参考 https://nicegui.io/documentation/aggrid#access_grid_api_via_javascript 。
 
@@ -9387,13 +9625,19 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
 ##### 52.2.2.4 控件事件（更新中）
 
+单元格支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/grid-events/ 。
+
+列对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/column-events/ 。
+
+行对象支持的控件方法可参考 https://www.ag-grid.com/javascript-data-grid/row-events/  。
 
 
-https://www.ag-grid.com/javascript-data-grid/grid-events/
 
-https://www.ag-grid.com/javascript-data-grid/column-events/
 
-https://www.ag-grid.com/javascript-data-grid/row-events/
+
+
+
+
 
 
 

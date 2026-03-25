@@ -9682,35 +9682,50 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
   ![2026_52_159](nicegui_pro.assets/2026_52_159.png)
 
-- `columnPinned`事件，列的固定位置改变时触发。事件参数的`args`属性字典支持以下键：
+- `columnPinned`事件，列的固定位置改变后触发。事件参数的`args`属性字典支持以下键：
 
   - `'source'`键，字符串类型，表示事件触发的来源（即前置事件，参考 https://www.ag-grid.com/javascript-data-grid/column-events/ ）。
   - `'pinned'`键，字符串类型（仅支持`['left','right',None]`中的值），表示触发事件后列的固定位置。
   - `'colId'`键，字符串类型，表示触发事件的列的ID。
 
-- `columnResized`事件，列宽改变时触发。事件参数的`args`属性字典支持以下键：
+- `columnResized`事件，列宽改变后触发。事件参数的`args`属性字典支持以下键：
 
   - `'source'`键，字符串类型，表示事件触发的来源（即前置事件，参考 https://www.ag-grid.com/javascript-data-grid/column-events/ ）。
   - `'finished'`键，布尔类型，表示触发事件后列宽是否完成调整。
   - `'colId'`键，字符串类型，表示触发事件的列的ID。
 
-- `columnMoved`事件，---
+- `columnMoved`事件，移动列后触发。事件参数的`args`属性字典支持以下键：
 
-- `columnValueChanged`事件，---
+  - `'source'`键，字符串类型，表示事件触发的来源（即前置事件，参考 https://www.ag-grid.com/javascript-data-grid/column-events/ ）。
+  - `'finished'`键，布尔类型，表示触发事件后列宽是否完成调整。
+  - `'colId'`键，字符串类型，表示触发事件的列的ID。
+  - `'toIndex'`键，整数类型，表示移动之后的位置（列的索引值）。
 
-- `columnGroupOpened`事件，---
+- `columnGroupOpened`事件，列组展开、收起后触发。
 
-- `displayedColumnsChanged`事件，---
+- `displayedColumnsChanged`事件，可见的列发生改变后触发。改变包括移动、拖动等，移动的判定比`columnMoved`事件更宽松，不要求完成位置的实质变化。事件参数的`args`属性字典支持以下键：
 
-- `columnHeaderMouseOver`事件，---
+  - `'source'`键，字符串类型，表示事件触发的来源（即前置事件，参考 https://www.ag-grid.com/javascript-data-grid/column-events/ ）。
 
-- `columnHeaderMouseLeave`事件，---
+- `columnHeaderMouseOver`事件，鼠标悬停在列的表头时触发。事件参数的`args`属性字典支持以下键：
 
-- `columnHeaderClicked`事件，---
+  - `'colId'`键，字符串类型，表示触发事件的列的ID。
 
-- `columnHeaderContextMenu`事件，---
+- `columnHeaderMouseLeave`事件，鼠标离开列的表头时触发。事件参数的`args`属性字典支持以下键：
 
-- `columnsReset`事件，---
+  - `'colId'`键，字符串类型，表示触发事件的列的ID。
+
+- `columnHeaderClicked`事件，鼠标单击列的表头时触发。事件参数的`args`属性字典支持以下键：
+
+  - `'colId'`键，字符串类型，表示触发事件的列的ID。
+
+- `columnHeaderContextMenu`事件，鼠标右击列的表头时触发。事件参数的`args`属性字典支持以下键：
+
+  - `'colId'`键，字符串类型，表示触发事件的列的ID。
+
+- `columnsReset`事件，列被复位时触发。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型，表示事件触发的来源（即前置事件，参考 https://www.ag-grid.com/javascript-data-grid/column-events/ ）。
 
   示例如下：
 
@@ -9763,11 +9778,29 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
   )
   ```
 
-  
+- `cellValueChanged`事件，单元格的内容改变后触发。事件参数的`args`属性字典支持以下键：
 
-- `cellValueChanged`事件，---
+  - `'source'`键，字符串类型（仅支持`['edit','paste','undo','redo','data']`中的值），表示事件触发的来源。
+  - `'value'`键，表示当前值。
+  - `'oldValue'`键，表示先前值。
+  - `'newValue'`键，表示当前值。
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
-- `cellEditRequest`事件，---
+- `cellEditRequest`事件，单元格的内容请求改变时触发。所谓请求改变，即启用`'readOnlyEdit'`键之后，编辑单元格内容后会执行请求改变。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型（仅支持`['edit','paste','undo','redo','data']`中的值），表示事件触发的来源。
+  - `'value'`键，表示当前值。
+  - `'oldValue'`键，表示先前值。
+  - `'newValue'`键，表示当前值。
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
   示例如下：
 
@@ -9809,9 +9842,12 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
   )
   ```
 
-  
+- `rowValueChanged`事件，整行编辑模式下，单元格的内容改变后触发。事件参数的`args`属性字典支持以下键：
 
-- `rowValueChanged`事件，---
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
   示例如下：
 
@@ -9853,9 +9889,42 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
   )
   ```
 
-  
+- `cellEditingStarted`事件，单元格进入编辑状态后触发。事件参数的`args`属性字典支持以下键：
 
-- `cellEditingStarted`事件，---
+  - `'value'`键，表示当前值。
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `cellEditingStopped`事件，单元格退出编辑状态后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'value'`键，表示当前值。
+
+  - `'oldValue'`键，表示先前值。
+  - `'newValue'`键，表示当前值。
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `rowEditingStarted`事件，---
+
+- `rowEditingStopped`事件，---
+
+- `undoStarted`事件，---
+
+- `undoEnded`事件，---
+
+- `redoStarted`事件，---
+
+- `redoEnded`事件，---
+
+- `xxx`事件，---
+
+- `xxx`事件，---
 
 - `xxx`事件，---
 

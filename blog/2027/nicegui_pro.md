@@ -10037,41 +10037,103 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
   - `'rowId'`键，字符串类型，表示单元格所属行的ID。
   - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
-- `cellFocused`事件，---
+- `cellFocused`事件，单元格获得焦点后触发。事件参数的`args`属性字典支持以下键：
 
-- `cellMouseOver`事件，---
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
 
-- `cellMouseOut`事件，---
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
 
-- `cellMouseDown`事件，---
+  - `'forceBrowserFocus'`键，布尔类型，表示是否强制浏览器窗口也获得焦点。
 
-- `rowClicked`事件，---
+  - `'rowPinned'`键，字符串类型（仅支持`['top','bottom']`中的值），表示是否为固定行（顶部、底部）中的单元格。
 
-- `rowDoubleClicked`事件，---
+- `cellMouseOver`事件，鼠标进入单元格后触发。事件参数的`args`属性字典支持以下键：
 
-- `rowSelected`事件，---
+  - `'value'`键，表示当前值。
 
-- `selectionChanged`事件，---
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
-- `cellContextMenu`事件，---
+- `cellMouseOut`事件，鼠标离开单元格后触发。事件参数的`args`属性字典支持以下键：
 
-- `cellSelectionChanged`事件，---
+  - `'value'`键，表示当前值。
 
-- `sortChanged`事件，---
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
-- `tooltipShow`事件，---
+- `cellMouseDown`事件，在单元格上按下任意鼠标键后触发。事件参数的`args`属性字典支持以下键：
 
-- `tooltipHide`事件，---
+  - `'value'`键，表示当前值。
 
-- `gridSizeChanged`事件，---
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
-- `virtualRowRemoved`事件，---
+- `rowSelected`事件，选择行后触发。事件参数的`args`属性字典支持以下键：
 
-- `viewportChanged`事件，---
+  - `'source'`键，字符串类型（仅支持`['api','apiSelectAll','apiSelectAllFiltered','apiSelectAllCurrentPage','checkboxSelected','rowClicked','rowDataChanged','rowGroupChanged','selectableChanged','spaceKey','keyboardSelectAll','uiSelectAll','uiSelectAllFiltered','uiSelectAllCurrentPage','masterDetail','gridInitializing']`中的值），表示事件触发的来源。
 
-- `bodyScroll`事件，---
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
 
-- `bodyScrollEnd`事件，---
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `selectionChanged`事件，选择的行改变后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型（仅支持`['api','apiSelectAll','apiSelectAllFiltered','apiSelectAllCurrentPage','checkboxSelected','rowClicked','rowDataChanged','rowGroupChanged','selectableChanged','spaceKey','keyboardSelectAll','uiSelectAll','uiSelectAllFiltered','uiSelectAllCurrentPage','masterDetail','gridInitializing']`中的值），表示事件触发的来源。
+
+- `cellContextMenu`事件，在单元格上右击后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'value'`键，表示当前值。
+
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `cellSelectionChanged`事件，选择的行改变后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型（仅支持`['api','apiSelectAll','apiSelectAllFiltered','apiSelectAllCurrentPage','checkboxSelected','rowClicked','rowDataChanged','rowGroupChanged','selectableChanged','spaceKey','keyboardSelectAll','uiSelectAll','uiSelectAllFiltered','uiSelectAllCurrentPage','masterDetail','gridInitializing']`中的值），表示事件触发的来源。
+
+- `sortChanged`事件，行的排序状态改变后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型，表示事件触发的来源。
+
+- `tooltipShow`事件，工具提示显示后触发。
+
+- `tooltipHide`事件，工具提示消失（隐藏）后触发。
+
+- `gridSizeChanged`事件，表格尺寸大小改变后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'clientWidth'`键，整数类型，表示表格的宽度。
+  - `'clientHeight'`键，整数类型，表示表格的高度。
+
+- `bodyScroll`事件，表格滚动时触发。事件参数的`args`属性字典支持以下键：
+
+  - `'direction'`键，字符串类型（仅支持`['horizontal','vertical']`中的值），表示滚动的方向。
+
+  - `'left'`键，浮点类型，表示表格的水平方向的滚动量（像素，向右为正）。
+
+  - `'top'`键，浮点类型，表示表格的垂直方向的滚动量（像素，向下为正）。
+
+- `bodyScrollEnd`事件，表格结束滚动后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'direction'`键，字符串类型（仅支持`['horizontal','vertical']`中的值），表示滚动的方向。
+
+  - `'left'`键，浮点类型，表示表格的水平方向的滚动量（像素，向右为正）。
+
+  - `'top'`键，浮点类型，表示表格的垂直方向的滚动量（像素，向下为正）。
+
 
 列对象支持的控件事件（部分）如下：
 

@@ -9533,11 +9533,11 @@ ui.run(
   )
   ```
 
-- `redoCellEditing`方法，恢复之前撤销的编辑操作。
+- `redoCellEditing`方法，重做对单元格的编辑。
 
 - `getCurrentUndoSize`方法，返回可撤销的操作步数。
 
-- `getCurrentRedoSize`方法，返回可恢复的操作步数。
+- `getCurrentRedoSize`方法，返回可重做的操作步数。
 
 运行行对象的控件控件方法需要额外设置表格选项的`'getRowId'`键，用于设定行ID的获取方法，并将可以通过获取方法得到的唯一ID传给`run_row_method`方法的第一个参数，具体参考 https://nicegui.io/documentation/aggrid#run_row_methods 。
 
@@ -9910,45 +9910,188 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
   - `'rowId'`键，字符串类型，表示单元格所属行的ID。
   - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
-- `rowEditingStarted`事件，---
+- `rowEditingStarted`事件，整行编辑模式下，单元格进入编辑状态后触发。事件参数的`args`属性字典支持以下键：
 
-- `rowEditingStopped`事件，---
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
-- `undoStarted`事件，---
+- `rowEditingStopped`事件，整行编辑模式下，单元格退出编辑状态后触发。事件参数的`args`属性字典支持以下键：
 
-- `undoEnded`事件，---
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
 
-- `redoStarted`事件，---
+- `undoStarted`事件，退出编辑模式后，开始撤销对单元格内容的修改（需要启用`'undoRedoCellEditing'`键）后触发。事件参数的`args`属性字典支持以下键：
 
-- `redoEnded`事件，---
+  - `'source'`键，字符串类型（仅支持`['api','ui']`中的值），表示事件触发的来源。
 
-- `xxx`事件，---
+- `undoEnded`事件，退出编辑模式后，结束撤销对单元格内容的修改（需要启用`'undoRedoCellEditing'`键）后触发。事件参数的`args`属性字典支持以下键：
 
-- `xxx`事件，---
+  - `'source'`键，字符串类型（仅支持`['api','ui']`中的值），表示事件触发的来源。
 
-- `xxx`事件，---
+- `redoStarted`事件，退出编辑模式后，开始重做对单元格内容的修改（需要启用`'undoRedoCellEditing'`键）后触发。事件参数的`args`属性字典支持以下键：
 
-- `xxx`事件，---
+  - `'source'`键，字符串类型（仅支持`['api','ui']`中的值），表示事件触发的来源。
 
-- 
+- `redoEnded`事件，退出编辑模式后，结束重做对单元格内容的修改（需要启用`'undoRedoCellEditing'`键）后触发。事件参数的`args`属性字典支持以下键：
 
-- `xxx`事件，xxx时触发。事件参数的`args`属性字典支持以下键：
+  - `'source'`键，字符串类型（仅支持`['api','ui']`中的值），表示事件触发的来源。
 
-  - `'xxx'`键，---
+- `filterOpened`事件，打开筛选器后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型（仅支持`['COLUMN_MENU','TOOLBAR','NO_UI']`中的值），表示事件触发的来源。
+  - `'colId'`键，字符串类型，表示筛选器所属列的ID。
+
+- `filterChanged`事件，筛选器的筛选条件改变后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'source'`键，字符串类型（仅支持`['COLUMN_MENU','TOOLBAR','NO_UI']`中的值），表示事件触发的来源。
+
+- `gridReady`事件，表格准备完成后触发。
+
+- `gridPreDestroyed`事件，销毁表格实例前触发。
+
+- `firstDataRendered`事件，首次渲染完数据之后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'firstRow'`键，整数类型，表示第一行的位置索引值。
+  - `'lastRow'`键，整数类型，表示最后一行的位置索引值。
+
+- `modelUpdated`事件，显示的行发生变化（排序、筛选等）后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'animate'`键，布尔类型，是否播放行变化的动画。
+  - `'keepRenderedRows'`键，布尔类型，表示是否保持已渲染的行而不进行重新渲染。
+  - `'newPage'`键，布尔类型，表示是否跳转到新的一页（仅当启用分页时可能为`True`）。
+
+- `stateUpdated`事件，表格状态更新后触发。
+
+- `cellKeyDown`事件，当单元格获得焦点后，按下按键时触发。事件参数的`args`属性字典支持以下键：
+
+  - `'value'`键，表示当前值。
+
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `paginationChanged`事件，分页发生变化后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'animate'`键，布尔类型，是否播放分页变化的动画。
+  - `'keepRenderedRows'`键，布尔类型，表示是否保持已渲染的行而不进行重新渲染。
+  - `'newData'`键，布尔类型，表示是否有新数据。
+  - `'newPage'`键，布尔类型，表示是否跳转到新的一页（仅当启用分页时可能为`True`）。
+
+- `rowDragEnter`事件，开始拖动行或者拖动行再次回到表格时触发（需要启用`'rowDrag'`键）。事件参数的`args`属性字典支持以下键：
+
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `rowDragMove`事件，拖动行移动时触发（需要启用`'rowDrag'`键）。事件参数的`args`属性字典支持以下键：
+
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `rowDragLeave`事件，拖动行离开表格时触发（需要启用`'rowDrag'`键）。事件参数的`args`属性字典支持以下键：
+
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `rowDragEnd`事件，停止拖动行时触发（需要启用`'rowDrag'`键）。事件参数的`args`属性字典支持以下键：
+
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `rowDragCancel`事件，取消拖动行时触发（按`esc`键，需要启用`'rowDrag'`键）。事件参数的`args`属性字典支持以下键：
+
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `headerFocused`事件，表头获得焦点后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'colId'`键，字符串类型，表示表头所属列的ID。
+
+- `cellClicked`事件，单击单元格后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'value'`键，表示当前值。
+
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `cellDoubleClicked`事件，双击单元格后触发。事件参数的`args`属性字典支持以下键：
+
+  - `'value'`键，表示当前值。
+
+  - `'rowIndex'`键，整数类型，表示单元格所属行的位置索引值。
+  - `'data'`键，字典类型，表示当前行的行数据字典。
+  - `'colId'`键，字符串类型，表示单元格所属列的ID。
+  - `'rowId'`键，字符串类型，表示单元格所属行的ID。
+  - `'rowHeight'`键，整数类型，表示单元格所属行的行高。
+
+- `cellFocused`事件，---
+
+- `cellMouseOver`事件，---
+
+- `cellMouseOut`事件，---
+
+- `cellMouseDown`事件，---
+
+- `rowClicked`事件，---
+
+- `rowDoubleClicked`事件，---
+
+- `rowSelected`事件，---
+
+- `selectionChanged`事件，---
+
+- `cellContextMenu`事件，---
+
+- `cellSelectionChanged`事件，---
+
+- `sortChanged`事件，---
+
+- `tooltipShow`事件，---
+
+- `tooltipHide`事件，---
+
+- `gridSizeChanged`事件，---
+
+- `virtualRowRemoved`事件，---
+
+- `viewportChanged`事件，---
+
+- `bodyScroll`事件，---
+
+- `bodyScrollEnd`事件，---
 
 列对象支持的控件事件（部分）如下：
 
-- 
-- `xxx`事件，xxx时触发。事件参数的`args`属性字典支持以下键：
-  - `'xxx'`键，---
+- `filterActiveChanged`事件，---
+- `sortChanged`事件，---
+- `leftChanged`事件，---
+- `movingChanged`事件，---
+- `widthChanged`事件，---
+- `visibleChanged`事件，---
+- `menuVisibleChanged`事件，---
+- `columnRowGroupChanged`事件，---
 
 行对象支持的控件事件（部分）如下：
 
-- 
-- `xxx`事件，xxx时触发。事件参数的`args`属性字典支持以下键：
-  - `'xxx'`键，---
-
-
+- `rowSelected`事件，---
+- `mouseEnter`事件，---
+- `mouseLeave`事件，---
+- `cellChanged`事件，---
+- `dataChanged`事件，---
+- `heightChanged`事件，---
 
 #### 52.2.3 总结（更新中）
 
@@ -10012,6 +10155,8 @@ ui.run(
 
 
 ##### 52.2.3.2 筛选（更新中）
+
+
 
 筛选器相关：
 

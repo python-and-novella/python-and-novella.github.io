@@ -4243,7 +4243,7 @@ ui.run(
 
   - `auto_size_columns`参数，布尔类型，表示是否根据表格可用空间自动调节列宽，默认为`True`。
 
-#### 52.2.2 扩展用法（更新中）
+#### 52.2.2 扩展用法
 
 ##### 52.2.2.1 表格定义
 
@@ -9623,13 +9623,9 @@ row = await aggrid.run_grid_method('(g) => g.getDisplayedRowAtIndex(0).data')
 row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedRowAtIndex(0).data')
 ```
 
-##### 52.2.2.4 控件事件（更新中）
+##### 52.2.2.4 控件事件
 
 单元格支持的控件事件可参考 https://www.ag-grid.com/javascript-data-grid/grid-events/ 。
-
-列对象支持的控件事件可参考 https://www.ag-grid.com/javascript-data-grid/column-events/ 。
-
-行对象支持的控件事件可参考 https://www.ag-grid.com/javascript-data-grid/row-events/  。
 
 使用控件的`on`方法即可为控件事件创建响应函数。
 
@@ -10134,44 +10130,13 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
   - `'top'`键，浮点类型，表示表格的垂直方向的滚动量（像素，向下为正）。
 
-
-列对象支持的控件事件（部分）如下：
-
-- `filterActiveChanged`事件，---
-- `sortChanged`事件，---
-- `leftChanged`事件，---
-- `movingChanged`事件，---
-- `widthChanged`事件，---
-- `visibleChanged`事件，---
-- `menuVisibleChanged`事件，---
-- `columnRowGroupChanged`事件，---
-
-行对象支持的控件事件（部分）如下：
-
-- `rowSelected`事件，---
-- `mouseEnter`事件，---
-- `mouseLeave`事件，---
-- `cellChanged`事件，---
-- `dataChanged`事件，---
-- `heightChanged`事件，---
-
 #### 52.2.3 总结（更新中）
 
 受限于篇幅，前面详细介绍定义、方法时，部分用法没有提供示例，或者虽然常用但没做汇总介绍。因此，在讲完用法之后，这里再做个简单的总结，汇总介绍一些可以合并为一类用法的相关用法，并提供必要的概念解释和一些清晰的示例。
 
 ##### 52.2.3.1 列组（更新中）
 
-
-
-列组的使用：
-
-https://www.ag-grid.com/javascript-data-grid/column-groups/
-
-表格定义的`'defaultColGroupDef'`键，`'groupHeaderHeight'`键，`'hidePaddedHeaderRows'`键，
-
-列定义的---
-
-示例：
+列组可以理解为一个列包含多个子列，每个子列就和普通的列一样。只过不，显示时，列组会额外显示在子列上面一行，用于表明列组与子列的包含关系，比如下面的示例：
 
 ```python3
 from nicegui import ui
@@ -10179,14 +10144,18 @@ from nicegui import ui
 def index():
     options = {
         'columnDefs': [
+            # 定义的列组
             {
                 'headerName': 'Info', 
                 'children': [
-                    {'headerName': '展开时显示', 'field': 'name','columnGroupShow':'open'},
-                    {'headerName': '收起时显示', 'field': 'name','columnGroupShow':'closed'},
-                    {'headerName': '始终显示', 'field': 'age'},
-                ]
+                    {'headerName': '展开时显示', 'field': 'name','columnGroupShow':'open',},
+                    {'headerName': '收起时显示', 'field': 'name','columnGroupShow':'closed',},
+                    {'headerName': '始终显示', 'field': 'age',},
+                ],
             },
+            # 定义的普通列
+            {'headerName': 'Name', 'field': 'name',},
+            {'headerName': 'Age', 'field': 'age',},
         ],
         'rowData': [
             {'name': 'Alice', 'age': 18},
@@ -10208,15 +10177,42 @@ ui.run(
 )
 ```
 
+![2026_52_160](nicegui_pro.assets/2026_52_160.png)
+
+注意，下面仅介绍常用定义的含义，其他或者更多定义的具体用法、含义可以参考前面的内容或者官方链接 https://www.ag-grid.com/javascript-data-grid/column-groups/ 。
+
+使用列组时，常用表格定义如下：
+
+- 
 
 
 
+的`'defaultColGroupDef'`键，`'groupHeaderHeight'`键，`'hidePaddedHeaderRows'`键，
 
 
+
+使用列组时，常用列定义如下：
+
+- `'children'`键，定义列组的关键定义，---
+- 
+
+
+
+`'children'`键、`'openByDefault'`键、`'columnGroupShow'`键、`'field'`键
+
+
+
+`'field'`键，字符串类型，表示在行数据字典中，该行哪个键的值在该列对应位置显示。除了简单使用单层行数据字典，对于多层行数据字典，还可以用`'{第一层字典的键}.{第二层字典的键}...{最后一层字典的键}'`的格式，直接使用多层行数据字典的数据。
 
 
 
 ##### 52.2.3.2 筛选（更新中）
+
+
+
+筛选的使用：
+
+https://www.ag-grid.com/javascript-data-grid/filtering-overview/
 
 
 
@@ -10263,13 +10259,17 @@ ui.run(
 
 
 
+单元格的编辑：
+
 https://www.ag-grid.com/javascript-data-grid/cell-editors/
 
 
 
 这个类型下相关的键：https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-editing
 
-表格定义的---
+表格定义
+
+
 
 列定义的`'editable'`键，`'valueSetter'`键，`'valueParser'`键，`'cellEditor'`键，`'cellEditorParams'`键，`'cellEditorSelector'`键，`'cellEditorPopup'`键，`'cellEditorPopupPosition'`键，
 
@@ -10308,11 +10308,15 @@ https://www.ag-grid.com/javascript-data-grid/row-selection-api-reference/
 
 ##### 52.2.2.6 排序（更新中）
 
+
+
+https://www.ag-grid.com/javascript-data-grid/row-sorting/
+
 表格定义的---
 
 列定义的---
 
-https://www.ag-grid.com/javascript-data-grid/row-sorting/
+
 
 
 

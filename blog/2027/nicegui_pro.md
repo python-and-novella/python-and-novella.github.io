@@ -10192,27 +10192,9 @@ ui.run(
 
 - `'columnGroupShow'`键，字符串类型（仅支持`['open','closed']`中的值），当该列为列组的子列时，表示该列在列组展开、收起时显示。如果该键未定义，则表示始终显示。
 
-##### 52.2.3.2 筛选（更新中）
+##### 52.2.3.2 筛选
 
-
-
-（引言）
-
-
-
-筛选的使用：
-
-https://www.ag-grid.com/javascript-data-grid/filtering-overview/
-
-
-
-筛选器相关：
-
-表格定义的`'floatingFiltersHeight'`键，---
-
-列定义的`'filter'`键，`'filterParams'`键，`'floatingFilter'`键，---
-
-
+表格数据很多时，需要关注的只是一部分或者特定数据，可以使用筛选功能让表格只显示这部分数据：
 
 ```python3
 from nicegui import ui
@@ -10221,17 +10203,16 @@ def index():
     options = {
         'columnDefs': [
             {'headerName': 'Name', 'field': 'name'},
-            {'headerName': 'Age', 'field': 'age',
-             'filter': 'agNumberColumnFilter',
-             'floatingFilter':True
+            {
+                'headerName': 'Age', 'field': 'age',
+                'filter': 'agNumberColumnFilter',
             }
         ],
         'rowData': [
             {'name': 'Alice', 'age': 18},
             {'name': 'Bob', 'age': 21},
-            {'name': 'Carol', 'age': None},
+            {'name': 'Carol', 'age': 20},
         ],
-        'floatingFiltersHeight':100,
     }
     ui.aggrid(
         options=options
@@ -10243,31 +10224,126 @@ ui.run(
 )
 ```
 
+![2026_52_161](nicegui_pro.assets/2026_52_161.png)
 
+注意，下面仅介绍常用定义的含义，其他或者更多定义的具体用法、含义可以参考前面的内容或者官方链接 https://www.ag-grid.com/javascript-data-grid/filtering-overview/ 。另外，部分功能为企业版独有，尤其是对于筛选来说，企业版功能占比较多。而本教程主要介绍无侵权风险的社区版，因此，本节内容可能比较少，并不意味着筛选功能就这么单薄。
 
-##### 52.2.2.3 编辑（更新中）
+使用筛选时，常用表格定义如下：
 
+- `'quickFilterText'`键，字符串类型，表示用于在表格中搜索包含指定内容的行的关键字。如果包含空格，则先使用空格分割出多个关键字，结果的内容必须同时包含每个关键字。
+- `'floatingFiltersHeight'`键，整数类型，表示浮动筛选器所在行的行高，默认与一般行的行高相同。
 
+使用筛选时，常用列定义如下：
 
-单元格的编辑：
+- `'filter'`键，布尔类型或者字符串类型，表示筛选单元格内容时使用的筛选器。
 
-https://www.ag-grid.com/javascript-data-grid/cell-editors/
+  这是使用筛选的关键，只有包含该键的列才可以筛选。
 
+- `'filterParams'`键，字典类型，表示单元格内容筛选器支持的配置项。注意，不同筛选器支持的配置项有所不同。如果需要给筛选器添加额外按钮，需要学会使用该键。
 
+- `'floatingFilter'`键，布尔类型，表示是否启用浮动筛选器，默认为`False`。
 
-这个类型下相关的键：https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-editing
+##### 52.2.2.3 编辑
 
-表格定义
+表格数据并非一成不变的，如果需要修改单元格内容，就要使用编辑功能：
 
+```python3
+from nicegui import ui
+  
+def index():
+    options = {
+        'columnDefs': [
+            {
+                'headerName': 'Name',
+                'field': 'name',
+                'editable':True,
+            },
+            {
+                'headerName': 'Age',
+                'field': 'age',
+                'editable':True,
+                'cellEditor':'agSelectCellEditor',
+                'cellEditorParams':{
+                    'values':[i for i in range(14,25)]
+                }
+            },
+        ],
+        'rowData': [
+            {'name': 'Alice', 'age': 18},
+            {'name': 'Bob', 'age': 21},
+            {'name': 'Carol', 'age': 20},
+        ],
+        'editType':'fullRow'
+    }
+    ui.aggrid(
+        options=options
+    )
+  
+ui.run(
+    root=index,
+    native=True,
+)
+```
 
+![2026_52_162](nicegui_pro.assets/2026_52_162.png)
 
-列定义的`'editable'`键，`'valueSetter'`键，`'valueParser'`键，`'cellEditor'`键，`'cellEditorParams'`键，`'cellEditorSelector'`键，`'cellEditorPopup'`键，`'cellEditorPopupPosition'`键，
+注意，下面仅介绍常用定义的含义，其他或者更多定义的具体用法、含义可以参考前面的内容或者官方链接 https://www.ag-grid.com/javascript-data-grid/cell-editors/ 。
 
+使用编辑时，常用表格定义如下：
 
+- `'editType'`键，字符串类型，表示当该行的一列或者多列支持编辑时，双击单元格（或者按下`enter`键）之后使用的编辑模式类型，仅支持`['singleCell','fullRow']`中的值，对应单个单元格编辑、整行编辑，默认为`'singleCell'`。单个单元格编辑时，每次只能编辑一个单元格，如果需要切换到其他单元格，只能双击。整行编辑时，每次可以编辑一行支持编辑的单元格，切换同一行的其他单元格，只需单击，不用双击。
+- `'singleClickEdit'`键，布尔类型，表示是否允许单击进入编辑模式，默认为`False`。
+- `'readOnlyEdit'`键，布尔类型，表示是否启用只读编辑模式（编辑单元格内容之后不会自动更新表格数据，而是触发`cellEditRequest`事件，由事件的响应函数处理编辑前后的相关内容以及更新单元格），默认为`False`。
 
+使用编辑时，常用列定义如下：
 
+- `'editable'`键，布尔类型或者使用字符串表达的JavaScript函数，表示该列的单元格的内容是否可以编辑（双击、单击、按下`enter`键、按下`backspace`键进入编辑状态，具体是否支持取决于其他配置项），默认为`False`。
+
+  这是使用编辑的关键，只有包含该键的列才可以编辑。
+
+- `'cellEditor'`键，字符串类型，表示编辑单元格内容时使用的编辑器。注意，该键部分功能为企业版专属。
+
+- `'cellEditorParams'`键，字典类型，表示单元格内容编辑器支持的配置项。
 
 ##### 52.2.2.5 选择（更新中）
+
+除了编辑单元格内容，还有可能选择行，使用被选中的行：
+
+```python3
+from nicegui import ui
+  
+def index():
+    options = {
+        'columnDefs': [
+            {'headerName': 'Name', 'field': 'name'},
+            {'headerName': 'Age', 'field': 'age'},
+        ],
+        'rowData': [
+            {'name': 'Alice', 'age': 18},
+            {'name': 'Bob', 'age': 21},
+            {'name': 'Carol', 'age': None},
+        ],
+        'rowSelection':{
+            'mode':'multiRow'
+        }
+    }
+    ui.aggrid(
+        options=options
+    )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_52_59](nicegui_pro.assets/2026_52_59.png)
+
+
+
+（下面的内容编排重新考虑一下）
+
+
 
 `'rowSelection'`键的其他键（https://www.ag-grid.com/javascript-data-grid/grid-options/#reference-selection-rowSelection），
 

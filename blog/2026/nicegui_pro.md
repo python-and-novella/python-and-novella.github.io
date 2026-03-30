@@ -1,9 +1,3 @@
----
-theme: default
-themeName: "默认主题"
-title: "nicegui_pro"
----
-
 # NiceGUI札记（2026）
 
 [TOC]

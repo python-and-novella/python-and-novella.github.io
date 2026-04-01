@@ -27637,3 +27637,5 @@ ui.run(
 - `'cellClassRules'`键，字典类型（键为样式类，值为使用字符串表达的JavaScript函数或者表达式），表示单元格的样式类。不同于`'cellClass'`键只能设置该列所有单元格的样式类，该键可以将符合字典值对应条件的行，设置为字典键同名的样式类。完整用法可参考 https://www.ag-grid.com/javascript-data-grid/row-styles/#reference-styling-rowClassRules 。
 - `'autoHeight'`键，布尔类型，表示在单元格文字长度超过行、列宽进行自动换行时是否自动调整该行的行高，默认为`False`。
 - `'wrapText'`键，布尔类型，表示在单元格文字长度超过列宽时是否自动换行，默认为`False`。
+
+（2026版完结，敬请期待2027版）

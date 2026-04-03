@@ -14,70 +14,172 @@
 
 同时也能让各位节省下新版本的学习时间，始终享受NiceGUI最新版带来的便利。
 
-
-
-
-
-
-
 ## 样式技巧——先导篇
 
-在NiceGUI新增了对UnoCSS框架（https://unocss.dev/）的支持之后，同时受第39章的启发以及公众号粉丝的要求，笔者想到之前没怎么说过样式的使用。虽说NiceGUI降低了前端的基础要求，但要是想让界面好看，还是不可避免地用到样式。
+在NiceGUI新增了对UnoCSS框架的支持之后，同时受第39章的启发以及公众号粉丝的要求，笔者想到之前没怎么说过样式的使用。虽说NiceGUI降低了前端的基础要求，但要是想让界面好看，还是不可避免地用到样式。
 
-因此，笔者决定针对样式的使用开一个系列《样式技巧》，专门介绍使用样式遇到的各种实际问题，内容主要涉及Tailwind CSS框架（https://tailwindcss.com/）、UnoCSS框架的相关用法。如果框架未提供相关功能或者不想使用框架，也会有纯CSS的用法。
+因此，笔者决定针对样式的使用开一个系列《样式技巧》，专门介绍使用样式遇到的各种实际问题，内容主要涉及Tailwind CSS框架、UnoCSS框架、Quasar框架的相关用法。如果框架未提供相关功能或者不想使用框架，也会有纯CSS的用法。
 
-本期为先导内容，不介绍具体控件。从下期开始，不定期介绍使用样式的技巧和具体示例。
+本章为先导内容，不介绍具体控件。从下一章开始，不定期介绍使用样式的技巧和具体示例。
 
-## 53 样式技巧——（待定）（更新中）
+相关框架的文档地址如下：
 
+- Tailwind CSS框架：https://tailwindcss.com/docs/
+- UnoCSS框架：https://unocss.dev/interactive/
+- Quasar框架：https://quasar.dev/docs
+- NiceGUI框架（样式相关部分）：https://nicegui.io/documentation/section_styling_appearance
+- CSS语法：https://developer.mozilla.org/zh-CN/docs/Web/CSS
 
+读者可以记录上面的文档地址，后续使用相关样式时及时查阅。
 
+## 53 样式技巧——仅在暗黑模式下生效
 
+本章参考资料：
+
+- Tailwind CSS框架：https://tailwindcss.com/docs/dark-mode 
+- Quasar框架：https://quasar.dev/style/dark-mode
+
+前面介绍过暗黑模式，没错，就是那个以深色为主题基本色的主题。但是，对于“特立独行”的读者来说，如果想要让暗黑模式的特定控件、HTML标签的颜色甚至样式与非暗黑模式有所不同，只是使用主题的话，无法做到那么精细。那么，本章将要介绍的技巧就有必要学习一下。
+
+实现的途径有两种（只是笔者知道的，并非只有这两种）：
+
+- 简单快捷的方法，就是使用Tailwind CSS框架的样式类的暗黑模式变体，只需在样式类前添加“dark:”前缀即可，比如`dark:bg-red-400`。
+
+- 稍微复杂但更自由的方法，就是结合Quasar框架提供的方法，定义同时具备`body--dark`样式类的组合选择器，比如：
+
+  ```css
+  .body--dark .my_dark{
+      background-color:red;
+  }
+  ```
+
+示例如下：
+
+```python3
+from nicegui import ui
+  
+def index():
+    ui.add_css(
+        '''
+        .body--dark .my_dark{
+            background-color:red;
+        }
+        '''
+    )
+    ui.label('Hello').classes(
+        'dark:bg-red-400'
+    )
+    ui.label('World').classes(
+        'my_dark'
+    )
+    dark_mode = ui.dark_mode(True)
+    ui.switch().bind_value(
+        dark_mode
+    )
+
+ui.run(
+    root=index,
+    native=True,
+)
+```
+
+![2027_53_1](nicegui_pro.assets/2027_53_1.png)
+
+注意，如果是Quasar框架提供的样式类（比如下面代码中的`bg-red`），想要让其在暗黑模式下生效，需要改用UnoCSS框架，不能使用Tailwind CSS框架：
+
+```python3
+from nicegui import ui
+  
+def index():
+    ui.label('Hello').classes(
+        'dark:bg-red'
+    )
+    dark_mode = ui.dark_mode(True)
+    ui.switch().bind_value(
+        dark_mode
+    )
+
+ui.run(
+    root=index,
+    native=True,
+    tailwind=False,
+    unocss='wind4'
+)
+```
+
+![2027_53_2](nicegui_pro.assets/2027_53_2.png)
 
 ## 54 学习控件——渲染线形图（更新中）
 
-以下控件可以将提供的数据渲染为线形图：
+想要渲染线形图，根据其使用（依赖）的Python库划分，NiceGUI提供了两类的控件：
 
-- `ui.matplotlib`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入`figure`属性的上下文，调用上下文对象的子对象的`plot`方法绘制线形图。
+- 依赖`matplotlib`库的`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件（需要使用`uv add nicegui[matplotlib]`命令添加依赖）。`matplotlib`库广泛应用于学术论文，使用者数量庞大，文档和相关问题的解答资料自然丰富，但表现风格有点经典，且不具备交互性。
+- 依赖`plotly`库的`ui.plotly`控件（需要使用`uv add nicegui[plotly]`命令添加依赖）。`plotly`库提供了强大的交互性，让数据更加直观、详细，表现风格也更现代化。不过，因为具备交互功能，性能上会比纯静态图稍差。
 
-  注意，`ui.matplotlib`控件依赖`matplotlib`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[matplotlib]`命令提前添加依赖库。
+### 54.1 `ui.matplotlib`控件（更新中）
 
-  示例如下：
+下面是`ui.matplotlib`控件相关文档的地址：
 
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.matplotlib().classes(
-          'w-64 h-64'
-      ).figure as fig:
-          fig.gca().plot(
-              [
-                  0, 1, 2
-              ],
-              [
-                  1, 2, 4
-              ]
-          )
-      with ui.matplotlib().classes(
-          'w-64 h-64'
-      ).figure as fig:
-          fig.add_subplot().plot(
-              [
-                  0, 1, 2
-              ],
-              [
-                  1, 2, 4
-              ]
-          )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
+NiceGUI框架文档：https://nicegui.io/documentation/matplotlib
 
+matplotlib框架文档：https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html
+
+在正式学习该控件之前，先来回顾一下之前认识控件时的示例：
+
+```python3
+from nicegui import ui
   
+def index():
+    with ui.matplotlib().classes(
+        'w-64 h-64'
+    ).figure as fig:
+        fig.gca().plot(
+            [
+                0, 1, 2
+            ],
+            [
+                1, 2, 4
+            ]
+        )
+    with ui.matplotlib().classes(
+        'w-64 h-64'
+    ).figure as fig:
+        fig.add_subplot().plot(
+            [
+                0, 1, 2
+            ],
+            [
+                1, 2, 4
+            ]
+        )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+（参数、属性、方法、插槽、扩展用法）
+
+
+
+
+
+### 54.2 `ui.pyplot`控件（更新中）
+
+下面是`ui.pyplot`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/pyplot
+
+matplotlib框架文档：https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
+
+
+
+
 
 - `ui.pyplot`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入控件的上下文，调用上下文对象`fig`属性的子对象的`plot`方法绘制线形图。除了在控件上下文中调用上下文对象`fig`属性的子对象的`plot`方法绘制线形图，也可以直接调用`matplotlib.pyplot`模块的`plot`方法绘制线形图。
 
@@ -131,7 +233,20 @@
   )
   ```
 
-  
+
+
+
+
+
+### 54.3 `ui.line_plot`控件（更新中）
+
+下面是`ui.line_plot`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/line_plot
+
+matplotlib框架文档：https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
+
+
 
 - `ui.line_plot`控件，使用`matplotlib`库绘制线形图，可以使用`with`进入控件的上下文，调用上下文对象`fig`属性的子对象的`plot`方法绘制线形图；也可以使用`with`进入控件的上下文或者不进入上下文，直接调用控件的`push`方法绘制线形图。此外，调用`with_legend`方法，还能添加图例。
 
@@ -214,7 +329,26 @@
   )
   ```
 
-  
+
+
+
+
+
+
+
+
+
+### 54.4 `ui.plotly`控件（更新中）
+
+下面是`ui.plotly`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/plotly
+
+matplotlib框架文档：https://plotly.com/python/ 和 https://plotly.com/javascript/
+
+
+
+
 
 - `ui.plotly`控件，使用`plotly`库绘制线形图。
 
@@ -285,7 +419,19 @@
 
 
 
-## 54 学习控件——渲染图表（更新中）
+
+
+
+
+## 55 样式技巧——（待定）（更新中）
+
+
+
+
+
+
+
+## 56 学习控件——渲染图表（更新中）
 
 以下控件可以将提供的数据渲染为表格图形：
 

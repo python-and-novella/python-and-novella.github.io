@@ -6,9 +6,7 @@
 
 2025版立项较晚，加上笔者要预研其他教程，还有其他工作要做，导致2025版的内容只是介绍了Qt用法的很小一部分。
 
-此外，之前内容可能还存在错误、遗漏之处，需要及时更正、补充。
-
-因此，笔者将在2026年继续本教程系列的更新，也就是本教程的2026版。2026版将延续2025版的任务，为读者介绍Qt控件的用法。同时，对于之前已经介绍过的控件，将搜集实际使用时的各种用法和遇到的问题，深入、扩展常用控件的用法，解决相关问题。当然，之前内容如果存在遗漏、错误，后续也将会发布补充、修正的章节。
+因此，笔者将在2026年继续本教程系列的更新，也就是本教程的2026版。2026版将延续2025版的任务，为读者介绍Qt控件的用法和更多Qt模块。同时，对于之前已经介绍过的控件，将搜集实际使用时的各种用法和遇到的问题，深入、扩展常用控件的用法，解决相关问题。当然，之前内容如果存在遗漏、错误，后续也将会发布补充、修正的章节。
 
 2026年，更新不止，学习不止，愿每一位读者都能学有所得。当然，为了适应新的更新节奏，2026版教程将改为敏捷更新风格，争取提高更新频率。
 
@@ -16,7 +14,7 @@
 
 ### 为什么会有本章
 
-因为2026版改为敏捷更新风格，如果将官方教程完全复刻，需要付出太多精力，也有太多重复。因此，在2026版中，笔者将告诉读者如何查阅官方文档，以及本教程主要介绍哪些内容，让需要了解重点难点、有一定基础的读者无需回头查看官方文档，让基础不太扎实但有自学能力的读者可以学会如何查阅官方文档。
+因为2026版改为敏捷更新风格，如果将官方教程完全复刻，需要付出太多精力，也有太多重复。因此，在2026版中，笔者将告诉读者如何查阅官方文档，以及本教程主要介绍哪些内容，让需要了解重点难点、有一定基础的读者无需回头查看官方文档，让基础不太扎实但有自学能力的读者可以学会如何查阅官方文档，让每位读者掌握官方文档和本教程之间的平衡。
 
 ### 如何学习官方文档
 
@@ -44,7 +42,7 @@
 
 ![2026_0_3](qt_for_python_pro.assets/2026_0_3.png)
 
-需要注意的是，官方文档看似类别清晰、内容丰富，但并非没有问题，点击上图的链接之后，会跳转到下面的页面：
+需要注意的是，官方文档看似类别清晰、内容丰富，但并非没有问题，点击上图的链接（https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html）之后，会跳转到下面的页面：
 
 ![2026_0_4](qt_for_python_pro.assets/2026_0_4.png)
 
@@ -79,7 +77,7 @@ class QPushButton(PySide6.QtWidgets.QAbstractButton):
 
 因此，在实际学习时，最好结合代码提示和官方文档，只看官方文档的话，会忽略掉实际支持的参数。
 
-回到文档：
+回到文档（https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html）：
 
 ![2026_0_7](qt_for_python_pro.assets/2026_0_7.png)
 
@@ -89,11 +87,19 @@ class QPushButton(PySide6.QtWidgets.QAbstractButton):
 
   注意，这里标明的控件属性表示其可用于该控件初始化方法中的关键字参数。
 
-  另外，不同于Python中的属性可以直接设置、获取，控件属性是指其作为方法（或者控件属性名加了“is”前缀的方法）调用之后的返回值，想要设置控件属性，则要调用控件属性名加了“set”前缀的方法。
+  另外，不同于Python中的属性可以直接设置、获取，控件属性是指其作为方法（或者控件属性名加了“is”前缀的方法）调用之后的返回值，想要设置控件属性，则要调用控件属性名加了“set”前缀的方法。其实，这里可以看出，Qt采用的是小驼峰命名法，因此，后续可以在得知控件属性名之后，猜测相关的获取、设置方法。
 
 - 方法、虚拟方法、槽。方法中大部分是控件属性相关的方法（获取、设置），也就初始化方法是有确定功能的方法。而虚拟方法、槽本质上也是方法，只不过槽一般与信号组合使用，但也可以当作一个普通方法来调用。
 
+  需要注意的是，虽然部分方法可以在创建控件时直接调用，但依然存在部分延迟生效的方法，需要先创建控件并将其分配给变量之后，才能调用其支持的方法。
+
 - 信号。虽然示例中没有看到，但其继承了父类的信号，实际上支持不少信号（可以参考其父类`QAbstractButton`的文档）。信号一般是调用其连接函数，将其与指定的槽函数连接，实现信号的响应。
+
+注意，这里也有一个坑。看文档（https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html）最上面的部分：
+
+![2026_0_8](qt_for_python_pro.assets/2026_0_8.png)
+
+这里标明了控件的继承关系，而控件实际支持的方法、控件属性、信号、槽，除了控件文档中写明的，还包含其父类（比如`QAbstractButton`类）的。想要了解其父类提供的方法、控件属性、信号、槽，可以点击继承关系中对应的父类，跳转至父类的文档。
 
 ### 关于本教程
 
@@ -103,7 +109,7 @@ class QPushButton(PySide6.QtWidgets.QAbstractButton):
 
 1. 引言。简单介绍控件功能，让读者对该控件有个简单的了解。
 2. 初始化方法。前面说过官方文档的初始化方法有点“混乱”，因此笔者会重新整理控件的初始化方法，并配上必要的示例，方便读者学习。
-3. 方法（部分介绍）、控件属性（部分介绍）。因为控件属性很多也是方法，因此将其归类至方法。不过，一个控件支持的方法、控件属性很多，有些控件是扩展自别的控件，而不少方法、控件属性一般不怎么用，全部介绍也比较占用时间，因此这部分内容将挑选部分来介绍，不常用或者已经介绍过的，可能会省略。读者如有需求，可以及时反馈，后续通过其他章节补充。
+3. 方法（部分介绍）、控件属性（部分介绍）。因为控件属性很多也是方法，因此将其归类至方法。不过，一个控件支持的方法、控件属性很多，有些控件是继承自别的控件，无限向上追溯的话，内容会很多，也会重复。而不少方法、控件属性一般不怎么用或者其他控件也有，全部介绍也比较占用时间，因此这部分内容将挑选部分来介绍，不常用的、其他控件也有的，可能会省略。读者如有需求，可以及时反馈，后续通过其他章节补充。
 4. 信号和槽（尽量完整地详细介绍）。因为信号和槽属于Qt独特的机制，虽然槽本质上也是方法，但为了方便快速学习，这两个功能将单独介绍，并且尽量完整地详细介绍。
 5. 扩展用法（主要是技巧相关的代码）。实际开发时，很多时候遇到的问题没有教程中说的那么简单，就是因为控件是组合使用，只看当前控件的文档或者教程，很难解决问题，因此需要扩展其他控件或者相关知识，才能解决实际遇到的问题。所以，对于部分控件，会在学完基础之后，额外补充一些和实际问题相关的扩展用法。当然，如果读者遇到了其他与控件相关的问题但当时没有介绍，也可以留言反馈，笔者将后续通过其他章节补充。
 
@@ -131,7 +137,15 @@ app.exec()
 
 ![2026_25_1](qt_for_python_pro.assets/2026_25_1.png)
 
-完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
+`QPushButton`普通按钮控件的继承关系如下：
+
+![2026_25_0](qt_for_python_pro.assets/2026_25_0.png)
+
+相关文档的链接如下：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
 
 ### 25.1 初始化方法
 
@@ -209,48 +223,11 @@ app.exec()
 - `default`参数，仅限关键字参数，含义、用法参考前面。
 - `flat`参数，仅限关键字参数，含义、用法参考前面。
 
-`QPushButton`普通按钮控件支持以下信号：
-
-- `clicked`信号，点击（包含鼠标按键按下、弹起两个过程）按钮时触发。
-
-- `pressed`信号，按下按钮时触发。
-
-- `released`信号，弹起按钮时触发。
-
-- `toggled`信号，切换按钮的勾选状态时触发。
-
-  注意，按钮默认为不可勾选，需要通过`setCheckable(True)`启用勾选，才能在点击时切换勾选状态。
-
-  示例如下：
-
-  ```python3
-  from PySide6.QtWidgets import (
-      QApplication,
-      QWidget,
-      QPushButton
-  )
-  
-  app = QApplication()
-  window = QWidget()
-  window.setWindowTitle('认识各种按钮')
-  window.resize(400, 300)
-  
-  button = QPushButton(
-      '可以勾选的按钮',
-      window
-  )
-  button.setCheckable(True)
-  button.toggled.connect(lambda:print('状态切换。'))
-  
-  window.show()
-  app.exec()
-  ```
-
 ### 25.2 方法、控件属性（更新中）
 
 `QPushButton`普通按钮控件支持以下方法（部分，含控件属性）：
 
-- `autoExclusive`方法，获取控件是否启用自动独占。当多个按钮的父控件相同时，这些按钮就属于同一独占组。如果这些按钮启用了勾选和自动独占，那么，将只允许同时勾选最多一个按钮：
+- `autoExclusive`方法（控件属性，可使用`setAutoExclusive`方法设置），返回控件是否启用自动独占。当多个按钮的父控件相同时，这些按钮就属于同一独占组。如果这些按钮启用了勾选和自动独占，那么，将只允许同时勾选最多一个按钮：
 
   ```python3
   from PySide6.QtWidgets import (
@@ -286,35 +263,265 @@ app.exec()
 
   ![2026_25_3](qt_for_python_pro.assets/2026_25_3.gif)
 
-- `autoRepeat`方法，---
+- `autoRepeat`方法（控件属性，可使用`setAutoRepeat`方法设置），返回控件是否启用了自动重复。自动重复是按钮的控件属性，默认该控件属性为`False`。所谓自动重复（使用`setAutoRepeat`方法设置），即按住按钮时，是否以指定的初始延迟（使用`setAutoRepeatDelay`方法设置）和间隔（使用`setAutoRepeatInterval`方法设置）重复发射`clicked`、`pressed`、`released`这三个信号。
 
-- 
+  示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton
+  )
+  
+  app = QApplication()
+  window = QWidget()
+  window.setWindowTitle('认识各种按钮')
+  window.resize(400, 300)
+  
+  button = QPushButton(
+      '按钮1',
+      window
+  )
+  
+  button.setAutoRepeat(True)
+  button.setAutoRepeatDelay(3000)
+  button.setAutoRepeatInterval(1000)
+  button.clicked.connect(lambda :print('clicked'))
+  button.pressed.connect(lambda :print('pressed'))
+  button.released.connect(lambda :print('released'))
+  
+  window.show()
+  app.exec()
+  ```
+
+  使用鼠标按住按钮不松手，即可在终端看到持续不断的输出。
+
+- `autoRepeatDelay`方法（控件属性，可使用`setAutoRepeatDelay`方法设置），返回控件的自动重复初始延迟。
+
+- `autoRepeatInterval`方法（控件属性，可使用`setAutoRepeatInterval`方法设置），获取控件的自动重复间隔。
+
+- `group`方法，获取按钮所属的按钮分组。
+
+  所谓按钮分组，即当按钮启用`autoExclusive`控件属性时，属于同一分组的按钮，将只允许同时勾选最多一个按钮。前面介绍时没有使用按钮分组，默认父控件相同时算作同一分组。但这样的用法会导致一个问题，如果父控件相同，想要让两组以上的按钮分别自动独占，就无法实现。因此，可以使用`QButtonGroup`控件的`addButton`方法，将需要分组的按钮添加到同一组，可以实现组与组之间的隔离。
+
+  示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QButtonGroup
+  )
+  
+  app = QApplication()
+  window = QWidget()
+  window.setWindowTitle('认识各种按钮')
+  window.resize(400, 300)
+  
+  buttons = []
+  for i in range(1,5):
+      # 批量生成按钮
+      button = QPushButton(
+      	f'按钮{i}',
+          window,
+      )
+      button.setCheckable(True)
+      button.setAutoExclusive(True)
+      button.move(
+          0,
+          30*(i-1)
+      )
+      # 点击按钮会在终端输出按钮所属的按钮组
+      button.clicked.connect(
+          lambda e,button=button:print(
+              button.group()
+          )
+      )
+      # 最后将按钮添加到数组中
+      buttons.append(button)
+  
+  # 两个按钮分组
+  group1 = QButtonGroup(
+      window,
+  )
+  group1.addButton(
+      buttons[0],
+  )
+  group1.addButton(
+      buttons[1],
+  )
+  group2 = QButtonGroup(
+      window,
+  )
+  group2.addButton(
+      buttons[2],
+  )
+  group2.addButton(
+      buttons[3],
+  )
+  
+  window.show()
+  app.exec()
+  ```
+
+  依次点击每个按钮，可以看到四个按钮明显分为两组，控制台的输出也证明了这一点：
+
+  ![2026_25_4](qt_for_python_pro.assets/2026_25_4.png)
+
+- `icon`方法（控件属性，可使用`setIcon`方法设置），返回按钮的图标或者图片。
+
+- `iconSize`方法（控件属性，可使用`setIconSize`方法设置），返回按钮图标的大小。
+
+- `isCheckable`方法（控件属性`checkable`的获取方法，可使用`setCheckable`方法设置），返回按钮是否可勾选。
+
+- `isChecked`方法（控件属性`checked`的获取方法，可使用`setChecked`方法设置），返回按钮是否已勾选。
+
+- `isDefault`方法（控件属性`default`的获取方法，可使用`setDefault`方法设置），返回按钮是为默认按钮。
+
+- `isDown`方法（控件属性`down`的获取方法，可使用`setDown`方法设置），返回按钮是否已按下。
+
+- `isFlat`方法（控件属性`flat`的获取方法，可使用`setFlat`方法设置），返回按钮是否为扁平按钮（鼠标悬停在按钮上的话没有悬浮特效）。
+
+- `menu`方法（控件属性，可使用`setMenu`方法设置），返回点击按钮之后弹出的菜单。
 
 - `setMenu`方法，设置点击按钮之后弹出的菜单。该方法支持以下参数：
 
   - `menu`参数，`PySide6.QtWidgets.QMenu`类型，表示弹出的菜单。
 
-- `setToolTip`方法，按钮的工具提示（鼠标悬停时自动弹出的文字）。该方法支持以下参数：
+  示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton,
+      QMenu
+  )
+  #from PySide6.QtCore import Qt
+  
+  app = QApplication()
+  window = QWidget()
+  window.setWindowTitle('认识各种按钮')
+  window.resize(400, 300)
+  
+  button = QPushButton(
+      '按钮',
+      window,
+  )
+  
+  menu = QMenu()
+  menu.addAction('Hello')
+  menu.addAction('World')
+  button.setMenu(
+      menu
+  )
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2026_25_5](qt_for_python_pro.assets/2026_25_5.png)
+
+- `setToolTip`方法，设置按钮的工具提示（鼠标悬停时自动弹出的文字）。该方法支持以下参数：
 
   - `arg__1`参数，仅限位置参数（第一个位置参数），字符串类型，表示工具提示的内容。
 
 - `setShortcut`方法，给按钮绑定快捷键，按下快捷键时触发按钮的`clicked`信号。该方法支持以下参数：
 
   - `key`参数，`PySide6.QtCore.Qt.Key`类型、`PySide6.QtGui.QKeySequence`类型、`PySide6.QtCore.QKeyCombination`类型、`PySide6.QtGui.QKeySequence.StandardKey`类型、字符串类型、整数类型，表示绑定的快捷键。
+  
+- `setText`方法，---
 
+- `shortcut`方法，---
 
+- `text`方法，---
+
+- `toolTip`方法，---
 
 ### 25.3 信号和槽（更新中）
 
+`QPushButton`普通按钮控件支持以下信号（部分）：
 
+- `clicked`信号，点击（包含鼠标按键按下、弹起两个过程）按钮时触发。
 
+- `pressed`信号，按下按钮时触发。
 
+- `released`信号，松开按钮时触发。
 
+- `toggled`信号，切换按钮的勾选状态时触发。
 
+  注意，按钮默认为不可勾选，需要通过`setCheckable(True)`启用勾选，才能在点击时切换勾选状态。
+
+  示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QPushButton
+  )
+  
+  app = QApplication()
+  window = QWidget()
+  window.setWindowTitle('认识各种按钮')
+  window.resize(400, 300)
+  
+  button = QPushButton(
+      '可以勾选的按钮',
+      window
+  )
+  button.setCheckable(True)
+  button.toggled.connect(lambda:print('状态切换。'))
+  
+  window.show()
+  app.exec()
+  ```
+
+`QPushButton`普通按钮控件支持以下槽（部分）：
+
+- `showMenu`方法，---
+- `click`方法，---
+- `toggle`方法，---
+- `animateClick`方法，---
 
 ### 25.4 扩展用法（更新中）
 
-#### 25.4.1 xxx（更新中）
+#### 25.4.1 自动创建快捷键（更新中）
+
+
+
+“&”加符号，相当于注册了`alt + {符号对应的按键}`键为按钮的快捷键。但是，如果符号为大写字母，在小写状态下也可以生效：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QMenu
+)
+#from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
+
+button = QPushButton(
+    '按钮（&q）',
+    window,
+)
+
+button.clicked.connect(lambda e:print('Clicked!'))
+
+window.show()
+app.exec()
+```
+
+
+
+
 
 
 

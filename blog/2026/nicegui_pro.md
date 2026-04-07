@@ -6425,6 +6425,116 @@ ui.run(
 
 ![2026_27_1](nicegui_pro.assets/2026_27_1.png)
 
+## 27 修改窗口标题（扩展）
+
+就在上一章发出后不久，一位不愿透露姓名的热心粉丝向笔者提问，如何修改其他窗口的标题。笔者简单搜索了一下Python提供相关功能的库，发现`pywin32`库做到了Windows系统下简单易用，便想直接回答。但是，只是告诉粉丝库名，不给现成代码，也不做解释说明，会显得笔者有些“敷衍”。于是，便有了本章。
+
+代码涉及的操作需要安装`pywin32`库，因此需要通过`pip`命令或`uv`命令安装：
+
+```shell
+pip install pywin32
+uv add pywin32
+```
+
+`pywin32`库提供了`win32gui`模块，可以完成所需操作。思路如下：
+
+- 使用`win32gui.EnumWindows`方法获取所有窗口的句柄和标题。
+- 用窗口对应的句柄，通过`win32gui.SetWindowText`方法修改该窗口的标题。
+
+但在实现时，会遇到以下问题：
+
+- `win32gui.EnumWindows`方法获取的窗口包括不可见窗口和标题为空的可见窗口，实际上这些窗口基本上不是在Windows系统按`win + tab`键或者`alt + tab`键看到的窗口。
+- 部分窗口标题通过`win32gui.SetWindowText`方法修改之后，再次获取依然没有生效。
+
+笔者简单研究之后，找到了解决方法和原因：
+
+- 可以使用`win32gui.IsWindowVisible`方法判断窗口是否可见。使用`win32gui.GetWindowText`方法获取可见窗口的标题，判断是否为空。
+- 部分窗口有其他函数自动更新窗口标题，通过程序修改之后，只是在其他函数未执行前看上去修改了，一旦重新获取或者窗口刷新，窗口标题会被自动更新，因此参会看上去“没有生效”。
+
+基于上面的思路，示例如下：
+
+```python3
+from nicegui import ui
+import win32gui
+
+current_hwnd = None
+def refresh_windows_title():
+    windows_dict = []
+    def get_windows_dict(hwnd,extra):
+        if win32gui.IsWindowVisible(hwnd) and (win32gui.GetWindowText(hwnd) != ''):
+            windows_dict.append(
+                {
+                    'hwnd':hwnd,
+                    'title':win32gui.GetWindowText(
+                        hwnd
+                    )
+                }
+            )
+    win32gui.EnumWindows(get_windows_dict,None)
+    return windows_dict
+
+def index():
+    table = ui.table(
+        columns=[
+            {
+                'label': '句柄', 
+                'field': 'hwnd'
+            },
+            {
+                'label': '标题', 
+                'field': 'title',
+                'align': 'left'
+            },
+            {
+                'label': '操作',
+                'name': 'action', 
+                'align': 'center'
+            },
+        ],
+        rows=[],
+        pagination={
+            'rowsPerPage':7,
+            'sortedBy':'hwnd',
+        }
+    )
+    def get_hwnd_title(args):
+        global current_hwnd
+        current_hwnd = args[0]
+        current_title.value = args[1]
+
+    with table.add_slot('body-cell-action'):
+        with table.cell('action'):
+            ui.button('修改').props('flat').on(
+            'click',
+            js_handler='() => emit(props.row.hwnd,props.row.title)',
+            handler=lambda e: get_hwnd_title(e.args),
+        )
+    with ui.row():
+        current_title = ui.input('修改窗口的标题')
+        ui.button(
+            '修改',
+            on_click=lambda:win32gui.SetWindowText(
+                current_hwnd,
+                current_title.value
+            )
+        )
+    ui.button(
+        '刷新可见窗口句柄（不含空白标题）',
+        on_click=lambda:table.props.update(
+            {
+                'rows':refresh_windows_title()
+            }
+        )
+    )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_27_2](nicegui_pro.assets/2026_27_2.png)
+
 ## 28 响应任意事件
 
 在NiceGUI程序中，除了通过指定参数或者指定方法创建指定类型事件的响应函数外，还可以使用控件的`on`方法，创建任意类型事件的响应函数。

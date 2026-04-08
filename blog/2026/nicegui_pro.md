@@ -6535,6 +6535,115 @@ ui.run(
 
 ![2026_27_2](nicegui_pro.assets/2026_27_2.png)
 
+## 版本速览——3.10.0版本新增`ui.status_code`方法以及绑定属性支持嵌套字典
+
+NiceGUI 3.10.0 新增以下功能：
+
+- `ui.status_code`方法，可以设置当前页面的HTTP状态码。
+- 绑定属性可以与嵌套的字典绑定。
+
+先说`ui.status_code`方法，看起来像是个控件，实际上是个方法，或者说是一个快捷方法。该方法涉及的功能后面会介绍，不过用起来也不难。该方法主要用于修改当前页面的HTTP状态码，正常情况下，状态码是由框架内部控制，无需手动修改，但要是读者遇到必须修改的情况，就可以使用该方法：
+
+```python3
+from nicegui import ui
+
+def index():
+    # 状态码必须为[100,599]之间的整数（含两端）
+    ui.status_code(202)
+    # 相当于下面的代码
+    ui.context.client.status_code = 202
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+如上面示例所写，其实该方法就是对`ui.context.client.status_code`的包装，只是该方法看上去更简短。
+
+另一个要说的，就是绑定属性可以与嵌套的字典绑定了。先看看 3.10.0 之前的版本，绑定字典的示例：
+
+```python3
+from nicegui import ui
+
+def index():
+    dict_bind = {'name':'Alan'}
+    ui.label().bind_text_from(dict_bind,'name')
+    ui.input(
+        '姓名',
+    ).bind_value(dict_bind,'name')
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+但是，如果被绑定的字典变成这样，就要改代码了：
+
+```python3
+dict_bind = {
+	'info':{
+		'name':'Alan',
+		'age':18
+    }
+}
+```
+
+此时，原本的字典除了变得信息更多，还成为另一个字典中的字典，也就是字典嵌套。如果想要继续绑定原先的`'name'`键，在之前的版本需要预先获取最后的字典：
+
+```python3
+from nicegui import ui
+
+def index():
+    dict_bind = {
+        'info':{
+            'name':'Alan',
+            'age':18
+        }
+    }
+    ui.label().bind_text_from(dict_bind['info'],'name')
+    ui.input(
+        '姓名',
+    ).bind_value(dict_bind['info'],'name')
+    ui.label().bind_text_from(dict_bind['info'],'age')
+    ui.input(
+        '年龄',
+    ).bind_value(dict_bind['info'],'age')
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+在 3.10.0 中，只需将原本表示具体键的参数，改成元组，元组的元素依次为从外到内的每一次字典的键，即可轻松绑定：
+
+```python3
+from nicegui import ui
+
+def index():
+    dict_bind = {
+        'info':{
+            'name':'Alan',
+            'age':18
+        }
+    }
+    ui.label().bind_text_from(dict_bind,('info','name'))
+    ui.input(
+        '姓名',
+    ).bind_value(dict_bind,('info','name'))
+    ui.label().bind_text_from(dict_bind,('info','age'))
+    ui.input(
+        '年龄',
+    ).bind_value(dict_bind,('info','age'))
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
 ## 28 响应任意事件
 
 在NiceGUI程序中，除了通过指定参数或者指定方法创建指定类型事件的响应函数外，还可以使用控件的`on`方法，创建任意类型事件的响应函数。
@@ -6945,6 +7054,7 @@ ui.run(
 - `page`属性，表示页面，需要获取页面相关的属性（标题、是否为暗黑模式等）时，可以使用该属性。
 - `page_container`属性，表示页面的容器，也可以视为整个页面，需要修改整个页面的样式时，可以使用该属性。
 - `title`属性，表示页面的标题。
+- `status_code`属性，表示当前页面的HTTP状态码，可以直接设置，也可以使用`ui.status_code`方法设置。
 
 ## 30 通过URL给NiceGUI程序传参
 

@@ -113,7 +113,7 @@ class QPushButton(PySide6.QtWidgets.QAbstractButton):
 4. 信号和槽（尽量完整地详细介绍）。因为信号和槽属于Qt独特的机制，虽然槽本质上也是方法，但为了方便快速学习，这两个功能将单独介绍，并且尽量完整地详细介绍。
 5. 扩展用法（主要是技巧相关的代码）。实际开发时，很多时候遇到的问题没有教程中说的那么简单，就是因为控件是组合使用，只看当前控件的文档或者教程，很难解决问题，因此需要扩展其他控件或者相关知识，才能解决实际遇到的问题。所以，对于部分控件，会在学完基础之后，额外补充一些和实际问题相关的扩展用法。当然，如果读者遇到了其他与控件相关的问题但当时没有介绍，也可以留言反馈，笔者将后续通过其他章节补充。
 
-## 25 `QPushButton`普通按钮控件（更新中）
+## 25 `QPushButton`普通按钮控件
 
 本章介绍的`QPushButton`普通按钮控件算是最常用、最普通的按钮。如果程序中需要一个简单的、可以点击的按钮，那非普通按钮控件莫属：
 
@@ -223,7 +223,7 @@ app.exec()
 - `default`参数，仅限关键字参数，含义、用法参考前面。
 - `flat`参数，仅限关键字参数，含义、用法参考前面。
 
-### 25.2 方法、控件属性（更新中）
+### 25.2 方法、控件属性
 
 `QPushButton`普通按钮控件支持以下方法（部分，含控件属性）：
 
@@ -430,17 +430,19 @@ app.exec()
 
 - `setShortcut`方法，给按钮绑定快捷键，按下快捷键时触发按钮的`clicked`信号。该方法支持以下参数：
 
-  - `key`参数，`PySide6.QtCore.Qt.Key`类型、`PySide6.QtGui.QKeySequence`类型、`PySide6.QtCore.QKeyCombination`类型、`PySide6.QtGui.QKeySequence.StandardKey`类型、字符串类型、整数类型，表示绑定的快捷键。
+  - `key`参数，仅限位置参数（第一个位置参数），`PySide6.QtCore.Qt.Key`类型、`PySide6.QtGui.QKeySequence`类型、`PySide6.QtCore.QKeyCombination`类型、`PySide6.QtGui.QKeySequence.StandardKey`类型、字符串类型、整数类型，表示绑定的快捷键。
   
-- `setText`方法，---
+- `setText`方法，设置按钮的文本。该方法支持以下参数：
 
-- `shortcut`方法，---
+  - `text`参数，仅限位置参数（第一个位置参数），字符串类型，表示按钮的文本。
 
-- `text`方法，---
+- `shortcut`方法，返回按钮绑定的快捷键。
 
-- `toolTip`方法，---
+- `text`方法，返回按钮的文本。
 
-### 25.3 信号和槽（更新中）
+- `toolTip`方法，返回按钮的工具提示。
+
+### 25.3 信号和槽
 
 `QPushButton`普通按钮控件支持以下信号（部分）：
 
@@ -481,27 +483,27 @@ app.exec()
 
 `QPushButton`普通按钮控件支持以下槽（部分）：
 
-- `showMenu`方法，---
-- `click`方法，---
-- `toggle`方法，---
-- `animateClick`方法，---
+- `showMenu`方法，弹出点击按钮之后弹出的菜单。
+- `click`方法，点击按钮。
+- `toggle`方法，切换按钮的勾选状态。
+- `animateClick`方法，点击按钮，同时播放点击动画。
 
-### 25.4 扩展用法（更新中）
+### 25.4 扩展用法
 
-#### 25.4.1 自动创建快捷键（更新中）
+#### 25.4.1 自动创建快捷键
 
+使用`setShortcut`方法可以给按钮设置任意快捷键，但是，如果在按钮文本中包含了“&｛符号｝”（比如`'&q'`），相当于创建了`alt + {符号对应的按键}`键为按钮的快捷键，则无需使用`setShortcut`方法。
 
+注意，如果符号为大写字母，则默认在小写状态下也可以生效。
 
-“&”加符号，相当于注册了`alt + {符号对应的按键}`键为按钮的快捷键。但是，如果符号为大写字母，在小写状态下也可以生效：
+示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
-    QPushButton,
-    QMenu
+    QPushButton
 )
-#from PySide6.QtCore import Qt
 
 app = QApplication()
 window = QWidget()
@@ -519,43 +521,44 @@ window.show()
 app.exec()
 ```
 
+可以按下`alt + q`键，查看终端的输出结果。
+
+## 26 `QRadioButton`单选按钮控件（更新中）
 
 
 
+（从普通按钮中类似单选按钮的行为引出本章，真正的单选按钮）
 
 
 
-（下面的示例需要拆分到具体方法的示例中）
+`Q`xx控件主要用于……
 
-示例如下：
+
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
-    QPushButton,
-    QMenu
+    QRadioButton
 )
-
-from PySide6.QtGui import QIcon
 
 app = QApplication()
 window = QWidget()
 window.setWindowTitle('认识各种按钮')
 window.resize(400, 300)
 
-button = QPushButton(
-    QIcon.fromTheme(
-        QIcon.ThemeIcon.FolderOpen
-    ),
-    '有下拉菜单的按钮',
-    window
+button = QRadioButton(
+    '选项1',
+    window,
 )
-menu = QMenu()
-menu.addAction('菜单项1')
-button.setMenu(menu)
-button.setShortcut('ctrl+q')
-button.setToolTip('快捷键为ctrl+q')
+button.setChecked(True)
+button2 = QRadioButton(
+    '选项2',
+    window,
+)
+button2.move(
+    0,30
+)
 
 window.show()
 app.exec()
@@ -565,57 +568,101 @@ app.exec()
 
 
 
-## 26 `QRadioButton`按钮控件（更新中）
+`QRadioButton`单选按钮控件的继承关系如下：
 
-`Q`xx控件主要用于……
+![image-20260408175651716](qt_for_python_pro.assets/image-20260408175651716.png)
 
-完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
+相关文档的链接如下：
 
-`Q`xx控件有多种初始化方法（参数名及类型提示来自`xx.pyi`）。
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QRadioButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
 
-第一种初始化方法支持以下参数：
+### 26.1 初始化方法（更新中）
 
-- 
-
-`Q`xx控件支持以下信号：
-
-- `xx`信号，
-
-`Q`xx控件支持以下方法（部分，含控件属性）：
-
-- `xx`方法，
-
-受限于篇幅，该控件支持的方法没法全部介绍，这里仅简单提供一个该控件的示例。至于其余的方法和更多用法，可以期待后续有关该控件的其他章节。
-
-示例如下：
-
-
-
-
-
-## 27 `QCheckBox`按钮控件（更新中）
-
-`Q`xx控件主要用于……
-
-完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
-
-`Q`xx控件有多种初始化方法（参数名及类型提示来自`xx.pyi`）。
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
 
 第一种初始化方法支持以下参数：
 
-- 
+- `xxx`参数，仅限位置参数（第一个位置参数），---
 
-`Q`xx控件支持以下信号：
+第二种初始化方法支持以下参数：
 
-- `xx`信号，
+- `xxx`参数，仅限位置参数（第一个位置参数），---
 
-`Q`xx控件支持以下方法（部分，含控件属性）：
+### 26.2 方法、控件属性（更新中）
 
-- `xx`方法，
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
 
-受限于篇幅，该控件支持的方法没法全部介绍，这里仅简单提供一个该控件的示例。至于其余的方法和更多用法，可以期待后续有关该控件的其他章节。
+- `xxx`方法，---
 
-示例如下：
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### 26.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### 26.4 扩展用法（更新中）
+
+#### 26.4.1 xxx（更新中）
+
+
+
+## 27 `QCheckBox`多选按钮控件（更新中）
+
+`Q`xx控件主要用于……
+
+完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QCheckBox.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
+
+
+
+
+
+### 26.1 初始化方法（更新中）
+
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
+
+第一种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+第二种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### 26.2 方法、控件属性（更新中）
+
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+
+- `xxx`方法，---
+
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### 26.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### 26.4 扩展用法（更新中）
+
+#### 26.4.1 xxx（更新中）
+
+
 
 
 
@@ -623,25 +670,49 @@ app.exec()
 
 `Q`xx控件主要用于……
 
-完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
+完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QCommandLinkButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
 
-`Q`xx控件有多种初始化方法（参数名及类型提示来自`xx.pyi`）。
+
+
+
+
+### 26.1 初始化方法（更新中）
+
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
 
 第一种初始化方法支持以下参数：
 
-- 
+- `xxx`参数，仅限位置参数（第一个位置参数），---
 
-`Q`xx控件支持以下信号：
+第二种初始化方法支持以下参数：
 
-- `xx`信号，
+- `xxx`参数，仅限位置参数（第一个位置参数），---
 
-`Q`xx控件支持以下方法（部分，含控件属性）：
+### 26.2 方法、控件属性（更新中）
 
-- `xx`方法，
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
 
-受限于篇幅，该控件支持的方法没法全部介绍，这里仅简单提供一个该控件的示例。至于其余的方法和更多用法，可以期待后续有关该控件的其他章节。
+- `xxx`方法，---
 
-示例如下：
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### 26.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### 26.4 扩展用法（更新中）
+
+#### 26.4.1 xxx（更新中）
+
+
 
 
 
@@ -651,23 +722,51 @@ app.exec()
 
 完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
 
-`Q`xx控件有多种初始化方法（参数名及类型提示来自`xx.pyi`）。
+
+
+
+
+
+
+### 26.1 初始化方法（更新中）
+
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
 
 第一种初始化方法支持以下参数：
 
-- 
+- `xxx`参数，仅限位置参数（第一个位置参数），---
 
-`Q`xx控件支持以下信号：
+第二种初始化方法支持以下参数：
 
-- `xx`信号，
+- `xxx`参数，仅限位置参数（第一个位置参数），---
 
-`Q`xx控件支持以下方法（部分，含控件属性）：
+### 26.2 方法、控件属性（更新中）
 
-- `xx`方法，
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
 
-受限于篇幅，该控件支持的方法没法全部介绍，这里仅简单提供一个该控件的示例。至于其余的方法和更多用法，可以期待后续有关该控件的其他章节。
+- `xxx`方法，---
 
-示例如下：
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### 26.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### 26.4 扩展用法（更新中）
+
+#### 26.4.1 xxx（更新中）
+
+
+
+
 
 
 
@@ -992,22 +1091,73 @@ app.exec()
 
 
 
-## 1 `Q`xx控件
+## x `Qxxx`xxx控件（更新中）（模板）
 
-`Q`xx控件主要用于……
+`Qxxx`xxx控件主要用于……
 
-完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
+示例如下：
 
-`Q`xx控件有多种初始化方法（参数名及类型提示来自`xx.pyi`）。
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识控件')
+window.resize(400, 300)
+
+# 添加相关控件
+
+window.show()
+app.exec()
+```
+
+（运行效果图）
+
+`Qxxx`xxxx控件的继承关系如下：
+
+（截图继承关系）
+
+相关文档的链接如下：
+
+- （由近到远每一层级对应的文档链接）
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### x.1 初始化方法（更新中）
+
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
 
 第一种初始化方法支持以下参数：
 
-- 
+- `xxx`参数，仅限位置参数（第一个位置参数），---
 
-`Q`xx控件支持以下信号：
+第二种初始化方法支持以下参数：
 
-- `xx`信号，
+- `xxx`参数，仅限位置参数（第一个位置参数），---
 
-`Q`xx控件支持以下方法（部分，含控件属性）：
+### x.2 方法、控件属性（更新中）
 
-- `xx`方法，
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+
+- `xxx`方法，---
+
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### x.4 扩展用法（更新中）
+
+#### x.4.1 xxx（更新中）
+

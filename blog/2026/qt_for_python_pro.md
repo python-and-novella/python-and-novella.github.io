@@ -523,17 +523,9 @@ app.exec()
 
 可以按下`alt + q`键，查看终端的输出结果。
 
-## 26 `QRadioButton`单选按钮控件（更新中）
+## 26 `QRadioButton`单选按钮控件
 
-
-
-（从普通按钮中类似单选按钮的行为引出本章，真正的单选按钮）
-
-
-
-`Q`xx控件主要用于……
-
-
+上一章介绍`autoExclusive`方法时使用的示例看上去像是单选按钮，但那种费事、妥协的单选按钮并不完美，需要额外设置属性，样式上也不够直观。因此，本章要介绍的`QRadioButton`单选按钮控件，在支持不少`QPushButton`普通按钮控件功能的基础上，更适合作为单选按钮使用，代码也更简洁：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -564,13 +556,11 @@ window.show()
 app.exec()
 ```
 
-
-
-
+![2026_26_1](qt_for_python_pro.assets/2026_26_1.png)
 
 `QRadioButton`单选按钮控件的继承关系如下：
 
-![image-20260408175651716](qt_for_python_pro.assets/image-20260408175651716.png)
+![2026_26_2](qt_for_python_pro.assets/2026_26_2.png)
 
 相关文档的链接如下：
 
@@ -578,95 +568,335 @@ app.exec()
 - https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html
 - https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
 
-### 26.1 初始化方法（更新中）
+### 26.1 初始化方法
 
-`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
-
-第一种初始化方法支持以下参数：
-
-- `xxx`参数，仅限位置参数（第一个位置参数），---
-
-第二种初始化方法支持以下参数：
-
-- `xxx`参数，仅限位置参数（第一个位置参数），---
-
-### 26.2 方法、控件属性（更新中）
-
-`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
-
-- `xxx`方法，---
-
-  该方法支持以下参数：
-
-  - `xxx`参数，仅限位置参数（第一个位置参数），---
-
-### 26.3 信号和槽（更新中）
-
-`Qxxx`xxx控件支持以下信号（部分）：
-
-- `xxx`信号，---
-
-`Qxxx`xxx控件支持以下槽（部分）：
-
-- `xxx`方法，---
-
-### 26.4 扩展用法（更新中）
-
-#### 26.4.1 xxx（更新中）
-
-
-
-## 27 `QCheckBox`多选按钮控件（更新中）
-
-`Q`xx控件主要用于……
-
-完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QCheckBox.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
-
-
-
-
-
-### 26.1 初始化方法（更新中）
-
-`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
+`QRadioButton`单选按钮控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
 
 第一种初始化方法支持以下参数：
 
-- `xxx`参数，仅限位置参数（第一个位置参数），---
+- `text`参数，仅限位置参数（第一个位置参数），字符串类型，表示显示在按钮上的文字。
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
 
 第二种初始化方法支持以下参数：
 
-- `xxx`参数，仅限位置参数（第一个位置参数），---
+- `parent`参数，含义、用法参考前面。
 
-### 26.2 方法、控件属性（更新中）
+### 26.2 方法、控件属性
 
-`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+`QRadioButton`单选按钮控件支持以下方法（部分，含控件属性）：
 
-- `xxx`方法，---
+- `autoExclusive`方法（控件属性，可使用`setAutoExclusive`方法设置），返回控件是否启用自动独占。不同于`QPushButton`普通按钮控件需要单独设置，该控件默认为`True`，因此，当多个按钮的父控件相同时，这些按钮就属于同一独占组。那么，将只允许同时勾选最多一个按钮。
+
+- `group`方法，获取按钮所属的按钮分组。因为该控件默认启用了`autoExclusive`控件属性，因此，想要将不同的单选隔离开，必须要分组（使用`QButtonGroup`控件的`addButton`方法，将需要分组的按钮添加到同一组）。
+
+  示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QRadioButton,
+      QButtonGroup
+  )
+  
+  app = QApplication()
+  window = QWidget()
+  window.setWindowTitle('认识各种按钮')
+  window.resize(400, 300)
+  
+  buttons = []
+  for i in range(1,5):
+      # 批量生成选项
+      button = QRadioButton(
+      	f'选项{i}',
+          window,
+      )
+      button.move(
+          0,
+          30*(i-1)
+      )
+      # 点击选项会在终端输出选项所属的按钮组
+      button.clicked.connect(
+          lambda e,button=button:print(
+              button.group()
+          )
+      )
+      # 最后将选项添加到数组中
+      buttons.append(button)
+    
+  # 两个按钮分组
+  group1 = QButtonGroup(
+      window,
+  )
+  group1.addButton(
+      buttons[0],
+  )
+  group1.addButton(
+      buttons[1],
+  )
+  group2 = QButtonGroup(
+      window,
+  )
+  group2.addButton(
+      buttons[2],
+  )
+  group2.addButton(
+      buttons[3],
+  )
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2026_26_3](qt_for_python_pro.assets/2026_26_3.png)
+
+- `icon`方法（控件属性，可使用`setIcon`方法设置），返回按钮的图标或者图片。虽然该控件一般用于选项，但依然支持设置图标（该控件属性实际上来源于`QAbstractButton`抽象按钮控件）。
+
+  示例如下：
+
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QRadioButton
+  )
+  from PySide6.QtGui import QIcon
+  
+  app = QApplication()
+  window = QWidget()
+  window.setWindowTitle('认识各种按钮')
+  window.resize(400, 300)
+  
+  button = QRadioButton(
+      '选项1',
+      window,
+  )
+  button.setChecked(True)
+  button2 = QRadioButton(
+      '选项2',
+      window,
+  )
+  button2.move(
+      0,30
+  )
+  button.setIcon(
+      QIcon.fromTheme(
+          QIcon.ThemeIcon.Battery
+      )
+  )
+  
+  window.show()
+  app.exec()
+  ```
+
+  ![2026_26_4](qt_for_python_pro.assets/2026_26_4.png)
+
+其他的方法大部分和`QPushButton`普通按钮控件一样（部分没有。比如`menu`方法和相关方法），具体可以看官方文档。
+
+### 26.3 信号和槽
+
+`QRadioButton`单选按钮控件支持以下信号（部分）：
+
+- `clicked`信号，点击（包含鼠标按键按下、弹起两个过程）按钮时触发。
+
+- `pressed`信号，按下按钮时触发。
+
+- `released`信号，松开按钮时触发。
+
+- `toggled`信号，切换按钮的勾选状态时触发。
+
+`QRadioButton`单选按钮控件支持以下槽（部分）：
+
+- `click`方法，点击按钮。
+- `toggle`方法，切换按钮的勾选状态。
+- `animateClick`方法，点击按钮，同时播放点击动画。
+
+## 27 `QCheckBox`多选按钮控件
+
+`QCheckBox`多选按钮控件用起来几乎和`QRadioButton`单选按钮控件一样，上一章的例子，直接改名就能用：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QCheckBox
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
+
+button = QCheckBox(
+    '选项1',
+    window,
+)
+button.setChecked(True)
+button2 = QCheckBox(
+    '选项2',
+    window,
+)
+button2.move(
+    0,30
+)
+
+window.show()
+app.exec()
+```
+
+![2026_27_1](qt_for_python_pro.assets/2026_27_1.png)
+
+当然，几乎一样不代表完全一样，二者还是有一些差异，首先，既然是多选，哪怕父控件相同，每个选项的勾选状态也是独立的，默认不会自动独占（也可以启用）。此外，`QCheckBox`多选按钮控件的勾选状态也不是简单的两种。具体相关差异的示例可以参考官方文档或者后面的内容。
+
+`QCheckBox`多选按钮控件的继承关系如下：
+
+![2026_27_2](qt_for_python_pro.assets/2026_27_2.png)
+
+相关文档的链接如下：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QCheckBox.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### 27.1 初始化方法
+
+`QCheckBox`多选按钮控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
+
+- 第一种初始化方法支持以下参数：
+
+  - `text`参数，仅限位置参数（第一个位置参数），字符串类型，表示显示在按钮上的文字。
+
+  - `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
+
+  - `tristate`参数，仅限关键字参数，布尔类型，表示按钮的勾选状态是否为三种（未勾选、半勾选、勾选）。
+
+    示例如下：
+
+    ```python3
+    from PySide6.QtWidgets import (
+        QApplication,
+        QWidget,
+        QCheckBox
+    )
+    from PySide6.QtCore import Qt
+    
+    app = QApplication()
+    window = QWidget()
+    window.setWindowTitle('认识各种按钮')
+    window.resize(400, 300)
+    
+    button = QCheckBox(
+        '选项1',
+        window,
+        tristate=True,
+    )
+    button.setCheckState(
+        Qt.CheckState.PartiallyChecked
+    )
+    button2 = QCheckBox(
+        '选项2',
+        window,
+    )
+    button2.move(
+        0,30
+    )
+    
+    window.show()
+    app.exec()
+    ```
+
+    ![2026_27_3](qt_for_python_pro.assets/2026_27_3.png)
+
+  第二种初始化方法支持以下参数：
+
+  - `parent`参数，含义、用法参考前面。
+  - `tristate`参数，含义、用法参考前面。
+
+### 27.2 方法、控件属性
+
+`QCheckBox`多选按钮控件支持以下方法（部分，含控件属性）：
+
+- `checkState`方法（控件属性，可使用`setCheckState`方法设置），返回控件的勾选状态。
+
+- `isTristate`方法（控件属性`tristate`的获取方法，，可使用`setTristate`方法设置），返回控件的勾选状态是否为三种。
+
+- `setCheckState`方法，设置控件的勾选状态。
 
   该方法支持以下参数：
 
-  - `xxx`参数，仅限位置参数（第一个位置参数），---
+  - `state`参数，仅限位置参数（第一个位置参数），`PySide6.QtCore.Qt.CheckState`类型，表示控件的勾选状态。`PySide6.QtCore.Qt.CheckState`类型为枚举类型，包含以下枚举值：
+    - `Unchecked`（`0x0`），表示未勾选。
+    - `PartiallyChecked`（`0x1`），表示部分勾选。
+    - `Checked`（`0x2`），表示勾选。
 
-### 26.3 信号和槽（更新中）
+- `setTristate`方法，设置控件的勾选状态是否为三种。
 
-`Qxxx`xxx控件支持以下信号（部分）：
+  该方法支持以下参数：
 
-- `xxx`信号，---
+  - `y`参数，布尔类型，表示控件的勾选状态是否为三种。
 
-`Qxxx`xxx控件支持以下槽（部分）：
+### 27.3 信号和槽
 
-- `xxx`方法，---
+`QCheckBox`多选按钮控件支持以下信号（部分）：
 
-### 26.4 扩展用法（更新中）
+- `checkStateChanged`信号，控件的勾选状态变化时触发。
 
-#### 26.4.1 xxx（更新中）
+  示例如下：
 
+  ```python3
+  from PySide6.QtWidgets import (
+      QApplication,
+      QWidget,
+      QCheckBox
+  )
+  from PySide6.QtCore import Qt
+  
+  app = QApplication()
+  window = QWidget()
+  window.setWindowTitle('认识各种按钮')
+  window.resize(400, 300)
+  
+  button = QCheckBox(
+      '选项1',
+      window,
+      tristate=True,
+  )
+  button.setCheckState(
+      Qt.CheckState.PartiallyChecked
+  )
+  
+  def check_state(state):
+      match state:
+          case Qt.CheckState.Unchecked:
+              print('Unchecked!')
+          case Qt.CheckState.PartiallyChecked:
+              print('PartiallyChecked!')
+          case Qt.CheckState.Checked:
+              print('Checked!')
+          case _:
+              print('Unexpected!')
+  
+  button.checkStateChanged.connect(check_state)
+  
+  window.show()
+  app.exec()
+  ```
 
+- `clicked`信号，点击（包含鼠标按键按下、弹起两个过程）按钮时触发。
 
+- `pressed`信号，按下按钮时触发。
 
+- `released`信号，松开按钮时触发。
 
-## 28 `QCommandLinkButton`按钮控件（更新中）
+- `toggled`信号，切换按钮的勾选状态时触发。
+
+`QCheckBox`多选按钮控件支持以下槽（部分）：
+
+- `click`方法，点击按钮。
+- `toggle`方法，切换按钮的勾选状态。
+- `animateClick`方法，点击按钮，同时播放点击动画。
+
+## 28 `QCommandLinkButton`命令链接按钮控件（更新中）
 
 `Q`xx控件主要用于……
 
@@ -716,7 +946,7 @@ app.exec()
 
 
 
-## 29 `QToolButton`按钮控件（更新中）
+## 29 `QToolButton`工具按钮控件（更新中）
 
 `Q`xx控件主要用于……
 
@@ -768,53 +998,11 @@ app.exec()
 
 
 
+## x 其他控件（更新中）
 
+按这个目录介绍控件：
 
-## 30 弹出菜单（更新中）
-
-
-
-菜单栏点击后弹出菜单，任意按钮点击后弹出菜单，右键弹出菜单，
-
-
-
-
-
-## 31 `QWizard`向导对话框控件和`QWizardPage`向导页控件（更新中）
-
-
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWizard.html
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWizardPage.html
-
-
-
-
-
-## 32 日期时间控件（更新中）
-
-
-
-
-
-## 33 临时数据控件（更新中）
-
-
-
-
-
-## 34 表格控件（更新中）
-
-
-
-
-
-## 35 树形图控件（更新中）
-
-
-
-
+https://doc.qt.io/qtforpython-6/overviews/qtwidgets-widget-classes.html#widgets-classes
 
 
 
@@ -830,6 +1018,10 @@ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWizardPage.html
 - Qt Test：https://doc.qt.io/qt-6/zh/qttest-index.html
 - Additional Modules：https://doc.qt.io/qt-6/zh/qt-additional-modules.html
 - Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
+
+
+
+
 
 
 
@@ -1127,7 +1319,7 @@ app.exec()
 
 ### x.1 初始化方法（更新中）
 
-`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
 
 第一种初始化方法支持以下参数：
 

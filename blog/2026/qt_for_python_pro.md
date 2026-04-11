@@ -58,7 +58,7 @@
 from PySide6.QtWidgets import QPushButton
 ```
 
-这是一段导入`QPushButton`类的代码，随后，选中其中的`QPushButton`，按`f12`键或者 右键-转到定义，可以看到一下内容（部分代码）：
+这是一段导入`QPushButton`类的代码，随后，选中其中的`QPushButton`，按`f12`键或者 右键-转到定义，可以看到以下内容（部分代码）：
 
 ```python3
 class QPushButton(PySide6.QtWidgets.QAbstractButton):
@@ -896,57 +896,206 @@ app.exec()
 - `toggle`方法，切换按钮的勾选状态。
 - `animateClick`方法，点击按钮，同时播放点击动画。
 
-## 28 `QCommandLinkButton`命令链接按钮控件（更新中）
+## 28 `QCommandLinkButton`命令链接按钮控件
 
-`Q`xx控件主要用于……
+`QCommandLinkButton`命令链接按钮控件看起来、用起来都很像`QPushButton`普通按钮控件：
 
-完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QCommandLinkButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QCommandLinkButton,
+    QPushButton
+)
 
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
 
+button = QCommandLinkButton(
+    '命令链接按钮',
+    '解释性的文本',
+    window,
+)
 
+button2 = QPushButton(
+    '普通按钮\n解释性的文本',
+    window,
+)
+button2.move(
+    0,
+    60
+)
+button2.setIcon(
+    button.icon()
+)
 
+window.show()
+app.exec()
+```
 
-### 26.1 初始化方法（更新中）
+![2026_28_1](qt_for_python_pro.assets/2026_28_1.png)
 
-`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
+从上面的运行结果看，二者主要区别在于`QCommandLinkButton`命令链接按钮控件看上去更“宽松”，自带一个图标，而且解释性文本与按钮文本有样式的差异，而非普通按钮那种字体完全一样。因此，如果希望用户直接了解按钮的功能，而不是将鼠标悬停在按钮上，看工具提示的话，使用`QCommandLinkButton`命令链接按钮控件更合适。
+
+`QCommandLinkButton`命令链接按钮控件的继承关系如下：
+
+![2026_28_2](qt_for_python_pro.assets/2026_28_2.png)
+
+相关文档的链接如下：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QCommandLinkButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### 28.1 初始化方法
+
+`QCommandLinkButton`命令链接按钮控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
 
 第一种初始化方法支持以下参数：
 
-- `xxx`参数，仅限位置参数（第一个位置参数），---
+- `text`参数，仅限位置参数（第一个位置参数），字符串类型，表示显示在按钮上的文字。
+- `description`参数，仅限位置参数（第二个位置参数），字符串类型，表示显示在按钮上的解释性文字。
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
+- `flat`参数，仅限关键字参数，布尔类型，表示控件是否为扁平按钮（鼠标悬停在按钮上的话没有悬浮特效），默认为`False`。
 
 第二种初始化方法支持以下参数：
 
-- `xxx`参数，仅限位置参数（第一个位置参数），---
+- `text`参数，仅限位置参数（第一个位置参数），含义、用法参考前面。
+- `parent`参数，含义、用法参考前面。
+- `description`参数，仅限关键字参数，含义、用法参考前面。
+- `flat`参数，仅限关键字参数，含义、用法参考前面。
 
-### 26.2 方法、控件属性（更新中）
+第三种初始化方法支持以下参数：
 
-`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+- `parent`参数，含义、用法参考前面。
+- `description`参数，仅限关键字参数，含义、用法参考前面。
+- `flat`参数，仅限关键字参数，含义、用法参考前面。
 
-- `xxx`方法，---
+### 28.2 方法、控件属性
 
-  该方法支持以下参数：
+`QCommandLinkButton`命令链接按钮控件支持以下方法（部分，含控件属性）：
 
-  - `xxx`参数，仅限位置参数（第一个位置参数），---
+- `description`方法（控件属性，可使用`setDescription`方法设置），返回显示在按钮上的解释性文字。
 
-### 26.3 信号和槽（更新中）
+### 28.3 信号和槽
 
-`Qxxx`xxx控件支持以下信号（部分）：
+`QCommandLinkButton`命令链接按钮控件支持以下信号（部分）：
 
-- `xxx`信号，---
+- `clicked`信号，点击（包含鼠标按键按下、弹起两个过程）按钮时触发。
+- `pressed`信号，按下按钮时触发。
 
-`Qxxx`xxx控件支持以下槽（部分）：
+- `released`信号，松开按钮时触发。
 
-- `xxx`方法，---
+- `toggled`信号，切换按钮的勾选状态时触发。
 
-### 26.4 扩展用法（更新中）
+### 28.4 扩展用法
 
-#### 26.4.1 xxx（更新中）
+#### 28.4.1 修改图标
 
+`QCommandLinkButton`命令链接按钮控件默认使用了箭头作为图标，那是因为该按钮的外观实际上来源于Windows Vista系统引入的同名控件，Qt通过自己的方式实现了类似的控件。该控件一般用在向导窗口中，用于指示下一步执行什么（直接执行）并且无需查看工具提示。因此，才会默认使用箭头作为图标。
 
+不过，因为是继承自`QPushButton`普通按钮控件，所以，依然可以使用`setIcon`方法修改按钮的图标：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QCommandLinkButton
+)
+from PySide6.QtGui import QIcon
 
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
+
+button = QCommandLinkButton(
+    '命令链接按钮',
+    '解释性的文本',
+    window,
+)
+button.setIcon(
+    QIcon.fromTheme(
+        QIcon.ThemeIcon.ApplicationExit
+    )
+)
+
+window.show()
+app.exec()
+```
+
+![2026_28_3](qt_for_python_pro.assets/2026_28_3.png)
 
 ## 29 `QToolButton`工具按钮控件（更新中）
+
+前面介绍的按钮都比较简单，难免有读者觉得笔者有点“敷衍”。那么，本章就顺势介绍一下用起来有点复杂的`QToolButton`工具按钮控件。
+
+先看一下该控件的“错误”用法：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
+
+button = QToolButton(
+    window,
+)
+button.setText('工具按钮')
+
+window.show()
+app.exec()
+```
+
+![2026_29_1](qt_for_python_pro.assets/2026_29_1.png)
+
+运行起来没有报错，看上去也没有异常，为何说这是“错误”用法呢？那是因为该控件一般与`QToolBar`工具栏控件、`QMainWindow`主窗口控件搭配使用，因此，“正确”用法应当是：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QToolButton,
+    QToolBar
+)
+
+app = QApplication()
+window = QMainWindow()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
+
+toolbar = QToolBar('工具栏')
+window.addToolBar(toolbar)
+
+button = QToolButton()
+button.clicked.connect(lambda:print('Clicked!'))
+button.setText('工具按钮')
+toolbar.addWidget(
+    button
+)
+
+window.show()
+app.exec()
+```
+
+![2026_29_2](qt_for_python_pro.assets/2026_29_2.png)
+
+读者可以运行之后拖动按钮左边的虚线，移动工具栏到任意位置。
+
+这里提前为好学的读者预告一下注意事项（不是本章重点，后续介绍相关控件时再细讲），免得读者探索`QToolBar`工具栏控件的初始化参数时遇到难以理解的问题：
+
+`QToolBar`工具栏控件的初始化参数并非都可以使用，官方文档中的只读属性——`floating`控件属性，被`QtWidgets.pyi`的生成工具错误捕获，导致初始化方法中包含了`floating`参数，但实际上该参数并不存在也不能使用。
+
+
 
 `Q`xx控件主要用于……
 
@@ -993,6 +1142,82 @@ app.exec()
 ### 26.4 扩展用法（更新中）
 
 #### 26.4.1 xxx（更新中）
+
+
+
+
+
+
+
+## 30 `Qxxx`xxx控件（更新中）
+
+`Qxxx`xxx控件主要用于……
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识控件')
+window.resize(400, 300)
+
+# 添加相关控件
+
+window.show()
+app.exec()
+```
+
+（运行效果图）
+
+`Qxxx`xxxx控件的继承关系如下：
+
+（截图继承关系）
+
+相关文档的链接如下：
+
+- （由近到远每一层级对应的文档链接）
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### x.1 初始化方法（更新中）
+
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
+
+第一种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+第二种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.2 方法、控件属性（更新中）
+
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+
+- `xxx`方法，---
+
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### x.4 扩展用法（更新中）
+
+#### x.4.1 xxx（更新中）
 
 
 

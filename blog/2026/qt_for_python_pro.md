@@ -386,9 +386,7 @@ app.exec()
 
 - `menu`方法（控件属性，可使用`setMenu`方法设置），返回点击按钮之后弹出的菜单。
 
-- `setMenu`方法，设置点击按钮之后弹出的菜单。该方法支持以下参数：
-
-  - `menu`参数，`PySide6.QtWidgets.QMenu`类型，表示弹出的菜单。
+- `setMenu`方法，设置点击按钮之后弹出的菜单。
 
   示例如下：
 
@@ -399,7 +397,6 @@ app.exec()
       QPushButton,
       QMenu
   )
-  #from PySide6.QtCore import Qt
   
   app = QApplication()
   window = QWidget()
@@ -423,6 +420,10 @@ app.exec()
   ```
 
   ![2026_25_5](qt_for_python_pro.assets/2026_25_5.png)
+
+  该方法支持以下参数：
+
+  - `menu`参数，`PySide6.QtWidgets.QMenu`类型，表示弹出的菜单。
 
 - `setToolTip`方法，设置按钮的工具提示（鼠标悬停时自动弹出的文字）。该方法支持以下参数：
 
@@ -1095,55 +1096,218 @@ app.exec()
 
 `QToolBar`工具栏控件的初始化参数并非都可以使用，官方文档中的只读属性——`floating`控件属性，被`QtWidgets.pyi`的生成工具错误捕获，导致初始化方法中包含了`floating`参数，但实际上该参数并不存在也不能使用。
 
+`QToolButton`工具按钮控件的继承关系如下：
+
+![2026_29_3](qt_for_python_pro.assets/2026_29_3.png)
+
+相关文档的链接如下：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QToolButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### 29.1 初始化方法
+
+`QToolButton`工具按钮控件的初始化方法（参数名及类型提示来自`QtWidgets.pyi`）支持以下参数：
+
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。
+- `popupMode`参数，仅限关键字参数，`PySide6.QtWidgets.QToolButton.ToolButtonPopupMode`类型，表示如何显示按钮的弹出菜单，默认为`PySide6.QtWidgets.QToolButton.ToolButtonPopupMode.MenuButtonPopup`，需要按住按钮一段时间（由`PySide6.QtWidgets.QStyle.StyleHint.SH_Menu_SubMenuPopupDelay`定义）才能弹出。
+- `toolButtonStyle`参数，仅限关键字参数，`PySide6.QtCore.Qt.ToolButtonStyle`类型，表示按钮的显示样式（仅文本、仅图标、图标加文本），默认为`PySide6.QtCore.Qt.ToolButtonStyle.ToolButtonIconOnlyp`（仅图标）。
+- `autoRaise`参数，仅限关键字参数，布尔类型，表示是否启用鼠标悬停的样式。当该控件与`QToolBar`工具栏控件组合使用时，该参数始终为`True`，其他情况默认为`False`。注意，应用程序的主题非`'Fusion'`时，该样式受限于系统主题，可能不明显。
+- `arrowType`参数，仅限关键字参数，`PySide6.QtCore.Qt.ArrowType`类型，当是否将按钮图标强制设置为箭头，默认为`PySide6.QtCore.Qt.ArrowType.NoArrow`，即不设置为箭头。
+
+### 29.2 方法、控件属性
+
+`QToolButton`工具按钮控件支持以下方法（部分，含控件属性）：
+
+- `arrowType`方法（控件属性，可使用`setArrowType`方法设置），含义同`arrowType`参数。
+- `autoRaise`方法（控件属性，可使用`setAutoRaise`方法设置），含义同`autoRaise`参数。
+- `defaultAction`方法（控件属性，可使用`setDefaultAction`方法设置），表示按钮的默认动作。
+- `menu`方法（控件属性，可使用`setMenu`方法设置），返回弹出的菜单。
+- `popupMode`方法（控件属性，可使用`setPopupMode`方法设置），含义同`popupMode`参数。
+
+### 29.3 信号和槽
+
+`QToolButton`工具按钮控件支持以下信号（部分）：
+
+- `triggered`信号，按钮的默认动作触发时触发。
+- `clicked`信号，点击（包含鼠标按键按下、弹起两个过程）按钮时触发。
+- `pressed`信号，按下按钮时触发。
+- `released`信号，松开按钮时触发。
+- `toggled`信号，切换按钮的勾选状态时触发。
+
+`QToolButton`工具按钮控件支持以下槽（部分）：
+
+- `showMenu`方法，弹出菜单。
+- `click`方法，点击按钮。
+- `toggle`方法，切换按钮的勾选状态。
+- `animateClick`方法，点击按钮，同时播放点击动画。
+
+### 29.4 扩展用法（更新中）
+
+#### 29.4.1 按钮的显示样式（更新中）
 
 
-`Q`xx控件主要用于……
 
-完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html。
-
+`toolButtonStyle`参数
 
 
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QToolButton,
+    QToolBar
+)
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QMainWindow()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
+
+# 使用Fusion主题，让悬停效果更明显
+app.setStyle('Fusion')
+toolbar = QToolBar('工具栏')
+window.addToolBar(toolbar)
+
+buttons = []
+for i in [
+    Qt.ToolButtonStyle.ToolButtonFollowStyle,
+    Qt.ToolButtonStyle.ToolButtonIconOnly,
+    Qt.ToolButtonStyle.ToolButtonTextBesideIcon,
+    Qt.ToolButtonStyle.ToolButtonTextOnly,
+    Qt.ToolButtonStyle.ToolButtonTextUnderIcon
+]:
+    button = QToolButton(
+        toolButtonStyle=i,
+    )
+    button.setText('工具按钮')
+    button.setIcon(
+        QIcon.fromTheme(
+            QIcon.ThemeIcon.Battery
+        )
+    )
+    buttons.append(button)
+    toolbar.addWidget(
+        buttons[-1]
+    )
+
+window.show()
+app.exec()
+```
 
 
 
-### 26.1 初始化方法（更新中）
-
-`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`xxx.pyi`）。
-
-第一种初始化方法支持以下参数：
-
-- `xxx`参数，仅限位置参数（第一个位置参数），---
-
-第二种初始化方法支持以下参数：
-
-- `xxx`参数，仅限位置参数（第一个位置参数），---
-
-### 26.2 方法、控件属性（更新中）
-
-`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
-
-- `xxx`方法，---
-
-  该方法支持以下参数：
-
-  - `xxx`参数，仅限位置参数（第一个位置参数），---
-
-### 26.3 信号和槽（更新中）
-
-`Qxxx`xxx控件支持以下信号（部分）：
-
-- `xxx`信号，---
-
-`Qxxx`xxx控件支持以下槽（部分）：
-
-- `xxx`方法，---
-
-### 26.4 扩展用法（更新中）
-
-#### 26.4.1 xxx（更新中）
+#### 29.4.2 菜单的弹出模式（更新中）
 
 
+
+`popupMode`参数
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QToolButton,
+    QToolBar,
+    QMenu
+)
+
+app = QApplication()
+window = QMainWindow()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
+
+# 使用Fusion主题，让悬停效果更明显
+app.setStyle('Fusion')
+toolbar = QToolBar('工具栏')
+window.addToolBar(toolbar)
+
+buttons = []
+menu = QMenu()
+menu.addAction('菜单项')
+for i in [
+    QToolButton.ToolButtonPopupMode.DelayedPopup,
+    QToolButton.ToolButtonPopupMode.InstantPopup,
+    QToolButton.ToolButtonPopupMode.MenuButtonPopup,
+
+]:
+    button = QToolButton(
+        popupMode=i,
+    )
+    button.setText('工具按钮')
+    button.setMenu(menu)
+    buttons.append(button)
+    toolbar.addWidget(
+        buttons[-1]
+    )
+
+window.show()
+app.exec()
+```
+
+
+
+
+
+
+
+#### 29.4.3 按钮的默认动作（更新中）
+
+
+
+完整用法参考动作（`QAction`类），这里简单介绍一下。
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QToolButton,
+    QToolBar
+)
+from PySide6.QtGui import QIcon, QAction
+
+app = QApplication()
+window = QMainWindow()
+window.setWindowTitle('认识各种按钮')
+window.resize(400, 300)
+
+# 使用Fusion主题，让悬停效果更明显
+app.setStyle('Fusion')
+toolbar = QToolBar('工具栏')
+window.addToolBar(toolbar)
+
+button = QToolButton()
+button.setText('工具按钮')
+button.setIcon(
+    QIcon.fromTheme(
+        QIcon.ThemeIcon.WindowClose
+    )
+)
+action = QAction(
+    button.text(), 
+    icon=button.icon(), 
+    checkable=True,
+    toolTip='关闭窗口'
+)
+action.triggered.connect(app.quit)
+button.setDefaultAction(
+    action
+)
+toolbar.addWidget(
+    button
+)
+
+window.show()
+app.exec()
+```
 
 
 
@@ -1575,6 +1739,8 @@ app.exec()
 - `xxx`方法，---
 
 ### x.4 扩展用法（更新中）
+
+（扩展用法包含前面参数、方法、信号、槽相关的示例）
 
 #### x.4.1 xxx（更新中）
 

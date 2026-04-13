@@ -1030,7 +1030,7 @@ app.exec()
 
 ![2026_28_3](qt_for_python_pro.assets/2026_28_3.png)
 
-## 29 `QToolButton`工具按钮控件（更新中）
+## 29 `QToolButton`工具按钮控件
 
 前面介绍的按钮都比较简单，难免有读者觉得笔者有点“敷衍”。那么，本章就顺势介绍一下用起来有点复杂的`QToolButton`工具按钮控件。
 
@@ -1143,15 +1143,11 @@ app.exec()
 - `toggle`方法，切换按钮的勾选状态。
 - `animateClick`方法，点击按钮，同时播放点击动画。
 
-### 29.4 扩展用法（更新中）
+### 29.4 扩展用法
 
-#### 29.4.1 按钮的显示样式（更新中）
+#### 29.4.1 按钮的显示样式
 
-
-
-`toolButtonStyle`参数
-
-
+前面介绍过`toolButtonStyle`参数表示按钮的显示样式（仅文本、仅图标、图标加文本），以下为该参数各个参数值的对比示例：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -1199,15 +1195,13 @@ window.show()
 app.exec()
 ```
 
+![2026_29_4](qt_for_python_pro.assets/2026_29_4.png)
 
+注意，`Qt.ToolButtonStyle.ToolButtonFollowStyle`表示取决于系统默认样式，在Windows系统上为只显示图标。
 
-#### 29.4.2 菜单的弹出模式（更新中）
+#### 29.4.2 菜单的弹出模式
 
-
-
-`popupMode`参数
-
-
+`popupMode`参数表示如何显示按钮的弹出菜单，以下为该参数各个参数值的对比示例：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -1251,19 +1245,17 @@ window.show()
 app.exec()
 ```
 
+#### 29.4.3 按钮的默认动作
 
+前面介绍`defaultAction`方法时说过一个概念——“动作”，这里简单说一下这个方法和动作的用法。至于动作的完整用法，将在后面介绍`QAction`类时展开。
 
+动作（`QAction`类）可以理解为有形交互之后执行的无形操作：点击按钮、菜单之后打开文件，按下按键之后退出程序。
 
+总之，动作是个抽象的概念，可以视作比响应函数更统一的响应操作。
 
+对于支持动作的控件而言（不是所有控件都支持动作），定义动作时，可以设置一些控件支持的样式（比如文本、图标）。这样，当控件设置动作时，动作的样式会优先生效。
 
-
-#### 29.4.3 按钮的默认动作（更新中）
-
-
-
-完整用法参考动作（`QAction`类），这里简单介绍一下。
-
-
+示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -1272,7 +1264,7 @@ from PySide6.QtWidgets import (
     QToolButton,
     QToolBar
 )
-from PySide6.QtGui import QIcon, QAction
+from PySide6.QtGui import QAction
 
 app = QApplication()
 window = QMainWindow()
@@ -1286,16 +1278,10 @@ window.addToolBar(toolbar)
 
 button = QToolButton()
 button.setText('工具按钮')
-button.setIcon(
-    QIcon.fromTheme(
-        QIcon.ThemeIcon.WindowClose
-    )
-)
+
 action = QAction(
-    button.text(), 
-    icon=button.icon(), 
-    checkable=True,
-    toolTip='关闭窗口'
+    '退出程序', 
+    toolTip='关闭窗口并退出程序'
 )
 action.triggered.connect(app.quit)
 button.setDefaultAction(
@@ -1309,13 +1295,756 @@ window.show()
 app.exec()
 ```
 
+![2026_29_5](qt_for_python_pro.assets/2026_29_5.png)
+
+## 30 槽函数的自动连接
+
+一般来说，槽函数与直接使用函数没什么区别，就好像下面改自前面的示例，使用普通函数代替槽函数：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+
+# 信号，支持连接多个槽
+button.clicked.connect(lambda :print('button is clicked'))
+# 定义槽函数（伪），其实就是一般函数，可以勉强用，但功能上不如真的槽函数强大
+def on_clicked():
+    print('button is clicked2')
+
+button.clicked.connect(on_clicked)
+
+window.show()
+app.exec()
+```
+
+执行效果是一样的，但为什么还要定义槽函数呢？这就不得不说槽函数的自动连接功能，即无需手动连接所有的信号和槽，有一个简单的方法自动将槽函数与特定信号连接。
+
+想要自动连接生效，有以下关键点：
+
+- 发出信号的控件必须设置`objectName`（在UI文件中定义，或者使用`setObjectName`方法显式设置）。
+
+- 槽函数必须在类（继承自`QWidget`）内定义，并且命名符合要求。
+
+  示例如下：
+
+  ```python3
+  @Slot()
+  def on_{objectName}_{signalName}(self, ...):
+      ...
+  ```
+
+  命名要求如下：
+
+  - 必须使用“on_”为前缀。
+
+  - 必须包含“{objectName}”——发送信号的控件的对象名（ 控件属性`objectName`）。
+  - 必须包含“{signalName}”，——信号的变量名（即信号被分配给哪个变量，并且信号的参数签名与槽函数装饰器一致）。
+
+- 在控件挂载、初始化完毕之后，执行`QMetaObject.connectSlotsByName(self)`，进行自动连接。
+
+具体示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,QMetaObject
+
+app = QApplication()
+
+class Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('自动连接槽函数')
+        self.resize(400,300)
+        self.button = QPushButton('click',self)
+        self.button.setObjectName('button')
+        QMetaObject.connectSlotsByName(self)
+    @Slot()
+    def on_button_clicked(self):
+        print('clicked!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+只要是信号都可以自动连接，自定义信号也可以：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,QMetaObject,Signal
+
+app = QApplication()
+
+class Window(QWidget):
+    # 创建自定义信号
+    mySignal = Signal(str)
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('自动连接槽函数（自定义信号）')
+        self.resize(400,300)
+        self.button = QPushButton('click',self)
+        self.button.clicked.connect(lambda:self.mySignal.emit('Hello'))
+        self.setObjectName('window')
+        QMetaObject.connectSlotsByName(self)
+    
+    @Slot(str)
+    def on_window_mySignal(self,string):
+        print(string)
+        print('window is clicked!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+## 31 重载信号
+
+上一章介绍槽函数的自动连接时，最后一个示例使用了自定义的信号，本章顺便介绍一下自定义信号的进阶用法——重载信号。
+
+为什么要用重载信号？上一章定义了一个简单的信号，只传入一个字符串类型的参数。假如，一个信号支持多种类型的参数（甚至无参数），想让同一个信号接收不同参数时对应不同的槽函数，就要用到重载信号。
+
+所谓重载信号，可以简单理解为定义信号时，一次性定义信号支持的各种参数类型及其组合，无需为每一种组合分配一个变量，同时使用时也比较清晰明了：
+
+```python3
+mySignal = Signal((),(str,),(int,))
+```
+
+不使用元组的话，表示信号仅支持一种参数组合；当使用元组表示每一种参数组合时，表示信号支持每个元组对应的参数组合。此时，可以使用`mySignal[str].connect`方法连接对应参数组合的信号与槽函数。
+
+注意，可能其他教程中使用列表表示参数组合，但在当版本（6.10.x）中，只能使用元组。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,Signal
+
+app = QApplication()
+
+class Window(QWidget):
+    # 支持的其他类型必须使用元组来表明同级
+    mySignal = Signal((),(str,),(int,))
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('重载信号')
+        self.resize(400,300)
+        self.mySignal.connect(self.on_mySignal)
+        self.mySignal[str].connect(self.on_mySignal_str)
+        self.mySignal[int].connect(self.on_mySignal_int)
+        self.button1 = QPushButton('click[]',self)
+        self.button1.clicked.connect(lambda:self.mySignal.emit())
+        self.button2 = QPushButton('click[str]',self)
+        self.button2.clicked.connect(lambda:self.mySignal[str].emit('Hello'))
+        self.button2.move(0,30)
+        self.button3 = QPushButton('click[int]',self)
+        self.button3.clicked.connect(lambda:self.mySignal[int].emit(2026))
+        self.button3.move(0,60)
+
+    @Slot()
+    def on_mySignal(self):
+        print('mySignal[] is emitted!!!')
+
+    @Slot(str)
+    def on_mySignal_str(self,string):
+        print(string)
+        print('mySignal[str] is emitted!!!')
+
+    @Slot(int)
+    def on_mySignal_int(self,integer):
+        print(integer)
+        print('mySignal[int] is emitted!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+当然，如果觉得每个参数组合都要单独连接一次槽函数甚至单独连接一个槽函数，有点麻烦的话，槽函数同样也支持类似的“重载”操作，只需将装饰器用在同一个函数上即可：
+
+```python3
+@Slot()
+@Slot(int)
+@Slot(str)
+def on_window_mySignal(self,x=None):
+    if x:
+        print(x)
+    print(f'mySignal[{type(x).__name__ if x else ""}] is emitted!!!')
+```
+
+可能读者也发现了上面的槽函数名与上一章最后的自定义信号示例相同。没错，如果参数组合包含无参数的情况，只能使用槽函数的自动连接注册：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,Signal,QMetaObject
+
+app = QApplication()
+
+class Window(QWidget):
+    # 支持的其他类型必须使用元组来表明同级
+    mySignal = Signal((),(str,),(int,))
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('重载信号')
+        self.resize(400,300)
+        self.button1 = QPushButton('click[]',self)
+        self.button1.clicked.connect(lambda:self.mySignal.emit())
+        self.button2 = QPushButton('click[str]',self)
+        self.button2.clicked.connect(lambda:self.mySignal[str].emit('Hello'))
+        self.button2.move(0,30)
+        self.button3 = QPushButton('click[int]',self)
+        self.button3.clicked.connect(lambda:self.mySignal[int].emit(2026))
+        self.button3.move(0,60)
+        self.setObjectName('window')
+        QMetaObject.connectSlotsByName(self)
+
+    @Slot()
+    @Slot(int)
+    @Slot(str)
+    def on_window_mySignal(self,x=None):
+        if x:
+            print(x)
+        print(f'mySignal[{type(x).__name__ if x else ""}] is emitted!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+若是不使用槽函数的自动连接，则信号、槽函数的无参数版本不能与有参数版本共用槽函数，并且槽函数的装饰器不能组合（也无需组合）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,Signal
+
+app = QApplication()
+
+class Window(QWidget):
+    # 支持的其他类型必须使用元组来表明同级
+    mySignal = Signal((),(str,),(int,))
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('重载信号')
+        self.resize(400,300)
+        self.mySignal.connect(self.on_mySignal_zero)
+        self.mySignal[str].connect(self.on_mySignal)
+        self.mySignal[int].connect(self.on_mySignal)
+        self.button1 = QPushButton('click[]',self)
+        self.button1.clicked.connect(lambda:self.mySignal.emit())
+        self.button2 = QPushButton('click[str]',self)
+        self.button2.clicked.connect(lambda:self.mySignal[str].emit('Hello'))
+        self.button2.move(0,30)
+        self.button3 = QPushButton('click[int]',self)
+        self.button3.clicked.connect(lambda:self.mySignal[int].emit(2026))
+        self.button3.move(0,60)
+
+    @Slot()
+    def on_mySignal_zero(self):
+        print('mySignal[] is emitted!!!')
+
+    @Slot()
+    def on_mySignal(self,x):
+        print(x)
+        print(f'mySignal[{type(x).__name__}] is emitted!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+需要注意，信号与槽函数手动连接时，槽函数装饰器的参数类型并非必需的，因此上面的示例才能正常使用。实际上，本章第一个示例中，去掉槽函数装饰器的参数，全部使用无参数的装饰器，也不会报错：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,Signal
+
+app = QApplication()
+
+class Window(QWidget):
+    # 支持的其他类型必须使用元组来表明同级
+    mySignal = Signal((),(str,),(int,))
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('重载信号')
+        self.resize(400,300)
+        self.mySignal.connect(self.on_mySignal)
+        self.mySignal[str].connect(self.on_mySignal_str)
+        self.mySignal[int].connect(self.on_mySignal_int)
+        self.button1 = QPushButton('click[]',self)
+        self.button1.clicked.connect(lambda:self.mySignal.emit())
+        self.button2 = QPushButton('click[str]',self)
+        self.button2.clicked.connect(lambda:self.mySignal[str].emit('Hello'))
+        self.button2.move(0,30)
+        self.button3 = QPushButton('click[int]',self)
+        self.button3.clicked.connect(lambda:self.mySignal[int].emit(2026))
+        self.button3.move(0,60)
+
+    @Slot()
+    def on_mySignal(self):
+        print('mySignal[] is emitted!!!')
+
+    @Slot()
+    def on_mySignal_str(self,string):
+        print(string)
+        print('mySignal[str] is emitted!!!')
+
+    @Slot()
+    def on_mySignal_int(self,integer):
+        print(integer)
+        print('mySignal[int] is emitted!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+```
+
+但还是建议读者写代码时加上参数，方便自动连接，避免意料之外的错误（现在不报错不代表其他场景和后续版本没问题），也方便后续调试代码时检查参数类型。
+
+## 32 后台运行
+
+### 32.1 事出有因
+
+笔者在阅读《Qt for Python PySide6 GUI界面开发详解与实例》时，偶然看到`QApplication`实例的`setQuitOnLastWindowClosed`方法用于设置关闭最后一个窗口后是否退出程序，也就是是否在关闭最后一个窗口后程序是否继续运行。笔者心想，这不就是传说中的“后台运行”吗？
+
+于是，抱着验证代码的态度，笔者做了个简单的小程序，没想到，由此牵出一系列的问题。
+
+### 32.2 简单实现
+
+代码很简单，只需给`setQuitOnLastWindowClosed`方法传入`False`，关闭最后一个窗口后，程序就不会退出：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+
+app = QApplication()
+app.setQuitOnLastWindowClosed(False)
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+window.show()
+app.exec()
+```
+
+不过，看似简单的代码，却在实际使用时，遇到了小问题——程序没法正常退出了。
+
+### 32.3 解决问题
+
+解决方法很简单，只需提供退出程序的方法即可。但是，如何让用户交互成了问题。现在程序的窗口关闭（隐藏）了，在窗口中添加任何控件都没法显示，用户只能使用任务管理器或者快捷键退出程序。
+
+快捷键是个不错的方案，但是需要注意的是，快捷键默认只在程序获得焦点时生效，想要程序在后台时生效，只能注册全局热键，而Qt默认不提供这样的功能。当然，其他库提供了类似的功能，并非不能实现，只是使用起来会有诸多不便，并非完美的解决方案。
+
+快捷键这条路走不通，难道程序后台运行之后只能强制结束，也不能让窗口重新显示吗？
+
+笔者看着右下角诸多的托盘图标，忽然来了灵感。既然其他程序后台运行时，可以通过点击托盘图标显示主窗口，那Qt有没有类似功能？
+
+笔者简单搜索了一下，找到了提供系统托盘功能的`QSystemTrayIcon`系统托盘图标类。该类可以为程序生成一个系统托盘，这样就能通过系统托盘图标操作主窗口和程序了。
+
+说干就干，代码并不难，但是需要注意的是，有的系统不一定支持系统托盘，需要使用`QSystemTrayIcon.isSystemTrayAvailable`方法检查一下。另外，`QSystemTrayIcon`系统托盘图标类的初始化参数`visible`必须手动设置为`True`，否则要额外调用一次`show`方法，不然系统托盘图标不会显示：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon
+)
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    app.setQuitOnLastWindowClosed(False)
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    #tray.show()
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+window.show()
+app.exec()
+```
+
+看似有了解决方法，但结果依然不符合要求：无论单击、双击还是右击系统托盘图标，后台运行之后的窗口都不会再次显示。
+
+思路是对的，只是解决方法还没做完，因为默认情况下，系统托盘没有人任何交互逻辑，需要开发者手动添加。
+
+点击系统托盘图标，会触发`activated`信号。因此，只需将该信号连接到显示窗口的槽函数，就能解决之前的问题（笔者顺便在窗口中加了个退出程序的按钮）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QPushButton
+)
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    app.setQuitOnLastWindowClosed(False)
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    tray.activated.connect(lambda:window.show())
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+button = QPushButton(
+    '退出程序',
+    window
+)
+button.clicked.connect(app.quit)
+
+window.show()
+app.exec()
+```
+
+### 32.4 完善方案
+
+问题已经解决，但方案还有优化的空间：任意键点击系统托盘都会显示主窗口，能不能实现只有左键点击才会显示？
+
+当然可以！`activated`信号会接收一个表示原因的参数，也就是使用什么按键触发的信号（左键单击、右键单击、中间单击、左键双击）。因此，只需给槽函数添加一个参数，并判断该参数的值即可：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QPushButton
+)
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    app.setQuitOnLastWindowClosed(False)
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    # 只有左键单击托盘图标才会显示主窗口
+    tray.activated.connect(
+        lambda e:window.show() if e == QSystemTrayIcon.ActivationReason.Trigger else None)
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+button = QPushButton(
+    '退出程序',
+    window
+)
+button.clicked.connect(app.quit)
+
+window.show()
+app.exec()
+```
+
+注意，左键双击包括左键单击，因此双击、单击都会显示窗口，如果想要仅限双击生效，需要修改判断的值：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QPushButton
+)
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    app.setQuitOnLastWindowClosed(False)
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    # 只有左键双击托盘图标才会显示主窗口
+    tray.activated.connect(
+        lambda e:window.show() if e == QSystemTrayIcon.ActivationReason.DoubleClick else None)
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+button = QPushButton(
+    '退出程序',
+    window
+)
+button.clicked.connect(app.quit)
+
+window.show()
+app.exec()
+```
+
+左键功能有了，右键的菜单也要安排上：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QPushButton,
+    QMenu
+)
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    app.setQuitOnLastWindowClosed(False)
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    # 只有左键双击托盘图标才会显示主窗口
+    tray.activated.connect(
+        lambda e:window.show() if e == QSystemTrayIcon.ActivationReason.DoubleClick else None
+    )
+    # 给托盘添加一个右键菜单，可以退出
+    tray_menu = QMenu()
+    tray_menu.addAction(
+        '显示主窗口'
+    ).triggered.connect(lambda:window.show())
+    tray_menu.addAction(
+        '退出程序'
+    ).triggered.connect(app.quit)
+    tray.setContextMenu(tray_menu)
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+button = QPushButton(
+    '退出程序',
+    window
+)
+button.clicked.connect(app.quit)
+
+window.show()
+app.exec()
+```
+
+也可以添加一个多选按钮控件，用于切换是否启用后台运行：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QPushButton,
+    QMenu,
+    QCheckBox
+)
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    # 只有左键双击托盘图标才会显示主窗口
+    tray.activated.connect(
+        lambda e:window.show() if e == QSystemTrayIcon.ActivationReason.DoubleClick else None
+    )
+    # 给托盘添加一个右键菜单，可以退出
+    tray_menu = QMenu()
+    tray_menu.addAction(
+        '显示主窗口'
+    ).triggered.connect(lambda:window.show())
+    tray_menu.addAction(
+        '退出程序'
+    ).triggered.connect(app.quit)
+    tray.setContextMenu(tray_menu)
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+# 虽然下面判断的是字符串，但仍然需要导入Qt类
+from PySide6.QtCore import Qt  # noqa: E402, F401
+checkbox = QCheckBox(
+    '后台运行',
+    window,
+)
+checkbox.checkStateChanged.connect(
+    # 判断枚举对象
+    #lambda e: (app.setQuitOnLastWindowClosed(False) if e == Qt.CheckState.Checked else app.setQuitOnLastWindowClosed(True))
+    lambda e: (app.setQuitOnLastWindowClosed(False) if str(e) == 'CheckState.Checked' else app.setQuitOnLastWindowClosed(True))
+)
+
+button = QPushButton(
+    '退出程序',
+    window
+)
+button.clicked.connect(app.quit)
+button.move(
+    0,
+    30
+)
+
+window.show()
+app.exec()
+```
+
+也可以在关闭窗口时询问是否后台运行：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QPushButton,
+    QMenu,
+    QMessageBox
+)
+from PySide6.QtCore import QEvent
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    #app.setQuitOnLastWindowClosed(False)
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    # 只有左键双击托盘图标才会显示主窗口
+    tray.activated.connect(
+        lambda e:window.show() if e == QSystemTrayIcon.ActivationReason.DoubleClick else None
+    )
+    # 给托盘添加一个右键菜单，可以退出
+    tray_menu = QMenu()
+    tray_menu.addAction(
+        '显示主窗口'
+    ).triggered.connect(lambda:window.show())
+    tray_menu.addAction(
+        '退出程序'
+    ).triggered.connect(app.quit)
+    tray.setContextMenu(tray_menu)
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+def on_close(e:QEvent):
+    result = QMessageBox.question(
+        window,
+        '消息',
+        '是否后台运行？',
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No
+    )
+    if result == QMessageBox.Yes:
+        app.setQuitOnLastWindowClosed(False)
+    else:
+        app.setQuitOnLastWindowClosed(True)
 
 
+window.closeEvent = on_close
 
+button = QPushButton(
+    '退出程序',
+    window
+)
+button.clicked.connect(app.exit)
 
-## 30 `Qxxx`xxx控件（更新中）
+window.show()
+app.exec()
+```
+
+![2026_32_1](qt_for_python_pro.assets/2026_32_1.png)
+
+不过，此时需要注意，`app.quit`方法也会触发关闭事件的弹窗，需要改用`app.exit`方法来强制退出程序。
+
+## 3x `Qxxx`xxx控件（更新中）
 
 `Qxxx`xxx控件主要用于……
+
+
+
+https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QComboBox.html
+
+
 
 示例如下：
 
@@ -1389,7 +2118,7 @@ app.exec()
 
 ## x 其他控件（更新中）
 
-按这个目录介绍控件：
+按这个目录介绍控件（先依照类别顺序，再依照字母顺序）：
 
 https://doc.qt.io/qtforpython-6/overviews/qtwidgets-widget-classes.html#widgets-classes
 
@@ -1399,274 +2128,70 @@ https://doc.qt.io/qtforpython-6/overviews/qtwidgets-widget-classes.html#widgets-
 
 灵感来源（官方）：
 
-- Qt Core：https://doc.qt.io/qt-6/zh/qtcore-index.html
-- Qt GUI：https://doc.qt.io/qt-6/zh/qtgui-index.html
-- Qt Network：https://doc.qt.io/qt-6/zh/qtnetwork-index.html
-- Qt Quick：https://doc.qt.io/qt-6/zh/qtquick-index.html
-- Qt Widgets：https://doc.qt.io/qt-6/zh/qtwidgets-index.html
-- Qt Test：https://doc.qt.io/qt-6/zh/qttest-index.html
-- Additional Modules：https://doc.qt.io/qt-6/zh/qt-additional-modules.html
-- Tools and utilities：https://doc.qt.io/qt-6/zh/qt-tools-utilities.html
-
-
-
-
-
-
-
-QtWidgets程序槽函数
-
-前面说过槽函数与直接使用函数没什么区别，就好像下面改自前面的示例，使用普通函数代替槽函数：
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QPushButton
-)
-
-app = QApplication()
-window = QWidget()
-window.setWindowTitle('信号与事件')
-window.resize(400,300)
-button = QPushButton('click',window)
-
-# 信号，支持连接多个槽
-button.clicked.connect(lambda :print('button is clicked'))
-# 定义槽函数（伪），其实就是一般函数，可以勉强用，但功能上不如真的槽函数强大
-def on_clicked():
-    print('button is clicked2')
-
-button.clicked.connect(on_clicked)
-
-window.show()
-app.exec()
-```
-
-
-
-执行效果是一样的，但为什么还要定义槽函数呢？这就不得不说槽函数的自动连接功能，即无需手动连接所有的信号和槽，有一个简单的方法自动将槽函数与特定信号链接。
-
-想要自动连接生效，有以下关键点：
-
-- 发出信号的控件必须设置`objectName`（在UI文件中定义，或者使用`setObjectName`方法显式设置）。
-
-- 槽函数必须在类（继承自`QWidget`）内定义，并且命名符合要求。
-
-  示例如下：
-
-  ```python3
-  @Slot()
-  def on_{objectName}_{signalName}(self, ...):
-      ...
-  ```
-
-  命名要求如下：
-
-  - 必须使用“on_”为前缀。
-
-  - 必须包含“{objectName}”——发送信号的控件的对象名（ 控件属性`objectName`）。
-  - 必须包含“{signalName}”，——信号的变量名（即信号被分配给哪个变量，并且信号的参数签名与槽函数装饰器一致）。
-
-- 在控件挂载、初始化完毕之后，调用`QMetaObject.connectSlotsByName(self)`。
-
-具体示例如下：
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QPushButton
-)
-from PySide6.QtCore import Slot,QMetaObject
-
-app = QApplication()
-
-class Window(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('自动连接槽函数')
-        self.resize(400,300)
-        self.button = QPushButton('click',self)
-        self.button.setObjectName('button')
-        QMetaObject.connectSlotsByName(self)
-    @Slot()
-    def on_button_clicked(self):
-        print('clicked!!!')
-
-window = Window()
-
-window.show()
-app.exec()
-```
-
-
-
-与自定义信号结合：
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QPushButton
-)
-from PySide6.QtCore import Slot,QMetaObject,Signal
-
-app = QApplication()
-
-class Window(QWidget):
-    mySignal = Signal(str)
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('自动连接槽函数（自定义信号）')
-        self.resize(400,300)
-        self.button = QPushButton('click',self)
-        self.button.clicked.connect(lambda:self.mySignal.emit('Hello'))
-        self.setObjectName('window')
-        QMetaObject.connectSlotsByName(self)
-    
-    @Slot(str)
-    def on_window_mySignal(self,string):
-        print(string)
-        print('window is clicked!!!')
-
-window = Window()
-
-window.show()
-app.exec()
-```
-
-
-
-
-
-重载信号：
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QPushButton
-)
-from PySide6.QtCore import Slot,Signal
-
-app = QApplication()
-
-class Window(QWidget):
-    # 支持的其他类型必须使用元组来表明同级
-    mySignal = Signal((),(str,),(int,))
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('重载信号')
-        self.resize(400,300)
-        self.mySignal.connect(self.on_mySignal)
-        self.mySignal[str].connect(self.on_mySignal_str)
-        self.mySignal[int].connect(self.on_mySignal_int)
-        self.button1 = QPushButton('click[]',self)
-        self.button1.clicked.connect(lambda:self.mySignal.emit())
-        self.button2 = QPushButton('click[str]',self)
-        self.button2.clicked.connect(lambda:self.mySignal[str].emit('Hello'))
-        self.button2.move(0,30)
-        self.button3 = QPushButton('click[int]',self)
-        self.button3.clicked.connect(lambda:self.mySignal[int].emit(2026))
-        self.button3.move(0,60)
-
-    @Slot()
-    def on_mySignal(self):
-        print('window[] is clicked!!!')
-
-    @Slot(str)
-    def on_mySignal_str(self,string):
-        print(string)
-        print('window[str] is clicked!!!')
-
-    @Slot(int)
-    def on_mySignal_int(self,integer):
-        print(integer)
-        print('window[int] is clicked!!!')
-
-window = Window()
-
-window.show()
-app.exec()
-```
-
-
-
-
-
-后台运行+系统托盘+托盘的菜单+点击托盘显示主窗口：
-
-`QApplication`实例的`setQuitOnLastWindowClosed`方法可以实现后台运行。配合托盘图标的右键菜单（在右键菜单中可以添加退出`QApplication`实例、显示主窗口的菜单项），能够实现完善的后台运行、恢复前台的功能。
-
-完整的示例代码（通过勾选复选框启用后台运行功能）：
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QSystemTrayIcon,
-    QCheckBox,
-    QMenu
-)
-
-app = QApplication()
-
-if QSystemTrayIcon.isSystemTrayAvailable():
-    # 注意，只有系统支持托盘时才能这样用，否则只能使用快捷键或者命令行强制退出程序
-    # 关闭最后一个窗口时不退出程序
-    # app.setQuitOnLastWindowClosed(False)
-    tray = QSystemTrayIcon(
-        app.style().standardIcon(
-            app.style().StandardPixmap.SP_ComputerIcon
-        ),
-        app,
-        visible=True
-    )
-    tray.showMessage(
-        '提示',
-        '系统托盘可用，可以启用后台运行。'
-    )
-    # show方法必须单独执行。
-    # visible为True的话，show方法不是必须执行的。
-    # tray.show()
-
-    # 任意类型的点击托盘图标都会显示主窗口
-    # tray.activated.connect(lambda:window.show())
-    # 只有左键单击托盘图标才会显示主窗口
-    tray.activated.connect(lambda e:window.show() if e == QSystemTrayIcon.ActivationReason.Trigger else None)
-    # 给托盘添加一个右键菜单，可以退出
-    tray_menu = QMenu()
-    tray_menu.addAction(
-        '显示主窗口'
-    ).triggered.connect(lambda:window.show())
-    tray_menu.addAction(
-        '退出程序'
-    ).triggered.connect(app.quit)
-    tray.setContextMenu(tray_menu)
-else:
-    print('当前系统不支持系统托盘。')
-
-window = QWidget()
-window.setWindowTitle('后台运行')
-window.resize(400, 300)
-
-# 虽然下面判断的是字符串，但仍然需要导入Qt类
-from PySide6.QtCore import Qt  # noqa: E402, F401
-checkbox = QCheckBox(
-    '后台运行',
-    window,
-)
-checkbox.checkStateChanged.connect(
-    # 判断枚举对象
-    # lambda e: (app.setQuitOnLastWindowClosed(False) if e == Qt.CheckState.Checked else app.setQuitOnLastWindowClosed(True))
-    lambda e: (app.setQuitOnLastWindowClosed(False) if str(e) == 'CheckState.Checked' else app.setQuitOnLastWindowClosed(True))
-)
-checkbox.setToolTip('最好在显示系统托盘后启用后台运行')
-
-window.show()
-app.exec()
-```
+- `QtWidgets`模块：https://doc.qt.io/qtforpython-6/overviews/qtwidgets-widget-classes.html
+- `QtGui`模块：https://doc.qt.io/qtforpython-6/overviews/qtwidgets-widget-classes.html#widgets-classes
+- `QtCore`模块：https://doc.qt.io/qtforpython-6/PySide6/QtCore/index.html#list-of-classes-by-function
+
+模块一览表（Qt 6.10.x）：
+
+| 模块名                 | 主要用途                         | 文档链接                                                     |
+| ---------------------- | -------------------------------- | ------------------------------------------------------------ |
+| `Qt3DAnimation`        | 处理3D动画                       | https://doc.qt.io/qtforpython-6/PySide6/Qt3DAnimation/index.html#module-PySide6.Qt3DAnimation |
+| `Qt3DCore`             | 3D相关的基础功能                 | https://doc.qt.io/qtforpython-6/PySide6/Qt3DCore/index.html#module-PySide6.Qt3DCore |
+| `Qt3DExtras`           | 3D相关的额外功能                 | https://doc.qt.io/qtforpython-6/PySide6/Qt3DExtras/index.html#module-PySide6.Qt3DExtras |
+| `Qt3DInput`            | 3D相关的输入功能                 | https://doc.qt.io/qtforpython-6/PySide6/Qt3DInput/index.html#module-PySide6.Qt3DInput |
+| `Qt3DLogic`            | 3D相关的逻辑功能                 | https://doc.qt.io/qtforpython-6/PySide6/Qt3DLogic/index.html#module-PySide6.Qt3DLogic |
+| `Qt3DRender`           | 渲染3D模型                       | https://doc.qt.io/qtforpython-6/PySide6/Qt3DRender/index.html#module-PySide6.Qt3DRender |
+| `QtAsyncio`            | 相当于Qt版asyncio框架            | https://doc.qt.io/qtforpython-6/PySide6/QtAsyncio/index.html#module-PySide6.QtAsyncio |
+| `QtBluetooth`          | 操作蓝牙设备                     | https://doc.qt.io/qtforpython-6/PySide6/QtBluetooth/index.html#module-PySide6.QtBluetooth |
+| `QtConcurrent`         | 并行编程相关的功能               | https://doc.qt.io/qtforpython-6/PySide6/QtConcurrent/index.html#module-PySide6.QtConcurrent |
+| `QtCore`               | Qt相关的基础功能                 | https://doc.qt.io/qtforpython-6/PySide6/QtCore/index.html#module-PySide6.QtCore |
+| `QtDBus`               | D-Bus相关的功能                  | https://doc.qt.io/qtforpython-6/PySide6/QtDBus/index.html#module-PySide6.QtDBus |
+| `QtDesigner`           | 可视化设计工具                   | https://doc.qt.io/qtforpython-6/PySide6/QtDesigner/index.html#module-PySide6.QtDesigner |
+| `QtGraphs`             | 二维、三维图表                   | https://doc.qt.io/qtforpython-6/PySide6/QtGraphs/index.html#module-PySide6.QtGraphs |
+| `QtGraphsWidgets`      | 三维图表                         | https://doc.qt.io/qtforpython-6/PySide6/QtGraphsWidgets/index.html#module-PySide6.QtGraphsWidgets |
+| `QtGui`                | GUI相关的基础功能                | https://doc.qt.io/qtforpython-6/PySide6/QtGui/index.html#module-PySide6.QtGui |
+| `QtHelp`               | 集成在线文档                     | https://doc.qt.io/qtforpython-6/PySide6/QtHelp/index.html#module-PySide6.QtHelp |
+| `QtHttpServer`         | 创建HTTP服务器                   | https://doc.qt.io/qtforpython-6/PySide6/QtHttpServer/index.html#module-PySide6.QtHttpServer |
+| `QtLocation`           | 定位、地图相关功能               | https://doc.qt.io/qtforpython-6/PySide6/QtLocation/index.html#module-PySide6.QtLocation |
+| `QtMultimedia`         | 处理多媒体文件                   | https://doc.qt.io/qtforpython-6/PySide6/QtMultimedia/index.html#module-PySide6.QtMultimedia |
+| `QtMultimediaWidgets`  | 处理多媒体文件的额外功能         | https://doc.qt.io/qtforpython-6/PySide6/QtMultimediaWidgets/index.html#module-PySide6.QtMultimediaWidgets |
+| `QtNetwork`            | 网络功能                         | https://doc.qt.io/qtforpython-6/PySide6/QtNetwork/index.html#module-PySide6.QtNetwork |
+| `QtNetworkAuth`        | 网络授权                         | https://doc.qt.io/qtforpython-6/PySide6/QtNetworkAuth/index.html#module-PySide6.QtNetworkAuth |
+| `QtNfc`                | 操作NFC设备                      | https://doc.qt.io/qtforpython-6/PySide6/QtNfc/index.html#module-PySide6.QtNfc |
+| `QtOpenGL`             | 与OpenGL库交互                   | https://doc.qt.io/qtforpython-6/PySide6/QtOpenGL/index.html#module-PySide6.QtOpenGL |
+| `QtOpenGLWidgets`      | 显示OpenGL内容的控件             | https://doc.qt.io/qtforpython-6/PySide6/QtOpenGLWidgets/index.html#module-PySide6.QtOpenGLWidgets |
+| `QtPdf`                | 处理PDF文件                      | https://doc.qt.io/qtforpython-6/PySide6/QtPdf/index.html#module-PySide6.QtPdf |
+| `QtPdfWidgets`         | 显示PDF文件的控件                | https://doc.qt.io/qtforpython-6/PySide6/QtPdfWidgets/index.html#module-PySide6.QtPdfWidgets |
+| `QtPositioning`        | 实时定位                         | https://doc.qt.io/qtforpython-6/PySide6/QtPositioning/index.html#module-PySide6.QtPositioning |
+| `QtPrintSupport`       | 打印文件相关的功能               | https://doc.qt.io/qtforpython-6/PySide6/QtPrintSupport/index.html#module-PySide6.QtPrintSupport |
+| `QtQml`                | 处理QML文件                      | https://doc.qt.io/qtforpython-6/PySide6/QtQml/index.html#module-PySide6.QtQml |
+| `QtQuick`              | QtQuick程序的基础功能            | https://doc.qt.io/qtforpython-6/PySide6/QtQuick/index.html#module-PySide6.QtQuick |
+| `QtQuick3D`            | 在QtQuick程序中显示3D内容        | https://doc.qt.io/qtforpython-6/PySide6/QtQuick3D/index.html#module-PySide6.QtQuick3D |
+| `QtQuickControls2`     | QtQuick程序的配套控件            | https://doc.qt.io/qtforpython-6/PySide6/QtQuickControls2/index.html#module-PySide6.QtQuickControls2 |
+| `QtQuickTest`          | QtQuick程序的测试框架            | https://doc.qt.io/qtforpython-6/PySide6/QtQuickTest/index.html#module-PySide6.QtQuickTest |
+| `QtQuickWidgets`       | 在QtWidgets程序中显示QtQuick控件 | https://doc.qt.io/qtforpython-6/PySide6/QtQuickWidgets/index.html#module-PySide6.QtQuickWidgets |
+| `QtRemoteObjects`      | 提供进程间通信使用的对象         | https://doc.qt.io/qtforpython-6/PySide6/QtRemoteObjects/index.html#module-PySide6.QtRemoteObjects |
+| `QtScxml`              | 从SCXML文件创建状态机            | https://doc.qt.io/qtforpython-6/PySide6/QtScxml/index.html#module-PySide6.QtScxml https://www.w3.org/TR/scxml/ |
+| `QtSensors`            | 操作传感器硬件                   | https://doc.qt.io/qtforpython-6/PySide6/QtSensors/index.html#module-PySide6.QtSensors |
+| `QtSerialBus`          | 串行总线相关功能                 | https://doc.qt.io/qtforpython-6/PySide6/QtSerialBus/index.html#module-PySide6.QtSerialBus |
+| `QtSerialPort`         | 串口通讯相关功能                 | https://doc.qt.io/qtforpython-6/PySide6/QtSerialPort/index.html#module-PySide6.QtSerialPort |
+| `QtSpatialAudio`       | 空间音频相关功能                 | https://doc.qt.io/qtforpython-6/PySide6/QtSpatialAudio/index.html#module-PySide6.QtSpatialAudio |
+| `QtSql`                | SQL、数据库相关功能              | https://doc.qt.io/qtforpython-6/PySide6/QtSql/index.html#module-PySide6.QtSql |
+| `QtStateMachine`       | 状态机相关功能                   | https://doc.qt.io/qtforpython-6/PySide6/QtStateMachine/index.html#module-PySide6.QtStateMachine |
+| `QtSvg`                | 处理SVG文件                      | https://doc.qt.io/qtforpython-6/PySide6/QtSvg/index.html#module-PySide6.QtSvg |
+| `QtSvgWidgets`         | 显示SVG文件的控件                | https://doc.qt.io/qtforpython-6/PySide6/QtSvgWidgets/index.html#module-PySide6.QtSvgWidgets |
+| `QtTest`               | GUI测试和基准测试                | https://doc.qt.io/qtforpython-6/PySide6/QtTest/index.html#module-PySide6.QtTest |
+| `QtTextToSpeech`       | 文本转语音                       | https://doc.qt.io/qtforpython-6/PySide6/QtTextToSpeech/index.html#module-PySide6.QtTextToSpeech |
+| `QtUiTools`            | 加载UI文件                       | https://doc.qt.io/qtforpython-6/PySide6/QtUiTools/index.html#module-PySide6.QtUiTools |
+| `PySide6.QtWebChannel` | 服务器、客户端之间的点对点通讯   | https://doc.qt.io/qtforpython-6/PySide6/QtWebChannel/index.html#module-PySide6.QtWebChannel |
+| `QtWebEngineCore`      | WebEngine的基础功能              | https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineCore/index.html#module-PySide6.QtWebEngineCore |
+| `QtWebEngineQuick`     | 在QtQuick程序中嵌入WebEngine     | https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineQuick/index.html#module-PySide6.QtWebEngineQuick |
+| `QtWebEngineWidgets`   | 在QtWidgets程序中嵌入WebEngine   | https://doc.qt.io/qtforpython-6/PySide6/QtWebEngineWidgets/index.html#module-PySide6.QtWebEngineWidgets |
+| `QtWebSockets`         | 处理WebSocket协议                | https://doc.qt.io/qtforpython-6/PySide6/QtWebSockets/index.html#module-PySide6.QtWebSockets |
+| `QtWebView`            | 显示网页内容                     | https://doc.qt.io/qtforpython-6/PySide6/QtWebView/index.html#module-PySide6.QtWebView |
+| `QtWidgets`            | QtWidgets程序的基础功能          | https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html#module-PySide6.QtWidgets |
+| `QtXml`                | 处理XML文件                      | https://doc.qt.io/qtforpython-6/PySide6/QtXml/index.html#module-PySide6.QtXml |
 
 
 

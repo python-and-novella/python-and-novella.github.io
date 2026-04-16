@@ -653,11 +653,46 @@ ui.run(
 - 字典类型，无智能提示，需要读者对配置项比较熟悉。
 - `plotly.graph_objects.Figure`类型，由`plotly`库提供的功能创建相关对象，有智能提示，只需读者了解参数含义即可。
 
-从使用难度和便捷性来说，`plotly.graph_objects.Figure`类型的参数明显好于字典类型。因此，本节后续示例中，除非特殊情况，一般传入`plotly.graph_objects.Figure`类型的参数。
+从使用难度和便捷性来说，`plotly.graph_objects.Figure`类型的参数明显好于字典类型。因此，本节后续示例中，除非特殊情况，一般传入`plotly.graph_objects.Figure`类型的参数。当然，二者的互相转化也有规律可循，层级都是一一对应，读者不必担心不会另一种类型的参数。
 
 `ui.plotly`控件的`update_figure`方法可用于更新图形，该方法支持的参数与`ui.plotly`控件相同。
 
 `ui.plotly`控件的`figure`属性表示图形对象（`plotly.graph_objects.Figure`类型），如果需要调用Plotly框架提供的图形对象接口（Python接口），可以使用该属性。
+
+`ui.plotly`控件的`on`方法可用于响应图形对象的事件（支持的事件可参考 https://plotly.com/javascript/plotlyjs-events/）：
+
+```python3
+from nicegui import ui
+import plotly.graph_objects as go
+
+def index():
+    ply = ui.plotly(
+        go.Figure(
+            go.Scatter(
+                x=[0, 1, 2],
+                y=[1, 2, 1]
+            ),
+            go.Layout(
+                margin=go.layout.Margin(
+                    l=0,
+                    r=0,
+                    t=0,
+                    b=0,
+                )
+            )
+        )
+    ).classes('w-64 h-64')
+    ply.update()
+    ply.on(
+        'plotly_click',
+        ui.notify
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 #### 54.4.3 `plotly.graph_objects`模块（更新中）
 
@@ -665,19 +700,322 @@ ui.run(
 
 不管是传入`plotly.graph_objects.Figure`类型的参数，还是`plotly.graph_objects.Figure`类相关的`update_figure`方法、`figure`属性，都离不开`plotly.graph_objects`模块提供的类（`Figure`类等以及子模块中的类）。因此，本节重点介绍一下`plotly.graph_objects`模块提供的类、模块。
 
-##### 54.4.3.1 `Figure`类（更新中）
+##### 54.4.3.1 `Figure`类
 
 相关文档：https://plotly.com/python-api-reference/generated/plotly.graph_objects.Figure.html
 
 `Figure`类支持以下参数：
 
-- `data`参数，---
-- 
+- `data`参数，轨迹类型或者元素为轨迹类型的列表，表示具体数据，同时也决定图形的类型。支持的轨迹类型可以参考文档中各个Traces分类下的类。
 
-`Figure`类支持以下方法：
+  示例如下：
 
-- `add_trace`方法，---
-- 
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              [
+                  go.Scatter(
+                      x=[0, 1, 2],
+                      y=[1, 2, 1]
+                  ),
+                  go.Scatter(
+                      x=[0, 1, 2],
+                      y=[1, 1, 2]
+                  )
+              ],
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=0,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_4](nicegui_pro.assets/2026_54_4.png)
+
+- `layout`参数，`Layout`类型，表示图形的布局。
+
+- `frames`参数，元素为`Frame`类型的列表，表示图形的动画帧。
+
+- `skip_invalid`参数，布尔类型，是否跳过无效的数据（比如字符串成了X坐标），默认为`False`。
+
+- `**kwargs`参数，其余关键字参数将传递给父类`object`。
+
+`Figure`类支持以下方法（部分，单独调用的话，需要额外执行一次控件的`update`方法来刷新显示）：
+
+- `add_trace`方法，添加一条轨迹。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Scatter(
+                  x=[0, 1, 2],
+                  y=[1, 2, 1]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=0,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.figure.add_trace(
+          go.Scatter(
+              x=[0, 1, 2],
+              y=[1, 1, 2]
+          )
+      )
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_4](nicegui_pro.assets/2026_54_4.png)
+
+- `add_traces`方法，添加多条轨迹。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Scatter(
+                  x=[0, 1, 2],
+                  y=[1, 2, 1]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=0,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.figure.add_traces(
+          [
+              go.Scatter(
+                  x=[0, 1, 2],
+                  y=[1, 1, 2]
+              ),
+          ]
+      )
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_4](nicegui_pro.assets/2026_54_4.png)
+
+- `update_layout`方法，更新布局。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              [
+                  go.Scatter(
+                      x=[0, 1, 2],
+                      y=[1, 2, 1]
+                  ),
+                  go.Scatter(
+                      x=[0, 1, 2],
+                      y=[1, 1, 2]
+                  )
+              ],
+          )
+      ).classes('w-64 h-64')
+      ply.figure.update_layout(
+          go.Layout(
+              margin=go.layout.Margin(
+                  l=0,
+                  r=0,
+                  t=0,
+                  b=0,
+              )
+          )
+      )
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_4](nicegui_pro.assets/2026_54_4.png)
+
+##### 54.4.3.2 各种轨迹（图形类型）（更新中）
+
+因为不同的类对应不同的轨迹（图形类型），数量比较多。为了方便读者根据需求查阅官方文档，这里简单汇总一下类对应的图形类型（部分类型提供简单的示例）：
+
+- `Scatter`类，表示散点图。
+
+- `Scattergl`类，表示散点图（使用WebGL引擎）。
+
+- `Bar`类，表示柱状图。
+
+- `Pie`类，表示饼状图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Pie(
+                  labels=['a','b','c'],
+                  values=[1,2,3]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=0,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_5](nicegui_pro.assets/2026_54_5.png)
+
+- Heatmap
+
+- Image
+
+- Contour
+
+Table
+
+Box
+
+Violin
+
+Histogram
+
+Histogram2d
+
+Histogram2dContour
+
+Ohlc
+
+Candlestick
+
+Waterfall
+
+Funnel
+
+Funnelarea
+
+Indicator
+
+Scatter3d
+
+Surface
+
+Mesh3d
+
+Cone
+
+Streamtube
+
+Volume
+
+Isosurface
+
+Scattergeo
+
+Choropleth
+
+Scattermap
+
+Choroplethmap
+
+Densitymap
+
+Scattermapbox
+
+Choroplethmapbox
+
+Densitymapbox
+
+Scatterpolar
+
+Scatterpolargl
+
+Barpolar
+
+Scatterternary
+
+Sunburst
+
+Treemap
+
+Icicle
+
+Sankey
+
+Splom
+
+Parcats
+
+Parcoords
+
+Carpet
+
+Scattercarpet
+
+Contourcarpet
 
 
 
@@ -699,7 +1037,7 @@ ui.run(
 
 
 
-## 55 学习控件——渲染复杂数据（更新中）
+## 56 学习控件——渲染复杂数据（更新中）
 
 除了前面提到的数据图形化展示方式之外，下面的控件提供了针对特定类型数据、文件的展示方式：
 

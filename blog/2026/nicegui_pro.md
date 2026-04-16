@@ -8405,7 +8405,7 @@ ui.run(
 
 ### 35.5 扩展用法
 
-#### 35.5.1 使用非系统的EdgeWebview运行时
+#### 35.5.1 使用自定义版本的EdgeWebview运行时
 
 默认情况下，如果Windows系统安装了EdgeWebview运行时，窗口模式将优先使用系统的EdgeWebview运行时。
 

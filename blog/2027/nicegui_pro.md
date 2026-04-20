@@ -2,17 +2,7 @@
 
 # NiceGUI札记（2027）
 
-## NiceGUI札记2027版——更新计划
 
-在介绍2027年的更新计划之前，首先感谢各位读者对本教程的喜欢，各位的点赞、转发、喜爱和付费，是支持笔者继续更新的动力。
-
-说来惭愧，2026年工作之余有不少空闲，但笔者更多将其用于其他内容的构思、更新，导致原本年内能介绍完的所有控件，只完成了一部分。
-
-不过，本教程力求准确、详细、全面，快了不一定好，更何况随着NiceGUI的更新，加上之前的内容创作之时受限于能力，依然有不少内容存在错误或者遗漏，还是需要更新。
-
-于是，2027年，笔者除了继续介绍控件、补充控件的其他用法之外，还会根据版本更新的变化，补充遗漏、修正错误，让代码始终与NiceGUI最新版本兼容，不会因为版本变化而出现错误。
-
-同时也能让各位节省下新版本的学习时间，始终享受NiceGUI最新版带来的便利。
 
 ## 样式技巧——先导篇
 
@@ -109,12 +99,15 @@ ui.run(
 
 ![2026_53_2](nicegui_pro.assets/2026_53_2.png)
 
-## 54 学习控件——渲染线形图（更新中）
+## 54 学习控件——渲染图表（更新中）
 
-想要渲染线形图，根据其使用（依赖）的Python库划分，NiceGUI提供了两类的控件：
+想要渲染图表，根据其使用（依赖）的Python库、JavaScript框架划分，NiceGUI提供了以下几类控件：
 
 - 依赖`matplotlib`库的`ui.matplotlib`控件、`ui.pyplot`控件和`ui.line_plot`控件（需要使用`uv add nicegui[matplotlib]`命令添加依赖）。`matplotlib`库广泛应用于学术论文，使用者数量庞大，文档和相关问题的解答资料自然丰富，但表现风格有点经典，且不具备交互性。
 - 依赖`plotly`库的`ui.plotly`控件（需要使用`uv add nicegui[plotly]`命令添加依赖）。`plotly`库提供了强大的交互性，让数据更加直观、详细，表现风格也更现代化。不过，因为具备交互功能，性能上会比纯静态图稍差。
+- 依赖`nicegui-highcharts`库、使用Highcharts框架的`ui.highchart`控件（需要使用`uv add nicegui[highcharts]`命令添加依赖）。支持多种类型的图表，可以满足商业需求。但是，Highcharts框架商用需要付费。
+- 使用ECharts框架的`ui.echart`控件。支持多种类型的图表，可以满足商业需求。不过，商用无需付费。
+- 依赖`altair`库的`ui.altair`控件（需要使用`uv add nicegui[altair]`命令添加依赖）。风格简单统一，同时兼具交互性，适合学术、专业场景。库本身很轻量，也就决定了功能上没法与前面强大的控件竞争。但是上手容易，比较适合做学术研究的学生党。
 
 ### 54.1 `ui.matplotlib`控件
 
@@ -167,7 +160,7 @@ ui.run(
 
 在正式学习控件之前，还有一个问题需要澄清，为什么该控件必须使用上下文管理器进入`figure`属性的上下文？
 
-倒也不是必须的，如果想要像普通控件一样一步一步来的话，不使用上下文管理器的话，代码会比较麻烦，在添加线形图之后，必须手动更新一下控件（使用上下文管理器的话会自动更新）：
+倒也不是必须的，如果想要像普通控件一样一步一步来的话，不使用上下文管理器的话，代码会比较麻烦，在添加图表之后，必须手动更新一下控件（使用上下文管理器的话会自动更新）：
 
 ```python3
 from nicegui import ui
@@ -201,9 +194,9 @@ ui.run(
 
 `MatplotlibFigure`类支持以下参数（部分）：
 
-- `figsize`参数，元素为浮点数的双元素元组或列表，表示线形图的大小（宽高，单位为英寸），默认为`[6.4,4.8]`。
-- `facecolor`参数，字符串类型，表示除了线形图作图区域外控件的背景颜色。
-- `layout`参数，字符串类型（仅支持`[constrained', 'compressed', 'tight', 'none']`中的值），表示线形图的布局。
+- `figsize`参数，元素为浮点数的双元素元组或列表，表示图表的大小（宽高，单位为英寸），默认为`[6.4,4.8]`。
+- `facecolor`参数，字符串类型，表示除了图表作图区域外控件的背景颜色。
+- `layout`参数，字符串类型（仅支持`[constrained', 'compressed', 'tight', 'none']`中的值），表示图表的布局。
 
 `MatplotlibFigure`类支持以下属性（部分）：
 
@@ -240,13 +233,13 @@ ui.run(
 
 - `gca`方法，获取当前轴（`matplotlib.axes.Axes`类）。轴可以理解为绘图的图层，如果没有轴（此时`axes`属性或者`get_axes`方法的返回值为空）的话，该方法会创建一个。轴支持的属性和方法比较多，具体可以参考 https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html 。
 - `add_subplot`方法，创建一个轴。
-- `clear`方法，清除线形图。
+- `clear`方法，清除图表。
 - `suptitle`方法，添加一个居中的大标题。
 - `supxlabel`方法，添加一个X轴标签。
 - `supylabel`方法，添加一个Y轴标签。
 - `subplot_mosaic`方法，添加多个轴，以宫格形式拼接。
 - `legend`方法，添加图例。
-- `savefig`方法，将线形图保存为图片。
+- `savefig`方法，将图表保存为图片。
 - `text`方法，在指定位置添加文本标签。
 
 #### 54.1.3 `matplotlib.axes.Axes`类
@@ -325,7 +318,7 @@ ui.run(
 
 该控件与`ui.matplotlib`控件类似，使用控件的`fig`属性（类似`ui.matplotlib`控件的`figure`属性），但是，与`ui.matplotlib`控件不同的是：
 
-- 该控件额外支持一个布尔类型的参数`close`，表示是否在退出上下文时关闭当前打开的线形图（默认为`True`）。如果不关闭，则可以在退出上下文之后继续更新线形图。注意，如果是进入上下文之后更新线形图，则该参数不会影响结果，但依然建议关闭不需要更新的线形图，避免占用额外的内存。
+- 该控件额外支持一个布尔类型的参数`close`，表示是否在退出上下文时关闭当前打开的图表（默认为`True`）。如果不关闭，则可以在退出上下文之后继续更新图表。注意，如果是进入上下文之后更新图表，则该参数不会影响结果，但依然建议关闭不需要更新的图表，避免占用额外的内存。
 
   示例如下：
 
@@ -357,7 +350,7 @@ ui.run(
               ],
               'r-'
           )
-          # 进入上下文然后直接退出，只是为了更新线形图。
+          # 进入上下文然后直接退出，只是为了更新图表。
           with plot:
               """ pyplot.clf()
               pyplot.plot(
@@ -384,7 +377,7 @@ ui.run(
 
   ![2026_54_2](nicegui_pro.assets/2026_54_2.png)
 
-  示例中，该参数为`True`，点击按钮不会更新线形图。
+  示例中，该参数为`True`，点击按钮不会更新图表。
 
 - 该控件使用`matplotlib.pyplot`模块的`figure`方法创建`matplotlib.figure.Figure`对象（`fig`属性），因此，其余的关键字参数实际上传给了`matplotlib.pyplot.figure`方法。
 
@@ -495,11 +488,11 @@ ui.run(
 )
 ```
 
-从示例中可以看到，该控件和`ui.pyplot`控件一样有`fig`属性，这个不做介绍，前面的用法可以直接参考本章前面两个控件的内容。但是，该控件的参数和方法比前面两种控件更多，用起来也更简单。可以不进入上下文，直接调用其他方法绘制线形图，甚至不用额外调用方法来更新线形图，线形图自动更新。
+从示例中可以看到，该控件和`ui.pyplot`控件一样有`fig`属性，这个不做介绍，前面的用法可以直接参考本章前面两个控件的内容。但是，该控件的参数和方法比前面两种控件更多，用起来也更简单。可以不进入上下文，直接调用其他方法绘制图表，甚至不用额外调用方法来更新图表，图表自动更新。
 
 `ui.line_plot`控件支持以下关键字参数：
 
-- `n`参数，整数类型，表示线形图中一共几条连续线（维度，可以理解为图层），默认为`1`。
+- `n`参数，整数类型，表示图表中一共几条连续线（维度，可以理解为图层），默认为`1`。
 
   示例如下：
 
@@ -532,7 +525,7 @@ ui.run(
 
 - `limit`参数，整数类型，表示每条连续线最多有多少个点（超过限度时，添加新点会顶掉最旧的点），默认为`100`。
 
-- `update_every`参数，整数类型，表示每执行多少次`push`方法才更新一次线形图，默认为`1`。
+- `update_every`参数，整数类型，表示每执行多少次`push`方法才更新一次图表，默认为`1`。
 
 - `close`参数，用法、含义同`ui.pyplot`控件的同名参数。
 
@@ -540,11 +533,11 @@ ui.run(
 
 `ui.line_plot`控件支持以下方法：
 
-- `clear`方法，清除当前的线形图。注意，每次调用`push`方法都会与线形图当前存在的散点连接，如果想要重新绘图，务必先调用一次`clear`方法。
-- `with_legend`方法，设置当前线形图的图例。该方法支持以下参数：
+- `clear`方法，清除当前的图表。注意，每次调用`push`方法都会与图表当前存在的散点连接，如果想要重新绘图，务必先调用一次`clear`方法。
+- `with_legend`方法，设置当前图表的图例。该方法支持以下参数：
   - `titles`参数，元素为字符串的列表，依次表示每条线的图例。
   - `**kwargs`参数，其余的关键字参数会传给`fig`属性的`gca().legend`方法（该方法支持的参数可参考 https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html ）。
-- `push`方法，追加线形图散点的连续坐标序列。该方法支持以下参数：
+- `push`方法，追加图表散点的连续坐标序列。该方法支持以下参数：
   - `x`参数，元素为浮点数的列表，表示X坐标。
   - `y`参数，元素为列表（元素为浮点数）的列表，表示对应X坐标的Y坐标。列表中列表的个数表示多少条连续线（维度，可以理解为图层），但显示的数量受限于`n`参数。另外，Y坐标的个数必须与X坐标一致，否则无法正常使用。
   - `x_limits`参数，关键字参数，元素为浮点数的双元素元组或者字符串`'auto'`，表示X轴的范围，默认为`'auto'`，即基于现有点的范围确定X轴的范围。
@@ -929,219 +922,559 @@ ui.run(
 
   ![2026_54_5](nicegui_pro.assets/2026_54_5.png)
 
-- Heatmap
-
-- Image
-
-- Contour
-
-Table
-
-Box
-
-Violin
-
-Histogram
-
-Histogram2d
-
-Histogram2dContour
-
-Ohlc
-
-Candlestick
-
-Waterfall
-
-Funnel
-
-Funnelarea
-
-Indicator
-
-Scatter3d
-
-Surface
-
-Mesh3d
-
-Cone
-
-Streamtube
-
-Volume
-
-Isosurface
-
-Scattergeo
-
-Choropleth
-
-Scattermap
-
-Choroplethmap
-
-Densitymap
-
-Scattermapbox
-
-Choroplethmapbox
-
-Densitymapbox
-
-Scatterpolar
-
-Scatterpolargl
-
-Barpolar
-
-Scatterternary
-
-Sunburst
-
-Treemap
-
-Icicle
-
-Sankey
-
-Splom
-
-Parcats
-
-Parcoords
-
-Carpet
-
-Scattercarpet
-
-Contourcarpet
-
-
-
-
-
-## 55 学习控件——渲染图表（更新中）
-
-以下控件可以将提供的数据渲染为表格图形：
-
-- `ui.highchart`控件，使用Highcharts框架渲染图表，支持多种类型的图表。但是，Highcharts框架商用需要付费。
-
-  注意，`ui.highchart`控件依赖`nicegui-highcharts`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[highcharts]`命令提前添加依赖库。
-
-- `ui.echart`控件，使用ECharts框架渲染图表，支持多种类型的图表，商用无需付费。
-
-- `ui.altair`控件，使用`altair`库渲染交互式图表。
-
-
-
-
-
-## 56 学习控件——渲染复杂数据（更新中）
-
-除了前面提到的数据图形化展示方式之外，下面的控件提供了针对特定类型数据、文件的展示方式：
-
-- `ui.tree`控件，用于渲染树类型的数据。
+- `Heatmap`类，表示热力图。
 
   示例如下：
 
   ```python3
   from nicegui import ui
-    
+  import plotly.graph_objects as go
+  
   def index():
-      ui.tree(
-          nodes=[
-              {
-                  'id': 'lang',
-                  'label': 'Language',
-                  'icon': 'dashboard',
-                  'children': [
-                      {
-                          'id': '1',
-                          'label': 'Python'
-                      },
-                      {
-                          'id': '2',
-                          'label': 'JavaScript'
-                      }
+      ply = ui.plotly(
+          go.Figure(
+              go.Heatmap(
+                  z=[
+                      [1, 2, 3],
+                      [2, 1, 6],
+                      [3, 6, 1]
+                  ],
+                  x=['A', 'B', 'C'],
+                  y=['X', 'Y', 'Z'],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=0,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_6](nicegui_pro.assets/2026_54_6.png)
+
+- `Image`类，表示图像。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Image(
+                  z=[
+                      [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0]],
+                      [[255, 0, 255], [0, 255, 255], [128, 128, 128], [255, 128, 0]],
+                      [[64, 64, 64], [192, 192, 192], [255, 255, 255], [0, 0, 0]]
+                  ],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=0,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_7](nicegui_pro.assets/2026_54_7.png)
+
+- `Contour`类，表示等高线图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Contour(
+                  z=[
+                      [1, 2, 3, 4],
+                      [2, 4, 6, 8],
+                      [3, 6, 9, 12],
+                      [4, 8, 12, 16]
                   ]
-              },
-          ],
-          node_key='id',
-          label_key='label',
-          children_key='children',
-          on_select=lambda e: ui.notify(
-              f'选择了 {e.value}'
-          ),
-          on_expand=lambda e: ui.notify(
-              f'展开了 {e.value}'
-          ),
-          on_tick=lambda e: ui.notify(
-              f'勾选了 {e.value}'
-          ),
-      ).expand()
-    
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
   ui.run(
       root=index,
       native=True
   )
   ```
 
-  
+  ![2026_54_8](nicegui_pro.assets/2026_54_8.png)
 
-- `ui.leaflet`控件，用于渲染地图数据。
+- `Table`类，表示表格。
 
   示例如下：
 
   ```python3
   from nicegui import ui
-    
+  import plotly.graph_objects as go
+  
   def index():
-      ui.leaflet(
-          center=(39.9072, 116.3912),
-          zoom=18,
-          options={
-              'attributionControl':False,
-          }
-      ).classes(
-          'w-64 h-64'
-      ).marker(
-          latlng=(39.9072, 116.3912)
-      )
-    
+      ply = ui.plotly(
+          go.Figure(
+              go.Table(
+                  header={
+                      'values':['姓名','年龄']
+                  },
+                  cells={
+                      'values':[
+                          ['a','b'],
+                          [12,18]
+                      ]
+                  },
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
   ui.run(
       root=index,
       native=True
   )
   ```
 
-  
+  ![2026_54_9](nicegui_pro.assets/2026_54_9.png)
 
-- `ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交换的3D视图，后者则是基于前者创建、不可交互的固定视角视图。
+- `Box`类，表示箱线图。
 
   示例如下：
 
   ```python3
   from nicegui import ui
-    
+  import plotly.graph_objects as go
+  
   def index():
-      scene = ui.scene().classes(
-          'w-64 h-64'
-      )
-      scene.box().material(
-          'red'
-      )
-      ui.scene_view(scene).classes(
-          'w-64 h-64'
-      )
-        
+      ply = ui.plotly(
+          go.Figure(
+              go.Box(
+                  x=['a','b','a','b'],
+                  y=[1,2,2,4],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
   ui.run(
       root=index,
       native=True
   )
   ```
 
+  ![2026_54_10](nicegui_pro.assets/2026_54_10.png)
+
+- `Violin`类，表示小提琴图。
+
+  示例如下：
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
   
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Violin(
+                  x=['a','b','a','b'],
+                  y=[1,2,2,4],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_11](nicegui_pro.assets/2026_54_11.png)
+
+- `Histogram`类，表示直方图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Histogram(
+                  x=[1,2,2,2,3,3,3,3],
+                  nbinsx=6
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_12](nicegui_pro.assets/2026_54_12.png)
+
+- `Histogram2d`类，表示二维直方图（类似热力图）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Histogram2d(
+                  x=[1,1,1,1,1,1],
+                  y=[1,2,2,3,3,3],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_13](nicegui_pro.assets/2026_54_13.png)
+
+- `Histogram2dContour`类，表示二维直方等高线图（类似热力图加等高线图）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Histogram2dContour(
+                  x=[1,1,1,1,1,1],
+                  y=[1,2,2,3,3,3],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_14](nicegui_pro.assets/2026_54_14.png)
+
+- `Ohlc`类，表示用于股票、期货等金融交易的柱线图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Ohlc(
+                  x=['2026-01-01','2026-01-02','2026-01-03'],
+                  open=[1,1,1],
+                  high=[2,3,4],
+                  low=[0,0.5,0],
+                  close=[1,2,1]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_15](nicegui_pro.assets/2026_54_15.png)
+
+- `Candlestick`类，表示蜡烛图。蜡烛图类似上面的柱线图，但将`open`参数、`close`参数之间的区域画成了矩形。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Candlestick(
+                  x=['2026-01-01','2026-01-02','2026-01-03'],
+                  open=[1,1,1],
+                  high=[2,3,4],
+                  low=[0,0.5,0],
+                  close=[1,2,1]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_16](nicegui_pro.assets/2026_54_16.png)
+
+- `Waterfall`类，表示瀑布图，常用于表示项目流程。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Waterfall(
+                  x=['绝对','相对','合计'],
+                  y=[1,2,0],
+                  measure=['absolute','relative','total']
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_17](nicegui_pro.assets/2026_54_17.png)
+
+- `Funnel`类，表示漏斗图。
+
+  示例如下：
+
+  ```python3
+  ```
+
+  
+
+- `Funnelarea`类，
+
+- `Indicator`类，
+
+- `Scatter3d`类，
+
+- `Surface`类，
+
+- `Mesh3d`类，
+
+- `Cone`类，
+
+- `Streamtube`类，
+
+- `Volume`类，
+
+- `Isosurface`类，
+
+- `Scattergeo`类，
+
+- `Choropleth`类，
+
+- `Scattermap`类，
+
+- `Choroplethmap`类，
+
+- `Densitymap`类，
+
+- `Scattermapbox`类，
+
+- `Choroplethmapbox`类，
+
+- `Densitymapbox`类，
+
+- `Scatterpolar`类，
+
+- `Scatterpolargl`类，
+
+- `Barpolar`类，
+
+- `Scatterternary`类，
+
+- `Sunburst`类，
+
+- `Treemap`类，
+
+- `Icicle`类，
+
+- `Sankey`类，
+
+- `Splom`类，
+
+- `Parcats`类，
+
+- `Parcoords`类，
+
+- `Carpet`类，
+
+- `Scattercarpet`类，
+
+- `Contourcarpet`类，
+
+
+
+### 54.5 `ui.highchart`控件（更新中）
+
+
+
+
+
+### 54.6 `ui.echart`控件（更新中）
+
+
+
+
+
+### 54.7 `ui.altair`控件（更新中）
+
+
+
+
+
+
+
+## NiceGUI札记2027版——更新计划
+
+在介绍2027年的更新计划之前，首先感谢各位读者对本教程的喜欢，各位的点赞、转发、喜爱和付费，是支持笔者继续更新的动力。
+
+笔者在完成本教程2026版的收尾工作之后，愈发感觉长篇大论让笔者力不从心。其他系列的敏捷风格更适合碎片化时间的创作和阅读，也能让笔者抽出更多时间兼顾其他系列教程甚至小说的创作（小说那边的长章节风格反馈也不好，不管是创作还是阅读，那边在完成第一部之后，后续也会改为敏捷风格）。因此，笔者决定，从2027年开始，《札记》系列教程全部采用敏捷风格，主要介绍框架相关的基本概念和必要扩展，减少为了全面深挖框架用法而导致的大量时间投入。
+
+当然，这并不是说笔者会在教程的创作上变得“敷衍”，恰恰相反，笔者会更加关注各位读者的意见。如果教程的部分内容没有覆盖到读者所需的知识点，或者没有示例解释某个用法，或者读者开发过程中遇到实际问题，要是在2026版中，可能受限于更新计划，问题的解答要等很久。在2027版中，这个问题将更快解决，因为笔者可以做到本周创作，最快下周更新。因此，采用敏捷风格之后，如果读者本周一提了问题，有可能本周末之前就有对应的解答文章。至于基础用法，读者可以看完教程之后，自学官方教程或者与笔者互动，无需等待笔者的更新。
+
+基于各方面的考量，2027版除了延续2026版的计划，继续介绍其他控件之外，将尽量减少单章的内容量，只介绍一个控件的基本概念（参数、属性、方法）和必要扩展（槽、控件方法），加快更新节奏。同时，也欢迎对NiceGUI感兴趣的读者积极参与互动，让各位的问题及时得到解答。
+
+## 55 学习控件——`ui.column`控件（更新中）
+
+
+
+
 
 ## 56 学习控件——创建布局（更新中）
 
@@ -1847,6 +2180,124 @@ ui.run(
 
 
 
+
+
+
+
+## 5x 学习控件——`ui.tree`控件（更新中）
+
+
+
+
+
+
+
+## 56 学习控件——渲染复杂数据（更新中）
+
+除了前面提到的用图表展示数据的方式之外，下面的控件提供了针对特定类型数据、文件的展示方式：
+
+- `ui.tree`控件，用于渲染树类型的数据。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+    
+  def index():
+      ui.tree(
+          nodes=[
+              {
+                  'id': 'lang',
+                  'label': 'Language',
+                  'icon': 'dashboard',
+                  'children': [
+                      {
+                          'id': '1',
+                          'label': 'Python'
+                      },
+                      {
+                          'id': '2',
+                          'label': 'JavaScript'
+                      }
+                  ]
+              },
+          ],
+          node_key='id',
+          label_key='label',
+          children_key='children',
+          on_select=lambda e: ui.notify(
+              f'选择了 {e.value}'
+          ),
+          on_expand=lambda e: ui.notify(
+              f'展开了 {e.value}'
+          ),
+          on_tick=lambda e: ui.notify(
+              f'勾选了 {e.value}'
+          ),
+      ).expand()
+    
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
+- `ui.leaflet`控件，用于渲染地图数据。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+    
+  def index():
+      ui.leaflet(
+          center=(39.9072, 116.3912),
+          zoom=18,
+          options={
+              'attributionControl':False,
+          }
+      ).classes(
+          'w-64 h-64'
+      ).marker(
+          latlng=(39.9072, 116.3912)
+      )
+    
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
+- `ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交换的3D视图，后者则是基于前者创建、不可交互的固定视角视图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+    
+  def index():
+      scene = ui.scene().classes(
+          'w-64 h-64'
+      )
+      scene.box().material(
+          'red'
+      )
+      ui.scene_view(scene).classes(
+          'w-64 h-64'
+      )
+        
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  
+
 ## 62 学习控件——`ui.anywidget`控件（更新中）
 
 
@@ -1866,11 +2317,6 @@ ui.run(
 ```javascript
 window.location.reload(true)
 ```
-
-
-
-
-
 
 
 

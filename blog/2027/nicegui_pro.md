@@ -556,7 +556,7 @@ ui.run(
 - `facecolor`参数，字符串类型，表示图例的背景颜色。
 - `title`参数，字符串类型，表示图例的标题。
 
-### 54.4 `ui.plotly`控件（更新中）
+### 54.4 `ui.plotly`控件
 
 #### 54.4.1 前言
 
@@ -687,7 +687,7 @@ ui.run(
 )
 ```
 
-#### 54.4.3 `plotly.graph_objects`模块（更新中）
+#### 54.4.3 `plotly.graph_objects`模块
 
 相关文档：https://plotly.com/python-api-reference/plotly.graph_objects.html
 
@@ -877,7 +877,9 @@ ui.run(
 
   ![2026_54_4](nicegui_pro.assets/2026_54_4.png)
 
-##### 54.4.3.2 各种轨迹（图形类型）（更新中）
+##### 54.4.3.2 各种轨迹（图形类型）
+
+注意，因为笔者不熟悉相关统计学基础，图形命名参考自网络资料和英文名，不一定准确。如果读者有相关专业基础，请不吝指正。
 
 因为不同的类对应不同的轨迹（图形类型），数量比较多。为了方便读者根据需求查阅官方文档，这里简单汇总一下类对应的图形类型（部分类型提供简单的示例）：
 
@@ -1372,81 +1374,1353 @@ ui.run(
   示例如下：
 
   ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Funnel(
+                  y=['a','b','c'],
+                  x=[4,2,1],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
+  ![2026_54_18](nicegui_pro.assets/2026_54_18.png)
+
+- `Funnelarea`类，表示漏斗面积图（使用面积表示对应数值的大小）。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
   
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Funnelarea(
+                  text=['a','b','c'],
+                  values=[4,2,1],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `Funnelarea`类，
+  ![2026_54_19](nicegui_pro.assets/2026_54_19.png)
 
-- `Indicator`类，
+- `Indicator`类，表示仪表图。
 
-- `Scatter3d`类，
+  示例如下：
 
-- `Surface`类，
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Indicator(
+                  mode='gauge+number',
+                  value=270,
+                  domain={
+                      'x':[0.15,0.85],
+                  },
+                  gauge={
+                      'axis': {
+                          'range': [100, 300]
+                      },
+                      'steps':[
+                          {
+                              'range':[0,200],
+                              'color':'blue'
+                          },{
+                              'range':[200,400],
+                              'color':'red'
+                          }
+                      ],
+                      'threshold':{
+                          'line':{
+                              'color':'yellow',
+                              'width':4
+                          },
+                          'thickness':0.75,
+                          'value':240
+                      }
+                  }
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `Mesh3d`类，
+  ![2026_54_20](nicegui_pro.assets/2026_54_20.png)
 
-- `Cone`类，
+- `Scatter3d`类，表示三维散点图。
 
-- `Streamtube`类，
+  示例如下：
 
-- `Volume`类，
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Scatter3d(
+                  x=[0,0,1,0],
+                  y=[0,1,0,0],
+                  z=[1,0,0,1]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `Isosurface`类，
+  ![2026_54_21](nicegui_pro.assets/2026_54_21.png)
 
-- `Scattergeo`类，
+- `Surface`类，表示曲面图。
 
-- `Choropleth`类，
+  示例如下：
 
-- `Scattermap`类，
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Surface(
+                  x=[-2,-1,0,1,2],
+                  y=[-2,-1,0,1,2],
+                  z=[
+                      [3,3,2,3,3],
+                      [3,2,1,2,3],
+                      [2,1,1,1,2],
+                      [3,2,1,2,3],
+                      [3,3,2,3,3],
+                  ],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `Choroplethmap`类，
+  ![2026_54_22](nicegui_pro.assets/2026_54_22.png)
 
-- `Densitymap`类，
+- `Mesh3d`类，表示三角形网格三维图。
 
-- `Scattermapbox`类，
+  示例如下：
 
-- `Choroplethmapbox`类，
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Mesh3d(
+                  x = [0, 1, 1, 0, 0.5],
+                  y = [0, 0, 1, 1, 0.5],
+                  z = [0, 0, 0, 0, 1],
+                  opacity=0.5
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `Densitymapbox`类，
+  ![2026_54_23](nicegui_pro.assets/2026_54_23.png)
 
-- `Scatterpolar`类，
+- `Cone`类，表示圆锥图，常用于矢量场的可视化。
 
-- `Scatterpolargl`类，
+  示例如下：
 
-- `Barpolar`类，
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Cone(
+                  x=[0,1], 
+                  y=[0,1], 
+                  z=[0,1],
+                  u=[0,1], 
+                  v=[1,0], 
+                  w=[0,0],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `Scatterternary`类，
+  ![2026_54_24](nicegui_pro.assets/2026_54_24.png)
 
-- `Sunburst`类，
+- `Streamtube`类，表示管状流线图。
 
-- `Treemap`类，
+  示例如下：
 
-- `Icicle`类，
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Streamtube(
+                  x=[1], 
+                  y=[1], 
+                  z=[1],
+                  u=[1], 
+                  v=[0], 
+                  w=[0],
+                  starts={
+                      'x':[0],
+                      'y':[0],
+                      'z':[0]
+                  }
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `Sankey`类，
+  ![2026_54_25](nicegui_pro.assets/2026_54_25.png)
 
-- `Splom`类，
+- `Volume`类，表示体积热力图（即三维坐标点对应的数值分布，相当于四维数据）。
 
-- `Parcats`类，
+  示例如下：
 
-- `Parcoords`类，
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  # 创建简单立方体数据
+  coords = [0, 1, 2]  # 3x3x3的立方体
+  x_list, y_list, z_list, value_list = [], [], [], []
+  
+  for x in coords:
+      for y in coords:
+          for z in coords:
+              # 简单的值分布：中心点值最大
+              value = 1 / (1 + abs(x-1) + abs(y-1) + abs(z-1))
+              x_list.append(x)
+              y_list.append(y)
+              z_list.append(z)
+              value_list.append(value)
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Volume(
+                  x=x_list,
+                  y=y_list,
+                  z=z_list,
+                  value=value_list,
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
-- `Carpet`类，
+  ![2026_54_26](nicegui_pro.assets/2026_54_26.png)
 
-- `Scattercarpet`类，
+- `Isosurface`类，表示表面积热力图（即三维坐标点对应的数值分布，相当于四维数据，但看上去和体积热力图类似，只是看不到立方体内部）。
 
-- `Contourcarpet`类，
+  示例如下：
 
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  # 创建简单立方体数据
+  coords = [0, 1, 2]  # 3x3x3的立方体
+  x_list, y_list, z_list, value_list = [], [], [], []
+  
+  for x in coords:
+      for y in coords:
+          for z in coords:
+              # 简单的值分布：中心点值最大
+              value = 1 / (1 + abs(x-1) + abs(y-1) + abs(z-1))
+              x_list.append(x)
+              y_list.append(y)
+              z_list.append(z)
+              value_list.append(value)
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Isosurface(
+                  x=x_list,
+                  y=y_list,
+                  z=z_list,
+                  value=value_list,
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
 
+  ![2026_54_27](nicegui_pro.assets/2026_54_27.png)
+
+- `Scattergeo`类，表示地理位置散点图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Scattergeo(
+                  lon=[-75, -73, -71, -69],
+                  lat=[40, 41, 42, 43],
+                  text=['A点', 'B点', 'C点', 'D点'],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_28](nicegui_pro.assets/2026_54_28.png)
+
+- `Choropleth`类，表示地理区域数值图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Choropleth(
+                  locations=['China', 'USA', 'Japan', 'Germany', 'France'],
+                  locationmode='country names',
+                  z=[100, 80, 60, 50, 40],
+                  text=['中国', '美国', '日本', '德国', '法国'],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_29](nicegui_pro.assets/2026_54_29.png)
+
+- `Scattermap`类，表示地图位置散点图。用法同`Scattergeo`类，但是底图改为真实地图。
+
+- `Choroplethmap`类，表示地图区域数值图。用法同`Choropleth`类，但是底图改为真实地图。
+
+- `Densitymap`类，表示热力地图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Densitymap(
+                  lon=[-75, -73, -71, -69],
+                  lat=[40, 41, 42, 43],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_30](nicegui_pro.assets/2026_54_30.png)
+
+- `Scatterpolar`类，表示极坐标散点图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Scatterpolar(
+                  r=[1,2,3,4],
+                  theta=[0,30,60,90],
+                  text=['A点', 'B点', 'C点', 'D点'],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_31](nicegui_pro.assets/2026_54_31.png)
+
+- `Scatterpolargl`类，表示极坐标散点图（使用WebGL引擎）。
+
+- `Barpolar`类，表示极坐标柱状图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Barpolar(
+                  r=[1,2,3,4],
+                  theta=[0,30,60,90],
+                  text=['A点', 'B点', 'C点', 'D点'],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_32](nicegui_pro.assets/2026_54_32.png)
+
+- `Scatterternary`类，表示三元坐标散点图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Scatterternary(
+                  a=[1,0.5,1],
+                  b=[1,1,0.5],
+                  c=[0.5,1,1],
+                  text=['a','b','c']
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_33](nicegui_pro.assets/2026_54_33.png)
+
+- `Sunburst`类，表示旭日图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Sunburst(
+                  labels=['a','b','c','d'],
+                  parents=['','a','a','b'],
+                  values=[1,1,1,1]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_34](nicegui_pro.assets/2026_54_34.png)
+
+- `Treemap`类，表示树形地图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Treemap(
+                  labels=['a','b','c','d'],
+                  parents=['','a','a','b'],
+                  values=[1,1,1,1]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_35](nicegui_pro.assets/2026_54_35.png)
+
+- `Icicle`类，表示冰柱图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Icicle(
+                  labels=['a','b','c','d'],
+                  parents=['','a','a','b'],
+                  values=[1,1,1,1]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_36](nicegui_pro.assets/2026_54_36.png)
+
+- `Sankey`类，表示流量图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Sankey(
+                  node={'label':['a','b','c','d']},
+                  link={'source':[0,1,1],'target':[1,2,3],
+                  'value':[2,1,1,]},
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_37](nicegui_pro.assets/2026_54_37.png)
+
+- `Splom`类，表示矩阵散点图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Splom(
+                  dimensions=[
+                      {
+                          'label':'a',
+                          'values':[
+                              1,2,3
+                          ]
+                      },
+                      {
+                          'label':'b',
+                          'values':[
+                              2,3,4
+                          ]
+                      },
+                      {
+                          'label':'c',
+                          'values':[
+                              3,4,5
+                          ]
+                      }
+                  ]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_38](nicegui_pro.assets/2026_54_38.png)
+
+- `Parcats`类，表示平行分类图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Parcats(
+                  dimensions=[
+                      {
+                          'label':'a',
+                          'values':[
+                              1,2,3
+                          ]
+                      },
+                      {
+                          'label':'b',
+                          'values':[
+                              2,3,4
+                          ]
+                      },
+                      {
+                          'label':'c',
+                          'values':[
+                              3,4,5
+                          ]
+                      }
+                  ]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_39](nicegui_pro.assets/2026_54_39.png)
+
+- `Parcoords`类，表示平行坐标图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Parcoords(
+                  dimensions=[
+                      {
+                          'label':'a',
+                          'values':[
+                              1,2,1
+                          ],
+                          'range':[0,4]
+                      },
+                      {
+                          'label':'b',
+                          'values':[
+                              2,3,3
+                          ],
+                          'range':[0,4]
+                      },
+                      {
+                          'label':'c',
+                          'values':[
+                              1,2,1
+                          ],
+                          'range':[0,4]
+                      }
+                  ]
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_40](nicegui_pro.assets/2026_54_40.png)
+
+- `Carpet`类，表示地毯图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Carpet(
+                  a=[1,3,5],
+                  b=[2,4,6],
+                  y=[1,2,3],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_41](nicegui_pro.assets/2026_54_41.png)
+
+- `Scattercarpet`类，表示叠加在地毯图上的散点图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Carpet(
+                  a=[1,3,5],
+                  b=[2,4,6],
+                  y=[1,2,3],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.figure.add_trace(
+          go.Scattercarpet(
+              a=[1,3,5],
+              b=[2,4,6],
+          )
+      )
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_42](nicegui_pro.assets/2026_54_42.png)
+
+- `Contourcarpet`类，表示叠加在地毯图上的等高线图。
+
+  示例如下：
+
+  ```python3
+  from nicegui import ui
+  import plotly.graph_objects as go
+  
+  def index():
+      ply = ui.plotly(
+          go.Figure(
+              go.Carpet(
+                  a=[1,3,5],
+                  b=[2,4,6],
+                  y=[1,2,3],
+              ),
+              go.Layout(
+                  margin=go.layout.Margin(
+                      l=0,
+                      r=0,
+                      t=10,
+                      b=0,
+                  )
+              )
+          )
+      ).classes('w-64 h-64')
+      ply.figure.add_trace(
+          go.Contourcarpet(
+              a=[1,3,5],
+              b=[2,4,6],
+              z=[1,2,3]
+          )
+      )
+      ply.update()
+  
+  ui.run(
+      root=index,
+      native=True
+  )
+  ```
+
+  ![2026_54_43](nicegui_pro.assets/2026_54_43.png)
 
 ### 54.5 `ui.highchart`控件（更新中）
 
+#### 54.5.1 基本用法
 
+下面是`ui.highchart`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/highchart
+
+Highcharts框架文档：https://www.highcharts.com/docs/index#api 和 https://api.highcharts.com/
+
+注意，`ui.highchart`控件依赖`nicegui-highcharts`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[highcharts]`命令提前添加依赖库。另外，商用需要购买商业许可，如有商用需求，请到官网（https://www.highcharts.com/）购买许可。
+
+先看示例：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        options={
+            'title': {'text': 'A and B'},
+            'chart': {'type': 'bar'},
+            'xAxis': {
+                'categories': ['A', 'B']
+            },
+            'yAxis': {
+                'title': False,
+            },
+            'series': [
+                {
+                    'name': '2026',
+                    'data': [0.1, 0.2]
+                },
+                {
+                    'name': '2027',
+                    'data': [0.3, 0.4]
+                },
+            ],
+            'credits': {'enabled': False}
+        }
+    ).classes('w-64 h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_44](nicegui_pro.assets/2026_54_44.png)
+
+从上面的示例看，传给控件的配置几乎全部通过`options`参数传递，因此，该参数的相关用法主要参考Highcharts框架文档（https://www.highcharts.com/docs/index#api）。
+
+该控件支持以下参数：
+
+- `options`参数，字典类型，表示图表定义。
+
+- `type`参数，字符串类型（仅支持`['chart','stockChart','mapChart','ganttChart']`中的值），表示要绘制的图表大类，默认是`'chart'`，即官网文档中的`Highcharts.chart`（常规图表），如果想绘制其他图表。比如`Highcharts.stockChart`（股票图），则需要设置此参数为`'stockChart'`，同时给`extras`参数传入`'stock'`。
+
+  从该参数开始，只能通过关键字传入。
+
+- `extras`参数，元素为字符串的列表，表示需要额外导入的模块。有些图表的实现在其他JavaScript模块中，需要将模块对应的名字传给该参数，以下为需要额外导入的模块名：
+
+  ```python3
+  [
+      'accessibility',
+      'annotations',
+      'annotations-advanced',
+      'arc-diagram',
+      'arrow-symbols',
+      'boost',
+      'boost-canvas',
+      'broken-axis',
+      'bullet',
+      'coloraxis',
+      'current-date-indicator',
+      'cylinder',
+      'data',
+      'data-tools',
+      'datagrouping',
+      'debugger',
+      'dependency-wheel',
+      'dotplot',
+      'drag-panes',
+      'draggable-points',
+      'drilldown',
+      'dumbbell',
+      'export-data',
+      'exporting',
+      'flowmap',
+      'full-screen',
+      'funnel',
+      'funnel3d',
+      'gantt',
+      'geoheatmap',
+      'grid-axis',
+      'heatmap',
+      'heikinashi',
+      'histogram-bellcurve',
+      'hollowcandlestick',
+      'item-series',
+      'lollipop',
+      'map',
+      'marker-clusters',
+      'mouse-wheel-zoom',
+      'navigator',
+      'networkgraph',
+      'no-data-to-display',
+      'non-cartesian-zoom',
+      'offline-exporting',
+      'organization',
+      'parallel-coordinates',
+      'pareto',
+      'pathfinder',
+      'pattern-fill',
+      'pictorial',
+      'pointandfigure',
+      'price-indicator',
+      'pyramid3d',
+      'renko',
+      'sankey',
+      'series-label',
+      'series-on-point',
+      'solid-gauge',
+      'sonification',
+      'static-scale',
+      'stock',
+      'stock-tools',
+      'streamgraph',
+      'sunburst',
+      'textpath',
+      'tiledwebmap',
+      'tilemap',
+      'timeline',
+      'treegraph',
+      'treegrid',
+      'treemap',
+      'variable-pie',
+      'variwide',
+      'vector',
+      'venn',
+      'windbarb',
+      'wordcloud',
+      'xrange'
+  ]
+  ```
+
+- `on_point_click`参数，可调用类型，表示图表上的点被点击时执行的操作。
+
+- `on_point_drag_start`参数，可调用类型，表示图表上的点开始拖动时（需要设置图表允许拖动点）执行的操作。
+
+- `on_point_drag`参数，可调用类型，表示图表上的点处于拖动状态时（需要设置图表允许拖动点）执行的操作。
+
+- `on_point_drop`参数，可调用类型，表示图表上的点放下时（需要设置图表允许拖动点）执行的操作。
+
+该控件支持以下属性：
+
+- `options`属性，用法、含义同`options`参数。
+
+#### 54.5.2 扩展用法（更新中）
+
+##### 54.5.2.1 允许拖动点时的响应情况
+
+如果图表允许拖动点，则可以注册所有事件来响应拖动操作：
+
+- `on_point_click`：点击点。
+- `on_point_drag_start`：开始拖动点。
+- `on_point_drag`：点被拖动时。
+- `on_point_drop`：点被放下时。
+
+示例如下：
+
+```python3
+from nicegui import ui
+from nicegui_highcharts import events
+
+def handle_event(e: events.ChartEventArguments):
+    print(f'{e.event_type}: x is {e.point_x if hasattr(e, 'point_x') else None}, y is {e.point_y if hasattr(e, 'point_y') else None}.')
+
+def index():
+    ui.highchart(
+        {
+            'title': False,
+            'plotOptions': {
+                'series': {
+                    'stickyTracking': False,
+                    'dragDrop': {'draggableY': True, 'dragPrecisionY': 1},
+                },
+            },
+            'series': [
+                {'name': 'A', 'data': [[20, 10], [30, 20], [40, 30]]},
+                {'name': 'B', 'data': [[50, 40], [60, 50], [70, 60]]},
+            ],
+            'credits': {'enabled': False}
+        },
+        extras=['draggable-points'],
+        on_point_click=handle_event,
+        on_point_drag_start=handle_event,
+        on_point_drag=handle_event,
+        on_point_drop=handle_event
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+得到的结果输出（部分）如下：
+
+```shell
+point_drag_start: x is None, y is None.
+point_drag: x is 20, y is 22.
+point_drag: x is 20, y is 23.
+point_drag: x is 20, y is 30.
+point_drop: x is 20, y is 30.
+point_drag_start: x is None, y is None.
+point_click: x is 20, y is 30.
+point_drag_start: x is None, y is None.
+point_click: x is 30, y is 43.
+```
+
+可以看到，拖动一个点总是包含拖动开始、拖动时、放下三个动作；如果是在允许拖动点时点击点，则会触发开始拖动（鼠标左键按下时触发）和点击（鼠标左键松开时触发）这两个动作。
+
+##### 54.5.2.2 何时需要额外导入模块（`extras`参数）
+
+`extras`参数表示需要额外导入的模块，
+
+
+
+判断是否需要额外导入模块？
+
+以下面为例：
+
+https://api.highcharts.com/highcharts/plotOptions.solidgauge
+
+
+
+##### 54.5.2.3 （）
+
+
+
+图表定义的基本组成
+
+https://www.highcharts.com/docs/chart-concepts/understanding-highcharts
+
+
+
+图表类型的定义方式：
+
+https://www.highcharts.com/docs/chart-and-series-types/chart-types
+
+组合多种图表：
+
+https://www.highcharts.com/docs/chart-and-series-types/combining-chart-types
+
+
+
+（根据官网文档扩展出其他小节）
 
 
 
 ### 54.6 `ui.echart`控件（更新中）
+
+
+
+https://nicegui.io/documentation/echart
+
+https://echarts.apache.org/zh/index.html
+
+https://echarts.apache.org/handbook/zh/get-started/
+
+https://echarts.apache.org/zh/option.html
 
 
 
@@ -2317,7 +3591,6 @@ ui.run(
 ```javascript
 window.location.reload(true)
 ```
-
 
 
 

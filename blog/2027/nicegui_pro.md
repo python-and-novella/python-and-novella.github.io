@@ -2449,7 +2449,7 @@ ui.run(
 
   ![2026_54_43](nicegui_pro.assets/2026_54_43.png)
 
-### 54.5 `ui.highchart`控件（更新中）
+### 54.5 `ui.highchart`控件
 
 #### 54.5.1 基本用法
 
@@ -2459,7 +2459,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/highchart
 
 Highcharts框架文档：https://www.highcharts.com/docs/index#api 和 https://api.highcharts.com/
 
-注意，`ui.highchart`控件依赖`nicegui-highcharts`库，需要先安装依赖库才能使用对应控件。可以参考安装NiceGUI一章，使用`uv add nicegui[highcharts]`命令提前添加依赖库。另外，商用需要购买商业许可，如有商用需求，请到官网（https://www.highcharts.com/）购买许可。
+注意，`ui.highchart`控件依赖`nicegui-highcharts`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[highcharts]`命令提前添加依赖库。另外，商用需要购买商业许可，如有商用需求，请到官网（https://www.highcharts.com/）购买许可。
 
 先看示例：
 
@@ -2499,7 +2499,7 @@ ui.run(
 
 ![2026_54_44](nicegui_pro.assets/2026_54_44.png)
 
-从上面的示例看，传给控件的配置几乎全部通过`options`参数传递，因此，该参数的相关用法主要参考Highcharts框架文档（https://www.highcharts.com/docs/index#api）。
+从上面的示例看，图表定义几乎全部通过`options`参数传递，因此，该参数的相关用法主要参考Highcharts框架文档（https://www.highcharts.com/docs/index#api）。
 
 该控件支持以下参数：
 
@@ -2607,7 +2607,7 @@ ui.run(
 
 - `options`属性，用法、含义同`options`参数。
 
-#### 54.5.2 扩展用法（更新中）
+#### 54.5.2 扩展用法
 
 ##### 54.5.2.1 允许拖动点时的响应情况
 
@@ -2674,59 +2674,1051 @@ point_click: x is 30, y is 43.
 
 ##### 54.5.2.2 何时需要额外导入模块（`extras`参数）
 
-`extras`参数表示需要额外导入的模块，
+`extras`参数表示需要额外导入的模块，但是，判断是否需要额外导入模块前面没说，用起来的时候难免让人头疼。
 
+要是每个模块都说一遍，篇幅会变得冗长。因此，这里以具体代码为例，讲一下识别的方法。
 
+先看代码：
 
-判断是否需要额外导入模块？
+```python3
+from nicegui import ui
 
-以下面为例：
+def index():
+    ui.highchart(
+        {
+            'title': False,
+            'chart': {'type': 'solidgauge'},
+            'yAxis': {
+                'min': 0,
+                'max': 1,
+            },
+            'series': [
+                {'data': [0.42]},
+            ],
+            'credits': {'enabled': False}
+        },
+        extras=['solid-gauge']
+    ).classes('w-full h-64')
 
-https://api.highcharts.com/highcharts/plotOptions.solidgauge
+ui.run(
+    root=index,
+    native=True
+)
+```
 
+![2026_54_45](nicegui_pro.assets/2026_54_45.png)
 
+图表定义中，`'chart'`键表示图表的具体配置（用法参考 https://api.highcharts.com/highcharts/chart，这里只是简单介绍，后面会详细介绍），其子键`'type'`（用法参考 https://api.highcharts.com/highcharts/chart.type ）表示默认的图表类型，其支持的类型可以参考 https://api.highcharts.com/highcharts/plotOptions 。
 
-##### 54.5.2.3 （）
+回到示例中，可以看到示例中使用的是`'solidgauge'`。访问 https://api.highcharts.com/highcharts/plotOptions.solidgauge ，可以看到该图表类型的具体介绍：
 
+![2026_54_46](nicegui_pro.assets/2026_54_46.png)
 
+注意图中红色方框内的部分，这里提示了该图表类型所需要的模块。一般来说，写了“modules/*”的，表明该功能需要额外导入模块。因此，可以对照`extras`参数中提供的需要额外导入的模块名（`'solid-gauge'`），传给`extras`参数。
 
-图表定义的基本组成
+类似的，上一节中为了启用拖动点的功能，配置了以下字典（局部）：
 
-https://www.highcharts.com/docs/chart-concepts/understanding-highcharts
+```python3
+'plotOptions': {
+    'series': {
+        'stickyTracking': False,
+        'dragDrop': {
+            'draggableY': True, 
+            'dragPrecisionY': 1
+        },
+    },
+},
+```
 
+对照字典的层级，需要查阅 https://api.highcharts.com/highcharts/plotOptions.series.dragDrop ，结果如下：
 
+![2026_54_47](nicegui_pro.assets/2026_54_47.png)
 
-图表类型的定义方式：
+基于前面的内容可知，需要给`extras`参数传入`['draggable-points']`。
 
-https://www.highcharts.com/docs/chart-and-series-types/chart-types
+##### 54.5.2.3 图表定义的基本组成
 
-组合多种图表：
+前面介绍确定需要额外导入的模块时，简单涉及了如何查阅官方文档，也涉及到一部分图表定义。本节就顺着这个思路，先简单总览一下图表定义的基本组成，然后在后面的内容中介绍一部分常用的图表定义。至于其他没有介绍到的图表定义，读者可以在学习相关思路之后自行探索，或者期待笔者后续更新的教程。
 
-https://www.highcharts.com/docs/chart-and-series-types/combining-chart-types
+先看官网教程 https://www.highcharts.com/docs/chart-concepts/understanding-highcharts ，可以看到如下图片：
 
+![2026_54_48](nicegui_pro.assets/2026_54_48.png)
 
+这里就通过图表的基本组成，带出了相关的图表定义（部分，可以点击官方教程下面对应链接，跳转至对应图表定义的具体介绍）：
 
-（根据官网文档扩展出其他小节）
+- 标题（Title），对应图表定义中的`'title'`键。
+- 坐标轴（Axes），对应图表定义中的`'xAxis'`键和`'yAxis'`键。
+- 系列（Series），对应图表定义中的`'series'`键，表示的是图表中每组数据及其对应的图表。绘制图表所需的数据、图表对应的样式，可以在该键中定义。另外，部分在图表定义中与系列为同一层级的定义（比如图表类型、坐标轴等），在系列每组数据中也可以单独定义，并且优先生效。
+- 图例（Legend），对应图表定义中的`'legend'`键。
+- 工具提示（Tooltip），对应图表定义中的`'tooltip'`键。
 
+##### 54.5.2.4 图表类型的定义途径
 
+本节参考文档：
 
-### 54.6 `ui.echart`控件（更新中）
+图表类型的定义方式：https://www.highcharts.com/docs/chart-and-series-types/chart-types
 
+组合多种图表：https://www.highcharts.com/docs/chart-and-series-types/combining-chart-types
 
+有两种定义图表类型的途径：
 
-https://nicegui.io/documentation/echart
+1. `'chart'`键的`'type'`键。
+2. `'series'`键的`'type'`键。
 
-https://echarts.apache.org/zh/index.html
+其中，途径1表示默认图表类型，每组数据默认为该类型的图表。而途径2表示该组数据对应的图表类型，优先级比途径1高。对于某些相似的图表类型，使用途径2可以在同一个控件中展示相同或者不同数据的对比效果：
 
-https://echarts.apache.org/handbook/zh/get-started/
+```python3
+from nicegui import ui
 
-https://echarts.apache.org/zh/option.html
+def index():
+    ui.highchart(
+        {
+            'chart':{
+                'type':'scatter',
+            },
+            'series': [
+                {'data': [2,3,4],'type': 'area',},
+                {'data': [2,3,4],'type': 'column'},
+                {'data': [3,4,5]},
+            ],
+            'xAxis':{
+                'categories':[
+                    'a',
+                    'b',
+                    'c'
+                ],
+            }
+        },
+    ).classes('w-full h-64')
 
+ui.run(
+    root=index,
+    native=True
+)
+```
 
+![2026_54_49](nicegui_pro.assets/2026_54_49.png)
 
+##### 54.5.2.5 坐标轴的定义
 
+本节参考文档：https://www.highcharts.com/docs/chart-concepts/axes 和 https://api.highcharts.com/highcharts/xAxis 和 https://api.highcharts.com/highcharts/yAxis
+
+图表定义中的`'xAxis'`键和`'yAxis'`键，分别对应X轴和Y轴，一般的图表都是X轴在下，Y轴在左，不过部分图表默认的坐标轴位置是互换的，这个以具体图表的显示为准。
+
+坐标轴相关的图表定义有不少，这里简单介绍一些常用的：
+
+- `'categories'`键，列表类型，表示该坐标轴对应数值的名字，用于代替默认的数值。
+- `'labels'`键，用的是子键`format`，字符串类型，表示数值格式化之后的显示内容，使用类似Python格式化字符串（f-string）的语法，其中`value`表示数值，比如`'{value}个'`。
+- `'title'`键，一般用的是子键`text`，字符串类型，表示坐标轴对应的标题。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'chart':{
+                'type':'scatter',
+            },
+            'series': [
+                {'data': [3,4,5]},
+            ],
+            'xAxis':{
+                'categories':[
+                    'a',
+                    'b',
+                    'c'
+                ],
+                'labels':{
+                    'format': '{value}项',
+                },
+                'title':{
+                    'text':'X轴'
+                }
+            },
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_50](nicegui_pro.assets/2026_54_50.png)
+
+##### 54.5.2.6 `'series'`键
+
+本节参考文档：https://www.highcharts.com/docs/chart-concepts/series
+
+`'series'`键表示的是图表中每组数据及其对应的图表，该键是元素为字典的列表，每个字典都代表一组数据或者一个图表的维度。
+
+前面已经介绍了表示图表类型的`'type'`子键，接下来介绍与之相关的其他子键：
+
+- `'name'`键，字符串类型，表示该组数据的名称。
+- `'data'`键，列表类型，表示具体数据（Y坐标）。列表的元素除了普通的浮点数、整数外，还可以是字典。则此时字典的`'y'`键表示Y坐标，`'name'`键表示该点的名称，`'color'`键表示该点的颜色。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'name':'a',
+                    'data': [
+                        3,4,5,
+                        {
+                            'y':4,
+                            'name':'a点',
+                            'color':'red'
+                        }
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_51](nicegui_pro.assets/2026_54_51.png)
+
+##### 54.5.2.7 常见的图表类型
+
+本节参考文档：https://www.highcharts.com/docs/chart-and-series-types/chart-types
+
+前面介绍了图表类型的定义途径（`'type'`键），其参考文档提供了一些常用的图表类型，这里简单提供一下示例，便于读者参考。
+
+`'line'`表示线形图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'line',
+                    'name':'a',
+                    'data': [
+                        3,4,5,
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_52](nicegui_pro.assets/2026_54_52.png)
+
+`'spline'`表示平滑线形图。示例如下：
+
+ ```python3
+ from nicegui import ui
+ 
+ def index():
+     ui.highchart(
+         {
+             'series': [
+                 {
+                     'type':'spline',
+                     'name':'a',
+                     'data': [
+                         3,1,3,
+                     ],
+                 },
+             ],
+         },
+     ).classes('w-full h-64')
+ 
+ ui.run(
+     root=index,
+     native=True
+ )
+ ```
+
+![2026_54_53](nicegui_pro.assets/2026_54_53.png)
+
+`'area'`表示面积图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'area',
+                    'name':'a',
+                    'data': [
+                        3,4,5,
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_54](nicegui_pro.assets/2026_54_54.png)
+
+`'areaspline'`表示平滑面积图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'areaspline',
+                    'name':'a',
+                    'data': [
+                        3,1,3,
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_55](nicegui_pro.assets/2026_54_55.png)
+
+`'column'`表示柱状图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'column',
+                    'name':'a',
+                    'data': [
+                        3,4,5,
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_56](nicegui_pro.assets/2026_54_56.png)
+
+`'bar'`表示条形图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'bar',
+                    'name':'a',
+                    'data': [
+                        3,4,5,
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_57](nicegui_pro.assets/2026_54_57.png)
+
+`'pie'`表示饼状图。示例如下： 
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'pie',
+                    'name':'a',
+                    'data': [
+                        {
+                            'name':'a',
+                            'y':3,
+                        },
+                        {
+                            'name':'b',
+                            'y':4,
+                        },
+                        {
+                            'name':'c',
+                            'y':5,
+                        }
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_58](nicegui_pro.assets/2026_54_58.png)
+
+`'scatter'`表示散点图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'scatter',
+                    'name':'a',
+                    'data': [
+                        3,4,5,
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_59](nicegui_pro.assets/2026_54_59.png)
+
+`'gauge'`表示仪表图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'gauge',
+                    'name':'a',
+                    'data': [
+                        3
+                    ],
+                },
+            ],
+            'yAxis': {
+                'min': 0,
+                'max': 10,
+            }
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_60](nicegui_pro.assets/2026_54_60.png)
+
+`'arearange'`表示面积范围图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'arearange',
+                    'name':'a',
+                    'data': [
+                        [3,4],
+                        [4,5],
+                        [3,4]
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_61](nicegui_pro.assets/2026_54_61.png)
+
+`'areasplinerange'`表示平滑面积范围图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'areasplinerange',
+                    'name':'a',
+                    'data': [
+                        [3,4],
+                        [4,5],
+                        [3,4]
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_62](nicegui_pro.assets/2026_54_62.png)
+
+`'columnrange'`表示柱状范围图。示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.highchart(
+        {
+            'series': [
+                {
+                    'type':'columnrange',
+                    'name':'a',
+                    'data': [
+                        [3,4],
+                        [4,5],
+                        [3,4]
+                    ],
+                },
+            ],
+        },
+    ).classes('w-full h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_63](nicegui_pro.assets/2026_54_63.png)
+
+### 54.6 `ui.echart`控件
+
+#### 54.6.1 基本用法
+
+下面是`ui.echart`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/echart
+
+ECharts框架文档：https://echarts.apache.org/zh/option.html 和 https://echarts.apache.org/zh/api.html
+
+相比于HighCharts框架，ECharts框架的许可协议更友好，也不需要购买商用许可，而且官网文档有中文版本，因此更受中国用户喜欢。
+
+本控件的主要用法需要读者了解ECharts，如果没有相关基础，可以先去看看ECharts官网的入门文档（ https://echarts.apache.org/handbook/zh/get-started/ ）。
+
+先看示例：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.echart(
+        options={
+            'title': {'text': 'A and B'},
+            'xAxis': {
+                'type':'value'
+            },
+            'yAxis': {
+                'type':'category',
+                'data':['A','B'],
+                'inverse':True
+            },
+            'legend': {
+                'textStyle': {
+                    'color': 'black'
+                }
+            },
+            'series': [
+                {
+                    'name': '2026',
+                    'data': [0.1, 0.2],
+                    'type': 'bar'
+                },
+                {
+                    'name': '2027',
+                    'data': [0.3, 0.4],
+                    'type': 'bar'
+                },
+            ],
+        }
+    ).classes('w-64 h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_64](nicegui_pro.assets/2026_54_64.png)
+
+从上面的示例看，图表定义几乎全部通过`options`参数传递，控件用法与图表定义语法几乎和`ui.highchart`控件一样。从表明看是这样，但在看过控件的参数和ECharts框架的文档之后，就不能这样想当然了。使用的框架不同，图表定义语法也不会完全相同，控件的参数也不同。
+
+该控件支持以下参数：
+
+- `options`参数，字典类型，表示图表定义。
+
+- `on_point_click`参数，可调用类型，当点击数据点时执行的操作。
+
+- `on_click`参数，可调用类型，当点击任意图表组件时执行的操作（需要对应图表组件启用事件触发，即启用`'triggerEvent'`键）。
+
+  从该参数开始，只能通过关键字传入。
+
+- `enable_3d`参数，布尔类型，是否强制导入`echarts-gl`库，这样做会启用三维立体显示效果。
+
+- `renderer`参数，字符串类型（仅支持`['canvas', 'svg']`中的值），表示将图表渲染为什么格式的数据，默认为`'canvas'`。注意，关于参数值的区别，可以参考 https://echarts.apache.org/handbook/zh/best-practices/canvas-vs-svg 。
+
+- `theme`参数，字符串类型或者字典类型，表示图表的主题。
+
+该控件支持以下属性：
+
+- `options`属性，用法、含义同`options`参数。
+
+该控件支持以下方法：
+
+- `on_point_click`方法，为点击数据点注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示点击数据点时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`EChartPointClickEventArguments`类型，其`sender`属性表示触发事件的控件本身。
+- `on_click`方法，为点击任意图表组件注册响应函数。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示点击任意图表组件时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`EChartComponentClickEventArguments`类型，其`sender`属性表示触发事件的控件本身。
+- `run_chart_method`方法，运行图表支持的方法（参考 https://echarts.apache.org/zh/api.html#echartsInstance ）。该方法支持以下参数：
+  - `name`参数，字符串类型，表示方法名。
+  - `*args`参数，表示传给被执行方法的参数。
+  - `timeout`参数，关键字参数，浮点类型，表示超时时间（单位秒），因为是异步返回，超过一定时间就不再等待结果，默认为`1`。
+
+该控件支持以下类方法：
+
+- `from_pyecharts`方法，使用`pyecharts`库提供的接口创建图表。该方法支持以下参数：
+  - `chart`参数，`Chart`类型，表示`pyecharts`库提供的图表对象。
+  - `on_point_click`参数，可调用类型，当点击数据点时执行的操作。
+
+#### 54.6.2 扩展用法
+
+##### 54.6.2.1 图表定义
+
+本节参考文档：https://echarts.apache.org/zh/option.html
+
+和`ui.highchart`控件类似，该控件的用法也主要在图表定义中。另外，该控件的图表定义与之相似，仅部分概念存在差异。因此，这里简单介绍一些常用的图表定义，其他的图表定义可以在官网文档查询，或者后续遇到的时候再讲。
+
+![2026_54_65](nicegui_pro.assets/2026_54_65.png)
+
+通过上图可以看出图表的基本组成：
+
+- 标题（Title），对应图表定义中的`'title'`键。
+- 坐标轴（Axis），对应图表定义中的`'xAxis'`键和`'yAxis'`键。
+- 系列（Series），对应图表定义中的`'series'`键，表示的是图表中每组数据及其对应的图表。绘制图表所需的数据、图表类型、图表对应的样式，可以在该键中定义。
+- 图例（Legend），对应图表定义中的`'legend'`键。
+- 工具提示（Tooltip），对应图表定义中的`'tooltip'`键。
+
+需要注意的是，图表类型只能在`'series'`键中定义。
+
+##### 54.6.2.2 `from_pyecharts`方法
+
+本节参考文档：https://pyecharts.org/#/zh-cn/quickstart
+
+和`ui.plotly`控件类似，该控件可以通过`from_pyecharts`方法使用`pyecharts`库提供的接口，简化图表的创建。
+
+示例如下：
+
+```python3
+from nicegui import ui
+import pyecharts
+
+def index():
+    ui.echart.from_pyecharts(
+        pyecharts.charts.Line().add_xaxis(
+            ['a','b','c']
+        ).add_yaxis(
+            'A',[1,2,3]
+        )
+    ).classes('w-64 h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_66](nicegui_pro.assets/2026_54_66.png)
+
+上面的示例看起来紧凑，但有点不好理解，那是因为`pyecharts`库提供的方法和NiceGUI控件的部分方法一样支持链式调用。那么，将链式调用拆成单独的步骤，就容易理解`pyecharts`库的用法了：
+
+```python3
+from nicegui import ui
+import pyecharts
+
+def index():
+    chart = pyecharts.charts.Line()
+    chart.add_xaxis(
+        ['a','b','c']
+    )
+    chart.add_yaxis(
+        'A',[1,2,3]
+    )
+    ui.echart.from_pyecharts(
+        chart
+    ).classes('w-64 h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+可以看到，`from_pyecharts`方法接收的`Chart`对象由`pyecharts`库的`charts`模块提供，主要步骤为：
+
+1. 实例化`Chart`对象。
+2. 调用该对象的`add_xaxis`方法、`add_yaxis`方法来配置X轴、Y轴。
+3. 将配置好的`Chart`对象传给`from_pyecharts`方法。
+
+上面的步骤是快速创建图表的过程，如果想配置图表定义，则要借助`pyecharts`库的`options`模块提供的类，使用以下方法来配置：
+
+- `set_series_opts`方法，用于配置图表定义中的`'series'`键的部分，相关参数对应类型的含义可参考 https://pyecharts.org/#/zh-cn/series_options 。
+- `set_global_opts`方法，用于配置图表定义中的除了`'series'`键以外的部分，相关参数对应类型的含义可参考 https://pyecharts.org/#/zh-cn/global_options 。
+
+示例如下：
+
+```python3
+from nicegui import ui
+import pyecharts
+
+def index():
+    chart = pyecharts.charts.Line()
+    chart.add_xaxis(
+        ['a','b','c']
+    )
+    chart.add_yaxis(
+        'A',
+        [
+            pyecharts.options.LineItem(value=i) 
+            for i in [1,2,3]
+        ], 
+    )
+    chart.options.get('series').append({
+        'name':'B',
+        'data':[1,2,3],
+        'type':'bar'
+    })
+    chart._append_legend('B')
+    chart.set_series_opts(
+        label_opts=pyecharts.options.LabelOpts(
+            color='red',
+            formatter='{c}%'
+        ),
+    )
+    chart.set_global_opts(
+        title_opts=pyecharts.options.TitleOpts(
+            title='Python',
+        ),
+    )
+    ui.echart.from_pyecharts(
+        chart
+    ).classes('w-64 h-64')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_67](nicegui_pro.assets/2026_54_67.png)
+
+##### 54.6.2.3 图表方法
+
+本节参考文档：https://echarts.apache.org/zh/api.html#echartsInstance
+
+使用`run_chart_method`方法可以运行图表方法，本节简单介绍几个常用的图表方法。
+
+`setOption`方法，用于修改图表定义。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    chart = ui.echart(
+        options={
+            'xAxis': {
+                'type':'category',
+                'data':['a','b','c'],
+                'splitLine':{
+                    'show':True
+                }
+            },
+            'yAxis': {
+                'type':'value',
+            },
+            'legend':{'show':True},
+            'series': [
+                {
+                    'name': 'A',
+                    'data': [1,2,3],
+                    'type': 'line',
+                    'label':{
+                        'show':True
+                    }
+                },
+            ],
+        }
+    ).classes('w-64 h-64')
+    method_name = 'setOption'
+    ui.button(
+        method_name,
+        on_click=lambda:chart.run_chart_method(
+            method_name,
+            {
+                'xAxis': {
+                    'data':['甲','乙','丙'],
+                },
+            }
+        )
+    ).props('no-caps')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_68](nicegui_pro.assets/2026_54_68.png)
+
+其实，不用图表方法，直接修改控件的`options`属性也能实现相同的效果：
+
+```python3
+from nicegui import ui
+
+def index():
+    chart = ui.echart(
+        options={
+            'xAxis': {
+                'type':'category',
+                'data':['a','b','c'],
+                'splitLine':{
+                    'show':True
+                }
+            },
+            'yAxis': {
+                'type':'value',
+            },
+            'legend':{'show':True},
+            'series': [
+                {
+                    'name': 'A',
+                    'data': [1,2,3],
+                    'type': 'line',
+                    'label':{
+                        'show':True
+                    }
+                },
+            ],
+        }
+    ).classes('w-64 h-64')
+    method_name = 'setOption'
+    ui.button(
+        method_name,
+        on_click=lambda:chart.options.update(
+            {
+                'xAxis': {
+                    'data':['甲','乙','丙'],
+                },
+            }
+        )
+    ).props('no-caps')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+`resize`方法，调整图表的大小。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    chart = ui.echart(
+        options={
+            'xAxis': {
+                'type':'category',
+                'data':['a','b','c'],
+                'splitLine':{
+                    'show':True
+                }
+            },
+            'yAxis': {
+                'type':'value',
+            },
+            'legend':{'show':True},
+            'series': [
+                {
+                    'name': 'A',
+                    'data': [1,2,3],
+                    'type': 'line',
+                    'label':{
+                        'show':True
+                    }
+                },
+            ],
+        }
+    ).classes('w-64 h-64')
+    method_name = 'resize'
+    ui.button(
+        method_name,
+        on_click=lambda:chart.run_chart_method(
+            method_name,
+            {
+                'width':300,
+                'height':200
+            }
+        )
+    ).props('no-caps')
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_69](nicegui_pro.assets/2026_54_69.png)
+
+##### 54.6.2.4 图表事件
+
+本节参考文档：https://echarts.apache.org/zh/api.html#events
+
+前面介绍的`on_click`参数、`on_point_click`参数、`on_click`方法、`on_point_click`方法可以设置图表数据点、组件的点击事件响应函数。
+
+对于其他其他图表事件，则可以使用`on`方法设置响应函数，但需要注意的是，实际使用的事件名，当为加了“chart:”前缀的图表事件名（具体事件名可以查询 https://echarts.apache.org/zh/api.html#events ）。 
+
+比如，想要给图表的`selectchanged`事件（事件完整用法参考 https://echarts.apache.org/zh/api.html#events.selectchanged ）设置响应函数：
+
+```python3
+from nicegui import ui
+
+def index():
+    chart = ui.echart(
+        options={
+            'xAxis': {
+                'type':'category',
+                'data':['a','b','c'],
+                'splitLine':{
+                    'show':True
+                }
+            },
+            'yAxis': {
+                'type':'value',
+            },
+            'legend':{'show':True},
+            'series': [
+                {
+                    'name': 'A',
+                    'data': [1,2,3],
+                    'type': 'line',
+                    'label':{
+                        'show':True
+                    }
+                },
+            ],
+        }
+    ).classes('w-64 h-64')
+    chart.on(
+        'chart:selectchanged', 
+        lambda e: label.set_text(
+            str(e.args)
+        )
+    )
+    label = ui.label()
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+点击（选择）任意点即可看到类似下图的效果：
+
+![2026_54_70](nicegui_pro.assets/2026_54_70.png)
 
 ### 54.7 `ui.altair`控件（更新中）
+
+#### 54.7.1 基本用法
+
+下面是`ui.altair`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/altair
+
+Vega-Altair框架文档：https://altair-viz.github.io/user_guide/interactions/jupyter_chart.html#accessing-variable-params
+
+注意，`ui.altair`控件依赖`altair`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[altair]`命令提前添加依赖库。
+
+先看示例：
+
+```python3
+```
 
 
 
@@ -2744,7 +3736,11 @@ https://echarts.apache.org/zh/option.html
 
 基于各方面的考量，2027版除了延续2026版的计划，继续介绍其他控件之外，将尽量减少单章的内容量，只介绍一个控件的基本概念（参数、属性、方法）和必要扩展（槽、控件方法），加快更新节奏。同时，也欢迎对NiceGUI感兴趣的读者积极参与互动，让各位的问题及时得到解答。
 
-## 55 学习控件——`ui.column`控件（更新中）
+## 55 学习控件——创建布局的`ui.column`控件和`ui.row`控件（更新中）
+
+
+
+
 
 
 

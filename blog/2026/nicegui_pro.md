@@ -7169,6 +7169,76 @@ ui.run()
 
 ![2026_30_2](nicegui_pro.assets/2026_30_2.png)
 
+## 版本速览——3.11.0版本新增`ui.keep_alive`控件
+
+NiceGUI 3.11.0 新增以下功能：
+
+- `ui.run`方法的`favicon`参数为本地图标文件时，在Windows系统上的窗口模式中会变成窗口图标。
+- ``ui.run``方法和`ui.page`类新增`markdown`参数（布尔类型），表示是否为AI工具提供页面的Markdown格式版本，以减少AI工具获取页面时的Token消耗。
+- 部分容器类控件新增`make_sortable`方法，用于启用拖放排序容器内项目的功能。该功能的用法可以参考 https://nicegui.io/documentation/sortable 。
+- 新增`ui.keep_alive`控件，可以保活其他控件。该控件的用法可以参考 https://nicegui.io/documentation/keep_alive 。
+
+`make_sortable`方法的示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.column()as col:
+        for i in [
+            'a','b','c'
+        ]:
+            ui.label(i).classes('border-2')
+    col.make_sortable()
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+可以拖动控件重新排序：
+
+![2026_3.11.0_1](nicegui_pro.assets/2026_3.11.0_1.png)
+
+所谓保活，就是指部分控件的状态、数据、与后端的连接，在控件不可见时（比如切换`ui.tab_panel`控件对应的选项卡时、`ui.dialog`控件或`ui.menu`控件关闭时）会随之销毁，需要通过挂载在VUE的 live component 下，让前端始终保存这些数据、后端始终与这些控件保持连接。
+
+注意，保活会消耗额外的内存、性能，并且仅在当前页面生效，无法跨页面、窗口、链接。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.tabs() as tabs:
+        ui.tab('one')
+        ui.tab('two')
+    with ui.tab_panels(
+        tabs, 
+        value='one',
+        keep_alive=False
+    ):
+        with ui.tab_panel('one'):
+            terminal_1 = ui.xterm({'cols': 28, 'rows': 9})
+        with ui.tab_panel('two'):
+            with ui.keep_alive():
+                terminal_2 = ui.xterm({'cols': 28, 'rows': 9})
+    ui.button('write to terminal_1', on_click=lambda: terminal_1.writeln('Hello, NiceGUI!'))
+    ui.button('write to terminal_2', on_click=lambda: terminal_2.writeln('Hello, NiceGUI!'))
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_3.11.0_2](nicegui_pro.assets/2026_3.11.0_2.png)
+
+注意，`ui.tab_panels`控件在当前版本`keep_alive`参数默认为`True`，相当于这个控件内都和`ui.keep_alive`控件内效果一样，因此示例中将该参数设置为`False`。
+
+上面示例中，点击按钮可以在对应选项卡内的终端中输出内容。但是，只有放置在`ui.keep_alive`控件中的终端不会因为切换选项卡而清空终端已经输出的内容。
+
 ## 31 对话框背景模糊
 
 前面更新太多长章节，本章简单一点，提供一个简单的示例。
@@ -7409,7 +7479,7 @@ ui.run(
 )
 ```
 
-`favicon`参数，字符串类型或者`Path`类型，表示网站在标题栏的图标。
+`favicon`参数，字符串类型或者`Path`类型，表示网站在标题栏的图标。当该参数为本地图标文件时，在Windows系统上的窗口模式中会变成窗口图标。
 
 如果该参数为单个字符（可以是汉字、emoji符号等单个unicode字符），则标题栏图标直接为该字符，例如：`ui.run(favicon='🚀')`。
 
@@ -7640,6 +7710,8 @@ ui.run(
 `session_middleware_kwargs`参数，字典类型，表示传递给`starlette.middleware.sessions.SessionMiddleware`的额外关键字参数，用于创建浏览器会话cookie。
 
 `show_welcome_message`参数，布尔类型，表示是否在终端显示欢迎信息（即终端显示的可以直接访问主页面的所有地址），默认为`True`。
+
+`markdown`参数，布尔类型，表示是否为AI工具提供页面的Markdown格式版本，以减少AI工具获取页面时的Token消耗。
 
 `**kwargs`参数，除了上面部分参数外，还可以通过关键字的形式，传入其他`uvicorn.Server`类支持的初始化参数。比如下面两个实用的参数：
 

@@ -3711,20 +3711,118 @@ ui.run(
 
 NiceGUI框架文档：https://nicegui.io/documentation/altair
 
-Vega-Altair框架文档：https://altair-viz.github.io/user_guide/interactions/jupyter_chart.html#accessing-variable-params
+Vega-Altair框架文档：https://altair-viz.github.io/getting_started/overview.html 和 https://altair-viz.github.io/user_guide/api.html
 
 注意，`ui.altair`控件依赖`altair`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[altair]`命令提前添加依赖库。
 
 先看示例：
 
 ```python3
+from nicegui import ui
+import altair
+import pandas as pd
+
+def index():
+    ui.altair(
+        altair.Chart(
+            pd.DataFrame(
+                {
+                    'x': [
+                        'A', 'B', 'C', 'D', 'E'
+                    ],
+                    'y': [
+                        5, 3, 6, 7, 2
+                    ]
+                }
+            )
+        ).mark_bar().encode(
+            x='x',
+            y='y',
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
 ```
 
+![2026_54_71](nicegui_pro.assets/2026_54_71.png)
+
+这是前面该控件的示例，看上去有点难以理解，与本章其他图表控件的用法相比显得“特立独行”，而且用了`pandas`库来处理数据。当然，并不是说这个库不好，恰恰相反，这个库在数据处理领域做得太好了，太多人对它很熟悉，也很依赖。因此该控件推荐使用这个库处理过的数据。
+
+不过，为了方便学习该控件，这里先暂时不用这个库，使用Python的标准数据类型实现一下相同的效果，这样就得到类似本章前面几个控件的用法：
+
+```python3
+from nicegui import ui
+import altair
+
+chart = altair.Chart(
+    data={
+        'values': [
+            {'x': 'A', 'y': 5},
+            {'x': 'B', 'y': 3},
+            {'x': 'C', 'y': 6},
+            {'x': 'D', 'y': 7},
+            {'x': 'E', 'y': 2},
+        ]
+    },
+    mark='bar',
+    encoding={
+        'x': {'field': 'x', 'type': 'nominal'},
+        'y': {'field': 'y', 'type': 'quantitative'}
+    }
+)
+
+def index():
+    ui.altair(
+        chart
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+这么一看，一目了然。`ui.altair`控件接收`altair.Chart`对象，该对象的不同参数代表不同的图表定义：
+
+- `data`参数表示具体数据。
+- `mark`参数表示图表类型。
+- `encoding`参数表示X轴、Y轴对应数据的来源，相当于定义坐标轴。
+
+至于控件本身的参数，也确实如上面的两个示例一样不多：
+
+- `chart`参数，`altair.TopLevelSpec`类型或者`altair.JupyterChart`类型，表示图表对象。
+- `throttle`参数，关键字参数，浮点类型，表示图表对象在Python端与前端更新相关控件变量的时间间隔（单位秒），默认为`0`，即最短间隔（即时更新）。
+
+#### 54.7.2 扩展用法（更新中）
+
+
+
+基本概念（参数）
+
+https://altair-viz.github.io/user_guide/data.html
+
+https://altair-viz.github.io/user_guide/marks/index.html
+
+https://altair-viz.github.io/user_guide/encodings/index.html
+
+
+
+图表类型
+
+https://altair-viz.github.io/user_guide/api.html#top-level-objects
+
+https://altair-viz.github.io/user_guide/marks/index.html
 
 
 
 
 
+
+
+（2026版完结，敬请期待2027版）
 
 ## NiceGUI札记2027版——更新计划
 
@@ -3736,7 +3834,17 @@ Vega-Altair框架文档：https://altair-viz.github.io/user_guide/interactions/j
 
 基于各方面的考量，2027版除了延续2026版的计划，继续介绍其他控件之外，将尽量减少单章的内容量，只介绍一个控件的基本概念（参数、属性、方法）和必要扩展（槽、控件方法），加快更新节奏。同时，也欢迎对NiceGUI感兴趣的读者积极参与互动，让各位的问题及时得到解答。
 
-## 55 学习控件——创建布局的`ui.column`控件和`ui.row`控件（更新中）
+## 55 `ui.page`类的参数（更新中）
+
+
+
+
+
+
+
+
+
+## 56 学习控件——创建布局的`ui.column`控件和`ui.row`控件（更新中）
 
 
 
@@ -4568,11 +4676,13 @@ ui.run(
 
   
 
-## 62 学习控件——`ui.anywidget`控件（更新中）
+## 7x 学习控件——`ui.anywidget`控件（更新中）
+
+（主要介绍`ui.anywidget`控件支持的anywidget控件中，有哪些实用的，并提供相关示例和用法扩展。）
 
 
 
-
+## 7x 学习控件——`ui.keep_alive`控件（更新中）
 
 
 

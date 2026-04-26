@@ -1998,7 +1998,7 @@ if QSystemTrayIcon.isSystemTrayAvailable():
     ).triggered.connect(lambda:window.show())
     tray_menu.addAction(
         '退出程序'
-    ).triggered.connect(app.quit)
+    ).triggered.connect(app.exit)
     tray.setContextMenu(tray_menu)
 else:
     print('当前系统不支持系统托盘。')

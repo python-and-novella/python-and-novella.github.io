@@ -31634,10 +31634,6 @@ ui.run(
 
 ### 54.7 `ui.altair`控件
 
-该控件引入NiceGUI的时间不长，从易用性、功能性上来说，远不及本章前面的控件，更别说相关资料主要在`altair`库，NiceGUI官方目前（3.11.0版）还没有太多示例。笔者在简单了解了`altair`库的相关资料之后，从使用体验、学习难度上对比了前面的控件，比较推荐使用前面的控件。
-
-因此，如果读者觉得本节内容太少，无法满足需求的话，可以自行学习`altair`库相关用法，或者等后续笔者深入学习了`altair`库、重新梳理相关知识之后，重制该控件的教程。
-
 #### 54.7.1 基本用法
 
 下面是`ui.altair`控件相关文档的地址：
@@ -31682,7 +31678,7 @@ ui.run(
 
 ![2026_54_71](nicegui_pro.assets/2026_54_71.png)
 
-这是前面该控件的示例，看上去有点费解：用了类似`pyecharts`库的链式调用，而且用了`pandas`库来处理数据，虽然操作简单，但不好理解基本用法。当然，并不是说这个库不好，恰恰相反，这个库在数据处理领域做得太好了，太多人对它很熟悉，也很依赖。因此该控件也是推荐使用这个库处理过的数据。
+这是前面该控件的示例，看上去有点费解：用了类似`pyecharts`库的链式调用，而且用了`pandas`库来处理数据，虽然操作简单，但不好理解基本用法。当然，并不是说这个库不好，恰恰相反，这个库在数据处理领域做得太好了，太多人对它很熟悉，也很依赖。因此，该控件也是推荐使用这个库处理过的数据。
 
 不过，为了方便学习该控件，这里先暂时不用这个库，也不使用链式调用，而是改为使用Python的标准数据类型，一步到位实现一下相同的效果，这样就得到类似本章前面几个控件的用法：
 
@@ -31718,20 +31714,22 @@ ui.run(
 )
 ```
 
-这么一看，一目了然。`ui.altair`控件接收`altair.Chart`对象，该对象的不同参数代表不同的图表定义：
-
-- `data`参数表示具体数据。
-- `mark`参数表示图表类型。
-- `encoding`参数表示X轴、Y轴对应数据的来源。
-
-至于控件本身的参数，也确实如上面的两个示例一样不多：
+这么一看，一目了然。控件本身的参数不多，也没有需要特别介绍的：
 
 - `chart`参数，`altair.TopLevelSpec`类型或者`altair.JupyterChart`类型，表示图表对象。
 - `throttle`参数，关键字参数，浮点类型，表示图表对象在Python端与前端更新相关控件变量的时间间隔（单位秒），默认为`0`，即最短间隔（即时更新）。
 
+重点在图表对象的构建。以示例中的`altair.Chart`对象为例，示例中涉及的参数的一定程度上代表了必需的图表定义（参数的完整用法参考 https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html ）：
+
+- `data`参数，表示具体数据。
+- `mark`参数，表示图表类型。
+- `encoding`参数，表示X轴、Y轴对应数据的来源（映射关系）。
+
+如果是采用链式调用的方式构建图表对象，则`mark_*`方法（具体支持的方法参考 https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html ）对应`mark`参数，`encode`方法对应`encoding`参数。
+
 #### 54.7.2 扩展用法
 
-`ui.altair`控件的用法主要在`altair`库，而笔者不太熟悉该库，因此本节仅做简单的概念解析，可能包含不太准确的描述。如果读者对`altair`库比较熟悉，请不吝指正。
+注意，这部分主要涉及`altair`库的用法，控件本身用法很简单。因此，这里仅介绍控件必需、常用的`altair`库用法。更多`altair`库的用法，请参考`altair`库的官方文档。
 
 ##### 54.7.2.1 数据类型
 
@@ -31748,27 +31746,92 @@ ui.run(
 - 实现`__geo_interface__`方法的对象。
 - `altair`库提供的生成器数据（用法参考 https://altair-viz.github.io/user_guide/data.html#generated-data ）。
 
-##### 54.7.2.2 图表类型
+##### 54.7.2.2 图表布局类型（组合图表）
 
 本节参考文档：https://altair-viz.github.io/user_guide/api.html#top-level-objects 和 https://altair-viz.github.io/user_guide/marks/index.html
 
-除了`mark`参数用于设定图表的基本类型之外，还可以给控件`chart`参数传入不同类型的对象，设定图表的布局类型：
+控件的`chart`参数除了可以传入`Chart`对象，创建单个图表，还可以传入图表的布局类型，组合多个图表：
 
-- `Chart`类，简单的图表。
 - `ConcatChart`类，水平拼接的组合图表。
-- `FacetChart`类，多图层的组合图表。
+- `FacetChart`类，多图层平铺的组合图表。
 - `HConcatChart`类，水平拼接的组合图表。
-- `LayerChart`类，多图层的组合图表。
-- `RepeatChart`类，行、列方向重复但存在差别的组合图表。
+- `LayerChart`类，多图层叠加的组合图表。
+- `RepeatChart`类，行、列方向上重复但X轴或者Y轴映射关系存在差别的组合图表。
 - `VConcatChart`类，垂直拼接的组合图表。
 
-##### 54.7.2.3 链式调用
+上面的几种组合图表，最终也是要用`Chart`类作为基本图表，实现最终的组合效果。不过，对于水平方向组合、垂直方向组合、多图层叠加的情况，除了用上面的组合图表之外，还可以根据所需的布局使用下面的运算符连接基本图表，操作更简单：
 
-本节参考文档：https://altair-viz.github.io/getting_started/starting.html
+- **水平**组合用 `|`。
+- **垂直**组合用 `&`。
+- **叠加**用 `+`。
+- **复杂布局**用括号嵌套组合。
 
-最后简单介绍一下链式调用涉及的方法：
+示例如下：
 
-- `encode`方法，对应`encoding`参数，用于设置X轴、Y轴对应数据的来源。
-- `mark_*`方法，对应`mark`参数，用于设置图表类型
+```python3
+from nicegui import ui
+import altair
+import pandas as pd
+
+def index():
+    ui.altair(
+        altair.Chart(
+            pd.DataFrame(
+                {
+                    'x': [
+                        'A', 'B', 'C', 'D', 'E'
+                    ],
+                    'y': [
+                        5, 3, 6, 7, 2
+                    ]
+                }
+            )
+        ).mark_bar().encode(
+            x='x',
+            y='y',
+        )|altair.Chart(
+            pd.DataFrame(
+                {
+                    'x': [
+                        'A', 'B', 'C', 'D', 'E'
+                    ],
+                    'y': [
+                        5, 3, 6, 7, 2
+                    ]
+                }
+            )
+        ).mark_line().encode(
+            x='x',
+            y='y',
+        )
+    )
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_54_72](nicegui_pro.assets/2026_54_72.png)
+
+##### 54.7.2.3 其他链式调用常用的方法
+
+本节参考文档：https://altair-viz.github.io/getting_started/starting.html 和 https://altair-viz.github.io/user_guide/generated/toplevel/altair.Chart.html
+
+最后简单介绍一下其他链式调用常用的方法（部分）：
+
+- `mark_*`方法，设置图表类型。
+- `encode`方法，设置X轴、Y轴对应数据的来源（映射关系）。
+- `interactive`方法，启用交互（拖动、缩放）。
+- `properties`方法，设置图表尺寸、标题。
+- `configure_*`方法，设置图表的样式（字体、颜色）。
+- `add_params`方法，添加指定的交互组件。
+- `save`方法，保存图表为图片、HTML文件。
+
+
+
+
+
+
 
 （2026版完结，敬请期待2027版）

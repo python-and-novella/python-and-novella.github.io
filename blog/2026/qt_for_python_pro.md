@@ -826,10 +826,10 @@ app.exec()
 
   该方法支持以下参数：
 
-  - `state`参数，仅限位置参数（第一个位置参数），`PySide6.QtCore.Qt.CheckState`类型，表示控件的勾选状态。`PySide6.QtCore.Qt.CheckState`类型为枚举类型，包含以下枚举值：
-    - `Unchecked`（`0x0`），表示未勾选。
-    - `PartiallyChecked`（`0x1`），表示部分勾选。
-    - `Checked`（`0x2`），表示勾选。
+  - `state`参数，仅限位置参数（第一个位置参数），`PySide6.QtCore.Qt.CheckState`类型，表示控件的勾选状态。`PySide6.QtCore.Qt.CheckState`类型为枚举类型，包含以下枚举成员：
+    - `Unchecked`，表示未勾选。
+    - `PartiallyChecked`，表示部分勾选。
+    - `Checked`，表示勾选。
 
 - `setTristate`方法，设置控件的勾选状态是否为三种。
 
@@ -2037,15 +2037,371 @@ app.exec()
 
 不过，此时需要注意，`app.quit`方法也会触发关闭事件的弹窗，需要改用`app.exit`方法来强制退出程序。
 
-## 33 `Qxxx`xxx控件（更新中）
+## 33 `QComboBox`下拉组合框控件
+
+`QComboBox`下拉组合框控件也叫下拉选择框，相比于前面介绍过的单选、多选控件，下拉组合框可以将选项折叠起来，节省直接占用的空间：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QComboBox
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识下拉组合框')
+window.resize(400, 300)
+
+box = QComboBox(
+    window,
+)
+for i in range(1,4):
+    box.addItem(
+        f'选项{i}',
+        i
+    )
+
+window.show()
+app.exec()
+```
+
+![2026_33_1](qt_for_python_pro.assets/2026_33_1.png)
+
+`QComboBox`下拉组合框控件的继承关系如下：
+
+![2026_33_2](qt_for_python_pro.assets/2026_33_2.png)
+
+相关文档的链接如下：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QComboBox.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### 33.1 初始化方法
+
+`QComboBox`下拉组合框控件的初始化方法（参数名及类型提示来自`QtWidgets.pyi`）支持以下参数：
+
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
+
+- `editable`参数，仅限关键字参数，布尔类型，表示是否允许编辑组合框内的选项，默认为`False`。编辑之后，直接回车的话，会添加新的选项。
+
+- `maxVisibleItems`参数，仅限关键字参数，整数类型，表示下拉框最多显示多少个选项，默认不限制。
+
+- `maxCount`参数，仅限关键字参数，整数类型，表示控件最多有多少个选项，默认不限制。
+
+- `insertPolicy`参数，仅限关键字参数，`PySide6.QtWidgets.QComboBox.InsertPolicy`类型，表示启用`editable`参数时添加新选项的策略。
+
+  `PySide6.QtWidgets.QComboBox.InsertPolicy`类型是枚举类型，包含以下枚举成员：
+
+  - `NoInsert`，表示不允许添加新选项。
+  - `InsertAtTop`，表示在所有选项的前面添加新选项。
+  - `InsertAtCurrent`，表示替换当前选项。
+  - `InsertAtBottom`，表示在所有选项的后面添加新选项。这也是该参数的默认值。
+  - `InsertAfterCurrent`，表示在当前选项的前面添加新选项。
+  - `InsertBeforeCurrent`，表示在当前选项的后面添加新选项。
+  - `InsertAlphabetically`，表示按字符顺序插入。
+
+- `sizeAdjustPolicy`参数，仅限关键字参数，`PySide6.QtWidgets.QComboBox.SizeAdjustPolicy`类型，表示选项内容变化时（比如启用`editable`参数、添加新选项）控件尺寸的调整策略。
+
+  `PySide6.QtWidgets.QComboBox.InsertPolicy`类型是枚举类型，包含以下枚举成员：
+
+  - `AdjustToContents`，表示始终根据选项内容多少调整控件大小。
+  - `AdjustToContentsOnFirstShow`，表示在第一次显示时根据选项内容多少调整控件大小。这也是该参数的默认值。
+  - `AdjustToMinimumContentsLengthWithIcon`，表示`minimumContentsLength`控件属性加图标的选项大小调整控件大小。注意，启用`editable`参数的话，该策略将无法生效。
+
+- `minimumContentsLength`参数，仅限关键字参数，整数类型，表示选项内容的最小长度，仅在`sizeAdjustPolicy`参数为`PySide6.QtWidgets.QComboBox.InsertPolicy.AdjustToMinimumContentsLengthWithIcon`时生效。默认不限制。
+
+- `iconSize`参数，仅限关键字参数，`PySide6.QtCore.QSize`类型，表示选项图标的大小。
+
+- `placeholderText`参数，仅限关键字参数，字符串类型，表示默认没有选择任何选项时的占位文本。如果不设置该参数，将默认选择第一个选项。
+
+- `duplicatesEnabled`参数，仅限关键字参数，布尔类型，表示启用`editable`参数时添加新选项是否允许重复添加，默认为`False`。注意，使用`addItem`方法、`addItems`方法添加选项的话不受该参数限制，始终可以添加重复选项。
+
+- `frame`参数，仅限关键字参数，布尔类型，表示控件是否额外带一个边框，默认为`True`。
+
+- `labelDrawingMode`参数，仅限关键字参数，`PySide6.QtWidgets.QComboBox.LabelDrawingMode`类型，表示选项文本的渲染模式。
+
+  `PySide6.QtWidgets.QComboBox.LabelDrawingMode`类型是枚举类型，包含以下枚举成员：
+
+  - `UseStyle`，表示使用样式。这也是该参数的默认值。
+  - `UseDelegate`，表示使用委托。
+
+### 33.2 方法、控件属性
+
+`QComboBox`下拉组合框控件支持以下方法（部分，含控件属性）：
+
+- `addItem`方法，添加一个选项。
+- `addItems`方法，添加多个选项。
+- `completer`方法（控件属性，可使用`setCompleter`方法设置），返回控件的自动补全器。
+- `count`方法（控件属性），返回控件的选项数。
+- `currentData`方法（控件属性），返回控件当前选择选项的选项数据。
+- `currentIndex`方法（控件属性，可使用`setCurrentIndex`方法设置），返回控件当前选择选项的索引值。
+- `currentText`方法（控件属性，可使用`setCurrentText`方法设置），返回控件当前选择选项的选项文本。
+- `duplicatesEnabled`方法（控件属性，可使用`setDuplicatesEnabled`方法设置），返回启用`editable`参数时添加新选项是否允许重复添加。
+- `findData`方法，查找选项数据，返回选项的索引值。
+- `findText`方法，查找选项文本，返回选项的索引值。
+- `hasFrame`方法（控件属性`frame`的获取方法），返回控件是否额外带一个边框。
+- `iconSize`方法（控件属性，可使用`setIconSize`方法设置），返回选项图标的大小。
+- `insertItem`方法，在指定位置插入一个选项。
+- `insertItems`方法，在指定位置插入多个选项。
+- `insertPolicy`方法（控件属性，可使用`setInsertPolicy`方法设置），返回启用`editable`参数时添加新选项的策略。
+- `insertSeparator`方法，在指定位置插入一条分隔线。
+- `isEditable`方法（控件属性`editable`的获取方法，可使用`setEditable`方法设置），返回是否允许编辑组合框内的选项。
+- `itemData`方法，返回指定选项的选项数据。
+- `itemIcon`方法，返回指定选项的选项图标。
+- `itemText`方法，返回指定选项的选项文本。
+- `lineEdit`方法，返回启用`editable`参数时的编辑框。
+- `maxCount`方法（控件属性，可使用`setMaxCount`方法设置），返回控件最多有多少个选项。
+- `maxVisibleItems`方法（控件属性，可使用`setMaxVisibleItems`方法设置），返回下拉框最多显示多少个选项。
+- `minimumContentsLength`方法（控件属性，可使用`setMinimumContentsLength`方法设置），返回选项内容的最小长度。
+- `model`方法（控件属性，可使用`setModel`方法设置），返回控件的数据模型。
+- `modelColumn`方法（控件属性，可使用`setModelColumn`方法设置），返回控件使用数据模型列的索引值。
+- `placeholderText`方法（控件属性，可使用`setPlaceholderText`方法设置），返回默认没有选择任何选项时的占位文本。。
+- `removeItem`方法，移除指定选项。
+- `sizeAdjustPolicy`方法（控件属性，可使用`setSizeAdjustPolicy`方法设置），返回选项内容变化时（比如启用`editable`参数、添加新选项）控件尺寸的调整策略。
+- `validator`方法（控件属性，可使用`setValidator`方法设置），返回控件的验证器。
+- `view`方法（控件属性，可使用`setView`方法设置），返回下拉框对应的控件。
+
+### 33.3 信号和槽
+
+`QComboBox`下拉组合框控件支持以下信号（部分）：
+
+- `activated`信号，选择选项时触发。
+- `currentIndexChanged`信号，当前选择选项的索引值改变时触发。
+- `currentTextChanged`信号，当前选择选项的文本改变时触发。
+- `editTextChanged`信号，启用`editable`参数时，输入框文本改变时触发（无论是否选择）。
+- `highlighted`信号，下拉框中选择选项改变时触发。
+- `textActivated`信号，启用`editable`参数时，输入框文本对应选项选择时触发（含创建新选项、选择已有选项之后改变了输入框的文本）。
+- `textHighlighted`信号，启用`editable`参数时，下拉框中选择选项改变时触发（无论是否选择）。
+
+`QComboBox`下拉组合框控件支持以下槽（部分）：
+
+- `clear`方法，移除所有选项。
+- `clearEditText`方法，启用`editable`参数时，清除输入框文本。
+- `setCurrentIndex`方法，修改当前选择的选项。
+- `setCurrentText`方法，修改当前选择的选项文本（不影响对应选项的文本）。
+- `setEditText`方法，启用`editable`参数时，修改输入框文本。
+
+### 33.4 扩展用法
+
+#### 33.4.1 设置选项图标
+
+添加选项时，可以同时设置选项的图标：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QComboBox,
+)
+from PySide6.QtCore import QSize
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识下拉组合框')
+window.resize(400, 300)
+
+box = QComboBox(
+    window,
+    iconSize=QSize(
+        40,40
+    )
+)
+
+for i in range(1,4):
+    box.addItem(
+        QIcon.fromTheme(
+            QIcon.ThemeIcon.Computer
+        ),
+        f'选项{i}',
+        i
+    )
+
+window.show()
+app.exec()
+```
+
+![2026_33_3](qt_for_python_pro.assets/2026_33_3.png)
+
+#### 33.4.2 使用数据模型添加选项
+
+除了单独调用`addItem`方法、`addItems`方法添加选项，还可以使用`setModel`方法何止数据模型，控件将自动基于数据模型中的数据生成对应选项：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QComboBox,
+)
+from PySide6.QtGui import QStandardItemModel,QStandardItem
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识下拉组合框')
+window.resize(400, 300)
+
+box = QComboBox(
+    window,
+)
+box2 = QComboBox(
+    window,
+)
+box2.move(
+    0,30
+)
+model = QStandardItemModel()
+model.appendRow([QStandardItem('1'),QStandardItem('a')])
+model.appendRow([QStandardItem('2'),QStandardItem('b')])
+box.setModel(
+    model
+)
+box.setModelColumn(0)
+box2.setModel(
+    model
+)
+box2.setModelColumn(1)
+
+window.show()
+app.exec()
+```
+
+![2026_33_4](qt_for_python_pro.assets/2026_33_4.png)
+
+也可以使用自动补全器，搜索数据模型，手动添加数据模型内的数据：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QComboBox,
+    QCompleter
+)
+from PySide6.QtGui import QStandardItemModel,QStandardItem
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识下拉组合框')
+window.resize(400, 300)
+
+box = QComboBox(
+    window,
+    editable=True
+)
+for i in range(1,4):
+    box.addItem(
+        f'选项{i}',
+        i
+    )
+
+model = QStandardItemModel()
+model.appendRow([QStandardItem('1'),QStandardItem('a')])
+model.appendRow([QStandardItem('2'),QStandardItem('b')])
+completer = QCompleter(
+    model
+)
+completer.setCompletionColumn(1)
+box.setCompleter(
+    completer
+)
+
+window.show()
+app.exec()
+```
+
+![2026_33_5](qt_for_python_pro.assets/2026_33_5.png)
+
+#### 33.4.3 设置选项样式
+
+设置选项样式的方法有两种，一是使用委托（比较复杂），二是使用样式（QSS）。
+
+使用委托的示例（因为用法比较复杂，这里不做展开，后续章节再具体介绍）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QComboBox,
+    QStyledItemDelegate
+)
+from PySide6.QtCore import QSize
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识下拉组合框')
+window.resize(400, 300)
+
+box = QComboBox(
+    window,
+    labelDrawingMode=QComboBox.LabelDrawingMode.UseDelegate
+)
+for i in range(1,4):
+    box.addItem(
+        f'选项{i}',
+        i
+    )
+
+class CustomComboDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def sizeHint(self, option, index):
+        # 默认高度
+        original_size = super().sizeHint(option, index)
+        return QSize(original_size.width()+10, original_size.height()+40)
+    
+box.setItemDelegate(
+    CustomComboDelegate()
+)
+
+window.show()
+app.exec()
+```
+
+![2026_33_6](qt_for_python_pro.assets/2026_33_6.png)
+
+使用样式（QSS）的示例：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QComboBox
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识下拉组合框')
+window.resize(400, 300)
+
+box = QComboBox(
+    window,
+    labelDrawingMode=QComboBox.LabelDrawingMode.UseDelegate
+)
+for i in range(1,4):
+    box.addItem(
+        f'选项{i}',
+        i
+    )
+box.setStyleSheet(
+    '''
+    QComboBox QAbstractItemView::item {
+        /*对应上右下左的边距*/
+        margin: 0px 0px 10px 20px; 
+    }
+    '''
+)
+window.show()
+app.exec()
+```
+
+![2026_33_7](qt_for_python_pro.assets/2026_33_7.png)
+
+
+
+## 34 `QDateTimeEdit`xxx控件（更新中）
 
 `Qxxx`xxx控件主要用于……
-
-
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QComboBox.html
-
-
 
 示例如下：
 
@@ -2070,11 +2426,12 @@ app.exec()
 
 `Qxxx`xxxx控件的继承关系如下：
 
-（截图继承关系）
+![image-20260428155110475](qt_for_python_pro.assets/image-20260428155110475.png)
 
 相关文档的链接如下：
 
-- （由近到远每一层级对应的文档链接）
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDateTimeEdit.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractSpinBox.html
 - https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
 
 ### x.1 初始化方法（更新中）
@@ -2111,6 +2468,164 @@ app.exec()
 
 ### x.4 扩展用法（更新中）
 
+（扩展用法包含前面参数、方法、信号、槽相关的示例）
+
+#### x.4.1 xxx（更新中）
+
+
+
+
+
+## 35 `QDateEdit`xxx控件（更新中）
+
+`Qxxx`xxx控件主要用于……
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识控件')
+window.resize(400, 300)
+
+# 添加相关控件
+
+window.show()
+app.exec()
+```
+
+（运行效果图）
+
+`Qxxx`xxxx控件的继承关系如下：
+
+![image-20260428161041408](qt_for_python_pro.assets/image-20260428161041408.png)
+
+相关文档的链接如下：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDateEdit.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDateTimeEdit.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractSpinBox.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### x.1 初始化方法（更新中）
+
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
+
+第一种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+第二种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.2 方法、控件属性（更新中）
+
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+
+- `xxx`方法，---
+
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### x.4 扩展用法（更新中）
+
+（扩展用法包含前面参数、方法、信号、槽相关的示例）
+
+#### x.4.1 xxx（更新中）
+
+
+
+
+
+## 36 `QTimeEdit`xxx控件（更新中）（模板）
+
+`Qxxx`xxx控件主要用于……
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识控件')
+window.resize(400, 300)
+
+# 添加相关控件
+
+window.show()
+app.exec()
+```
+
+（运行效果图）
+
+`Qxxx`xxxx控件的继承关系如下：
+
+![image-20260428161116610](qt_for_python_pro.assets/image-20260428161116610.png)
+
+相关文档的链接如下：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTimeEdit.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDateTimeEdit.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractSpinBox.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### x.1 初始化方法（更新中）
+
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
+
+第一种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+第二种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.2 方法、控件属性（更新中）
+
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+
+- `xxx`方法，---
+
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### x.4 扩展用法（更新中）
+
+（扩展用法包含前面参数、方法、信号、槽相关的示例）
+
 #### x.4.1 xxx（更新中）
 
 
@@ -2123,9 +2638,11 @@ app.exec()
 
 https://doc.qt.io/qtforpython-6/overviews/qtwidgets-widget-classes.html#widgets-classes
 
-
+介绍完大部分常用控件之后，后续内容更新转入《易森》
 
 ## x 创作灵感（非正式内容）
+
+后续内容更新转入《易森》。
 
 灵感来源（官方）：
 

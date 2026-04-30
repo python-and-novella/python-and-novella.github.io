@@ -6741,7 +6741,7 @@ ui.run(
 
 除了响应已知类型的事件，`ui.on`方法还能为自定义事件创建响应函数。
 
-首先，要在JavaScript中使用`emitEvent`方法发射（除非）自定义事件。然后，使用`ui.on`方法创建对应名字事件的响应函数：
+首先，要在JavaScript中使用`emitEvent`方法发射（触发）自定义事件。然后，使用`ui.on`方法创建对应名字事件的响应函数：
 
 ```python3
 from nicegui import ui

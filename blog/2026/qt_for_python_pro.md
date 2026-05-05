@@ -2399,24 +2399,36 @@ app.exec()
 
 
 
-## 34 `QDateTimeEdit`xxx控件（更新中）
+## 34 `QDateTimeEdit`日期时间编辑框控件（更新中）
 
-`Qxxx`xxx控件主要用于……
+`QDateTimeEdit`日期时间编辑框控件主要用于……
 
 示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
-    QWidget
+    QWidget,
+    QDateTimeEdit,
 )
+from PySide6.QtCore import QDateTime
 
 app = QApplication()
 window = QWidget()
-window.setWindowTitle('认识控件')
+window.setWindowTitle('认识时间控件')
 window.resize(400, 300)
 
-# 添加相关控件
+date = QDateTimeEdit(
+    window,
+    dateTime=QDateTime(
+        2026,
+        1,
+        1,
+        12,
+        30,
+        0
+    )
+)
 
 window.show()
 app.exec()

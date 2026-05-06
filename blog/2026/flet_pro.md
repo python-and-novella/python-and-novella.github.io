@@ -353,7 +353,174 @@ flet.run(main)
 
 ![2026_5_1](flet_pro.assets/2026_5_1.png)
 
-## 6 xxx（更新中）
+## 6 事件响应
+
+用户与界面交互就会触发事件，事件也可以理解为交互的过程或者动作。想要让程序响应用户的动作，就要创建（定义）对应事件的响应函数。在Flet程序中，“on_”开头的属性、参数用于定义对应事件的响应函数，后面接着的，就是对应的事件名。
+
+就以上一章最后的示例为基础，看一下创建（定义）如何事件的响应函数：
+
+```python3
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = 'Hello'
+    button = flet.Button(
+        'Close window (1)',        
+    )
+    button.on_click = page.window.close
+    page.add(
+        button,
+        flet.Button(
+            'Close window (2)',
+            on_click=page.window.close,
+        )
+    )
+    
+flet.run(main)
+```
+
+![2026_6_1](flet_pro.assets/2026_6_1.png)
+
+修改之后的示例中，添加了两个同样功能的按钮，分别用不同的方法创建（定义）了点击事件的响应函数：
+
+- `on_click`属性，可以先创建控件，再创建响应函数，适合修改响应函数、创建控件之后随时创建响应函数的需求、
+- `on_click`参数，必须在创建控件前创建响应函数，否则会报错。
+
+上面的示例中，响应函数没有接收任何参数，其实，响应函数也可以接收参数，具体支持的参数可以参考官方文档（https://flet.dev/docs/types/event）或者代码提示（对应源代码）。
+
+一般来说，响应函数的参数支持以下属性（部分，可能会更多或者有变动）：
+
+- `control`属性，表示触发事件的控件。
+- `name`属性，字符串类型，表示事件名称。
+- `page`属性，表示控件所属的页面。
+
+示例如下：
+
+```python3
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = 'Hello'
+    button = flet.Button(
+        'Save', 
+        data=['abc']       
+    )
+    def on_button_clicked(e:flet.Event):
+        e.control.content = 'ok'
+        e.control.disabled = True
+        e.page.title = 'ok'
+        
+    button.on_click = on_button_clicked
+    page.add(
+        button,
+        flet.Button(
+            'Close window',
+            on_click=page.window.close,
+        )
+    )
+    
+
+flet.run(main)
+```
+
+![2026_6_2](flet_pro.assets/2026_6_2.gif)
+
+## 7 控件布局
+
+控件不能一味堆砌，想要界面直观、整洁，还需要设计控件的布局，这时就要用到布局控件。
+
+布局控件（通常）包含`controls`参数，表示哪些控件放在布局控件内。
+
+顺便说一句，容器控件通常使用`controls`参数、`content`参数表示哪些（哪个）控件放在容器控件内。二者用法类似，实际设计布局时经常会同时使用，因此，`controls`参数是区分布局控件和容器控件的唯一标准，也无需严格区分。只要控件的作用能满足需求，必要时可以用容器控件设计布局。
+
+常见的布局控件有:
+
+- 行布局控件（`flet.Row`），所有控件排成一行。
+- 列布局控件（`flet.Column`），所有控件排成一列。
+
+简单的控件布局使用这两个布局控件也能实现。
+
+此外，如果`flet.Container`容器控件（这是个具体控件，不是一类控件）启用了自动扩展（`expand`参数，大部分控件都有此参数，完整用法参考 https://flet.dev/docs/cookbook/expanding-controls ），可以化身自动填充可用空间的弹性控件，与上面的布局控件组合使用，
+
+比如，让两个控件分别靠边，而不是紧挨着：
+
+```python3
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = 'Hello'
+    button = flet.Button(
+        'World',
+    )
+    page.add(
+        flet.Row(
+            [
+                button,
+                flet.Container(expand=True),
+                flet.Button(
+                    'Close window',
+                    on_click=page.window.close,
+                )
+            ]
+        )
+    )
+    
+flet.run(main)
+```
+
+![2026_7_1](flet_pro.assets/2026_7_1.png)
+
+如果两种布局组合使用，发挥一点想象力，很容易将按钮放在窗口的右下角：
+
+```python3
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = 'Hello'
+    button = flet.Button(
+        'World',
+    )
+    row = flet.Row(
+        [
+            flet.Container(expand=True),
+            button,
+            flet.Button(
+                'Close window',
+                on_click=page.window.close,
+            )
+        ]
+    )
+    column = flet.Column(
+        [
+            flet.Container(expand=True),
+            row
+        ],
+        expand=True
+    )
+    page.add(
+        column
+    )
+
+flet.run(main)
+```
+
+![2026_7_2](flet_pro.assets/2026_7_2.png)
+
+布局控件、容器控件有很多，控件的具体用法也远比想象中复杂，更别说实际开发时还会遇到各种各样的问题。本章只是简单介绍一下布局设计的基本思路，后续会详细介绍其他布局控件、容器控件，以及具体控件的具体用法、常见问题。
+
+## 8 xxx（更新中）
 
 
 
@@ -375,11 +542,19 @@ flet.run(main)
 
 后台运行任务，
 
-事件响应，
 
-颜色系统，
 
-控件布局，
+样式：
+
+颜色系统，https://flet.dev/docs/cookbook/colors
+
+
+
+主题，https://flet.dev/docs/cookbook/theming
+
+
+
+页面设计（页面支持的部分属性比如`navigation_bar`属性、`bottom_appbar`属性、`appbar`属性、`drawer`属性、`end_drawer`属性等对应特定的区域，其他属性负责页面样式等等），https://flet.dev/docs/controls/basepage/，主要介绍页面支持的属性。
 
 快捷键，
 

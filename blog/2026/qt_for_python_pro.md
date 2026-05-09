@@ -2397,11 +2397,9 @@ app.exec()
 
 ![2026_33_7](qt_for_python_pro.assets/2026_33_7.png)
 
-
-
 ## 34 `QDateTimeEdit`日期时间编辑框控件（更新中）
 
-`QDateTimeEdit`日期时间编辑框控件主要用于……
+`QDateTimeEdit`日期时间编辑框控件主要用于快捷编辑日期、时间，除了直接输入，右侧还有直接调整数字用的按钮，对于微调场景，操作更方便。
 
 示例如下：
 
@@ -2434,11 +2432,11 @@ window.show()
 app.exec()
 ```
 
-（运行效果图）
+![2026_34_1](qt_for_python_pro.assets/2026_34_1.png)
 
-`Qxxx`xxxx控件的继承关系如下：
+`QDateTimeEdit`日期时间编辑框控件的继承关系如下：
 
-![image-20260428155110475](qt_for_python_pro.assets/image-20260428155110475.png)
+![2026_34_2](qt_for_python_pro.assets/2026_34_2.png)
 
 相关文档的链接如下：
 
@@ -2446,49 +2444,151 @@ app.exec()
 - https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractSpinBox.html
 - https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
 
-### x.1 初始化方法（更新中）
+### 34.1 初始化方法
 
-`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
+`QDateTimeEdit`日期时间编辑框控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
 
 第一种初始化方法支持以下参数：
 
-- `xxx`参数，仅限位置参数（第一个位置参数），---
+- `d`参数，仅限位置参数（第一个位置参数），`PySide6.QtCore.QDate`类型，表示默认日期，优先级低于`dateTime`参数、`date`参数。
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
+- `dateTime`参数，仅限关键字参数，`PySide6.QtCore.QDateTime`类型，表示默认日期和时间，优先级低于`date`参数、`time`参数。
+- `date`参数，仅限关键字参数，`PySide6.QtCore.QDate`类型，表示默认日期。
+- `time`参数，仅限关键字参数，`PySide6.QtCore.QTime`类型，表示默认时间。
+- `maximumDateTime`参数，仅限关键字参数，`PySide6.QtCore.QDateTime`类型，表示日期和时间的最大值。
+- `minimumDateTime`参数，仅限关键字参数，`PySide6.QtCore.QDateTime`类型，表示日期和时间的最小值。
+- `maximumDate`参数，仅限关键字参数，`PySide6.QtCore.QDate`类型，表示日期的最大值。
+- `minimumDate`参数，仅限关键字参数，`PySide6.QtCore.QDate`类型，表示日期的最小值。
+- `maximumTime`参数，仅限关键字参数，`PySide6.QtCore.QTime`类型，表示时间的最大值。注意，需要同时指定日期的最大值才能生效。
+- `minimumTime`参数，仅限关键字参数，`PySide6.QtCore.QTime`类型，表示时间的最小值。注意，需要同时指定日期的最小值才能生效。
+- `displayFormat`参数，仅限关键字参数，字符串类型，表示时间日期的显示格式。支持的格式符如下：
+  - “y”表示年，支持“yy”（仅后两位）和“yyyy”两种形式。
+  - “M”表示月，支持“M”、“MM”（含补位的前导零）、“MMM”（月份缩写，与系统格式一致）、“MMMM”（月份全称，与系统格式一致）四种形式。
+  - “d”表示日期，支持“d”、“dd”（含补位的前导零）、“ddd”（星期缩写，与系统格式一致）、“dddd”（星期全称，与系统格式一致）四种形式。
+  - “h”表示小时（12小时制），支持“h”、“hh”（含补位的前导零）两种形式。
+  - “H”表示小时（24小时制），支持“H”、“HH”（含补位的前导零）两种形式。
+  - “m”表示分钟，支持“m”、“mm”（含补位的前导零）两种形式。
+  - “s”表示秒，支持“s”、“ss”（含补位的前导零）两种形式。“z”表示毫秒。
+  - “AP”、“A”表示上下午的大写，“ap”、“a”表示上下午的小写。
+  - “t”表示时区的缩写，“tt”表示时区偏移量，“ttt”表示时区偏移值（转换为`±{小时}:{分钟}`的表达格式），“tttt”表示时区的名称。
+
+- `calendarPopup`参数，仅限关键字参数，布尔类型，表示是否将调整按钮替换为可弹出日历选择器的按钮，用于快捷选定日期。
+- `timeSpec`参数，仅限关键字参数，`PySide6.QtCore.Qt.TimeSpec`类型，表示显示时间的时区基准。
+- `timeZone`参数，仅限关键字参数，`PySide6.QtCore.QTimeZone`类型，表示显示时间的时区。
 
 第二种初始化方法支持以下参数：
 
-- `xxx`参数，仅限位置参数（第一个位置参数），---
+- `dt`参数，仅限位置参数（第一个位置参数），`PySide6.QtCore.QDateTime`类型，表示默认日期和时间，优先级低于`dateTime`参数、`date`参数、`time`参数。
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
+- 仅限关键字参数与第一种初始化方法相同。
 
-### x.2 方法、控件属性（更新中）
+第三种初始化方法支持以下参数：
 
-`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+- `t`参数，仅限位置参数（第一个位置参数），`PySide6.QtCore.QTime`类型，表示默认时间，优先级低于`dateTime`参数、`time`参数。
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
+- 仅限关键字参数与第一种初始化方法相同。
 
+第四种初始化方法支持以下参数：
+
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
+- 仅限关键字参数与第一种初始化方法相同。
+
+### 34.2 方法、控件属性（更新中）
+
+`QDateTimeEdit`日期时间编辑框控件支持以下方法（部分，含控件属性）：
+
+- `calendar`方法（控件属性，可使用`setCalendar`方法设置），返回控件使用的日历系统。
+- `calendarPopup`方法（控件属性，可使用`setCalendarPopup`方法设置），返回控件是否将调整按钮替换为可弹出日历选择器的按钮。
+- `calendarWidget`方法（控件属性，可使用`setCalendarWidget`方法设置），返回控件的日历选择器。
 - `xxx`方法，---
+- `xxx`方法，---
+- `xxx`方法，---
+- `xxx`方法，---
+- `xxx`方法，---
+- `xxx`方法，---
+- `xxx`方法，---
+- `xxx`方法，---
+- 
 
-  该方法支持以下参数：
+### 34.3 信号和槽（更新中）
 
-  - `xxx`参数，仅限位置参数（第一个位置参数），---
-
-### x.3 信号和槽（更新中）
-
-`Qxxx`xxx控件支持以下信号（部分）：
+`QDateTimeEdit`日期时间编辑框控件支持以下信号（部分）：
 
 - `xxx`信号，---
 
-`Qxxx`xxx控件支持以下槽（部分）：
+`QDateTimeEdit`日期时间编辑框控件支持以下槽（部分）：
 
 - `xxx`方法，---
 
-### x.4 扩展用法（更新中）
+### 34.4 扩展用法（更新中）
 
 （扩展用法包含前面参数、方法、信号、槽相关的示例）
 
-#### x.4.1 xxx（更新中）
+#### 34.4.1 xxx（更新中）
+
+
+
+`setCurrentSection`方法不能立即执行，必须延迟一段时间：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QDateTimeEdit,
+)
+from PySide6.QtCore import QTimer
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识时间控件')
+window.resize(400, 300)
+
+date = QDateTimeEdit(
+    window,
+)
+# 使用定时器延时操作
+# 建议不大于100ms，取决于机器性能，机器性能太差的话可以适当延长
+# 不小于21ms，取决于机器性能，机器性能太差的话可以适当延长
+QTimer.singleShot(100,lambda :date.setCurrentSection(QDateTimeEdit.Section.DaySection))
+
+window.show()
+app.exec()
+```
+
+
+
+`setCurrentSectionIndex`方法不能立即执行，必须延迟一段时间：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QDateTimeEdit,
+)
+from PySide6.QtCore import QTimer
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识时间控件')
+window.resize(400, 300)
+
+date = QDateTimeEdit(
+    window,
+)
+# 使用定时器延时操作
+# 建议不大于100ms，取决于机器性能，机器性能太差的话可以适当延长
+# 不小于21ms，取决于机器性能，机器性能太差的话可以适当延长
+QTimer.singleShot(100,lambda :date.setCurrentSectionIndex(3))
+
+window.show()
+app.exec()
+```
 
 
 
 
 
-## 35 `QDateEdit`xxx控件（更新中）
+## 35 `QDateEdit`日期编辑框控件（更新中）
 
 `Qxxx`xxx控件主要用于……
 
@@ -2497,15 +2597,24 @@ app.exec()
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
-    QWidget
+    QWidget,
+    QDateEdit,
 )
+from PySide6.QtCore import QDate
 
 app = QApplication()
 window = QWidget()
-window.setWindowTitle('认识控件')
+window.setWindowTitle('认识时间控件')
 window.resize(400, 300)
 
-# 添加相关控件
+date = QDateEdit(
+    window,
+    date=QDate(
+        2026,
+        1,
+        1,
+    )
+)
 
 window.show()
 app.exec()
@@ -2566,7 +2675,7 @@ app.exec()
 
 
 
-## 36 `QTimeEdit`xxx控件（更新中）（模板）
+## 36 `QTimeEdit`时间编辑框控件（更新中）
 
 `Qxxx`xxx控件主要用于……
 
@@ -2575,15 +2684,24 @@ app.exec()
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
-    QWidget
+    QWidget,
+    QTimeEdit,
 )
+from PySide6.QtCore import QTime
 
 app = QApplication()
 window = QWidget()
-window.setWindowTitle('认识控件')
+window.setWindowTitle('认识时间控件')
 window.resize(400, 300)
 
-# 添加相关控件
+date = QTimeEdit(
+    window,
+    time=QTime(
+        12,
+        30,
+        0
+    )
+)
 
 window.show()
 app.exec()

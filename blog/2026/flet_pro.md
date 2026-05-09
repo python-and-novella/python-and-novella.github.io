@@ -446,7 +446,7 @@ flet.run(main)
 
 简单的控件布局使用这两个布局控件也能实现。
 
-此外，如果`flet.Container`容器控件（这是个具体控件，不是一类控件）启用了自动扩展（`expand`参数，大部分控件都有此参数，完整用法参考 https://flet.dev/docs/cookbook/expanding-controls ），可以化身自动填充可用空间的弹性控件，与上面的布局控件组合使用，
+此外，如果`flet.Container`容器控件（这是个具体控件，不是一类控件）启用了自动扩展（`expand`参数，布尔类型，大部分控件都有此参数，启用之后，控件会自动调整大小，来填充指定方向的可用空间，完整用法参考 https://flet.dev/docs/cookbook/expanding-controls ），可以化身自动填充可用空间的弹性控件，与上面的布局控件组合使用，
 
 比如，让两个控件分别靠边，而不是紧挨着：
 

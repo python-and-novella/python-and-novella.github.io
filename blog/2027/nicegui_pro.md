@@ -12,7 +12,186 @@
 
 基于各方面的考量，2027版除了延续2026版的计划，继续介绍其他控件之外，将尽量减少单章的内容量，只介绍一个控件的基本概念（参数、属性、方法）和必要扩展（槽、控件方法），加快更新节奏。同时，也欢迎对NiceGUI感兴趣的读者积极参与互动，让各位的问题及时得到解答。
 
-## 55 `ui.page`类的参数（更新中）
+## 55 详解多页面模式
+
+前面的教程几乎都是用单页面模式、窗口模式作为示例，而很多读者实际开发中，可能会用多页面模式作为程序的主要运行模式。因此，2027版的第一章，就先来回顾一下多页面模式，学习一下多页面模式中相关的功能。
+
+相关文档：https://nicegui.io/documentation/page
+
+### 55.1 `ui.page`类
+
+说到多页面模式，就离不开`ui.page`类：
+
+```python3
+from nicegui import ui
+
+@ui.page(
+    path='/',
+)
+def index():
+    ui.button('Hello')
+
+ui.run()
+```
+
+如上面示例所展示的，表示页面对应路径的`path`参数不可缺失，这个一般都比较熟悉。但是，除了这个参数，`ui.page`类还支持一些关键字参数，如果读者有特定需求，则需要用到这些参数。
+
+`ui.page`类支持以下参数：
+
+- `path`参数，字符串类型，表示页面对应的路径。路径支持URL参数（路径参数、查询参数）注入，具体用法可以参考前面的第30章，这里不做展开。
+
+- `title`参数，字符串类型，表示页面对应的标题（会显示为浏览器窗口、标签页的标题）。
+
+  从该参数开始，只能通过关键字传入。
+
+- `viewport`参数，字符串类型，表示网页的VIewport属性。
+
+- `favicon`参数，字符串类型或者`Path`类型，表示页面在标题栏的图标。
+
+- `dark`参数，布尔类型，表示页面是否默认启用暗黑模式。使用`None`的话，表示跟随系统。
+
+- `language`参数，字符串类型，表示页面的语言。注意，该参数只会影响框架内提供多语言内容的部分，对于非框架自带的内容，则需要通过其他方法实现多语言功能，无法通过此参数切换语言。
+
+- `response_timeout`参数，浮点类型，表示页面的响应超时，默认为`3.0`。
+
+- `reconnect_timeout`参数，浮点类型，表示页面的重新连接超时。
+
+- `markdown`参数，布尔类型，表示是否为AI工具提供页面的Markdown格式版本，以减少AI工具获取页面时的Token消耗。
+
+- `api_router`参数，`APIRouter`类型，表示页面所属的子路由。
+
+- `**kwargs`参数，其余不与上述关键字参数同名的其他关键字参数将会传给`APIRouter`类。
+
+关于`api_router`参数的示例如下：
+
+```python3
+from nicegui import ui,APIRouter,app
+
+router = APIRouter(prefix='/psf')
+
+@ui.page(
+    path='/',
+    title='Hello',
+    api_router=router
+)
+def index():
+    ui.button('Hello')
+
+app.include_router(router)
+
+ui.run()
+```
+
+此时，想要访问该页面，就要改为`http://{host}:{port}/psf/`。关于子路由的详细介绍，请看本章的下一节。
+
+### 55.2 `APIRouter`类
+
+上一节中，`api_router`参数表示页面所属的子路由。这就引出了本节要介绍的子路由和`APIRouter`类。
+
+子路由和单页面应用类似，但每个路径对应的页面是独立的，没有页面的公共部分。
+
+而上一节的示例可以改为以下相同结果的示例：
+
+```python3
+from nicegui import ui,APIRouter,app
+
+router = APIRouter(prefix='/psf')
+
+@router.page(
+    path='/',
+    title='Hello',
+)
+def index():
+    ui.button('Hello')
+
+app.include_router(router)
+
+ui.run()
+```
+
+注意，`app.include_router`方法用于注册子路由，可以注册多个，但必须在子路由的页面添加完成后注册，不能提前注册。
+
+使用子路由之后，如果一个网站包含多个架构类似的子网站，无需单独记录每个页面对应的完整路径（不含主机、端口号的部分），只需添加对应子路由即可。即使页面的路径一样，完整路径也会因为子路由的存在而不同，不会冲突：
+
+```python3
+from nicegui import ui,APIRouter,app
+
+router1 = APIRouter(prefix='/test')
+router2 = APIRouter(prefix='/psf')
+
+@router1.page(
+    path='/',
+    title='Hello',
+)
+def _():
+    ui.button('Hello')
+
+@router2.page(
+    path='/',
+    title='Hello psf',
+)
+def _():
+    ui.button('Hello')
+
+app.include_router(router1)
+app.include_router(router2)
+
+ui.run()
+```
+
+![2027_55.2_1](nicegui_pro.assets/2027_55.2_1.png)
+
+`APIRouter`类支持以下关键字参数（部分，其余参数可参考 https://fastapi.tiangolo.com/reference/apirouter/ ）：
+
+- `prefix`参数，字符串类型，表示子路由路径（或者叫页面路径的前缀）。
+
+`APIRouter`类支持以下方法（部分，其余方法可参考 https://fastapi.tiangolo.com/reference/apirouter/ ）：
+
+- `page`方法，用法、参数和`ui.page`类相同。
+
+### 55.3 `app.clients`方法
+
+之前的版本速览说过，给`app.clients`方法传入`None`（默认值）时，可以获取所有客户端链接，可用于广播、消息发送、信息收集等。
+
+其实，`app.clients`方法还可以传入完整路径（不含主机、端口号的部分），获取所有连接指定完整路径的客户端链接：
+
+```python3
+from nicegui import ui,APIRouter,app
+
+router1 = APIRouter(prefix='/test')
+router2 = APIRouter(prefix='/psf')
+
+@router1.page(
+    path='/',
+    title='Hello',
+)
+def _():
+    def test():
+        for client in app.clients('/psf/'):
+            with client:
+                ui.notify(client.id)
+    ui.button('test',on_click=test)
+
+@router2.page(
+    path='/',
+    title='Hello psf',
+)
+def _():
+    ui.button('Hello')
+
+app.include_router(router1)
+app.include_router(router2)
+
+ui.run()
+```
+
+![2027_55.3_1](nicegui_pro.assets/2027_55.3_1.png)
+
+因此，点击右边窗口中的按钮，所有路径与左边窗口系统的客户端，都会执行指定操作。
+
+## 56 样式技巧——仅在特定状态时生效（更新中）
+
+相关文档：https://tailwindcss.com/docs/hover-focus-and-other-states
 
 
 
@@ -22,9 +201,58 @@
 
 
 
-## 56 学习控件——创建布局的`ui.column`控件和`ui.row`控件（更新中）
+## 57 样式技巧——仅在特定屏幕大小时生效（更新中）
+
+相关文档：https://tailwindcss.com/docs/responsive-design
 
 
+
+
+
+## 58 学习控件——创建布局的`ui.column`控件和`ui.row`控件（更新中）
+
+相关文档：https://nicegui.io/documentation/column 和 https://nicegui.io/documentation/row
+
+
+
+（引言）
+
+
+
+先看示例：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.column().classes(
+        'border-2 border-red-700'
+    ):
+        for i in range(4):
+            ui.item(str(i))
+    with ui.row().classes(
+        'border-2 border-red-700'
+    ):
+        for i in range(4):
+            ui.item(str(i))
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+（两个控件的参数一样，因此合并介绍）
+
+
+
+
+
+
+
+## 59 学习控件——创建布局的`ui.grid`控件（更新中）
 
 
 

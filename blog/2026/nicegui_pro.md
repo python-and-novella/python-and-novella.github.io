@@ -7348,7 +7348,7 @@ ui.run(
 - Python程序异常，一般是`Exception`类实例或者其子类实例，使用`raise`触发。
 - HTTP状态码，4或者5开头的状态码表示页面或者服务器发生错误，通常是访问的资源出现异常，由服务器程序检查并触发。
 
-对于Python程序异常，只需像定义普通页面一样，使用`app.on_page_exception`装饰器或者`app.on_page_exception`装饰器装饰页面构建函数，接收具体异常作为参数，并使用该参数展示具体异常信息。
+对于Python程序异常，只需像定义普通页面一样，使用`app.on_page_exception`装饰器或者`app.on_exception`装饰器装饰页面构建函数，接收具体异常作为参数，并使用该参数展示具体异常信息。
 
 其中，`app.on_page_exception`装饰器用于捕获页面创建时触发的异常：
 
@@ -7366,7 +7366,7 @@ def index():
 ui.run()
 ```
 
-`app.on_page_exception`装饰器则用于捕获页面创建完成后触发的异常：
+`app.on_exception`装饰器则用于捕获页面创建完成后触发的异常：
 
 ```python3
 from nicegui import ui, app
@@ -7465,7 +7465,7 @@ ui.run(
 
 `title`参数，字符串类型，表示网页模式、窗口模式默认的窗口标题，默认为`'NiceGUI'`。
 
-`viewport`参数，字符串类型，表示网页的VIewport属性，常用于优化移动端的显示效果，默认为`'width=device-width, initial-scale=1'`，更多用法可以参考 https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Elements/meta/name/viewport。比如，看可以添加`user-scalable=no`来禁止移动端用户缩放网页：
+`viewport`参数，字符串类型，表示网页的VIewport属性，常用于优化移动端的显示效果，默认为`'width=device-width, initial-scale=1'`，更多用法可以参考 https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Elements/meta/name/viewport。比如，可以添加`user-scalable=no`来禁止移动端用户缩放网页：
 
 ```python3
 from nicegui import ui
@@ -31825,11 +31825,5 @@ ui.run(
 - `configure_*`方法，设置图表的样式（字体、颜色）。
 - `add_params`方法，添加指定的交互组件。
 - `save`方法，保存图表为图片、HTML文件。
-
-
-
-
-
-
 
 （2026版完结，敬请期待2027版）

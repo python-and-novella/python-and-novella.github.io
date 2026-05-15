@@ -2684,7 +2684,7 @@ app.exec()
 
 - `userTimeChanged`信号，控件属性`time`改变时触发。
 
-## 35 `PySide6.QtWidgets`模块提供的控件（更新中）
+## 35 `PySide6.QtWidgets`模块提供的控件、类
 
 `PySide6.QtWidgets`模块提供了不少控件，前面的章节介绍了一部分，有的读者反馈有些控件用的时候想不起来，或者部分控件还没开始介绍，不知道需要特定功能时改用哪个控件。
 
@@ -2798,81 +2798,79 @@ app.exec()
 
 模型（MVC架构）、视图（MVC架构）相关：
 
-| 类名                                                         | 说明                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`PySide6.QtWidgets.QAbstractItemDelegate`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractItemDelegate.html#PySide6.QtWidgets.QAbstractItemDelegate) | 显示、编辑数据的方式（基类）                                 |
-| [`PySide6.QtWidgets.QAbstractItemView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractItemView.html#PySide6.QtWidgets.QAbstractItemView) | 视图的抽象基类                                               |
-| [`PySide6.QtWidgets.QColumnView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColumnView.html#PySide6.QtWidgets.QColumnView) | 列视图                                                       |
-| [`PySide6.QtWidgets.QDataWidgetMapper`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDataWidgetMapper.html#PySide6.QtWidgets.QDataWidgetMapper) | 将数据模型映射到控件                                         |
-| [`PySide6.QtWidgets.QHeaderView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QHeaderView.html#PySide6.QtWidgets.QHeaderView) | 行、列的标题                                                 |
-| [`PySide6.QtWidgets.QItemDelegate`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QItemDelegate.html#PySide6.QtWidgets.QItemDelegate) | 显示、编辑数据的方式                                         |
-| [`PySide6.QtWidgets.QItemEditorFactory`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QItemEditorFactory.html#PySide6.QtWidgets.QItemEditorFactory) | 提供编辑数据的控件                                           |
-| [`PySide6.QtWidgets.QItemEditorCreatorBase`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QItemEditorCreatorBase.html#PySide6.QtWidgets.QItemEditorCreatorBase) | 提供创建、编辑数据的控件                                     |
-| [`PySide6.QtWidgets.QListView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QListView.html#PySide6.QtWidgets.QListView) | 列表视图                                                     |
-| [`PySide6.QtWidgets.QListWidgetItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QListWidgetItem.html#PySide6.QtWidgets.QListWidgetItem) | 列表视图的项                                                 |
-| [`PySide6.QtWidgets.QListWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QListWidget.html#PySide6.QtWidgets.QListWidget) | 列表视图的项（控件）                                         |
-| [`PySide6.QtWidgets.QStyledItemDelegate`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyledItemDelegate.html#PySide6.QtWidgets.QStyledItemDelegate) | 显示、编辑数据的方式（带样式）                               |
-| [`PySide6.QtWidgets.QTableView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTableView.html#PySide6.QtWidgets.QTableView) | 表格视图                                                     |
-| [`PySide6.QtWidgets.QTableWidgetSelectionRange`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTableWidgetSelectionRange.html#PySide6.QtWidgets.QTableWidgetSelectionRange) | 直接与表格视图中选择的数据交互                               |
-| [`PySide6.QtWidgets.QTableWidgetItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTableWidgetItem.html#PySide6.QtWidgets.QTableWidgetItem) | The QTableWidgetItem class provides an item for use with the QTableWidget class. |
-| [`PySide6.QtWidgets.QTableWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTableWidget.html#PySide6.QtWidgets.QTableWidget) | The QTableWidget class provides an item-based table view with a default model. |
-| [`PySide6.QtWidgets.QTreeView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTreeView.html#PySide6.QtWidgets.QTreeView) | The QTreeView class provides a default model/view implementation of a tree view. |
-| [`PySide6.QtWidgets.QTreeWidgetItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTreeWidgetItem.html#PySide6.QtWidgets.QTreeWidgetItem) | The QTreeWidgetItem class provides an item for use with the QTreeWidget convenience class. |
-| [`PySide6.QtWidgets.QTreeWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTreeWidget.html#PySide6.QtWidgets.QTreeWidget) | The QTreeWidget class provides a tree view that uses a predefined tree model. |
-| [`PySide6.QtWidgets.QTreeWidgetItemIterator`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTreeWidgetItemIterator.html#PySide6.QtWidgets.QTreeWidgetItemIterator) | The QTreeWidgetItemIterator class provides a way to iterate over the items in a QTreeWidget instance. |
+| 类名                                                         | 说明                           |
+| ------------------------------------------------------------ | ------------------------------ |
+| [`PySide6.QtWidgets.QAbstractItemDelegate`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractItemDelegate.html#PySide6.QtWidgets.QAbstractItemDelegate) | 显示、编辑数据的方式（基类）   |
+| [`PySide6.QtWidgets.QAbstractItemView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractItemView.html#PySide6.QtWidgets.QAbstractItemView) | 视图的抽象基类                 |
+| [`PySide6.QtWidgets.QColumnView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColumnView.html#PySide6.QtWidgets.QColumnView) | 列视图                         |
+| [`PySide6.QtWidgets.QDataWidgetMapper`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDataWidgetMapper.html#PySide6.QtWidgets.QDataWidgetMapper) | 将数据模型映射到控件           |
+| [`PySide6.QtWidgets.QHeaderView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QHeaderView.html#PySide6.QtWidgets.QHeaderView) | 行、列的标题                   |
+| [`PySide6.QtWidgets.QItemDelegate`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QItemDelegate.html#PySide6.QtWidgets.QItemDelegate) | 显示、编辑数据的方式           |
+| [`PySide6.QtWidgets.QItemEditorFactory`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QItemEditorFactory.html#PySide6.QtWidgets.QItemEditorFactory) | 提供编辑数据的控件             |
+| [`PySide6.QtWidgets.QItemEditorCreatorBase`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QItemEditorCreatorBase.html#PySide6.QtWidgets.QItemEditorCreatorBase) | 提供创建、编辑数据的控件       |
+| [`PySide6.QtWidgets.QListView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QListView.html#PySide6.QtWidgets.QListView) | 列表视图                       |
+| [`PySide6.QtWidgets.QListWidgetItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QListWidgetItem.html#PySide6.QtWidgets.QListWidgetItem) | 列表视图的项                   |
+| [`PySide6.QtWidgets.QListWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QListWidget.html#PySide6.QtWidgets.QListWidget) | 列表视图控件                   |
+| [`PySide6.QtWidgets.QStyledItemDelegate`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyledItemDelegate.html#PySide6.QtWidgets.QStyledItemDelegate) | 显示、编辑数据的方式（带样式） |
+| [`PySide6.QtWidgets.QTableView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTableView.html#PySide6.QtWidgets.QTableView) | 表格视图                       |
+| [`PySide6.QtWidgets.QTableWidgetSelectionRange`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTableWidgetSelectionRange.html#PySide6.QtWidgets.QTableWidgetSelectionRange) | 直接与表格视图中选择的数据交互 |
+| [`PySide6.QtWidgets.QTableWidgetItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTableWidgetItem.html#PySide6.QtWidgets.QTableWidgetItem) | 表格视图的项                   |
+| [`PySide6.QtWidgets.QTableWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTableWidget.html#PySide6.QtWidgets.QTableWidget) | 表格视图控件                   |
+| [`PySide6.QtWidgets.QTreeView`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTreeView.html#PySide6.QtWidgets.QTreeView) | 树形视图                       |
+| [`PySide6.QtWidgets.QTreeWidgetItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTreeWidgetItem.html#PySide6.QtWidgets.QTreeWidgetItem) | 树形视图的项                   |
+| [`PySide6.QtWidgets.QTreeWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTreeWidget.html#PySide6.QtWidgets.QTreeWidget) | 树形视图控件                   |
+| [`PySide6.QtWidgets.QTreeWidgetItemIterator`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTreeWidgetItemIterator.html#PySide6.QtWidgets.QTreeWidgetItemIterator) | 树形视图的项的迭代器           |
 
 `QMainWindow`主窗口控件相关：
 
-| 类名                                                         | 说明                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`PySide6.QtWidgets.QWidgetAction`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidgetAction.html#PySide6.QtWidgets.QWidgetAction) | The QWidgetAction class extends QAction by an interface for inserting custom widgets into action based containers, such as toolbars. |
-| [`PySide6.QtWidgets.QDockWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDockWidget.html#PySide6.QtWidgets.QDockWidget) | The QDockWidget class provides a widget that can be docked inside a QMainWindow or floated as a top-level window on the desktop. |
-| [`PySide6.QtWidgets.QMainWindow`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow) | The QMainWindow class provides a main application window.    |
-| [`PySide6.QtWidgets.QMdiArea`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMdiArea.html#PySide6.QtWidgets.QMdiArea) | The QMdiArea widget provides an area in which MDI windows are displayed. |
-| [`PySide6.QtWidgets.QMdiSubWindow`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMdiSubWindow.html#PySide6.QtWidgets.QMdiSubWindow) | The QMdiSubWindow class provides a subwindow class for QMdiArea. |
-| [`PySide6.QtWidgets.QMenu`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMenu.html#PySide6.QtWidgets.QMenu) | The QMenu class provides a menu widget for use in menu bars, context menus, and other popup menus. |
-| [`PySide6.QtWidgets.QMenuBar`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMenuBar.html#PySide6.QtWidgets.QMenuBar) | The QMenuBar class provides a horizontal menu bar.           |
-| [`PySide6.QtWidgets.QSizeGrip`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSizeGrip.html#PySide6.QtWidgets.QSizeGrip) | The QSizeGrip class provides a resize handle for resizing top-level windows. |
-| [`PySide6.QtWidgets.QStatusBar`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStatusBar.html#PySide6.QtWidgets.QStatusBar) | The QStatusBar class provides a horizontal bar suitable for presenting status information. |
-| [`PySide6.QtWidgets.QToolBar`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QToolBar.html#PySide6.QtWidgets.QToolBar) | The QToolBar class provides a movable panel that contains a set of controls. |
+| 类名                                                         | 说明                   |
+| ------------------------------------------------------------ | ---------------------- |
+| [`PySide6.QtWidgets.QWidgetAction`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidgetAction.html#PySide6.QtWidgets.QWidgetAction) | 给动作嵌入控件         |
+| [`PySide6.QtWidgets.QDockWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDockWidget.html#PySide6.QtWidgets.QDockWidget) | 让控件可浮动、停靠     |
+| [`PySide6.QtWidgets.QMainWindow`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow) | 竹醋昂克               |
+| [`PySide6.QtWidgets.QMdiArea`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMdiArea.html#PySide6.QtWidgets.QMdiArea) | 多个浮动的内部子窗口   |
+| [`PySide6.QtWidgets.QMdiSubWindow`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMdiSubWindow.html#PySide6.QtWidgets.QMdiSubWindow) | 内部子窗口             |
+| [`PySide6.QtWidgets.QMenu`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMenu.html#PySide6.QtWidgets.QMenu) | 菜单                   |
+| [`PySide6.QtWidgets.QMenuBar`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMenuBar.html#PySide6.QtWidgets.QMenuBar) | 菜单栏                 |
+| [`PySide6.QtWidgets.QSizeGrip`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSizeGrip.html#PySide6.QtWidgets.QSizeGrip) | 调整窗口大小的拖放控件 |
+| [`PySide6.QtWidgets.QStatusBar`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStatusBar.html#PySide6.QtWidgets.QStatusBar) | 状态栏                 |
+| [`PySide6.QtWidgets.QToolBar`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QToolBar.html#PySide6.QtWidgets.QToolBar) | 工具栏                 |
 
 控件外观、样式相关：
 
-| 类名                                                         | 说明                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`PySide6.QtWidgets.QGraphicsAnchorLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGraphicsAnchorLayout.html#PySide6.QtWidgets.QGraphicsAnchorLayout) | The QGraphicsAnchorLayout class provides a layout where one can anchor widgets together in Graphics View. |
-| [`PySide6.QtWidgets.QGraphicsAnchor`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGraphicsAnchor.html#PySide6.QtWidgets.QGraphicsAnchor) | The QGraphicsAnchor class represents an anchor between two items in a QGraphicsAnchorLayout. |
-| [`PySide6.QtWidgets.QCommonStyle`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QCommonStyle.html#PySide6.QtWidgets.QCommonStyle) | The QCommonStyle class encapsulates the common Look and Feel of a GUI. |
-| [`PySide6.QtWidgets.QStyle`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyle.html#PySide6.QtWidgets.QStyle) | The QStyle class is an abstract base class that encapsulates the look and feel of a GUI. |
-| [`PySide6.QtWidgets.QStyleFactory`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleFactory.html#PySide6.QtWidgets.QStyleFactory) | The QStyleFactory class creates QStyle objects.              |
-| [`PySide6.QtWidgets.QStyleOption`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleOption.html#PySide6.QtWidgets.QStyleOption) | The QStyleOption class stores the parameters used by QStyle functions. |
-| [`PySide6.QtWidgets.QStyleHintReturn`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleHintReturn.html#PySide6.QtWidgets.QStyleHintReturn) | The QStyleHintReturn class provides style hints that return more than basic data types. |
-| [`PySide6.QtWidgets.QStyleHintReturnMask`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleHintReturnMask.html#PySide6.QtWidgets.QStyleHintReturnMask) | The QStyleHintReturnMask class provides style hints that return a QRegion. |
-| [`PySide6.QtWidgets.QStyleHintReturnVariant`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleHintReturnVariant.html#PySide6.QtWidgets.QStyleHintReturnVariant) | The QStyleHintReturnVariant class provides style hints that return a QVariant. |
-| [`PySide6.QtWidgets.QStylePainter`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStylePainter.html#PySide6.QtWidgets.QStylePainter) | The QStylePainter class is a convenience class for drawing QStyle elements inside a widget. |
+| 类名                                                         | 说明                               |
+| ------------------------------------------------------------ | ---------------------------------- |
+| [`PySide6.QtWidgets.QGraphicsAnchorLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGraphicsAnchorLayout.html#PySide6.QtWidgets.QGraphicsAnchorLayout) | 在图形中用于固定控件的布局控件     |
+| [`PySide6.QtWidgets.QGraphicsAnchor`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGraphicsAnchor.html#PySide6.QtWidgets.QGraphicsAnchor) | 固定控件用的锚点                   |
+| [`PySide6.QtWidgets.QCommonStyle`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QCommonStyle.html#PySide6.QtWidgets.QCommonStyle) | 继承自基类的通用实现（不直接使用） |
+| [`PySide6.QtWidgets.QStyle`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyle.html#PySide6.QtWidgets.QStyle) | 样式的基类                         |
+| [`PySide6.QtWidgets.QStyleFactory`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleFactory.html#PySide6.QtWidgets.QStyleFactory) | 用于创建控件内部使用的样式对象     |
+| [`PySide6.QtWidgets.QStyleOption`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleOption.html#PySide6.QtWidgets.QStyleOption) | 样式相关的配置项                   |
+| [`PySide6.QtWidgets.QStyleHintReturn`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleHintReturn.html#PySide6.QtWidgets.QStyleHintReturn) | 样式提示的返回值                   |
+| [`PySide6.QtWidgets.QStyleHintReturnMask`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleHintReturnMask.html#PySide6.QtWidgets.QStyleHintReturnMask) | 样式提示的返回值（遮罩层）         |
+| [`PySide6.QtWidgets.QStyleHintReturnVariant`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStyleHintReturnVariant.html#PySide6.QtWidgets.QStyleHintReturnVariant) | 样式提示的返回值（任意值）         |
+| [`PySide6.QtWidgets.QStylePainter`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStylePainter.html#PySide6.QtWidgets.QStylePainter) | 绘制样式的画笔                     |
 
 布局相关：
 
-| 类名                                                         | 说明                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`PySide6.QtWidgets.QGraphicsAnchorLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGraphicsAnchorLayout.html#PySide6.QtWidgets.QGraphicsAnchorLayout) | The QGraphicsAnchorLayout class provides a layout where one can anchor widgets together in Graphics View. |
-| [`PySide6.QtWidgets.QGraphicsAnchor`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGraphicsAnchor.html#PySide6.QtWidgets.QGraphicsAnchor) | The QGraphicsAnchor class represents an anchor between two items in a QGraphicsAnchorLayout. |
-| [`PySide6.QtWidgets.QBoxLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QBoxLayout.html#PySide6.QtWidgets.QBoxLayout) | The QBoxLayout class lines up child widgets horizontally or vertically. |
-| [`PySide6.QtWidgets.QHBoxLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QHBoxLayout.html#PySide6.QtWidgets.QHBoxLayout) | The QHBoxLayout class lines up widgets horizontally.         |
-| [`PySide6.QtWidgets.QVBoxLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QVBoxLayout.html#PySide6.QtWidgets.QVBoxLayout) | The QVBoxLayout class lines up widgets vertically.           |
-| [`PySide6.QtWidgets.QFormLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFormLayout.html#PySide6.QtWidgets.QFormLayout) | The QFormLayout class manages forms of input widgets and their associated labels. |
-| [`PySide6.QtWidgets.QGridLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGridLayout.html#PySide6.QtWidgets.QGridLayout) | The QGridLayout class lays out widgets in a grid.            |
-| [`PySide6.QtWidgets.QLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLayout.html#PySide6.QtWidgets.QLayout) | The QLayout class is the base class of geometry managers.    |
-| [`PySide6.QtWidgets.QLayoutItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLayoutItem.html#PySide6.QtWidgets.QLayoutItem) | The QLayoutItem class provides an abstract item that a QLayout manipulates. |
-| [`PySide6.QtWidgets.QSpacerItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSpacerItem.html#PySide6.QtWidgets.QSpacerItem) | The QSpacerItem class provides blank space in a layout.      |
-| [`PySide6.QtWidgets.QWidgetItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidgetItem.html#PySide6.QtWidgets.QWidgetItem) | The QWidgetItem class is a layout item that represents a widget. |
-| [`PySide6.QtWidgets.QSizePolicy`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSizePolicy.html#PySide6.QtWidgets.QSizePolicy) | The QSizePolicy class is a layout attribute describing horizontal and vertical resizing policy. |
-| [`PySide6.QtWidgets.QStackedLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStackedLayout.html#PySide6.QtWidgets.QStackedLayout) | The QStackedLayout class provides a stack of widgets where only one widget is visible at a time. |
-| [`PySide6.QtWidgets.QButtonGroup`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QButtonGroup.html#PySide6.QtWidgets.QButtonGroup) | The QButtonGroup class provides a container to organize groups of button widgets. |
-| [`PySide6.QtWidgets.QGroupBox`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGroupBox.html#PySide6.QtWidgets.QGroupBox) | The QGroupBox widget provides a group box frame with a title. |
-| [`PySide6.QtWidgets.QStackedWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStackedWidget.html#PySide6.QtWidgets.QStackedWidget) | The QStackedWidget class provides a stack of widgets where only one widget is visible at a time. |
-
-
+| 类名                                                         | 说明                           |
+| ------------------------------------------------------------ | ------------------------------ |
+| [`PySide6.QtWidgets.QGraphicsAnchorLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGraphicsAnchorLayout.html#PySide6.QtWidgets.QGraphicsAnchorLayout) | 在图形中用于固定控件的布局控件 |
+| [`PySide6.QtWidgets.QGraphicsAnchor`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGraphicsAnchor.html#PySide6.QtWidgets.QGraphicsAnchor) | 固定控件用的锚点               |
+| [`PySide6.QtWidgets.QBoxLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QBoxLayout.html#PySide6.QtWidgets.QBoxLayout) | 垂直布局、水平布局的基类       |
+| [`PySide6.QtWidgets.QHBoxLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QHBoxLayout.html#PySide6.QtWidgets.QHBoxLayout) | 水平布局                       |
+| [`PySide6.QtWidgets.QVBoxLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QVBoxLayout.html#PySide6.QtWidgets.QVBoxLayout) | 垂直布局                       |
+| [`PySide6.QtWidgets.QFormLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFormLayout.html#PySide6.QtWidgets.QFormLayout) | 表单布局                       |
+| [`PySide6.QtWidgets.QGridLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGridLayout.html#PySide6.QtWidgets.QGridLayout) | 网格布局                       |
+| [`PySide6.QtWidgets.QLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLayout.html#PySide6.QtWidgets.QLayout) | 所有布局的基类                 |
+| [`PySide6.QtWidgets.QLayoutItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLayoutItem.html#PySide6.QtWidgets.QLayoutItem) | 布局项目                       |
+| [`PySide6.QtWidgets.QSpacerItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSpacerItem.html#PySide6.QtWidgets.QSpacerItem) | 空白的布局项目                 |
+| [`PySide6.QtWidgets.QWidgetItem`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidgetItem.html#PySide6.QtWidgets.QWidgetItem) | 将普通控件转换为布局项目       |
+| [`PySide6.QtWidgets.QSizePolicy`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSizePolicy.html#PySide6.QtWidgets.QSizePolicy) | 尺寸策略                       |
+| [`PySide6.QtWidgets.QStackedLayout`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStackedLayout.html#PySide6.QtWidgets.QStackedLayout) | 堆叠布局                       |
+| [`PySide6.QtWidgets.QButtonGroup`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QButtonGroup.html#PySide6.QtWidgets.QButtonGroup) | 给按钮编组                     |
+| [`PySide6.QtWidgets.QGroupBox`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGroupBox.html#PySide6.QtWidgets.QGroupBox) | 带有标题的编组控件             |
+| [`PySide6.QtWidgets.QStackedWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStackedWidget.html#PySide6.QtWidgets.QStackedWidget) | 子控件可以堆叠的容器           |
 
 最后再附上一份`PySide6.QtWidgets`模块提供的所有控件类清单（功能目录不包含所有控件类，参考自 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html）：
 
@@ -2905,7 +2903,6 @@ QDialog
 QDialogButtonBox
 QDockWidget
 QDoubleSpinBox
-ExtraSelection
 QErrorMessage
 QFileDialog
 QFileIconProvider
@@ -3072,7 +3069,81 @@ QWizard
 QWizardPage
 ```
 
+注意，部分术语、概念的翻译、表述受限于笔者水平，可能存在偏差或者错误，后续更新中，部分表述可能会有变动、改正。如果读者发现相关表述存在错误或者不准确，请不吝指正。
 
+## 36 `QDial`旋钮控件（更新中）
+
+`QDial`旋钮控件……
+
+
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识控件')
+window.resize(400, 300)
+
+# 添加相关控件
+
+window.show()
+app.exec()
+```
+
+（运行效果图）
+
+`Qxxx`xxxx控件的继承关系如下：
+
+（截图继承关系）
+
+相关文档的链接如下：
+
+- （由近到远每一层级对应的文档链接）
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### x.1 初始化方法（更新中）
+
+`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
+
+第一种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+第二种初始化方法支持以下参数：
+
+- `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.2 方法、控件属性（更新中）
+
+`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+
+- `xxx`方法，---
+
+  该方法支持以下参数：
+
+  - `xxx`参数，仅限位置参数（第一个位置参数），---
+
+### x.3 信号和槽（更新中）
+
+`Qxxx`xxx控件支持以下信号（部分）：
+
+- `xxx`信号，---
+
+`Qxxx`xxx控件支持以下槽（部分）：
+
+- `xxx`方法，---
+
+### x.4 扩展用法（更新中）
+
+（扩展用法包含前面参数、方法、信号、槽相关的示例）
+
+#### x.4.1 xxx（更新中）
 
 
 

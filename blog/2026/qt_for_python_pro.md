@@ -3069,81 +3069,128 @@ QWizard
 QWizardPage
 ```
 
-注意，部分术语、概念的翻译、表述受限于笔者水平，可能存在偏差或者错误，后续更新中，部分表述可能会有变动、改正。如果读者发现相关表述存在错误或者不准确，请不吝指正。
+注意，部分术语、概念的翻译、表述受限于笔者水平和创作时的想法，可能存在偏差或者错误，后续更新中，部分表述可能会有变动、改正。如果读者发现相关表述存在错误或者不准确，请不吝指正。
 
-## 36 `QDial`旋钮控件（更新中）
+## 36 `QDial`旋钮控件
 
-`QDial`旋钮控件……
-
-
+`QDial`旋钮控件用于调整数值，提供了类似真实旋钮的交互体验，可以看作是滑块的一种特殊类别。
 
 示例如下：
 
 ```python3
 from PySide6.QtWidgets import (
     QApplication,
-    QWidget
+    QWidget,
+    QDial
 )
 
 app = QApplication()
 window = QWidget()
-window.setWindowTitle('认识控件')
+window.setWindowTitle('认识旋钮控件')
 window.resize(400, 300)
 
-# 添加相关控件
+dial = QDial(
+    window,
+    notchesVisible=True,
+    wrapping=False,
+    notchTarget=10,
+    value=40,
+    minimum=0,
+    maximum=100,
+)
 
 window.show()
 app.exec()
 ```
 
-（运行效果图）
+![2026_36_1](qt_for_python_pro.assets/2026_36_1.png)
 
-`Qxxx`xxxx控件的继承关系如下：
+`QDial`旋钮控件的继承关系如下：
 
-（截图继承关系）
+![2026_36_2](qt_for_python_pro.assets/2026_36_2.png)
 
 相关文档的链接如下：
 
-- （由近到远每一层级对应的文档链接）
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDial.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractSlider.html
 - https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
 
-### x.1 初始化方法（更新中）
+### 36.1 初始化方法
 
-`Qxxx`xxx控件有多种初始化方法（参数名及类型提示来自`QtWidgets.pyi`）。
+`QDial`旋钮控件（部分参数名及类型提示来自`QtWidgets.pyi`）的初始化方法支持以下参数：
 
-第一种初始化方法支持以下参数：
+- `parent`参数，`PySide6.QtWidgets.QWidget`类型，表示父控件。如果指定了父控件，那么该控件显示时，会使用父控件的位置或者嵌在父控件内（取决于该控件是否支持嵌入到其他控件）。不指定或者为`None`，则控件会在独立窗口中显示。
+- `wrapping`参数，仅限关键字参数，布尔类型，表示是否将旋钮最小值位置和最大值位置连接在一起，默认为`False`。如果不连接，从最小值调整至最大值时会有一个明显的跳变。
+- `notchesVisible`参数，仅限关键字参数，布尔类型，表示是否显示刻度，默认为`False`。
+- `notchTarget`参数，仅限关键字参数，浮点类型，表示刻度的分度值，默认为`{最大值-最小值}/20`（动态计算）。
+- `value`参数，仅限关键字参数，整数类型，表示旋钮当前位置对应的值。
+- `sliderPosition`参数，仅限关键字参数，整数类型，表示旋钮当前位置。
+- `minimum`参数，仅限关键字参数，整数类型，表示旋钮的最小值。
+- `maximum`参数，仅限关键字参数，整数类型，表示旋钮的最大值。
 
-- `xxx`参数，仅限位置参数（第一个位置参数），---
+注意，关于初始化参数，官方文档和`QtWidgets.pyi`中的参数提示有两个坑需要了解：
 
-第二种初始化方法支持以下参数：
+- 参数提示中对应控件属性的参数，如果是**只读**属性（没有对应的设置方法），则该参数**不能**在初始化时传入，会报错。
+- 除了控件提供的初始化参数提示，其父类控件提供的初始化参数提示也有部分可用。这一部分可以简单理解为，所有控件支持的**可读写**属性，都可以在初始化时通过**关键字**传入。
 
-- `xxx`参数，仅限位置参数（第一个位置参数），---
+### 36.2 方法、控件属性
 
-### x.2 方法、控件属性（更新中）
+`QDial`旋钮控件的方法、控件属性大多来自其基类——`QAbstractSlider`类，这里简单介绍几个实用的方法、控件属性。
 
-`Qxxx`xxx控件支持以下方法（部分，含控件属性）：
+`invertedAppearance`方法（控件属性，可使用`invertedAppearance`方法设置），表示是否左右镜像旋钮。
 
-- `xxx`方法，---
+`invertedControls`方法（控件属性，可使用`setInvertedControls`方法设置），表示鼠标滚轮调整旋钮的方向是否反转。
 
-  该方法支持以下参数：
+`hasTracking`方法（控件属性`tracking`的获取方法，可使用`setTracking`方法设置），返回是否在调整旋钮时实时触发`valueChanged`信号。
 
-  - `xxx`参数，仅限位置参数（第一个位置参数），---
+`singleStep`方法（控件属性，可使用`setSingleStep`方法设置），返回使用方向键调整旋钮时的步长。
 
-### x.3 信号和槽（更新中）
+`sliderPosition`方法，（控件属性，可使用`setSliderPosition`方法设置），返回旋钮的位置。
 
-`Qxxx`xxx控件支持以下信号（部分）：
+`value`方法，（控件属性，可使用`setValue`方法设置），返回旋钮当前位置对应的值。
 
-- `xxx`信号，---
+### 36.3 信号和槽
 
-`Qxxx`xxx控件支持以下槽（部分）：
+`QDial`旋钮控件支持以下信号（部分）：
 
-- `xxx`方法，---
+- `rangeChanged`信号，设置旋钮的最小值、最大值时触发。
+- `sliderMoved`信号，鼠标拖动旋钮时触发。
+- `sliderPressed`信号，按下旋钮时触发。
+- `sliderReleased`信号，松开旋钮时触发。
+- `valueChanged`信号，旋钮位置改变（包括通过按键调整）时触发。
 
-### x.4 扩展用法（更新中）
+`QDial`旋钮控件支持以下槽（部分）：
 
-（扩展用法包含前面参数、方法、信号、槽相关的示例）
+- `setRange`方法，设置旋钮的最小值、最大值。
+- `setValue`方法，设置旋钮的当前位置。
 
-#### x.4.1 xxx（更新中）
+## 37 `QLabel`标签控件（更新中）
+
+### 37.0 前言
+
+因部分读者反馈2026版介绍控件的章节有些呆板，不及其他章节以及2025版介绍控件的章节有趣，而且公众号那边因为内容格式相似而认定为文章的原创度较低。
+
+因此，从本章开始，将改用故事演绎或者更多解释性文字的形式介绍控件，不再套用模板介绍控件的参数、方法、控件属性、信号、槽，着重介绍学习该控件用法的学习思路和方法，希望可以激发读者的学习兴趣。
+
+如果读者觉得故事演绎的方式没法充分了解控件的用法，依然可以通过笔者提供的文档链接自行学习官网文档。
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLabel.html
+
+### 37.1 xxx（更新中）
+
+
+
+起因：
+
+因为需要简单显示文本而找到了`QLabel`标签控件。
+
+经过：
+
+使用过后发现了该控件的用法远比看上去丰富，然后扩展介绍其他用法。
+
+结果：
+
+简单总结用途、用法，提炼一下学习技巧、使用技巧。
 
 
 

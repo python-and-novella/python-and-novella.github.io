@@ -112,7 +112,7 @@ flet.run(
 
 主函数固定接收一个`flet.Page`类型的参数，表示程序的当前页面，同时也是主页面。这里就不得不简单梳理一下Flet程序的控件树，这样才能理解后续创建控件的操作。
 
-虽然Flet程序在WIndows系统上运行时显示了一个窗口，但这个窗口实际上归主页面管理。对于Flet程序而言，主页面就是程序的根本，相当于根控件（树根），其余控件（树干、树叶）都要挂载在主页面之下。窗口的管理、其余控件的控制，很多时候也要通过主页面提供的属性、方法来操作。因此，在后续的学习中，将会看到控件创建之后，需要通过调用主页面的方法才能显示（比如对话框）
+虽然Flet程序在Windows系统上运行时显示了一个窗口，但这个窗口实际上归主页面管理。对于Flet程序而言，主页面就是程序的根本，相当于根控件（树根），其余控件（树干、树叶）都要挂载在主页面之下。窗口的管理、其余控件的控制，很多时候也要通过主页面提供的属性、方法来操作。因此，在后续的学习中，将会看到控件创建之后，需要通过调用主页面的方法才能显示（比如对话框）
 
 当程序什么控件都不添加时，实际上默认还有一个主页面控件：
 
@@ -520,13 +520,337 @@ flet.run(main)
 
 布局控件、容器控件有很多，控件的具体用法也远比想象中复杂，更别说实际开发时还会遇到各种各样的问题。本章只是简单介绍一下布局设计的基本思路，后续会详细介绍其他布局控件、容器控件，以及具体控件的具体用法、常见问题。
 
-## 8 xxx（更新中）
+## 8 后台运行任务
+
+如果想让Flet程序在后台运行任务，那就离不开主页面的`run_task`方法（https://flet.dev/docs/controls/page/#flet.Page.run_task）和`run_thread`方法（https://flet.dev/docs/controls/page/#flet.Page.run_thread）。从表面上看，这两种方法的参数、用法几乎一样，只是前者是后台运行异步方法，后者是后台运行同步方法。但是，一旦深入研究，就会发现这两种方法暗含的坑远没有看上去那么简单。
+
+先说`run_task`方法，官方介绍异步用法的文档（https://flet.dev/docs/cookbook/async-apps/#threading）中提到了该方法，这里使用该方法实现了一个可以随时启动的、实时显示时间的程序：
+
+```python3
+import flet
+import asyncio
+import datetime
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = 'Hello'
+    async def update_text():
+        while True:
+            await asyncio.sleep(1)
+            if text:
+                text.value = datetime.datetime.now().strftime('%H:%M:%S')
+                text.update()
+
+    button = flet.Button(
+        'Start',
+        on_click=lambda :page.run_task(update_text)
+    )
+    text = flet.Text(
+        datetime.datetime.now().strftime('%H:%M:%S')
+    )
+    page.add(
+        text,
+        button
+    )
+
+flet.run(main)
+```
+
+![2026_8_1](flet_pro.assets/2026_8_1.png)
+
+参考示例中的代码，可知`run_task`方法在实际使用时有以下要点：
+
+- 如第19行所写，该方法仅支持运行异步方法，只需将异步的可调用对象传给该方法即可。
+- 如第12行所写，异步函数内部必须使用`asyncio.sleep`方法来延迟。
+- 如第13行所写，后台运行的任务内部可以使用控件，但必须判断一下控件是否存在；或者按照官方介绍异步用法的文档中所写，妥善设计停止循环的机制。以免退出程序后，控件已经销毁的情况下，后台任务依然获取控件的属性，导致程序报错。
+- 如第15行所写，通过程序修改控件显示的内容，如果没有用户同时进行交互刷新显示的话，必须手动调用控件的`update`方法来刷新显示。
+
+对于`run_thread`方法，用起来就不如`run_task`方法轻量、自由，先看示例：
+
+```python3
+import flet
+import time
+import datetime
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = 'Hello'
+    def run_in_thread():
+        for _ in range(9):
+            time.sleep(1)
+            print(datetime.datetime.now().strftime('%H:%M:%S'))
+        print('Finished')
+
+    button = flet.Button(
+        'Start',
+        on_click=lambda e:page.run_thread(run_in_thread)
+    )
+    text = flet.Text(
+        'Run in thread'
+    )
+    page.add(
+        text,
+        button
+    )
+
+flet.run(main)
+```
+
+![2026_8_2](flet_pro.assets/2026_8_2.png)
+
+需要注意的是，相比于`run_task`方法，`run_thread`方法在实际使用时有以下要点：
+
+- 不支持异步方法，只能传入同步方法。
+- 不能在后台任务中操作控件。
+- 必须妥善设置循环的结束方法，或者执行有限次数的循环，因为程序没法强制结束该后台任务。
+
+如果后台任务支持接收参数，也可以给`run_task`方法，`run_thread`方法同时传入额外的位置参数、关键字参数，这些额外的参数会传给后台任务：
+
+```python3
+import flet
+import time
+import datetime
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = 'Hello'
+    def run_in_thread(times=1):
+        for _ in range(times):
+            time.sleep(1)
+            print(datetime.datetime.now().strftime('%H:%M:%S'))
+        print('Finished')
+
+    button = flet.Button(
+        'Start',
+        on_click=lambda e:page.run_thread(run_in_thread,times=4)
+    )
+    text = flet.Text(
+        'Run in thread'
+    )
+    page.add(
+        text,
+        button
+    )
+
+flet.run(main)
+```
+
+## 9 颜色
+
+本章参考文档：https://flet.dev/docs/cookbook/colors
+
+在实际给控件设置样式时，最常设置的就是颜色。对于Flet程序而言，支持以下两种类型：
+
+- 字符串。
+- 枚举成员。
+
+先说字符串类型，一般为“0x”开头或者“#”开头的十六进制六位数，每两位表示一个颜色通道，合起来表示RGB颜色。
+
+示例如下：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识颜色'
+    page.add(
+        flet.Button(
+            '0xff0000',
+            bgcolor='0xff0000'
+        ),
+        flet.Button(
+            '#ff0000',
+            bgcolor='#ff0000'
+        )
+    )
 
 
+flet.run(main)
+
+```
+
+![2026_9_1](flet_pro.assets/2026_9_1.png)
+
+除了用十六进制数，也可以直接使用颜色的名字（支持的颜色名字可参考 https://flet.dev/docs/cookbook/colors/#named-color ）：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识颜色'
+    page.add(
+        flet.Button(
+            'red',
+            bgcolor='red'
+        )
+    )
+
+
+flet.run(main)
+
+```
+
+![2026_9_2](flet_pro.assets/2026_9_2.png)
+
+可能有的读者觉得十六进制数和颜色名字都不太好记，用起来不方便，没关系，还可以使用`Colors`和`CupertinoColors`的枚举成员（本质上是颜色名字）：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识颜色'
+    page.add(
+        flet.Button(
+            'flet.Colors.RED',
+            bgcolor=flet.Colors.RED
+        )
+    )
+
+
+flet.run(main)
+
+```
+
+![2026_9_3](flet_pro.assets/2026_9_3.png)
+
+对于颜色而言，还可以设置其透明度，让颜色变得淡一些。
+
+如果是使用十六进制数表达，则在原本的颜色前扩展两位，表示透明度（比如`7f`表示50%透明度）：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识颜色'
+    page.add(
+        flet.Button(
+            '0x7fff000011',
+            bgcolor='0x7fff0000'
+        ),
+        flet.Button(
+            '#7fff0000',
+            bgcolor='#7fff0000'
+        )
+    )
+
+
+flet.run(main)
+
+```
+
+![2026_9_4](flet_pro.assets/2026_9_4.png)
+
+如果是使用`Colors`和`CupertinoColors`的枚举成员，则可以使用`with_opacity`方法：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识颜色'
+    page.add(
+        flet.Button(
+            'flet.Colors.RED',
+            bgcolor=flet.Colors.with_opacity(
+                0.5,
+                flet.Colors.RED
+            )
+        )
+    )
+
+
+flet.run(main)
+
+```
+
+![2026_9_5](flet_pro.assets/2026_9_5.png)
+
+## 10 主题
+
+本章参考文档：https://flet.dev/docs/cookbook/theming
+
+上一章介绍了Flet程序支持的颜色表达方式，对于大部分控件而言，设置颜色主要是用于覆盖默认颜色，以便于做出区分。但是，如果想要修改所有控件的默认颜色，一个一个修改就太过麻烦，这时需要用到Flet程序的主题，一次性修改所有控件的默认颜色。
+
+主页面和部分容器控件支持以下与主题相关的参数（属性）：
+
+- `theme`参数（属性），表示明亮模式的主题。
+- `dark_theme`参数（属性），表示黑暗模式的主题。
+- `theme_mode`参数（属性），表示主题的模式（明亮还是黑暗）。
+
+而且，容器控件主题生效优先级高于主页面主题：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识主题'
+    page.theme = flet.Theme(
+        'red'
+    )
+    page.dark_theme = flet.Theme(
+        'blue'
+    )
+    page.theme_mode = flet.ThemeMode.DARK
+    page.add(
+        flet.Container(
+            content = flet.Button(
+                'button in container',
+            ),
+            theme = flet.Theme(
+                'green'
+            ),
+            dark_theme = flet.Theme(
+                'yellow'
+            ),
+            theme_mode = page.theme_mode
+        ),
+        flet.Button(
+            'button not in container',
+        )
+    )
+
+
+flet.run(main)
+
+```
+
+![2026_10_1](flet_pro.assets/2026_10_1.png)
+
+创建主题需要用到`flet.Theme`类的参数（属性，完整用法可参考https://flet.dev/docs/types/theme/）有（部分）：
+
+- `color_scheme_seed`参数（属性），表示主题的种子色，主题会基于该颜色自动生成其他控件的相应颜色。
+- `color_scheme`参数（属性），表示主题的颜色方案，需要手动指定主题具体的场景的颜色。
+- `*_theme`参数（属性），表示特定控件的主题。该类参数（属性）会涉及很多控件类型，因为比较多，这里使用通配符代替。
+- `*_color`参数（属性），表示特定交互行为的颜色。该类参数（属性）会涉及很多交互类型，因为比较多，这里使用通配符代替。
 
 ## x 灵感
 
@@ -539,18 +863,6 @@ flet.run(main)
 - [类型](https://flet.dev/docs/types/) - 核心类型、枚举、事件、异常和在整个SDK中共享的实用工具。
 
 
-
-后台运行任务，
-
-
-
-样式：
-
-颜色系统，https://flet.dev/docs/cookbook/colors
-
-
-
-主题，https://flet.dev/docs/cookbook/theming
 
 
 

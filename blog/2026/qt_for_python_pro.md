@@ -3164,7 +3164,7 @@ app.exec()
 - `setRange`方法，设置旋钮的最小值、最大值。
 - `setValue`方法，设置旋钮的当前位置。
 
-## 37 `QLabel`标签控件（更新中）
+## 37 `QLabel`标签控件
 
 ### 37.0 前言
 
@@ -3176,21 +3176,262 @@ app.exec()
 
 相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLabel.html
 
-### 37.1 xxx（更新中）
+### 37.1 显示文本很简单
+
+不管使用什么框架，显示文本都很简单，在PySide6中也不例外：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识标签控件')
+window.resize(400, 300)
+
+label = QLabel(
+    'Hello',
+    window
+)
+
+
+window.show()
+app.exec()
+```
+
+![2026_37.1_1](qt_for_python_pro.assets/2026_37.1_1.png)
+
+用起来很简单，看上去用法也没有多复杂，但事实真的如此吗？
+
+上面只是展示了显示文本且不做多余调整的情况，如果看一下定义（按`f12`键或者 右键-转到定义），就能看到更多初始化参数（并非都可以用，部分参数对应的控件属性为只读，实际上不可用）：
+
+```python3
+    @typing.overload
+    def __init__(self, text: str, /, parent: PySide6.QtWidgets.QWidget | None = ..., f: PySide6.QtCore.Qt.WindowType = ..., *, textFormat: PySide6.QtCore.Qt.TextFormat | None = ..., pixmap: PySide6.QtGui.QPixmap | None = ..., scaledContents: bool | None = ..., alignment: PySide6.QtCore.Qt.AlignmentFlag | None = ..., wordWrap: bool | None = ..., margin: int | None = ..., indent: int | None = ..., openExternalLinks: bool | None = ..., textInteractionFlags: PySide6.QtCore.Qt.TextInteractionFlag | None = ..., hasSelectedText: bool | None = ..., selectedText: str | None = ...) -> None: ...
+    @typing.overload
+    def __init__(self, /, parent: PySide6.QtWidgets.QWidget | None = ..., f: PySide6.QtCore.Qt.WindowType = ..., *, text: str | None = ..., textFormat: PySide6.QtCore.Qt.TextFormat | None = ..., pixmap: PySide6.QtGui.QPixmap | None = ..., scaledContents: bool | None = ..., alignment: PySide6.QtCore.Qt.AlignmentFlag | None = ..., wordWrap: bool | None = ..., margin: int | None = ..., indent: int | None = ..., openExternalLinks: bool | None = ..., textInteractionFlags: PySide6.QtCore.Qt.TextInteractionFlag | None = ..., hasSelectedText: bool | None = ..., selectedText: str | None = ...) -> None: ...
+```
+
+![2026_37.1_2](qt_for_python_pro.assets/2026_37.1_2.png)
+
+### 37.2 普通文本也可以是超链接
+
+在了解其他参数之前，继续挖掘一下`text`参数的秘密。上一节只是简单将字符串传给该参数，但是，如果传入的字符串是HTML呢？比如，传入HTML的超链接：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识标签控件')
+window.resize(400, 300)
+
+label = QLabel(
+    '<a href="https://www.python.org">点击访问 Python 官网</a>',
+    window,
+    #openExternalLinks=True,
+)
+label.linkActivated.connect(print)
+
+window.show()
+app.exec()
+```
+
+![2026_37.2_1](qt_for_python_pro.assets/2026_37.2_1.png)
+
+此时文本会变成可以点击的超链接，点击的话会触发`linkActivated`信号。如果给`openExternalLinks`控件属性设置为`True`，点击超链接则会使用默认浏览器打开。
+
+也可以设置`textFormat`参数为`PySide6.QtCore.Qt.TextFormat.MarkdownText`，让其支持解析Markdown，使用Markdown语法的超链接：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识标签控件')
+window.resize(400, 300)
+
+label = QLabel(
+    '[点击访问 Python 官网](https://www.python.org)',
+    window,
+    #openExternalLinks=True,
+    textFormat=Qt.TextFormat.MarkdownText
+)
+label.linkActivated.connect(print)
+
+window.show()
+app.exec()
+```
+
+![2026_37.2_2](qt_for_python_pro.assets/2026_37.2_2.png)
+
+### 37.3 甚至可以显示图片
+
+`QLabel`标签控件看名字好像只能显示文本，但是，前一节介绍了可以显示超链接，再看参数中有个`pixmap`参数，那它显示图片也是可以的（需要用到的图片请自备）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+from PySide6.QtGui import QPixmap
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识标签控件')
+window.resize(400, 300)
+
+label = QLabel(
+    window,
+    pixmap=QPixmap(
+        'LOGO.png',
+    ).scaled(100,100)
+)
+
+window.show()
+app.exec()
+```
+
+![2026_37.3_1](qt_for_python_pro.assets/2026_37.3_1.png)
+
+### 37.4 允许选择文本
+
+默认情况下，标签控件的文本不允许选择，但设置`textInteractionFlags`参数的值包含（该参数支持使用`|`同时设置多个值）`PySide6.QtCore.Qt.TextInteractionFlag.TextSelectableByMouse`，即可允许选择：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识标签控件')
+window.resize(400, 300)
+
+label = QLabel(
+    '[点击访问 Python 官网](https://www.python.org)',
+    window,
+    #openExternalLinks=True,
+    textFormat=Qt.TextFormat.MarkdownText,
+    textInteractionFlags=Qt.TextInteractionFlag.TextSelectableByMouse
+)
+label.linkActivated.connect(print)
+
+window.show()
+app.exec()
+```
+
+![2026_37.4_1](qt_for_python_pro.assets/2026_37.4_1.png)
+
+（完）
+
+## 38 `QLineEdit`单行编辑框控件（更新中）
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLineEdit.html
 
 
 
-起因：
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLineEdit
+)
 
-因为需要简单显示文本而找到了`QLabel`标签控件。
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识单行编辑框控件')
+window.resize(400, 300)
 
-经过：
+edit = QLineEdit(
+    window,
+)
 
-使用过后发现了该控件的用法远比看上去丰富，然后扩展介绍其他用法。
+window.show()
+app.exec()
+```
 
-结果：
 
-简单总结用途、用法，提炼一下学习技巧、使用技巧。
+
+密码输入框：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLineEdit
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识单行编辑框控件')
+window.resize(400, 300)
+
+edit = QLineEdit(
+    window,
+    echoMode=QLineEdit.EchoMode.Password
+)
+
+window.show()
+app.exec()
+```
+
+
+
+
+
+
+
+## 39 `QLCDNumber`液晶数字控件（更新中）
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLCDNumber.html
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLCDNumber
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识液晶数字控件')
+window.resize(400, 300)
+
+lcd = QLCDNumber(
+    window,
+    value=12345
+)
+lcd.setFixedSize(
+    400,
+    120
+)
+
+window.show()
+app.exec()
+```
+
+
+
+
 
 
 

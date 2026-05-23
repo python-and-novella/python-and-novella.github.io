@@ -852,6 +852,562 @@ flet.run(main)
 - `*_theme`参数（属性），表示特定控件的主题。该类参数（属性）会涉及很多控件类型，因为比较多，这里使用通配符代替。
 - `*_color`参数（属性），表示特定交互行为的颜色。该类参数（属性）会涉及很多交互类型，因为比较多，这里使用通配符代替。
 
+## 11 快捷键
+
+本章参考文档：https://flet.dev/docs/cookbook/keyboard-shortcuts/
+
+定义Flet程序的快捷键，只需给主页面设置按键事件的响应函数（`on_keyboard_event`属性）即可：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识快捷键'
+
+    text = flet.Text('Press any key with a combination of CTRL, ALT, SHIFT and META keys...')
+    page.add(
+        text
+    )
+    def on_key(e:flet.KeyboardEvent):
+        text.value = f'Key: {e.key}, Shift: {e.shift}, Control: {e.ctrl}, Alt: {e.alt}, Meta: {e.meta}'
+    page.on_keyboard_event = on_key
+
+
+flet.run(main)
+```
+
+![2026_11_1](flet_pro.assets/2026_11_1.png)
+
+按键事件支持以下属性：
+
+- `key`属性，字符串类型，按键中包含的可打印字符按键。
+- `shift`属性，布尔类型，表示是否按下了`shift`键。
+- `ctrl`属性，布尔类型，表示是否按下了`ctrl`键。
+- `alt`属性，布尔类型，表示是否按下了`alt`键（对应Mac的`opt`键）。
+- `meta`属性，布尔类型，表示是否按下了`meta`键（Mac的专属按键）。
+
+## 12 两种风格的控件（以按钮为例）
+
+本章参考文档：https://flet.dev/docs/controls/button 和 https://flet.dev/docs/controls/cupertinobutton
+
+从本章开始，就要断断续续介绍Flet程序的具体控件了。但是在介绍具体控件之前，需要先分辨一下控件的两种风格：Material风格和Cupertino风格。
+
+从控件名上看，前缀为“Cupertino”的控件（比如本章使用的`CupertinoButton`控件）就是Cupertino风格。前缀不是“Cupertino”的控件就是Material风格。
+
+Material风格通常包含阴影、圆角；Cupertino风格也叫iOS风格，通常为扁平风格。
+
+以下为两种风格的按钮的对比：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    page.add(
+        flet.Button(
+            'Button'
+        ),
+        flet.CupertinoButton(
+            'Button'
+        )
+    )
+
+
+flet.run(main)
+
+```
+
+![2026_12_1](flet_pro.assets/2026_12_1.png)
+
+出于风格统一的要求，一般建议控件使用相同风格。不过，Flet程序的Material风格控件数量更多，使用Material风格的控件可以实现更多功能。
+
+## 13 `Button`控件（按钮）
+
+本章参考文档：https://flet.dev/docs/controls/button
+
+上一章介绍两种风格的控件时用到了按钮，本章那就详细介绍一下`Button`控件的用法。
+
+大部分控件的参数、属性、方法差不多，因此，后续其他控件将不再详细介绍重复的参数、属性、方法，只会重点介绍常用的、需要特别说明的部分。
+
+另外，Flet框架使用数据类设计控件，可以说控件的参数也就是同名的属性。因此，控件的参数、属性不再单独标注，默认**参数**可以当作**属性**使用。控件的参数、属性包含其父类的参数、属性，本章或者当前控件的参数、属性只是部分，后续如果需要用到父类的，届时再单独介绍。
+
+`content`参数，字符串类型或控件类型，表示按钮的主要内容。
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    page.add(
+        flet.Button(
+            flet.Checkbox(
+                content='Button',
+            ),
+        ),
+    )
+
+
+flet.run(main)
+```
+
+![2026_13_1](flet_pro.assets/2026_13_1.png)
+
+`icon`参数，图标数据类型（`Icons`的成员或者`CupertinoIcons`的成员）或控件类型，表示按钮的图标。
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    page.add(
+        flet.Button(
+            content='Button',
+            icon=flet.CupertinoIcons.ALARM
+        ),
+    )
+
+
+flet.run(main)
+```
+
+![2026_13_2](flet_pro.assets/2026_13_2.png)
+
+注意，`content`参数和`icon`参数需要至少给其中一个传值，都不传值的话，程序会报错。
+
+`icon_color`参数，字符串类型或者颜色类型（`Colors`的成员或者`CupertinoColors`的成员），表示图标的颜色。
+
+`color`参数，字符串类型或者颜色类型（`Colors`的成员或者`CupertinoColors`的成员），表示按钮的前景色（图标、内容）。
+
+`bgcolor`参数，字符串类型或者颜色类型（`Colors`的成员或者`CupertinoColors`的成员），表示按钮的背景色。
+
+`elevation`参数，整数类型或者浮点类型，表示按钮的阴影高度，默认为`1`。
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+    page.theme_mode = 'light'
+    page.add(
+        flet.Button(
+            content='Button',
+            elevation=2
+        ),
+        flet.Button(
+            content='Button',
+            elevation=10
+        )
+    )
+
+
+flet.run(main)
+```
+
+![2026_13_3](flet_pro.assets/2026_13_3.png)
+
+`style`参数，`ButtonStyle`类型，表示按钮的样式。
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    page.add(
+        flet.Button(
+            content='Button',
+            icon=flet.CupertinoIcons.ALARM,
+            style=flet.ButtonStyle(
+                color='red'
+            )
+        ),
+    )
+
+
+flet.run(main)
+```
+
+`autofocus`参数，布尔类型，表示按钮是否在窗口显示时默认获得焦点。注意，同一页面内，只能有一个控件的该属性按创建顺序优先生效。
+
+`clip_behavior`参数，裁切行为类型（`ClipBehavior`的成员），表示按钮的主要内容超出按钮边界时如何裁切，非必要不建议修改。
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 600
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    page.add(
+        flet.Button(
+            content=flet.Container(
+                width=100,
+                height=100,
+                bgcolor=flet.Colors.RED,
+                content=flet.Text('NONE', size=20),
+                alignment=flet.Alignment.CENTER
+            ),
+            bgcolor=flet.Colors.GREEN,
+            clip_behavior=flet.ClipBehavior.NONE
+        ),
+        flet.Button(
+            content=flet.Container(
+                width=100,
+                height=100,
+                bgcolor=flet.Colors.RED,
+                content=flet.Text('ANTI_ALIAS', size=20),
+                alignment=flet.Alignment.CENTER
+            ),
+            bgcolor=flet.Colors.GREEN,
+            clip_behavior=flet.ClipBehavior.ANTI_ALIAS
+        ),
+        flet.Button(
+            content=flet.Container(
+                width=100,
+                height=100,
+                bgcolor=flet.Colors.RED,
+                content=flet.Text('ANTI_ALIAS_WITH_SAVE_LAYER', size=20),
+                alignment=flet.Alignment.CENTER
+            ),
+            bgcolor=flet.Colors.GREEN,
+            clip_behavior=flet.ClipBehavior.ANTI_ALIAS_WITH_SAVE_LAYER
+        ),
+        flet.Button(
+            content=flet.Container(
+                width=100,
+                height=100,
+                bgcolor=flet.Colors.RED,
+                content=flet.Text('HARD_EDGE', size=20),
+                alignment=flet.Alignment.CENTER
+            ),
+            bgcolor=flet.Colors.GREEN,
+            clip_behavior=flet.ClipBehavior.HARD_EDGE
+        ),
+    )
+
+
+flet.run(main)
+```
+
+![2026_13_4](flet_pro.assets/2026_13_4.png)
+
+`url`参数，字符串类型或者`Url`类型，表示点击按钮之后访问的网址。
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    page.add(
+        flet.Button(
+             content='Url',
+             url='https://baidu.com'
+        ),
+    )
+
+
+flet.run(main)
+```
+
+`on_click`参数，可调用类型，表示点击控件之后执行的操作。
+
+`on_long_press`参数，可调用类型，表示长按控件之后执行的操作。
+
+`on_hover`参数，可调用类型，表示鼠标悬停在控件上之后执行的操作。
+
+`on_focus`参数，可调用类型，表示控件获得焦点之后执行的操作。
+
+`on_blur`参数，可调用类型，表示控件失去焦点之后执行的操作。
+
+## 14 `ContextMenu`控件（上下文菜单）与`PopupMenuItem`控件（菜单项）
+
+本章参考文档：https://flet.dev/docs/controls/contextmenu/ 和 https://flet.dev/docs/controls/popupmenubutton/#flet.PopupMenuItem-properties
+
+先看示例：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    async def open_menu(e:flet.TapEvent[flet.GestureDetector]):
+        await menu.open(
+            local_position=e.local_position,
+            global_position=e.global_position,
+        )
+
+    menu = flet.ContextMenu(
+        content=flet.GestureDetector(
+            content=flet.Container(
+                content=flet.Text(
+                    value='左键点击、左键长按、右键点击、中键点击弹出不同的菜单'
+                ),
+                expand=True,
+                bgcolor=flet.Colors.BLUE,
+                alignment=flet.Alignment.CENTER
+            ),
+            on_tap=open_menu,
+            expand=True,
+        ),
+        expand=True,
+        items=[
+            flet.PopupMenuItem(
+                content='items'
+            )
+        ],
+        primary_items=[
+            flet.PopupMenuItem(
+                content='primary_items'
+            )
+        ],
+        primary_trigger=flet.ContextMenuTrigger.LONG_PRESS,
+        secondary_items=[
+            flet.PopupMenuItem(
+                content='secondary_items'
+            )
+        ],
+        tertiary_items=[
+            flet.PopupMenuItem(
+                content='tertiary_items'
+            )
+        ]
+    )
+    page.add(
+        menu
+    )
+
+
+flet.run(main)
+```
+
+![2026_14_1](flet_pro.assets/2026_14_1.png)
+
+读者可以运行代码之后，按照文字提示尝试弹出不同的菜单。
+
+示例代码看上去比较多，不太好理解菜单的正确用法。那笔者将其控件树转换为示意图，以便于读者理解：
+
+![2026_14_2](flet_pro.assets/2026_14_2.png)
+
+从父子关系看，Flet程序的菜单（`menu`）不像其他框架的菜单一样独立于可视控件、由控件的响应函数负责弹出，而是“插在”主页面与其他控件之间。其实，Flet程序的菜单可以理解为菜单（`menu`）与负责弹出菜单的控件（`flet.GestureDetector`控件）绑定，或者说菜单通过监听其子控件的事件来弹出菜单。
+
+因此，可以将菜单控件理解为一层壳，哪个控件需要弹出菜单，就用壳包装哪个控件，然后用壳代替原来的控件，挂载到其原来的位置，这就是菜单的正确用法。
+
+示例中还展示了菜单的四种触发方式：
+
+- `open`方法（通过手势控件的按下操作调用）。
+- 鼠标左键（默认无触发操作，需要同时定义触发操作才能生效，示例中定义为长按）。
+- 鼠标右键（默认为短按）。
+- 鼠标中键（默认为短按）。
+
+每种触发方式对应的菜单内容，分别对应控件的不同参数：
+
+- `open`方法，对应`items`参数。
+- 鼠标左键，对应`primary_items`参数。
+- 鼠标右键，对应`secondary_items`参数。
+- 鼠标中键，对应`tertiary_items`参数。
+
+除了`open`方法外，其他三种触发方式都可以通过对应参数修改其触发操作的类型（短按还是长按）：
+
+- 鼠标左键，对应`primary_trigger`参数。
+- 鼠标右键，对应`secondary_trigger`参数。
+- 鼠标中键，对应`tertiary_trigger`参数。
+
+`ContextMenu`控件支持以下参数：
+
+- `content`参数，可视控件类型（必须是渲染出可见内容的控件），表示菜单绑定、监听的控件。
+- `items`参数，元素为`PopupMenuItem`控件的列表，表示调用`open`方法显示菜单时的菜单内容。
+- `primary_items`参数，元素为`PopupMenuItem`控件的列表，表示通过鼠标左键显示菜单时的菜单内容。
+- `secondary_items`参数，元素为`PopupMenuItem`控件的列表，表示通过鼠标右键显示菜单时的菜单内容。
+- `tertiary_items`参数，元素为`PopupMenuItem`控件的列表，表示通过鼠标中键显示菜单时的菜单内容。
+- `primary_trigger`参数，`ContextMenuTrigger`类型，表示通过鼠标左键显示菜单的触发操作的类型，默认为`None`，即无法触发。
+- `secondary_trigger`参数，`ContextMenuTrigger`类型，表示通过鼠标右键显示菜单的触发操作的类型，默认为`ContextMenuTrigger.DOWN`，即短按触发。
+- `tertiary_trigger`参数，`ContextMenuTrigger`类型，表示通过鼠标中键显示菜单的触发操作的类型，默认为`ContextMenuTrigger.DOWN`，即短按触发。
+- `on_select`参数，可调用类型，表示点击、选择菜单项之后执行的操作。
+- `on_dismiss`参数，可调用类型，表示点击空白处、菜单小时之后执行的操作。
+
+`ContextMenu`控件支持以下方法：
+
+- `open`方法，异步方法，在指定位置显示菜单（`items`参数的内容）。该方法支持以下参数：
+  - `global_position`参数，`Offset`类型、双元素元组（元素为整数或者浮点数），表示菜单的显示位置（相对于页面的原点）。
+  - `local_position`参数，`Offset`类型、双元素元组（元素为整数或者浮点数），表示菜单的显示位置（相对于`content`参数对应控件的原点）。
+
+菜单的具体内容只能是`PopupMenuItem`控件（菜单项）。`PopupMenuItem`控件支持以下参数：
+
+- `content`参数，字符串类型或控件类型，表示菜单项的主要内容。
+- `icon`参数，图标数据类型（`Icons`的成员或者`CupertinoIcons`的成员）或控件类型，表示菜单项的图标。
+- `checked`参数，布尔类型，表示菜单项的勾选状态。
+- `height`参数，浮点类型或者整数类型，表示菜单项的高度。
+- `padding`参数，浮点类型或者整数类型或者`Padding`类型，表示菜单项的内边距。
+- `label_text_style`参数，`TextStyle`类型，表示文字的样式。
+- `mouse_cursor`参数，鼠标光标类型（`MouseCursor`的成员），表示鼠标悬停再菜单项上时光标的样式。
+- `on_click`参数，可调用类型，表示点击菜单项之后执行的操作。
+
+最后，针对菜单项之间的分隔线和自动切换勾选状态的需求提供一个简单的示例：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    menu = flet.ContextMenu(
+        content=flet.Container(
+            content=flet.Text(
+                value='右键点击弹出菜单'
+            ),
+            expand=True,
+            bgcolor=flet.Colors.BLUE,
+            alignment=flet.Alignment.CENTER
+        ),
+        expand=True,
+        secondary_items=[
+            flet.PopupMenuItem(
+                content='菜单项1',
+                icon=flet.Icons.MENU,
+                on_click=lambda e: setattr(
+                    e.control, 'checked', not e.control.checked
+                )
+            ),
+            flet.PopupMenuItem(
+                content=flet.Divider(),
+                height=9,
+                padding=0,
+                disabled=True
+            ),
+            flet.PopupMenuItem(
+                content='菜单项2',
+                checked=True,
+                on_click=lambda e: setattr(
+                    e.control, 'checked', not e.control.checked)
+            )
+        ],
+    )
+    page.add(
+        menu
+    )
+
+
+flet.run(main)
+```
+
+![2026_14_3](flet_pro.assets/2026_14_3.png)
+
+本章只是简单介绍上下文菜单，上下文菜单在实际使用时遇到的问题，以及和菜单有关、结合的控件还有很多，将在后续的章节中介绍。
+
+
+
+
+
+
+
+## 15 xxx（更新中）
+
+本章参考文档：https://flet.dev/docs/cookbook/navigation-and-routing/
+
+多页面与路由（命令式）
+
+
+
+
+
+
+
+
+
+
+
+## 12 xxx（更新中）
+
+本章参考文档：https://flet.dev/docs/cookbook/pub-sub/
+
+消息订阅
+
+
+
+## 12 xxx（更新中）
+
+本章参考文档：https://flet.dev/docs/cookbook/client-storage/ 和 https://flet.dev/docs/cookbook/session-storage/
+
+数据存储
+
+
+
+
+
+## 12 xxx（更新中）
+
+本章参考文档：https://flet.dev/docs/cookbook/encrypting-sensitive-data/
+
+加密敏感数据
+
+
+
+## 3x 详解声明式——xxx（更新中）
+
+本章参考文档：https://flet.dev/docs/cookbook/declarative-vs-imperative-crud-app/
+
+详解声明式
+
+核心在于装饰器的使用，有点所见即所得的意味。
+
+
+
+## 3x xxx（更新中）
+
+本章参考文档：https://flet.dev/docs/cookbook/navigation-and-routing/ 和 https://flet.dev/docs/cookbook/router/
+
+路由（声明式）
+
+
+
+
+
+
+
 ## x 灵感
 
 参考cookbook介绍一些基础，后续单独介绍一些实践用法。
@@ -868,7 +1424,7 @@ flet.run(main)
 
 页面设计（页面支持的部分属性比如`navigation_bar`属性、`bottom_appbar`属性、`appbar`属性、`drawer`属性、`end_drawer`属性等对应特定的区域，其他属性负责页面样式等等），https://flet.dev/docs/controls/basepage/，主要介绍页面支持的属性。
 
-快捷键，
+
 
 
 

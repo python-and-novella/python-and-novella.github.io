@@ -1645,7 +1645,7 @@ app.exec()
 
 笔者在阅读《Qt for Python PySide6 GUI界面开发详解与实例》时，偶然看到`QApplication`实例的`setQuitOnLastWindowClosed`方法用于设置关闭最后一个窗口后是否退出程序，也就是是否在关闭最后一个窗口后程序是否继续运行。笔者心想，这不就是传说中的“后台运行”吗？
 
-于是，抱着验证代码的态度，笔者做了个简单的小程序，没想到，由此牵出一系列的问题。
+于是，抱着验证代码的想法，笔者做了个简单的小程序，没想到，由此牵出一系列的问题。
 
 ### 32.2 简单实现
 
@@ -3341,11 +3341,13 @@ app.exec()
 
 （完）
 
-## 38 `QLineEdit`单行编辑框控件（更新中）
+## 38 `QLineEdit`单行编辑框控件
 
 相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLineEdit.html
 
+简单的点击控件（按钮）和简单的文本控件（标签控件）都说过，本章那就沿着这个思路，说一个简单的输入控件——`QLineEdit`单行编辑框控件。
 
+示例简单到不能再简单，不需要多复杂的参数，就能创建一个输入框：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -3367,9 +3369,94 @@ window.show()
 app.exec()
 ```
 
+![2026_38_1](qt_for_python_pro.assets/2026_38_1.png)
 
+输入不是目的，目的是获取输入的内容，`text`方法（控件属性）即可轻松做到：
 
-密码输入框：
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLineEdit,
+    QPushButton,
+    QLabel
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识单行编辑框控件')
+window.resize(400, 300)
+
+edit = QLineEdit(
+    window,
+)
+label = QLabel(
+    '获取文本',
+    window
+)
+label.move(
+    0,
+    30
+)
+button = QPushButton(
+    '获取文本',
+    window
+)
+button.move(
+    0,
+    50
+)
+button.clicked.connect(
+    lambda :label.setText(
+        edit.text()
+    )
+)
+
+window.show()
+app.exec()
+```
+
+![2026_38_2](qt_for_python_pro.assets/2026_38_2.png)
+
+不仅可以获取输入的文本，还能使用`selectedText`方法（控件属性）获取到选择的文本（仅在控件获得焦点时可以获取）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLineEdit,
+    QLabel
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识单行编辑框控件')
+window.resize(400, 300)
+
+edit = QLineEdit(
+    window,
+)
+label = QLabel(
+    '获取文本',
+    window
+)
+label.move(
+    0,
+    30
+)
+edit.selectionChanged.connect(
+    lambda :label.setText(
+        edit.selectedText()
+    )
+)
+
+window.show()
+app.exec()
+```
+
+![2026_38_3](qt_for_python_pro.assets/2026_38_3.png)
+
+设置`echoMode`参数（表示回显模式），还能将单行输入框变成密码输入框：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -3392,17 +3479,75 @@ window.show()
 app.exec()
 ```
 
+![2026_38_4](qt_for_python_pro.assets/2026_38_4.png)
 
+想要限制输入的内容可以设置`inputMask`参数（表示输入掩码，具体格式要求参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLineEdit.html#PySide6.QtWidgets.QLineEdit.inputMask ）：
 
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLineEdit
+)
 
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识单行编辑框控件')
+window.resize(400, 300)
 
+edit = QLineEdit(
+    window,
+    inputMask='0.0'
+)
 
+window.show()
+app.exec()
+```
 
-## 39 `QLCDNumber`液晶数字控件（更新中）
+![2026_38_5](qt_for_python_pro.assets/2026_38_5.png)
+
+`placeholderText`参数表示不输入任何内容时的占位文本，相比于只有鼠标悬停时才显示的工具提示，占位文本的提示效果更直接：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLineEdit
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识单行编辑框控件')
+window.resize(400, 300)
+
+edit = QLineEdit(
+    window,
+    placeholderText='请输入中文'
+)
+
+window.show()
+app.exec()
+```
+
+![2026_38_6](qt_for_python_pro.assets/2026_38_6.png)
+
+本章最后，介绍几个`QLineEdit`单行编辑框控件的信号：
+
+- `cursorPositionChanged`信号，光标位置改变时触发。
+- `editingFinished`信号，编辑完成（失去焦点或者按`enter`键）时触发。
+- `returnPressed`信号，按`enter`键时触发。
+- `selectionChanged`信号，选择的文本改变时触发。
+- `textChanged`信号，输入框的文本改变时触发。
+
+`QLineEdit`单行编辑框控件的用法远比上面介绍的多，实际使用时肯定会遇到不少需求和问题，有机会后面的章节继续深入学习。
+
+（完）
+
+## 39 `QLCDNumber`液晶数字控件
 
 相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLCDNumber.html
 
-
+`QLCDNumber`液晶数字控件是个有点复古的控件，在显示Qt程序的点阵液晶显示器上，实现了计算器上类似数码管的液晶显示效果：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -3428,6 +3573,445 @@ lcd.setFixedSize(
 window.show()
 app.exec()
 ```
+
+![2026_39_1](qt_for_python_pro.assets/2026_39_1.png)
+
+`QLCDNumber`液晶数字控件看名字能显示数字，但该控件不只能显示数字，还能显示字母：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLCDNumber
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识液晶数字控件')
+window.resize(400, 300)
+
+lcd = QLCDNumber(
+    window,
+    value='ABC',
+)
+lcd.setFixedSize(
+    400,
+    120
+)
+
+window.show()
+app.exec()
+```
+
+![2026_39_2](qt_for_python_pro.assets/2026_39_2.png)
+
+控件支持以下字符的显示：
+
+```python3
+# 所有的数字
+0123456789
+# 部分字母
+AaBbCcDdEeFfgHhLlOoPpRrSsUuYy
+# 特定符号（英文）和空格
+-:.' （英文空格，不支持的字符都会转换为英文空格）
+```
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLCDNumber
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识液晶数字控件')
+window.resize(700, 300)
+
+lcd = QLCDNumber(
+    window,
+)
+lcd.setDigitCount(45)
+lcd.display("0123456789 AaBbCcDdEeFfgHhLlOoPpRrSsUuYy -:.'")
+lcd.resize(
+    700,
+    50
+)
+
+window.show()
+app.exec()
+```
+
+![2026_39_3](qt_for_python_pro.assets/2026_39_3.png)
+
+注意，虽然控件能显示字母，但控件实际上**只能**处理、存储**数字**，其`value`方法（控件属性）返回的是浮点数。如果想要让控件显示支持的字符同时，还想准确获取显示的字符，最好是将字符串单独存储，不要传递给控件的初始化参数`value`，而是传递给控件的`display`方法。
+
+注意，在使用`setDigitCount`方法调整控件可显示的位数之前，初始化参数`value`、控件的`display`方法都只能最多显示五位。如果需要显示的内容超过五位，**必须先**调用`setDigitCount`方法调整控件可显示的**位数**。
+
+本章最后简单总结一下，`QLCDNumber`液晶数字控件主要用于以复古的风格显示数字，但控件可以显示部分字母。
+
+（完）
+
+## 40 `QMenu`菜单控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMenu.html
+
+### 40.1 定义（创建）菜单
+
+一旦需要用菜单，就离不开`QMenu`菜单控件，该控件几乎就是菜单的代名词。
+
+在使用菜单之前，必须要先定义（创建）一个菜单，并给菜单添加菜单项。
+
+定义（创建）菜单只需实例化控件即可（核心代码，不含其他部分，不可直接运行）：
+
+```python3
+from PySide6.QtWidgets import (
+    QMenu
+)
+menu = QMenu(
+    window
+)
+```
+
+注意，必须给菜单控件分配变量，因为很多菜单相关的操作依赖菜单控件本身，并且需要多次操作。
+
+创建完菜单，此时的菜单还只是个空菜单，没有具体的菜单项，想要添加菜单项，就要用到“add”开头方法：
+
+- `addAction`方法，添加一个菜单项。
+- `addActions`方法，添加多个菜单项。
+- `addMenu`方法，添加一个菜单作为菜单项。
+- `addSection`方法，添加一条带文字、图标的分隔线。
+- `addSeparator`方法，添加一条不带文字的分隔线。
+
+完整示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+
+
+window.show()
+app.exec()
+```
+
+注意，上面的示例只是创建菜单的示例，想要让菜单显示（弹出），需要看下一节介绍的弹出方式。
+
+### 40.2 弹出菜单
+
+只是创建菜单，不将其添加、绑定到控件，不使用正确的弹出方式的话，没法看到菜单。因此，正确添加、设置菜单，才能使用对应的弹出方式。
+
+一般来说，设置菜单的控件大体分为两种：任意控件，特定控件。
+
+设置完菜单之后，弹出方式也可以分为两种：右键点击（也可以将这种菜单称为上下文菜单），左键点击。
+
+通过信号给任意控件（`QWidget`控件）设置上下文菜单（右键点击），需要先设置控件的上下文菜单策略为自定义上下文菜单，然后将自定义上下文菜单的触发信号与菜单的弹出方法（`exec`方法）绑定：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+
+window.setContextMenuPolicy(
+    Qt.ContextMenuPolicy.CustomContextMenu
+)
+window.customContextMenuRequested.connect(
+    lambda e:menu.exec(
+        window.mapToGlobal(e)
+    )
+)
+
+
+window.show()
+app.exec()
+```
+
+通过事件给任意控件（`QWidget`控件）设置上下文菜单（右键点击）也是类似的操作：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+
+window.contextMenuEvent = lambda e:menu.exec(
+    e.globalPos()
+)
+
+
+window.show()
+app.exec()
+```
+
+如果想自由地在鼠标位置弹出菜单，就需要自定义菜单弹出方法，按需调用。示例为按下任意键都会在鼠标位置弹出菜单：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtGui import QCursor
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+def open_menu(e):
+    pos = QCursor.pos()
+    menu.exec(pos)
+
+window.keyPressEvent = open_menu
+
+window.show()
+app.exec()
+```
+
+支持`setContextMenu`方法的控件比较少，右键点击即可弹出菜单。示例来自第32章：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSystemTrayIcon,
+    QPushButton,
+    QMenu,
+    QCheckBox
+)
+
+app = QApplication()
+
+if QSystemTrayIcon.isSystemTrayAvailable():
+    tray = QSystemTrayIcon(
+        app.style().standardIcon(
+            app.style().StandardPixmap.SP_ComputerIcon
+        ),
+        app,
+        visible=True
+    )
+    # 只有左键双击托盘图标才会显示主窗口
+    tray.activated.connect(
+        lambda e:window.show() if e == QSystemTrayIcon.ActivationReason.DoubleClick else None
+    )
+    # 给托盘添加一个右键菜单，可以退出
+    tray_menu = QMenu()
+    tray_menu.addAction(
+        '显示主窗口'
+    ).triggered.connect(lambda:window.show())
+    tray_menu.addAction(
+        '退出程序'
+    ).triggered.connect(app.quit)
+    tray.setContextMenu(tray_menu)
+else:
+    print('当前系统不支持系统托盘。')
+
+window = QWidget()
+window.setWindowTitle('后台运行')
+window.resize(400, 300)
+
+# 虽然下面判断的是字符串，但仍然需要导入Qt类
+from PySide6.QtCore import Qt  # noqa: E402, F401
+checkbox = QCheckBox(
+    '后台运行',
+    window,
+)
+checkbox.checkStateChanged.connect(
+    # 判断枚举对象
+    #lambda e: (app.setQuitOnLastWindowClosed(False) if e == Qt.CheckState.Checked else app.setQuitOnLastWindowClosed(True))
+    lambda e: (app.setQuitOnLastWindowClosed(False) if str(e) == 'CheckState.Checked' else app.setQuitOnLastWindowClosed(True))
+)
+
+button = QPushButton(
+    '退出程序',
+    window
+)
+button.clicked.connect(app.quit)
+button.move(
+    0,
+    30
+)
+
+window.show()
+app.exec()
+```
+
+部分按钮类控件支持`setMenu`方法，左键点击按钮的特定位置即可弹出菜单：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+button = QPushButton(
+    '普通按钮',
+    window
+)
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+button.setMenu(menu)
+
+
+window.show()
+app.exec()
+```
+
+若是给`QMenuBar`菜单栏控件添加菜单（左键点击），则菜单只能在固定位置显示：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu,
+    QMenuBar
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menubar = QMenuBar(
+    window
+)
+menu = QMenu(
+    menubar,
+    title='菜单'
+)
+menu.addAction(
+    'test'
+)
+menubar.addMenu(menu)
+
+window.show()
+app.exec()
+```
+
+而`QMainWindow`主窗口控件自带菜单栏，添加菜单的代码和单独使用`QMenuBar`菜单栏控件一样（注意操作顺序）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QMenu,
+    QMenuBar
+)
+
+app = QApplication()
+window = QMainWindow()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menubar = window.menuBar()
+menu = QMenu(
+    menubar,
+    title='菜单'
+)
+menu.addAction(
+    'test'
+)
+menubar.addMenu(menu)
+
+
+window.show()
+app.exec()
+```
+
+关于菜单的用法还有很多，更多相关用法、问题可以期待后续的更新。
+
+（完）
+
+## 41 `QProgressBar`进度条控件（更新中）
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressBar.html
+
+`QProgressBar`进度条控件用于指示进度，外观简单，用起来也很简单：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QProgressBar
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识进度条控件')
+window.resize(400, 300)
+
+progress = QProgressBar(
+    window,
+    value=60
+)
+
+
+window.show()
+app.exec()
+```
+
+![2026_41_1](qt_for_python_pro.assets/2026_41_1.png)
 
 
 

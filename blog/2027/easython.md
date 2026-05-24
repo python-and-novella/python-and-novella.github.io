@@ -12,7 +12,7 @@ LOGO图：
 
 ![易森LOGO](easython.assets/易森LOGO.png)
 
-## 2701期：起点（更新中）
+## 2701期：起点
 
 ### 0 写在创刊号的特别章
 
@@ -74,7 +74,7 @@ AI的另一个问题就是幻觉或者叫编瞎话。很多时候，问题的答
 
 可能有的读者就是不喜欢看枯燥的文字，喜欢视频教程的形式，也不是不可以，不过笔者就不太推荐了。初学时可能此方法能让读者快速入门，但记忆不够深刻，而且很多陌生的问题依赖于使用者的主动学习能力，不一定有人出视频教程。另外，相比于视频教程，文字教程或者文字资料更适合搜索，能一眼找到相关文字，查找更快更方便。因此，可能读者是通过视频教程入门、精通，但依然推荐读者多看文字类资料，以适应之后工作中独自查找文档、资料的方式，避免一看枯燥的文字就犯困或者产生厌烦情绪。
 
-### 3 学习的起点——学习方法（更新中）
+### 3 学习的起点——学习方法
 
 虽然学习编程语言离不开电脑，很多资料都可以电脑上看，但笔者依然推荐处于基础学习阶段的读者多做**手写笔记**、多实操代码。
 
@@ -100,7 +100,7 @@ Python是一门语法简单的编程语言，但语法简单不代表不需要�
 
 （完）
 
-## 2702期：重温Python基础（更新中）
+## 2702期：重温Python基础
 
 ### 1 Python的关键字
 
@@ -263,7 +263,198 @@ for i in range(9):
 
 （完）
 
-## 2703期：（待定）（更新中）
+## 2703期：札记（更新中）
+
+### 0 《易森》新增系列内容
+
+从本期开始，《NiceGUI札记》、《Flet札记》、《PySide6札记》（原《Qt For Python 札记》）的2027版内容将改为在《易森》上更新，原教程对应合集停更。
+
+如果读者有相关问题或者比较期待某一框架的内容，可以在当期文章下留言，最快下期更新就有相关内容。
+
+### 1 NiceGUI：详解多页面模式
+
+《NiceGUI札记》的教程几乎都是用单页面模式、窗口模式作为示例，而很多读者实际开发中，可能会用多页面模式作为程序的主要运行模式。因此，作为登陆新合集的第一章，就先来回顾一下多页面模式，学习一下多页面模式中相关的功能。
+
+相关文档：https://nicegui.io/documentation/page
+
+#### 1.1 `ui.page`类
+
+说到多页面模式，就离不开`ui.page`类：
+
+```python3
+from nicegui import ui
+
+@ui.page(
+    path='/',
+)
+def index():
+    ui.button('Hello')
+
+ui.run()
+```
+
+如上面示例所展示的，表示页面对应路径的`path`参数不可缺失，这个一般都比较熟悉。但是，除了这个参数，`ui.page`类还支持一些关键字参数，如果读者有特定需求，则需要用到这些参数。
+
+`ui.page`类支持以下参数：
+
+- `path`参数，字符串类型，表示页面对应的路径。路径支持URL参数（路径参数、查询参数）注入，具体用法可以参考前面的第30章，这里不做展开。
+
+- `title`参数，字符串类型，表示页面对应的标题（会显示为浏览器窗口、标签页的标题）。
+
+  从该参数开始，只能通过关键字传入。
+
+- `viewport`参数，字符串类型，表示网页的VIewport属性。
+
+- `favicon`参数，字符串类型或者`Path`类型，表示页面在标题栏的图标。
+
+- `dark`参数，布尔类型，表示页面是否默认启用暗黑模式。使用`None`的话，表示跟随系统。
+
+- `language`参数，字符串类型，表示页面的语言。注意，该参数只会影响框架内提供多语言内容的部分，对于非框架自带的内容，则需要通过其他方法实现多语言功能，无法通过此参数切换语言。
+
+- `response_timeout`参数，浮点类型，表示页面的响应超时，默认为`3.0`。
+
+- `reconnect_timeout`参数，浮点类型，表示页面的重新连接超时。
+
+- `markdown`参数，布尔类型，表示是否为AI工具提供页面的Markdown格式版本，以减少AI工具获取页面时的Token消耗。
+
+- `api_router`参数，`APIRouter`类型，表示页面所属的子路由。
+
+- `**kwargs`参数，其余不与上述关键字参数同名的其他关键字参数将会传给`APIRouter`类。
+
+关于`api_router`参数的示例如下：
+
+```python3
+from nicegui import ui,APIRouter,app
+
+router = APIRouter(prefix='/psf')
+
+@ui.page(
+    path='/',
+    title='Hello',
+    api_router=router
+)
+def index():
+    ui.button('Hello')
+
+app.include_router(router)
+
+ui.run()
+```
+
+此时，想要访问该页面，就要改为`http://{host}:{port}/psf/`。关于子路由的详细介绍，请看本章的下一节。
+
+#### 1.2 `APIRouter`类
+
+上一节中，`api_router`参数表示页面所属的子路由。这就引出了本节要介绍的子路由和`APIRouter`类。
+
+子路由和单页面应用类似，但每个路径对应的页面是独立的，没有页面的公共部分。
+
+而上一节的示例可以改为以下相同结果的示例：
+
+```python3
+from nicegui import ui,APIRouter,app
+
+router = APIRouter(prefix='/psf')
+
+@router.page(
+    path='/',
+    title='Hello',
+)
+def index():
+    ui.button('Hello')
+
+app.include_router(router)
+
+ui.run()
+```
+
+注意，`app.include_router`方法用于注册子路由，可以注册多个，但必须在子路由的页面添加完成后注册，不能提前注册。
+
+使用子路由之后，如果一个网站包含多个架构类似的子网站，无需单独记录每个页面对应的完整路径（不含主机、端口号的部分），只需添加对应子路由即可。即使页面的路径一样，完整路径也会因为子路由的存在而不同，不会冲突：
+
+```python3
+from nicegui import ui,APIRouter,app
+
+router1 = APIRouter(prefix='/test')
+router2 = APIRouter(prefix='/psf')
+
+@router1.page(
+    path='/',
+    title='Hello',
+)
+def _():
+    ui.button('Hello')
+
+@router2.page(
+    path='/',
+    title='Hello psf',
+)
+def _():
+    ui.button('Hello')
+
+app.include_router(router1)
+app.include_router(router2)
+
+ui.run()
+```
+
+![2703_1.2_1](easython.assets/2703_1.2_1.png)
+
+`APIRouter`类支持以下关键字参数（部分，其余参数可参考 https://fastapi.tiangolo.com/reference/apirouter/ ）：
+
+- `prefix`参数，字符串类型，表示子路由路径（或者叫页面路径的前缀）。
+
+`APIRouter`类支持以下方法（部分，其余方法可参考 https://fastapi.tiangolo.com/reference/apirouter/ ）：
+
+- `page`方法，用法、参数和`ui.page`类相同。
+
+#### 1.3 `app.clients`方法
+
+之前的版本速览说过，给`app.clients`方法传入`None`（默认值）时，可以获取所有客户端链接，可用于广播、消息发送、信息收集等。
+
+其实，`app.clients`方法还可以传入完整路径（不含主机、端口号的部分），获取所有连接指定完整路径的客户端链接：
+
+```python3
+from nicegui import ui,APIRouter,app
+
+router1 = APIRouter(prefix='/test')
+router2 = APIRouter(prefix='/psf')
+
+@router1.page(
+    path='/',
+    title='Hello',
+)
+def _():
+    def test():
+        for client in app.clients('/psf/'):
+            with client:
+                ui.notify(client.id)
+    ui.button('test',on_click=test)
+
+@router2.page(
+    path='/',
+    title='Hello psf',
+)
+def _():
+    ui.button('Hello')
+
+app.include_router(router1)
+app.include_router(router2)
+
+ui.run()
+```
+
+![2703_1.2_2](easython.assets/2703_1.2_2.png)
+
+因此，点击右边窗口中的按钮，所有路径与左边窗口相同的客户端，都会执行指定操作。
+
+### 2 Flet：xxx（更新中）
+
+
+
+
+
+### 3 PySide6：xxx（更新中）
 
 
 
@@ -272,6 +463,8 @@ for i in range(9):
 
 
 
+
+（完）
 
 ## 2704期：（待定）（更新中）
 
@@ -280,6 +473,8 @@ for i in range(9):
 
 
 
+
+（完）
 
 ## 27xx期+：尝鲜（首期免费）（更新中）
 

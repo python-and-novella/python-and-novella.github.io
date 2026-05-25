@@ -181,19 +181,105 @@ ui.run()
 
 因此，点击右边窗口中的按钮，所有路径与左边窗口相同的客户端，都会执行指定操作。
 
-## 56 样式技巧——仅在特定状态时生效（更新中）
+（完）
+
+## 56 学习控件——菜单（更新中）
+
+相关文档：https://nicegui.io/documentation/menu 和 https://nicegui.io/documentation/context_menu
+
+NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单（`ui.menu`控件）和右键点击弹出上下文菜单（`ui.context_menu`控件）。它们的用法几乎一样，都是将其添加至需要弹出菜单的控件上下文：
+
+```python3
+from nicegui import ui
+  
+def index():
+    with ui.button(icon='menu'):
+        with ui.menu() as menu:
+            ui.menu_item('auto close')
+            ui.menu_item(
+                'no auto close',
+                auto_close=False
+            )
+            ui.separator()
+            ui.menu_item(
+                'manual close',
+                auto_close=False,
+                on_click=menu.close
+            )
+        with ui.context_menu() as context_menu:
+            ui.menu_item('auto close')
+            ui.menu_item(
+                'no auto close',
+                auto_close=False
+            )
+            ui.separator()
+            ui.menu_item(
+                'manual close',
+                auto_close=False,
+                on_click=context_menu.close
+            )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+一般使用`ui.menu_item`控件作为菜单项，但并不限制菜单项的控件类型，因此，可以使用其他控件：
+
+```python3
+from nicegui import ui
+  
+def index():
+    with ui.button(icon='menu'):
+        with ui.menu():
+            with ui.column():
+                ui.switch('switch')
+                ui.toggle(
+                    ['a', 'b', 'c'],
+                    value='a'
+                )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2027_56_1](nicegui_pro.assets/2027_56_1.png)
+
+`ui.menu`控件支持以下方法：
+
+- `open`方法，弹出菜单。
+- `close`方法，隐藏菜单。
+- `toggle`方法，切换菜单的弹出状态。
+
+`ui.context_menu`控件支持以下方法：
+
+- `open`方法，弹出菜单。
+- `close`方法，隐藏菜单。
+
+`ui.menu_item`控件支持以下参数：
+
+- `text`参数，字符串类型，表示菜单项的文本。
+
+- `on_click`参数，可调用类型，表示点击菜单项之后执行的操作。
+
+  从该参数开始，只能通过关键字传入。
+
+- `auto_close`参数，布尔类型，表示点击菜单项之后是否自动隐藏菜单。
+
+NiceGUI的菜单可以简单理解为点击左键、右键使其弹出的容器，将其放在哪个控件的上下文，哪个控件就可以弹出菜单。
+
+（完）
+
+## 57 样式技巧——仅在特定状态时生效（更新中）
 
 相关文档：https://tailwindcss.com/docs/hover-focus-and-other-states
 
 
 
-
-
-
-
-
-
-## 57 样式技巧——仅在特定屏幕大小时生效（更新中）
+## 58 样式技巧——仅在特定屏幕大小时生效（更新中）
 
 相关文档：https://tailwindcss.com/docs/responsive-design
 
@@ -644,99 +730,8 @@ ui.run(
   )
   ```
 
-  
-
-## 60 学习控件——使用菜单（更新中）
-
-NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右键点击弹出上下文菜单。想要创建它们，会涉及到以下控件：
-
-- `ui.menu_item`控件，用于创建一般的菜单项，只能用于一般菜单、上下文菜单中。
-
-- `ui.menu`控件，用于创建一般菜单。如果是在其他控件的上下文中创建，则点击其他控件，自动弹出菜单。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.button(icon='menu'):
-          with ui.menu() as menu:
-              ui.menu_item('auto close')
-              ui.menu_item(
-                  'no auto close',
-                  auto_close=False
-              )
-              ui.separator()
-              ui.menu_item(
-                  'manual close',
-                  auto_close=False,
-                  on_click=menu.close
-              )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
-  
-
-- `ui.context_menu`控件，用于创建上下文菜单。用法与`ui.menu`控件相同，但只能通过右键弹出菜单。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.button(icon='menu'):
-          with ui.context_menu() as menu:
-              ui.menu_item('auto close')
-              ui.menu_item(
-                  'no auto close',
-                  auto_close=False
-              )
-              ui.separator()
-              ui.menu_item(
-                  'manual close',
-                  auto_close=False,
-                  on_click=menu.close
-              )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
 
 
-
-这个还是放到具体控件——弹出菜单中学习介绍中吧。
-
-#### 3.9.13 `ui.menu`补充
-
-`ui.menu`中除了可以嵌入`ui.menu_item`，还可以嵌入其他控件，有时候会有意想不到的效果：
-
-```python3
-from nicegui import ui
-
-with ui.row().classes('w-full items-center'):
-    icon = ui.icon('', size='md').classes('mr-auto') 
-    ui.space()
-    with ui.button(icon='menu')as button:
-        with ui.menu().props('auto-close'):
-            with ui.column():
-                switch =ui.switch('Show icon')
-                toggle = ui.toggle(['fastfood', 'cake', 'icecream'], value='fastfood')
-    icon.bind_name_from(toggle, 'value').bind_visibility_from(switch,'value')
-
-ui.run(
-    native=True
-)
-```
-
-![ui_menu_2](nicegui_pro.assets/ui_menu_2.png)
 
 
 

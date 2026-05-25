@@ -102,6 +102,8 @@ Python是一门语法简单的编程语言，但语法简单不代表不需要�
 
 ## 2702期：重温Python基础
 
+不管学什么编程语言，基础总是最先开始接触，也是容易被人忽略的。看似简单的基础内容，实际上也有可能忽略的重点。本期将简单介绍一些Python中可能被忽略、被用错的基础知识。
+
 ### 1 Python的关键字
 
 关键字相关文档：https://docs.python.org/zh-cn/3/reference/lexical_analysis.html#keywords
@@ -466,7 +468,295 @@ ui.run()
 
 （完）
 
-## 2704期：（待定）（更新中）
+## 2704期：菜单
+
+### 0 本期主要内容
+
+NiceGUI、PySide6、Flet三个GUI框架都有菜单控件，本期主要介绍NiceGUI的菜单，同时简单介绍其他两个框架的菜单。
+
+### 1 NiceGUI的菜单
+
+相关文档：https://nicegui.io/documentation/menu 和 https://nicegui.io/documentation/context_menu
+
+NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单（`ui.menu`控件）和右键点击弹出上下文菜单（`ui.context_menu`控件）。它们的用法几乎一样，都是将其添加至需要弹出菜单的控件上下文：
+
+```python3
+from nicegui import ui
+  
+def index():
+    with ui.button(icon='menu'):
+        with ui.menu() as menu:
+            ui.menu_item('auto close')
+            ui.menu_item(
+                'no auto close',
+                auto_close=False
+            )
+            ui.separator()
+            ui.menu_item(
+                'manual close',
+                auto_close=False,
+                on_click=menu.close
+            )
+        with ui.context_menu() as context_menu:
+            ui.menu_item('auto close')
+            ui.menu_item(
+                'no auto close',
+                auto_close=False
+            )
+            ui.separator()
+            ui.menu_item(
+                'manual close',
+                auto_close=False,
+                on_click=context_menu.close
+            )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+一般使用`ui.menu_item`控件作为菜单项，但并不限制菜单项的控件类型，因此，可以使用其他控件：
+
+```python3
+from nicegui import ui
+  
+def index():
+    with ui.button(icon='menu'):
+        with ui.menu():
+            with ui.column():
+                ui.switch('switch')
+                ui.toggle(
+                    ['a', 'b', 'c'],
+                    value='a'
+                )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2704_1_1](easython.assets/2704_1_1.png)
+
+`ui.menu`控件支持以下方法：
+
+- `open`方法，弹出菜单。
+- `close`方法，隐藏菜单。
+- `toggle`方法，切换菜单的弹出状态。
+
+`ui.context_menu`控件支持以下方法：
+
+- `open`方法，弹出菜单。
+- `close`方法，隐藏菜单。
+
+`ui.menu_item`控件支持以下参数：
+
+- `text`参数，字符串类型，表示菜单项的文本。
+
+- `on_click`参数，可调用类型，表示点击菜单项之后执行的操作。
+
+  从该参数开始，只能通过关键字传入。
+
+- `auto_close`参数，布尔类型，表示点击菜单项之后是否自动隐藏菜单。
+
+NiceGUI的菜单可以简单理解为点击左键、右键使其弹出的容器，将其放在哪个控件的上下文，哪个控件就可以弹出菜单。
+
+### 2 PySide6的菜单
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMenu.html
+
+和NiceGUI的菜单类似，在PySide6中，不管怎么触发（弹出），创建菜单就是创建一个`QMenu`菜单控件，然后调用其方法添加菜单项（具体用法参考《Qt For Python 札记》第40章），最后将其添加、绑定到控件。
+
+但与NiceGUI的菜单不同，除了部分控件默认提供了弹出方式，无需手动绑定相关操作，大部分控件添加了菜单之后，需要额外设置触发（弹出）的方式。
+
+比如，通过信号给任意控件（`QWidget`控件）设置上下文菜单前，需要先设置控件的上下文菜单策略为自定义上下文菜单，然后将自定义上下文菜单的触发信号与菜单的弹出方法（`exec`方法、`open`方法均可）绑定：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+
+window.setContextMenuPolicy(
+    Qt.ContextMenuPolicy.CustomContextMenu
+)
+window.customContextMenuRequested.connect(
+    lambda e:menu.exec(
+        window.mapToGlobal(e)
+    )
+)
+
+
+window.show()
+app.exec()
+```
+
+通过事件给任意控件设置上下文菜单，也是类似的操作：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+
+window.contextMenuEvent = lambda e:menu.exec(
+    e.globalPos()
+)
+
+
+window.show()
+app.exec()
+```
+
+若是想自由地在鼠标位置弹出菜单，还需要单独定义菜单弹出函数，在需要弹出菜单时调用函数。示例为按下任意键都会在鼠标位置弹出菜单：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtGui import QCursor
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识菜单控件')
+window.resize(400, 300)
+
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+def open_menu(e):
+    pos = QCursor.pos()
+    menu.exec(pos)
+
+window.keyPressEvent = open_menu
+
+window.show()
+app.exec()
+```
+
+总的来说，Qt作为传统且稳定的商业项目，框架机制成熟，很多设计看似比NiceGUI繁琐，但总体契合Qt的设计理念，用起来也符合逻辑。
+
+### 3 Flet的菜单
+
+相关文档：https://flet.dev/docs/controls/contextmenu/ 和 https://flet.dev/docs/controls/popupmenubutton/#flet.PopupMenuItem-properties
+
+相比之下，Flet的菜单用法就有点费解了。详细用法可参考《Flet札记》第40章，本节不做重复的详细介绍。
+
+先说菜单的绑定关系，NiceGUI和PySide6中，都是将菜单添加到弹出菜单的控件上，从父子关系上看，控件是父，菜单是子。但在Flet中，弹出菜单的控件，是菜单的子控件（图片来自《Flet札记》第40章）：
+
+![2704_3_1](easython.assets/2704_3_1.png)
+
+`flet.GestureDetector`控件负责弹出菜单，但其为菜单的子控件。因此，想要理解Flet的菜单，就不能沿用绑定的概念，而是理解为菜单主动监听子控件的事件，根据事件的发生来弹出菜单。
+
+再说菜单的内容。其他两种控件，每个菜单的内容都是固定的，即一个菜单控件对应一组菜单项。而Flet的菜单控件，包含多组菜单项，对应不同的弹出方式。弹出方式对应的参数如下：
+
+- `open`方法，对应`items`参数。
+- 鼠标左键，对应`primary_items`参数。
+- 鼠标右键，对应`secondary_items`参数。
+- 鼠标中键，对应`tertiary_items`参数。
+
+完整示例代码如下：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识控件'
+
+    async def open_menu(e:flet.TapEvent[flet.GestureDetector]):
+        await menu.open(
+            local_position=e.local_position,
+            global_position=e.global_position,
+        )
+
+    menu = flet.ContextMenu(
+        content=flet.GestureDetector(
+            content=flet.Container(
+                content=flet.Text(
+                    value='左键点击、左键长按、右键点击、中键点击弹出不同的菜单'
+                ),
+                expand=True,
+                bgcolor=flet.Colors.BLUE,
+                alignment=flet.Alignment.CENTER
+            ),
+            on_tap=open_menu,
+            expand=True,
+        ),
+        expand=True,
+        items=[
+            flet.PopupMenuItem(
+                content='items'
+            )
+        ],
+        primary_items=[
+            flet.PopupMenuItem(
+                content='primary_items'
+            )
+        ],
+        primary_trigger=flet.ContextMenuTrigger.LONG_PRESS,
+        secondary_items=[
+            flet.PopupMenuItem(
+                content='secondary_items'
+            )
+        ],
+        tertiary_items=[
+            flet.PopupMenuItem(
+                content='tertiary_items'
+            )
+        ]
+    )
+    page.add(
+        menu
+    )
+
+
+flet.run(main)
+```
+
+![2704_3_2](easython.assets/2704_3_2.png)
+
+总的来说，虽然Flet的菜单结构不好理解，但其一个菜单控件支持多组菜单项，这个倒是其他框架不具备的特点。
+
+（完）
+
+## 2705期：xxx（更新中）
 
 
 
@@ -475,6 +765,8 @@ ui.run()
 
 
 （完）
+
+
 
 ## 27xx期+：尝鲜（首期免费）（更新中）
 

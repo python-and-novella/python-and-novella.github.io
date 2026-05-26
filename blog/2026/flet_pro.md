@@ -1338,51 +1338,828 @@ flet.run(main)
 
 本章只是简单介绍上下文菜单，上下文菜单在实际使用时遇到的问题，以及和菜单有关、结合的控件还有很多，将在后续的章节中介绍。
 
-
-
-
-
-
-
-## 15 xxx（更新中）
+## 15 多页面（视图）与路由（命令式）
 
 本章参考文档：https://flet.dev/docs/cookbook/navigation-and-routing/
 
-多页面与路由（命令式）
+### 15.1 多页面（视图）
+
+Flet程序不支持多窗口，对于想要显示多套界面的需求，就要用到Flet的多页面（视图）。
+
+简单来说，主页面的`views`属性是一个列表，存储了视图（`View`控件）。默认情况下，该属性包含一个默认视图，如果给该属性添加视图，那程序只会显示最上面的视图：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识多页面（视图）'
+
+    page.add(
+        flet.Button(
+            content='Index',
+        )
+    )
+    page.views.append(
+        flet.View(
+            [
+                flet.Button(
+                    content='Root',
+                )
+            ],
+        )
+    )
+
+
+flet.run(main)
+```
+
+![2026_15.1_1](flet_pro.assets/2026_15.1_1.png)
+
+因此，可以创建包含来一套界面的视图，在需要显示时将其放置（追加）在`views`属性的末尾。相应的，返回上一级视图，就是将`views`属性的末尾移除（弹出）。
+
+就可以基于这样的设计，创建出一个可以访问指定视图、返回上一级视图的程序：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识多页面（视图）'
+
+    page.add(
+        flet.Button(
+            content='Goto A',
+            on_click=lambda :view_a()
+        ),
+        flet.Button(
+            content='Goto B',
+            on_click=lambda :view_b()
+        )
+    )
+
+    def view_a():
+        page.views.append(
+            flet.View(
+                [
+                    flet.Text('Page A'),
+                    flet.Button(
+                        content='Back',
+                        on_click=lambda :page.views.pop()
+                    )
+                ],
+            )
+        )
+    def view_b():
+        page.views.append(
+            flet.View(
+                [
+                    flet.Text('Page B'),
+                    flet.Button(
+                        content='Back',
+                        on_click=lambda :page.views.pop()
+                    )
+                ],
+            )
+        )
 
 
 
+flet.run(main)
+```
+
+![2026_15.1_2](flet_pro.assets/2026_15.1_2.gif)
+
+### 15.2 路由（命令式）
+
+上一节介绍了视图的切换方式，但是，如果以网页模式显示Flet程序，如何实现访问指定路径，自动跳转至对应页面（视图）？
+
+主页面的`route`属性表示当前路径，不过，在上一节的代码中，改变视图，当前路径并不会改变：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识多页面（视图）'
+
+    page.add(
+        flet.Text(page.route),
+        flet.Button(
+            content='Goto A',
+            on_click=lambda :view_a()
+        ),
+        flet.Button(
+            content='Goto B',
+            on_click=lambda :view_b()
+        )
+    )
+
+    def view_a():
+        page.views.append(
+            flet.View(
+                [
+                    flet.Text('Page A'),
+                    flet.Text(page.route),
+                    flet.Button(
+                        content='Back',
+                        on_click=lambda :page.views.pop()
+                    )
+                ],
+            )
+        )
+    def view_b():
+        page.views.append(
+            flet.View(
+                [
+                    flet.Text('Page B'),
+                    flet.Text(page.route),
+                    flet.Button(
+                        content='Back',
+                        on_click=lambda :page.views.pop()
+                    )
+                ],
+            )
+        )
 
 
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+![2026_15.2_1](flet_pro.assets/2026_15.2_1.png)
+
+这是因为代码中其他视图不是基于主页面的`route`属性构建，而且跳转其他视图的方法不会改变主页面的`route`属性。因此，想要实现本节一开始的需求，首先做的，就是给主页面的`on_route_change`方法定义当前路径变化后执行的操作：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识多页面（视图）'
+
+    def view_index():
+        page.views.append(
+            flet.View(
+                [
+                    flet.Text(page.route),
+                    flet.Button(
+                        content='Goto A',
+                        on_click=lambda :page.navigate('/a')
+                    ),
+                    flet.Button(
+                        content='Goto B',
+                        on_click=lambda :page.navigate('/b')
+                    )
+                ]
+            )
+        )
+
+    def view_a():
+        page.views.append(
+            flet.View(
+                [
+                    flet.Text('Page A'),
+                    flet.Text(page.route),
+                    flet.Button(
+                        content='Back',
+                        on_click=lambda :page.navigate('/')
+                    )
+                ],
+            )
+        )
+
+    def view_b():
+        page.views.append(
+            flet.View(
+                [
+                    flet.Text('Page B'),
+                    flet.Text(page.route),
+                    flet.Button(
+                        content='Back',
+                        on_click=lambda :page.navigate('/')
+                    )
+                ],
+            )
+        )
+
+    def route_change():
+        page.views.clear()
+        match page.route:
+            case '/a':
+                view_a()
+            case '/b':
+                view_b()
+            case '/':
+                view_index()
+            case '':
+                view_index()
+
+    page.on_route_change = route_change
+    # 第一次运行时需要手动触发一次
+    route_change()
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+可能读者发现了，除了给主页面的`on_route_change`方法定义了具体方法，笔者还将跳转至对应视图的按钮改为使用主页面的`navigate`方法。该方法可以同步修改主页面的`route`属性，因此可以在跳转视图之后，看到浏览器地址栏和主页面的`route`属性都变成一致的：
+
+![2026_15.2_2](flet_pro.assets/2026_15.2_2.png)
+
+这种根据路径显示对应页面（视图）的设计，就叫路由。
+
+对于上面示例中页面内容和路径相关、几乎相同的页面，可以使用模板路由（`TemplateRoute`）来匹配路径，并从中捕获符合匹配规则的部分，基于模板生成所需内容：
+
+```python3
+import flet
 
 
-## 12 xxx（更新中）
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识多页面（视图）'
+
+    def view_index():
+        page.views.append(
+            flet.View(
+                [
+                    flet.Text(page.route),
+                    flet.Button(
+                        content='Goto A',
+                        on_click=lambda :page.navigate('/a')
+                    ),
+                    flet.Button(
+                        content='Goto B',
+                        on_click=lambda :page.navigate('/b')
+                    )
+                ]
+            )
+        )
+
+    def route_change():
+        page.views.clear()
+        troute = flet.TemplateRoute(page.route)
+        if troute.match('/:id'):
+            page.views.append(
+            flet.View(
+                [
+                    flet.Text(f'Page {troute.id.upper()}'),
+                    flet.Text(page.route),
+                    flet.Button(
+                        content='Back',
+                        on_click=lambda :page.navigate('/')
+                    )
+                ],
+            )
+        )
+        else:
+            view_index()
+
+    page.on_route_change = route_change
+    # 第一次运行时需要手动触发一次
+    route_change()
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+这样的话，只要符合匹配规则，其他类似的页面不用重复写几乎相同的代码：
+
+![2026_15.2_3](flet_pro.assets/2026_15.2_3.png)
+
+注意，命令式的路由设计比较复杂，使用时也比较繁琐。可能本章介绍之后，读者还是不太理解，或者不太喜欢Flet程序的设计，请不要因此产生厌烦情绪。后面会重点介绍声明式的路由，设计更加成熟，使用起来也更简单，敬请期待。
+
+## 16 消息订阅（主页面的`pubsub`属性）
 
 本章参考文档：https://flet.dev/docs/cookbook/pub-sub/
 
-消息订阅
+主页面的`pubsub`属性提供了消息订阅、发布功能，可以实现一个页面发布消息之后，其他订阅了消息的页面接收该消息。
+
+比如，在一个页面发送，所有页面都能收到该消息（需要使用多个浏览器标签打开`http://127.0.0.1`）：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识消息订阅'
 
-## 12 xxx（更新中）
+    result = flet.Text('无响应')
+    name = flet.TextField('no name')
+    text = flet.TextField()
 
-本章参考文档：https://flet.dev/docs/cookbook/client-storage/ 和 https://flet.dev/docs/cookbook/session-storage/
+    def receive_msg(topic,msg):
+        result.value = f'{msg["text"]} from {msg["name"]}'
+        result.update()
 
-数据存储
+    page.pubsub.subscribe_topic(
+        'console',
+        receive_msg
+    )
+    page.add(
+        result,
+        name,
+        text,
+        flet.Button(
+            content='Send',
+            on_click=lambda :page.pubsub.send_all_on_topic(
+                'console',
+                {
+                    'name':name.value,
+                    'text':text.value
+                }
+            )
+        ),
+    )
+    page.on_close = page.pubsub.unsubscribe_all
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+![2026_16_1](flet_pro.assets/2026_16_1.png)
+
+`pubsub`属性支持以下方法：
+
+- `send_all`方法，给所有会话发送消息。
+- `send_all_on_topic`方法，在指定话题中给所有会话发送消息。
+- `send_others`方法，给除了当前会话外的所有会话发送消息。
+- `send_others_on_topic`方法，在指定话题中给除了当前会话外的所有会话发送消息。
+- `subscribe`方法，给当前页面订阅消息，并将消息作为参数传递给响应函数。
+- `subscribe_topic`方法，给当前页面订阅指定话题的消息，并将消息作为参数传递给响应函数。
+- `unsubscribe`方法，取消当前页面的订阅（不包括话题订阅）。
+- `unsubscribe_topic`方法，取消当前页面对指定话题的订阅。
+- `unsubscribe_all`方法，取消当前页面的所有订阅（包括话题订阅）。
+
+建议在主页面的`on_close`方法中执行`unsubscribe_all`方法，避免因为订阅而导致内存泄露。
+
+## 17 会话（主页面的`session`属性）
+
+上一章介绍消息订阅时，提到了会话的概念，那什么是会话呢？简单来说，每新建页面打开一次网址，都是创建一个会话。因此，如果使用`page.session.id`检查上一章示例中的会话ID，就会看到新建页面打开相同的网址之后，不同页面的会话ID不同，而相同页面的会话ID不会因为刷新而改变：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识会话'
+
+    result = flet.Text('无响应')
+    name = flet.TextField(page.session.id)
+    text = flet.TextField()
+
+    def receive_msg(topic,msg):
+        result.value = f'{msg["text"]} from {msg["name"]}'
+        result.update()
+
+    page.pubsub.subscribe_topic(
+        'console',
+        receive_msg
+    )
+    page.add(
+        result,
+        name,
+        text,
+        flet.Button(
+            content='Send',
+            on_click=lambda :page.pubsub.send_all_on_topic(
+                'console',
+                {
+                    'name':name.value,
+                    'text':text.value
+                }
+            )
+        ),
+    )
+    page.on_close = page.pubsub.unsubscribe_all
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+![2026_17_1](flet_pro.assets/2026_17_1.png)
+
+## 18 数据存储（会话）
+
+本章参考文档：https://flet.dev/docs/cookbook/session-storage/
+
+上一章介绍了会话的特性，假如需要将数据存储到会话中，让不同会话之间的数据存取是隔离的话，不使用主页面的`session`属性，代码可以这样写：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识数据存储'
 
-## 12 xxx（更新中）
+    var = {}
+    result = flet.Text()
+    text = flet.TextField()
+
+    page.add(
+        result,
+        text,
+        flet.Button(
+            content='Save',
+            on_click=lambda :var.update(
+                {'value':text.value}
+            )
+        ),
+        flet.Button(
+            content='Update',
+            on_click=lambda :setattr(
+                result,
+                'value',
+                var['value']
+            )
+        ),
+    )
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+这种写法看上去没问题，但是，在数据不存在时程序会报错。还好主页面的`session`属性提供了更好用的属性`store`，能避免在数据不存在时程序报错：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识数据存储'
+
+    result = flet.Text()
+    text = flet.TextField()
+
+    page.add(
+        result,
+        text,
+        flet.Button(
+            content='Save',
+            on_click=lambda :page.session.store.set(
+                'text',
+                text.value
+            )
+        ),
+        flet.Button(
+            content='Update',
+            on_click=lambda :setattr(
+                result,
+                'value',
+                page.session.store.get('text')
+            )
+        ),
+    )
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+`store`属性支持以下方法：
+
+- `get`方法，获取指定键的数据。
+- `set`方法，将数据存入指定键中。
+- `contains_key`方法，判断键是否存在。
+- `remove`方法，移除指定键。
+- `get_keys`方法，获取所有键。
+- `clear`方法移除所有键。
+
+## 19 数据存储（持久化）
+
+### 19.1 存入文件（服务端）
+
+本节参考文档：https://flet.dev/docs/cookbook/read-and-write-files/
+
+上一章介绍的数据存储方式，虽然说不同会话之间是独立的，但也存在一个弊端，那就是程序重启之后数据会丢失。当然，如果有时候需要不同会话之间共享数据，使用上一章的数据存储方式也不行，需要改为将数据存储到文件中：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识数据存储'
+
+    result = flet.Text()
+    text = flet.TextField()
+
+    
+    async def save():
+        with open('./temp.txt','w') as f:
+            f.write(text.value)
+    async def update():
+        with open('./temp.txt','r') as f:
+            result.value = f.read()
+            result.update()
+
+    page.add(
+        result,
+        text,
+        flet.Button(
+            content='Save',
+            on_click=save
+        ),
+        flet.Button(
+            content='Update',
+            on_click=update
+        ),
+    )
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+### 19.2 `SharedPreferences`服务（Flet框架定义存储方式）
+
+本节参考文档：https://flet.dev/docs/services/sharedpreferences
+
+使用文件存储数据可以符合要求，但有点麻烦。好在Flet提供了方便好用的`SharedPreferences`服务，支持的方法和`store`属性相同，只是这些方法都是异步的（因为存储到文件中，必须异步操作）：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识数据存储'
+
+    result = flet.Text()
+    text = flet.TextField()
+
+    
+    async def save():
+        await flet.SharedPreferences().set(
+            'text',
+            text.value
+        )
+    async def update():
+        result.value = await flet.SharedPreferences().get('text')
+        result.update()
+        
+    page.add(
+        result,
+        text,
+        flet.Button(
+            content='Save',
+            on_click=save
+        ),
+        flet.Button(
+            content='Update',
+            on_click=update
+        ),
+    )
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+## 20 加密敏感数据
 
 本章参考文档：https://flet.dev/docs/cookbook/encrypting-sensitive-data/
 
-加密敏感数据
+使用`SharedPreferences`服务存取数据固然方便，但数据是明文存储，如果存储的是敏感数据（比如密码），则不应该这样存储。
+
+好在Flet的`security`模块提供了加密（`encrypt`方法）、解密（`decrypt`方法）功能，可以将数据加密后存储，也能解密出原始内容：
+
+```python3
+import flet
+from flet.security import encrypt, decrypt
+
+key = '密码'
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识数据存储'
+
+    result = flet.Text()
+    text = flet.TextField()
+    
+    async def save():
+        with open('./temp.txt','w') as f:
+            f.write(encrypt(text.value,key))
+    async def update():
+        with open('./temp.txt','r') as f:
+            result.value = decrypt(f.read(),key)
+            result.update()
+
+    page.add(
+        result,
+        text,
+        flet.Button(
+            content='Save',
+            on_click=save
+        ),
+        flet.Button(
+            content='Update',
+            on_click=update
+        ),
+    )
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER,
+    port=80
+)
+```
+
+![2026_20_1](flet_pro.assets/2026_20_1.png)
+
+为了方便演示，示例在源代码中存储密码，并且将加密后的数据存储到指定文件中，读者在实际开发时，请使用更加稳妥的存储方式存储密码和加密后的数据。
+
+可以看到，使用加密方法之后，存储的数据不再是明文，而是意义不明的加密数据。
+
+## 21 自定义控件（更新中）
+
+本章参考文档：https://flet.dev/docs/cookbook/custom-controls/
+
+自定义控件
+
+
+
+正常注入初始化方法：
+
+```python3
+import flet
+
+@flet.control
+class MyButton(flet.Button):
+    def init(self):
+        self.bgcolor = flet.Colors.ORANGE_300
+        self.color = flet.Colors.GREEN_800
+        self.style = flet.ButtonStyle(
+            shape=flet.RoundedRectangleBorder(radius=10)
+        )
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识自定义控件'
+
+    page.add(
+        MyButton(
+            content='Button',
+        ),
+        flet.Button(
+            content='Button',
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+直接使用数据类的特性：
+
+```python3
+import flet
+from dataclasses import field
+
+@flet.control
+class MyButton(flet.Button):
+    bgcolor:flet.Colors = flet.Colors.ORANGE_300
+    color:flet.Colors = flet.Colors.GREEN_800
+    style:flet.ButtonStyle = field(
+        default_factory=lambda: flet.ButtonStyle(
+            shape=flet.RoundedRectangleBorder(radius=10)
+        )
+    )
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识自定义控件'
+
+    page.add(
+        MyButton(
+            content='Button',
+        ),
+        flet.Button(
+            content='Button',
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+
+
+```python3
+import flet
+from dataclasses import field,dataclass
+
+@dataclass
+class MyButton(flet.Button):
+    bgcolor:flet.Colors = flet.Colors.ORANGE_300
+    color:flet.Colors = flet.Colors.GREEN_800
+    style:flet.ButtonStyle = field(
+        default_factory=lambda: flet.ButtonStyle(
+            shape=flet.RoundedRectangleBorder(radius=10)
+        )
+    )
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识自定义控件'
+
+    page.add(
+        MyButton(
+            content='Button',
+        ),
+        flet.Button(
+            content='Button',
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+
+
+
+
+（生命周期的魔法方法did_mount）
+
+
+
+隔离控件
+
+
+
+## 22 `xxx`控件（更新中）
+
+本章参考文档：
+
+`xxx`控件
+
+
 
 
 
@@ -1396,11 +2173,11 @@ flet.run(main)
 
 
 
-## 3x xxx（更新中）
+## 3x 详解声明式——路由（更新中）
 
 本章参考文档：https://flet.dev/docs/cookbook/navigation-and-routing/ 和 https://flet.dev/docs/cookbook/router/
 
-路由（声明式）
+路由
 
 
 

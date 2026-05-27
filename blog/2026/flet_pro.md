@@ -2027,20 +2027,17 @@ flet.run(
 
 可以看到，使用加密方法之后，存储的数据不再是明文，而是意义不明的加密数据。
 
-## 21 自定义控件（更新中）
+## 21 自定义控件
 
 本章参考文档：https://flet.dev/docs/cookbook/custom-controls/
 
-自定义控件
+在Flet中，自定义控件一般是指基于内置的控件，通过添加额外的Python代码、修改默认样式等方式，创建满足要求的新控件。
 
-
-
-正常注入初始化方法：
+因此，可以通过注入初始化方法来自定义控件：
 
 ```python3
 import flet
 
-@flet.control
 class MyButton(flet.Button):
     def init(self):
         self.bgcolor = flet.Colors.ORANGE_300
@@ -2069,7 +2066,9 @@ flet.run(
 )
 ```
 
-直接使用数据类的特性：
+![2026_21_1](flet_pro.assets/2026_21_1.png)
+
+前面说过，Flet框架使用数据类设计控件，这个数据类就是`control`类。因此，可以参考控件的源码，直接使用`control`类作为装饰器，同时继承要修改的控件类：
 
 ```python3
 import flet
@@ -2105,7 +2104,9 @@ flet.run(
 )
 ```
 
+注意，定义数据类的成员（属性或者参数）时，需要添加类型备注（类型注解），否则该成员不会生效，另外，对于不是简单值的成员，需要使用`field`方法（使用`from dataclasses import field`导入）创建。
 
+`control`类的用法、作用和数据类（`dataclass`类）一样，因此，直接使用数据类也可以：
 
 ```python3
 import flet
@@ -2141,21 +2142,243 @@ flet.run(
 )
 ```
 
+Flet的控件类还支持一些特别的生命周期方法，重写这些方法，可以在控件特定生命周期执行指定操作：
 
+- `build`方法，将控件添加到主页面时执行。
+- `did_mount`方法，将控件添加到主页面后执行。
+- `will_unmount`方法，将控件从主页面中移除时执行。
+- `before_update`方法，更新控件的显示（调用`update`方法）时执行。注意，控件的默认样式设置在`before_update`方法中执行，重写该方法时，不要忘了调用父类的同名方法。
 
+生命周期方法的示例如下：
 
+```python3
+import flet
+from dataclasses import field
 
-（生命周期的魔法方法did_mount）
+@flet.control
+class MyButton(flet.Button):
+    bgcolor:flet.Colors = flet.Colors.ORANGE_300
+    color:flet.Colors = flet.Colors.GREEN_800
+    style:flet.ButtonStyle = field(
+        default_factory=lambda: flet.ButtonStyle(
+            shape=flet.RoundedRectangleBorder(radius=10)
+        )
+    )
+    def build(self):
+        print('build')
+    def did_mount(self):
+        print('did_mount')
+    def will_unmount(self):
+        print('will_unmount')
+    def before_update(self):
+        super().before_update()
+        print('before_update')
+        
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识自定义控件'
+    button = MyButton(
+        content='Button',
+    )
+    page.add(
+        button,
+        flet.Button(
+            content='Remove Button',
+            on_click=lambda :page.remove(button)
+        ),
+    )
 
+flet.run(
+    main
+)
+```
 
-隔离控件
+自定义控件还支持一个类似属性的方法`is_isolated`，该方法返回的布尔值（默认为`False`）表示该控件是否隔离父控件的更新，即父控件调用`update`方法之后，是否调用子控件的`update`方法。
 
+可以重写`before_update`方法来验证隔离：
 
+```python3
+import flet
 
-## 22 `xxx`控件（更新中）
+@flet.control
+class MyButton(flet.Button):
+    bgcolor:flet.Colors = flet.Colors.ORANGE_300
+    color:flet.Colors = flet.Colors.GREEN_800
+    def before_update(self):
+        super().before_update()
+        print('before_update in MyButton')
+    def is_isolated(self):
+        return True
 
-本章参考文档：
+@flet.control
+class TestButton(flet.Button):
+    def before_update(self):
+        super().before_update()
+        print('before_update in TestButton')
+            
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识自定义控件'
+    button = flet.Button(
+        content=MyButton(
+            content=TestButton(
+                content='TestButton'
+            )
+        )
+    )
+    page.add(
+        button,
+        flet.Button(
+            content='Update button',
+            on_click=button.update
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+![2026_21_2](flet_pro.assets/2026_21_2.png)
+
+这里定义了三层按钮，父子关系为`flet.Button -> MyButton -> TestButton`。
+
+`MyButton`控件和`TestButton`控件的`before_update`方法都会打印一些信息，表示该控件的`update`方法被隐式调用。
+
+当`MyButton`控件的`is_isolated`方法返回**`True`**时，调用`flet.Button`控件的`update`方法，`TestButton`控件的`before_update`方法**不会**执行。
+
+只有`MyButton`控件的`is_isolated`方法返回**`False`**时，调用`flet.Button`控件的`update`方法，`TestButton`控件的`before_update`方法才**会**执行。
+
+简单总结一下，控件的隔离表示当该控件需要执行`update`方法时，启用隔离就导致子控件的`update`方法不执行。
+
+## 22 `AlertDialog`控件（警告对话框）
+
+本章参考文档：https://flet.dev/docs/controls/alertdialog/
+
+相比于普通控件添加到主页面即自动显示，对话框显然需要控制其显示隐藏。因此，显示对话框需要调用主页面的`show_dialog`方法（如果主页面添加了对话框，还可以设置对话框的`open`属性为`True`），隐藏则需要调用主页面的`pop_dialog`方法（如果主页面添加了对话框，还可以设置对话框的`open`属性为`False`）。
+
+如果主页面没有添加对话框，只能这样显示对话框：
+
+```python3
+import flet
+            
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识对话框'
+    
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '警告信息'
+        ),
+    )
+    
+    page.add(
+        flet.Button(
+            content='show dialog',
+            on_click=lambda :page.show_dialog(
+                dialog
+            )
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+如果主页面添加了对话框，且默认不显示（`open`参数为`False`），还可以这样显示：
+
+```python3
+import flet
+            
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识对话框'
+    
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '警告信息'
+        ),
+    )
+    def show_dialog():
+        dialog.open = True
+    page.add(
+        dialog,
+        flet.Button(
+            content='show dialog',
+            on_click=show_dialog
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+![2026_22_1](flet_pro.assets/2026_22_1.png)
+
+上面的示例中，对话框都不是模态，点击空白处或者按`esc`键即可关闭对话框。如果想要强制用户点击对话框内指定的按钮才能关闭对话框，则需要将`modal`参数（属性）设置为`True`，此时对话框将变为模态对话框，无法通过点击空白处关闭对话框。注意，此时需要给`actions`参数添加对话框关闭按钮，否则只能通过关闭程序的方式关闭对话框，没有其他关闭对话框的方式。
+
+示例如下：
+
+```python3
+import flet
+            
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识对话框'
+    
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '模态对话框'
+        ),
+        actions=[
+            flet.Button(
+                content='hide dialog',
+                on_click=lambda :hide_dialog()
+            )
+        ],
+        modal=True
+    )
+    def show_dialog():
+        dialog.open = True
+    def hide_dialog():
+        dialog.open = False
+    page.add(
+        dialog,
+        flet.Button(
+            content='show dialog',
+            on_click=show_dialog
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+![2026_22_2](flet_pro.assets/2026_22_2.png)
+
+`AlertDialog`控件其余的参数与样式有关，读者可以参考文档，这里就不在赘述。如果在使用该控件时后续遇到使用其他参数的情况，届时再单独介绍。
+
+## 2x `xxx`控件（更新中）
+
+本章参考文档：https://flet.dev/docs/controls
 
 `xxx`控件
 

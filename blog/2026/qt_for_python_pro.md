@@ -4009,11 +4009,21 @@ app.exec()
 
 
 
+## 42 `xxx`xxx控件（更新中）
+
+相关文档：
+
+
+
 42
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSlider.html
 
 
+
+## 43 `xxx`xxx控件（更新中）
+
+相关文档：
 
 43
 
@@ -4025,11 +4035,19 @@ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDoubleSpinBox.html
 
 
 
+## 4x `xxx`xxx控件（更新中）
+
+相关文档：
+
 44
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QToolBox.html
 
 
+
+## 4x `xxx`xxx控件（更新中）
+
+相关文档：
 
 45
 
@@ -4037,17 +4055,21 @@ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFocusFrame.html#PySide6.QtWid
 
 
 
+## 4x `xxx`xxx控件（更新中）
+
+相关文档：
+
 46
-
-
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSizeGrip.html#PySide6.QtWidgets.QSizeGrip
 
 
 
+## 4x `xxx`xxx控件（更新中）
+
+相关文档：
+
 47
-
-
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QScrollArea.html#PySide6.QtWidgets.QScrollArea
 
@@ -4057,9 +4079,11 @@ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QScrollBar.html#PySide6.QtWidg
 
 
 
+## 4x `xxx`xxx控件（更新中）
+
+相关文档：
+
 48
-
-
 
 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTabBar.html
 

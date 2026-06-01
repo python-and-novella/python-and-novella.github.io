@@ -2827,7 +2827,7 @@ app.exec()
 | ------------------------------------------------------------ | ---------------------- |
 | [`PySide6.QtWidgets.QWidgetAction`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidgetAction.html#PySide6.QtWidgets.QWidgetAction) | 给动作嵌入控件         |
 | [`PySide6.QtWidgets.QDockWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDockWidget.html#PySide6.QtWidgets.QDockWidget) | 让控件可浮动、停靠     |
-| [`PySide6.QtWidgets.QMainWindow`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow) | 竹醋昂克               |
+| [`PySide6.QtWidgets.QMainWindow`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow) | 主窗口                 |
 | [`PySide6.QtWidgets.QMdiArea`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMdiArea.html#PySide6.QtWidgets.QMdiArea) | 多个浮动的内部子窗口   |
 | [`PySide6.QtWidgets.QMdiSubWindow`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMdiSubWindow.html#PySide6.QtWidgets.QMdiSubWindow) | 内部子窗口             |
 | [`PySide6.QtWidgets.QMenu`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMenu.html#PySide6.QtWidgets.QMenu) | 菜单                   |
@@ -3975,7 +3975,7 @@ app.exec()
 
 关于菜单的用法还有很多，更多相关用法、问题可以期待后续的更新。
 
-## 41 `QProgressBar`进度条控件（更新中）
+## 41 `QProgressBar`进度条控件
 
 相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressBar.html
 
@@ -4005,87 +4005,1456 @@ app.exec()
 
 ![2026_41_1](qt_for_python_pro.assets/2026_41_1.png)
 
+进度条控件主要用于展示进度，因此不具备交互能力。需要修改当前进度的话，就要使用`setValue`方法修改`value`控件属性。当然，该控件属性发生变化时，还会触发`valueChanged`信号。
+
+为了发布展示效果，这里借用了下一章介绍的滑块控件，将滑块控件的`valueChanged`信号与进度条控件的`setValue`方法连接。当拖动滑块时，进度条也会随之发生改变：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QProgressBar,
+    QSlider,
+    QLineEdit
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识进度条控件')
+window.resize(400, 300)
+
+progress = QProgressBar(
+    window,
+    value=60,
+)
+slider = QSlider(
+    window,
+    value=60,
+    orientation=Qt.Orientation.Horizontal,
+    maximum=100
+)
+slider.move(
+    0,30
+)
+edit = QLineEdit(
+    window
+)
+edit.move(
+    0,60
+)
+
+slider.valueChanged.connect(progress.setValue)
+progress.valueChanged.connect(lambda e:edit.setText(str(e)))
+
+window.show()
+app.exec()
+```
+
+![2026_41_2](qt_for_python_pro.assets/2026_41_2.png)
+
+进度条控件的`text`控件属性表示显示的文本（而非当前进度值）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QProgressBar,
+    QSlider,
+    QLineEdit
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识进度条控件')
+window.resize(400, 300)
+
+progress = QProgressBar(
+    window,
+    value=60,
+)
+slider = QSlider(
+    window,
+    value=60,
+    orientation=Qt.Orientation.Horizontal,
+    maximum=100
+)
+slider.move(
+    0,30
+)
+edit = QLineEdit(
+    window
+)
+edit.move(
+    0,60
+)
+
+slider.valueChanged.connect(progress.setValue)
+progress.valueChanged.connect(
+    lambda :edit.setText(
+   		progress.text()
+	)
+)
+
+window.show()
+app.exec()
+```
+
+![2026_41_3](qt_for_python_pro.assets/2026_41_3.png)
+
+如果想要修改显示的文本，需要修改的是`format`控件属性（可以使用`['%v','%m','%p']`中的固定表达表示当前值、总步数、当前值的百分比，默认值为`'%p%'`）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QProgressBar,
+    QSlider,
+    QLineEdit
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识进度条控件')
+window.resize(400, 300)
+
+progress = QProgressBar(
+    window,
+    value=60,
+)
+slider = QSlider(
+    window,
+    value=60,
+    orientation=Qt.Orientation.Horizontal,
+    maximum=100
+)
+slider.move(
+    0,30
+)
+edit = QLineEdit(
+    window
+)
+edit.move(
+    0,60
+)
+
+slider.valueChanged.connect(progress.setValue)
+progress.setFormat(
+    '%v/%m=%p%'
+)
+progress.valueChanged.connect(
+    lambda :edit.setText(
+        progress.text()
+    )
+)
+
+window.show()
+app.exec()
+```
+
+![2026_41_4](qt_for_python_pro.assets/2026_41_4.png)
+
+默认总步数是`100`（最大值减去最小值），因此总步数和当前值的百分比看起来一样。可以通过修改（直接或者使用`setRange`方法）`minimum`控件属性、`maximum`控件属性，间接调整总步数：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QProgressBar,
+    QSlider,
+    QLineEdit
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识进度条控件')
+window.resize(400, 300)
+
+progress = QProgressBar(
+    window,
+    value=60,
+)
+slider = QSlider(
+    window,
+    value=60,
+    orientation=Qt.Orientation.Horizontal,
+    maximum=100
+)
+slider.move(
+    0,30
+)
+edit = QLineEdit(
+    window
+)
+edit.move(
+    0,60
+)
+
+slider.valueChanged.connect(progress.setValue)
+progress.setFormat(
+    '%v/%m=%p%'
+)
+progress.setMinimum(
+    10
+)
+progress.setMaximum(
+    60
+)
+progress.valueChanged.connect(
+    lambda :edit.setText(
+        progress.text()
+    )
+)
+
+window.show()
+app.exec()
+```
+
+![2026_41_5](qt_for_python_pro.assets/2026_41_5.png)
+
+如果想要进度条反向，可以使用`setInvertedAppearance`方法：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QProgressBar,
+    QSlider
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识进度条控件')
+window.resize(400, 300)
+
+progress = QProgressBar(
+    window,
+    value=60,
+)
+slider = QSlider(
+    window,
+    value=60,
+    orientation=Qt.Orientation.Horizontal,
+    maximum=100
+)
+slider.move(
+    0,30
+)
+
+slider.valueChanged.connect(progress.setValue)
+progress.setInvertedAppearance(
+    True
+)
+
+window.show()
+app.exec()
+```
+
+![2026_41_6](qt_for_python_pro.assets/2026_41_6.png)
+
+关于进度条的用法还有很多，更多相关用法、问题可以期待后续的更新。
+
+## 42 `QSlider`滑块控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSlider.html
+
+上一章在介绍进度条控件时用到了滑块控件，本章那就顺势介绍一下滑块控件：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSlider
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识滑块控件')
+window.resize(400, 300)
+
+QSlider(
+    window,
+    value=60,
+    orientation=Qt.Orientation.Horizontal,
+    maximum=100
+)
+
+window.show()
+app.exec()
+```
+
+![2026_42_1](qt_for_python_pro.assets/2026_42_1.png)
+
+滑块控件用起来有点像旋钮控件，用法几乎一样，从继承关系就能看出端倪：
+
+![2026_42_2](qt_for_python_pro.assets/2026_42_2.png)
+
+`QDial`旋钮控件的继承关系如下：
+
+![2026_36_2](qt_for_python_pro.assets/2026_36_2.png)
+
+可以看到，二者的父类是一样的。因此，大部分用法二者是相同的，本章就不再赘述。本章重点说一说`QSlider`滑块控件独有的方法、控件属性。
+
+`tickInterval`方法（控件属性，可使用`setTickInterval`方法设置），表示刻度的间隔（需要先设置`tickPosition`控件属性来显示刻度）。
+
+`tickPosition`方法（控件属性，可使用`setTickPosition`方法设置），表示刻度的显示位置。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSlider
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识滑块控件')
+window.resize(400, 300)
+
+QSlider(
+    window,
+    value=60,
+    orientation=Qt.Orientation.Horizontal,
+    maximum=100,
+    tickInterval=20,
+    tickPosition=QSlider.TickPosition.TicksBothSides
+)
+
+window.show()
+app.exec()
+```
+
+![2026_42_3](qt_for_python_pro.assets/2026_42_3.png)
+
+## 43 `QSpinBox`整数编辑框控件和`QDoubleSpinBox`小数编辑框控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSpinBox.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDoubleSpinBox.html
+
+`QSpinBox`整数编辑框控件和`QDoubleSpinBox`小数编辑框控件的用法完全相同，唯一区别就是二者存储的数据类型不同：前者为整数，后者为小数。
+
+因此，本章只介绍`QSpinBox`整数编辑框控件：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSpinBox
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识数字编辑框控件')
+window.resize(400, 300)
+
+QSpinBox(
+    window,
+)
+
+window.show()
+app.exec()
+```
+
+![2026_43_1](qt_for_python_pro.assets/2026_43_1.png)
+
+整数编辑框控件恰如其名，就是一个存储整数的编辑框。但该控件在编辑框的基础上，多了两个可以快捷调整数值大小的按钮（图中控件右部）。
+
+`QSpinBox`整数编辑框控件的继承关系如下：
+
+![2026_43_2](qt_for_python_pro.assets/2026_43_2.png)
+
+相关文档的链接如下：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSpinBox.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractSpinBox.html#PySide6.QtWidgets.QAbstractSpinBox
+- https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html
+
+### 43.1 初始化方法
+
+`QSpinBox`整数编辑框控件初始化方法支持参数还包括其父类的，这里一并介绍一下常用的部分。
+
+`value`参数，整数类型，表示当前数值。
+
+`prefix`参数，字符串类型，表示显示内容的前缀。
+
+`suffix`参数，字符串类型，表示显示内容的后缀。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSpinBox
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识数字编辑框控件')
+window.resize(400, 300)
+
+QSpinBox(
+    window,
+    prefix='共 ',
+    suffix=' 个',
+    value=6
+)
+
+window.show()
+app.exec()
+```
+
+![2026_43.1_1](qt_for_python_pro.assets/2026_43.1_1.png)
+
+`minimum`参数，整数类型，表示允许的最小值。
+
+`maximum`参数，整数类型，表示允许的最大值。
+
+`singleStep`参数，整数类型，表示点击按钮单次调整的差值（即步长）。
+
+`stepType`参数，`PySide6.QtWidgets.QSpinBox.StepType`类型或者`PySide6.QtWidgets.QAbstractSpinBox.StepType`类型，表示步长的类型。
+
+`PySide6.QtWidgets.QSpinBox.StepType`类型或者`PySide6.QtWidgets.QAbstractSpinBox.StepType`类型是枚举类型，包含以下枚举成员：
+
+- `DefaultStepType`，表示使用`singleStep`控件属性作为固定步长。
+- `AdaptiveDecimalStepType`，表示根据当前值大小自动调整步长为10的次幂（`1,10,100...10^x`）。
+
+`displayIntegerBase`参数，整数类型，表示数值是多少进制（支持`2`到`16`）。
+
+`accelerated`参数，布尔类型，表示长按调整按钮时，是否加快调整速度（按的时间越长，调整速度越快）。
+
+`readOnly`参数，布尔类型，表示数值是否为可读（不允许通过交互调整）。
+
+`showGroupSeparator`参数，布尔类型，表示是否添加大数分组符（每三位一组）。
+
+`specialValueText`参数，字符串类型，表示当数值小于最小值时显示什么内容。
+
+### 43.2 方法、控件属性
+
+`QSpinBox`整数编辑框控件支持的方法、控件属性还包括其父类的，这里一并介绍一下常用的部分。
+
+`value`方法（控件属性，可使用`setValue`方法设置），返回当前数值（整数类型）。
+
+`cleanText`方法（控件属性，只读属性），返回当前数值（字符串类型）。
+
+`text`方法（控件属性，只读属性），返回编辑框的当前内容（含前缀、数值、后缀）。
+
+`lineEdit`方法（控件属性，可使用`setLineEdit`方法设置），返回单行编辑框本体。没错，整数编辑框可以看作是单行编辑框加上了点击按钮调整编辑框内容的功能。因此，该方法可以返回单行编辑框本体，进而修改整数编辑框使用的单行编辑框。
+
+### 43.3 信号和槽
+
+`QSpinBox`整数编辑框控件支持的信号和槽还包括其父类的，这里一并介绍一下常用的部分。
+
+该控件的数值变化时会触发两个信号：`textChanged`信号和`valueChanged`信号。但是，两个信号接收的参数不同，前者是`text`控件属性，后者是`value`控件属性：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QSpinBox
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识数字编辑框控件')
+window.resize(400, 300)
+
+box = QSpinBox(
+    window,
+    prefix='共 ',
+    suffix=' 个',
+    value=6
+)
+box.valueChanged.connect(
+    lambda e:print(f'valueChanged接收的是: {e}')
+)
+box.textChanged.connect(
+    lambda e:print(f'textChanged接收的是: {e}')
+)
+
+window.show()
+app.exec()
+```
+
+输出结果为：
+
+```python3
+textChanged接收的是: 共 7 个
+valueChanged接收的是: 7
+textChanged接收的是: 共 6 个
+valueChanged接收的是: 6
+textChanged接收的是: 共 5 个
+valueChanged接收的是: 5
+```
+
+槽函数包括（部分）：
+
+- `setValue`方法，设置数值。
+- `stepUp`方法，增加数值（大小为步进）。
+- `stepDown`方法，减小数值（大小为步进）。
+- `selectAll`方法，选择数值部分的文本。
+
+## 44 `QToolBox`工具箱控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QToolBox.html
+
+`QToolBox`工具箱控件恰如其名，就像一个可以存放工具的多层工具箱，但每次只能展开一层，其他层会自动收起：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识工具箱控件')
+window.resize(400, 300)
+
+box = QToolBox(
+    window,
+)
+for i in 'abc':
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        i
+    )
+
+
+window.show()
+app.exec()
+```
+
+![2026_44_1](qt_for_python_pro.assets/2026_44_1.png)
+
+`QToolBox`工具箱控件的初始化参数没有需要单独介绍的，因为本身就没几个初始化参数。不过，管理控件的项目（即工具箱每一层的内容），倒是需要重点说说。 
+
+控件提供的方法中，带“Item”的方法就是与项目有关的方法（增删改查）。
+
+`addItem`方法，用于添加项目。该方法的所有参数都是仅限位置参数：
+
+- 第一个位置参数始终是要添加的控件，仅支持单个控件。因此，上面的示例中，添加了布局控件，让布局控件容纳更多控件，同时还能调整子控件的显示效果。
+- 第二个位置参数在传入两个位置参数时是项目名称，在传入三个位置参数时是项目图标。
+- 第三个位置参数是项目名称。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+)
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识工具箱控件')
+window.resize(400, 300)
+
+box = QToolBox(
+    window,
+)
+for i in 'abc':
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        QIcon.fromTheme(
+            QIcon.ThemeIcon.Computer
+        ),
+        i,
+    )
+
+
+
+window.show()
+app.exec()
+```
+
+![2026_44_2](qt_for_python_pro.assets/2026_44_2.png)
+
+`insertItem`方法，用于在指定位置插入项目。该方法的所有参数都是仅限位置参数，第一个位置参数表示插入位置的索引值，后面几个位置参数则是`addItem`方法的参数顺延（即第二个位置参数是`addItem`方法的第一个位置参数）。
+
+`itemIcon`方法、`setItemIcon`方法可用于获取、修改项目的图标，参数均为对应项目的索引值。
+
+`itemText`方法、`setItemText`方法可用于获取、修改项目的名称，参数均为对应项目的索引值。
+
+`currentIndex`方法、` currentWidget`方法可用于获取当前项目的索引值、对应控件。
+
+`setCurrentIndex`方法、` setCurrentWidget`方法可用于将指定索引值、控件对应的项目设置为当前项目。同时，这两个方法也是槽函数。
+
+`itemToolTip`方法、`setItemToolTip`方法可以获取、设置项目的工具提示，参数均为对应项目的索引值。
+
+`removeItem`方法可以移除项目。
+
+`widget`方法可以获取项目对应的控件。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+)
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识工具箱控件')
+window.resize(400, 300)
+
+box = QToolBox(
+    window,
+)
+for i in 'abc':
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        QIcon.fromTheme(
+            QIcon.ThemeIcon.Computer
+        ),
+        i,
+    )
+box.widget(0).layout().addWidget(
+    QPushButton(
+        '4',
+    )
+)
+
+
+window.show()
+app.exec()
+```
+
+![2026_44_3](qt_for_python_pro.assets/2026_44_3.png)
+
+切换当前项目时，会同时触发`currentChanged`信号。
+
+预告一下，该控件的操作逻辑很像选项卡，而后面的章节会解压该控件介绍选项卡控件，读者就会发现类似的方法。
+
+## 45 `QScrollArea`滚动区域控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QScrollArea.html
+
+窗口再大，也没法完整展示尺寸过大的控件，此时就需要使用`QScrollArea`滚动区域控件，添加到其中的控件尺寸过大的话，可以通过滚动的方式展示全貌：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QScrollArea,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识滚动区域')
+window.resize(400, 300)
+
+scroll = QScrollArea(
+    window
+)
+scroll.setFixedSize(
+    120,
+    200
+)
+button = QPushButton(
+    'Hello',
+    window
+)
+button.setFixedSize(
+    100,
+    600
+)
+scroll.setWidget(
+    button
+)
+
+window.show()
+app.exec()
+```
+
+![2026_45_1](qt_for_python_pro.assets/2026_45_1.png)
+
+`QScrollArea`滚动区域控件的初始化方法支持参数还包括其父类的，这里一并介绍一下常用的部分。
+
+`widgetResizable`参数，关键字参数，布尔类型，表示是否自动调整滚动区域内的控件大小，让其填满滚动区域（仅限没有固定尺寸的控件，并且仅调整允许自动调整的方向）。
+
+`alignment`参数，关键字参数，`PySide6.QtCore.Qt.AlignmentFlag`类型，表示滚动区域内的控件对齐方向。
+
+除了上面参数对应的控件属性及其设置方法之外，控件还支持其他方法。
+
+`widget`方法（控件属性，可使用`setWidget`方法设置），返回滚动区域内的控件。
+
+`takeWidget`方法，从滚动区域移除控件，并将控件返回。
+
+`ensureVisible`方法，自动滚动以确保指定位置（相对坐标）可见。示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QScrollArea,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识滚动区域')
+window.resize(400, 300)
+
+scroll = QScrollArea(
+    window
+)
+scroll.setFixedSize(
+    120,
+    100
+)
+button = QPushButton(
+    'Hello',
+    window
+)
+button.setFixedSize(
+    100,
+    400
+)
+scroll.setWidget(
+    button
+)
+scroll.move(
+    100,200
+)
+button.clicked.connect(
+    lambda:scroll.ensureVisible(
+        100,200
+    )
+)
+
+window.show()
+app.exec()
+```
+
+`ensureWidgetVisible`方法，自动滚动以确保指定控件可见。
+
+## 46 `QTabBar`选项卡标签控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTabBar.html
+
+之前的章节介绍`QToolBox`工具箱控件时说过工具箱控件的操作逻辑很像选项卡，本章要介绍的`QTabBar`选项卡标签控件就是选项卡的标签部分，对于需要自定义选项卡内容的场景，该控件必不可少。因此，本章就借着实现该控件与自定义选项卡内容联动的思路，顺便介绍一下该控件的用法。
+
+因为自定义选项卡内容控件还需要写不少切换内容的代码，为了避免额外的代码导致混淆，这里借用`QToolBox`工具箱控件作为选项卡内容控件，让读者可以聚焦于联动代码上。先看没有联动代码时的基本代码：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+
+tabbar = QTabBar(
+    window
+)
+box = QToolBox(
+    window,
+)
+box.move(
+    0,30
+)
+for i in 'abc':
+    tabbar.addTab(
+        i
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        i
+    )
+
+window.show()
+app.exec()
+```
+
+![2026_46_1](qt_for_python_pro.assets/2026_46_1.png)
+
+可以看到，原本工具箱控件的上方多了一个选项卡标签控件，并且添加了三个标签，用于对应工具箱控件的三层内容。因为代码还没有添加联动，因此点击标签不会切换工具箱控件当前显示的内容。
+
+联动代码很简单，就是将选项卡标签控件标签切换时触发的`currentChanged`信号，与工具箱控件切换当前项目的槽函数——`setCurrentIndex`方法连接。二者的参数都是整数类型的索引值，因此可以轻松联动。代码如下：
+
+```python3
+# 正向联动代码
+tabbar.currentChanged.connect(
+    box.setCurrentIndex
+)
+```
+
+读者可以动手将上述代码复制到本章开头示例中的合适位置，并运行代码查看联动效果。
+
+上面的联动代码只是实现了点击标签然后切换工具箱控件的当前项目，基于类似思路，还可以将工具箱控件的`currentChanged`信号与选项卡标签控件的槽函数——`setCurrentIndex`方法，简单到只是换一下控件对应的变量名，即可实现反向联动：
+
+```python3
+# 反向联动代码
+box.currentChanged.connect(
+    tabbar.setCurrentIndex
+)
+```
+
+双向联动的完整示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+
+tabbar = QTabBar(
+    window
+)
+box = QToolBox(
+    window,
+)
+box.move(
+    0,30
+)
+for i in 'abc':
+    tabbar.addTab(
+        i
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        i
+    )
+
+# 正向联动代码
+tabbar.currentChanged.connect(
+    box.setCurrentIndex
+)
+
+# 反向联动代码
+box.currentChanged.connect(
+    tabbar.setCurrentIndex
+)
+
+window.show()
+app.exec()
+```
+
+![2026_46_2](qt_for_python_pro.assets/2026_46_2.png)
+
+如果嫌弃自定义选项卡内容麻烦，下一章会介绍一步到位的`QTabWidget`选项卡控件，无需写额外代码处理联动，直接添加内容即可，敬请期待。
+
+不过，虽然`QTabWidget`选项卡控件用起来更简单，但选项卡控件本身还包含了一个选项卡标签控件，而且有不少参数、控件属性、方法与选项卡标签控件有关。因此，本章还是有必要介绍一下选项卡标签控件，后续使用选项卡控件时才更得心应手。
+
+### 46.1 初始化参数
+
+`shape`参数，关键字参数，`PySide6.QtWidgets.QTabBar.Shape`类型，表示选项卡标签的形状（同时还定义了形状对应的位置）。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+app.setStyle('Fusion')
+tabbar = QTabBar(
+    window,
+    shape=QTabBar.Shape.TriangularNorth
+)
+box = QToolBox(
+    window,
+)
+box.move(
+    0,30
+)
+for i in 'abc':
+    tabbar.addTab(
+        i
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        i
+    )
+
+# 正向联动代码
+tabbar.currentChanged.connect(
+    box.setCurrentIndex
+)
+
+# 反向联动代码
+box.currentChanged.connect(
+    tabbar.setCurrentIndex
+)
+
+window.show()
+app.exec()
+```
+
+![2026_46.1_1](qt_for_python_pro.assets/2026_46.1_1.png)
+
+`drawBase`参数，关键字参数，布尔类型，表示是否绘制基底，即下面示例图中的横线：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+app.setStyle('Fusion')
+tabbar = QTabBar(
+    window,
+    drawBase=True
+)
+box = QToolBox(
+    window,
+)
+box.move(
+    0,30
+)
+for i in 'abc':
+    tabbar.addTab(
+        i
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        i
+    )
+
+# 正向联动代码
+tabbar.currentChanged.connect(
+    box.setCurrentIndex
+)
+
+# 反向联动代码
+box.currentChanged.connect(
+    tabbar.setCurrentIndex
+)
+
+window.show()
+app.exec()
+```
+
+![2026_46.1_2](qt_for_python_pro.assets/2026_46.1_2.png)
+
+`elideMode`参数，关键字参数，`PySide6.QtCore.Qt.TextElideMode`类型，表示当标签内的文字长度超过单个标签的宽度时如何省略无法完整显示的部分。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+app.setStyle('Fusion')
+tabbar = QTabBar(
+    window,
+    elideMode=Qt.TextElideMode.ElideMiddle
+)
+tabbar.resize(
+    160,30
+)
+box = QToolBox(
+    window,
+)
+box.move(
+    0,30
+)
+for i in 'abc':
+    tabbar.addTab(
+        i*6
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        i
+    )
+
+# 正向联动代码
+tabbar.currentChanged.connect(
+    box.setCurrentIndex
+)
+
+# 反向联动代码
+box.currentChanged.connect(
+    tabbar.setCurrentIndex
+)
+
+window.show()
+app.exec()
+```
+
+![2026_46.1_3](qt_for_python_pro.assets/2026_46.1_3.png)
+
+`usesScrollButtons`参数，关键字参数，布尔类型，表示当标签数量较多导致超过允许的总宽度时，是否显示滚动按钮来滚动无法完整显示的部分。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+app.setStyle('Fusion')
+tabbar = QTabBar(
+    window,
+    elideMode=Qt.TextElideMode.ElideRight,
+    usesScrollButtons=True
+)
+tabbar.resize(
+    100,30
+)
+box = QToolBox(
+    window,
+)
+box.move(
+    0,30
+)
+for i in 'abc':
+    tabbar.addTab(
+        i*6
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        i
+    )
+
+# 正向联动代码
+tabbar.currentChanged.connect(
+    box.setCurrentIndex
+)
+
+# 反向联动代码
+box.currentChanged.connect(
+    tabbar.setCurrentIndex
+)
+
+window.show()
+app.exec()
+```
+
+![2026_46.1_4](qt_for_python_pro.assets/2026_46.1_4.png)
+
+`tabsClosable`参数，关键字参数，布尔类型，表示选项卡标签是否允许关闭。注意，允许关闭只是显示关闭按钮，想要真正实现关闭功能（移除标签和选项卡内容）需要额外处理`tabCloseRequested`信号。但是，相关逻辑设计比较复杂，这里不做展开，仅提供移除标签的功能：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QToolBox,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+app.setStyle('Fusion')
+tabbar = QTabBar(
+    window,
+    tabsClosable=True
+)
+box = QToolBox(
+    window,
+)
+box.move(
+    0,30
+)
+for i in 'abc':
+    tabbar.addTab(
+        i
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    box.addItem(
+        widget,
+        i
+    )
+
+# 正向联动代码
+tabbar.currentChanged.connect(
+    box.setCurrentIndex
+)
+
+# 反向联动代码
+box.currentChanged.connect(
+    tabbar.setCurrentIndex
+)
+
+# 处理选项卡关闭信号
+tabbar.tabCloseRequested.connect(
+    tabbar.removeTab
+)
+
+
+window.show()
+app.exec()
+```
+
+`selectionBehaviorOnRemove`参数，关键字参数，`PySide6.QtWidgets.QTabBar.SelectionBehavior`类型，表示移除当前选择的标签后，如何选择下一个标签。
+
+`expanding`参数，布尔类型，表示是否展开标签来占据可用空间。
+
+`movable`参数，布尔类型，表示标签是否可以移动。
+
+`autoHide`参数，布尔类型，表示当仅剩一个标签数时是否隐藏标签。注意，该参数会同时启用`usesScrollButtons`参数。
+
+### 46.2 方法、控件属性
+
+除了初始化参数对应的控件属性及其设置方法之外，控件还支持其他方法。
+
+`addTab`方法，添加一个选项卡标签。该方法的所有参数都是仅限位置参数：
+
+- 第一个位置参数在传入一个位置参数时是标签名称，在传入两个位置参数时是标签图标。
+- 第二个位置参数是标签名称。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+
+tabbar = QTabBar(
+    window,
+)
+for i in 'abc':
+    tabbar.addTab(
+        QIcon.fromTheme(
+            QIcon.ThemeIcon.Computer
+        ),
+        i
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+
+
+window.show()
+app.exec()
+```
+
+![2026_46.2_1](qt_for_python_pro.assets/2026_46.2_1.png)
+
+`count`方法（控件属性），返回标签数量。
+
+`currentIndex`方法（控件属性，可使用`setCurrentIndex`方法设置），返回当前选中标签的索引值。
+
+`insertTab`方法，在指定位置插入选项卡标签。该方法的所有参数都是仅限位置参数，第一个位置参数表示插入位置的索引值，后面几个位置参数则是`addTab`方法的参数顺延（即第二个位置参数是`addTab`方法的第一个位置参数）。
+
+`moveTab`方法，移动选项卡标签。
+
+`removeTab`方法，移除选项卡标签。
+
+`tabAt`方法，返回指定位置的标签索引值。
+
+`tabButton`方法，返回指定标签在指定位置处附加的控件（可使用`setTabButton`方法附加）。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QVBoxLayout,
+    QTabBar
+)
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+
+tabbar = QTabBar(
+    window,
+)
+for i in 'abc':
+    tabbar.addTab(
+        QIcon.fromTheme(
+            QIcon.ThemeIcon.Computer
+        ),
+        i
+    )
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                k,
+            ),
+        )
+    
+tabbar.setTabButton(
+    1,
+    QTabBar.ButtonPosition.RightSide,
+    QPushButton(
+        'x',
+    )
+)
+
+window.show()
+app.exec()
+```
+
+![2026_46.2_2](qt_for_python_pro.assets/2026_46.2_2.png)
+
+`tabData`方法，返回指定标签绑定的数据（可使用`setTabData`方法绑定）。
+
+`tabIcon`方法，返回指定标签的图标（可使用`setTabIcon`方法设置）。
+
+`tabRect`方法，返回指定标签的可视区域。
+
+`tabText`方法，返回指定标签的文本（可使用`setTabText`方法设置）。
+
+`tabTextColor`方法，返回指定标签的文本颜色（可使用`setTabTextColor`方法设置）。
+
+`tabToolTip`方法，返回指定标签的工具提示（可使用`setTabToolTip`方法设置）。
+
+`tabWhatsThis`方法，返回指定标签的帮助文本（可使用`setTabWhatsThis`方法设置）。
+
+### 46.3 信号和槽
+
+`currentChanged`信号，改变当前选中标签后触发。
+
+`tabBarClicked`信号，单击选项卡标签后触发。
+
+`tabBarDoubleClicked`信号，双击选项卡标签后触发。
+
+`tabCloseRequested`信号，请求关闭选项卡标签时触发。
+
+`tabMoved`信号，移动选项卡标签时触发。
+
+`setCurrentIndex`方法，槽函数，设置当前选中的标签。
+
+## 47 `QTabWidget`选项卡控件（更新中）
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTabWidget.html
+
+相比于使用`QTabBar`选项卡标签控件自定义选项卡内容还要写额外代码处理联动，本章介绍的`QTabWidget`选项卡控件使用时简单不少，直接添加内容即可：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTabWidget,
+    QPushButton,
+    QVBoxLayout
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+tab = QTabWidget(
+    window,
+)
+
+for i in 'abc':
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                i+k,
+            ),
+        )
+    tab.addTab(
+        widget,
+        i
+    )
+
+window.show()
+app.exec()
+```
+
+![2026_47_1](qt_for_python_pro.assets/2026_47_1.png)
 
 
 
 
-## 42 `xxx`xxx控件（更新中）
-
-相关文档：
 
 
 
-42
+## 48 `QTextEdit`富文本控件与`QTextBrowser`文本浏览器控件（更新中）
 
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSlider.html
-
-
-
-## 43 `xxx`xxx控件（更新中）
-
-相关文档：
-
-43
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSpinBox.html
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDoubleSpinBox.html
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextBrowser.html
 
 
 
 
 
-## 4x `xxx`xxx控件（更新中）
-
-相关文档：
-
-44
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QToolBox.html
 
 
 
-## 4x `xxx`xxx控件（更新中）
 
-相关文档：
-
-45
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFocusFrame.html#PySide6.QtWidgets.QFocusFrame
-
-
-
-## 4x `xxx`xxx控件（更新中）
-
-相关文档：
-
-46
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSizeGrip.html#PySide6.QtWidgets.QSizeGrip
-
-
-
-## 4x `xxx`xxx控件（更新中）
-
-相关文档：
-
-47
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QScrollArea.html#PySide6.QtWidgets.QScrollArea
-
-
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QScrollBar.html#PySide6.QtWidgets.QScrollBar
-
-
-
-## 4x `xxx`xxx控件（更新中）
-
-相关文档：
-
-48
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTabBar.html
-
-https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTabWidget.html
-
+（2026版完）

@@ -5243,11 +5243,11 @@ app.exec()
 
 `selectionBehaviorOnRemove`参数，关键字参数，`PySide6.QtWidgets.QTabBar.SelectionBehavior`类型，表示移除当前选择的标签后，如何选择下一个标签。
 
-`expanding`参数，布尔类型，表示是否展开标签来占据可用空间。
+`expanding`参数，关键字参数，布尔类型，表示是否展开标签来占据可用空间。
 
-`movable`参数，布尔类型，表示标签是否可以移动。
+`movable`参数，关键字参数，布尔类型，表示标签是否可以移动。
 
-`autoHide`参数，布尔类型，表示当仅剩一个标签数时是否隐藏标签。注意，该参数会同时启用`usesScrollButtons`参数。
+`autoHide`参数，关键字参数，布尔类型，表示当仅剩一个标签数时是否隐藏标签。注意，该参数会同时启用`usesScrollButtons`参数。
 
 ### 46.2 方法、控件属性
 
@@ -5304,7 +5304,7 @@ app.exec()
 
 `count`方法（控件属性），返回标签数量。
 
-`currentIndex`方法（控件属性，可使用`setCurrentIndex`方法设置），返回当前选中标签的索引值。
+`currentIndex`方法（控件属性，可使用`setCurrentIndex`方法设置），返回当前激活标签的索引值。
 
 `insertTab`方法，在指定位置插入选项卡标签。该方法的所有参数都是仅限位置参数，第一个位置参数表示插入位置的索引值，后面几个位置参数则是`addTab`方法的参数顺延（即第二个位置参数是`addTab`方法的第一个位置参数）。
 
@@ -5383,7 +5383,7 @@ app.exec()
 
 ### 46.3 信号和槽
 
-`currentChanged`信号，改变当前选中标签后触发。
+`currentChanged`信号，改变当前激活的标签后触发。
 
 `tabBarClicked`信号，单击选项卡标签后触发。
 
@@ -5393,9 +5393,9 @@ app.exec()
 
 `tabMoved`信号，移动选项卡标签时触发。
 
-`setCurrentIndex`方法，槽函数，设置当前选中的标签。
+`setCurrentIndex`方法，槽函数，设置当前激活的标签。
 
-## 47 `QTabWidget`选项卡控件（更新中）
+## 47 `QTabWidget`选项卡控件
 
 相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTabWidget.html
 
@@ -5439,22 +5439,655 @@ app.exec()
 
 ![2026_47_1](qt_for_python_pro.assets/2026_47_1.png)
 
+选项卡控件用起来简单，是因为控件内部实现了直接使用选项卡标签控件时所需的所有代码，包括创建内容显示区域、联动选项卡标签和内容。因此，选项卡控件实际上是包含了选项卡标签控件和内容显示控件的复合控件。
+
+选项卡控件支持的关键字参数中，很多与选项卡标签控件一致，这里就不详细介绍了：
+
+- `tabPosition`参数，`PySide6.QtWidgets.QTabWidget.TabPosition`类型，表示选项卡标签的位置。
+- `tabShape`参数，`PySide6.QtWidgets.QTabWidget.TabShape`类型，表示选项卡标签的形状。
+- `elideMode`参数，`PySide6.QtCore.Qt.TextElideMode`类型，表示当标签内的文字长度超过单个标签的宽度时如何省略无法完整显示的部分。
+- `usesScrollButtons`参数，布尔类型，表示当标签数量较多导致超过允许的总宽度时，是否显示滚动按钮来滚动无法完整显示的部分。
+- `tabsClosable`参数，布尔类型，表示选项卡标签是否允许关闭。注意，允许关闭只是显示关闭按钮，想要真正实现关闭功能（移除标签和选项卡内容）需要额外处理`tabCloseRequested`信号。
+- `movable`参数，布尔类型，表示标签是否可以移动。
+- `tabBarAutoHide`参数，布尔类型，表示当仅剩一个标签数时是否隐藏标签。注意，该参数会同时启用`usesScrollButtons`参数。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTabWidget,
+    QPushButton,
+    QVBoxLayout
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+tab = QTabWidget(
+    window,
+    tabsClosable=True,
+    tabBarAutoHide=True
+)
+
+for i in 'abcedf':
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                i+k,
+            ),
+        )
+    tab.addTab(
+        widget,
+        i
+    )
+
+# 处理选项卡关闭信号
+tab.tabCloseRequested.connect(
+    tab.removeTab
+)
+
+window.show()
+app.exec()
+```
+
+![2026_47_2](qt_for_python_pro.assets/2026_47_2.png)
+
+除了初始化参数对应的控件属性及其设置方法之外，控件还支持其他方法：
+
+`addTab`方法，添加一个选项卡，同时添加对应的标签。该方法的所有参数都是仅限位置参数：
+
+- 第一个位置参数是选项卡的内容。
+- 第二个位置参数在传入两个位置参数时是标签名称，在传入三个位置参数时是标签图标。
+- 第三个位置参数是标签名称。
+
+示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTabWidget,
+    QPushButton,
+    QVBoxLayout
+)
+from PySide6.QtGui import QIcon
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+tab = QTabWidget(
+    window,
+)
+
+for i in 'abc':
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                i+k,
+            ),
+        )
+    tab.addTab(
+        widget,
+        QIcon.fromTheme(
+            QIcon.ThemeIcon.Computer
+        ),
+        i
+    )
 
 
+window.show()
+app.exec()
+```
+
+![2026_47_3](qt_for_python_pro.assets/2026_47_3.png)
+
+`clear`方法，移除所有选项卡。
+
+`cornerWidget`方法（控件属性，可使用`setCornerWidget`方法设置），返回选项卡标签栏的角落控件。注意，仅当`tabPosition`为`PySide6.QtWidgets.QTabWidget.TabPosition.North`或`PySide6.QtWidgets.QTabWidget.TabPosition.South`时该控件才能生效：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTabWidget,
+    QPushButton,
+    QVBoxLayout
+)
+from PySide6.QtCore import Qt
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识选项卡')
+window.resize(400, 300)
+
+tab = QTabWidget(
+    window,
+    tabPosition=QTabWidget.TabPosition.South
+)
+
+for i in 'abc':
+    widget = QWidget()
+    layout = QVBoxLayout(widget)
+    for k in '123':
+        layout.addWidget(
+            QPushButton(
+                i+k,
+            ),
+        )
+    tab.addTab(
+        widget,
+        i
+    )
+tabbar = tab.tabBar()
+tab.resize(
+    300,300
+)
+tab.setCornerWidget(
+    QPushButton(
+        '角落按钮'
+    ),
+    Qt.Corner.TopRightCorner
+)
+
+window.show()
+app.exec()
+```
+
+![2026_47_4](qt_for_python_pro.assets/2026_47_4.png)
+
+`count`方法，返回选项卡的数量。
+
+`currentIndex`方法（控件属性，可使用`setCurrentIndex`方法设置），返回当前激活选项卡的索引值。
+
+`currentWidget`方法（控件属性，可使用`setCurrentWidget`方法设置），返回当前激活选项卡的内容。注意，使用`setCurrentWidget`方法设置当前激活选项卡的内容时，该内容必须是某一选项卡的内容。
+
+`indexOf`方法，返回指定内容对应选项卡的索引值。注意，该内容必须是某一选项卡的内容。
+
+`insertTab`方法，在指定位置插入选项卡。该方法的所有参数都是仅限位置参数，第一个位置参数表示插入位置的索引值，后面几个位置参数则是`addTab`方法的参数顺延（即第二个位置参数是`addTab`方法的第一个位置参数）。
+
+`removeTab`方法，移除选项卡。
+
+`tabBar`方法，返回选项卡标签控件。
+
+`tabIcon`方法，返回指定选项卡的图标（可使用`setTabIcon`方法设置）。
+
+`tabText`方法，返回指定选项卡的文本（可使用`setTabText`方法设置）。
+
+`tabToolTip`方法，返回指定选项卡的工具提示（可使用`setTabToolTip`方法设置）。
+
+`tabWhatsThis`方法，返回指定选项卡的帮助文本（可使用`setTabWhatsThis`方法设置）。
+
+信号和槽也基本与选项卡标签控件相似：
+
+`currentChanged`信号，改变当前激活的选项卡后触发。
+
+`tabBarClicked`信号，单击选项卡标签后触发。
+
+`tabBarDoubleClicked`信号，双击选项卡标签后触发。
+
+`tabCloseRequested`信号，请求关闭选项卡标签时触发。
+
+`setCurrentIndex`方法，槽函数，设置当前激活的选项卡。
+
+`setCurrentWidget`方法，槽函数，设置当前激活的选项卡。
+
+## 48 `QTextEdit`富文本控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html
+
+### 48.0 选择富文本控件的原因
+
+#### 48.0.1 单行编辑框无法正确显示多行文本
+
+第38章介绍过单行编辑框，只能显示、编辑单行文本，一旦原始文本是多行文本，控件就会无法显示原始的格式：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLineEdit
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('多行文本的显示')
+window.resize(400, 300)
+
+text = '''\
+Hello,
+World.
+'''
+
+edit = QLineEdit(
+    text,
+    window
+)
+
+window.show()
+app.exec()
+```
+
+![2026_48.0.1_1](qt_for_python_pro.assets/2026_48.0.1_1.png)
+
+#### 48.0.2 可以正确显示多行文本的标签控件不是完美的平替
+
+使用标签控件可以正确显示多行文本：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('多行文本的显示')
+window.resize(400, 300)
+
+text = '''\
+Hello,
+World.
+'''
+
+QLabel(
+    text,
+    window
+)
+
+window.show()
+app.exec()
+```
+
+![2026_48.0.2_1](qt_for_python_pro.assets/2026_48.0.2_1.png)
+
+但是，一旦需要编辑，标签控件也无能为力，总不能额外添加一个单行编辑框，然后联动编辑框和标签，变相实现编辑多行文本吧？
+
+可这样的编辑体验很糟糕：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QLineEdit
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('多行文本的显示')
+window.resize(400, 300)
+
+text = '''\
+Hello,
+World.
+'''
+
+label = QLabel(
+    text,
+    window
+)
+edit = QLineEdit(
+    text,
+    window
+)
+edit.move(
+    0,60
+)
+edit.textChanged.connect(
+    label.setText
+)
 
 
+window.show()
+app.exec()
+```
+
+![2026_48.0.2_2](qt_for_python_pro.assets/2026_48.0.2_2.png)
+
+不能直接输入换行符就是最让人头疼的问题。
+
+#### 48.0.3 富文本控件是正确答案？
+
+聪明的读者看了看本章标题，一下子猜到了`QTextEdit`富文本控件就是正确答案，便有了下面的代码：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTextEdit
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('多行文本的显示')
+window.resize(400, 300)
+
+text = '''\
+Hello,
+World.
+'''
+
+edit = QTextEdit(
+    text,
+    window
+)
 
 
-## 48 `QTextEdit`富文本控件与`QTextBrowser`文本浏览器控件（更新中）
+window.show()
+app.exec()
+```
 
-相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextEdit.html 和 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextBrowser.html
+可运行结果却令人大跌眼镜：
+
+![2026_48.0.3_1](qt_for_python_pro.assets/2026_48.0.3_1.png)
+
+想象中的显示效果没有出现，富文本控件不是正确答案！
+
+#### 48.0.4 富文本控件是正确答案！
+
+先别急，结果不符合预期，那是因为写代码时偷了懒。前面的几次尝试都是使用位置参数传入多行文本，在使用富文本控件时，想当然地用了一样的参数。
+
+对于富文本控件而言，初始化参数中，将文本传给不同参数（只能设置其中一个），对应不同类型的渲染方式：
+
+- `text`参数，自动判断文本类型并渲染。
+- `plainText`参数，将文本作为纯文本渲染。
+- `html`参数，将文本作为HTML渲染。
+- `markdown`参数，将文本作为Markdown渲染。
+
+使用位置参数传入多行文本，看代码提示像是传了`text`参数，应该自动判断文本类型，但实际上是强制将文本作为HTML渲染。因此，显示的格式不对。
+
+明白这个原理，想要让多行文本正确显示，只需将文本通过关键字传给`text`参数或者`plainText`参数（最好用改参数，不要用自动判断）即可：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTextEdit
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('多行文本的显示')
+window.resize(400, 300)
+
+text = '''\
+Hello,
+World.
+'''
+
+edit = QTextEdit(
+    window,
+    plainText=text
+)
 
 
+window.show()
+app.exec()
+```
 
+![2026_48.0.4_1](qt_for_python_pro.assets/2026_48.0.4_1.png)
 
+### 48.1 初始化参数
 
+`autoFormatting`参数，`PySide6.QtWidgets.QTextEdit.AutoFormattingFlag`类型，表示是否开启自动格式化。目前Qt版本支持自动格式化列表，即用户在行首输入`*`或`-`时，会自动将其转换为列表。
 
+`tabChangesFocus`参数，布尔类型，表示按下`tab`键时切换焦点还是输入制表符。
 
+`documentTitle`参数，字符串类型，表示文档标题，对应HTML格式中的title标签。
 
+`undoRedoEnabled`参数，布尔类型，表示是否启用撤销、重做。
+
+`lineWrapMode`参数，`PySide6.QtWidgets.QTextEdit.LineWrapMode`类型，表示自动换行的模式（是否启用以及换行的基准宽度）。
+
+`lineWrapColumnOrWidth`参数，整数类型，表示自动换行的基准宽度（列数或宽度）。
+
+`readOnly`参数，布尔类型，表示是否启用只读模式。
+
+`markdown`参数，字符串类型，表示作为Markdown渲染的文本。
+
+`html`参数，字符串类型，表示作为HTML渲染的文本。
+
+`plainText`参数，字符串类型，表示作为纯文本渲染的文本。
+
+`overwriteMode`参数，布尔类型，表示是否启用覆盖模式（即光标后有其他文本的话是否覆盖）.
+
+`tabStopDistance`参数，浮点类型，表示一个制表符的宽度（相当于多少像素），默认为`80`。
+
+`acceptRichText`参数，布尔类型，表示是否允许粘贴富文本。
+
+`cursorWidth`参数，浮点类型，表示光标的宽度，默认为`1`。
+
+`textInteractionFlags`参数，`PySide6.QtCore.Qt.TextInteractionFlag`类型的联合体，表示文本交互标志。可以设置文本的能否复制、编辑，一般不用修改该参数。
+
+`document`参数，`PySide6.QtGui.QTextDocument`类型，表示实际存储内容的文档对象。一般不用修改该参数，通常是使用该参数对应的文档对象，因为文档对象支持一系列内容相关的操作（修改、导出等）。
+
+`placeholderText`参数，字符串类型，表示没有任何内容时的占位文本。
+
+`alignment`参数，`PySide6.QtCore.Qt.AlignmentFlag`类型，表示文本的对齐方向。
+
+`wordWrapMode`参数，`PySide6.QtGui.QTextOption.WrapMode`类型，表示完整单词的换行模式（是否启用换行以及换行的规则）。
+
+### 48.2 方法、控件属性
+
+除了初始化参数对应的控件属性及其设置方法之外，控件还支持其他方法（部分）。
+
+`anchorAt`方法，返回指定位置对应的锚点。
+
+`canPaste`方法，返回剪贴板的内容能不能粘贴到编辑框中。
+
+`createStandardContextMenu`方法，创建编辑框默认的标准上下文菜单。
+
+`currentCharFormat`方法（控件属性，可使用`setCurrentCharFormat`方法设置），返回光标位置的字符格式。
+
+`currentFont`方法（控件属性，可使用`setCurrentFont`方法设置），返回光标位置的字符字体。
+
+`cursorForPosition`方法，返回指定位置的光标对象，常用于后续获取该位置的格式、内容，或者在该位置插入文本。
+
+`cursorRect`方法，返回覆盖光标的最小矩形，用于判断光标的位置。
+
+`ensureCursorVisible`方法，滚动内容来确保光标可见。
+
+`extraSelections`方法（控件属性，可使用`setExtraSelections`方法设置），表示选择并高亮的部分。返回值为列表类型，表示多个。
+
+`find`方法，查找指定文本并返回是否找到结果。
+
+`fontFamily`方法（控件属性，可使用`setFontFamily`方法设置），返回光标位置的字体家族。
+
+`fontItalic`方法（控件属性，可使用`setFontItalic`方法设置），返回光标位置的字体是否为斜体。
+
+`fontPointSize`方法（控件属性，可使用`setFontPointSize`方法设置），返回光标位置的字体大小。
+
+`fontUnderline`方法（控件属性，可使用`setFontUnderline`方法设置），返回光标位置的字体是否有下划线。
+
+`fontWeight`方法（控件属性，可使用`setFontWeight`方法设置），返回光标位置的字体粗细。
+
+`inputMethodQuery`方法，向输入法查询结果。一般不用或者不需要重写该方法，仅当自定义虚拟键盘、输入法时需要用到该方法。
+
+`mergeCurrentCharFormat`方法，合并指定格式到光标位置。
+
+`moveCursor`方法，移动光标。
+
+`print_`方法，让打印机打印内容。
+
+`textBackgroundColor`方法（控件属性，可使用`setTextBackgroundColor`方法设置），返回光标位置的背景色。
+
+`textColor`方法（控件属性，可使用`setTextColor`方法设置），返回光标位置的字体颜色。
+
+`textCursor`方法（控件属性，可使用`setTextCursor`方法设置），返回光标位置的光标对象副本。
+
+`toHtml`方法，将内容转换为HTML格式。
+
+`toMarkdown`方法，将内容转换为Markdown格式。
+
+`toPlainText`方法，将内容转换纯文本。
+
+`zoomInF`方法，放大显示内容的字体大小。
+
+### 48.3 信号、槽
+
+`QTextEdit`富文本控件支持以下信号（部分）：
+
+- `copyAvailable`信号，当文本可被复制的状态发生改变（一般对应文本被选择或者取消选择）后触发。
+- `currentCharFormatChanged`信号，光标位置的字符格式发生改变后触发。
+- `cursorPositionChanged`信号，光标位置发生改变后触发。
+- `redoAvailable`信号，当重做的可用状态发生改变（一般对应无可重做的步骤）后触发。
+- `selectionChanged`信号，选择的内容发生改变后触发。
+- `textChanged`信号，内容发生改变后触发。
+- ` undoAvailable`信号，当撤销的可用状态发生改变（一般对应无可撤销的步骤）后触发。
+
+`QTextEdit`富文本控件支持以下槽（部分）：
+
+- `append`方法，追加内容。
+- `clear`方法，清除内容。
+- ` copy`方法，复制选择的内容。
+- `cut`方法，剪切选择的内容。
+- `insertHtml`方法，在光标位置插入HTML格式文本。
+- `insertPlainText`方法，在光标位置插入纯文本。
+- `paste`方法，粘贴内容。
+- `redo`方法，重做一步。
+- `scrollToAnchor`方法，滚动到指定锚点。
+- `selectAll`方法，选择所有内容。
+- `setAlignment`方法，设置文本的对齐方向。
+- `setCurrentFont`方法，设置光标位置的字体。
+- `setFontFamily`方法，设置光标位置的字体家族。
+- `setFontItalic`方法，设置光标位置的斜体启用情况。
+- `setFontPointSize`方法，设置光标位置的字体大小。
+- `setFontUnderline`方法，设置光标位置的下划线启用情况。
+- `setFontWeight`方法，设置光标位置的字体粗细。
+- `setHtml`方法，设置作为HTML渲染的文本。
+- `setMarkdown`方法，设置作为Markdown渲染的文本。
+- `setPlainText`方法，设置作为纯文本渲染的文本。
+- `setText`方法，设置自动判断格式的文本。
+- `setTextBackgroundColor`方法，设置光标处的背景色。
+- `setTextColor`方法，设置光标处的文本颜色。
+- `undo`方法，撤销一步。
+- `zoomIn`方法，放大显示内容的字体大小。
+- `zoomOut`方法，缩小显示内容的字体大小。
+
+## 49 `QTextBrowser`文本浏览器控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QTextBrowser.html
+
+虽然启用只读模式的富文本控件可以当显示多行文本的控件来用，但是，在显示文本方面，使用继承了富文本控件的`QTextBrowser`文本浏览器控件更好用：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTextBrowser
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识文本浏览器')
+window.resize(400, 300)
+
+text = '''\
+Hello,
+World.
+'''
+
+browser = QTextBrowser(
+    window,
+    text=text
+)
+
+window.show()
+app.exec()
+```
+
+![2026_49_1](qt_for_python_pro.assets/2026_49_1.png)
+
+从外观上看，几乎和直接使用富文本控件没有区别，但文本浏览器控件默认不能编辑，只是显示。
+
+因为文本浏览器控件继承了富文本控件，除了支持富文本控件的初始化参数、方法、控件属性、信号、槽之外，文本浏览器控件还额外添加了独有的初始化参数、方法、控件属性、信号、槽。
+
+文本浏览器控件额外支持以下关键字参数：
+
+- `source`参数，`PySide6.QtCore.QUrl`类型，表示本地文档的路径。
+- `searchPaths`参数，元素为字符串的列表，表示搜索文档使用的相对路径资源时，在哪些路径下搜索这些资源。
+- `openExternalLinks`参数，布尔类型，表示是否使用默认浏览器打开外部超链接。
+- `openLinks`参数，布尔类型，表示是否允许打开超链接。
+
+因此，可以在同目录下创建`README.md`，内容如下：
+
+```markdown
+### Test
+
+列表：
+
+- 1，Python
+
+- 2，Java
+
+[链接](https://www.baidu.com/)
+```
+
+然后示例如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTextBrowser
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('认识文本浏览器')
+window.resize(400, 300)
+
+browser = QTextBrowser(
+    window,
+    source='README.md',
+    openLinks=True,
+    openExternalLinks=True
+)
+
+window.show()
+app.exec()
+```
+
+![2026_49_2](qt_for_python_pro.assets/2026_49_2.png)
+
+除了初始化参数对应的控件属性及其设置方法之外，文本浏览器控件额外支持以下方法：
+
+- `backwardHistoryCount`方法，返回允许后退的步数。
+- `clearHistory`方法，清除历史记录。
+- `forwardHistoryCount`方法，返回允许前进的步数。
+- `historyTitle`方法，返回指定历史记录的文档标题。
+- `isBackwardAvailable`方法，返回后退操作是否可用。
+- `isForwardAvailable`方法，返回前进操作是否可用。
+- `sourceType`方法，返回文档的类型。
+- `backward`方法，后退一步。
+- `forward`方法，前进一步。
+- `home`方法，返回主页。
+- `reload`方法，重新载入。
+
+文本浏览器控件额外支持以下信号：
+
+- `anchorClicked`信号，点击锚点后触发。
+- `backwardAvailable`信号，后退操作可用时触发。
+- `forwardAvailable`信号，前进操作可用时触发。
+- `highlighted`信号，链接被高亮（鼠标悬停）后触发。
+- `historyChanged`信号，历史记录发生改变后触发。
+- `sourceChanged`信号，文档地址改变后触发。
+
+文本浏览器控件额外支持以下槽：
+
+- `setSource`方法，设置文档地址。
+
+注意，虽然上面内容展示的方法、示例使得文本浏览器控件看起来像是网页浏览器，但该控件像网页浏览器一样支持网络地址，也没法正常显示网页内容，仅能显示HTML4标准的网页，且不保证所有资源都能正常加载。
 
 （2026版完）

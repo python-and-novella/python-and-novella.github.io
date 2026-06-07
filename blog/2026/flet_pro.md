@@ -2376,81 +2376,520 @@ flet.run(
 
 `AlertDialog`控件其余的参数与样式有关，读者可以参考文档，这里就不在赘述。如果在使用该控件时后续遇到使用其他参数的情况，届时再单独介绍。
 
-## 2x `xxx`控件（更新中）
-
-本章参考文档：https://flet.dev/docs/controls
-
-`xxx`控件
-
-
-
-
-
-## 3x 详解声明式——xxx（更新中）
+## 23 详解声明式——界面优先
 
 本章参考文档：https://flet.dev/docs/cookbook/declarative-vs-imperative-crud-app/
 
-详解声明式
+在第4章中简单对比了命令式和声明式风格，前面的示例中一直使用的是命令式风格，而本章则详细介绍一下声明式风格。
 
-核心在于装饰器的使用，有点所见即所得的意味。
+### 23.1 定义组件
+
+声明式风格使用`render`方法（或者`render_views`方法）渲染组件（多个控件预先做好布局的集合），因此，创建组件就是声明式风格中最重要的步骤。
+
+注意，当`Router`组件（声明式风格的路由器组件）的`manage_views`参数为`True`时，只能使用`render_views`方法渲染`Router`组件。本章不涉及路由功能，故相关示例只使用`render`方法。
+
+定义一个组件很简单：
+
+- 使用`component`装饰器修饰函数。注意，虽然**不使用**`component`装饰器也能直接渲染组件，但这样的组件**不支持**`use_state`方法创建的钩子（存储状态仅在使用`component`装饰器时可用）。
+- 被修饰的函数返回控件或者元素为控件的列表。
+
+示例如下：
+
+```python3
+import flet
+
+
+@flet.component
+def App():
+    count,set_count = flet.use_state(0)
+    return flet.Column(
+        [
+            flet.Text(f'{count}'),
+            flet.Button(
+                '-1',
+                on_click=lambda:set_count(count-1)
+            ),
+            flet.Button(
+                '+1',
+                on_click=lambda:set_count(count+1)
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main
+)
+```
+
+这是一个简单的计数器，只需点击对应的按钮就能让显示的数字产生相应的变化：
+
+![2026_23.1_1](flet_pro.assets/2026_23.1_1.png)
+
+组件和控件一样，都可以复用。但是，相比于直接渲染组件时是传入函数名，被复用的组件需要先创建（调用函数，相当于变成普通控件）：
+
+```python3
+import flet
+
+
+@flet.component
+def App():
+    count,set_count = flet.use_state(0)
+    return flet.Column(
+        [
+            flet.Text(f'{count}'),
+            flet.Button(
+                '-1',
+                on_click=lambda:set_count(count-1)
+            ),
+            flet.Button(
+                '+1',
+                on_click=lambda:set_count(count+1)
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        lambda :[
+            App(),
+            App()
+        ]
+    )
+
+flet.run(
+    main
+)
+```
+
+![2026_23.1_2](flet_pro.assets/2026_23.1_2.png)
+
+### 23.2 存储状态
+
+上一节中，组件使用了`use_state`方法创建了一个局部变量，使得计数器功能可以正常使用。可能就有读者感到好奇，明明使用一个局部变量或者全局变量也可以，为何要用`use_state`方法？那本节就探讨一下`use_state`方法的必要性。
+
+`use_state`方法会返回变量本身和设置该变量值的设置方法，加入按照不使用`use_state`方法的思路设计，那代码可能如下：
+
+```python3
+import flet
+
+
+@flet.component
+def App():
+    count = 0
+    def set_count(n):
+        nonlocal count
+        count = n
+    return flet.Column(
+        [
+            flet.Text(f'{count}'),
+            flet.Button(
+                '-1',
+                on_click=lambda:set_count(count-1)
+            ),
+            flet.Button(
+                '+1',
+                on_click=lambda:set_count(count+1)
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main,
+)
+```
+
+或者是使用全局变量：
+
+```python3
+import flet
+
+count = 0
+
+@flet.component
+def App():
+    def set_count(n):
+        global count
+        count = n
+    return flet.Column(
+        [
+            flet.Text(f'{count}'),
+            flet.Button(
+                '-1',
+                on_click=lambda:set_count(count-1)
+            ),
+            flet.Button(
+                '+1',
+                on_click=lambda:set_count(count+1)
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main,
+)
+```
+
+可是，当读者实际运行上面两个示例的时候，就会发现显示的数字根本没有变化。没错，显示的数字没有变化，不代表变量没有变化。如果在`set_count`方法中添加`print(count)`，就会看到变量是在变化的：
+
+```python3
+import flet
+
+
+@flet.component
+def App():
+    count = 0
+    def set_count(n):
+        nonlocal count
+        count = n
+        print(count)
+    return flet.Column(
+        [
+            flet.Text(f'{count}'),
+            flet.Button(
+                '-1',
+                on_click=lambda:set_count(count-1)
+            ),
+            flet.Button(
+                '+1',
+                on_click=lambda:set_count(count+1)
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main,
+)
+```
+
+![2026_23.2_1](flet_pro.assets/2026_23.2_1.png)
+
+这么一看，问题就很清晰了：变量发生了变化，但显示没有刷新。
+
+解决方法似乎也很简单：每次变量变化之后，手动调用`update`方法即可。
+
+可是，如何调用使用了控件或者主页面的`update`方法？这又成为了新的难题。
+
+因此，Flet官方特意设计了钩子机制，在组件内使用`use_state`方法，该方法会返回变量本身和设置该变量值的设置方法，调用设置方法会自动调用组件内所有控件的`update`方法，以确保控件准确显示。所以，`use_state`方法的名字直译的话，就是“使用状态”，其实就是创建了一个存储在组件中的状态值，刷新控件不会丢失。
+
+### 23.3 使用数据（类）
+
+众所周知，如果想要存储一个包含复杂结构的数据，可以使用字典等基本数据类型，也可以创建数据类（`dataclass`）。
+
+于是，笔者突发奇想，将上面计数器的示例改为使用字典，以便于后续扩展其功能：
+
+```python3
+import flet
+
+
+@flet.component
+def App():
+    count,set_count = flet.use_state({'x':0,'y':0})
+    return flet.Column(
+        [
+            flet.Text(f'x={count["x"]}'),
+            flet.Button(
+                'x-1',
+                on_click=lambda:count.update({'x':count['x']-1})
+            ),
+            flet.Button(
+                'x+1',
+                on_click=lambda:count.update({'x':count['x']+1})
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main,
+)
+```
+
+代码看上去没问题，可实际运行时，却好像失灵了：
+
+![2026_23.3_1](flet_pro.assets/2026_23.3_1.png)
+
+字典不行，改成数据类试试：
+
+```python3
+import flet
+from dataclasses import dataclass
+
+
+@dataclass
+class Count:
+    x:int
+    y:int
+    def update_x(self,x:int):
+        self.x=x
+
+@flet.component
+def App():
+    count,set_count = flet.use_state(Count(0,0))
+    return flet.Column(
+        [
+            flet.Text(f'x={count.x}'),
+            flet.Button(
+                'x-1',
+                on_click=lambda:count.update_x(count.x-1)
+            ),
+            flet.Button(
+                'x+1',
+                on_click=lambda:count.update_x(count.x+1)
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main,
+)
+```
+
+结果依然失灵。
+
+先别急着放弃，使用数据类的思路是对的，只是直接使用数据类是功亏一篑，还需要加上`observable`装饰器，才能让`use_state`方法为其创建钩子。这样的话，无需调用设置方法，只要数据类的属性值或者组件内使用数据类的其他变量发生变化，Flet框架就会自动调用相关控件的`update`方法，确保控件准确显示：
+
+```python3
+import flet
+from dataclasses import dataclass
+
+@flet.observable
+@dataclass
+class Count:
+    x:int
+    y:int
+    def update_x(self,x:int):
+        self.x=x
+
+@flet.component
+def App():
+    count,set_count = flet.use_state(Count(0,0))
+    return flet.Column(
+        [
+            flet.Text(f'x={count.x}'),
+            flet.Button(
+                'x-1',
+                on_click=lambda:count.update_x(count.x-1)
+            ),
+            flet.Button(
+                'x+1',
+                on_click=lambda:count.update_x(count.x+1)
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main,
+)
+```
+
+![2026_23.3_2](flet_pro.assets/2026_23.3_2.png)
+
+### 23.4 将命令式转换为声明式
+
+通过前几节的学习，想必读者大致了解了声明式风格的基本要点——界面优先，这里简单总结一下具体操作：
+
+- 声明式优先完成界面构建，即先创建组件，再渲染组件。
+- 在界面中嵌入相关数据（状态、数据类），组件相当于显示数据的模板。同时，数据的变化不再需要手动更新，因为数据通过`observable`装饰器、`use_state`方法创建的钩子，实现了自动更新显示。
+
+结合上面总结的内容，如何将命令式转换为声明式，就有了清晰的思路：先根据界面设计组件，再将控件中与数据关联的部分改为嵌入带钩子的数据。
+
+最后，再补充一个技巧：涉及到控件显示状态变化的地方（比如不同用户显示的界面不同），在声明式中，使用条件表达式来处理。
+
+## 24 详解声明式——路由（更新中）
+
+本章参考文档：https://flet.dev/docs/cookbook/router/ 、 https://flet.dev/docs/controls/router/ 和 https://flet.dev/docs/types/route/
+
+上一章说过，当`Router`组件（声明式风格的路由器组件）的`manage_views`参数为`True`时，只能使用`render_views`方法渲染`Router`组件，本章就重点说一下声明式的路由。
+
+注意，本章涉及的路由功能需要通过浏览器打开，在地址栏输入相应地址，使用窗口模式的话没法快捷跳转相应地址，故本章示例代码均为网页模式，并使用固定端口。
 
 
 
-## 3x 详解声明式——路由（更新中）
 
-本章参考文档：https://flet.dev/docs/cookbook/navigation-and-routing/ 和 https://flet.dev/docs/cookbook/router/
 
-路由
+（梳理一下思路和大纲）
 
 
 
+（路由器负责构建路由，路由负责映射具体组件）
 
+（简单总结声明式的路由结构、特点和用法关键，并详细解释路由器组件、路由类每个参数的含义和用法）
+
+
+
+单层路由：
+
+```python3
+import flet
+
+@flet.component
+def App():
+    return flet.Router(
+        [
+            flet.Route(
+                index=True,
+                component=lambda:flet.Text('index')
+            ),
+            flet.Route(
+                path='a',
+                component=lambda:flet.Text('page a')
+            ),
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main,
+    port=80,
+    view=flet.AppView.WEB_BROWSER
+)
+```
+
+
+
+多层路由（使用`children`参数，横向代码较多，可能需要左右滑动）：
+
+```python3
+import flet
+
+
+@flet.component
+def App():
+    return flet.Router(
+        [
+            flet.Route(
+                index=True,
+                component=lambda: flet.Text('index')
+            ),
+            flet.Route(
+                path='a',
+                children=[
+                    flet.Route(
+                        index=True,
+                        component=lambda: flet.Text('page a'),
+                    ),
+                    flet.Route(
+                        path='b',
+                        component=lambda: flet.Text('page b of a'),
+                    )
+                ]
+            ),
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+
+    page.render(
+        App
+    )
+
+
+flet.run(
+    main,
+    port=80,
+    view=flet.AppView.WEB_BROWSER
+)
+```
 
 
 
 
 
 （2026版完）
-
-## x 灵感
-
-参考cookbook介绍一些基础，后续单独介绍一些实践用法。
-
-控件与服务（https://flet.dev/docs/reference/），每章详细介绍一个：
-
-- [控件](https://flet.dev/docs/controls) - 具有属性、事件和使用示例的用户界面构建块。
-- [服务](https://flet.dev/docs/services) - 设备和平台的功能，如传感器、存储和权限。
-- [类型](https://flet.dev/docs/types/) - 核心类型、枚举、事件、异常和在整个SDK中共享的实用工具。
-
-
-
-
-
-页面设计（页面支持的部分属性比如`navigation_bar`属性、`bottom_appbar`属性、`appbar`属性、`drawer`属性、`end_drawer`属性等对应特定的区域，其他属性负责页面样式等等），https://flet.dev/docs/controls/basepage/，主要介绍页面支持的属性。
-
-
-
-
-
-手势控件结合窗口状态进入函数的使用：
-
-```python3
-import flet
-
-async def main(page: flet.Page):
-    page.window.width = 400
-    page.window.height = 300
-    page.title = 'Hello'
-    async def starting():
-        # 拖动窗口空白处来拖动窗口或者调整窗口大小，二选一
-        await page.window.start_dragging()
-        #await page.window.start_resizing(flet.WindowResizeEdge.BOTTOM_RIGHT)
-    page.add(
-        flet.GestureDetector(
-            on_tap_down=starting,
-        ),
-    )
-
-flet.run(main)
-```
-

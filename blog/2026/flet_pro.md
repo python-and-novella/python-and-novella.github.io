@@ -2777,7 +2777,7 @@ flet.run(
 
 最后，再补充一个技巧：涉及到控件显示状态变化的地方（比如不同用户显示的界面不同），在声明式中，使用条件表达式来处理。
 
-## 24 详解声明式——路由（更新中）
+## 24 详解声明式——路由
 
 本章参考文档：https://flet.dev/docs/cookbook/router/ 、 https://flet.dev/docs/controls/router/ 和 https://flet.dev/docs/types/route/
 
@@ -2785,19 +2785,13 @@ flet.run(
 
 注意，本章涉及的路由功能需要通过浏览器打开，在地址栏输入相应地址，使用窗口模式的话没法快捷跳转相应地址，故本章示例代码均为网页模式，并使用固定端口。
 
+第15章提到，命令式的路由设计比较复杂，使用时也比较繁琐，声明式的路由在设计之初就考虑到这一痛点，因此，声明式的路由用起来更加简单，搭建路由规则也更清晰。
 
+### 24.1 路由的设计与使用
 
+本节参考文档：https://flet.dev/docs/cookbook/router/ 
 
-
-（梳理一下思路和大纲）
-
-
-
-（路由器负责构建路由，路由负责映射具体组件）
-
-（简单总结声明式的路由结构、特点和用法关键，并详细解释路由器组件、路由类每个参数的含义和用法）
-
-
+先看实际使用路由的示例代码和对应的路由结构。
 
 单层路由：
 
@@ -2837,7 +2831,9 @@ flet.run(
 )
 ```
 
+运行之后访问`http://127.0.0.1/`、`http://127.0.0.1/a/`查看结果，对应的路由结构为：
 
+![2026_24.1_1](flet_pro.assets/2026_24.1_1.png)
 
 多层路由（使用`children`参数，横向代码较多，可能需要左右滑动）：
 
@@ -2888,8 +2884,372 @@ flet.run(
 )
 ```
 
+运行之后访问`http://127.0.0.1/`、`http://127.0.0.1/a/`、`http://127.0.0.1/a/b/`查看结果，对应的路由结构为：
+
+![2026_24.1_2](flet_pro.assets/2026_24.1_2.png)
+
+通过上面两个示例，可以看到，想要搭建路由，主要需要两个类：`Router`路由器组件和`Route`路由类。其中，**路由器组件**内部定义了主页面的`on_route_change`方法，全权**处理路由变化**相关的响应，无需开发者做额外处理，这也是声明式路由的便捷之处。而**路由类**则**定义**了对应路由和相关组件的**映射**关系，使得访问对应路由可以看到相关界面。
+
+值得注意的是，如果一个路由包含子路由（即除了首页之外还有其他子路由），则该路由本身不能定义首页与组件的映射关系，只能由子路由中的首页路由负责映射该路由的首页与组件的映射关系。
+
+换句话说，如果将路由结构看作一棵树，路由器组件就是树的根（根节点），路由类则是除了根之外的树干（子树）、树叶（叶节点），或者说路由类就是子节点。只有树叶可以定义路由与组件的映射关系（不一定，后面会介绍特殊用法），表示该路由有实际的内容。而树干只能由其子节点中的特殊树叶（`index`参数为`True`）代替其定义路由与组件的映射关系。
+
+ 和命令式类似，声明式使用主页面的`push_route`方法和`navigate`方法跳转到指定路由，来避免在浏览器输入指定地址或者点击链接的麻烦，适合窗口模式等场景。不过，在组件中，没有表示主页面的参数，想要使用主页面的方法，就要先通过`flet.context.page`属性来获取当前上下文的主页面：
+
+```python3
+import flet
+
+@flet.component
+def App():
+    return flet.Router(
+        [
+            flet.Route(
+                index=True,
+                component=lambda:[
+                    flet.Text('index'),
+                    flet.Button(
+                        'go to page a',
+                        on_click=lambda:flet.context.page.navigate(
+                            '/a'
+                        )
+                    )
+                ]
+            ),
+            flet.Route(
+                path='a',
+                component=lambda:flet.Text('page a')
+            ),
+        ]
+    )
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
 
+flet.run(
+    main,
+)
+```
+
+![2026_24.1_3](flet_pro.assets/2026_24.1_3.png)
+
+![2026_24.1_4](flet_pro.assets/2026_24.1_4.png)
+
+### 24.2 `Router`路由器组件
+
+本节参考文档：https://flet.dev/docs/controls/router/
+
+`Router`路由器组件支持以下参数：
+
+- `routes`参数，元素为`Route`路由类的列表，表示具体的路由规则。
+- `not_found`参数，可调用类型（返回控件或者元素为控件的列表）或者组件，表示路由不存在时显示的界面。
+- `manage_views`参数，布尔类型，表示是否使用视图模式处理路由（渲染时只能用`render_views`方法，并且组件必须返回`View`视图控件），默认为`False`。
+
+`manage_views`参数的示例如下：
+
+```python3
+import flet
+
+@flet.component
+def App():
+    return flet.Router(
+        [
+            flet.Route(
+                index=True,
+                component=lambda: flet.View(
+                    [
+                        flet.Text('index')
+                    ],
+                    route='/',
+                )
+            ),
+        ],
+        manage_views=True
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+
+    # 视图模式只能使用render_views方法渲染
+    page.render_views(
+        App
+    )
+
+
+flet.run(
+    main,
+    port=80,
+    view=flet.AppView.WEB_BROWSER
+)
+```
+
+视图模式的用法还有很多注意点和特点，将在介绍`View`视图控件时详细介绍，这里不做展开。
+
+### 24.3 `Route`路由类
+
+本节参考文档：https://flet.dev/docs/types/route/
+
+`Route`路由类支持以下参数：
+
+- `path`参数，字符串类型，表示路由的路径。注意，该路径是相对的，如果该路由为子路由，则实际路径需要拼接父路由的路径。
+
+  该路径还支持匹配语法。包含变量名的规则，会生成匹配结果字典（键为变量名的同名字符串，值为匹配结果）。可使用`use_route_params`方法获取，也可用于`loader`参数对应的函数（该函数默认第一个参数为匹配结果字典）。支持的匹配规则如下：
+
+  | 规则   | 示例                      | 含义                               |
+  | ------ | ------------------------- | ---------------------------------- |
+  | 静态   | `'{具体路径}'`            | 完全匹配具体路径。                 |
+  | 动态   | `':{变量名}'`             | 匹配当前层级路径（任意值）。       |
+  | 可选   | `':{变量名}?'`            | 该路径可省略，即匹配结果可能为空。 |
+  | 通配   | `':{变量名}*'`            | 可匹配后续层级的全部路径。         |
+  | 正则   | `':{变量名}({正则语法})'` | 使用正则表达式匹配路径。           |
+  | 不匹配 | `None`                    | 不匹配任何路径。                   |
+
+- `index`参数，布尔类型，表示该路由是否为首页。注意，`path`参数为`''`或`'/'`的效果和该参数为`True`的效果相同，都是表示该路由为首页。
+
+- `component`参数，可调用类型（返回控件或者元素为控件的列表）或者组件，表示路由对应的界面。
+
+- `children`参数，元素为`Route`路由类的列表，表示子路由。
+
+- `loader`参数，可调用类型，表示数据加载器。可根据`loader`参数对应的函数参数（该函数默认第一个参数为匹配结果字典）的值动态使用相关数据，并将结果返回（可在组件中使用`use_route_loader_data`方法获取该返回值）。
+
+- `outlet`参数，布尔类型，仅当路由器组件的`manage_views`参数为`True`时生效，表示该路由对应的视图包含outlet控件时，必须将该参数设置为`True`才能正确生效，该参数默认为`False`。
+
+- `modal`参数，布尔类型，仅当路由器组件的`manage_views`参数为`True`时生效，表示该路由对应视图是否为模态视图（显示时叠加到其他视图之上），该参数默认为`False`。
+
+- `recursive`参数，布尔类型，表示`path`参数的匹配是否无限递归（即无限次重复匹配直到无匹配结果的前一次为止，视图模式中每次重复匹配都会产生一个视图），该参数默认为`False`。
+
+部分参数的示例，运行之后访问`http://127.0.0.1/test/`查看结果：
+
+```python3
+import flet
+
+def loader(params):
+    return [params,1,2,3]
+
+@flet.component
+def AnyPage():
+    return [
+        flet.Text(
+            flet.use_route_params()
+        ),
+        flet.Text(
+            flet.use_route_loader_data()
+        ),
+    ]
+
+@flet.component
+def App():
+    return flet.Router(
+        [
+            flet.Route(
+                path='',
+                component=lambda:flet.Text('index')
+            ),
+            flet.Route(
+                path=':a',
+                component=AnyPage,
+                loader=loader
+            ),
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+    
+    page.render(
+        App
+    )
+
+flet.run(
+    main,
+    port=80,
+    view=flet.AppView.WEB_BROWSER
+)
+```
+
+前面说过，**只有树叶**可以**定义**路由与组件的**映射关系**，表示该路由有实际的内容。其实，这个结论**不严谨**。如果组件中使用了**包含outlet控件**（伪控件，由`use_route_outlet`方法创建，不可单独使用，仅在组件内生效）的内容，则树干可以使用该组件（即**可以使用`component`参数**），并且该组件将成为树干的**布局模板**，outlet控件对应的部分会被**自动替换**为子路由对应的组件：
+
+```python3
+import flet
+
+
+@flet.component
+def PageA():
+    # outlet控件
+    outlet = flet.use_route_outlet()
+    return [
+        flet.Text('In page a'),
+        flet.Container(
+            content=outlet
+        )
+    ]
+
+
+@flet.component
+def App():
+    return flet.Router(
+        [
+            flet.Route(
+                index=True,
+                component=lambda: flet.Text('index')
+            ),
+            flet.Route(
+                path='a',
+                component=PageA,
+                children=[
+                    flet.Route(
+                        index=True,
+                        component=lambda: flet.Text('page a'),
+                    ),
+                    flet.Route(
+                        path='b',
+                        component=lambda: flet.Text('page b of a'),
+                    )
+                ]
+            ),
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+
+    page.render(
+        App
+    )
+
+
+flet.run(
+    main,
+    port=80,
+    view=flet.AppView.WEB_BROWSER
+)
+```
+
+同理，如果是视图模式的话，则需要将**包含outlet控件**的路由的**`outlet`参数为`True`**，且**子路由**对应的组件**不能为视图控件**，否则outlet控件对应的部分将无法正常渲染：
+
+```python3
+import flet
+
+
+@flet.component
+def PageA():
+    # outlet控件
+    outlet = flet.use_route_outlet()
+    return flet.View(
+        [
+            flet.Text('In page a'),
+            flet.Container(
+                content=outlet
+            )
+        ],
+        route='/a'
+    )
+
+
+@flet.component
+def App():
+    return flet.Router(
+        [
+            flet.Route(
+                index=True,
+                component=lambda: flet.View(
+                    [
+                        flet.Text('index')
+                    ],
+                    route='/'
+                )
+            ),
+            flet.Route(
+                path='a',
+                component=PageA,
+                children=[
+                    flet.Route(
+                        index=True,
+                        component=lambda: flet.Text('page a'),
+                    ),
+                    flet.Route(
+                        path='b',
+                        component=lambda: flet.Text('page b of a'),
+                    )
+                ],
+                # 该参数必须为True
+                outlet=True
+            ),
+        ],
+        manage_views=True
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '认识声明式'
+
+    page.render_views(
+        App
+    )
+
+
+flet.run(
+    main,
+    port=80,
+    view=flet.AppView.WEB_BROWSER
+)
+```
+
+### 24.4 `View`视图控件
+
+本节参考文档：https://flet.dev/docs/controls/view/
+
+`View`视图控件支持以下参数：
+
+- `controls`参数，元素为控件的列表，表示视图的内容。
+- `route`参数，字符串类型，表示视图对应的路由。注意，目前Flet框架不使用该参数（属性），不强制设置该参数（属性），但可以在程序中设置并使用。
+- `appbar`参数，`AppBar`类型或者`CupertinoAppBar`类型，表示该视图的顶部应用栏。
+- `bottom_appbar`参数，`BottomAppBar`类型，表示该视图的底部应用栏。
+- `floating_action_button`参数，`FloatingActionButton`类型，表示该视图的浮动按钮。
+- `floating_action_button_location`参数，`FloatingActionButtonLocation`类型或者`Offset`类型或者双元素（整数类型、浮点类型）元组，表示该视图浮动按钮的位置。
+- `navigation_bar`参数，`NavigationBar`类型或者`CupertinoNavigationBar`类型，表示该视图的导航栏。
+- `drawer`参数，`NavigationDrawer`类型，表示从该视图起始位置（一般为左侧）弹出的抽屉。
+- `end_drawer`参数，`NavigationDrawer`类型，表示从该视图结束位置（一般为右侧）弹出的抽屉。
+- `vertical_alignment`参数，`MainAxisAlignment`类型，表示垂直方向的对齐方式，默认为`MainAxisAlignment.START`。
+- `horizontal_alignment`参数，`CrossAxisAlignment`类型，表示垂直方向的对齐方式，默认为`CrossAxisAlignment.START`。
+- `spacing`参数，整数类型或者浮点类型，表示垂直方向上控件之间的间距，默认为`10`。
+- `padding`参数，整数类型或者浮点类型或者`Padding`类型，表示内边距，默认为`10`。
+- `bgcolor`参数，字符串类型或者颜色类型（`Colors`的成员或者`CupertinoColors`的成员），表示背景色。
+- `decoration`参数，`BoxDecoration`类型，表示背景装饰。
+- `foreground_decoration`参数，`BoxDecoration`类型，表示前景装饰。
+- `fullscreen_dialog`参数，布尔类型，表示视图是否为全屏模态对话框，默认为`False`。
+- `services`参数，元素为`Service`类型的列表，表示该视图关联的服务（支持的服务可参考 https://flet.dev/docs/services/ ）。
+- `can_pop`参数，布尔类型，表示视图是否可被弹出，默认为`True`。
+- `on_confirm_pop`参数，可调用类型，当弹出视图时执行的操作。
+
+`View`视图控件支持以下方法：
+
+- `confirm_pop`方法，异步方法，接受或者拒绝视图的弹出操作，仅在`on_confirm_pop`参数对应的函数中使用。
+- `show_drawer`方法，显示起始位置（一般为左侧）弹出的抽屉。
+- `close_drawer`方法，关闭起始位置（一般为左侧）弹出的抽屉。
+- `show_end_drawer`方法，显示结束位置（一般为右侧）弹出的抽屉。
+- `close_end_drawer`方法，关闭结束位置（一般为右侧）弹出的抽屉。
 
 （2026版完）

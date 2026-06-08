@@ -275,6 +275,26 @@ NiceGUI的菜单可以简单理解为点击左键、右键使其弹出的容器�
 
 
 
+```python3
+from nicegui import ui
+
+  
+def index():
+    ...
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+
+
+
+
+
+
 ## 58 样式技巧——仅在特定屏幕大小时生效（更新中）
 
 相关文档：https://tailwindcss.com/docs/responsive-design
@@ -312,6 +332,7 @@ def index():
 
 ui.run(
     root=index,
+    title='易森-NiceGUI',
     native=True
 )
 ```
@@ -383,6 +404,7 @@ def index():
 
 ui.run(
     root=index,
+    title='易森-NiceGUI',
     native=True
 )
 ```
@@ -417,6 +439,7 @@ def index():
 
 ui.run(
     root=index,
+    title='易森-NiceGUI',
     native=True
 )
 ```

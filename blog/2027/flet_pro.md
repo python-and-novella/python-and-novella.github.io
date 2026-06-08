@@ -2,17 +2,39 @@
 
 2027年所有更新内容转入《易森》，以下内容为存稿、留档，在《易森》更新时复制到《易森》中。
 
-
-
-
-
-
-
 ## 25 `xxx`控件（更新中）
 
 本章参考文档：https://flet.dev/docs/controls
 
 `xxx`控件
+
+
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.add(
+        flet.Text('Hello')
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+
+
+
+
+
 
 
 

@@ -36,6 +36,94 @@ flet.run(
 
 
 
+## xx 打开指定网址的方法（更新中）
+
+本章参考文档：https://flet.dev/docs/controls/button#flet.Button.url 和 https://flet.dev/docs/services/urllauncher
+
+
+
+
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+    
+    launcher = flet.UrlLauncher()
+    page.services.append(launcher)
+    async def open_url():
+        await launcher.launch_url(
+            'https://nicegui.io',
+        )
+    page.add(
+        flet.Text(
+            spans=[
+            	flet.TextSpan(
+                	text='访问 Flet 官网',
+                	url='https://flet.dev',
+            	)
+        	]
+        ),
+        flet.Button(
+            content='go to NiceGUI via `on_click`',
+            on_click=open_url,
+        ),
+        flet.Button(
+            content='go to NiceGUI via `url`',
+            url='https://nicegui.io'
+        ),
+        flet.Button(
+            content='go to NiceGUI with two ways',
+            on_click=open_url,
+            url='https://nicegui.io/documentation'
+        )
+    )
+
+
+flet.run(
+    main,
+    port=80,
+    view=flet.AppView.WEB_BROWSER
+)
+```
+
+
+
+
+
+## xx `xxx`控件（更新中）
+
+本章参考文档：https://flet.dev/docs/controls
+
+`xxx`控件
+
+
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.add(
+        flet.Text('Hello')
+    )
+
+
+flet.run(
+    main,
+)
+```
+
 
 
 ## x 灵感

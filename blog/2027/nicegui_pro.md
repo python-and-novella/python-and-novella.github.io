@@ -269,7 +269,116 @@ ui.run(
 
 NiceGUI的菜单可以简单理解为点击左键、右键使其弹出的容器，将其放在哪个控件的上下文，哪个控件就可以弹出菜单。
 
-## 57 样式技巧——仅在特定状态时生效（更新中）
+
+
+## 开发实战——先导篇
+
+前面的章节不止一次介绍过实际开发中遇到的问题如何解决，也在介绍具体控件时提供了相关用法的示例。但是，实际开发时，遇到的问题千千万，只是几千字的教程远不能覆盖。因此，笔者才在本教程中多次更新具体问题的解决思路和示例代码。
+
+然而，随着教程2026版的完成，2027版的持续更新，笔者发现一个令人头疼的问题：标题中只是体现问题，并没体现具体控件名、类名、方法名；知道具体问题如何准确描述倒还好找对应文章，要是只知道控件名、类名、方法名、模块（NiceGUI的模块以及所依赖的库、模块，下同）名，只搜关键字的话，很容易跑偏，文章中使用的控件、类、方法、模块不是眼下使用的。
+
+于是，笔者思索再三，决定给原有标题添加相关的件名、类名、方法名，并将其归为系列——《开发实战》。章节的命名格式不像其他系列一样破破折号前是系列名，而是采用`{控件名、类名、方法名、模块名}——{问题描述、运行结果}`的格式，不包含系列名。
+
+本章为先导内容，不介绍具体控件、类、方法、模块。从下一章开始，不定期介绍具体控件、类、方法、模块实际开发时遇到的问题、使用技巧、具体示例。
+
+## 57 `ui.button`控件——简化跳转链接的代码（更新中）
+
+### 57.1 背景
+
+
+
+（为什么要简化跳转链接的代码）
+
+
+
+### 57.2 思路
+
+
+
+（分析问题，简述寻求解决方案的思路）
+
+
+
+### 57.3 解决方案
+
+
+
+（基于思路，一步一步编写相关代码，并提供完整示例和结果）
+
+
+
+### 57.4 总结
+
+
+
+（简单说点总结内容，一两句话即可）
+
+
+
+带`url`参数的定制按钮（功能参考Flet的`Button`控件）：
+
+```python3
+from nicegui import ui
+from nicegui.defaults import DEFAULT_PROP, resolve_defaults
+from nicegui.events import ClickEventArguments, Handler
+
+class UrlButton(ui.button):
+    @resolve_defaults
+    def __init__(
+        self,
+        text: str = '', *,
+        on_click: Handler[ClickEventArguments] | None = None,
+        color: str | None = DEFAULT_PROP | 'primary',
+        icon: str | None = DEFAULT_PROP | None,
+        # 扩展的两个参数
+        url: str | None = None,
+        new_tab: bool = False,
+    ) -> None:
+        super().__init__(text, on_click=on_click, color=color, icon=icon)
+        # 使用扩展的参数添加响应函数
+        if url:
+            self.on_click(
+                lambda:ui.navigate.to(
+                    url,
+                    new_tab
+                )
+            )
+  
+def index():
+    # 兼容原控件的用法
+    UrlButton(
+        'go to NiceGUI via `on_click`',
+        on_click=lambda:ui.navigate.to('https://nicegui.io')
+    ).props('no-caps')
+    # 可以单独使用url参数
+    UrlButton(
+        'go to NiceGUI via `url`',
+        url='https://nicegui.io'
+    ).props('no-caps')
+    # 也可以两种用法同时使用
+    # 但建议至少启用一种用法的使用新标签页打开
+    UrlButton(
+        'go to NiceGUI with two ways',
+        on_click=lambda:ui.navigate.to(
+            'https://nicegui.io',
+            new_tab=True
+        ),
+        url='https://nicegui.io'
+    ).props('no-caps')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+
+
+
+
+
+
+## 5x 样式技巧——仅在特定状态时生效（更新中）
 
 相关文档：https://tailwindcss.com/docs/hover-focus-and-other-states
 
@@ -1117,16 +1226,6 @@ anywidget框架文档：https://anywidget.dev/en/getting-started/
 
 
 
-
-## 开发实战——先导篇
-
-前面的章节不止一次介绍过实际开发中遇到的问题如何解决，也在介绍具体控件时提供了相关用法的示例。但是，实际开发时，遇到的问题千千万，只是几千字的教程远不能覆盖。因此，笔者才在本教程中多次更新具体问题的解决思路和示例代码。
-
-然而，随着教程2026版的完成，2027版的持续更新，笔者发现一个令人头疼的问题：标题中只是体现问题，并没体现具体控件名、类名、方法名；知道具体问题如何准确描述倒还好找对应文章，要是只知道控件名、类名、方法名、模块（NiceGUI的模块以及所依赖的库、模块，下同）名，只搜关键字的话，很容易跑偏，文章中使用的控件、类、方法、模块不是眼下使用的。
-
-于是，笔者思索再三，决定给原有标题添加相关的件名、类名、方法名，并将其归为系列——《开发实战》。章节的命名格式不像其他系列一样破破折号前是系列名，而是采用`{控件名、类名、方法名、模块名}——{问题描述、运行结果}`的格式，不包含系列名。
-
-本章为先导内容，不介绍具体控件、类、方法、模块。从下一章开始，不定期介绍具体控件、类、方法、模块实际开发时遇到的问题、使用技巧、具体示例。
 
 ## 9x `ui.altair`控件——xxx（更新中）
 

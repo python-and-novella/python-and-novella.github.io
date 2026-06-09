@@ -6,9 +6,9 @@
 
 2027年所有更新内容转入《易森》，以下内容为存稿、留档，在《易森》更新时复制到《易森》中。
 
-## 50 xxx（更新中）
+## 50 `Qxxx`xxx控件（更新中）
 
-
+本章参考文档：
 
 
 
@@ -32,6 +32,76 @@ app.exec()
 
 
 
+
+## xx 打开超链接（更新中）
+
+
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton
+)
+from PySide6.QtGui import QDesktopServices
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('易森-PySide6')
+window.resize(400, 300)
+
+label =QLabel(
+    window,
+    text='<a href="https://baidu.com">超链接</a>',
+    openExternalLinks=True
+)
+button = QPushButton(
+    window,
+    text='点击打开超链接'
+)
+button.move(
+    0,30
+)
+button.clicked.connect(
+    lambda :QDesktopServices().openUrl(
+        'https://baidu.com'
+    )
+)
+
+
+window.show()
+app.exec()
+```
+
+
+
+
+
+## xx `Qxxx`xxx控件（更新中）
+
+本章参考文档：
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('易森-PySide6')
+window.resize(400, 300)
+
+
+
+window.show()
+app.exec()
+```
 
 
 

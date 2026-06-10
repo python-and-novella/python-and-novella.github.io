@@ -1161,15 +1161,184 @@ ui.run(
 
 （完）
 
-## 2706期：xxx（更新中）
+## 2706期：NiceGUI的样式技巧
 
 ### 0 本期主要内容
 
-（编写本期主要内容和标题，同时作为内容规划）
+介绍NiceGUI中的样式技巧，让样式仅在特定状态下、特定大小的屏幕中生效。涉及纯CSS实现，以及使用UnoCSS框架、Tailwind CSS框架实现的方法。
 
+### 1 NiceGUI：样式技巧——仅在特定状态下生效
 
+相关文档：
 
+- https://tailwindcss.com/docs/hover-focus-and-other-states
+- https://developer.mozilla.org/zh-CN/docs/Web/CSS/Reference/Selectors/Pseudo-classes
 
+一般情况下，样式是静态的，即设定之后立即显示，不会因为用户的交互而改变。但是，CSS支持使用伪类组合器，让样式仅在特定状态下生效，进而实现特定状态下样式发生改变。比如，想要让控件在鼠标悬停时的样式与一般情况不同，就要用到`:hover`这个伪类，将其放置在指定样式名之后（不要有空格），即表示使用该样式的控件并且鼠标悬停在控件上时，使用相应的样式：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    ui.add_css(
+        '''
+        .my_class:hover {
+            background-color: red;
+        }
+        '''
+    )
+    label = ui.label('Label')
+    label.classes('my_class')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2706_1_1](easython.assets/2706_1_1.png)
+
+这是使用CSS实现的标准解法。
+
+如果读者对UnoCSS框架和Tailwind CSS框架比较熟悉，则可以换一种解法。给样式类前添加表示状态、不含英文冒号的伪类，使用“:”分隔状态和样式类：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    label = ui.label('Label')
+    label.classes('hover:bg-red-500')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+这样的话，就能完美使用UnoCSS框架和Tailwind CSS框架预定义的样式类。
+
+如果启用了UnoCSS框架支持，状态和样式类之间的分隔符还可以改为“-”：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    label = ui.label('Label')
+    label.classes('hover-bg-red-500')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    unocss='wind4',
+    native=True
+)
+```
+
+除了上面示例中鼠标悬停的状态，还可以定义其他状态的样式，具体参考相关文档，这里不做展开。
+
+### 2 NiceGUI：样式技巧——仅在特定大小的屏幕中生效
+
+相关文档：
+
+- https://tailwindcss.com/docs/responsive-design
+- https://developer.mozilla.org/zh-CN/docs/Web/CSS/Guides/Media_queries/Using
+
+与伪类的用法一样，想要让样式仅在特定大小的屏幕中生效，只需将状态改成预定义的断点即可（断点含义可参考相关文档）：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    label = ui.label('Label')
+    label.classes('bg-red-500 sm:bg-yellow-500 md:bg-green-500')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+上面添加的样式表示当屏幕宽度大于特定值（`sm`表示`640px`，`md`表示`768px`）时，相关样式就会生效（可以拖动窗口宽度查看效果）。
+
+除了预定义的断点，还可以使用`min-[{任意值}px]`（表示屏幕宽度大于任意值），在任意值上定义断点：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    label = ui.label('Label')
+    label.classes('bg-red-500 min-[400px]:bg-yellow-500 min-[600px]:bg-green-500')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+对应CSS的话，想要实现相同效果，就是在媒体查询的生效范围内定义样式类：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    ui.add_css(
+        '''
+        .my_class {
+            background-color:red;
+        }
+        @media (min-width:400px){
+            .my_class {
+                background-color:yellow;
+            }
+        }
+        @media (min-width:600px){
+            .my_class {
+                background-color:green;
+            }
+        }
+        '''
+    )
+    label = ui.label('Label')
+    label.classes('my_class')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+CSS用起来有点麻烦，具体语法可以参考相关文档和网络，这里仅供参考，不做展开介绍。
+
+如果是使用UnoCSS框架和Tailwind CSS框架，同时使用`max-[{任意值}px]`（表示屏幕宽度小于任意值）和`min-[{任意值}px]`（使用英文冒号连接），则表示样式仅在该屏幕宽度范围内（被连接的两个断点应当为有限的闭合区间）生效：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    label = ui.label('Label')
+    # 第二个样式仅当屏幕宽度在400px-600px时生效
+    label.classes('bg-red-500 min-[400px]:max-[600px]:bg-yellow-500')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+关于断点的用法还有很多，可以参考相关文档，或者期待后续的更新。
 
 （完）
 
@@ -1185,7 +1354,7 @@ ui.run(
 
 （完）
 
-## 27xx期：xxx（更新中）
+## 2708期：xxx（更新中）
 
 ### 0 本期主要内容
 
@@ -1195,7 +1364,7 @@ ui.run(
 
 （完）
 
-## 27xx期：xxx（更新中）
+## 2709期：xxx（更新中）
 
 ### 0 本期主要内容
 
@@ -1205,7 +1374,67 @@ ui.run(
 
 （完）
 
-## 27xx期：xxx（更新中）
+## 2710期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+## 271x期：xxx（更新中）
 
 ### 0 本期主要内容
 

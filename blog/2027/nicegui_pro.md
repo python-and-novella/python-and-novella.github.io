@@ -269,7 +269,69 @@ ui.run(
 
 NiceGUI的菜单可以简单理解为点击左键、右键使其弹出的容器，将其放在哪个控件的上下文，哪个控件就可以弹出菜单。
 
+## 57 打开链接（《易森》2705期）
 
+在网页中，点击超链接，跳转到对应网页，是再简单不过的操作。对于NiceGUI这样的WebUI框架来说，实现相同的超链接也很简单，`ui.link`控件就是超链接，甚至还可以使用`ui.html`控件、`ui.element`控件这样的万能控件实现：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    ui.link(
+        '超链接',
+        'https://nicegui.io'
+    )
+    ui.html(
+        '超链接',
+        tag='a',
+        sanitize=False
+    ).props("href='https://nicegui.io'")
+    with ui.element(
+        'a'
+    ).props("href='https://nicegui.io'"):
+        ui.label('超链接')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2027_57_1](nicegui_pro.assets/2027_57_1.png)
+
+如果不使用超链接的话，则可以使用`ui.navigate.to`方法打开链接。绑定到响应函数，或是在特定条件下执行，让打开链接这个操作不再局限于点击超链接，任意控件或者任何情况都可以：
+
+```python3
+from nicegui import ui
+
+  
+def index():
+    ui.button(
+        '打开链接',
+        on_click=lambda:ui.navigate.to(
+            'https://nicegui.io'
+        )
+    )
+    # 3秒之后自动在新标签页打开链接
+    ui.timer(
+        3,
+        lambda:ui.navigate.to(
+            'https://nicegui.io',
+            new_tab=True
+        ),
+        once=True
+    )
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2027_57_2](nicegui_pro.assets/2027_57_2.png)
 
 ## 开发实战——先导篇
 
@@ -281,41 +343,85 @@ NiceGUI的菜单可以简单理解为点击左键、右键使其弹出的容器�
 
 本章为先导内容，不介绍具体控件、类、方法、模块。从下一章开始，不定期介绍具体控件、类、方法、模块实际开发时遇到的问题、使用技巧、具体示例。
 
-## 57 `ui.button`控件——简化跳转链接的代码（更新中）
+## 58 `ui.button`控件——简化跳转链接的代码（《易森》2705期+）
 
-### 57.1 背景
+### 58.1 背景
 
+Flet的`Button`控件提供了`url`参数，可以让点击按钮、打开链接变得很简单。当然，Flet的按钮也支持`on_click`参数，使用响应函数打开链接也可以，只不过稍微麻烦一点。
 
+对NiceGUI来说，虽然NiceGUI的`ui.button`控件（按钮）也支持使用响应函数打开链接，但每次都要至少构造一个匿名函数（lambda表达式），并不比Flet简单多少，这个痛点在NiceGUI的社区也有人提起。
 
-（为什么要简化跳转链接的代码）
+因此，给NiceGUI的按钮添加类似Flet按钮的`url`参数，可以让点击按钮、打开链接的操作更加简洁。
 
+### 58.2 思路
 
+既然是给按钮添加参数、功能，继承`ui.button`类，并在初始化时增加参数、功能，无疑是最简单的修改方法。
 
-### 57.2 思路
+考虑到原来的`ui.button`控件（按钮）也很好用，那新按钮最好支持原来的功能，并尽量做到完美兼容。因此，增加的参数就放到原有参数的后面，原来的参数都不动。
 
+至于打开链接的方法，自然是沿用`ui.navigate.to`方法。
 
+### 58.3 实施
 
-（分析问题，简述寻求解决方案的思路）
+第一步就是继承：
 
+```python3
+from nicegui import ui
+from nicegui.defaults import DEFAULT_PROP, resolve_defaults
+from nicegui.events import ClickEventArguments, Handler
 
+class UrlButton(ui.button):
+    @resolve_defaults
+    def __init__(
+        self,
+        text: str = '', *,
+        on_click: Handler[ClickEventArguments] | None = None,
+        color: str | None = DEFAULT_PROP | 'primary',
+        icon: str | None = DEFAULT_PROP | None,
+        # 扩展的两个参数
+        url: str | None = None,
+        new_tab: bool = False,
+    ) -> None:
+        super().__init__(text, on_click=on_click, color=color, icon=icon)
+```
 
-### 57.3 解决方案
+为了保证原来的类型注释不失效，还额外导入了一些相关的类。代码中扩展了两个参数，是因为`ui.navigate.to`方法要用到这两个参数。因为怕后续不只是打开链接，还想在新的标签也打开，故两个参数都有。
 
+扩展完参数，自然是用这两个参数。就和直接使用按钮一样，在初始化函数中添加一个响应函数即可：
 
+```python3
+from nicegui import ui
+from nicegui.defaults import DEFAULT_PROP, resolve_defaults
+from nicegui.events import ClickEventArguments, Handler
 
-（基于思路，一步一步编写相关代码，并提供完整示例和结果）
+class UrlButton(ui.button):
+    @resolve_defaults
+    def __init__(
+        self,
+        text: str = '', *,
+        on_click: Handler[ClickEventArguments] | None = None,
+        color: str | None = DEFAULT_PROP | 'primary',
+        icon: str | None = DEFAULT_PROP | None,
+        # 扩展的两个参数
+        url: str | None = None,
+        new_tab: bool = False,
+    ) -> None:
+        super().__init__(text, on_click=on_click, color=color, icon=icon)
+        # 使用扩展的参数添加响应函数
+        if url:
+            self.on_click(
+                lambda:ui.navigate.to(
+                    url,
+                    new_tab
+                )
+            )
+```
 
+注意，为了避免不设置`url`参数也会错误添加响应函数，需要先判断`url`参数，在其未传值或者传值为空时，不应该添加响应函数。
 
+这里命名为`UrlButton`，含义为“支持直接打开链接的按钮”。
 
-### 57.4 总结
-
-
-
-（简单说点总结内容，一两句话即可）
-
-
-
-带`url`参数的定制按钮（功能参考Flet的`Button`控件）：
+创建完成，那就简单测试一下效果，示例代码如下：
 
 ```python3
 from nicegui import ui
@@ -345,38 +451,46 @@ class UrlButton(ui.button):
             )
   
 def index():
+    url = 'https://nicegui.io'
     # 兼容原控件的用法
     UrlButton(
-        'go to NiceGUI via `on_click`',
-        on_click=lambda:ui.navigate.to('https://nicegui.io')
+        '打开链接（on_click）',
+        on_click=lambda:ui.navigate.to(url)
     ).props('no-caps')
     # 可以单独使用url参数
     UrlButton(
-        'go to NiceGUI via `url`',
-        url='https://nicegui.io'
+        '打开链接（url）',
+        url=url
     ).props('no-caps')
     # 也可以两种用法同时使用
     # 但建议至少启用一种用法的使用新标签页打开
     UrlButton(
-        'go to NiceGUI with two ways',
+        '打开链接（同时使用两种方法）',
         on_click=lambda:ui.navigate.to(
-            'https://nicegui.io',
+            url,
             new_tab=True
         ),
-        url='https://nicegui.io'
+        url=url
     ).props('no-caps')
   
 ui.run(
     root=index,
-    title='易森-NiceGUI'
+    title='易森-NiceGUI',
+    native=True
 )
 ```
 
+![2027_58.3_1](nicegui_pro.assets/2027_58.3_1.png)
 
+从上面的示例中可以看到，不仅新的按钮兼容原来的用法，而且新用法简单到只需传入链接即可实现原来需要编写匿名函数的效果。另外，即使同时使用两种方法，也不会冲突，和Flet的按钮效果一样。
 
+### 58.4 总结
 
+本章主要目的就是按钮简化跳转链接的代码。为了让用的时候更加方便，就继承原按钮的代码，将有点麻烦的创建响应函数改为内部操作，在后续使用时只需将链接传给`url`参数即可。
 
+总体的思路是扩展、兼容，因此很多原来的参数和代码都没改。同时尽可能保留了相关功能的扩展性，增加了`url`参数和`new_tab`参数。
 
+后续如果读者觉得有些操作比较频繁但没有更简单写法，可以尝试继承原控件，然后将其操作包装一下，让新的包装函数变成控件的方法，或者为控件增加参数（尽量使用关键字参数，不要动原本的位置参数，可以提高旧代码的兼容性）。
 
 ## 5x 样式技巧——仅在特定状态时生效（更新中）
 

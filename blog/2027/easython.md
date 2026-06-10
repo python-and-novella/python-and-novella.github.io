@@ -742,11 +742,11 @@ flet.run(main)
 
 （完）
 
-## 2705期：打开链接（更新中）
+## 2705期：打开链接
 
 ### 0 本期主要内容
 
-本期将探究NiceGUI、PySide6、Flet三个GUI框架中创建可以直接点击的超链接的方法，以及其他打开（跳转）链接的方法。
+本期将探究NiceGUI、PySide6、Flet三个GUI框架中如何创建可以直接点击的超链接，以及其他打开（跳转）链接的方法。
 
 ### 1 NiceGUI中如何打开链接
 
@@ -757,18 +757,19 @@ from nicegui import ui
 
   
 def index():
+    url = 'https://nicegui.io'
     ui.link(
         '超链接',
-        'https://nicegui.io'
+        url
     )
     ui.html(
         '超链接',
         tag='a',
         sanitize=False
-    ).props("href='https://nicegui.io'")
+    ).props(f'href={url}')
     with ui.element(
         'a'
-    ).props("href='https://nicegui.io'"):
+    ).props(f'href={url}'):
         ui.label('超链接')
   
 ui.run(
@@ -787,17 +788,18 @@ from nicegui import ui
 
   
 def index():
+    url = 'https://nicegui.io'
     ui.button(
         '打开链接',
         on_click=lambda:ui.navigate.to(
-            'https://nicegui.io'
+            url
         )
     )
     # 3秒之后自动在新标签页打开链接
     ui.timer(
         3,
         lambda:ui.navigate.to(
-            'https://nicegui.io',
+            url,
             new_tab=True
         ),
         once=True
@@ -812,27 +814,181 @@ ui.run(
 
 ![2705_1_2](easython.assets/2705_1_2.png)
 
-### 2 PySide6中如何打开链接（更新中）
+### 2 PySide6中如何打开链接
+
+本章参考文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QDesktopServices.html
+
+在PySide6中，创建超链接的方法多种多样，不过核心点都是使用HTML中的超链接，但有的控件可以使用Markdown语法：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QTextBrowser
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('易森-PySide6')
+window.resize(400, 300)
+
+url='https://doc.qt.io/qtforpython-6/index.html'
+label =QLabel(
+    window,
+    text=f'<a href={url}>超链接</a>',
+    openExternalLinks=True
+)
+browser = QTextBrowser(
+    window,
+    #text=f'<a href={url}>超链接(HTML)</a>',
+    markdown=f'[超链接(Markdown)]({url})',
+    openExternalLinks=True
+)
+browser.move(
+    0,30
+)
+
+window.show()
+app.exec()
+```
+
+![2705_2_1](easython.assets/2705_2_1.png)
+
+都是《PySide6札记》（原《Qt For Python 札记》）2026版介绍过的控件，具体用法这里不再赘述，示例中可以清晰看到。不过，如果想要实现不点击超链接来打开链接，就要使用类似NiceGUI的`ui.navigate.to`方法才行。
+
+在PySide6中，`QDesktopServices.openUrl`方法（静态方法）可以随时随地打开指定链接：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtGui import QDesktopServices
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('易森-PySide6')
+window.resize(400, 300)
+
+url='https://doc.qt.io/qtforpython-6/index.html'
+button = QPushButton(
+    window,
+    text='点击打开超链接'
+)
+button.clicked.connect(
+    lambda :QDesktopServices.openUrl(
+        url
+    )
+)
 
 
+window.show()
+app.exec()
+```
+
+![2705_2_2](easython.assets/2705_2_2.png)
+
+### 3 Flet中如何打开链接
+
+本章参考文档：
+
+- https://flet.dev/docs/controls/text/#flet.Text.spans
+- https://flet.dev/docs/controls/button#flet.Button.url
+- https://flet.dev/docs/services/urllauncher
+
+Flet虽然也支持WebUI模式（网页模式），但其控件都是绘制出来的图形，不是传统意义上的HTML元素。因此，Flet中并没有直接对标NiceGUI的超链接控件。不过，`Text`控件的`spans`参数可以让部分文字支持超链接的功能，`Button`控件的`url`参数也能让按钮平替超链接：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+    
+    url = 'https://flet.dev/docs/'
+    page.add(
+        flet.Text(
+            spans=[
+            	flet.TextSpan(
+                	text='超链接',
+                	url=url,
+            	)
+        	]
+        ),
+        flet.Button(
+            content='超链接按钮',
+            url=url
+        ),
+    )
 
 
+flet.run(
+    main,
+)
+```
 
-### 3 Flet中如何打开链接（更新中）
+![2705_3_1](easython.assets/2705_3_1.png)
+
+如果不使用超链接的平替，在Flet中，使用`UrlLauncher`服务提供的`launch_url`方法可以打开任意链接（后面再详细介绍服务，这里简单理解为类似PySide6的`QDesktopServices.openUrl`方法）。
+
+以按钮为例，不使用`url`参数，看看如何实现点击按钮、打开链接：
+
+```python3
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+    # 创建并注册服务
+    launcher = flet.UrlLauncher()
+    page.services.append(launcher)
+    # 将url通过控件的data参数传给响应函数
+    async def open_url(e):
+        await launcher.launch_url(
+            e.control.data['url'],
+        )
+
+    url = 'https://flet.dev/docs/'
+    page.add(
+        flet.Button(
+            content='点击访问链接（on_click）',
+            on_click=open_url,
+            data={'url':url}
+        ),
+        # 下面为对比效果的按钮
+        flet.Button(
+            content='点击访问链接（url）',
+            url=url
+        ),
+        flet.Button(
+            content='点击访问链接（同时使用两种方法）',
+            on_click=open_url,
+            data={'url':url},
+            url=url
+        )
+    )
 
 
+flet.run(
+    main,
+)
+```
 
-
+![2705_3_2](easython.assets/2705_3_2.png)
 
 （完）
 
-## 2705期+：尝鲜（首期免费）（更新中）
+## 2705期+：尝鲜（首期免费）
 
-### 1 增刊的更新说明
+### 0 增刊的更新说明及本期主要内容
 
 从本期开始，《易森》将不定期发行增刊，作为粉丝的福利。因为本期是首期增刊，特免费提供，顺便介绍一下增刊的特点：
 
@@ -842,13 +998,166 @@ ui.run(
 - 内容。正如更新频率的部分中所介绍，增刊一般是超过正刊篇幅的额外内容，或是笔者灵感迸发之后的奇思妙想，或是殚精竭虑之后才解答的绝世难题。
 - 公平。增刊只是笔者想为支持笔者的粉丝提供福利，并不是为了创造焦虑。因此，增刊的内容会在后续正刊的更新中免费提供，支持笔者的粉丝解锁增刊，只是获得了提前几周学习的机会，并不会解锁其他读者接触不到的独特内容。如果读者手头拮据或者不认可笔者的文笔，只需耐心等待几周，即可**免费**阅读。
 
+本期主要补充了2705期NiceGUI社区一个关于点击按钮跳转链接的问题，因为篇幅较多且与打开链接相关，故独立为增刊。
+
+### 1 NiceGUI：开发实战——先导篇
+
+《NiceGUI札记》（2026版）前面的章节不止一次介绍过实际开发中遇到的问题如何解决，也在介绍具体控件时提供了相关用法的示例。但是，实际开发时，遇到的问题千千万，只是几千字的教程远不能覆盖。因此，笔者才在本教程中多次更新具体问题的解决思路和示例代码。
+
+然而，随着教程（指的是《NiceGUI札记》）2026版的完成，2027版的持续更新，笔者发现一个令人头疼的问题：标题中只是体现问题，并没体现具体控件名、类名、方法名；知道具体问题如何准确描述倒还好找对应文章，要是只知道控件名、类名、方法名、模块（NiceGUI的模块以及所依赖的库、模块，下同）名，只搜关键字的话，很容易跑偏，文章中使用的控件、类、方法、模块不是眼下使用的。
+
+于是，笔者思索再三，决定给原有标题添加相关的件名、类名、方法名，并将其归为系列——《开发实战》。章节的命名格式不像其他系列一样破破折号前是系列名，而是采用`{控件名、类名、方法名、模块名}——{问题描述、运行结果}`的格式，不包含系列名。
+
+本章为先导内容，不介绍具体控件、类、方法、模块。从下一章开始，不定期介绍具体控件、类、方法、模块实际开发时遇到的问题、使用技巧、具体示例。
+
 ### 2 NiceGUI：`ui.button`控件——简化跳转链接的代码
 
-（待定）
+#### 2.1 背景
 
+Flet的`Button`控件提供了`url`参数，可以让点击按钮、打开链接变得很简单。当然，Flet的按钮也支持`on_click`参数，使用响应函数打开链接也可以，只不过稍微麻烦一点。
 
+对NiceGUI来说，虽然NiceGUI的`ui.button`控件（按钮）也支持使用响应函数打开链接，但每次都要至少构造一个匿名函数（lambda表达式），并不比Flet简单多少，这个痛点在NiceGUI的社区也有人提起。
 
+因此，给NiceGUI的按钮添加类似Flet按钮的`url`参数，可以让点击按钮、打开链接的操作更加简洁。
 
+#### 2.2 思路
+
+既然是给按钮添加参数、功能，继承`ui.button`类，并在初始化时增加参数、功能，无疑是最简单的修改方法。
+
+考虑到原来的`ui.button`控件（按钮）也很好用，那新按钮最好支持原来的功能，并尽量做到完美兼容。因此，增加的参数就放到原有参数的后面，原来的参数都不动。
+
+至于打开链接的方法，自然是沿用`ui.navigate.to`方法。
+
+#### 2.3 实施
+
+第一步就是继承：
+
+```python3
+from nicegui import ui
+from nicegui.defaults import DEFAULT_PROP, resolve_defaults
+from nicegui.events import ClickEventArguments, Handler
+
+class UrlButton(ui.button):
+    @resolve_defaults
+    def __init__(
+        self,
+        text: str = '', *,
+        on_click: Handler[ClickEventArguments] | None = None,
+        color: str | None = DEFAULT_PROP | 'primary',
+        icon: str | None = DEFAULT_PROP | None,
+        # 扩展的两个参数
+        url: str | None = None,
+        new_tab: bool = False,
+    ) -> None:
+        super().__init__(text, on_click=on_click, color=color, icon=icon)
+```
+
+为了保证原来的类型注释不失效，还额外导入了一些相关的类。代码中扩展了两个参数，是因为`ui.navigate.to`方法要用到这两个参数。因为怕后续不只是打开链接，还想在新的标签也打开，故两个参数都有。
+
+扩展完参数，自然是用这两个参数。就和直接使用按钮一样，在初始化函数中添加一个响应函数即可：
+
+```python3
+from nicegui import ui
+from nicegui.defaults import DEFAULT_PROP, resolve_defaults
+from nicegui.events import ClickEventArguments, Handler
+
+class UrlButton(ui.button):
+    @resolve_defaults
+    def __init__(
+        self,
+        text: str = '', *,
+        on_click: Handler[ClickEventArguments] | None = None,
+        color: str | None = DEFAULT_PROP | 'primary',
+        icon: str | None = DEFAULT_PROP | None,
+        # 扩展的两个参数
+        url: str | None = None,
+        new_tab: bool = False,
+    ) -> None:
+        super().__init__(text, on_click=on_click, color=color, icon=icon)
+        # 使用扩展的参数添加响应函数
+        if url:
+            self.on_click(
+                lambda:ui.navigate.to(
+                    url,
+                    new_tab
+                )
+            )
+```
+
+注意，为了避免不设置`url`参数也会错误添加响应函数，需要先判断`url`参数，在其未传值或者传值为空时，不应该添加响应函数。
+
+这里命名为`UrlButton`，含义为“支持直接打开链接的按钮”。
+
+创建完成，那就简单测试一下效果，示例代码如下：
+
+```python3
+from nicegui import ui
+from nicegui.defaults import DEFAULT_PROP, resolve_defaults
+from nicegui.events import ClickEventArguments, Handler
+
+class UrlButton(ui.button):
+    @resolve_defaults
+    def __init__(
+        self,
+        text: str = '', *,
+        on_click: Handler[ClickEventArguments] | None = None,
+        color: str | None = DEFAULT_PROP | 'primary',
+        icon: str | None = DEFAULT_PROP | None,
+        # 扩展的两个参数
+        url: str | None = None,
+        new_tab: bool = False,
+    ) -> None:
+        super().__init__(text, on_click=on_click, color=color, icon=icon)
+        # 使用扩展的参数添加响应函数
+        if url:
+            self.on_click(
+                lambda:ui.navigate.to(
+                    url,
+                    new_tab
+                )
+            )
+  
+def index():
+    url = 'https://nicegui.io'
+    # 兼容原控件的用法
+    UrlButton(
+        '打开链接（on_click）',
+        on_click=lambda:ui.navigate.to(url)
+    ).props('no-caps')
+    # 可以单独使用url参数
+    UrlButton(
+        '打开链接（url）',
+        url=url
+    ).props('no-caps')
+    # 也可以两种用法同时使用
+    # 但建议至少启用一种用法的使用新标签页打开
+    UrlButton(
+        '打开链接（同时使用两种方法）',
+        on_click=lambda:ui.navigate.to(
+            url,
+            new_tab=True
+        ),
+        url=url
+    ).props('no-caps')
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2705+_2.3_1](easython.assets/2705+_2.3_1.png)
+
+从上面的示例中可以看到，不仅新的按钮兼容原来的用法，而且新用法简单到只需传入链接即可实现原来需要编写匿名函数的效果。另外，即使同时使用两种方法，也不会冲突，和Flet的按钮效果一样。
+
+#### 2.4 总结
+
+本章主要目的就是按钮简化跳转链接的代码。为了让用的时候更加方便，就继承原按钮的代码，将有点麻烦的创建响应函数改为内部操作，在后续使用时只需将链接传给`url`参数即可。
+
+总体的思路是扩展、兼容，因此很多原来的参数和代码都没改。同时尽可能保留了相关功能的扩展性，增加了`url`参数和`new_tab`参数。
+
+后续如果读者觉得有些操作比较频繁但没有更简单写法，可以尝试继承原控件，然后将其操作包装一下，让新的包装函数变成控件的方法，或者为控件增加参数（尽量使用关键字参数，不要动原本的位置参数，可以提高旧代码的兼容性）。
 
 （完）
 
@@ -871,6 +1180,26 @@ ui.run(
 （编写本期主要内容和标题，同时作为内容规划）
 
 
+
+
+
+（完）
+
+## 27xx期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+## 27xx期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
 
 
 

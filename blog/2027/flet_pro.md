@@ -2,7 +2,101 @@
 
 2027年所有更新内容转入《易森》，以下内容为存稿、留档，在《易森》更新时复制到《易森》中。
 
-## 25 `xxx`控件（更新中）
+## 25 打开链接（《易森》2705期）
+
+本章参考文档：
+
+- https://flet.dev/docs/controls/text/#flet.Text.spans
+- https://flet.dev/docs/controls/button#flet.Button.url
+- https://flet.dev/docs/services/urllauncher
+
+Flet虽然也支持WebUI模式（网页模式），但其控件都是绘制出来的图形，不是传统意义上的HTML元素。因此，Flet中并没有直接对标NiceGUI的超链接控件。不过，`Text`控件的`spans`参数可以让部分文字支持超链接的功能，`Button`控件的`url`参数也能让按钮平替超链接：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+    
+    url = 'https://flet.dev/docs/'
+    page.add(
+        flet.Text(
+            spans=[
+            	flet.TextSpan(
+                	text='超链接',
+                	url=url,
+            	)
+        	]
+        ),
+        flet.Button(
+            content='超链接按钮',
+            url=url
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_25_1](flet_pro.assets/2027_25_1.png)
+
+如果不使用超链接的平替，在Flet中，使用`UrlLauncher`服务提供的`launch_url`方法可以打开任意链接（后面再详细介绍服务，这里简单理解为类似PySide6的`QDesktopServices.openUrl`方法）。
+
+以按钮为例，不使用`url`参数，看看如何实现点击按钮、打开链接：
+
+```python3
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+    # 创建并注册服务
+    launcher = flet.UrlLauncher()
+    page.services.append(launcher)
+    # 将url通过控件的data参数传给响应函数
+    async def open_url(e):
+        await launcher.launch_url(
+            e.control.data['url'],
+        )
+
+    url = 'https://flet.dev/docs/'
+    page.add(
+        flet.Button(
+            content='点击访问链接（on_click）',
+            on_click=open_url,
+            data={'url':url}
+        ),
+        # 下面为对比效果的按钮
+        flet.Button(
+            content='点击访问链接（url）',
+            url=url
+        ),
+        flet.Button(
+            content='点击访问链接（同时使用两种方法）',
+            on_click=open_url,
+            data={'url':url},
+            url=url
+        )
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_25_2](flet_pro.assets/2027_25_2.png)
+
+## 2x `xxx`控件（更新中）
 
 本章参考文档：https://flet.dev/docs/controls
 
@@ -31,66 +125,6 @@ flet.run(
 ```
 
 
-
-
-
-
-
-## xx 打开指定网址的方法（更新中）
-
-本章参考文档：https://flet.dev/docs/controls/button#flet.Button.url 和 https://flet.dev/docs/services/urllauncher
-
-
-
-
-
-```python3
-import flet
-
-
-def main(page: flet.Page):
-    page.window.width = 400
-    page.window.height = 300
-    page.window.alignment = flet.Alignment(0, 0)
-    page.title = '易森-Flet'
-    
-    launcher = flet.UrlLauncher()
-    page.services.append(launcher)
-    async def open_url():
-        await launcher.launch_url(
-            'https://nicegui.io',
-        )
-    page.add(
-        flet.Text(
-            spans=[
-            	flet.TextSpan(
-                	text='访问 Flet 官网',
-                	url='https://flet.dev',
-            	)
-        	]
-        ),
-        flet.Button(
-            content='go to NiceGUI via `on_click`',
-            on_click=open_url,
-        ),
-        flet.Button(
-            content='go to NiceGUI via `url`',
-            url='https://nicegui.io'
-        ),
-        flet.Button(
-            content='go to NiceGUI with two ways',
-            on_click=open_url,
-            url='https://nicegui.io/documentation'
-        )
-    )
-
-
-flet.run(
-    main,
-    port=80,
-    view=flet.AppView.WEB_BROWSER
-)
-```
 
 
 

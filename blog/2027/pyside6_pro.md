@@ -6,7 +6,83 @@
 
 2027年所有更新内容转入《易森》，以下内容为存稿、留档，在《易森》更新时复制到《易森》中。
 
-## 50 `Qxxx`xxx控件（更新中）
+## 50 打开链接（《易森》2705期）
+
+本章参考文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QDesktopServices.html
+
+在PySide6中，创建超链接的方法多种多样，不过核心点都是使用HTML中的超链接，但有的控件可以使用Markdown语法：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QTextBrowser
+)
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('易森-PySide6')
+window.resize(400, 300)
+
+url='https://doc.qt.io/qtforpython-6/index.html'
+label =QLabel(
+    window,
+    text=f'<a href={url}>超链接</a>',
+    openExternalLinks=True
+)
+browser = QTextBrowser(
+    window,
+    #text=f'<a href={url}>超链接(HTML)</a>',
+    markdown=f'[超链接(Markdown)]({url})',
+    openExternalLinks=True
+)
+browser.move(
+    0,30
+)
+
+window.show()
+app.exec()
+```
+
+![2027_50_1](pyside6_pro.assets/2027_50_1.png)
+
+都是《PySide6札记》（原《Qt For Python 札记》）2026版介绍过的控件，具体用法这里不再赘述，示例中可以清晰看到。不过，如果想要实现不点击超链接来打开链接，就要使用类似NiceGUI的`ui.navigate.to`方法才行。
+
+在PySide6中，`QDesktopServices.openUrl`方法（静态方法）可以随时随地打开指定链接：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtGui import QDesktopServices
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('易森-PySide6')
+window.resize(400, 300)
+
+url='https://doc.qt.io/qtforpython-6/index.html'
+button = QPushButton(
+    window,
+    text='点击打开超链接'
+)
+button.clicked.connect(
+    lambda :QDesktopServices.openUrl(
+        url
+    )
+)
+
+
+window.show()
+app.exec()
+```
+
+![2027_50_2](pyside6_pro.assets/2027_50_2.png)
+
+## 51 `Qxxx`xxx控件（更新中）
 
 本章参考文档：
 
@@ -30,51 +106,6 @@ app.exec()
 ```
 
 
-
-
-
-## xx 打开超链接（更新中）
-
-
-
-
-
-```python3
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QLabel,
-    QPushButton
-)
-from PySide6.QtGui import QDesktopServices
-
-app = QApplication()
-window = QWidget()
-window.setWindowTitle('易森-PySide6')
-window.resize(400, 300)
-
-label =QLabel(
-    window,
-    text='<a href="https://baidu.com">超链接</a>',
-    openExternalLinks=True
-)
-button = QPushButton(
-    window,
-    text='点击打开超链接'
-)
-button.move(
-    0,30
-)
-button.clicked.connect(
-    lambda :QDesktopServices().openUrl(
-        'https://baidu.com'
-    )
-)
-
-
-window.show()
-app.exec()
-```
 
 
 

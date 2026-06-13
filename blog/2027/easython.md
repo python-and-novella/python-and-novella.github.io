@@ -1342,11 +1342,209 @@ ui.run(
 
 （完）
 
-## 2707期：xxx（更新中）
+## 2707期：NiceGUI的布局控件
 
 ### 0 本期主要内容
 
-（编写本期主要内容和标题，同时作为内容规划）
+本期主要介绍NiceGUI中布局控件的参数（如果有的话），以及和这些控件相关的扩展用法（控件属性、技巧等）。
+
+### 1 参数几乎相同的`ui.column`控件和`ui.row`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/column
+- https://nicegui.io/documentation/row
+
+`ui.column`控件和`ui.row`控件在实际使用时，用法、效果几乎一样，只是布局方向存在差异，前者是垂直排布，后者是水平排布：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.column().classes(
+        'border-2 border-red-700'
+    ):
+        for i in range(4):
+            ui.item(str(i))
+    with ui.row().classes(
+        'border-2 border-red-700'
+    ):
+        for i in range(4):
+            ui.item(str(i))
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707_1_1](easython.assets/2707_1_1.png)
+
+两个控件支持的参数也一样，只是其中一个参数的默认值不一样：
+
+- `wrap`参数，关键字参数，布尔类型，表示子控件的宽度（高度）总和超过控件的宽度（高度）时，是否换行（换列）。对于`ui.column`控件，该参数默认为`False`。对于`ui.row`控件，该参数默认为`True`。
+- `align_items`参数，关键字参数，字符串类型（仅支持`['start', 'end', 'center', 'baseline', 'stretch']`中的值），表示子控件的对齐方向。
+
+以`ui.column`控件为例，其参数用法的示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.column(
+        wrap=True,
+        align_items='center'
+    ).classes(
+        'border-2 border-red-700 h-32'
+    ):
+        for i in range(4):
+            ui.item(str(i)*(i+1)*3)
+    with ui.column().classes(
+        'border-2 border-red-700 h-32'
+    ):
+        for i in range(4):
+            ui.item(str(i)*(i+1)*3)
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707_1_2](easython.assets/2707_1_2.png)
+
+### 2 改变`ui.separator`控件的方向只需一个控件属性
+
+相关文档：
+
+- https://nicegui.io/documentation/separator
+- https://quasar.dev/vue-components/separator
+
+`ui.separator`控件可以创建一个占用空间极小且不太明显的分隔符，但是，默认是水平方向的，如果用在行布局中，分隔线需要改为垂直方向：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.row().classes(
+        'border-2 border-red-700 p-1'
+    ):
+        for i in range(4):
+            ui.button(i)
+        ui.space()
+        ui.separator()
+        ui.button(4)
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707_2_1](easython.assets/2707_2_1.png)
+
+操作其实很简单，只需添加控件属性`vertical`即可：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.row().classes(
+        'border-2 border-red-700 p-1'
+    ):
+        for i in range(4):
+            ui.button(i)
+        ui.space()
+        ui.separator().props('vertical')
+        ui.button(4)
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707_2_2](easython.assets/2707_2_2.png)
+
+### 3 改变`ui.grid`控件的网格大小
+
+相关文档：
+
+- https://nicegui.io/documentation/grid
+- https://tailwindcss.com/docs/grid-column
+- https://tailwindcss.com/docs/grid-row
+
+在《NiceGUI札记》（2026版）第13章中，简单介绍过网格布局，涉及到自定义网格规格的用法，有点类似于表格的合并单元格（跨列、跨行），算是一种自定义网格大小的方法，这里先通过示例复习一下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.grid(columns=4).classes('w-64 h-64 gap-0'):
+        # 第一行
+        ui.label('columns*1').classes('col-span-full border p-1')
+        # 第二行
+        ui.label('2*2').classes('col-span-2 row-span-2 border p-1')
+        ui.label('2*1').classes('col-span-2 row-span-1 border p-1')
+        # 第三行
+        ui.label('1*1').classes('border p-1')
+        # 第四行
+        ui.label('3*1').classes('col-span-3 border p-1')
+        
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707_3_1](easython.assets/2707_3_1.png)
+
+在4列的网格中，通过给子控件添加样式类`'col-span-{列数}'`、`'row-span-{行数}'`，表示该子控件对应网格的规格（`{列数}*{行数}`）。
+
+除了给子控件添加样式来修改网格的规格，还可以给控件的参数传入字符串（使用空格分隔，表示每一列的列宽或者每一行的行高），变相修改网格的宽度、高度：
+
+```python3
+from nicegui import ui
+
+def index():
+    size = ['100px','200px','300px']
+    with ui.grid(
+        columns=' '.join(size),
+        rows=' '.join(size)
+    ).classes('gap-0'):
+        for k in size:
+            for i in size:
+                ui.label(f'{i}*{k}').classes('border p-1')
+        
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707_3_2](easython.assets/2707_3_2.png)
+
+没错，`ui.grid`控件支持的两个参数，传入整数时表示一共多少列、多少行，传入字符串的话，除了表示有多少列、多少行，还表示对应列、行的宽度、高度。字符串使用空格分隔，每个单词表示宽度、高度，使用CSS中的长度表示方法（`'auto'`表示自动，`'fr'`表示份数，`'px'`表示具体的像素值）。
+
+注意，给子控件添加样式类可以修改子控件的大小，但不会影响网格的大小。
+
+（完）
+
+## 2707期+：NiceGUI的布局控件（更新中）
+
+### 0 本期主要内容
+
+本期主要介绍NiceGUI中布局控件的参数（如果有的话），以及和这些控件相关的扩展用法（控件属性、技巧等）。
+
+因为布局控件较多，故将其余布局控件放在增刊中。
 
 
 

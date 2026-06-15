@@ -855,7 +855,7 @@ ui.run(
 
 注意，给子控件添加样式类可以修改子控件的大小，但不会影响网格的大小。
 
-## 62 学习控件——布局控件（《易森》2707期+）（更新中）
+## 62 学习控件——布局控件（《易森》2707期+）
 
 ### 62.1 `ui.skeleton`控件
 
@@ -984,7 +984,7 @@ ui.run(
 
 ![2027_62.2_2](nicegui_pro.assets/2027_62.2_2.png)
 
-### 62.3 `ui.list`控件的配套控件（`ui.item`控件）与`ui.item`控件的配套控件（`ui.item_label`控件和`ui.item_section`控件）（更新中）
+### 62.3 `ui.list`控件的配套控件（`ui.item`控件）与`ui.item`控件的配套控件（`ui.item_label`控件和`ui.item_section`控件）
 
 相关文档：
 
@@ -1055,49 +1055,26 @@ ui.run(
 
 `ui.list`控件支持以下控件属性：
 
-- `xxx`属性，---
+- `separator`属性，布尔类型，表示是否在子控件之间添加分隔线。
+- `padding`属性，布尔类型，表示是否在列表开头、末尾额外添加内边距。
+- `bordered`属性，布尔类型，表示是否给整个列表添加边框。
+- `dense`属性，布尔类型，表示是否调小各个子控件之间的距离，使得整个列表更加紧凑。
 
-`ui.item`控件支持以下控件属性：
-
-- `xxx`属性，---
-
-`ui.item_section`控件支持以下控件属性：
-
-- `xxx`属性，---
-
-`ui.item_label`控件支持以下控件属性：
-
-- `xxx`属性，---
-
-
-
-
-
-
-
-
+示例如下：
 
 ```python3
 from nicegui import ui
 
 def index():
-    with ui.card():
-        ui.label('card')
-        with ui.card_section():
-            ui.label('card section')
-        with ui.card_actions():
-            ui.button('Yes')
-            ui.button('No')
-    with ui.item('item'):
-        with ui.item_section():
-            ui.item_label('label1')
-            ui.item_label('label2').props(
-                'caption'
-            )
-        with ui.item_section().props(
-            'side'
-        ):
-            ui.icon('home')
+    with ui.list():
+        for _ in range(5):
+            ui.item('Test')
+
+    with ui.list().props(
+        'dense separator bordered'
+    ):
+        for _ in range(5):
+            ui.item('Test')
 
 ui.run(
     root=index,
@@ -1106,15 +1083,272 @@ ui.run(
 )
 ```
 
+![2027_62.3_3](nicegui_pro.assets/2027_62.3_3.png)
 
+`ui.item`控件支持以下控件属性：
 
+- `inset-level`属性，整数类型，表示该项目的缩进等级（`0`表示不缩进）。
+- `disable`属性，布尔类型，表示是否禁用控件。
+- `active`属性，布尔类型，表示是否激活控件。
+- `clickable`属性，布尔类型，表示点击控件时是否显示点击效果。
+- `dense`属性，布尔类型，表示是否调小控件的内边距。
 
+示例如下：
 
+```python3
+from nicegui import ui
 
+def index():
+    with ui.list():
+        ui.item('Test').props(
+            'inset-level=1'
+        )
+        ui.item('Test').props(
+            'disable'
+        )
+        ui.item('Test').props(
+            'active'
+        )
+        ui.item('Test').props(
+            'clickable'
+        )
+        ui.item('Test').props(
+            'dense'
+        )
+        ui.item('Test')
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
 
+![2027_62.3_4](nicegui_pro.assets/2027_62.3_4.png)
 
+`ui.item_section`控件支持以下控件属性：
 
+- `side`属性，布尔类型，当控件在首尾时，使用该属性可以将控件样式修改为不太突出的效果（适合作为侧边的陪衬）。
+- `avatar`属性，布尔类型，当控件的子控件为图标时，使用该属性可以得到类似`ui.avatar`控件的显示效果。
+- `thumbnail`属性，布尔类型，当控件的子控件为图片时，使用该属性可以得到图片的缩略图效果。
+- `top`属性，布尔类型，表
+- `no-wrap`属性，布尔类型，当控件的文本存在空格时，控件会使用空格作为分词符号而让多个单词自动换行，该属性表示是否禁用自动换行。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.item().classes('border-2 border-red-400'):
+        ui.item_section('section').props(
+            'side'
+        )
+        ui.item_section('section')
+        ui.item_section('section').props(
+            'side'
+        )
+    with ui.item().classes('border-2 border-red-400'):
+        with ui.item_section().props(
+            'avatar'
+        ):
+            ui.icon('home')
+        ui.item_section('section')
+        with ui.item_section():
+            ui.avatar('home',color=None)
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2027_62.3_5](nicegui_pro.assets/2027_62.3_5.png)
+
+`ui.item_label`控件支持以下控件属性：
+
+- `lines`属性，整数类型，表示文本太多无法在指定行数内完整展示时，多余部分显示为省略号。
+- `overline`属性，布尔类型，表示该控件的显示样式是否为上标效果。
+- `caption`属性，布尔类型，表示该控件的显示样式是否为说明文字效果。
+- `header`属性，布尔类型，表示该控件的显示样式是否为标题效果。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.item().classes('border-2 border-red-400'):
+        with ui.item_section():
+            ui.item_label('label').props(
+                'overline'
+            )
+            ui.item_label('label').props(
+                'caption'
+            )
+            ui.item_label('label').props(
+                'header'
+            )
+        with ui.item_section():
+            ui.item_label('label')
+            ui.item_label('label')
+            ui.item_label('label')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2027_62.3_6](nicegui_pro.assets/2027_62.3_6.png)
+
+## 63 自定义连接丢失时的弹窗
+
+问题来源：https://github.com/zauberzeug/nicegui/discussions/5994
+
+注意，本问题发生时间较早，虽然笔者提供了临时方案，但文章发布时可能官方已经提供了更加优雅的解决方案。不过，问题的解决思路还是值得学习，故单独拎出来分享一下解决的思路。
+
+如问题来源所述，提问者想要自定义连接丢失时的弹窗内容，但是官方将弹窗内容硬编码到`nicegui/templates/index.html`中：
+
+```javascript
+      function show_popup() {
+        const popup = document.createElement('template');
+        popup.innerHTML = `
+          <div id="popup" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(240, 240, 240, 0.8)">
+            <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 4em; background-color: #fff; border: 1pt solid #ddd; box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.01)">
+              <h3 style="font-size: x-large; margin-bottom: 1ex">Connection lost</h3>
+              <p style="font-size: large">Trying to reconnect...</p>
+            </div>
+          </div>
+        `.trim();
+        document.body.appendChild(popup.content.firstChild);
+      }
+
+      function hide_popup() {
+        document.getElementById('popup')?.remove();
+      }
+```
+
+想要修改的话，似乎只能期待官方提供接口。
+
+当然，如果读者比较擅长JavaScript的话，可以尝试执行修改该元素的JavaScript代码，但是，这样操作就需要完全自己写HTML代码，有点吃力。
+
+好吧，既然有可能实现，能不能更简单一点？
+
+直接修改库代码不太现实，每次更新的话都会覆盖，若是官方不同步修改，每次都要手动改一遍，太麻烦。好在JavaScript中修改指定元素很方便，而弹窗本身有ID（`'popup'`），在程序中单独使用JavaScript修改也不是不行。本着最简原则，即便是有外挂的方法，也要寻求更加简单的方案，于是，可以传送（移动）控件的`ui.teleport`控件成为了备选项。
+
+`ui.teleport`控件支持使用选择器语法查询指定元素，然后在该元素内创建NiceGUI控件，这样的话，弹窗的具体内容就不用手搓HTML了。
+
+有了解决方向，代码也很快出来了：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.label('try pressing ctrl+c in terminal')
+    with ui.teleport('#popup').clear():
+        ui.label('waiting...')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+)
+```
+
+在终端按下`ctrl+c`键，网页中显示出额外添加的内容：
+
+![2027_63_1](nicegui_pro.assets/2027_63_1.png)
+
+等一下，明明调用了清除子控件的`clear`方法，怎么原来的内容还在？
+
+先不要急着上报bug，其实，方法是没错的，只是原来的内容不是控件，而是普通的HTML元素，不能使用`clear`方法清除。
+
+既然如此，难道自定义弹窗内容只能止步于此吗？只能实现添加？
+
+天无绝人之路，既然原来的内容是普通的HTML元素，那就试试JavaScript方法`removeChild`，看看能不能移除掉。查询的话就用JavaScript方法`getElementById`，直接传入弹窗的ID（`'popup'`）即可得到弹窗。弹窗内实际上有两个子元素，因此需要调用两次。
+
+代码如下：
+
+```python3
+from nicegui import ui
+
+async def index():
+    ui.label('try pressing ctrl+c in terminal')
+    # remove two children
+    # 移除原来的两个子元素
+    await ui.run_javascript("document.getElementById('popup').removeChild(document.getElementById('popup').children[0])")
+    await ui.run_javascript("document.getElementById('popup').removeChild(document.getElementById('popup').children[0])")
+    with ui.teleport('#popup'):
+        ui.label('waiting...')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+)
+```
+
+![2027_63_2](nicegui_pro.assets/2027_63_2.png)
+
+完美解决。
+
+引申思考，能不能自定义弹窗位置？
+
+当然可以，但是需要覆盖原样式类`nicegui-error-popup`，因此需要了解CSS。
+
+完整复制原样式类`nicegui-error-popup`的内容（来自`nicegui/static/nicegui.css`）之后，修改、添加（如果没有的话）以下样式（数字表示具体值，`auto`表示无限远但内容可以完整显示）：
+
+- `top`样式，表示弹窗上边到显示区域边缘的距离（不包含内外边距）。
+- `bottom`样式，表示弹窗下边到显示区域边缘的距离（不包含内外边距）。
+- `left`样式，表示弹窗左边到显示区域边缘的距离（不包含内外边距）。
+- `right`样式，表示弹窗右边到显示区域边缘的距离（不包含内外边距）。
+
+示例代码如下：
+
+```python3
+from nicegui import ui
+
+popup_css = '''
+.nicegui-error-popup {
+    position: fixed;
+    border: 1pt solid rgba(127, 159, 191, 0.25);
+    border-radius: 0.25em;
+    box-shadow: 0 0 0.5em rgba(127, 159, 191, 0.05);
+    margin: 2em;
+    padding: 1.5em 4em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    transition-duration: 500ms;
+    pointer-events: none;
+    z-index: 10000;
+    /*上下左右代表弹窗在对应方向上到边缘的距离，auto表示无限远但内容可以完整显示*/
+    top: 0;
+    bottom:auto;
+    left:auto;
+    right:0;
+}
+'''
+
+async def index():
+    ui.add_css(popup_css)
+    ui.label('try pressing ctrl+c in terminal')
+    # remove two children
+    # 移除原来的两个子元素
+    await ui.run_javascript("document.getElementById('popup').removeChild(document.getElementById('popup').children[0])")
+    await ui.run_javascript("document.getElementById('popup').removeChild(document.getElementById('popup').children[0])")
+    with ui.teleport('#popup'):
+        ui.label('waiting...')
+    
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+)
+```
+
+![2027_63_3](nicegui_pro.assets/2027_63_3.png)
 
 ## 6x 学习控件——
 

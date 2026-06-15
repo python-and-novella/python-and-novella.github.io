@@ -1346,7 +1346,7 @@ ui.run(
 
 ### 0 本期主要内容
 
-本期主要介绍NiceGUI中布局控件的参数（如果有的话），以及和这些控件相关的扩展用法（控件属性、技巧等）。
+本期主要介绍NiceGUI中布局控件（`ui.row`控件、`ui.column`控件、`ui.separator`控件、`ui.grid`控件）的参数（如果有的话），以及和这些控件相关的扩展用法（控件属性、技巧等）。
 
 ### 1 参数几乎相同的`ui.column`控件和`ui.row`控件
 
@@ -1542,13 +1542,356 @@ ui.run(
 
 ### 0 本期主要内容
 
-本期主要介绍NiceGUI中布局控件的参数（如果有的话），以及和这些控件相关的扩展用法（控件属性、技巧等）。
+本期主要介绍NiceGUI中布局控件（`ui.skeleton`控件、`ui.list`控件、`ui.item`控件）的参数（如果有的话），以及和这些控件相关的扩展用法（控件属性、技巧等）。
 
 因为布局控件较多，故将其余布局控件放在增刊中。
 
+### 1 `ui.skeleton`控件
 
+相关文档：
 
+- https://nicegui.io/documentation/skeleton
+- https://quasar.dev/vue-components/skeleton
 
+`ui.skeleton`控件用于创建一个代替控件的占位控件，通常在页面没有完全加载时表示页面的布局。
+
+`ui.skeleton`控件支持以下参数：
+
+- `type`参数，字符串类型（仅支持`['text','rect','circle','QBtn','QBadge','QChip','QToolbar','QCheckbox','QRadio','QToggle','QSlider','QRange','QInput','QAvatar']`中的值），表示骨架类型，即使用哪种控件作为骨架的轮廓，默认为`'rect'`。
+
+- `tag`参数，字符串类型，表示使用哪种HTML元素渲染该控件，默认为`'div'`。
+
+  从该参数开始，只能通过关键字传入。
+
+- `animation`参数，字符串类型（仅支持`['wave','pulse','pulse-x','pulse-y','fade','blink','none',]`中的值），表示加载动画的类型，默认为`'wave'`。
+
+- `animation_speed`参数，浮点类型，表示加载动画的速度（在多少毫秒内播放完一遍动画），默认为`None`（相当于`1500`）。
+
+- `square`参数，布尔类型，表示是否移除轮廓的圆角。
+
+- `bordered`参数，布尔类型，表示是否添加边框。
+
+- `size`参数，字符串类型，表示控件的大小（使用CSS的尺寸表达方式）。
+
+- `width`参数，字符串类型，表示控件的宽度（使用CSS的尺寸表达方式）。
+
+- `height`参数，字符串类型，表示控件的高度（使用CSS的尺寸表达方式）。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    ui.skeleton('rect',bordered=True,size='5em')
+    ui.skeleton('rect',size='5em')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_1_1](easython.assets/2707+_1_1.png)
+
+### 2 `ui.card`控件及其配套控件（`ui.card_actions`控件和`ui.card_section`控件）
+
+相关文档：
+
+- https://nicegui.io/documentation/card
+- https://quasar.dev/vue-components/card
+
+`ui.card`控件本身用法不复杂，仅支持一个表示子控件对齐方向`align_items`参数，无需单独解释。要说特别之处，那就该控件支持`tight`方法，用于生成一个移除内边距的副本：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.card().tight():
+        ui.label('card')
+        with ui.card_section():
+            ui.label('card section')
+        with ui.card_actions():
+            ui.button('Yes')
+            ui.button('No')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_2_1](easython.assets/2707+_2_1.png)
+
+这样得到的卡片会显得更紧凑。
+
+除此以外值得说道的，就是与之配套的`ui.card_actions`控件和`ui.card_section`控件。`ui.card`控件表示卡片主体，在上下文中添加的控件会放在默认带边框的卡片中；`ui.card_actions`控件表示卡片的动作区域，只能在`ui.card`控件的上下文添加，一般在该控件上下文添加可以点击的控件，并且默认靠左对齐；`ui.card_section`控件表示内容分区，只能在`ui.card`控件的上下文添加，一般在该控件上下文添加只是显示内容的控件，并且默认居中对齐。
+
+配套控件没有额外的参数、方法，如果想修改配套控件的样式，就要用到控件属性（`props`）。
+
+`ui.card_actions`控件支持以下控件属性：
+
+- `vertical`属性，布尔类型，表示子控件是否采用垂直布局。
+- `align`属性，字符串类型（仅支持`['left', 'right', 'center', 'evenly', 'stretch', 'between', 'around']`中的值），表示子控件的对齐方向。
+
+`ui.card_section`控件持以下控件属性：
+
+- `horizontal`属性，布尔类型，表示子控件是否采用水平布局。
+- `tag`属性，字符串类型，表示使用哪种HTML元素渲染该控件，默认为`'div'`。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.card():
+        ui.label('card')
+        with ui.card_section():
+            ui.label('card section 1 ')
+            ui.label('card section 2 ')
+        with ui.card_actions():
+            ui.button('Yes')
+            ui.button('No')
+    with ui.card():
+        ui.label('card')
+        with ui.card_section().props('horizontal'):
+            ui.label('card section 1 ')
+            ui.label('card section 2 ')
+        with ui.card_actions().props('vertical'):
+            ui.button('Yes')
+            ui.button('No')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_2_2](easython.assets/2707+_2_2.png)
+
+### 3 `ui.list`控件的配套控件（`ui.item`控件）与`ui.item`控件的配套控件（`ui.item_label`控件和`ui.item_section`控件）
+
+相关文档：
+
+- https://nicegui.io/documentation/list
+- https://quasar.dev/vue-components/list-and-list-items
+
+`ui.list`控件看上去与`ui.column`控件类似，只是子控件之间更加紧凑，用法上没有需要注意的点。不过，通常用在该控件上下文的`ui.item`控件，值得说一说。
+
+`ui.item`控件从用法上看，就像是功能简化的按钮，只保留了两个参数：`text`参数和`on_click`参数。这两个参数的含义、用法，与按钮控件相同，这里就不再赘述。
+
+但与按钮控件不同的是，有两个一般在`ui.item`控件上下文中使用的控件：`ui.item_label`控件和`ui.item_section`控件。这两个控件与`ui.item`控件组合在一起使用，共同组成一个内容项目的整体，每个控件分别对应着内容的指定部分。
+
+`ui.item_section`控件和`ui.item_label`控件的参数一样，都是`text`参数，使得这两个控件用起来就像`ui.label`控件一样，但事实真的如此吗？一旦将其放在`ui.item`控件的上下文中，对比效果之后，就会发现不同：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.item('item1').classes('border-red-400 border-2'):
+        ui.label('label1 ')
+        ui.label('label2 ')
+    with ui.item('item2').classes('border-red-400 border-2'):
+        ui.item_label('item_label1 ')
+        ui.item_label('item_label2 ')
+    with ui.item('item3').classes('border-red-400 border-2'):
+        ui.item_section('section1 ')
+        ui.item_section('section2 ')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_3_1](easython.assets/2707+_3_1.png)
+
+从结果看，要是直接放在`ui.item`控件上下文中的话，`ui.item_section`控件的效果最好，起码垂直方向是对齐的。
+
+当然，这并不是说`ui.item_label`控件就一无是处，暂且用一下后面才会讲到的控件属性，看一下和`ui.label`控件相比，使用相同的控件属性，二者有何区别：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.item('item').classes('border-red-400 border-2'):
+        with ui.item_section():
+            ui.label('label1 ').props('overline')
+            ui.label('label2 ').props('caption')
+        with ui.item_section():
+            ui.item_label('item_label1 ').props('overline')
+            ui.item_label('item_label2 ').props('caption')
+        # 占位用的空白控件
+        ui.item_section().props('avatar')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_3_2](easython.assets/2707+_3_2.png)
+
+可以看到，都是放在`ui.item_section`控件上下文的话，两种控件都是垂直布局，但这个不是重点，重点在于，都添加了相同的控件属性之后，只有`ui.item_label`控件的控件属性**生效**了，`ui.label`控件**无动于衷**。没错，这就配套的原因：只有**配套使用**时，特定**控件属性**对应的特定样式才会**生效**。
+
+这三个控件配套使用时，一般用在`ui.list`控件的上下文中。因此，既然要介绍这三个控件的控件属性，索性连`ui.list`控件的控件属性也说说。
+
+`ui.list`控件支持以下控件属性：
+
+- `separator`属性，布尔类型，表示是否在子控件之间添加分隔线。
+- `padding`属性，布尔类型，表示是否在列表开头、末尾额外添加内边距。
+- `bordered`属性，布尔类型，表示是否给整个列表添加边框。
+- `dense`属性，布尔类型，表示是否调小各个子控件之间的距离，使得整个列表更加紧凑。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.list():
+        for _ in range(5):
+            ui.item('Test')
+
+    with ui.list().props(
+        'dense separator bordered'
+    ):
+        for _ in range(5):
+            ui.item('Test')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_3_3](easython.assets/2707+_3_3.png)
+
+`ui.item`控件支持以下控件属性：
+
+- `inset-level`属性，整数类型，表示该项目的缩进等级（`0`表示不缩进）。
+- `disable`属性，布尔类型，表示是否禁用控件。
+- `active`属性，布尔类型，表示是否激活控件。
+- `clickable`属性，布尔类型，表示点击控件时是否显示点击效果。
+- `dense`属性，布尔类型，表示是否调小控件的内边距。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.list():
+        ui.item('Test').props(
+            'inset-level=1'
+        )
+        ui.item('Test').props(
+            'disable'
+        )
+        ui.item('Test').props(
+            'active'
+        )
+        ui.item('Test').props(
+            'clickable'
+        )
+        ui.item('Test').props(
+            'dense'
+        )
+        ui.item('Test')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_3_4](easython.assets/2707+_3_4.png)
+
+`ui.item_section`控件支持以下控件属性：
+
+- `side`属性，布尔类型，当控件在首尾时，使用该属性可以将控件样式修改为不太突出的效果（适合作为侧边的陪衬）。
+- `avatar`属性，布尔类型，当控件的子控件为图标时，使用该属性可以得到类似`ui.avatar`控件的显示效果。
+- `thumbnail`属性，布尔类型，当控件的子控件为图片时，使用该属性可以得到图片的缩略图效果。
+- `top`属性，布尔类型，表
+- `no-wrap`属性，布尔类型，当控件的文本存在空格时，控件会使用空格作为分词符号而让多个单词自动换行，该属性表示是否禁用自动换行。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.item().classes('border-2 border-red-400'):
+        ui.item_section('section').props(
+            'side'
+        )
+        ui.item_section('section')
+        ui.item_section('section').props(
+            'side'
+        )
+    with ui.item().classes('border-2 border-red-400'):
+        with ui.item_section().props(
+            'avatar'
+        ):
+            ui.icon('home')
+        ui.item_section('section')
+        with ui.item_section():
+            ui.avatar('home',color=None)
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_3_5](easython.assets/2707+_3_5.png)
+
+`ui.item_label`控件支持以下控件属性：
+
+- `lines`属性，整数类型，表示文本太多无法在指定行数内完整展示时，多余部分显示为省略号。
+- `overline`属性，布尔类型，表示该控件的显示样式是否为上标效果。
+- `caption`属性，布尔类型，表示该控件的显示样式是否为说明文字效果。
+- `header`属性，布尔类型，表示该控件的显示样式是否为标题效果。
+
+示例如下：
+
+```python3
+from nicegui import ui
+
+def index():
+    with ui.item().classes('border-2 border-red-400'):
+        with ui.item_section():
+            ui.item_label('label').props(
+                'overline'
+            )
+            ui.item_label('label').props(
+                'caption'
+            )
+            ui.item_label('label').props(
+                'header'
+            )
+        with ui.item_section():
+            ui.item_label('label')
+            ui.item_label('label')
+            ui.item_label('label')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+    native=True
+)
+```
+
+![2707+_3_6](easython.assets/2707+_3_6.png)
 
 （完）
 

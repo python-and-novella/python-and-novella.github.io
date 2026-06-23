@@ -876,7 +876,7 @@ ui.run(
 
 - `animation`参数，字符串类型（仅支持`['wave','pulse','pulse-x','pulse-y','fade','blink','none',]`中的值），表示加载动画的类型，默认为`'wave'`。
 
-- `animation_speed`参数，浮点类型，表示加载动画的速度（在多少毫秒内播放完一遍动画），默认为`None`（相当于`1500`）。
+- `animation_speed`参数，浮点类型，表示加载动画的速度（在多少秒内播放完一遍动画），默认为`1.5`。
 
 - `square`参数，布尔类型，表示是否移除轮廓的圆角。
 

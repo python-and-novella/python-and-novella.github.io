@@ -1,5 +1,5 @@
 {
   "useMarkdownLinks": true,
-  "attachmentFolderPath": "/",
+  "attachmentFolderPath": "./附件",
   "newLinkFormat": "shortest"
 }

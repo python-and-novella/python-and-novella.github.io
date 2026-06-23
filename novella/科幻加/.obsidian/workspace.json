@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "3377877dec4d17d3",
+        "id": "ead7786a22a18f4f",
         "type": "tabs",
         "children": [
           {
-            "id": "079d9fd15e2355ce",
+            "id": "dc53b28c307c6465",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "空间站疑云.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "空间站疑云"
+              "title": "新标签页"
             }
           }
         ]
@@ -31,11 +27,11 @@
     "type": "split",
     "children": [
       {
-        "id": "2d8254bf7f80834b",
+        "id": "58519b91984f7cca",
         "type": "tabs",
         "children": [
           {
-            "id": "32aff562b6b5a5e5",
+            "id": "16b31211e3319dcf",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -48,12 +44,12 @@
             }
           },
           {
-            "id": "31d57b8fe4fed3dd",
+            "id": "1ef6bae1301b8c4d",
             "type": "leaf",
             "state": {
               "type": "search",
               "state": {
-                "query": "![[007.jpg]]",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -65,7 +61,7 @@
             }
           },
           {
-            "id": "8bf95a3064f9ea62",
+            "id": "fbf4c5df9ecf50f7",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -166,15 +162,17 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "079d9fd15e2355ce",
+  "active": "16b31211e3319dcf",
   "lastOpenFiles": [
+    "灵感集/星际异闻录.md",
+    "未命名.base",
+    "空间站疑云.md",
+    "未命名 1.base",
     "空间站疑云.assets/04 - wPpANVz.jpg",
     "空间站疑云.assets",
     "007.jpg",
-    "空间站疑云.md",
     "科幻+推理/真假绑架.md",
     "灵感集/平行地球.md",
-    "灵感集/星际异闻录.md",
     "001.md",
     "006.md",
     "002.md",

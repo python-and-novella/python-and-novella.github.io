@@ -408,8 +408,7 @@ def main(page: flet.Page):
     page.window.alignment = flet.Alignment(0,0)
     page.title = 'Hello'
     button = flet.Button(
-        'Save', 
-        data=['abc']       
+        'Save'      
     )
     def on_button_clicked(e:flet.Event):
         e.control.content = 'ok'

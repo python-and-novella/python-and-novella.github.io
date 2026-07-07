@@ -15179,7 +15179,7 @@ ui.run(
 
 ![2026_46_20](nicegui_pro.assets/2026_46_20.png)
 
-如果不想要修改控件头部区域的位置为左侧，可以使用`landscape`属性：
+如果想要修改控件头部区域的位置为左侧，可以使用`landscape`属性：
 
 ```python3
 from nicegui import ui
@@ -15264,7 +15264,7 @@ ui.run(
 
 ![2026_46_24](nicegui_pro.assets/2026_46_24.png)
 
-有些地区的每周第一天是周一，有些地区是周日，可以使用`first-day-of-week`属性定义每周的第一天，数`0-9`字依次表示周日、周一到周六：
+有些地区的每周第一天是周一，有些地区是周日，可以使用`first-day-of-week`属性定义每周的第一天，数字`0-6`依次表示周日、周一到周六：
 
 ```python3
 from nicegui import ui

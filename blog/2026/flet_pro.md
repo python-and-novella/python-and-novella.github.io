@@ -1773,7 +1773,7 @@ flet.run(
 
 ![2026_17_1](flet_pro.assets/2026_17_1.png)
 
-## 18 数据存储（会话）
+## 18 数据存储——会话
 
 本章参考文档：https://flet.dev/docs/cookbook/session-storage/
 
@@ -1870,7 +1870,7 @@ flet.run(
 - `get_keys`方法，获取所有键。
 - `clear`方法移除所有键。
 
-## 19 数据存储（持久化）
+## 19 数据存储——持久化
 
 ### 19.1 存入文件（服务端）
 

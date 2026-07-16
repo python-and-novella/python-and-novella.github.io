@@ -1936,7 +1936,7 @@ app = QApplication()
 window = QWidget(
     size=QSize(400, 300)
 )
-window.setWindowTitle('认识QWidget控件')
+window.setWindowTitle('易森-PySide6')
 
 
 window.show()
@@ -1957,7 +1957,7 @@ from PySide6.QtCore import QSize
 
 app = QApplication()
 window = QWidget()
-window.setWindowTitle('认识QWidget控件')
+window.setWindowTitle('易森-PySide6')
 # window.resize(400, 300)
 window.resize(
     QSize(400, 300)
@@ -1988,7 +1988,7 @@ window = QWidget(
         Qt.CursorShape.WhatsThisCursor
     )
 )
-window.setWindowTitle('认识QWidget控件')
+window.setWindowTitle('易森-PySide6')
 window.resize(400, 300)
 
 window.show()
@@ -2012,7 +2012,7 @@ from PySide6.QtWidgets import (
 
 app = QApplication()
 window = QWidget()
-window.setWindowTitle('认识QWidget控件')
+window.setWindowTitle('易森-PySide6')
 window.resize(400, 300)
 window.move(
     10, 10
@@ -2041,7 +2041,7 @@ window = QWidget(
         400, 300
     )
 )
-window.setWindowTitle('认识QWidget控件')
+window.setWindowTitle('易森-PySide6')
 
 window.show()
 app.exec()
@@ -2066,7 +2066,7 @@ from PySide6.QtWidgets import (
 
 app = QApplication()
 window = QWidget(
-    windowTitle='认识QWidget控件'
+    windowTitle='易森-PySide6'
 )
 window.resize(400, 300)
 
@@ -2090,7 +2090,7 @@ window = QWidget(
     windowIcon=QIcon.fromTheme(
         QIcon.ThemeIcon.Computer
     ),
-    windowTitle='认识QWidget控件'
+    windowTitle='易森-PySide6'
 )
 window.setWindowIcon(
     QIcon.fromTheme(
@@ -2123,7 +2123,7 @@ window = QWidget(
     windowIcon=QIcon.fromTheme(
         QIcon.ThemeIcon.Computer
     ),
-    windowTitle='认识QWidget控件',
+    windowTitle='易森-PySide6',
     windowOpacity=0.5
 )
 
@@ -2165,7 +2165,7 @@ from PySide6.QtWidgets import (
 
 app = QApplication()
 window = QWidget(
-    windowTitle='认识QWidget控件',
+    windowTitle='易森-PySide6',
 )
 window.resize(400, 300)
 edit = QTextEdit(
@@ -2208,7 +2208,7 @@ from PySide6.QtCore import Qt
 
 app = QApplication()
 window = QWidget(
-    windowTitle='认识QWidget控件',
+    windowTitle='易森-PySide6',
 )
 window.resize(400, 300)
 
@@ -2252,7 +2252,7 @@ from PySide6.QtCore import Qt
 
 app = QApplication()
 window = QWidget(
-    windowTitle='认识QWidget控件',
+    windowTitle='易森-PySide6',
 )
 window.resize(400, 300)
 
@@ -2294,7 +2294,7 @@ window = QWidget(
         400, 300
     )
 )
-window.setWindowTitle('认识QWidget控件')
+window.setWindowTitle('易森-PySide6')
 window .setGeometry(
     100,
     100,
@@ -2331,7 +2331,7 @@ from PySide6.QtWidgets import (
 app = QApplication()
 window = QWidget()
 
-window.setWindowTitle('认识QWidget控件')
+window.setWindowTitle('易森-PySide6')
 window.resize(400, 300)
 
 button = QPushButton(
@@ -2362,7 +2362,44 @@ app.exec()
 
 （编写本期主要内容和标题，同时作为内容规划）
 
-先简单回顾一下之前介绍过的让信号和槽自动建立链接，然后说《PySide6基础教程》的 2.4.3 节 使用C++成员方法的签名格式，之后介绍 2.4.7 节 信号阻绝器（屏蔽器 Blocker）
+先简单回顾一下之前介绍过的让信号和槽自动建立链接，
+
+
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import Slot,QMetaObject
+
+app = QApplication()
+
+class Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('易森-PySide6')
+        self.resize(400,300)
+        self.button = QPushButton('click',self)
+        self.button.setObjectName('button')
+        QMetaObject.connectSlotsByName(self)
+    @Slot()
+    def on_button_clicked(self):
+        print('clicked!!!')
+
+window = Window()
+
+window.show()
+app.exec()
+
+```
+
+
+
+
+
+然后说《PySide6基础教程》的 2.4.3 节 使用C++成员方法的签名格式，之后介绍 2.4.7 节 信号阻绝器（屏蔽器 Blocker）
 
 
 
@@ -2380,7 +2417,7 @@ app = QApplication()
 class Window(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('认识更加通用的connect方法')
+        self.setWindowTitle('易森-PySide6')
         self.resize(400, 300)
         self.button = QPushButton('click', self)
         self.button.connect(

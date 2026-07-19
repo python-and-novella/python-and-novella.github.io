@@ -2289,12 +2289,12 @@ from PySide6.QtCore import QRect
 
 app = QApplication()
 window = QWidget(
+    windowTitle='易森-PySide6',
     geometry=QRect(
         10, 10,
         400, 300
     )
 )
-window.setWindowTitle('易森-PySide6')
 window .setGeometry(
     100,
     100,
@@ -2329,9 +2329,9 @@ from PySide6.QtWidgets import (
 )
 
 app = QApplication()
-window = QWidget()
-
-window.setWindowTitle('易森-PySide6')
+window = QWidget(
+	windowTitle='易森-PySide6',
+)
 window.resize(400, 300)
 
 button = QPushButton(
@@ -2352,19 +2352,19 @@ app.exec()
 
 （完）
 
-## 2709期：查漏补缺——PySide6的信号和槽（更新中）
+## 2709期：查漏补缺——PySide6的信号和槽
 
 ### 0 本期主要内容
 
-虽然《Qt For Python 札记》的2025版和2026版已经介绍过信号和槽（2025版中的第6章与2026版中的第30章），
+虽然《Qt For Python 札记》的2025版和2026版已经介绍过信号和槽（2025版中的第6章与2026版中的第30章）的基础用法（连接信号、发射信号、重载信号、自动连接信号与槽），但还是存在一些与之有关的用法没有介绍。
 
+因此，本期将介绍另一种连接信号的方式（`connect`方法）和信号屏蔽器。
 
+### 1 `connect`方法——使用签名代替信号和槽
 
-（编写本期主要内容和标题，同时作为内容规划）
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QObject.html#PySide6.QtCore.QObject.connect
 
-先简单回顾一下之前介绍过的让信号和槽自动建立链接，
-
-
+点击按钮，窗口关闭，实现这个功能，只需用到按钮的`clicked`信号，将其连接到窗口的关闭方法（`close`方法）即可，代码很简单：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -2372,36 +2372,22 @@ from PySide6.QtWidgets import (
     QWidget,
     QPushButton
 )
-from PySide6.QtCore import Slot,QMetaObject
 
 app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton('close window', window)
 
-class Window(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('易森-PySide6')
-        self.resize(400,300)
-        self.button = QPushButton('click',self)
-        self.button.setObjectName('button')
-        QMetaObject.connectSlotsByName(self)
-    @Slot()
-    def on_button_clicked(self):
-        print('clicked!!!')
-
-window = Window()
+button.clicked.connect(window.close)
 
 window.show()
 app.exec()
 
 ```
 
-
-
-
-
-然后说《PySide6基础教程》的 2.4.3 节 使用C++成员方法的签名格式，之后介绍 2.4.7 节 信号阻绝器（屏蔽器 Blocker）
-
-
+除了这种简单的连接方法，PySide6还提供了一种基于签名字符串的连接方法。使用`SIGNAL`方法转换签名为信号字符串，使用`SLOT`方法转换签名为槽字符串，然后调用`QObject`类的`connect`方法（有静态方法也有实例方法），将两者连接（这里使用的是实例方法）：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -2412,51 +2398,278 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import SIGNAL, SLOT
 
 app = QApplication()
+window = QWidget(
+	windowTitle='易森-PySide6',
+)
+window.resize(400,300)
+button = QPushButton('close window',window)
 
+button.connect(
+    SIGNAL('clicked()'),
+    window,
+    SLOT('close()')
+)
 
-class Window(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('易森-PySide6')
-        self.resize(400, 300)
-        self.button = QPushButton('click', self)
-        self.button.connect(
-            SIGNAL('clicked()'),
-            self,
-            SLOT('my_slot()')
+window.show()
+app.exec()
+
+```
+
+对于信号、槽而言，其签名格式如下：
+
+```python3
+'{信号名或槽名}( {参数类型1}, ..., {参数类型n} )'
+```
+
+签名中不需要包含参数的具体值，Qt的信号系统会自动处理，只需在签名中明确参数类型即可。
+
+`QObject`类的`connect`方法有多种参数情况，上面示例中使用了实例方法，因此，可以省略信号的发送者，默认为调用该方法的对象，参数中只是明确了信号的接收者（槽的提供者）。如果是静态方法，则要在参数中表明信号的发送者：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QObject, SIGNAL, SLOT
+
+app = QApplication()
+window = QWidget(
+	windowTitle='易森-PySide6',
+)
+window.resize(400,300)
+button = QPushButton('close window',window)
+
+QObject.connect(
+    button,
+    SIGNAL('clicked()'),
+    window,
+    SLOT('close()')
+)
+
+window.show()
+app.exec()
+
+```
+
+### 2 信号屏蔽器
+
+信号屏蔽器（`QSignalBlocker`类）在进入其上下文是可以屏蔽特定对象的所有信号，常用于避免重复发送信号、执行耗时操作时临时屏蔽特定对象的所有信号。
+
+这么干说，想必读者不一定能理解信号屏蔽器的作用和用法，直接给出示例，也不够直观。那么，笔者就用一个循序渐进的代码修改过程，演示一下信号屏蔽器的用法和优点。
+
+先假设一个场景：为一个按钮实现功能，要求点击按钮后2秒再响应，在终端输出当前时间。
+
+基于这样的需求，需要用到定时器，完整代码如下：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QTimer
+from datetime import datetime
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton('show time', window)
+
+def show_time():
+    QTimer.singleShot(
+        2000,
+        lambda:print(
+            datetime.now()
         )
-
-    def my_slot(self):
-        print('button is clicked!!!')
+    )
 
 
-window = Window()
+button.clicked.connect(show_time)
+
+window.show()
+app.exec()
+
+```
+
+![2709_2_1](easython.assets/2709_2_1.png)
+
+点击按钮，确实会在2秒之后，终端才打印时间，但是，存在一个问题：如果多次重复点击，这些操作也都会在2秒之后按顺序依次响应。
+
+这是正常的，如果没有特殊需要的话，这个功能可以正常交付了，但是，笔者要为这个功能提出新的需求：点击按钮之后2秒内，不允许重复点击按钮，或者即使重复点击也不能重复响应，除非上一次操作执行完毕。
+
+按照一般思路，不允许重复点击，那就把按钮禁用就好，等执行完操作再启用。于是，便有了通过禁用按钮来避免重复点击的**失败版**代码：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QTimer
+from datetime import datetime
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton('show time', window)
+
+def show_time():
+    button.setEnabled(False)
+    QTimer.singleShot(2000,lambda:print(datetime.now()))
+    button.setEnabled(True)
+
+
+button.clicked.connect(show_time)
+
+window.show()
+app.exec()
+
+```
+
+读者先不要急着看后面的代码，先回头看一下这个失败版的失败原因。
+
+首先，按照思路添加了按钮禁用、启用的代码，但定时器计时的时候并不会阻塞操作，后面的代码在创建完定时器之后立刻执行了。因此，如果运行失败版的代码，按钮最多闪一下禁用状态，实际操作时和之前的示例没什么区别。
+
+既然定时器计时的时候并不会阻塞操作，那么，如果改为异步，使用异步等待或者添加额外的异步等待能否实现阻塞的效果？
+
+当然可以，但需要注意的是，Qt内部有很多机制，不建议使用其他框架的异步等待，会导致代码变得复杂甚至难以解决的问题。
+
+笔者这里创建了新的Qt事件循环，并将定时器的动作设定为结束该事件循环，然后执行事件循环的`exec`方法，来实现计时阻塞的效果。因此，就有了通过禁用按钮来避免重复点击的**成功版**代码：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QTimer, QEventLoop
+from datetime import datetime
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton('show time', window)
+
+def show_time():
+    button.setEnabled(False)
+    loop = QEventLoop(window)         
+    QTimer.singleShot(2000,loop.quit)
+    loop.exec()
+    print(datetime.now())
+    button.setEnabled(True)
+
+
+button.clicked.connect(show_time)
+
+window.show()
+app.exec()
+
+```
+
+上面的代码可以简单理解为将定时器变成纯计时的工具，创建新的事件循环并进入阻塞状态，而计时器最终执行的操作就是退出事件循环，进而变相实现计时期间阻塞其他代码。
+
+虽然结果差强人意，但实现总比无法实现强。不过，聪明读者已经发现了问题，本章要介绍信号屏蔽器，到现在都还没用到，代码已经实现目标了。
+
+没错，代码是符合要求了，但不算完美，如果想要即使重复点击也不能重复响应，那就不能禁用按钮，该怎么办？
+
+还是上面的代码，首先去掉禁用、启用按钮的部分，然后导入信号屏蔽器（`from PySide6.QtCore import QSignalBlocker`），创建针对按钮的信号屏蔽器，关键代码如下：
+
+```python3
+# 省略其他代码
+from PySide6.QtCore import QSignalBlocker
+
+QSignalBlocker(button)
+```
+
+先用`with`关键字进入信号屏蔽器的上下文，然后把上面计时、阻塞的代码全部塞到上下文中：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QTimer, QSignalBlocker, QEventLoop
+from datetime import datetime
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton('show time', window)
+
+def show_time():
+    with QSignalBlocker(button):
+        loop = QEventLoop(window)         
+        QTimer.singleShot(2000,loop.quit)
+        loop.exec()
+        print(datetime.now())
+
+button.clicked.connect(show_time)
+
+window.show()
+app.exec()
+
+```
+
+这样一来，即使按钮不禁用，重复点击也不会重复响应，除非上一次操作执行完毕。
+
+信号屏蔽器的用法很简单，支持的其他方法可以参考官网文档（ https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSignalBlocker.html#PySide6.QtCore.QSignalBlocker ），考虑到相关示例会比较复杂，这里不做展开，等后续用到时再单独讲解。
+
+（完）
+
+## 2710期：查漏补缺——PySide6的事件
+
+### 0 本期主要内容
+
+虽然《Qt For Python 札记》的2025版已经介绍过事件（2025版中的第6章）的基础用法，但还是存在一些与事件有关的用法没有介绍。此外，当时介绍事件时的示例代码不够典型，部分用法的解释有些片面。
+
+因此，本期将复习之前的用法，并介绍事件过滤器，顺便厘清一些易错、难理解的知识点。
+
+### 1 重写是最简单的用法
+
+事件的用法之前介绍过，同时也是最简单的用法，那就重写对应事件的响应函数（示例改编自《易森》2704期第2节）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+
+menu = QMenu(
+    window
+)
+menu.addAction(
+    'test'
+)
+
+window.contextMenuEvent = lambda e:menu.exec(
+    e.globalPos()
+)
+
 
 window.show()
 app.exec()
 ```
 
+![2710_1_1](easython.assets/2710_1_1.png)
 
-
-
-
-（完）
-
-## 2710期：查漏补缺——PySide6的事件（更新中）
-
-### 0 本期主要内容
-
-虽然《Qt For Python 札记》的2025版已经介绍过事件（2025版中的第6章），
-
-
-
-（编写本期主要内容和标题，同时作为内容规划）
-
-主要学习《PySide6基础教程》的 2.3 节，学习事件的用法。
-
-
-
-事件的用法应当为重写，不建议直接覆盖：
+该示例是直接给对应属性重新赋值，但实际更推荐规整的“继承-重写”结构，即先继承，然后在类内重写事件的响应函数：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -2468,7 +2681,6 @@ from PySide6.QtGui import QContextMenuEvent
 
 
 class MyWindow(QWidget):
-
     def contextMenuEvent(self, event: QContextMenuEvent):
         menu = QMenu(
             self
@@ -2483,8 +2695,9 @@ class MyWindow(QWidget):
 
 
 app = QApplication()
-window = MyWindow()
-window.setWindowTitle('认识菜单控件')
+window = MyWindow(
+    windowTitle='易森-PySide6',
+)
 window.resize(400, 300)
 
 window.show()
@@ -2492,9 +2705,599 @@ app.exec()
 
 ```
 
+### 2 过滤器虽然复杂但更强大
+
+#### 2.1 过滤器的基本用法
+
+重写虽然简单，但有个致命缺点，也就是之前介绍信号与事件时说过的，重写只支持一个响应函数，没法像信号一样有多个响应函数。
+
+但是，如果不重写，改用事件过滤器为事件创建响应函数，就可以摆脱这个限制，让单个事件拥有多个响应函数。
+
+使用事件过滤器很简单，只要调用事件所属控件的`installEventFilter`方法，给该方法传入写好的事件过滤器，即可将事件过滤器安装到对应控件上。
+
+同一控件支持安装多个事件过滤器，生效顺序遵循堆栈原则，即后安装的先生效，此外，事件过滤器内还可以拦截对应事件，阻止其他事件响应函数执行。
+
+合法的事件过滤器需要具备以下条件：
+
+- 必须继承自`QObject`类。
+- 必须实现`eventFilter`方法。该方法额外接收两个位置参数，分别表示安装事件过滤器的控件、表示事件本身的事件对象。该方法返回布尔值，表示该事件是否被拦截。
+
+基于上面的原则，第1节的示例可以这样写：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import QObject, QEvent
+
+class MyEventFilter(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
 
 
-使用`QCoreApplication`类的静态方法`sendEvent`方法（同步，阻塞当前线程，谨慎使用）、`postEvent`方法（异步，不阻塞当前线程，推荐使用）手动发送事件：
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+window.installEventFilter(MyEventFilter(window))
+
+
+window.show()
+app.exec()
+
+```
+
+为了方便区分，注册多个事件过滤器的示例，则额外写了一个新的事件过滤器（注意菜单内容）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import QObject, QEvent
+
+class MyEventFilter(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 1'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
+
+
+class MyEventFilter2(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 2'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+# 遵循堆栈的后入先出原则，后注册的先生效
+window.installEventFilter(MyEventFilter(window))
+window.installEventFilter(MyEventFilter2(window))
+
+
+window.show()
+app.exec()
+
+```
+
+如果将第二个事件过滤器中事件响应函数（分支）的返回值改为`True`，则事件会被拦截，第一个事件过滤器中的相同事件的响应函数不会执行：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import QObject, QEvent
+
+class MyEventFilter(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 1'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
+
+
+class MyEventFilter2(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 2'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return True
+        return False
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+# 遵循堆栈的后入先出原则，后注册的先生效
+window.installEventFilter(MyEventFilter(window))
+window.installEventFilter(MyEventFilter2(window))
+
+
+window.show()
+app.exec()
+
+```
+
+#### 2.2 过滤器的拦截与冒泡的拦截不一样
+
+上一节介绍了事件过滤器的拦截，其基于生效顺序的拦截过程，有点像事件冒泡中的拦截。
+
+什么是事件冒泡？
+
+当不同控件之间存在父子关系时，子控件触发并响应事件之后，如果选择忽略该事件，则会把事件传递给父控件，由父控件继续响应。因为这个过程就像水底的气泡一直上浮，因此该过程也被成为事件冒泡。
+
+事件冒泡中的拦截是通过调用`accept`方法实现的，调用该方法之后，父控件的响应函数就不会执行。
+
+注意，即使不调用`accept`方法，默认也会拦截冒泡。另外，事件冒泡中的拦截不会影响到事件过滤器中的响应函数。
+
+关于事件冒泡，可以试一试下面的示例：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtGui import QContextMenuEvent
+
+
+class MyWindow(QWidget):
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        menu = QMenu(
+            self
+        )
+        menu.addAction(
+            'test'
+        )
+        menu.exec(
+            event.globalPos()
+        )
+        # 接收则表示不需要父控件处理（即拦截），默认为接受
+        event.accept()
+        # 忽略则表示需要父控件处理
+        # event.ignore()
+        # 注意，接受之后不能调用父类的同名方法，因为QWidget类的同名方法会调用忽略方法
+        # return super().contextMenuEvent(event)
+
+
+app = QApplication()
+
+# 父窗口
+parentWindow = QWidget()
+parentWindow.resize(400, 300)
+parentWindow.contextMenuEvent = print
+
+window = MyWindow(
+    parent=parentWindow,
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+
+
+parentWindow.show()
+app.exec()
+
+```
+
+读者可以尝试修改示例代码，看看不拦截冒泡的话，终端会显示什么？
+
+事件过滤器与事件冒泡都有拦截的功能，如果同时使用，情况会变得复杂一些。为了方便学习，这里先了解一下用于测试的模板代码，后续的对比测试将基于下面的代码做微调：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import QObject, QEvent
+from PySide6.QtGui import QContextMenuEvent
+
+
+class MyWindow(QWidget):
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        menu = QMenu(
+            self
+        )
+        menu.addAction(
+            'test 0'
+        )
+        menu.exec(
+            event.globalPos()
+        )
+        # 忽略则表示需要父控件处理
+        event.ignore()
+
+
+class MyEventFilter(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 1'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
+
+
+class MyEventFilter2(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 2'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
+
+app = QApplication()
+# 父窗口
+parentWindow = QWidget()
+parentWindow.resize(400, 300)
+parentWindow.contextMenuEvent = print
+
+window = MyWindow(
+    parent=parentWindow,
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+# 遵循堆栈的后入先出原则，后注册的先生效
+window.installEventFilter(MyEventFilter(window))
+window.installEventFilter(MyEventFilter2(window))
+
+
+parentWindow.show()
+app.exec()
+
+```
+
+![2710_2.2_1](easython.assets/2710_2.2_1.gif)
+
+模板代码结合了前面示例中的所有响应函数：在重写的响应函数中，右键菜单显示`'test 0'`；两个过滤器的响应函数中，右键菜单分别显示`'test 1'`、`'test 2'`，后者优先显示；最后，父控件的响应函数会在事件冒泡之后，在终端打印内容。
+
+记住上面的执行顺序，接下来，代码将一步步变动，逐渐挖掘出拦截的秘密。
+
+如果只在第二个事件过滤器中拦截（返回`True`），则除了第二个事件过滤器中的响应函数外，其余所有响应函数都不执行：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import QObject, QEvent
+from PySide6.QtGui import QContextMenuEvent
+
+
+class MyWindow(QWidget):
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        menu = QMenu(
+            self
+        )
+        menu.addAction(
+            'test 0'
+        )
+        menu.exec(
+            event.globalPos()
+        )
+        # 忽略则表示需要父控件处理
+        event.ignore()
+
+
+class MyEventFilter(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 1'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
+
+
+class MyEventFilter2(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 2'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            # 这里开始拦截
+            return True
+        return False
+
+app = QApplication()
+# 父窗口
+parentWindow = QWidget()
+parentWindow.resize(400, 300)
+parentWindow.contextMenuEvent = print
+
+window = MyWindow(
+    parent=parentWindow,
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+# 遵循堆栈的后入先出原则，后注册的先生效
+window.installEventFilter(MyEventFilter(window))
+window.installEventFilter(MyEventFilter2(window))
+
+
+parentWindow.show()
+app.exec()
+
+```
+
+![2710_2.2_2](easython.assets/2710_2.2_2.gif)
+
+如果只在第二个事件过滤器中拦截冒泡（调用`accept`方法），则只能影响父控件：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import QObject, QEvent
+from PySide6.QtGui import QContextMenuEvent
+
+
+class MyWindow(QWidget):
+
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        menu = QMenu(
+            self
+        )
+        menu.addAction(
+            'test 0'
+        )
+        menu.exec(
+            event.globalPos()
+        )
+
+
+class MyEventFilter(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 1'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
+
+
+class MyEventFilter2(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 2'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            # 这里拦截
+            event.accept()
+            return False
+        return False
+
+app = QApplication()
+# 父窗口
+parentWindow = QWidget()
+parentWindow.resize(400, 300)
+parentWindow.contextMenuEvent = print
+
+window = MyWindow(
+    parent=parentWindow,
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+# 遵循堆栈的后入先出原则，后注册的先生效
+window.installEventFilter(MyEventFilter(window))
+window.installEventFilter(MyEventFilter2(window))
+
+
+parentWindow.show()
+app.exec()
+
+```
+
+![2710_2.2_3](easython.assets/2710_2.2_3.gif)
+
+虽然事件过滤器和冒泡机制都有拦截，但互相不会影响，因此可以用事件过滤器的拦截功能拦截该控件后续的响应函数，同时调用`ignore`方法豁免父控件的响应函数：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QMenu
+)
+from PySide6.QtCore import QObject, QEvent
+from PySide6.QtGui import QContextMenuEvent
+
+
+class MyWindow(QWidget):
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        menu = QMenu(
+            self
+        )
+        menu.addAction(
+            'test 0'
+        )
+        menu.exec(
+            event.globalPos()
+        )
+
+
+class MyEventFilter(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 1'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            return False
+        return False
+
+
+class MyEventFilter2(QObject):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.ContextMenu:
+            menu = QMenu(
+                obj
+                #self.parent()
+            )
+            menu.addAction(
+                'test 2'
+            )
+            menu.exec(
+                event.globalPos()
+            )
+            # 仅拦截该控件，不影响父控件
+            event.ignore()
+            return True
+        return False
+
+app = QApplication()
+# 父窗口
+parentWindow = QWidget()
+parentWindow.resize(400, 300)
+parentWindow.contextMenuEvent = print
+
+window = MyWindow(
+    parent=parentWindow,
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+# 遵循堆栈的后入先出原则，后注册的先生效
+window.installEventFilter(MyEventFilter(window))
+window.installEventFilter(MyEventFilter2(window))
+
+
+parentWindow.show()
+app.exec()
+
+```
+
+![2710_2.2_4](easython.assets/2710_2.2_4.gif)
+
+经过上面的对比实验，可以得到如下表格中的结论：
+
+|          | 事件过滤器中的拦截                             | 事件冒泡中的拦截                         |
+| -------- | ---------------------------------------------- | ---------------------------------------- |
+| 关键代码 | 返回`True`                                     | 调用`accept`方法                         |
+| 作用范围 | 该控件及父控件中后续生效的响应函数             | 仅限父控件中的响应函数                   |
+| 注意事项 | 可以拦截的同时放行冒泡，<br />二者不会互相影响 | 默认拦截，<br />通常使用`ignore`方法放行 |
+
+### 3 手动触发事件：`sendEvent`方法是静态的同步方法，`postEvent`方法是静态的异步方法
+
+之前介绍过事件的触发方法：
+
+- 对应事件的响应函数。
+- 控件的`event`方法。
+- 程序类实例的`sendEvent`方法、`postEvent`方法。
+
+这里需要**更正**一下，其实`sendEvent`方法、`postEvent`方法是`QCoreApplication`类的静态方法，前者为同步方法（阻塞当前线程，谨慎使用），后者为异步方法（不阻塞当前线程，推荐使用）。
+
+因此，可以直接通过`QApplication`类来调用：
 
 ```python3
 from PySide6.QtWidgets import (
@@ -2508,7 +3311,6 @@ from PySide6.QtCore import QPoint
 
 
 class MyWindow(QWidget):
-
     def contextMenuEvent(self, event: QContextMenuEvent):
         menu = QMenu(
             self
@@ -2523,8 +3325,9 @@ class MyWindow(QWidget):
 
 
 app = QApplication()
-window = MyWindow()
-window.setWindowTitle('认识菜单控件')
+window = MyWindow(
+    windowTitle='易森-PySide6',
+)
 window.resize(400, 300)
 
 button = QPushButton(
@@ -2558,7 +3361,107 @@ app.exec()
 
 ```
 
+![2710_2.3_1](easython.assets/2710_2.3_1.png)
 
+话说回来，之前已经介绍过`sendEvent`方法、`postEvent`方法，难道本章只是介绍一下这两个方法是静态方法，通过类名也能直接调用？
+
+非也，本章说了`postEvent`方法是异步方法，上面的示例中也能多次重复使用，那就与之前介绍的结论相悖（示例来自《Qt For Python 札记》2025版第6章第2节）：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QEvent,Qt
+from PySide6.QtGui import QMouseEvent
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400,300)
+button = QPushButton('click',window)
+window.show()
+button.mousePressEvent = lambda e:print('mouse is pressed')
+
+window2 = QWidget()
+window2.setWindowTitle('信号与事件-控制窗口')
+window2.resize(400,300)
+button2 = QPushButton('模拟事件',window2)
+
+# 获取按钮中心位置的局部坐标，并映射为全局坐标
+center = button.rect().center()
+globalPos = button.mapToGlobal(center)
+# 构建准确的鼠标按键事件
+# 参考自 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QMouseEvent.html#PySide6.QtGui.QMouseEvent.__init__
+press_event = QMouseEvent(
+    QEvent.Type.MouseButtonPress,
+    center,
+    globalPos,
+    # 按下的鼠标按键
+    Qt.MouseButton.LeftButton,
+    # 无组合使用的鼠标按键
+    Qt.MouseButton.NoButton,
+    # 无组合使用的键盘按键
+    Qt.KeyboardModifier.NoModifier
+)
+# 使用sendEvent方法发送事件给指定对象
+# 也可以使用postEvent方法发送，postEvent方法是用后即销毁构建的事件，不能重复发送
+button2.clicked.connect(lambda :app.sendEvent(button,press_event))
+window2.show()
+
+app.exec()
+```
+
+这里需要厘清其中原因：对于异步的`postEvent`方法，其`event`参数会在调用后销毁。因此，重复调用会报错是因为使用了全局对象，如果每次调用时构建一个对象，则不会有问题：
+
+```python3
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QEvent, Qt
+from PySide6.QtGui import QMouseEvent
+
+app = QApplication()
+window = QWidget()
+window.setWindowTitle('信号与事件')
+window.resize(400, 300)
+button = QPushButton('click', window)
+window.show()
+button.mousePressEvent = lambda e: print('mouse is pressed')
+
+window2 = QWidget()
+window2.setWindowTitle('信号与事件-控制窗口')
+window2.resize(400, 300)
+button2 = QPushButton('模拟事件', window2)
+
+# 获取按钮中心位置的局部坐标，并映射为全局坐标
+center = button.rect().center()
+globalPos = button.mapToGlobal(center)
+
+button2.clicked.connect(
+    lambda: app.postEvent(
+        button,
+        QMouseEvent(
+            QEvent.Type.MouseButtonPress,
+            center,
+            globalPos,
+            # 按下的鼠标按键
+            Qt.MouseButton.LeftButton,
+            # 无组合使用的鼠标按键
+            Qt.MouseButton.NoButton,
+            # 无组合使用的键盘按键
+            Qt.KeyboardModifier.NoModifier
+        )
+    )
+)
+
+window2.show()
+app.exec()
+
+```
 
 （完）
 

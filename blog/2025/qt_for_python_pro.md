@@ -697,10 +697,10 @@ Qt框架中，独创的概念就是信号机制。所谓信号，就是执行指
 
 从文档中可知，该控件支持以下信号：
 
-- [`clicked`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#PySide6.QtWidgets.QAbstractButton.clicked)信号，控件被点击（鼠标按键按下、弹起的完整过程）后发出的信号。
-- [`pressed`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#PySide6.QtWidgets.QAbstractButton.pressed)信号，鼠标按键在控件上按下后发出的信号。
-- [`released`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#PySide6.QtWidgets.QAbstractButton.released)信号，鼠标按键在控件上弹起后发出的信号。
-- [`toggled`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QAbstractButton.html#PySide6.QtWidgets.QAbstractButton.toggled)信号，具备两种状态的控件切换状态（可由`setChecked`方法触发）后发出的信号。
+- `clicked`信号，控件被点击（鼠标按键按下、弹起的完整过程）后发出的信号。
+- `pressed`信号，鼠标按键在控件上按下后发出的信号。
+- `released`信号，鼠标按键在控件上弹起后发出的信号。
+- `toggled`信号，具备两种状态的控件切换状态（可由`setChecked`方法触发）后发出的信号。
 
 就以`clicked`信号为例，调用信号的`connect`方法，给该方法传入可调用类型的对象（比如lambda表达式或者函数），即可设定按钮被点击之后的响应函数（可以设定多个响应函数）：
 

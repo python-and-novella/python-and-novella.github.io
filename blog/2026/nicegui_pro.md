@@ -1,10 +1,8 @@
-# NiceGUI札记（2026）
-
-[TOC]
+《NiceGUI札记》（2026）
 
 ## 0 为何而写
 
-NiceGUI（官网https://nicegui.io/）是一款优秀的WebUI、GUI框架，只需学习一定量的前端知识，就能使用NiceGUI快速搭建出美观的UI界面。
+NiceGUI（官网 https://nicegui.io/ ）是一款优秀的WebUI、GUI框架，只需学习一定量的前端知识，就能使用NiceGUI快速搭建出美观的UI界面。
 
 但是，官方更新很快，加上笔者2024年开始创作的《NiceGUI的中文入门教程》受限于笔者当时的思路、水平，时至今日，很多内容已经不适合最新版本。
 
@@ -79,7 +77,7 @@ NiceGUI还提供了一些可选的依赖：
 
 先看示例，简单了解一下NiceGUI程序的基本结构：
 
-```python3
+```python
 # 导入模块
 from nicegui import ui
 # 创建控件
@@ -104,7 +102,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
 
   以下为示例：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   ui.button('Hello')
@@ -126,7 +124,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
 
   `ui.page`是一个类，其参数`path`表示页面对应的网站路径。但是，这样直接构建出来的页面不包含控件，需要调用`ui.page`对象，并传入函数内创建控件的函数名：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -140,7 +138,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
 
   看起来有点复杂，但如果读者细心观察的话，就会发现，这段看似复杂的代码，其实就是一个装饰器：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   @ui.page('/')
@@ -154,7 +152,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -169,7 +167,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
 
   比如，想要在当前内容的前面添加一些文字作为标题，如果是脚本模式，只能这样写：
   
-  ```python3
+  ```python
   from nicegui import ui
   
   ui.label('标题')
@@ -180,7 +178,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
 
   单页面模式的话，可以将添加的部分打包到函数中，提前使用，最后定义具体内容：
   
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -209,7 +207,7 @@ NiceGUI程序用于构建界面的代码结构不同时，对应的构建过程�
 
 单页面模式的示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -246,7 +244,7 @@ ui.run(
 
 上面单页面模式的示例，可以改为脚本模式的示例：
 
-```python3
+```python
 from nicegui import ui
 
 def main():
@@ -278,7 +276,7 @@ ui.run()
 
 假如多页面模式中，有一个`/main`页面，可以将上面单页面模式的单页面应用套用到多页面模式中：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page('/main')
@@ -311,7 +309,7 @@ ui.run()
 
 但与单页面模式的单页面应用不同，多页面模式的单页面应用，除了将指定路径关联为子页面之外，还可以同时关联一个普通页面：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page('/main')
@@ -375,7 +373,7 @@ NiceGUI程序支持两种显示模式：
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -402,7 +400,7 @@ NiceGUI有两种运行NiceGUI程序的方法：
 
 以下为`ui.run_with`方法的示例：
 
-```python3
+```python
 import uvicorn
 from fastapi import FastAPI
 from nicegui import ui
@@ -430,7 +428,7 @@ uvicorn.run(
 
 也可以将NiceGUI程序挂载到指定的路径：
 
-```python3
+```python
 import uvicorn
 from fastapi import FastAPI
 from nicegui import ui
@@ -479,7 +477,7 @@ NiceGUI程序一般是通过终端运行，关闭终端，程序自动退出。
 
 实例化控件类，即可创建控件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -494,7 +492,7 @@ ui.run(
 
 除了不分配变量的用法，对于某些需要重复使用的控件，想要在后续代码中访问这些控件的属性、方法的话，则要给这些控件分配变量。因为每次实例化都是创建一个控件，即使是相同类型的控件，重复实例化也是重复创建：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -517,7 +515,7 @@ NiceGUI本质上是一个基于Quasar框架实现的网页框架，很多控件�
 
 对于NiceGUI的控件来说，想要在控件中嵌入另一个控件，只需使用上下文管理器进入控件的上下文，在上下文中创建其他控件，相当于在控件内嵌入其他控件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -534,7 +532,7 @@ ui.run(
 
 除了嵌套一层，还可以嵌套多层：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -550,7 +548,7 @@ ui.run(
 
 或者使用一个`with`，后接英文逗号分隔的多个对象，同样表示嵌套多层（和上个示例效果一样）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -560,7 +558,7 @@ def index():
 
 对于使用上下文管理器进入上下文的控件，如果想要访问该控件，可以使用`as`关键字，后接变量名，即可在控件的上下文，甚至与`with`同一缩进的作用域内，访问该控件。比如：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -582,11 +580,11 @@ ui.run(
 
 ### 3.3 控件的插槽（slot）
 
-前面说了使用上下文管理器进入控件的上下文，进而在控件内嵌入其他控件。其实，这种操作就是进入了控件的“default”插槽（插槽的概念来自Quasar框架的控件，相关资料可以查看 https://quasar.dev/components ，具体控件支持的插槽有所不同）。
+前面说了使用上下文管理器进入控件的上下文，进而在控件内嵌入其他控件。其实，这种操作就是进入了控件的“default”插槽（插槽的概念来自Quasar框架的控件，相关资料可以查看 https://quasar.dev/components  ，具体控件支持的插槽有所不同）。
 
 以`ui.input`输入框控件为例，下面示例中两种写法的效果是一样的：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -603,9 +601,9 @@ ui.run(
 
 ![2026_3_3](nicegui_pro.assets/2026_3_3.png)
 
-简单来说，插槽可以看作是一个控件中可以插入其他控件的位置，“default”插槽就是默认状态的控件。而不少控件有多个插槽，如果想要在其他插槽中插入其他控件，则要使用`add_slot`方法，指定具体插槽。以输入框控件（具体参考https://quasar.dev/vue-components/input）为例：
+简单来说，插槽可以看作是一个控件中可以插入其他控件的位置，“default”插槽就是默认状态的控件。而不少控件有多个插槽，如果想要在其他插槽中插入其他控件，则要使用`add_slot`方法，指定具体插槽。以输入框控件（具体参考 https://quasar.dev/vue-components/input ）为例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -631,7 +629,7 @@ ui.run(
 
 需要创建多个有规律的控件时，熟悉Python的读者肯定第一时间想到了`for`，可以使用该关键字遍历可以迭代的对象，同时创建控件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -648,7 +646,7 @@ ui.run(
 
 看上去没什么问题，可是，一旦涉及到可调用对象，这个操作就会出现问题：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -678,7 +676,7 @@ ui.run(
 
 因此，将出错的代码中，NiceGUI的部分去掉的话，复现错误的核心代码为：
 
-```python3
+```python
 funcs = []
 
 for i in range(4):
@@ -701,7 +699,7 @@ for func in funcs:
 
 想要解决这个问题也很简单，就是让定义函数时使用该变量的值，而非该变量（为了避免混淆，lambda表达式的参数名改为`x`）：
 
-```python3
+```python
 funcs = []
 
 for i in range(4):
@@ -726,7 +724,7 @@ for func in funcs:
 
 接下来，回到NiceGUI程序，执行类似的修改即可：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -752,9 +750,9 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 
 在学习修改控件的样式之前，先了解一下NiceGUI的控件支持哪些添加、删除、修改样式的方法：
 
-- `style`方法（属性），支持CSS样式，可以为控件添加、删除、修改CSS样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS。
-- `classes`方法（属性），支持各种样式类，可以为控件添加、删除、修改Tailwind CSS框架定义的样式类，也可以添加、删除、修改在CSS代码中定义并引入的样式类。Tailwind CSS的语法可参考 https://tailwindcss.com/。
-- `props`方法（属性），支持Quasar控件属性（Quasar控件的属性）或者HTML属性（HTML标签的属性），可以为控件添加、删除、修改Quasar控件（大部分NiceGUI控件的前端部分）的属性或者HTML标签（NiceGUI控件对应的顶层HTML标签）的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components。
+- `style`方法（属性），支持CSS样式，可以为控件添加、删除、修改CSS样式，比如颜色、边距等。CSS的语法可参考 https://developer.mozilla.org/zh-CN/docs/Web/CSS 。
+- `classes`方法（属性），支持各种样式类，可以为控件添加、删除、修改Tailwind CSS框架定义的样式类，也可以添加、删除、修改在CSS代码中定义并引入的样式类。Tailwind CSS的语法可参考 https://tailwindcss.com/ 。
+- `props`方法（属性），支持Quasar控件属性（Quasar控件的属性）或者HTML属性（HTML标签的属性），可以为控件添加、删除、修改Quasar控件（大部分NiceGUI控件的前端部分）的属性或者HTML标签（NiceGUI控件对应的顶层HTML标签）的属性，包括但不限于样式相关的属性。具体控件支持的属性可参考 https://quasar.dev/components 。
 
 可能读者看到上面的介绍有点疑惑，为何这些方法后，还用括号补充说明是属性？在NiceGUI最新版本中，这三种方法，可以通过调用的方式添加、修改样式。同时，控件还支持同名的字典（或者列表）属性，可以使用字典（或者列表支持的方式添加、修改样式，字典的键即为样式名。
 
@@ -762,7 +760,7 @@ NiceGUI提供了丰富美观的控件，但控件默认的样式是统一的，�
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -784,7 +782,7 @@ ui.run(
 
 部分样式支持使用`props`方法（属性）去掉，比如控件的背景色、前景色（文字颜色）。此时不用添加`!important`来提高自定义样式的优先级：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -807,7 +805,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -849,7 +847,7 @@ NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样�
 
   对于普通样式，越靠下的层级，优先级越高。
 
-- 对于同样使用`!important`修饰的相同样式，则基于上面的级联层顺序，优先级则是相反的，具体可以参考 https://developer.mozilla.org/en-US/docs/Web/CSS/@layer#layer_order_and_the_!important_flag，完整的优先级顺序如下图所示：
+- 对于同样使用`!important`修饰的相同样式，则基于上面的级联层顺序，优先级则是相反的，具体可以参考 https://developer.mozilla.org/en-US/docs/Web/CSS/@layer#layer_order_and_the_!important_flag ，完整的优先级顺序如下图所示：
 
   ![2026_4_3](nicegui_pro.assets/2026_4_3.png)
 
@@ -857,7 +855,7 @@ NiceGUI的很多控件自带样式，其样式源于Quasar框架，而部分样�
 
 可以使用`props`方法（属性）去掉控件原本的背景色、前景色（文字颜色），再使用`classes`方法（属性）修改为指定的背景色、前景色（文字颜色），此时不用添加“!”为前缀或者后缀：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -879,7 +877,7 @@ ui.run(
 
 从NiceGUI 3.0.0正式版开始，官方修复了添加“!”为前缀或者后缀（在Tailwind CSS框架中等效于使用`!important`修饰）的Tailwind CSS框架的样式类生效顺序，因此，下面的代码可以正常生效：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -902,7 +900,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -934,7 +932,7 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -955,7 +953,7 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -977,7 +975,7 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -1002,7 +1000,7 @@ NiceGUI中，如果用户执行了动作（比如点击），会产生相应的�
 
 想要定义NiceGUI程序事件的响应函数，需要导入`app`对象，调用该对象的“on”开头的方法。比如，`on_startup`方法用于定义NiceGUI程序启动完成时的响应函数：
 
-```python3
+```python
 from nicegui import ui,app
 app.on_disconnect(
     app.shutdown
@@ -1049,7 +1047,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,Event
 
 signal_obj = Event()
@@ -1089,7 +1087,7 @@ ui.run(
 
 除了上面这种使用形式，对于需要在订阅时定义可调用对象的情况，还可以采取装饰器的形式，看上去更加简洁：
 
-```python3
+```python
 from nicegui import ui,Event
 
 signal_obj = Event()
@@ -1134,7 +1132,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 class data_class:
@@ -1166,7 +1164,7 @@ ui.run(
 
 比如：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1186,7 +1184,7 @@ ui.run(
 
 同样的，如果直接修改控件的这类属性，一般无需额外执行控件的刷新方法，也能刷新控件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1208,7 +1206,7 @@ ui.run(
 
 但是，控件的部分属性需要刷新控件才能正确显示，就需要调用控件的刷新方法——`update`方法，比如：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1234,7 +1232,7 @@ ui.run(
 
 使用`ui.update`方法和直接调用控件的`update`方法的效果一样，但`ui.update`方法支持传入任意数量控件，可以同时刷新多个控件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1264,7 +1262,7 @@ ui.run(
 
 比如，想要字母的个数与输入框内的数字同步：
 
-```python3
+```python
 from nicegui import ui
 
 count = 2
@@ -1303,7 +1301,7 @@ ui.run(
 
 其实，可以使用NiceGUI提供的`refreshable`类（用于装饰函数）、`refreshable_method`类（用于装饰类的方法）创建可刷新方法（函数），直接调用其`refresh`方法，一步实现清除创建的控件、重新创建控件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1337,7 +1335,7 @@ ui.run(
 
 需要注意的是，在`refreshable`类、`refreshable_method`类装饰的函数（方法）内，所有创建的控件都会在调用`refresh`方法时重新创建，不会保存控件的状态：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1367,7 +1365,7 @@ ui.run(
 
 如果想要保存控件的状态，可以使用前面用过的绑定属性：
 
-```python3
+```python
 from nicegui import ui
 
 count = 1
@@ -1406,7 +1404,7 @@ ui.run(
 
 于是，将所有控件一股脑地塞入可刷新方法中之后，代码如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1448,7 +1446,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1479,7 +1477,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1510,7 +1508,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1582,7 +1580,7 @@ ui.run(
 
 先看同步函数的示例：
 
-```python3
+```python
 from nicegui import ui
 import time
 
@@ -1609,7 +1607,7 @@ ui.run(
 
 换成异步函数的话，结果就符合预期了：
 
-```python3
+```python
 from nicegui import ui
 import asyncio
 
@@ -1640,7 +1638,7 @@ NiceGUI使用异步函数的情况如下：
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import asyncio
   
@@ -1665,7 +1663,7 @@ NiceGUI使用异步函数的情况如下：
 
   比如，`ui.button`按钮控件的`clicked`方法就是一个异步函数，只有在点击按钮之后，该函数才会执行：
   
-  ```python3
+  ```python
   from nicegui import ui
   
   async def index():
@@ -1689,7 +1687,7 @@ NiceGUI使用异步函数的情况如下：
 
 如果信号的订阅者需要执行耗时的操作，想要等待操作完成再发射新的信号，使用`emit`方法就不合适，比如下面的代码：
 
-```python3
+```python
 from nicegui import ui,Event
 import asyncio
 
@@ -1729,7 +1727,7 @@ ui.run(
 
 因此，需要将`emit`方法替换为支持异步等待的`call`方法，并添加异步等待，让提交按钮在内容完成同步之前保持禁用状态，只有内容完成同步，才将提交按钮恢复为可用状态：
 
-```python3
+```python
 from nicegui import ui,Event
 import asyncio
 
@@ -1768,7 +1766,7 @@ ui.run(
 
 至于`emitted`方法，可以实现类似`ui.button`按钮控件`clicked`方法的效果：
 
-```python3
+```python
 from nicegui import ui,Event
 
 signal_obj = Event()
@@ -1811,7 +1809,7 @@ NiceGUI的`run`模块、`background_tasks`模块都提供了后台执行任务�
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,run
 import time
 
@@ -1851,7 +1849,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui, background_tasks, app
 import asyncio
 
@@ -1902,7 +1900,7 @@ NiceGUI提供了两种定时器：
 
 先看基本用法：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1927,7 +1925,7 @@ ui.run(
 
 如果是`app.timer`定时器，则不能使用这种创建控件的操作：
 
-```python3
+```python
 from nicegui import ui,app
 
 def index():
@@ -1952,7 +1950,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,app
 
 def index():
@@ -2021,7 +2019,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.events import KeyEventArguments
 
@@ -2068,7 +2066,7 @@ NiceGUI 3.5.0 主要新增了两个控件：`ui.altair`控件和`ui.anywidget`�
 
 `ui.altair`控件可以使用`altair`库渲染图表，并将其转换为NiceGUI控件（示例需要额外安装`pandas`库）：
 
-```python3
+```python
 from nicegui import ui
 import altair
 import pandas as pd
@@ -2115,7 +2113,7 @@ ui.run(
 
 `ui.anywidget`控件可以将任意anywidget控件包装为NiceGUI控件，上面介绍的`ui.altair`控件就是其中一种。因此，可以使用`ui.anywidget`控件实现与`ui.altair`控件相同的效果，但需要额外安装`altair`库：
 
-```python3
+```python
 from nicegui import ui
 import altair
 import pandas as pd
@@ -2152,7 +2150,7 @@ ui.run(
 
 当然，增加`ui.anywidget`控件更多是为了引入anywidget控件的丰富生态，只是复刻`ui.altair`控件的话，不如直接使用`ui.altair`控件。因此，用`ui.anywidget`控件渲染自定义的控件，实现和anywidget控件一样效果，才是`ui.anywidget`控件存在的意义：
 
-```python3
+```python
 from nicegui import ui
 import anywidget
 import traitlets
@@ -2226,7 +2224,7 @@ ui.run(
 
 NiceGUI的页面本质上是网页，而网页的很多操作离不开JavaScript代码。因此，NiceGUI程序虽然是用Python写的，但支持运行JavaScript代码，只需调用`ui.run_javascript`方法即可：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2261,7 +2259,7 @@ ui.run(
 
 默认情况下，直接创建控件的话，就和在`ui.column`列控件中添加子控件一样，都是列布局：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2283,7 +2281,7 @@ ui.run(
 
 在`ui.row`行控件中添加子控件，则为行布局：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2303,7 +2301,7 @@ ui.run(
 
 在`ui.grid`网格控件中添加子控件，则为网格布局：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2337,7 +2335,7 @@ ui.run(
 
 - `ui.space`空白控件，可以填充布局方向上可用的剩余空间，一般用于行布局、列布局中，让最后的控件可以紧贴父控件的边界：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -2359,7 +2357,7 @@ ui.run(
 
 - `ui.separator`分隔控件，可以创建一个占用空间极小且不太明显的分隔符：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -2391,7 +2389,7 @@ NiceGUI 3.6.0 新增的功能有点零碎，没有单一的主题，主要分两
 
 读者可以修改下面示例中的`app.colors`为`ui.colors`之后再运行一次，分别点击最上面的超链接，跳转至其他页面，看看效果：
 
-```python3
+```python
 from nicegui import ui,app
 
 def index():
@@ -2461,7 +2459,7 @@ ui.run(
 
 具体方法支持的参数将在后面的章节详细介绍，这里仅提供简单演示的示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2483,7 +2481,7 @@ ui.run(
 
 功能相关，一是`ui.on_exception`方法，用于响应客户端连接之后、页面内控件交互时触发的异常：
 
-```python3
+```python
 from nicegui import ui
 
 async def index():
@@ -2508,7 +2506,7 @@ ui.run(
 
 二是`ui.run`方法的布尔类型`show`参数增加字符串类型的支持。当该参数为字符串类型时，表示以网页模式启动后，使用默认浏览器打开指定页面，而非主页面：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2584,7 +2582,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2634,7 +2632,7 @@ NiceGUI的`ui`模块提供了程序所需的全部控件。不过控件数量较
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2675,7 +2673,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2698,7 +2696,7 @@ ui.run(
 
 ![2026_15_2](nicegui_pro.assets/2026_15_2.png)
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2738,7 +2736,7 @@ NiceGUI的页面本质上是网页，很多控件也是通过底层的前端框�
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,html
 
 def index():
@@ -2768,7 +2766,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2811,7 +2809,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2860,7 +2858,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2921,7 +2919,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2976,7 +2974,7 @@ ui.run(
 
 示例如下（`ui.parallax`控件用单独的示例）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -2997,7 +2995,7 @@ ui.run(
 
 默认情况下，两种控件的基本用法相同，但`ui.interactive_image`控件会自动调整图片的比例，让其适应控件本身的大小。`ui.interactive_image`控件还支持一些额外的交互和SVG内容：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -3034,7 +3032,7 @@ ui.run(
 
 `ui.parallax`控件显示图片时需要同一区域的内容可以滚动，才能触发视差效果（内容和图片的滚动方向相反）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -3061,7 +3059,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -3093,7 +3091,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -3142,7 +3140,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -3170,7 +3168,7 @@ NiceGUI提供了两种显示表格的控件：
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -3229,7 +3227,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3270,7 +3268,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3324,7 +3322,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3407,7 +3405,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3482,7 +3480,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 import altair
 import pandas as pd
@@ -3569,7 +3567,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3617,7 +3615,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3645,7 +3643,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3682,7 +3680,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -3732,7 +3730,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -3762,7 +3760,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3792,7 +3790,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3816,7 +3814,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3861,7 +3859,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3896,7 +3894,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3934,7 +3932,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3964,7 +3962,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -3995,7 +3993,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -4044,7 +4042,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -4071,7 +4069,7 @@ NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右�
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -4101,7 +4099,7 @@ NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单和右�
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -4133,7 +4131,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
 - `ui.tooltip`控件，添加到任意控件的上下文，可以给其添加一个鼠标悬停后弹出的工具提示。比如：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -4150,7 +4148,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   另外，大部分控件支持`tooltip`方法，可以实现同样的效果：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -4170,7 +4168,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -4193,7 +4191,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import asyncio
   
@@ -4224,7 +4222,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -4249,7 +4247,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
 ## 版本速览——3.7.0版本新增对UnoCSS框架的支持
 
-NiceGUI 3.7.0 新增对UnoCSS框架（https://unocss.dev/）的支持，成为替代Tailwind CSS框架（https://tailwindcss.com/）的轻量级选择，并且具备以下特点：
+NiceGUI 3.7.0 新增对UnoCSS框架（ https://unocss.dev/ ）的支持，成为替代Tailwind CSS框架（ https://tailwindcss.com/ ）的轻量级选择，并且具备以下特点：
 
 - 文件体积更小，加载速度更快。
 - 兼容Tailwind CSS框架（仅限`'wind3'`和`'wind4'`版本）的语法。
@@ -4264,7 +4262,7 @@ NiceGUI 3.7.0 新增对UnoCSS框架（https://unocss.dev/）的支持，成为�
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -4284,7 +4282,7 @@ ui.run(
 
 注意，如果读者使用的是Windows系统，并且安装了可以打开`.mjs`文件的编辑器或者开发工具，升级NiceGUI 3.7.0可能会导致程序无法正常显示，可以将下面代码添加到程序开头临时解决：
 
-```python3
+```python
 import mimetypes
 mimetypes.add_type('text/javascript', '.mjs')
 ```
@@ -4303,7 +4301,7 @@ mimetypes.add_type('text/javascript', '.mjs')
 
   以下为用于对比的示例，读者可以修改环境变量值，冷启动（完全退出再重新打开）看看导入所需的时间：
 
-  ```python3
+  ```python
   import os
   os.environ['MATPLOTLIB'] = 'false'
   
@@ -4335,7 +4333,7 @@ mimetypes.add_type('text/javascript', '.mjs')
 
 - `RST_CONTENT_CACHE_SIZE`，默认为`'1000'`，表示`ui.restructured_text`在内存中缓存多少个内容片段，如果使用`ui.restructured_text`时，程序占用内存太高，可以调整该值。
 
-  ```python3
+  ```python
   from nicegui import ui
   from nicegui.elements import markdown,restructured_text
   
@@ -4375,7 +4373,7 @@ mimetypes.add_type('text/javascript', '.mjs')
 
 代码如下：
 
-```python3
+```python
 from nicegui import ui
 
 class ToggleButton(ui.button):
@@ -4408,7 +4406,7 @@ ui.run(
 
 Quasar框架作为基于VUE的前端UI框架，提供了大量控件，但NiceGUI框架并没有实现全部的控件的Python端绑定。因此，可以使用`ui.element`控件，创建这些控件。
 
-Quasar框架有一个浮动功能按钮（具体用法参考文档 https://quasar.dev/vue-components/floating-action-button#introduction），但NiceGUI没有实现（之前版本没有实现，当前版本已经实现，就是`ui.fab`控件，这里只是用来演示）。浮动功能按钮在前端中的使用代码是：
+Quasar框架有一个浮动功能按钮（具体用法参考文档 https://quasar.dev/vue-components/floating-action-button#introduction ），但NiceGUI没有实现（之前版本没有实现，当前版本已经实现，就是`ui.fab`控件，这里只是用来演示）。浮动功能按钮在前端中的使用代码是：
 
 ```html
 <q-fab color="green" icon="navigation" >
@@ -4422,7 +4420,7 @@ Quasar框架有一个浮动功能按钮（具体用法参考文档 https://quasa
 
 完整代码如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -4449,7 +4447,7 @@ ui.run(
 
 虽然可以使用原本深度绑定的Quasar框架提供的控件，但因为大部分控件已经在NiceGUI中实现，几乎很少没有（示例中的控件就已经实现了）。因此，NiceGUI框架提供了另一种扩展控件的途径——使用基于VUE的前端UI框架的控件。
 
-以Element Plus框架（https://cn.element-plus.org/zh-CN/component/button.html）和Naive UI框架（https://www.naiveui.com/zh-CN/os-theme/components/button）为例，需要先使用`ui.add_body_html`方法（该方法的用法后面会介绍，并且只能使用该方法）添加框架所需的JavaScript文件和CSS文件，然后给`app.config.vue_config_script`属性（该属性的作用域不会影响构建模式）追加其他框架的初始化代码。
+以Element Plus框架（ https://cn.element-plus.org/zh-CN/component/button.html ）和Naive UI框架（ https://www.naiveui.com/zh-CN/os-theme/components/button ）为例，需要先使用`ui.add_body_html`方法（该方法的用法后面会介绍，并且只能使用该方法）添加框架所需的JavaScript文件和CSS文件，然后给`app.config.vue_config_script`属性（该属性的作用域不会影响构建模式）追加其他框架的初始化代码。
 
 如果不是给该属性追加初始化代码，而是直接替换的话，需要添加原始的初始化代码到新属性值的最前面：
 
@@ -4465,7 +4463,7 @@ app.use(naive);
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui, app
 
 def index():
@@ -4501,7 +4499,7 @@ ui.run(
 
 单页面模式，但是加载相关文件和初始化代码在全局作用域：
 
-```python3
+```python
 from nicegui import ui, app
 
 app.config.vue_config_script += '''
@@ -4536,7 +4534,7 @@ ui.run(
 
 多页面模式，加载相关文件和初始化代码在全局作用域，并且建议这样放置：
 
-```python3
+```python
 from nicegui import ui, app
 
 app.config.vue_config_script += '''
@@ -4583,7 +4581,7 @@ ui.run()
 
 如果只是放在某个页面中，则必须先访问该页面，再访问其他页面，才能正确创建控件：
 
-```python3
+```python
 from nicegui import ui, app
 
 @ui.page('/')
@@ -4631,7 +4629,7 @@ ui.run()
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui, app
 
 def index():
@@ -4680,7 +4678,7 @@ ui.run(
 
 如果基于VUE的前端UI框架还是不能满足需求或者对于简单的一个控件来说负担太重（需要额外添加UI框架的JavaScript文件、CSS文件，确实不太轻松），那可以试试创建VUE组件，在VUE中定义界面和部分交互，比在Python中更自由。
 
-不过，创建VUE组件需要熟悉JavaScript、VUE语法，还要了解NiceGUI框架的实现原理，由于笔者不擅长VUE，以下来自官方示例（https://github.com/zauberzeug/nicegui/tree/main/examples/custom_vue_component）的代码就不做详细的解释了，只简单说一下基本思路。
+不过，创建VUE组件需要熟悉JavaScript、VUE语法，还要了解NiceGUI框架的实现原理，由于笔者不擅长VUE，以下来自官方示例（ https://github.com/zauberzeug/nicegui/tree/main/examples/custom_vue_component ）的代码就不做详细的解释了，只简单说一下基本思路。
 
 先创建`counter.js`，内容为：
 
@@ -4713,7 +4711,7 @@ export default {
 
 然后在`counter.js`同目录下创建`counter.py`，内容为：
 
-```python3
+```python
 from typing import Callable, Optional
 from nicegui.element import Element
 
@@ -4728,7 +4726,7 @@ class Counter(Element, component='counter.js'):
 
 `counter.js`同目录下的`main.py`中，使用自定义控件的代码为：
 
-```python3
+```python
 from nicegui import ui
 # 导入代码取决于当前文件与counter.py的相对路径
 from counter import Counter
@@ -4773,7 +4771,7 @@ anywidget控件相关的文档：
 
 先通过示例看一下如何创建一个自定义的anywidget控件，其实这个示例在前面版本速览里已经看过，这里简化了无关的Python代码：
 
-```python3
+```python
 from nicegui import ui
 import anywidget
 import traitlets
@@ -4836,16 +4834,16 @@ ui.run(
 
 不过，anywidget控件丰富的生态带来大量现成的控件，如果有合适的控件，可以跳过这一步，直接学习如何使用现成的anywidget控件。
 
-anywidget官方示例（https://try.anywidget.dev/）中有不少基于Jupyter的示例代码，对于NiceGUI来说，使用时可以照搬其代码，只需最后将anywidget控件实例传给`ui.anywidget`控件的`widget`参数即可。
+anywidget官方示例（ https://try.anywidget.dev/ ）中有不少基于Jupyter的示例代码，对于NiceGUI来说，使用时可以照搬其代码，只需最后将anywidget控件实例传给`ui.anywidget`控件的`widget`参数即可。
 
 `ui.anywidget`控件支持以下参数：
 
 - `widget`参数，表示要在NiceGUI中使用的anywidget控件。
 - `throttle`参数，关键字参数，浮点类型，表示anywidget控件在Python端与前端更新相关控件变量的时间间隔（单位秒），默认为`0`，即最短间隔（即时更新）。
 
-就以anywidget官方示例中的ITables（官方仓库 https://github.com/mwouts/itables）为例，看看其在NiceGUI中的示例：
+就以anywidget官方示例中的ITables（官方仓库 https://github.com/mwouts/itables ）为例，看看其在NiceGUI中的示例：
 
-```python3
+```python
 from nicegui import ui
 import pandas as pd
 from itables.widget import ITable
@@ -4891,7 +4889,7 @@ NiceGUI的页面本质上是网页，而网页中通常包含图片、音频、�
 
 以下面的代码为例，`os.path.dirname(os.path.abspath(__file__))`可以获取代码文件的当前目录，在代码文件的同目录下放一个图片文件`LOGO.png`，下面的代码就能显示这个图片。看起来没问题。但是，一旦复制这个图片的地址，将后面的文件名换成其他同目录下的文件名之后，粘贴到浏览器中访问，还是会自动跳转到“主页面”：
 
-```python3
+```python
 from nicegui import ui
 import os
 
@@ -4911,7 +4909,7 @@ ui.run(
 
 这个时候，理解这一切的读者想必已经恍然大悟。但不要高兴得太早，随之而来的是另一个问题——如果`ui.link`控件想使用图片的链接但图片会不定时修改怎么办？总不能每次都用`ui.image`控件生成一次图片地址，然后复制地址过去吧？倒不用那么笨拙，只需使用`ui.image`控件的`auto_route`属性即可：
 
-```python3
+```python
 from nicegui import ui
 import os
 
@@ -4934,7 +4932,7 @@ ui.run(
 
 还是以代码为例：
 
-```python3
+```python
 from nicegui import ui, app
 import os
 
@@ -4969,7 +4967,7 @@ ui.run(
 
 没错，只需给`url_path`参数传入指定地址，就能将文件映射为固定地址：
 
-```python3
+```python
 from nicegui import ui, app
 import os
 
@@ -5010,7 +5008,7 @@ ui.run(
 
 以下面的代码为例，可以看一下区别，因为此代码需要本地视频文件，这里就不提供直接运行的代码了，视频文件地址由读者自己修改：
 
-```python3
+```python
 from nicegui import ui, app
 
 def index():
@@ -5055,7 +5053,7 @@ NiceGUI的页面本质上是网页，而网页有时候需要添加一些额外�
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5096,7 +5094,7 @@ SASS是一种基于CSS语法实现、可以编译为CSS代码的样式描述语�
 
 `ui.add_css`方法的示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5119,7 +5117,7 @@ ui.run(
 
 `ui.add_sass`方法的示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5144,7 +5142,7 @@ ui.run(
 
 `ui.add_scss`方法的示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5187,7 +5185,7 @@ overrides
 
 因此，如果想要覆盖NiceGUI的很多控件自带样式，除了添加样式描述代码时需要使用`!important`修饰，还要正确设置级联层，默认使用`quasar`层即可：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5224,7 +5222,7 @@ ui.run(
 
 在`{`之前的部分就是选择器。 选择器指明了`{样式}`中的样式的作用对象或者作用范围，也就是样式作用于网页中的哪些HTML标签。
 
-选择器有一套自己的语法规则（https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/Selectors），通过合理设置选择器，可以实现精准匹配指定HTML标签。
+选择器有一套自己的语法规则（ https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/Selectors ），通过合理设置选择器，可以实现精准匹配指定HTML标签。
 
 NiceGUI简化了不少CSS上的操作，但不代表不需要CSS的基础。如果读者掌握了CSS的选择器，与`ui.query`方法和`ui.teleport`方法结合使用，那就如同得到了屠龙宝刀，操作界面布局、美化界面将更加得心应手。
 
@@ -5242,7 +5240,7 @@ NiceGUI简化了不少CSS上的操作，但不代表不需要CSS的基础。如�
 
 下面的代码就是使用`ui.query`方法匹配了`body`标签（网页的主体），并设置`body`标签的背景颜色：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5268,7 +5266,7 @@ ui.run(
 
 比如，先创建了按钮，后创建了卡片，想要将按钮放到卡片里的话，可以使用`move`方法可以移动按钮的位置：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5286,7 +5284,7 @@ ui.run(
 
 当然，本节主要介绍的是`ui.teleport`方法，自然可以使用`ui.teleport`方法实现：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5304,7 +5302,7 @@ ui.run(
 
 就以上面的示例为基础，稍微改动一下下。还是分别创建按钮和卡片，想要的结果依然是按钮在卡片之中，不过这次卡片没有对应的变量：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5318,7 +5316,7 @@ ui.run(
 
 虽然卡片没有对应的变量，但设置了样式。于是，可以借助`ui.query`方法匹配：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5335,7 +5333,7 @@ ui.run(
 
 肯定有读者看到上面的结果后突发奇想，想要进入其上下文，然后添加控件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5351,7 +5349,7 @@ ui.run(
 
 很可惜，这段代码并不能成功运行，因为`ui.query`方法不支持这样做。如果想要实现目的，需要将`ui.query`换成`ui.teleport`：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5369,7 +5367,7 @@ ui.run(
 
 移动已经创建好的控件也可以：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5398,7 +5396,7 @@ ui.run(
 
 以下是用于匹配的模板内容，就以其为基础，分别看看`ElementFilter`类不同参数、方法的用途：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 with ui.card():
@@ -5427,7 +5425,7 @@ ui.run(
 
 在下面的代码中，传给`kind`参数是`ui.label`，`ElementFilter`类实例对象就会匹配`ui.label`控件，这样给匹配结果设置背景颜色为红色的时候，页面内所有`ui.label`控件的背景颜色都会变成红色：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5463,7 +5461,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5499,7 +5497,7 @@ ui.run(root=index,native=True)
 
 `content`参数的用法很简单，就不做解释了，直接看示例：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5526,7 +5524,7 @@ ui.run(
 
 `local_scope`参数的示例如下：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5572,7 +5570,7 @@ ui.run(
 
 以 `within`方法为例，给`instance`参数传入具体控件，`ElementFilter`类实例对象将筛选出该控件上下文内的`ui.label`控件：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5616,7 +5614,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 from nicegui.elements.mixins.text_element import TextElement
 
@@ -5655,7 +5653,7 @@ ui.run(
 
 如下面代码所示，使用`for`遍历了`ElementFilter`类实例对象之后，然后使用`with`进入每个控件的上下文，添加了`ui.icon`控件：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5685,7 +5683,7 @@ ui.run(
 
 需要注意的是，即使匹配结果只有一个控件，也要遍历之后才能操作具体控件：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5727,7 +5725,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5767,7 +5765,7 @@ NiceGUI的每个控件都支持单独设置颜色，但是，如果想省点事�
 
 修改所有控件的颜色，简单一些的方法，就是用上一章学过的使用`ElementFilter`类匹配所有控件：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 def index():
@@ -5793,7 +5791,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5839,7 +5837,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5882,7 +5880,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -5929,7 +5927,7 @@ ui.run(
 
 下面是个使用存储字典的简单例子：
 
-```python3
+```python
 from nicegui import app, ui
 
 @ui.page('/')
@@ -5996,7 +5994,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6034,7 +6032,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,app
 
 def index():
@@ -6059,13 +6057,13 @@ ui.run(
 
 NiceGUI 3.9.0 新增以下功能（控件）：
 
-- `ui.parallax`控件，使用视差显示图片，可以增加网站的层次感，基于Quasar框架的视差控件（https://quasar.dev/vue-components/parallax）实现。
+- `ui.parallax`控件，使用视差显示图片，可以增加网站的层次感，基于Quasar框架的视差控件（ https://quasar.dev/vue-components/parallax ）实现。
 - 针对窗口模式，添加了事件支持（终于可以响应窗口事件了，可以参考 https://pywebview.flowrl.com/guide/usage.html#window-events ，了解支持的事件）。
 - `app.clients`方法传入`None`（默认值）时，返回所有客户端链接。
 
 `ui.parallax`控件显示图片时需要同一区域的内容可以滚动，才能触发视差效果（内容和图片的滚动方向相反）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6085,7 +6083,7 @@ ui.run(
 
 在全局作用域，使用`app.native.on`方法为窗口模式的事件注册响应函数：
 
-```python3
+```python
 from nicegui import ui,app
 
 app.native.on(
@@ -6110,7 +6108,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,app
 
 def index():
@@ -6144,7 +6142,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6196,7 +6194,7 @@ ui.run(
 
 在Python中执行读写剪贴板的操作会让服务器执行相关代码，难免给服务器添加额外的压力。这时可以使用JavaScript的接口读写剪贴板，这样的操作完全由客户端完成，可以减小服务器的压力。当然，JavaScript中同样需要异步读取，所以，JavaScript的实现会复杂一点：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6230,7 +6228,7 @@ ui.run(
 
 用`ui.link`控件提供超链接让用户点击，这是经典的提供下载文件的方法。但是，这样的方法并不完美，如果目标文件是浏览器支持直接浏览的格式，那点击链接就不一定触发下载：
 
-```python3
+```python
 from nicegui import ui,app
 
 app.native.settings['ALLOW_DOWNLOADS'] = True
@@ -6255,7 +6253,7 @@ ui.run(
 
 为了解决此问题，就需要使用`ui.download`对象的方法（实际上是对`ui.context.client.download`方法的包装，在`ui.context`对象的章节中不再重复介绍）来触发下载，而非点击超链接：
 
-```python3
+```python
 from nicegui import ui,app
 
 app.native.settings['ALLOW_DOWNLOADS'] = True
@@ -6312,7 +6310,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,app
 
 app.native.settings['ALLOW_DOWNLOADS'] = True
@@ -6356,7 +6354,7 @@ ui.run(
 
 对于网页模式，修改窗口标题很简单，最简单的方式莫过于直接运行JavaScript代码来修改：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6379,7 +6377,7 @@ ui.run(
 
 对于窗口模式，则可以使用`app.native.main_window.set_title`方法来修改窗口标题：
 
-```python3
+```python
 from nicegui import ui,app
 
 def index():
@@ -6402,7 +6400,7 @@ ui.run(
 
 不过，如果不想针对不同的显示模式使用不同的方法，则可以使用`ui.page_title`方法同时修改窗口模式、网页模式的窗口标题：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6453,7 +6451,7 @@ uv add pywin32
 
 基于上面的思路，示例如下：
 
-```python3
+```python
 from nicegui import ui
 import win32gui
 
@@ -6544,7 +6542,7 @@ NiceGUI 3.10.0 新增以下功能：
 
 先说`ui.status_code`方法，看起来像是个控件，实际上是个方法，或者说是一个快捷方法。该方法涉及的功能后面会介绍，不过用起来也不难。该方法主要用于修改当前页面的HTTP状态码，正常情况下，状态码是由框架内部控制，无需手动修改，但要是读者遇到必须修改的情况，就可以使用该方法：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6563,7 +6561,7 @@ ui.run(
 
 另一个要说的，就是绑定属性可以与嵌套的字典绑定了。先看看 3.10.0 之前的版本，绑定字典的示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6581,7 +6579,7 @@ ui.run(
 
 但是，如果被绑定的字典变成这样，就要改代码了：
 
-```python3
+```python
 dict_bind = {
 	'info':{
 		'name':'Alan',
@@ -6592,7 +6590,7 @@ dict_bind = {
 
 此时，原本的字典除了变得信息更多，还成为另一个字典中的字典，也就是字典嵌套。如果想要继续绑定原先的`'name'`键，在之前的版本需要预先获取最后的字典：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6619,7 +6617,7 @@ ui.run(
 
 在 3.10.0 中，只需将原本表示具体键的参数，改成元组，元组的元素依次为从外到内的每一次字典的键，即可轻松绑定：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6650,7 +6648,7 @@ ui.run(
 
 比如，`ui.button`控件的`on_click`参数（方法）可以创建点击事件的响应函数，也可以使用`on`方法创建同样的响应函数，只不过响应的事件类型是点击事件（对应值为`'click'`）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6671,7 +6669,7 @@ ui.run(
 
 对于原本没有参数（方法）创建点击事件响应函数的控件，就可以使用`on`方法创建点击事件响应函数：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6692,7 +6690,7 @@ ui.run(
 
 除了创建点击事件（对应值为`'click'`）的响应函数，还可以创建其他类型事件的响应函数，比如鼠标进入事件（对应值为`'mouseenter'`）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6719,7 +6717,7 @@ ui.run(
 
 控件的`on`方法，可以为控件创建任意类型事件的响应函数。若是使用`ui.on`方法，则可以为页面创建任意类型事件的响应函数：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6743,7 +6741,7 @@ ui.run(
 
 首先，要在JavaScript中使用`emitEvent`方法发射（触发）自定义事件。然后，使用`ui.on`方法创建对应名字事件的响应函数：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6778,7 +6776,7 @@ ui.run(
 
 -   `arge`参数，`None`或者元素为字符串的序列或者元素为序列（元素为字符串）的单元素序列，表示客户端的哪些参数及其值在触发事件、执行响应函数时，会传给响应函数接收参数的`args`属性（字典形式）。如果为`None`的话，表示将客户端所有的参数传入响应函数接收参数的`args`属性。比如，可以检查客户端触发事件时，有没有按下`ctrl`键：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -6810,7 +6808,7 @@ ui.run(
 
 以下为示例代码：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6843,7 +6841,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6862,7 +6860,7 @@ ui.run(
 
 如果是想用前面学过的方法实现同样的效果，则可以使用`ui.teleport`方法：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6880,7 +6878,7 @@ ui.run(
 
 如果是一开始没考虑直接在页面的上下文创建控件，想要在创建之后移动到页面的上下文中，那就要使用`ui.context`对象的`client`属性，该属性的`content`属性对应页面这个容器，使用`move`方法就能将任意控件移动到页面的上下文中：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -6900,7 +6898,7 @@ ui.run(
 
 此外，`client`属性还支持其他与客户端相关的功能，比如，`connected`方法是一个表示客户端已经连接的异步方法，异步等待该方法的调用结果，可以确保之后的代码是在客户端连接之后才执行：
 
-```python3
+```python
 from nicegui import ui
 
 async def index():
@@ -6940,7 +6938,7 @@ ui.run(
 
   比如，通过`props`属性（方法）修改输入框的背景颜色，如果其样式值为字符串，则只有启用了客户端计算表达式的功能之后才能生效：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -6972,7 +6970,7 @@ ui.run(
 
   不过，当前版本的`props`方法已经支持更加灵活的字典表达方式，可以让代码更简单：
   
-  ```python3
+  ```python
   from nicegui import ui
   
   
@@ -7006,7 +7004,7 @@ ui.run(
   
   这个功能更多是用于支持复杂配置的控件，其配置项若是支持JavaScript表达式的话，则需要给对应的配置项名字添加英文冒号作为前缀：
   
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -7058,7 +7056,7 @@ ui.run(
 
 ## 30 通过URL给NiceGUI程序传参
 
-因为NiceGUI是基于FastAPI实现的，所以，FastAPI的URL参数注入（用法参考 https://fastapi.tiangolo.com/tutorial/path-params/ 、https://fastapi.tiangolo.com/tutorial/query-params/ 、https://fastapi.tiangolo.com/advanced/using-request-directly/ ）在NiceGUI程序中也能使用。
+因为NiceGUI是基于FastAPI实现的，所以，FastAPI的URL参数注入（用法参考 https://fastapi.tiangolo.com/tutorial/path-params/  、 https://fastapi.tiangolo.com/tutorial/query-params/ 、 https://fastapi.tiangolo.com/advanced/using-request-directly/ ）在NiceGUI程序中也能使用。
 
 NiceGUI程序支持两种URL参数注入：
 
@@ -7067,7 +7065,7 @@ NiceGUI程序支持两种URL参数注入：
 
 在`ui.page`装饰的函数、页面构建函数的参数列表中创建同名参数后，即可在函数内部使用上面提到的URL参数：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page('/icon/{icon}')
@@ -7098,7 +7096,7 @@ ui.run()
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 from fastapi import Request
 import re
@@ -7135,7 +7133,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.page_arguments import PageArguments
 
@@ -7180,7 +7178,7 @@ NiceGUI 3.11.0 新增以下功能：
 
 `make_sortable`方法的示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -7207,7 +7205,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -7245,7 +7243,7 @@ ui.run(
 
 如果想要`ui.dialog`控件弹出时，背景呈现模糊的效果，只需在`props`属性中添加`backdrop-filter`属性（完整用法参考 https://quasar.dev/vue-components/dialog ）即可：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -7284,7 +7282,7 @@ ui.run(
 
 解决方法也很简单，只需给子级元素的响应函数中，添加JavaScript代码，执行对应事件的`stopPropagation()`方法，来阻止事件的传播即可：
 
-```python3
+```python
 from nicegui import ui
 
 with ui.button('Item').classes('w-96') as button:
@@ -7311,7 +7309,7 @@ ui.run(
 
 如果想要绑定的快捷键本身就有默认的动作（比如`enter`键会执行换行，`ctrl+a`键会全选当前页面的所有内容），而不想让这些快捷键执行额外的动作，可以使用`on`方法的`js_handler`参数，在JavaScript中调用参数的`event`属性的`preventDefault`方法，来阻止按键默认动作的执行：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.events import KeyEventArguments
 
@@ -7352,7 +7350,7 @@ ui.run(
 
 其中，`app.on_page_exception`装饰器用于捕获页面创建时触发的异常：
 
-```python3
+```python
 from nicegui import ui, app
 
 @app.on_page_exception
@@ -7368,7 +7366,7 @@ ui.run()
 
 `app.on_exception`装饰器则用于捕获页面创建完成后触发的异常：
 
-```python3
+```python
 from nicegui import ui, app
 
 @app.on_exception
@@ -7386,7 +7384,7 @@ ui.run()
 
 至于HTTP状态码，这里仅提供示例作为参考，因为其涉及到部分框架相关的原理，故不做展开：
 
-```python3
+```python
 from nicegui import ui,app, Client
 from fastapi import Request
 
@@ -7409,7 +7407,7 @@ ui.run()
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -7429,7 +7427,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -7445,7 +7443,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,native
 
 def index():
@@ -7465,9 +7463,9 @@ ui.run(
 
 `title`参数，字符串类型，表示网页模式、窗口模式默认的窗口标题，默认为`'NiceGUI'`。
 
-`viewport`参数，字符串类型，表示网页的VIewport属性，常用于优化移动端的显示效果，默认为`'width=device-width, initial-scale=1'`，更多用法可以参考 https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Elements/meta/name/viewport。比如，可以添加`user-scalable=no`来禁止移动端用户缩放网页：
+`viewport`参数，字符串类型，表示网页的VIewport属性，常用于优化移动端的显示效果，默认为`'width=device-width, initial-scale=1'`，更多用法可以参考 https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Elements/meta/name/viewport 。比如，可以添加`user-scalable=no`来禁止移动端用户缩放网页：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -7489,7 +7487,7 @@ ui.run(
 
 以下为示例，图片文件与源代码在同一目录下：
 
-```python3
+```python
 from nicegui import ui
 from pathlib import Path
 
@@ -7526,7 +7524,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -7576,12 +7574,12 @@ ui.run(
 
 `fastapi_docs`参数，布尔类型或者`DocsConfig`类型（使用`from nicegui.ui_run import DocsConfig`导入），表示是否启用或者配置FastAPI提供的接口文档，默认为`False`。
 
-如果参数为布尔类型，表示启用、禁用，通过以下地址（可参考https://fastapi.tiangolo.com/tutorial/metadata/#docs-urls）访问默认提供的接口文档：
+如果参数为布尔类型，表示启用、禁用，通过以下地址（可参考 https://fastapi.tiangolo.com/tutorial/metadata/#docs-urls ）访问默认提供的接口文档：
 
 - `/redoc`是ReDoc框架生成的文档。
 - `/docs`是SwaggerUI框架生成的文档。
 
-如果参数为`DocsConfig`类型，表示启用接口文档并配置相关参数（可参考https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-api）：
+如果参数为`DocsConfig`类型，表示启用接口文档并配置相关参数（可参考 https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-api ）：
 
 - `title`参数，字符串类型，表示接口文档的标题。
 - `summary`参数，字符串类型，表示接口文档的简要说明。
@@ -7595,11 +7593,11 @@ ui.run(
 - `license_info`参数，`LicenseInfoDict`类型（使用`from nicegui.ui_run import LicenseInfoDict`导入），表示文档的许可证信息。`LicenseInfoDict`类支持以下参数：
   - `name`参数，字符串类型，表示许可证的名字。
   - `identifier`参数，字符串类型，表示许可证识别代码。
-  - `url`参数，字符串类型，表示许可证完整内容的链接，可以使用绝对地址或者相对地址。如果没设置该参数，则框架会根据许可证识别代码，自动使用基于https://spdx.org/licenses/ 拼接的地址作为许可证完整内容的链接。比如，许可证识别代码为`'MIT'`，则完整内容的链接为`https://spdx.org/licenses/MIT.html`。
+  - `url`参数，字符串类型，表示许可证完整内容的链接，可以使用绝对地址或者相对地址。如果没设置该参数，则框架会根据许可证识别代码，自动使用基于 https://spdx.org/licenses/ 拼接的地址作为许可证完整内容的链接。比如，许可证识别代码为`'MIT'`，则完整内容的链接为`https://spdx.org/licenses/MIT.html`。
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,app
 from nicegui.ui_run import DocsConfig,ContactDict,LicenseInfoDict
 
@@ -7643,7 +7641,7 @@ ui.run(
 
 `show`参数，布尔类型或者字符串类型，表示以网页模式启动时，是否启动默认浏览器，打开主页面或者指定页面，默认为`True`。当该参数为基于网站主机表示的绝对路径字符串时，则表示打开指定页面而非主页面。
 
-`on_air`参数，布尔类型，表示启动程序的同时，是否使用NiceGUI官方提供的地址映射工具，映射一个免费的公网地址，默认为`False`。该功能由https://on-air.io/提供在线转发服务，默认免费使用，付费的高级版功能更强大。
+`on_air`参数，布尔类型，表示启动程序的同时，是否使用NiceGUI官方提供的地址映射工具，映射一个免费的公网地址，默认为`False`。该功能由 https://on-air.io/ 提供在线转发服务，默认免费使用，付费的高级版功能更强大。
 
 `native`参数，布尔类型，表示是否以窗口模式启动，默认为`False`。
 
@@ -7651,7 +7649,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -7689,7 +7687,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page('/')
@@ -7742,7 +7740,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.settings['ALLOW_DOWNLOADS'] = True
@@ -7766,7 +7764,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.settings['OPEN_EXTERNAL_LINKS_IN_BROWSER'] = False
@@ -7804,7 +7802,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.start_args['func'] = print
@@ -7821,7 +7819,7 @@ ui.run(
 
 - `'localization'`键，字典类型，表示PyWebview框架内使用的相关文字对应的本地化翻译。具体支持的字段如下：
 
-  ```python3
+  ```python
   {
       'global.quitConfirmation': 'Do you really want to quit?',
       'global.ok': 'OK',
@@ -7846,7 +7844,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.window_args['confirm_close'] = True
@@ -7871,7 +7869,7 @@ ui.run(
 
   注意，虽然该键支持多种值，但系统不同，可用的值也不同，具体参考 https://pywebview.flowrl.com/guide/web_engine.html 。对于Windows系统，仅推荐（支持）`['edgechromium','qt']`。
 
-  `'edgechromium'`为默认值，表示使用Webview2运行时作为浏览器外壳，需要安装：.NET框架（http://dot.net/）和EdgeWebview运行时（微软提供的Webview2运行时，https://developer.microsoft.com/zh-cn/microsoft-edge/webview2）。
+  `'edgechromium'`为默认值，表示使用Webview2运行时作为浏览器外壳，需要安装：.NET框架（ http://dot.net/ ）和EdgeWebview运行时（微软提供的Webview2运行时， https://developer.microsoft.com/zh-cn/microsoft-edge/webview2 ）。
 
   `'qt'`则表示使用Qt的WebEngine作为浏览器外壳，需要安装Python库：`QtPy`（必需），`PyQt6`和`PyQt6-WebEngine`（由PyQt6提供WebEngine，与PySide6二选一），`PySide6`（由PySide6提供WebEngine，与PyQt6二选一）。
 
@@ -7888,7 +7886,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.start_args['gui'] = 'qt'
@@ -7908,7 +7906,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.start_args['user_agent'] = 'NiceGUI of PSF'
@@ -7944,7 +7942,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   from webview.menu import Menu,MenuAction,MenuSeparator
   
@@ -7982,7 +7980,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.start_args['gui'] = 'qt'
@@ -8007,7 +8005,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.window_args['resizable'] = False
@@ -8031,7 +8029,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.window_args['hidden'] = True
@@ -8062,7 +8060,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.window_args['focus'] = False
@@ -8086,7 +8084,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.window_args['on_top'] = True
@@ -8110,7 +8108,7 @@ ui.run(
 
   注意，本功能在NiceGUI当前依赖的PyWebview版本（5.4.0）下**无法**正常使用，示例仅作为功能演示，不是当前NiceGUI版本（3.2.0）的可用代码，后续版本升级或许会修复相关问题：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.window_args['transparent'] = True
@@ -8132,7 +8130,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.window_args['text_select'] = True
@@ -8154,7 +8152,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   app.native.window_args['draggable'] = True
@@ -8190,7 +8188,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   def index():
@@ -8220,7 +8218,7 @@ ui.run(
 
     除了直接使用整数表示文件对话框的类型，`webview`库还提供了三个预定义常量（也就是该参数默认值的用法），可以根据变量名判断出不同值的含义：
 
-    ```python3
+    ```python
     OPEN_DIALOG = 10
     FOLDER_DIALOG = 20
     SAVE_DIALOG = 30
@@ -8230,7 +8228,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui, app
     import webview
     
@@ -8255,7 +8253,7 @@ ui.run(
 
     注意，该参数不支持`r`前缀修饰字符串，也不支持斜杠`'/'`作为路径分隔，仅支持反斜杠`'\'`作为路径分隔，并且为了避免转义导致误解，需要使用双反斜杠代替单反斜杠。比如：
 
-    ```python3
+    ```python
     from nicegui import ui, app
     
     def index():
@@ -8286,7 +8284,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui,app
     
     async def open_dialog():
@@ -8319,7 +8317,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   def index():
@@ -8339,7 +8337,7 @@ ui.run(
 
 - `get_always_on_top`方法，获取窗口的置顶状态。需要使用异步等待获取该方法的返回值：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   def index():
@@ -8373,7 +8371,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   def index():
@@ -8401,7 +8399,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   def index():
@@ -8428,7 +8426,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   def index():
@@ -8483,11 +8481,11 @@ ui.run(
 
 但是，系统的EdgeWebview运行时更新很快，而且是自动更新，若是开发的程序与最新版EdgeWebview运行时不兼容或者想要避免系统EdgeWebview运行时更新导致的潜在问题，则可以设置环境变量`WEBVIEW2_BROWSER_EXECUTABLE_FOLDER`为指定版本EdgeWebview运行时解压之后的路径，让窗口模式使用非系统的EdgeWebview运行时。
 
-固定版本EdgeWebview运行时可以到官网（https://developer.microsoft.com/zh-cn/microsoft-edge/webview2）下载，本解决方案参考自微软开发者文档（https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#details-about-the-fixed-version-runtime-distribution-mode）。
+固定版本EdgeWebview运行时可以到官网（ https://developer.microsoft.com/zh-cn/microsoft-edge/webview2 ）下载，本解决方案参考自微软开发者文档（ https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#details-about-the-fixed-version-runtime-distribution-mode ）。
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui, app
 import os
 from pathlib import Path
@@ -8516,7 +8514,7 @@ ui.run(
 
 在全局作用域，使用`app.native.on`方法为窗口模式的事件注册响应函数。
 
-窗口模式支持以下事件（部分完整可参考 https://pywebview.flowrl.com/guide/usage.html#window-events）：
+窗口模式支持以下事件（部分完整可参考 https://pywebview.flowrl.com/guide/usage.html#window-events ）：
 
 - `drop`事件，拖动文件到窗口后触发。
 - `closed`事件，窗口关闭后触发。
@@ -8530,7 +8528,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui, app
 
 for i in [
@@ -8591,7 +8589,7 @@ NativeEventArguments(type='resized', args={'width': 987, 'height': 733})
 
 此外，上面的示意图虽然将子页面与其余部分画得泾渭分明，还像有固定顺序一样，但实际上二者之间可以互相任意排列组合（不能分割完整的子页面），子页面可以放置在整个页面中的任意位置：
 
-```python3
+```python
 from nicegui import ui
 
 
@@ -8645,7 +8643,7 @@ ui.run(
 
 - `root_path`参数，字符串类型，表示单页面应用所属页面的路径。当所属页面的路径非`'/'`时，必须给该参数传入所属页面的路径才能让子页面正常生效。比如：
 
-  ```python3
+  ```python
   from nicegui import ui
   from uuid import uuid4
   
@@ -8681,7 +8679,7 @@ ui.run(
 
 - `data`参数，字典类型（键为使用字符串表示的子页面构建函数的参数，值为参数对应的值），表示传给子页面构建函数具体参数的值，可以在不同页面之间共享变量、控件。比如：
 
-  ```python3
+  ```python
   from nicegui import ui
   from uuid import uuid4
   
@@ -8720,7 +8718,7 @@ ui.run(
 
 - `show_404`参数，布尔类型，表示如果子页面没有对应的构建函数，是否显示一段展示该错误的简短字符串，默认为`True`。如果该参数为`False`，则没有任何提示内容。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   from uuid import uuid4
   
@@ -8771,7 +8769,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   from uuid import uuid4
   
@@ -8832,7 +8830,7 @@ ui.run(
 
 不过，看上去和之前介绍的不太一样，那就先简化一下：`@ui.page('/index/{_}')`。这下能看懂了，下划线通常表示不需要使用的变量，如果改成一个需要使用的变量的话，示例可以改成这样：
 
-```python3
+```python
 from nicegui import ui
 from uuid import uuid4
 
@@ -8870,7 +8868,7 @@ ui.run(
 
 不使用这行代码的话，直接访问子页面对应的完整路径是没法打开的：
 
-```python3
+```python
 from nicegui import ui
 from uuid import uuid4
 
@@ -8914,7 +8912,7 @@ ui.run(
 
 本章的第一个示例没有这一行代码，可以访问`http://127.0.0.1:8080/b`直达子页面：
 
-```python3
+```python
 from nicegui import ui
 
 
@@ -8960,7 +8958,7 @@ ui.run(
 
 再往前，初次介绍单页面应用的章节中，脚本模式的单页面应用示例也没有这一行代码，也可以访问`http://127.0.0.1:8080/b`直达子页面：
 
-```python3
+```python
 from nicegui import ui
 
 def main():
@@ -9004,7 +9002,7 @@ ui.run()
 
 需要强调的是，脚本模式和单页面模式**没有**404页面：
 
-```python3
+```python
 from nicegui import ui
 
 ui.link('到其他页面（不存在）', '/other')
@@ -9014,7 +9012,7 @@ ui.run()
 
 或者：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -9037,7 +9035,7 @@ ui.run(
 
 先看脚本模式的单页面应用：
 
-```python3
+```python
 from nicegui import ui
 
 def main():
@@ -9070,7 +9068,7 @@ ui.run()
 
 单页面模式的单页面应用：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -9106,7 +9104,7 @@ ui.run(
 
 多页面模式的单页面应用：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page('/')
@@ -9155,7 +9153,7 @@ ui.run()
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.page_arguments import PageArguments
 
@@ -9215,7 +9213,7 @@ ui.run()
 
 前面绑定属性的示例，就是一个活动链接：
 
-```python3
+```python
 from nicegui import ui
 
 class data_class:
@@ -9243,7 +9241,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 data_dict = {'value':'no value'}
@@ -9270,7 +9268,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 value = 'no value'
@@ -9308,7 +9306,7 @@ ui.run(
 
 实例化`BindableProperty`类即可创建为可绑定属性，绑定时直接使用：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.binding import BindableProperty
 
@@ -9340,7 +9338,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.binding import BindableProperty
 
@@ -9374,7 +9372,7 @@ ui.run(
 
 `bindable_dataclass`方法用起来就像一个装饰器，用于代替`@dataclass`创建数据类，只不过，`bindable_dataclass`方法会将所有数据类的字段转换为可绑定属性：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.binding import bindable_dataclass
 
@@ -9403,7 +9401,7 @@ ui.run(
 
 对于不想或者不支持转换为可绑定属性的字段，可以使用`bindable_dataclass`方法的另一种用法，其列表类型的`bindable_fields`参数用于指定要转换为可绑定属性的字段，不在该参数内的字段则不会转换：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.binding import bindable_dataclass
 
@@ -9494,7 +9492,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.binding import bind,bindable_dataclass
 
@@ -9543,7 +9541,7 @@ ui.run(
 
 先不说支持列表或者集合，若只是字典的话，可以修改绑定方法的`backward`参数，给其添加额外的操作：
 
-```python3
+```python
 from nicegui import ui
 
 data_dict = {'value':'no value'}
@@ -9578,7 +9576,7 @@ ui.run(
 
 属性绑定倒是可以实现属性值变化时使用NiceGUI控件：
 
-````python3
+````python
 from nicegui import ui
 from nicegui.binding import BindableProperty
 
@@ -9616,7 +9614,7 @@ ui.run(
 
 问题看似无解，但天无绝人之路，NiceGUI提供了一种更简单、更完美、应用更广泛的解决方案——可观察类（源于NiceGUI的`observables`模块）。上面使用字典的示例就可以转换为：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.observables import ObservableDict
 
@@ -9655,7 +9653,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     from nicegui.observables import ObservableDict
     
@@ -9706,7 +9704,7 @@ ui.run(
 
 已知：`'w-full'`样式可以让控件的宽度占据可用宽度，`'h-full'`样式可以让控件的高度占据可用高度。按理来说，添加这两个样式，就能让`ui.card`控件占据全部可用空间，但实际效果却并非如此：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -9729,11 +9727,11 @@ ui.run(
 
 注意，`'h-full'`样式仅限父容器有具体高度值时，才能让控件的高度占据可用高度，相当于最大高度。现在需要解决的是，给HTML标签设置一个高度值，其父元素也是没有高度值的。如果使用`'h-full'`样式的话，问题依然没有解决。
 
-很简单，只需使用`'h-screen'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-viewport）、`'h-dvh'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-dynamic-viewport）、`'h-lvh'`样式（具体含义参考 https://tailwindcss.com/docs/height#matching-large-viewport）、`'h-svh'`样式（具体含义参考https://tailwindcss.com/docs/height#matching-small-viewport）中的任意一种，该样式可以自动识别浏览器可见区域的高度，并将其作为使用该样式的HTML标签的高度。
+很简单，只需使用`'h-screen'`样式（具体含义参考 https://tailwindcss.com/docs/height#matching-viewport ）、`'h-dvh'`样式（具体含义参考 https://tailwindcss.com/docs/height#matching-dynamic-viewport ）、`'h-lvh'`样式（具体含义参考 https://tailwindcss.com/docs/height#matching-large-viewport ）、`'h-svh'`样式（具体含义参考 https://tailwindcss.com/docs/height#matching-small-viewport ）中的任意一种，该样式可以自动识别浏览器可见区域的高度，并将其作为使用该样式的HTML标签的高度。
 
 根据前面学过的方法，下面两种方式都可以实现所需的效果：
 
-```python3
+```python
 # 使用ui.query
 ui.query('.nicegui-content').classes('h-lvh')
 # 使用客户端上下文
@@ -9742,7 +9740,7 @@ ui.context.client.content.classes('h-lvh')
 
 完整示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -9767,7 +9765,7 @@ ui.run(
 
 对应到具体代码的话如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -9795,7 +9793,7 @@ ui.run(
 
 当然，行、列布局的嵌套顺序也可以换一下，但是要注意，列布局作为第二层的时候，需要添加`'h-full'`样式来确保高度为最大：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -9817,9 +9815,9 @@ ui.run(
 
 事情到了这一步，似乎已经完美解决了，但是，从代码行数和使用的简洁程度上看，另一个方案更好。
 
-`'absolute-center'`样式（具体含义参考https://quasar.dev/style/positioning）可以让使用该样式的控件处于可用空间的中心，两个方向都是居中：
+`'absolute-center'`样式（具体含义参考 https://quasar.dev/style/positioning ）可以让使用该样式的控件处于可用空间的中心，两个方向都是居中：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -9839,7 +9837,7 @@ ui.run(
 
 这样的话，就不用搭建复杂的行、列布局，还可以将按钮替换为普通的容器控件，在容器内使用的控件无需额外添加该样式：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -9890,7 +9888,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
 - `on_click`参数，可调用类型，表示点击按钮时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`ClickEventArguments`类型，其`sender`属性表示触发点击事件的控件本身。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -9913,7 +9911,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -9935,11 +9933,11 @@ Quasar框架文档：https://quasar.dev/vue-components/button
   - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
   - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
 
-  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon。
+  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon 。
 
   示例如下：
   
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10014,7 +10012,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10035,7 +10033,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   点击超链接之后，页面的内容为：
 
-  ```python3
+  ```python
   "Button [label=Hello]"
   ```
 
@@ -10045,7 +10043,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   from pathlib import Path
   import os
@@ -10077,7 +10075,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10104,7 +10102,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10137,7 +10135,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10218,7 +10216,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10248,7 +10246,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   输出如下：
 
-  ```python3
+  ```python
   ['a', 'b', 'c']
   ['c', 'd']
   ['a']
@@ -10260,7 +10258,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   async def index():
@@ -10286,7 +10284,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10308,7 +10306,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   除了调用此方法，直接遍历控件，效果是一样的：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10347,7 +10345,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   async def index():
@@ -10378,7 +10376,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   - `arge`参数，`None`或者元素为字符串的序列或者元素为序列（元素为字符串）的单元素序列，表示客户端的哪些参数及其值在执行响应函数时，会传给响应函数接收参数的`args`属性（字典形式）。如果为`None`的话，表示将客户端所有的参数传入响应函数接收参数的`args`属性。比如，可以检查客户端响应事件时，有没有按下其他功能键：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -10434,7 +10432,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10467,7 +10465,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   async def index():
@@ -10530,7 +10528,7 @@ Quasar框架文档：https://quasar.dev/vue-components/button
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -10555,7 +10553,7 @@ ui.run(
 
 点击按钮之后，输出如下：
 
-```python3
+```python
 World1
 World2
 World3
@@ -10568,7 +10566,7 @@ World4
 
 示例如下：
 
-```python3
+```python
 
 from nicegui import ui
 
@@ -10612,7 +10610,7 @@ ui.run(
 
 以禁用按钮文字全部大写的`no-caps`属性为例，示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -10643,7 +10641,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10668,7 +10666,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10698,7 +10696,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10729,7 +10727,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10753,7 +10751,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10780,7 +10778,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10808,7 +10806,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10831,7 +10829,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10860,7 +10858,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10885,7 +10883,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10910,7 +10908,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10935,7 +10933,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10960,7 +10958,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -10985,7 +10983,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11010,7 +11008,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11035,7 +11033,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11064,7 +11062,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11096,7 +11094,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11121,7 +11119,7 @@ ui.run(
 
   示例如下：
 
-  ````python3
+  ````python
   from nicegui import ui
   
   def index():
@@ -11155,7 +11153,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11186,7 +11184,7 @@ ui.run(
 
   注意，如果是使用`props`方法，则要启用计算表达式功能，并且要将整个字典放在字符串内，其中字符串类型的值要用反单引号包围：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11209,7 +11207,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11234,7 +11232,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11291,7 +11289,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page('/')
@@ -11318,7 +11316,7 @@ ui.run()
 
 将上个示例中第一个超链接替换为`ui.link_target`控件，则跳转到该位置的超链接可以改为`ui.link('go to baidu','#baidu')`：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page('/')
@@ -11351,7 +11349,7 @@ ui.run()
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -11385,7 +11383,7 @@ Quasar框架文档：https://quasar.dev/vue-components/chat/
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11420,7 +11418,7 @@ Quasar框架文档：https://quasar.dev/vue-components/chat/
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -11447,7 +11445,7 @@ ui.run(
 
 对于“default”插槽，如果插入多个控件，则每个控件都会当作一条信息，但发送者是同一人：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -11474,7 +11472,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -11520,7 +11518,7 @@ ui.run(
 
 - `'cuddled-lists'`，表示启用无额外换行的无序列表支持，即无序列表的上一行可以不是空白行。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11553,12 +11551,12 @@ ui.run(
 
 - `'fenced-code-blocks'`，表示启用代码块支持。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
       content = '''
-      ```python3
+      ```python
       print('Hello')
       ```'''
       # 未启用
@@ -11584,7 +11582,7 @@ ui.run(
 
 - `'footnotes'`，表示启用脚注支持。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11623,7 +11621,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11669,7 +11667,7 @@ ui.run(
 
 - `'pyshell'`，表示允许将指定格式的内容渲染为Python Shell。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11702,7 +11700,7 @@ ui.run(
 
   也可以与`'fenced-code-blocks'`同时使用，增加语法高亮：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11736,7 +11734,7 @@ ui.run(
 
 - `'tables'`，表示启用表格支持。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11773,7 +11771,7 @@ ui.run(
 
 - `'task_list'`，表示启用GItHub风格的任务列表支持。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11804,7 +11802,7 @@ ui.run(
 
 - `'mermaid'`，表示启用Mermaid支持。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11844,7 +11842,7 @@ ui.run(
 
 - `config`参数，字典类型，表示传入JavaScript库的配置（支持的配置参考 https://mermaid.js.org/config/schema-docs/config.html#mermaid-config-properties ），默认为`None`，即不传入任何配置。比如，配置流程图的主题：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11867,7 +11865,7 @@ ui.run(
 
 - `on_node_click`参数，关键字参数，可调用类型，表示点击节点时执行的操作。该参数对应的可调用对象，可以接收0个或者1个参数，接收1个参数时，该参数为`MermaidNodeClickEventArguments`类型，其`node_id`属性表示触发点击事件的节点ID。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11891,7 +11889,7 @@ ui.run(
 
 - `on_node_click`方法，用途同`on_node_click`参数。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -11925,7 +11923,7 @@ click taskId href URL
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -11956,7 +11954,7 @@ ui.run(
 
 `ui.mermaid`控件额外支持`error`事件，仅当原始（未渲染）的内容发生语法错误时，才会触发此事件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -11982,7 +11980,7 @@ ui.run(
 
 除了流程图，`ui.mermaid`控件还以绘制其他类型的图，比如饼状图（完整用法参考 https://mermaid.js.org/syntax/pie.html ，更多类型的图可以点击侧边栏的其他目录）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -12019,7 +12017,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12068,7 +12066,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12096,7 +12094,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12127,7 +12125,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12165,7 +12163,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12225,7 +12223,7 @@ ui.run(
 
   可以使用转义控制序列修改输出内容的样式：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12252,7 +12250,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12316,7 +12314,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12371,7 +12369,7 @@ ui.run(
   - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
   - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
 
-  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon。
+  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon 。
 
 - `auto_close`参数，布尔类型，表示点击弹出的嵌入内容之后是否自动收回，默认为`False`。
 
@@ -12389,7 +12387,7 @@ ui.run(
 
 `ui.dropdown_button`控件支持嵌入复杂布局的控件，比如开关等。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -12460,7 +12458,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -12491,7 +12489,7 @@ ui.run(
   - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
   - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
 
-  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon。
+  关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon 。
 
   从该参数开始，只能通过关键字传入。
 
@@ -12522,7 +12520,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -12577,7 +12575,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12614,7 +12612,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12637,7 +12635,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12664,7 +12662,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12699,7 +12697,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12741,7 +12739,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12767,7 +12765,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12799,7 +12797,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12829,7 +12827,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12855,7 +12853,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12891,7 +12889,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12919,7 +12917,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12945,7 +12943,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12972,7 +12970,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -12999,7 +12997,7 @@ Quasar框架文档：https://quasar.dev/vue-components/select
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13103,7 +13101,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13130,7 +13128,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13155,7 +13153,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13184,7 +13182,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13211,7 +13209,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
 - `error`属性，字符串类型，表示验证输入的内容无效时的提示信息。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13278,7 +13276,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13307,7 +13305,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13331,7 +13329,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13357,7 +13355,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13379,7 +13377,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
 - “label”插槽，对应`label`参数的部分。注意，只有设置了`label`参数之后，该插槽才能生效，并且`label`参数的值会被忽略。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13399,7 +13397,7 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
 - “loading”插槽，对应控件的加载状态，需要在启用Quasar控件属性`loading`，建议插入同样表示加载动画的`ui.spinner`控件。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13421,9 +13419,9 @@ Quasar框架文档：https://quasar.dev/vue-components/input
 
 `ui.input`控件支持不少控件属性，全部介绍的话会导致篇幅太长，因此，这里挑了几个使用的控件属性，详细介绍一下。
 
-如果想要快速清除输入的内容，可以使用`clearable`属性（完整用法可以参考 https://quasar.dev/vue-components/input#clearable），使用该属性之后，输入框内将添加一个快速清除输入内容的按钮，同时，可以使用`clear-icon`属性自定义该按钮的图标：
+如果想要快速清除输入的内容，可以使用`clearable`属性（完整用法可以参考 https://quasar.dev/vue-components/input#clearable ），使用该属性之后，输入框内将添加一个快速清除输入内容的按钮，同时，可以使用`clear-icon`属性自定义该按钮的图标：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13441,9 +13439,9 @@ ui.run(
 
 ![2026_45_12](nicegui_pro.assets/2026_45_12.png)
 
-除了前面提到的几种插槽，还可以使用`prefix`属性和`suffix`属性（完整用法可以参考 https://quasar.dev/vue-components/input#prefix-and-suffix）给输入的内容添加前缀和后缀：
+除了前面提到的几种插槽，还可以使用`prefix`属性和`suffix`属性（完整用法可以参考 https://quasar.dev/vue-components/input#prefix-and-suffix ）给输入的内容添加前缀和后缀：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13469,9 +13467,9 @@ ui.run(
 
 ![2026_45_13](nicegui_pro.assets/2026_45_13.png)
 
-对于需要限定输入内容格式的情况，比如，序列号、许可证、电话号码等的只有数字或者字母且格式规整的内容，则可以使用`mask`属性（完整用法可以参考 https://quasar.dev/vue-components/input#mask）：
+对于需要限定输入内容格式的情况，比如，序列号、许可证、电话号码等的只有数字或者字母且格式规整的内容，则可以使用`mask`属性（完整用法可以参考 https://quasar.dev/vue-components/input#mask ）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13509,7 +13507,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13535,7 +13533,7 @@ ui.run(
 
 如果不希望输入框的实际值包含分隔符，则可以使用`unmasked-value`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13560,7 +13558,7 @@ ui.run(
 
 如果需要使用指定字符填充未输入的部分，可以使用`fill-mask`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13612,7 +13610,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13632,7 +13630,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13678,7 +13676,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13714,7 +13712,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13744,7 +13742,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -13785,7 +13783,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13843,7 +13841,7 @@ Quasar框架文档：https://quasar.dev/vue-components/editor
 
 修改`content-class`属性可以自定义内容区域的样式：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13866,9 +13864,9 @@ ui.run(
 
 ![2026_45_22](nicegui_pro.assets/2026_45_22.png)
 
-如果想要重新定义现有按钮的样式，可以参考 https://quasar.dev/vue-components/editor#example--redefine-bold-command，修改`definitions`属性，示例如下：
+如果想要重新定义现有按钮的样式，可以参考 https://quasar.dev/vue-components/editor#example--redefine-bold-command ，修改`definitions`属性，示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13924,9 +13922,9 @@ ui.run(
 
 注意，仅部分按钮默认显示，其余按钮需要通过`toolbar`属性添加才能显示，并且不是所有按钮都支持重新定义。如果按钮名不是合法变量名（比如`size-1`按钮），使用时必须使用引号包起来。
 
-如果想要添加新的按钮，可以参考 https://quasar.dev/vue-components/editor#example--add-new-commands，修改`toolbar`属性，示例如下：
+如果想要添加新的按钮，可以参考 https://quasar.dev/vue-components/editor#example--add-new-commands ，修改`toolbar`属性，示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -13979,7 +13977,7 @@ ui.run(
 
 为了定义这些自定义按钮的功能，让其在点击之后执行特定功能，可以使用按钮名对应的插槽：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14119,7 +14117,7 @@ CodeMirror框架文档：https://codemirror.net/docs/
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14161,7 +14159,7 @@ svelte-jsoneditor框架文档：https://github.com/josdejong/svelte-jsoneditor
 
 `ui.json_editor`控件支持以下参数：
 
-- `properties`参数，字典类型，表示控件的复合属性，其键（key）是JSON编辑器支持的属性（参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#properties）。常用属性如下：
+- `properties`参数，字典类型，表示控件的复合属性，其键（key）是JSON编辑器支持的属性（参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#properties ）。常用属性如下：
 
   - `content`属性，字典类型，表示内容主体（参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#content ）。字典包含`'json'`和`'text'`两个键，分别代表内容的JSON格式和TEXT格式。
   - `mainMenuBar`属性，布尔类型，表示是否显示编辑器的主菜单栏，默认为`True`。
@@ -14169,13 +14167,13 @@ svelte-jsoneditor框架文档：https://github.com/josdejong/svelte-jsoneditor
   - `statusBar`属性，布尔类型，表示是否显示编辑器文本模式的状态栏，默认为`True`。
   - `readOnly`属性，布尔类型，表示是否启用编辑器内容的只读模式，默认为`False`。
 
-  更多属性可参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#properties。
+  更多属性可参考 https://github.com/josdejong/svelte-jsoneditor?tab=readme-ov-file#properties 。
 
   注意，如果想要在创建控件之后修改`content`属性中的内容主体，虽然其内容对应的是字典，但不能通过修改原始内容的形式修改内容主体，而是要修改控件的`properties`属性。
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14214,7 +14212,7 @@ svelte-jsoneditor框架文档：https://github.com/josdejong/svelte-jsoneditor
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14251,7 +14249,7 @@ svelte-jsoneditor框架文档：https://github.com/josdejong/svelte-jsoneditor
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14306,7 +14304,7 @@ svelte-jsoneditor框架文档：https://github.com/josdejong/svelte-jsoneditor
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14397,7 +14395,7 @@ Quasar框架文档：https://quasar.dev/vue-components/slider
 
 如果想要控件从水平方向改成竖直方向，可以使用`vertical`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14417,7 +14415,7 @@ ui.run(
 
 如果想要限制滑块的范围在首尾两端额外保留一部分，可以使用`inner-min`属性和`inner-max`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14443,7 +14441,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14473,7 +14471,7 @@ ui.run(
 
 一般来说，滑块都是将左边开始的位置当作起点，但是，如果使用`reverse`属性的话，那右边就成了起点：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14493,7 +14491,7 @@ ui.run(
 
 如果不希望用户随意修改数值，只是用控件展示数值，则可以启用只读模式（使用`readonly`属性）或者禁用控件（使用`disable`属性）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14540,7 +14538,7 @@ Quasar框架文档：https://quasar.dev/vue-components/range
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14589,7 +14587,7 @@ Quasar框架文档：https://quasar.dev/vue-components/knob
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14637,7 +14635,7 @@ Quasar框架文档：https://quasar.dev/vue-components/rating
 
 如果想让不同的分值图标显示不同的颜色，可以使用`color-selected`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14658,7 +14656,7 @@ ui.run(
 
 控件除了正常添加工具提示的方法和方式之外，还可以使用`'tip-{name}'`插槽添加工具提示。相比于正常添加的工具提示，该插槽可以给单个评分图标添加工具提示，其中`name`为从1开始的评分图标索引值：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14719,7 +14717,7 @@ Quasar框架文档：https://quasar.dev/vue-components/color-picker
 
 - `no-header-tabs`属性，可以隐藏`header-tabs`对应的区域。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14739,7 +14737,7 @@ Quasar框架文档：https://quasar.dev/vue-components/color-picker
 
 - `no-header`属性，可以隐藏`header`对应的区域。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14759,7 +14757,7 @@ Quasar框架文档：https://quasar.dev/vue-components/color-picker
 
 - `no-footer`属性，可以隐藏`footer`对应的区域。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14779,7 +14777,7 @@ Quasar框架文档：https://quasar.dev/vue-components/color-picker
 
 颜色选择器默认提供了三种颜色选择方式，默认选择的是第一种。如果想要修改默认的颜色选择方式，可以使用`default-view`属性（三种颜色选择方式分别对应`'spectrum'`、`'tune'`、`'palette'`）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14799,7 +14797,7 @@ ui.run(
 
 如果默认的颜色选择方式是`'palette'`，则可以使用`palette`属性定制其允许选择的颜色：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -14839,7 +14837,7 @@ Quasar框架文档：https://quasar.dev/vue-components/uploader
 
   通常与完成文件上传之后执行的操作组合使用，比如，在大文件上传过程中禁止操作控件，避免中断上传：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -14858,7 +14856,7 @@ Quasar框架文档：https://quasar.dev/vue-components/uploader
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   async def read_file(e):
@@ -14939,7 +14937,7 @@ Quasar框架文档：https://quasar.dev/vue-components/uploader
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   async def read_file(e):
@@ -14967,7 +14965,7 @@ Quasar框架文档：https://quasar.dev/vue-components/uploader
 
 因为底层`starlette`库默认文件大小参数的设置，上传大文件可能会导致一些潜在的问题。为了让上传大文件更平滑，可以调整`starlette`库`MultiPartParser` 类的`max_file_size`属性，将默认的`1024 * 1024`（1 MB）调大。下面的代码就将该参数调大到5MB，来让更大的文件切片保存到服务器内存中。加大此参数并不是解除大文件的限制，而是让缓存到内存的文件块更大，以便快速处理，不然，文件会直接存入磁盘，可能会产生卡顿现象。另外，此参数也不能无限制加大，此参数过大会导致占用太多的内存，反而会导致内存不足的问题。
 
-```python3
+```python
 from nicegui import ui
 from starlette.formparsers import MultiPartParser
 
@@ -15005,7 +15003,7 @@ nippleJS框架文档：https://github.com/yoannmoinet/nipplejs
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15030,7 +15028,7 @@ nippleJS框架文档：https://github.com/yoannmoinet/nipplejs
 
 - `throttle`参数，浮点类型，表示检测用户移动事件的间隔，默认为`0.05`，单位秒。
 
-- `options`参数，关键字参数，表示通过关键字参数的形式传递给此参数、nippleJS框架支持的其他选项（可以参考下表或者https://github.com/yoannmoinet/nipplejs#options ）：
+- `options`参数，关键字参数，表示通过关键字参数的形式传递给此参数、nippleJS框架支持的其他选项（可以参考下表或者 https://github.com/yoannmoinet/nipplejs#options ）：
 
   ```javascript
   var options = {
@@ -15065,7 +15063,7 @@ nippleJS框架文档：https://github.com/yoannmoinet/nipplejs
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15113,7 +15111,7 @@ Quasar框架文档：https://quasar.dev/vue-components/date
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15164,7 +15162,7 @@ Quasar框架文档：https://quasar.dev/vue-components/date
 
 如果不想要控件头部的区域，可以使用`minimal`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15181,7 +15179,7 @@ ui.run(
 
 如果想要修改控件头部区域的位置为左侧，可以使用`landscape`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15198,7 +15196,7 @@ ui.run(
 
 默认情况下，选择日期时，只能单选单个日期，添加`multiple`属性将允许多选，添加`range`属性将允许选择日期范围，同时添加`multiple`属性和`range`属性将允许多选日期范围：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15215,7 +15213,7 @@ ui.run(
 
 控件包含标题与副标题，点击标题切换日视图，点击副标题切换年视图，可以使用`title`属性和`subtitle`属性设置其内容，默认显示的是星期月份、年份：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15233,7 +15231,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15249,7 +15247,7 @@ ui.run(
 
 使用`years-in-month-view`属性，则可以在月视图中显示年份选择器：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15266,7 +15264,7 @@ ui.run(
 
 有些地区的每周第一天是周一，有些地区是周日，可以使用`first-day-of-week`属性定义每周的第一天，数字`0-6`依次表示周日、周一到周六：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15283,7 +15281,7 @@ ui.run(
 
 很多日期选择控件有一个回到今天的按钮，可以参考下面的代码手动添加一个：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15300,7 +15298,7 @@ ui.run(
 
 也可以使用`today-btn`属性启用控件内置的回到今天按钮：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15316,7 +15314,7 @@ ui.run(
 
 默认情况下，控件显示的日期表达文字都是英文，如果想要让其显示本地化语言，比如中文，可以给`ui.run`方法的`language`参数传入具体的本地化语言代码（`'zh-CN'`）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15335,7 +15333,7 @@ ui.run(
 
 也可以使用`locale`属性（完整用法参考 https://quasar.dev/vue-components/date#custom-ad-hoc-locale ），定制部分本地化的表达（有局限，比如不能定制`title`属性的格式，因此建议额外添加`minimal`属性）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15364,7 +15362,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15400,7 +15398,7 @@ ui.run(
 
 `options`属性（完整用法参考 https://quasar.dev/vue-components/date#limiting-options ）用于限制可选的日期（支持JavaScript函数、数组，使用时的注意事项与`events`属性相同。对于值为JavaScript函数的情况下，需要在属性名前添加英文冒号，启用客户端计算表达式的功能，才能正常生效），其余日期将被禁用：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15426,9 +15424,9 @@ ui.run(
 
 ![2026_46_32](nicegui_pro.assets/2026_46_32.png)
 
-`navigation-min-year-month`属性和`navigation-max-year-month`属性用于限制可选日期的范围（以月为最小单位，完整用法参考 https://quasar.dev/vue-components/date#applying-navigation-boundaries），示例如下：
+`navigation-min-year-month`属性和`navigation-max-year-month`属性用于限制可选日期的范围（以月为最小单位，完整用法参考 https://quasar.dev/vue-components/date#applying-navigation-boundaries ），示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15486,7 +15484,7 @@ Quasar框架文档：https://quasar.dev/vue-components/time
 
 想要默认情况下控件显示秒，可以使用`with-seconds`属性增加秒的显示：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15509,7 +15507,7 @@ ui.run(
 
 `landscape`属性和`ui.date`控件的同名属性效果相同：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15530,7 +15528,7 @@ ui.run(
 
 可能读者也发现了上面的示例中有问题，明明`mask`参数使用的格式代码`'HH'`会给个位数的时添加前导0，可上面的示例中没有。其实，这不是问题，而是因为没有使用24小时制导致的，添加`format24h`属性，即可看到前导0：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15551,7 +15549,7 @@ ui.run(
 
 很多时间选择控件有一个选择当前时间的按钮，可以参考下面的代码手动添加一个：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15574,7 +15572,7 @@ ui.run(
 
 也可以使用`now-btn`属性启用控件内置的选择当前时间的按钮：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15597,7 +15595,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15642,7 +15640,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/date_input
 
 - `picker`属性，表示弹出的日期选择器，本质上是`ui.date`控件，因此支持相关的方法：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15660,7 +15658,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/date_input
 
 - `button`属性，表示点击之后弹出选择器的按钮，本质上是`ui.button`控件，因此支持相关的方法：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15677,7 +15675,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/date_input
 
 - `menu`属性，表示点击之后弹出的选择器的容器，本质上是`ui.menu`控件，因此支持相关的方法：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15714,7 +15712,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/time_input
 
 - `picker`属性，表示弹出的时间选择器，本质上是`ui.time`控件，因此支持相关的方法：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15730,7 +15728,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/time_input
 
 - `button`属性，表示点击之后弹出选择器的按钮，本质上是`ui.button`控件，因此支持相关的方法：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15747,7 +15745,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/time_input
 
 - `menu`属性，表示点击之后弹出的选择器的容器，本质上是`ui.menu`控件，因此支持相关的方法：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -15789,7 +15787,7 @@ Quasar框架文档：https://quasar.dev/vue-components/img
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   from pathlib import Path
   from PIL import Image
@@ -15855,7 +15853,7 @@ Quasar框架文档：https://quasar.dev/vue-components/img
 
 上面的示例中，使用样式类限制图片的大小，如果不限制的话，效果将会是这个样子：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15875,7 +15873,7 @@ ui.run(
 
 可以使用`'w-[{具体宽度}]'`、`'h-[{具体高度}]'`来指定控件的宽度、高度，让显示效果符合预期：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15893,7 +15891,7 @@ ui.run(
 
 也可使用`width`属性、`height`属性指定控件的宽度、高度：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15918,7 +15916,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15942,7 +15940,7 @@ ui.run(
 
 需要注意的是，`ui.image`控件支持嵌入其他内容，但需要设置内容的样式类来让内容的位置、样式符合预期：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15963,7 +15961,7 @@ ui.run(
 
 也可以使用透明的内容叠加到图片上：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -15989,7 +15987,7 @@ ui.run(
 
 如果想要实现点击图片相当于访问指定超链接的功能，只需将图片嵌入到显示文字（即`text`参数）为空的超链接即可：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16048,7 +16046,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/image
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -16080,7 +16078,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/image
 
 默认情况下，嵌套的内容是在控件的SVG画布之后，因此需要修改嵌套内容位置才能符合预期：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16107,7 +16105,7 @@ ui.run(
 
 不过，对于嵌入SVG内容的情况，可以简化为直接将其传给`content`参数：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16131,7 +16129,7 @@ ui.run(
 
 除了在创建控件时给画布添加内容，还可以利用触发鼠标事件之后要执行的操作，实现在点击位置即时绘制：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16156,7 +16154,7 @@ ui.run(
 
 如果给`loaded`事件创建响应函数，即可实现图片加载完成之后执行指定操作：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16176,7 +16174,7 @@ ui.run(
 
 使用`cross`参数可以使用默认的十字线来指示鼠标位置：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16201,7 +16199,7 @@ ui.run(
 
 使用`'cross'`插槽则可以修改其样式：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16246,7 +16244,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16293,7 +16291,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/parallax
 
 注意，`ui.parallax`控件显示图片时需要同一区域的内容可以滚动，才能触发视差效果（内容和图片的滚动方向相反）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16327,7 +16325,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/audio
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   from pathlib import Path
   
@@ -16355,7 +16353,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/audio
 
 - `controls`参数，布尔类型，表示是否显示控制按钮，默认为`True`。该参数配合`autoplay`参数一起使用，可以实现给网页添加背景音乐的功能：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -16401,7 +16399,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/video
 
 `ui.video`控件支持的参数、方法与`ui.audio`控件一致，这里不做赘述，仅提供一个获取视频播放进度的示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16439,9 +16437,7 @@ ui.run(
 
 下面是`ui.header`控件和`ui.footer`控件相关文档的地址：
 
-NiceGUI框架文档：https://nicegui.io/documentation/page_layout#reference_for_ui_header
-
-https://nicegui.io/documentation/page_layout#reference_for_ui_footer
+NiceGUI框架文档：https://nicegui.io/documentation/page_layout#reference_for_ui_header 和 https://nicegui.io/documentation/page_layout#reference_for_ui_footer
 
 Quasar框架文档：https://quasar.dev/layout/header-and-footer
 
@@ -16457,7 +16453,7 @@ Quasar框架文档：https://quasar.dev/layout/header-and-footer
 
   注意，框架定义该控件的边框样式来源于样式类`'q-header--bordered'`，默认效果不明显，以下示例通过修改该样式让边框变得明显：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -16485,7 +16481,7 @@ Quasar框架文档：https://quasar.dev/layout/header-and-footer
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -16533,7 +16529,7 @@ Quasar框架文档：https://quasar.dev/layout/drawer
 
   注意，框架定义该控件的边框样式来源于样式类`'q-drawer--bordered'`，默认效果不明显，以下示例通过修改该样式让边框变得明显：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -16562,7 +16558,7 @@ Quasar框架文档：https://quasar.dev/layout/drawer
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -16598,7 +16594,7 @@ Quasar框架文档：https://quasar.dev/layout/drawer
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16629,7 +16625,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16654,9 +16650,9 @@ ui.run(
 
 ![2026_49_5](nicegui_pro.assets/2026_49_5.png)
 
-除了上面常规大小的控件工作模式，控件还支持一种迷你模式（参考 https://quasar.dev/layout/drawer#mini-mode），通过添加、移除`mini`属性来实现迷你模式的切换：
+除了上面常规大小的控件工作模式，控件还支持一种迷你模式（参考 https://quasar.dev/layout/drawer#mini-mode ），通过添加、移除`mini`属性来实现迷你模式的切换：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16698,7 +16694,7 @@ ui.run(
 
 如果想要让迷你模式的内容与常规模式的内容完全不同，则可以使用“mini”插槽：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16734,7 +16730,7 @@ ui.run(
 
 `mini-to-overlay`属性可以让迷你模式变成重叠模式（不影响常规模式）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -16788,7 +16784,7 @@ Quasar框架文档：https://quasar.dev/layout/page-sticky
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -16849,7 +16845,7 @@ Quasar框架文档：https://quasar.dev/layout/page-scroller
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -16897,10 +16893,10 @@ Quasar框架文档：https://quasar.dev/vue-components/icon
 
 - `name`参数，字符串类型，表示显示的图标。该参数支持以下几种图标的表达格式：
 
-  - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。也可以添加其他图标字体所需的文件，使用其他图标字体中的图标。比如使用Eva icons（官网 https://akveo.github.io/eva-icons/）或者Themify icons（官网 https://themify.me/themify-icons）。
+  - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。也可以添加其他图标字体所需的文件，使用其他图标字体中的图标。比如使用Eva icons（官网 https://akveo.github.io/eva-icons/ ）或者Themify icons（官网 https://themify.me/themify-icons ）。
   - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
 
-  对于Material Icons图标字体而言，图标名（具体名称可以参考https://fonts.google.com/icons?icon.set=Material+Icons）的前缀对应不同的风格版本：
+  对于Material Icons图标字体而言，图标名（具体名称可以参考 https://fonts.google.com/icons?icon.set=Material+Icons ）的前缀对应不同的风格版本：
 
   - 无前缀表示实心填充。
   - “o_”前缀表示空心。
@@ -16924,7 +16920,7 @@ Quasar框架文档：https://quasar.dev/vue-components/icon
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui,app
 
 def index():
@@ -16975,7 +16971,7 @@ Quasar框架文档：https://quasar.dev/vue-components/avatar
 
 - `icon`参数，字符串类型，表示控件内的图标。只用法与`ui.icon`控件的`name`参数完全一样，甚至直接将上一节示例中的`icon`全部替换为`avatar`都不会出错：
 
-  ```python3
+  ```python
   from nicegui import ui,app
   
   def index():
@@ -17042,7 +17038,7 @@ Quasar框架文档：https://quasar.dev/vue-components/spinners
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17094,7 +17090,7 @@ NiceGUI框架文档：https://nicegui.io/documentation/html
 
 没错，因为`ui.html`控件可以使用任意标签，并指定标签闭合区间内的具体内容，就可以使用该控件模拟`ui.icon`控件：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -17121,7 +17117,7 @@ ui.run(
 
 因为SVG图形的原始内容和HTML代码的语法一致，因此可以使用`ui.html`控件渲染：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -17152,7 +17148,7 @@ ui.run(
 
 比如，下面的示例中，为了模拟前面使用其他前端UI框架的控件，使用`ui.html`控件代替`ui.element`控件：
 
-```python3
+```python
 from nicegui import ui, app
 
 def index():
@@ -17207,11 +17203,11 @@ ui.run(
 
 ![2026_50_6](nicegui_pro.assets/2026_50_6.png)
 
-扯远了，回到本章主题。上一节介绍过内置的矢量图动画，其实，NiceGUI框架还可以使用其他矢量图动画框架，比如LottieFiles框架（相关文档 https://nicegui.io/documentation/image#lottie_files，官网 https://lottiefiles.com/）。
+扯远了，回到本章主题。上一节介绍过内置的矢量图动画，其实，NiceGUI框架还可以使用其他矢量图动画框架，比如LottieFiles框架（相关文档 https://nicegui.io/documentation/image#lottie_files ，官网 https://lottiefiles.com/ ）。
 
 参考上面`ui.html`控件和`ui.element`控件的等效表达方式，下面的示例中包含了两种使用LottieFiles框架的方式：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -17282,7 +17278,7 @@ Quasar框架文档：https://quasar.dev/vue-components/circular-progress
 
 如果想调换进度条的起点、终点位置，可以使用`reverse`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -17305,7 +17301,7 @@ ui.run(
 
 如果想要以动画的形式展示当前进度不确定，可以使用`indeterminate`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -17328,7 +17324,7 @@ ui.run(
 
 默认情况下，修改当前进度的话，控件显示为新的进度时，会自动添加过渡动画，让变化过程没那么唐突。但是，有时候这个动画会让进度变化过程显得有点“迟钝”。因此，如果想要禁用动画，让变化过程变得更快，可以使用`instant-feedback`属性：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -17379,9 +17375,9 @@ NiceGUI框架文档：https://nicegui.io/documentation/table
 
 Quasar框架文档：https://quasar.dev/vue-components/table
 
-在正式介绍`ui.table`控件的参数、用法前，先对照下面的示例学习一下列定义（完整用法参考 https://quasar.dev/vue-components/table#defining-the-columns）：
+在正式介绍`ui.table`控件的参数、用法前，先对照下面的示例学习一下列定义（完整用法参考 https://quasar.dev/vue-components/table#defining-the-columns ）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -17441,7 +17437,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17490,7 +17486,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17549,7 +17545,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17598,7 +17594,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17651,7 +17647,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17713,7 +17709,7 @@ ui.run(
 
 - `columns`参数，元素为字典（列定义，具体定义的含义参考上面内容）的列表，表示表格每一个列如何显示。如果没有此参数，控件会自动选取行数据字典的键来生成表头。只使用`rows`参数，也可以正常显示，但显示的内容不一定符合要求：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17746,7 +17742,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17796,7 +17792,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17860,7 +17856,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17931,7 +17927,7 @@ ui.run(
 
 - `is_fullscreen`属性，布尔类型，表示表格是否为全屏显示。可以通过设置该属性值切换表格的全屏显示状态：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -17986,7 +17982,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -18068,7 +18064,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -18138,7 +18134,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -18195,7 +18191,7 @@ ui.run(
 
   使用`add_rows`方法、`add_row`方法添加数据和直接操作`rows`属性的效果是一样的。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -18278,7 +18274,7 @@ ui.run(
 
   注意，删除数据是基于`row_key`参数对应的键查找数据，如果该键对应的值**有**重复，都会一并删除：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -18345,7 +18341,7 @@ ui.run(
 
   相比之下，直接操作`rows`属性的话，想要删除的数据必须与被删除的数据完全一致：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -18437,7 +18433,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import pandas as pd
   
@@ -18499,7 +18495,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import polars as pl
   
@@ -18591,7 +18587,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import pandas as pd
   import polars as pl
@@ -18645,7 +18641,7 @@ ui.run(
 
 设置`visible-columns`属性为字符串列表之后，只有该列的`name`在字符串列表中，该列才会显示出来。比如：
 
-```python3
+```python
 table.props['visible-columns'] = [
     'age',
     'firstname'
@@ -18666,7 +18662,7 @@ table.props(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -18714,9 +18710,9 @@ ui.run(
 
 ![2026_52_14](nicegui_pro.assets/2026_52_14.png)
 
-表格控件除了上面示例中“常规”的表格模式之外，还支持网格模式（完整用法参考 https://quasar.dev/vue-components/table#grid-style），可以使用类似网格布局的形式，使用单独的卡片展示每一行数据：
+表格控件除了上面示例中“常规”的表格模式之外，还支持网格模式（完整用法参考 https://quasar.dev/vue-components/table#grid-style ），可以使用类似网格布局的形式，使用单独的卡片展示每一行数据：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -18771,7 +18767,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -18836,7 +18832,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -18893,7 +18889,7 @@ ui.run(
 - 图标的名字。NiceGUI默认加载了Material Icons图标字体，可以直接使用图标字体中对应图标的名字。如果加载了其他图标字体，也可以使用名字来显示对应的图标。
 - “img:”为前缀的图片文件。“img:”为开头，后接图片链接（推荐使用SVG格式的矢量图，支持外部链接、内部链接）、原始表达的SVG矢量图、Base64编码的图片文件，则会加载对应的图片作为图标。
 
-关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon。
+关于图标表达格式的完整内容可参考 https://quasar.dev/vue-components/icon 。
 
 了解了图标类控件属性支持的图标表达格式之后，接下来正式介绍和分页相关的图标类控件属性：
 
@@ -18904,7 +18900,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -18968,7 +18964,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19026,7 +19022,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19088,7 +19084,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19150,7 +19146,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19193,7 +19189,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19253,7 +19249,7 @@ ui.run(
 
 虽然默认每行数据之间有分隔线，让多行数据看起来没那么容易串行，但难免在数据少的时候，想要隐藏分隔线，或者在列数多的时候额外添加每列数据之间的分隔线，亦或是只显示列之间的分隔线，那就要用到`separator`属性。该属性为字符串类型，仅支持`['horizontal','vertical','cell','none']`中的值，实际使用时的效果如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -19304,7 +19300,7 @@ ui.run(
 
 `wrap-cells`属性，布尔类型，表示是否启用单元格的自动换行样式。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -19352,7 +19348,7 @@ ui.run(
 
 虽然给`ui.run`方法的`language`参数传入具体的本地化语言代码（`'zh-CN'`）可以让控件的部分提示语显示为本地化语言，比如中文：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -19403,7 +19399,7 @@ ui.run(
 
 - `rows-per-page-label`属性，字符串类型，表示每页行数前的提示语。比如，可以使用下面的代码，实现与上面示例相同的效果：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19460,7 +19456,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19511,7 +19507,7 @@ ui.run(
 
   可能有细心的读者发现了，`rows-per-page-label`属性的示例效果和前面切换语言的效果相比，有一点小差异。没错，就是因为`pagination-label`属性没有根据语言对应的格式同步修改。因此，读者可以使用下面的代码，完美复刻切换语言的效果：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19569,7 +19565,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19626,7 +19622,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19677,7 +19673,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19714,7 +19710,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19753,7 +19749,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19805,7 +19801,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19860,7 +19856,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19915,7 +19911,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -19968,7 +19964,7 @@ ui.run(
 
 - `bordered`属性，布尔类型，表示是否添加边框。注意，因为表格默认有阴影效果，添加边框并不会特别明显。因此，可以与`flat`属性组合使用，查看效果：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20023,7 +20019,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20105,7 +20101,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20169,7 +20165,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20230,7 +20226,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20302,7 +20298,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20368,7 +20364,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20439,7 +20435,7 @@ ui.run(
 
 - “loading”插槽，对应控件的加载状态。建议使用`ui.spinner`控件，并适当调整控件显示的位置和背景：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20518,7 +20514,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20586,7 +20582,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20656,7 +20652,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20723,7 +20719,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20784,7 +20780,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20849,7 +20845,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20911,7 +20907,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -20987,7 +20983,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21053,7 +21049,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21125,7 +21121,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21187,7 +21183,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21251,7 +21247,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21307,7 +21303,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21368,7 +21364,7 @@ AG Grid框架文档：https://www.ag-grid.com/javascript-data-grid/reference/
 
 在正式介绍`ui.aggrid`控件之前，先看示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -21448,7 +21444,7 @@ ui.run(
 
   对于该方法而言，如果表格数据支持编辑，编辑之后没有同步数据到后端的话，该方法返回的数据就与后端方法获取到的数据不同，示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21486,7 +21482,7 @@ ui.run(
 
   如果表格数据支持编辑，编辑之后使用该方法将表格客户端的数据同步到后端，`get_client_data`方法返回的数据就与后端方法获取到的数据相同，示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21537,7 +21533,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21607,11 +21603,11 @@ ui.run(
 
 - `'rowData'`键，元素为字典的列表，依照列表元素的排序，依次表示对应行的行数据。行数据字典中的键对应列定义中`'field'`键的值。行数据字典中，键对应的值，则是该行对应该列的单元格的数据（最终显示内容取决于渲染方式）。
 
-- `'rowSelection'`键，字典类型，表示行数据的选择方式。不使用该键，表示行数据无法选择。字典的`'mode'`键可以指定单选、多选模式，`'singleRow'`表示单选，`'multiRow'`表示多选。其他字典键的用法可参考 https://www.ag-grid.com/javascript-data-grid/grid-options/#reference-selection-rowSelection，本章后续章节也会详细介绍。
+- `'rowSelection'`键，字典类型，表示行数据的选择方式。不使用该键，表示行数据无法选择。字典的`'mode'`键可以指定单选、多选模式，`'singleRow'`表示单选，`'multiRow'`表示多选。其他字典键的用法可参考 https://www.ag-grid.com/javascript-data-grid/grid-options/#reference-selection-rowSelection ，本章后续章节也会详细介绍。
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21647,13 +21643,13 @@ ui.run(
 
   - `params`参数，`RowHeightParams`类型，为该函数专用的参数。`RowHeightParams`类型参数支持以下属性：
     - `data`属性，表示表格每一行的数据，该属性的子属性名与行数据字典的键名相同，对应的子属性即为对应列单元格的数据。
-    - `node`属性，表示单元格每一行的节点对象（支持更多的相关属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/）。
+    - `node`属性，表示单元格每一行的节点对象（支持更多的相关属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ ）。
     - `api`属性，表示接口对象，用于调用该行的支持的方法。
     - `context`属性，表示上下文对象，用于调用当前上下文的支持的方法。
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21689,7 +21685,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21727,7 +21723,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21775,7 +21771,7 @@ ui.run(
 
 - `'colResizeDefault'`键，字符串类型，表示调整列宽时，按下哪个键并调整列宽时本列与右边列的列宽总和不变，默认为`'shift'`。
 
-- `'autoSizeStrategy'`键，字典类型，表示自动调整列宽的策略（完整用法参考 https://www.ag-grid.com/javascript-data-grid/column-sizing/#reference-columnSizing-autoSizeStrategy）。
+- `'autoSizeStrategy'`键，字典类型，表示自动调整列宽的策略（完整用法参考 https://www.ag-grid.com/javascript-data-grid/column-sizing/#reference-columnSizing-autoSizeStrategy ）。
 
   字典的`'type'`键表示策略类型，支持`['fitGridWidth','fitProvidedWidth','fitCellContents']`中的值，当该键使用不同的值时，字典支持的键也有所不同。
 
@@ -21791,7 +21787,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21834,7 +21830,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21897,7 +21893,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -21947,7 +21943,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import asyncio
   
@@ -21990,7 +21986,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22026,7 +22022,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22061,7 +22057,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22099,7 +22095,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui, app
   
   def index():
@@ -22139,7 +22135,7 @@ ui.run(
 
   如果读者不方便下载官方提供的本地化文件，可以直接使用CDN服务商提供的地址`https://unpkg.com/@ag-grid-community/locale/dist/umd/@ag-grid-community/locale.js`或者`https://unpkg.com/@ag-grid-community/locale/dist/umd/@ag-grid-community/locale.min.js`，代码如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22173,7 +22169,7 @@ ui.run(
 
   注意，NiceGUI 3.8.0版本新增`ui.aggrid.VERSION`属性，用于表示`ui.aggrid`控件使用的AG Grid框架的版本，为了避免版本不同导致的翻译文本不兼容，上面的示例应当改为：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22211,7 +22207,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22282,7 +22278,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22339,7 +22335,7 @@ ui.run(
 
   对于想要在年龄的基础上实时计算出生年份的情况，不使用表达式的话，可能要这样写：
 
-  ```python3
+  ```python
   from nicegui import ui
   from datetime import datetime
   
@@ -22371,7 +22367,7 @@ ui.run(
 
   但是上面这种写法需要手动记录每行数据的年龄列，数据多了或者有修改的话，就不太方便。如果启用了该键，就可以使用统一的公式，示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   from datetime import datetime
   
@@ -22414,7 +22410,7 @@ ui.run(
 
 - `'loading'`键，布尔类型或者`None`（对应JavaScript的`undefined`），表示是否显示加载状态覆盖层（背景模糊，无法操作表格，并多一个表示加载状态文本）。其中，JavaScript的`undefined`表示仅在列定义和行数据同时提供的情况下不显示加载状态覆盖层。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22453,7 +22449,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22491,7 +22487,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22529,7 +22525,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22566,7 +22562,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22607,7 +22603,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22663,7 +22659,7 @@ ui.run(
 
 - `'enableCellSpan'`键，布尔类型，表示是否允许合并单元格，默认为`False`。想要查看合并单元格的效果，需要在列定义中启用`'spanRows'`键：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22698,7 +22694,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22732,7 +22728,7 @@ ui.run(
 
   注意，想要拖动多行，除了启用该键，还要启用多选：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22769,7 +22765,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22810,7 +22806,7 @@ ui.run(
 
   注意，列定义中也有同名键，用法一样，但列定义中的同名键优先级更高。比如，在下面的示例中，如果拖动的是列定义中启用`'rowDrag'`键的列（需要拖动该列的拖动图标），则显示的是列定义中的同名键。若是拖动该行的其他位置，则显示的是表格定义中的同名键：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22856,17 +22852,17 @@ ui.run(
 
   该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-  - `node`参数，` IRowNode`类型，表示每一行的节点对象（支持的属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/）。
+  - `node`参数，` IRowNode`类型，表示每一行的节点对象（支持的属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ ）。
 
 - `'isRowPinned'`键，使用字符串表达的JavaScript函数，函数返回值（仅支持JavaScript中的`['top','bottom',null,undefined]`）表示行的固定状态（顶部、底部、不固定、不固定）。
 
   该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
 
-  - `node`参数，` IRowNode`类型，表示每一行的节点对象（支持的属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/）。
+  - `node`参数，` IRowNode`类型，表示每一行的节点对象（支持的属性，可参考 https://www.ag-grid.com/javascript-data-grid/row-object/ ）。
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22908,7 +22904,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22959,7 +22955,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -22998,7 +22994,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23065,7 +23061,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23111,7 +23107,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23150,7 +23146,7 @@ ui.run(
 
   不同于`'rowStyle'`键只能设置所有行的样式，该键可以根据条件设置指定行的样式：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23193,7 +23189,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23249,7 +23245,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23300,7 +23296,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23361,9 +23357,9 @@ ui.run(
 
   所谓列类型，可以理解为多个特定列定义组合之后的简化别名，能够一步到位设置指定列的多个列定义。
 
-  默认提供了`'rightAligned'`和`'numericColumn'`两种预定义的列类型（完整用法参考 https://www.ag-grid.com/javascript-data-grid/column-definitions/#provided-column-types）：
+  默认提供了`'rightAligned'`和`'numericColumn'`两种预定义的列类型（完整用法参考 https://www.ag-grid.com/javascript-data-grid/column-definitions/#provided-column-types ）：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23399,7 +23395,7 @@ ui.run(
 
   也可以通过表格定义的`'columnTypes'`键添加自定义的列类型：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23440,9 +23436,9 @@ ui.run(
 
 - `'cellDataType'`键，布尔类型或者字符串类型，表示单元格的数据类型，默认为`True`。字符串类型表示设定了单元格的数据类型，则该列的所有单元格只能使用指定类型的数据，其他类型的数据会报数据无效。布尔类型则表示启用自动推断数据类型或者禁用数据类型限制。
 
-  默认提供了几个预定义的数据类型（完整用法参考 https://www.ag-grid.com/javascript-data-grid/cell-data-types/#pre-defined-cell-data-types），也可以通过表格定义的`'dataTypeDefinitions'`键添加自定义的数据类型。但自定义数据类型需要对框架用法、JavaScript语法比较了解，这里就不提供相关介绍，仅提供简单示例：
+  默认提供了几个预定义的数据类型（完整用法参考 https://www.ag-grid.com/javascript-data-grid/cell-data-types/#pre-defined-cell-data-types ），也可以通过表格定义的`'dataTypeDefinitions'`键添加自定义的数据类型。但自定义数据类型需要对框架用法、JavaScript语法比较了解，这里就不提供相关介绍，仅提供简单示例：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23503,7 +23499,7 @@ ui.run(
 
   因此，复刻`'enableCellExpressions'`键的示例会简单一些：
 
-  ```python3
+  ```python
   from nicegui import ui
   from datetime import datetime
   
@@ -23538,7 +23534,7 @@ ui.run(
 
   虽然同样不用启用`'enableCellExpressions'`键，但字符串变成了JavaScript函数，如果想要正确生效，需要在该键的键名前添加英文冒号，示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   from datetime import datetime
   
@@ -23575,7 +23571,7 @@ ui.run(
 
   因此，使用字符串表达的JavaScript函数，就不能使用`getValue`函数，需要改用其他方法：
 
-  ```python3
+  ```python
   from nicegui import ui
   from datetime import datetime
   
@@ -23606,7 +23602,7 @@ ui.run(
 
   至于表达式，也要做相应修改：
 
-  ```python3
+  ```python
   from nicegui import ui
   from datetime import datetime
   
@@ -23637,7 +23633,7 @@ ui.run(
 
   当然，上面用来复刻`'valueGetter'`键的用法属于少数，更多时候，该键是用来修改单元格内容呈现格式，使用`value`属性足矣，无需获取其他列的数据：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23679,7 +23675,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23719,7 +23715,7 @@ ui.run(
 
   示例如下（为了方便看出列组的展开状态，额外配置了`'icons'`键）：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23760,7 +23756,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23803,7 +23799,7 @@ ui.run(
 
   使用JavaScript函数的话，可以根据条件决定是否禁用：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23846,7 +23842,7 @@ ui.run(
 
   但在使用时，JavaScript函数的参数支持的`context`属性不是该键对应的值。而是挂载在`colDef`属性下`context`属性：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23897,7 +23893,7 @@ ui.run(
 
   对比示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -23991,7 +23987,7 @@ ui.run(
 
   因此，可以使用`'false'`这个表达式实现单元格可以编辑但数据不会保存的效果（类似启用表格定义的`'readOnlyEdit'`键）：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -24028,7 +24024,7 @@ ui.run(
 
   启用表格定义`'readOnlyEdit'`键的效果是一样的：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -24067,7 +24063,7 @@ ui.run(
 
   示例如下（四舍五入取整）：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -24132,7 +24128,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -24172,14 +24168,14 @@ ui.run(
 
 - `'cellEditorParams'`键，字典类型，表示单元格内容编辑器支持的配置项。注意，不同编辑器支持的配置项有所不同。
 
-  `'agTextCellEditor'`单行文本编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-text/#api-reference）：
+  `'agTextCellEditor'`单行文本编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-text/#api-reference ）：
 
   - `'maxLength'`键，整数类型，表示可输入内容的最大长度，默认为`524288`。
   - `'useFormatter'`键，布尔类型，表示编辑时是否直接使用`'valueFormatter'`键呈现的结果。
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -24219,20 +24215,20 @@ ui.run(
 
   ![2026_52_111](nicegui_pro.assets/2026_52_111.png)
 
-  `'agLargeTextCellEditor'`多行文本编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-large-text/#api-reference）：
+  `'agLargeTextCellEditor'`多行文本编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-large-text/#api-reference ）：
 
   - `'maxLength'`键，整数类型，表示可输入内容的最大长度，默认为`200`。
   - `'rows'`键，整数类型，表示文本框初始可显示文本的行数，默认为`10`。
   - `'cols'`键，整数类型，表示文本框初始可显示文本的列数，默认为`60`。
 
-  `'agSelectCellEditor'`下拉选择编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-select/#api-reference）：
+  `'agSelectCellEditor'`下拉选择编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-select/#api-reference ）：
 
   - `'values'`键，元素为值类型（整数、小数、字符串）的列表，表示选项。
   - `'valueListGap'`键，整数类型，表示单元格到弹出的下拉选项之间的距离（单位为像素），默认为`4`。
   - `'valueListMaxHeight'`键，整数类型或者字符串，表示下拉选项的最大高度。其中，整数的单位为像素；字符串的话，则是CSS语法中的尺寸的表达式。
   - `'valueListMaxWidth'`键，整数类型或者字符串，表示下拉选项的最大宽度。其中，整数的单位为像素；字符串的话，则是CSS语法中的尺寸的表达式。
 
-  `'agNumberCellEditor'`数字编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-number/#api-reference）：
+  `'agNumberCellEditor'`数字编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-number/#api-reference ）：
 
   - `'min'`键，浮点类型，表示单元格允许的最小值。
 
@@ -24248,7 +24244,7 @@ ui.run(
 
   - `'preventStepping'`键，布尔类型，表示是否禁用通过方向键、按钮快捷数字的功能，默认为`False`。
 
-  `'agDateCellEditor'`或者`'agDateStringCellEditor'`日期编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-date/#api-reference）：
+  `'agDateCellEditor'`或者`'agDateStringCellEditor'`日期编辑器支持以下配置（完整用法可参考 https://www.ag-grid.com/javascript-data-grid/provided-cell-editors-date/#api-reference ）：
 
   - `'min'`键，字符串类型，表示单元格允许的最小值。
 
@@ -24270,7 +24266,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -24310,7 +24306,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -24355,7 +24351,7 @@ ui.run(
 
   注意，该键实际上是`CellValueChanged`事件的响应函数。虽然这里可以用JavaScript函数定义响应函数，但使用Python侧的`on`方法定义响应函数更便捷。有关该控件的其他事件会在后面介绍，这里不展开。这里只提供一个简单的示例，后面几个同类的键不再提供示例：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -24441,11 +24437,11 @@ ui.run(
 
   - `'defaultOption'`键，字符串类型，表示添加筛选条件时默认的筛选条件类型（支持的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options ）。
 
-  - `'filterOptions'`键，元素为字符串或者字典的列表，表示添加筛选条件时允许的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）。
+  - `'filterOptions'`键，元素为字符串或者字典的列表，表示添加筛选条件时允许的筛选条件类型（支持的类型可参考https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options ）。
 
     如果元素为字典，则表示自定义的筛选条件类型，支持以下键（完整用法可以参考 https://www.ag-grid.com/javascript-data-grid/filter-conditions/#custom-filter-options ）：
 
-    - `'displayKey'`键，字符串类型，表示自定义筛选条件类型的唯一识别符，不能与内置的筛选条件类型（内置的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options）或者其他自定义的相同。
+    - `'displayKey'`键，字符串类型，表示自定义筛选条件类型的唯一识别符，不能与内置的筛选条件类型（内置的类型可参考 https://www.ag-grid.com/javascript-data-grid/filter-text/#text-filter-options ）或者其他自定义的相同。
     - `'displayName'`键，字符串类型，表示自定义筛选条件类型的显示名（即界面中看到的内容）。如果该键使用框架可以本地化的英文文本，则控件切换本地化语言时也会同步翻译。
     - `'predicate'`键，使用字符串表达的JavaScript函数，表示判断单元格内容与筛选条件匹配的函数。该键为JavaScript函数时支持的位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
       - `filterValues`参数，可选参数、任意类型或者数组，参数类型与筛选条件允许输入值的个数有关，表示筛选条件允许输入值。
@@ -24454,7 +24450,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24505,7 +24501,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24555,7 +24551,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24598,7 +24594,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24640,7 +24636,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24681,7 +24677,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24738,7 +24734,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24779,7 +24775,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24859,7 +24855,7 @@ ui.run(
 
     示例如下（根据年龄计算其出生年份）：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24925,7 +24921,7 @@ ui.run(
 
     示例如下：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -24977,7 +24973,7 @@ ui.run(
 
   - `'includeTime'`键，布尔类型，表示对比时是否包含时间，默认为`False`。注意，如果为`True`，弹出的日期选择器会附带时间选择器：
 
-    ```python3
+    ```python
     from nicegui import ui
     
     def index():
@@ -25037,7 +25033,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25078,7 +25074,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25124,7 +25120,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25161,7 +25157,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25198,7 +25194,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25258,7 +25254,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25330,7 +25326,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25373,7 +25369,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25410,7 +25406,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25461,7 +25457,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25499,7 +25495,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25542,7 +25538,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25578,7 +25574,7 @@ ui.run(
 
 - `'suppressStickyLabel'`键（仅限列组），布尔类型，表示是否禁止固定列组的表头，默认为`False`。当列组的子列较多或者宽度超过表格的左右宽度，导致需要水平滚动才能看到其余内容时，默认会固定列组的表头，确保列组的表示始终可见。示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25627,7 +25623,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25676,7 +25672,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25720,7 +25716,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25766,7 +25762,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25815,7 +25811,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25862,7 +25858,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -25910,7 +25906,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -25954,7 +25950,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26014,7 +26010,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26084,7 +26080,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
 from nicegui import ui
 
 def index():
@@ -26126,7 +26122,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26162,7 +26158,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26223,7 +26219,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26274,7 +26270,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26341,7 +26337,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26388,7 +26384,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26437,7 +26433,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26483,7 +26479,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26529,7 +26525,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26574,7 +26570,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26646,7 +26642,7 @@ ui.run(
 
       注意，只有启用`'enableRowPinning'`键并正确设置`'getRowId'`键时，该键才能正常生效：
 
-      ```python3
+      ```python
       from nicegui import ui
       
       def index():
@@ -26696,7 +26692,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26745,7 +26741,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26843,7 +26839,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26897,7 +26893,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -26961,13 +26957,13 @@ ui.run(
 
 比如获取当前页第一行数据的操作（NiceGUI 3.8.0版本之后无效）：
 
-```python3
+```python
 row = await aggrid.run_grid_method('(g) => g.getDisplayedRowAtIndex(0).data')
 ```
 
 需要改为：
 
-```python3
+```python
 row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedRowAtIndex(0).data')
 ```
 
@@ -26987,7 +26983,7 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -27073,7 +27069,7 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -27148,7 +27144,7 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -27195,7 +27191,7 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -27486,7 +27482,7 @@ row = await ui.run_javascript(f'return getElement({aggrid.id}).api.getDisplayedR
 
 列组可以理解为一个列包含多个子列，每个子列就和普通的列一样。只过不，显示时，列组会额外显示在子列上面一行，用于表明列组与子列的包含关系，比如下面的示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -27548,7 +27544,7 @@ ui.run(
 
 表格数据很多时，需要关注的只是一部分或者特定数据，可以使用筛选功能让表格只显示这部分数据：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -27599,7 +27595,7 @@ ui.run(
 
 表格数据并非一成不变的，如果需要修改单元格内容，就要使用编辑功能：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -27661,7 +27657,7 @@ ui.run(
 
 除了编辑单元格内容，还有可能选择行，使用被选中的行：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -27709,7 +27705,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -27747,7 +27743,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -27793,7 +27789,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -27834,7 +27830,7 @@ ui.run(
 
 想要数据排列有序，只需点击表头即可。当然，排序默认开启，无需额外配置，但也可以禁用：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -27882,7 +27878,7 @@ ui.run(
 
 表格的样式并非一成不变，使用`theme`参数切换主题自不必说，最简单、最常用的，首先是样式（完整用法参考 https://www.ag-grid.com/javascript-data-grid/row-styles/ ）：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -27971,7 +27967,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -28003,7 +27999,7 @@ ui.run(
 
 注意，如果是Quasar框架提供的样式类（比如下面代码中的`bg-red`），想要让其在暗黑模式下生效，需要改用UnoCSS框架，不能使用Tailwind CSS框架：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -28047,7 +28043,7 @@ matplotlib框架文档：https://matplotlib.org/stable/api/_as_gen/matplotlib.fi
 
 在正式学习该控件之前，先来回顾一下之前认识控件时的示例：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -28088,7 +28084,7 @@ ui.run(
 
 倒也不是必须的，如果想要像普通控件一样一步一步来的话，不使用上下文管理器的话，代码会比较麻烦，在添加图表之后，必须手动更新一下控件（使用上下文管理器的话会自动更新）：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -28130,7 +28126,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -28196,7 +28192,7 @@ matplotlib框架文档：https://matplotlib.org/stable/api/_as_gen/matplotlib.py
 
 先看示例：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -28248,7 +28244,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   from matplotlib import pyplot
   
@@ -28339,7 +28335,7 @@ matplotlib框架文档：https://matplotlib.org/stable/api/_as_gen/matplotlib.py
 
 `ui.pyplot`控件用起来比`ui.matplotlib`控件简单不少，可以使用`matplotlib.pyplot`模块提供的方法，不用每次去调用多层的属性。不过，要说简单，还得是本节介绍的控件——继承自`ui.pyplot`控件的`ui.line_plot`控件：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -28422,7 +28418,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   
   def index():
@@ -28508,7 +28504,7 @@ Plotly框架文档：https://plotly.com/python/ 和 https://plotly.com/javascrip
 
 一如既往，先看示例：
 
-```python3
+```python
 from nicegui import ui
 import plotly.graph_objects as go
 
@@ -28578,9 +28574,9 @@ ui.run(
 
 `ui.plotly`控件的`figure`属性表示图形对象（`plotly.graph_objects.Figure`类型），如果需要调用Plotly框架提供的图形对象接口（Python接口），可以使用该属性。
 
-`ui.plotly`控件的`on`方法可用于响应图形对象的事件（支持的事件可参考 https://plotly.com/javascript/plotlyjs-events/）：
+`ui.plotly`控件的`on`方法可用于响应图形对象的事件（支持的事件可参考 https://plotly.com/javascript/plotlyjs-events/ ）：
 
-```python3
+```python
 from nicegui import ui
 import plotly.graph_objects as go
 
@@ -28629,7 +28625,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -28680,7 +28676,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -28721,7 +28717,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -28764,7 +28760,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -28819,7 +28815,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -28854,7 +28850,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -28894,7 +28890,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -28932,7 +28928,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -28971,7 +28967,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29013,7 +29009,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29048,7 +29044,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29083,7 +29079,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29118,7 +29114,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29153,7 +29149,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29188,7 +29184,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29226,7 +29222,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29264,7 +29260,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29300,7 +29296,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29335,7 +29331,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29370,7 +29366,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29430,7 +29426,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29466,7 +29462,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29508,7 +29504,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29545,7 +29541,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29584,7 +29580,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29628,7 +29624,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29679,7 +29675,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29730,7 +29726,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29766,7 +29762,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29807,7 +29803,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29842,7 +29838,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29880,7 +29876,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29916,7 +29912,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29953,7 +29949,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -29989,7 +29985,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30025,7 +30021,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30061,7 +30057,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30097,7 +30093,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30150,7 +30146,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30203,7 +30199,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30259,7 +30255,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30295,7 +30291,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30337,7 +30333,7 @@ ui.run(
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import plotly.graph_objects as go
   
@@ -30386,11 +30382,11 @@ NiceGUI框架文档：https://nicegui.io/documentation/highchart
 
 Highcharts框架文档：https://www.highcharts.com/docs/index#api 和 https://api.highcharts.com/
 
-注意，`ui.highchart`控件依赖`nicegui-highcharts`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[highcharts]`命令提前添加依赖库。另外，商用需要购买商业许可，如有商用需求，请到官网（https://www.highcharts.com/）购买许可。
+注意，`ui.highchart`控件依赖`nicegui-highcharts`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[highcharts]`命令提前添加依赖库。另外，商用需要购买商业许可，如有商用需求，请到官网（ https://www.highcharts.com/ ）购买许可。
 
 先看示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30426,7 +30422,7 @@ ui.run(
 
 ![2026_54_44](nicegui_pro.assets/2026_54_44.png)
 
-从上面的示例看，图表定义几乎全部通过`options`参数传递，因此，该参数的相关用法主要参考Highcharts框架文档（https://www.highcharts.com/docs/index#api）。
+从上面的示例看，图表定义几乎全部通过`options`参数传递，因此，该参数的相关用法主要参考Highcharts框架文档（ https://www.highcharts.com/docs/index#api ）。
 
 该控件支持以下参数：
 
@@ -30438,7 +30434,7 @@ ui.run(
 
 - `extras`参数，元素为字符串的列表，表示需要额外导入的模块。有些图表的实现在其他JavaScript模块中，需要将模块对应的名字传给该参数，以下为需要额外导入的模块名：
 
-  ```python3
+  ```python
   [
       'accessibility',
       'annotations',
@@ -30547,7 +30543,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 from nicegui_highcharts import events
 
@@ -30607,7 +30603,7 @@ point_click: x is 30, y is 43.
 
 先看代码：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30635,7 +30631,7 @@ ui.run(
 
 ![2026_54_45](nicegui_pro.assets/2026_54_45.png)
 
-图表定义中，`'chart'`键表示图表的具体配置（用法参考 https://api.highcharts.com/highcharts/chart，这里只是简单介绍，后面会详细介绍），其子键`'type'`（用法参考 https://api.highcharts.com/highcharts/chart.type ）表示默认的图表类型，其支持的类型可以参考 https://api.highcharts.com/highcharts/plotOptions 。
+图表定义中，`'chart'`键表示图表的具体配置（用法参考 https://api.highcharts.com/highcharts/chart ，这里只是简单介绍，后面会详细介绍），其子键`'type'`（用法参考 https://api.highcharts.com/highcharts/chart.type ）表示默认的图表类型，其支持的类型可以参考 https://api.highcharts.com/highcharts/plotOptions 。
 
 回到示例中，可以看到示例中使用的是`'solidgauge'`。访问 https://api.highcharts.com/highcharts/plotOptions.solidgauge ，可以看到该图表类型的具体介绍：
 
@@ -30645,7 +30641,7 @@ ui.run(
 
 类似的，上一节中为了启用拖动点的功能，配置了以下字典（局部）：
 
-```python3
+```python
 'plotOptions': {
     'series': {
         'stickyTracking': False,
@@ -30694,7 +30690,7 @@ ui.run(
 
 其中，途径1表示默认图表类型，每组数据默认为该类型的图表。而途径2表示该组数据对应的图表类型，优先级比途径1高。对于某些相似的图表类型，使用途径2可以在同一个控件中展示相同或者不同数据的对比效果：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30740,7 +30736,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30789,7 +30785,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30827,7 +30823,7 @@ ui.run(
 
 `'line'`表示线形图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30855,7 +30851,7 @@ ui.run(
 
 `'spline'`表示平滑线形图。示例如下：
 
- ```python3
+ ```python
 from nicegui import ui
 
 def index():
@@ -30883,7 +30879,7 @@ ui.run(
 
 `'area'`表示面积图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30911,7 +30907,7 @@ ui.run(
 
 `'areaspline'`表示平滑面积图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30939,7 +30935,7 @@ ui.run(
 
 `'column'`表示柱状图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30967,7 +30963,7 @@ ui.run(
 
 `'bar'`表示条形图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -30995,7 +30991,7 @@ ui.run(
 
 `'pie'`表示饼状图。示例如下： 
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31034,7 +31030,7 @@ ui.run(
 
 `'scatter'`表示散点图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31062,7 +31058,7 @@ ui.run(
 
 `'gauge'`表示仪表图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31094,7 +31090,7 @@ ui.run(
 
 `'arearange'`表示面积范围图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31124,7 +31120,7 @@ ui.run(
 
 `'areasplinerange'`表示平滑面积范围图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31154,7 +31150,7 @@ ui.run(
 
 `'columnrange'`表示柱状范围图。示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31198,7 +31194,7 @@ ECharts框架文档：https://echarts.apache.org/zh/option.html 和 https://echa
 
 先看示例：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31308,7 +31304,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 import pyecharts
 
@@ -31331,7 +31327,7 @@ ui.run(
 
 上面的示例看起来紧凑，但有点不好理解，那是因为`pyecharts`库提供的方法和NiceGUI控件的部分方法一样支持链式调用。那么，将链式调用拆成单独的步骤，就容易理解`pyecharts`库的用法了：
 
-```python3
+```python
 from nicegui import ui
 import pyecharts
 
@@ -31366,7 +31362,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 import pyecharts
 
@@ -31421,7 +31417,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31473,7 +31469,7 @@ ui.run(
 
 其实，不用图表方法，直接修改控件的`options`属性也能实现相同的效果：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31524,7 +31520,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31583,7 +31579,7 @@ ui.run(
 
 比如，想要给图表的`selectchanged`事件（事件完整用法参考 https://echarts.apache.org/zh/api.html#events.selectchanged ）设置响应函数：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -31644,7 +31640,7 @@ Vega-Altair框架文档：https://altair-viz.github.io/getting_started/overview.
 
 先看示例：
 
-```python3
+```python
 from nicegui import ui
 import altair
 import pandas as pd
@@ -31680,7 +31676,7 @@ ui.run(
 
 不过，为了方便学习该控件，这里先暂时不用这个库，也不使用链式调用，而是改为使用Python的标准数据类型，一步到位实现一下相同的效果，这样就得到类似本章前面几个控件的用法：
 
-```python3
+```python
 from nicegui import ui
 import altair
 
@@ -31766,7 +31762,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 import altair
 import pandas as pd

@@ -1,6 +1,6 @@
 
 
-# NiceGUI札记（2027）
+《NiceGUI札记》（2027）
 
 2027年所有更新内容转入《易森》，以下内容为存稿、留档，在《易森》更新时复制到《易森》中。
 
@@ -14,7 +14,7 @@
 
 说到多页面模式，就离不开`ui.page`类：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page(
@@ -56,7 +56,7 @@ ui.run()
 
 关于`api_router`参数的示例如下：
 
-```python3
+```python
 from nicegui import ui,APIRouter,app
 
 router = APIRouter(prefix='/psf')
@@ -84,7 +84,7 @@ ui.run()
 
 而上一节的示例可以改为以下相同结果的示例：
 
-```python3
+```python
 from nicegui import ui,APIRouter,app
 
 router = APIRouter(prefix='/psf')
@@ -105,7 +105,7 @@ ui.run()
 
 使用子路由之后，如果一个网站包含多个架构类似的子网站，无需单独记录每个页面对应的完整路径（不含主机、端口号的部分），只需添加对应子路由即可。即使页面的路径一样，完整路径也会因为子路由的存在而不同，不会冲突：
 
-```python3
+```python
 from nicegui import ui,APIRouter,app
 
 router1 = APIRouter(prefix='/test')
@@ -147,7 +147,7 @@ ui.run()
 
 其实，`app.clients`方法还可以传入完整路径（不含主机、端口号的部分），获取所有连接指定完整路径的客户端链接：
 
-```python3
+```python
 from nicegui import ui,APIRouter,app
 
 router1 = APIRouter(prefix='/test')
@@ -187,7 +187,7 @@ ui.run()
 
 NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单（`ui.menu`控件）和右键点击弹出上下文菜单（`ui.context_menu`控件）。它们的用法几乎一样，都是将其添加至需要弹出菜单的控件上下文：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -225,7 +225,7 @@ ui.run(
 
 一般使用`ui.menu_item`控件作为菜单项，但并不限制菜单项的控件类型，因此，可以使用其他控件：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -273,7 +273,7 @@ NiceGUI的菜单可以简单理解为点击左键、右键使其弹出的容器�
 
 在网页中，点击超链接，跳转到对应网页，是再简单不过的操作。对于NiceGUI这样的WebUI框架来说，实现相同的超链接也很简单，`ui.link`控件就是超链接，甚至还可以使用`ui.html`控件、`ui.element`控件这样的万能控件实现：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -303,7 +303,7 @@ ui.run(
 
 如果不使用超链接的话，则可以使用`ui.navigate.to`方法打开链接。绑定到响应函数，或是在特定条件下执行，让打开链接这个操作不再局限于点击超链接，任意控件或者任何情况都可以：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -365,7 +365,7 @@ Flet的`Button`控件提供了`url`参数，可以让点击按钮、打开链接
 
 第一步就是继承：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.defaults import DEFAULT_PROP, resolve_defaults
 from nicegui.events import ClickEventArguments, Handler
@@ -389,7 +389,7 @@ class UrlButton(ui.button):
 
 扩展完参数，自然是用这两个参数。就和直接使用按钮一样，在初始化函数中添加一个响应函数即可：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.defaults import DEFAULT_PROP, resolve_defaults
 from nicegui.events import ClickEventArguments, Handler
@@ -423,7 +423,7 @@ class UrlButton(ui.button):
 
 创建完成，那就简单测试一下效果，示例代码如下：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.defaults import DEFAULT_PROP, resolve_defaults
 from nicegui.events import ClickEventArguments, Handler
@@ -501,7 +501,7 @@ ui.run(
 
 一般情况下，样式是静态的，即设定之后立即显示，不会因为用户的交互而改变。但是，CSS支持使用伪类组合器，让样式仅在特定状态下生效，进而实现特定状态下样式发生改变。比如，想要让控件在鼠标悬停时的样式与一般情况不同，就要用到`:hover`这个伪类，将其放置在指定样式名之后（不要有空格），即表示使用该样式的控件并且鼠标悬停在控件上时，使用相应的样式：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -529,7 +529,7 @@ ui.run(
 
 如果读者对UnoCSS框架和Tailwind CSS框架比较熟悉，则可以换一种解法。给样式类前添加表示状态、不含英文冒号的伪类，使用“:”分隔状态和样式类：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -548,7 +548,7 @@ ui.run(
 
 如果启用了UnoCSS框架支持，状态和样式类之间的分隔符还可以改为“-”：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -575,7 +575,7 @@ ui.run(
 
 与伪类的用法一样，想要让样式仅在特定大小的屏幕中生效，只需将状态改成预定义的断点即可（断点含义可参考相关文档）：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -594,7 +594,7 @@ ui.run(
 
 除了预定义的断点，还可以使用`min-[{任意值}px]`（表示屏幕宽度大于任意值），在任意值上定义断点：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -611,7 +611,7 @@ ui.run(
 
 对应CSS的话，想要实现相同效果，就是在媒体查询的生效范围内定义样式类：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -647,7 +647,7 @@ CSS用起来有点麻烦，具体语法可以参考相关文档和网络，这�
 
 如果是使用UnoCSS框架和Tailwind CSS框架，同时使用`max-[{任意值}px]`（表示屏幕宽度小于任意值）和`min-[{任意值}px]`（使用英文冒号连接），则表示样式仅在该屏幕宽度范围内（被连接的两个断点应当为有限的闭合区间）生效：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -676,7 +676,7 @@ ui.run(
 
 `ui.column`控件和`ui.row`控件在实际使用时，用法、效果几乎一样，只是布局方向存在差异，前者是垂直排布，后者是水平排布：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -707,7 +707,7 @@ ui.run(
 
 以`ui.column`控件为例，其参数用法的示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -743,7 +743,7 @@ ui.run(
 
 `ui.separator`控件可以创建一个占用空间极小且不太明显的分隔符，但是，默认是水平方向的，如果用在行布局中，分隔线需要改为垂直方向：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -767,7 +767,7 @@ ui.run(
 
 操作其实很简单，只需添加控件属性`vertical`即可：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -799,7 +799,7 @@ ui.run(
 
 在《NiceGUI札记》（2026版）第13章中，简单介绍过网格布局，涉及到自定义网格规格的用法，有点类似于表格的合并单元格（跨列、跨行），算是一种自定义网格大小的方法，这里先通过示例复习一下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -828,7 +828,7 @@ ui.run(
 
 除了给子控件添加样式来修改网格的规格，还可以给控件的参数传入字符串（使用空格分隔，表示每一列的列宽或者每一行的行高），变相修改网格的宽度、高度：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -890,7 +890,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -915,7 +915,7 @@ ui.run(
 
 `ui.card`控件本身用法不复杂，仅支持一个表示子控件对齐方向`align_items`参数，无需单独解释。要说特别之处，那就该控件支持`tight`方法，用于生成一个移除内边距的副本：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -954,7 +954,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -999,7 +999,7 @@ ui.run(
 
 `ui.item_section`控件和`ui.item_label`控件的参数一样，都是`text`参数，使得这两个控件用起来就像`ui.label`控件一样，但事实真的如此吗？一旦将其放在`ui.item`控件的上下文中，对比效果之后，就会发现不同：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1026,7 +1026,7 @@ ui.run(
 
 当然，这并不是说`ui.item_label`控件就一无是处，暂且用一下后面才会讲到的控件属性，看一下和`ui.label`控件相比，使用相同的控件属性，二者有何区别：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1062,7 +1062,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1095,7 +1095,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1136,7 +1136,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1175,7 +1175,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1243,7 +1243,7 @@ ui.run(
 
 有了解决方向，代码也很快出来了：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1271,7 +1271,7 @@ ui.run(
 
 代码如下：
 
-```python3
+```python
 from nicegui import ui
 
 async def index():
@@ -1306,7 +1306,7 @@ ui.run(
 
 示例代码如下：
 
-```python3
+```python
 from nicegui import ui
 
 popup_css = '''
@@ -1367,7 +1367,7 @@ ui.run(
 
 `ui.expansion`控件就像是折页宣传册，可以折起来只看到封面，也可以展开后看到所有的内容，点击控件或者修改控件的`value`属性即可切换展开状态：
 
-```python3
+```python
 from nicegui import ui
 
 
@@ -1438,7 +1438,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -1477,7 +1477,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -1535,7 +1535,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -1574,7 +1574,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -1605,7 +1605,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -1659,7 +1659,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -1689,7 +1689,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -1740,7 +1740,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -1769,7 +1769,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
 - `ui.tooltip`控件，添加到任意控件的上下文，可以给其添加一个鼠标悬停后弹出的工具提示。比如：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -1786,7 +1786,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   另外，大部分控件支持`tooltip`方法，可以实现同样的效果：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -1806,7 +1806,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -1829,7 +1829,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
   import asyncio
     
@@ -1860,7 +1860,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   示例如下：
 
-  ```python3
+  ```python
   from nicegui import ui
     
   def index():
@@ -1893,7 +1893,7 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
 任意控件添加工具提示也可以这样写：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1912,7 +1912,7 @@ ui.run(
 
 `tooltip`里除了显示一般的文本，还可以显示图像等其他内容。不过，不建议在`tooltip`内放置需要交互的内容，因为被添加`tooltip`的控件一旦失去焦点，`tooltip`就会消失，里面的交互内容永远无法交互：
 
-```python3
+```python
 from nicegui import ui
 
 with ui.label('Mountains...'):
@@ -1928,7 +1928,7 @@ ui.run(
 
 前面说过`tooltip`方法返回的是控件本身，而不是`tooltip`。但是，这并不是说就没有办法设置`tooltip`方法生成的`tooltip`。如果想要获取到控件`tooltip`方法设置的`tooltip`，可以遍历控件来获取控件内部的其他控件，再判断控件是不是需要的类型：
 
-```python3
+```python
 from nicegui import ui
 
 with ui.button(icon='thumb_up'):
@@ -1947,7 +1947,7 @@ ui.run(
 
 也可以使用`ElementFilter`方法，简单快捷地设置控件内部的`tooltip`：
 
-```python3
+```python
 from nicegui import ui,ElementFilter
 
 with ui.button(icon='thumb_up'):
@@ -1984,7 +1984,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -2042,7 +2042,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -2084,7 +2084,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
   
 def index():

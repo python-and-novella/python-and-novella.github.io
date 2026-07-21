@@ -1,4 +1,4 @@
-## 易森（2027）
+## 《易森》（2027）
 
 学Python很容易，只需从现在开始坚持“种树”（学习），终能收获一片森林。
 
@@ -52,11 +52,11 @@ LOGO图：
 
 官方提供的安装方法固然方便，但当系统不支持运行安装程序，或者需要一个绿色的Python版本，官方的嵌入式绿色包又有兼容性问题的话，就可以试试下面讲到的绿色版Python。
 
-WinPython（https://winpython.github.io/）是专为Windows系统提供的绿色发行版，可在 https://github.com/winpython/winpython/releases 下载到特定版本的绿色包，提供的是解压文件（exe后缀的是自解压程序，不是安装程序），可以解压到指定位置，设置环境变量之后即可全局使用。也可以不设置环境变量，直接在开发工具中指定。该绿色发行版的特点是包含一系列常用的库，当使用者不太会解决库的安装问题时，可以做到开箱即用。
+WinPython（ https://winpython.github.io/ ）是专为Windows系统提供的绿色发行版，可在 https://github.com/winpython/winpython/releases 下载到特定版本的绿色包，提供的是解压文件（exe后缀的是自解压程序，不是安装程序），可以解压到指定位置，设置环境变量之后即可全局使用。也可以不设置环境变量，直接在开发工具中指定。该绿色发行版的特点是包含一系列常用的库，当使用者不太会解决库的安装问题时，可以做到开箱即用。
 
 不同于WinPython只提供Windows系统的发行版，Python Standalone Builds（ https://github.com/astral-sh/python-build-standalone/releases ）提供了各个版本、各个系统的Python发行版，包括官方都不提供安装程序、只提供源码的版本。如果使用者需要针对旧版本项目做维护，或者针对不同Python版本测试代码兼容性，该发行版无疑是最好的选择。当然，该版本因为都是绿色版本，使用时需要使用者设置环境变量或者调试开发工具，需要一定的基础，但相关问题不太难，很好解决。
 
-安装好Python解释器，就是要准备开发工具（IDE）。就目前而言，虽然AI加持的开发工具眼花缭乱，但笔者依然首推VScode（https://code.visualstudio.com/）、PyCharm（https://www.jetbrains.com/pycharm/）。前者虽然需要安装扩展之后才能有较好的开发体验，但性能较好，并且扩展性强；后者则提供了Python开箱即用的开发体验，只不过内存占用较高，读者可以按需选择。除此以外，Python官方版本自带的IDLE也能满足一些简单的开发需求，更加轻量。如果读者只是简单学习Python基础，IDLE也不错。
+安装好Python解释器，就是要准备开发工具（IDE）。就目前而言，虽然AI加持的开发工具眼花缭乱，但笔者依然首推VScode（ https://code.visualstudio.com/ ）、PyCharm（ https://www.jetbrains.com/pycharm/ ）。前者虽然需要安装扩展之后才能有较好的开发体验，但性能较好，并且扩展性强；后者则提供了Python开箱即用的开发体验，只不过内存占用较高，读者可以按需选择。除此以外，Python官方版本自带的IDLE也能满足一些简单的开发需求，更加轻量。如果读者只是简单学习Python基础，IDLE也不错。
 
 最后简单说一下虚拟环境。一般而言，开发Python程序应当创建独立的虚拟环境（推荐使用`uv`命令，操作简单，使用`pip install uv`安装后即可使用）。但是，有人觉得虚拟环境占用额外空间，操作还有点麻烦，不如直接使用全局环境简单。此言差矣，虚拟环境可以实现不同开发场景的隔离，避免不同版本的库存在兼容冲突时，破坏其他开发场景的版本限制。假如A程序需要用到a库的1.0.1版本，而B程序（或者依赖a库的b库）需要用到a库的2.0.0版本，而a库2.0.0版本存在不兼容旧版本的更新，那两个程序运行时，势必有一个程序的a库存在问题。因此，如果是实际开发，请使用虚拟环境。
 
@@ -114,7 +114,7 @@ Python是一门语法简单的编程语言，但语法简单不代表不需要�
 
 Python的关键字不多，而且语法上比较接近关键字语义，学起来不太难：
 
-```python3
+```python
 False      await      else       import     pass
 None       break      except     in         raise
 True       class      finally    is         return
@@ -128,7 +128,7 @@ async      elif       if         or         yield
 
 除了上面提到的关键字，`match`、`case`、`_`用在 match 语句中，`type`用在 type 语句中，虽然也是关键字，但属于软关键字。即这些关键字能用作变量名，并且对应关键字依然可以生效：
 
-```python3
+```python
 match = 1
 print(match)
 
@@ -155,7 +155,7 @@ match match:
 
 赋值表达式，也就是使用海象运算符`:=`的表达式，实现了赋值的同时还可以作为变量使用：
 
-```python3
+```python
 if (a := len(globals())) > 2:
     print(a)
 
@@ -173,20 +173,20 @@ if (a := len(globals())) > 2:
 
 在Python中，对应的表达式为：
 
-```python3
+```python
 变量 = {条件为真时的值} if {条件} else {条件为假时的值}
 ```
 
 实际代码为（最好给表达式加括号，避免歧义）：
 
-```python3
+```python
 a = ( 1 if False else 0)
 print(a)
 ```
 
 lambda 表达式是简化的函数，对于匿名函数或者简单的函数，该表达式可以更快定义：
 
-```python3
+```python
 变量 = lambda {参数}:{表达式}
 ```
 
@@ -194,7 +194,7 @@ lambda 表达式的基本用法这里不赘述，但对于遍历的同时使用l
 
 先看代码：
 
-```python3
+```python
 a = []
 for i in range(9):
     a.append(
@@ -208,7 +208,7 @@ a[3]()
 
 和函数一样，lambda 表达式也具有延迟绑定的特性（即函数定义时不要求使用的变量已经赋值，而是在调用时才获取使用变量的值）。因此，上面的示例才会输出错误的结果。想要避免该问题，就要在创建 lambda 表达式时使用参数默认值的形式，即时绑定对应的值，表达式内部使用绑定了默认值的参数而不是未绑定的变量：
 
-```python3
+```python
 a = []
 for i in range(9):
     a.append(
@@ -220,7 +220,7 @@ a[3]()
 
 上面使用了 for 语句给指定列表创建有规律的元素，实际上， for 语句可以改成类似的列表推导式，这样就得到一个表达式列表（使用列表推导式创建的列表）：
 
-```python3
+```python
 a = [
     lambda i=i:print(i) 
     for i in range(9)
@@ -232,7 +232,7 @@ a[3]()
 
 关于 for 语句，其同样支持 if 语句支持的 else 子句，不过，只有正常、完整执行了循环（使用`continue`也算）之后才会执行 else 子句，即使用`break`、`raise`等异常结束时不执行：
 
-```python3
+```python
 for i in range(9):
     if i == 5:
         break
@@ -242,7 +242,7 @@ else:
 
 同为循环的 while 语句的 else 子句也是一样的结果：
 
-```python3
+```python
 a = 100000
 while a:
     a-=1
@@ -254,7 +254,7 @@ else:
 
 C语言支持 switch 语句，适用于判断同一变量的不同值，用于对应不同的分支。Python语言在很长一段时间中，对于同样的情况，只能使用 if 语句代替。好在3.10版本引入了 match 语句，解决了这一痛点：
 
-```python3
+```python
 for i in range(9):
     match i:
         case 2:
@@ -285,7 +285,7 @@ for i in range(9):
 
 说到多页面模式，就离不开`ui.page`类：
 
-```python3
+```python
 from nicegui import ui
 
 @ui.page(
@@ -327,7 +327,7 @@ ui.run()
 
 关于`api_router`参数的示例如下：
 
-```python3
+```python
 from nicegui import ui,APIRouter,app
 
 router = APIRouter(prefix='/psf')
@@ -355,7 +355,7 @@ ui.run()
 
 而上一节的示例可以改为以下相同结果的示例：
 
-```python3
+```python
 from nicegui import ui,APIRouter,app
 
 router = APIRouter(prefix='/psf')
@@ -376,7 +376,7 @@ ui.run()
 
 使用子路由之后，如果一个网站包含多个架构类似的子网站，无需单独记录每个页面对应的完整路径（不含主机、端口号的部分），只需添加对应子路由即可。即使页面的路径一样，完整路径也会因为子路由的存在而不同，不会冲突：
 
-```python3
+```python
 from nicegui import ui,APIRouter,app
 
 router1 = APIRouter(prefix='/test')
@@ -418,7 +418,7 @@ ui.run()
 
 其实，`app.clients`方法还可以传入完整路径（不含主机、端口号的部分），获取所有连接指定完整路径的客户端链接：
 
-```python3
+```python
 from nicegui import ui,APIRouter,app
 
 router1 = APIRouter(prefix='/test')
@@ -466,7 +466,7 @@ NiceGUI、PySide6、Flet三个GUI框架都有菜单控件，本期主要介绍Ni
 
 NiceGUI提供了两种菜单，分别是左键点击弹出的一般菜单（`ui.menu`控件）和右键点击弹出上下文菜单（`ui.context_menu`控件）。它们的用法几乎一样，都是将其添加至需要弹出菜单的控件上下文：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -504,7 +504,7 @@ ui.run(
 
 一般使用`ui.menu_item`控件作为菜单项，但并不限制菜单项的控件类型，因此，可以使用其他控件：
 
-```python3
+```python
 from nicegui import ui
   
 def index():
@@ -558,7 +558,7 @@ NiceGUI的菜单可以简单理解为点击左键、右键使其弹出的容器�
 
 比如，通过信号给任意控件（`QWidget`控件）设置上下文菜单前，需要先设置控件的上下文菜单策略为自定义上下文菜单，然后将自定义上下文菜单的触发信号与菜单的弹出方法（`exec`方法、`open`方法均可）绑定：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -594,7 +594,7 @@ app.exec()
 
 通过事件给任意控件设置上下文菜单，也是类似的操作：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -624,7 +624,7 @@ app.exec()
 
 若是想自由地在鼠标位置弹出菜单，还需要单独定义菜单弹出函数，在需要弹出菜单时调用函数。示例为按下任意键都会在鼠标位置弹出菜单：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -676,7 +676,7 @@ app.exec()
 
 完整示例代码如下：
 
-```python3
+```python
 import flet
 
 
@@ -752,7 +752,7 @@ flet.run(main)
 
 在网页中，点击超链接，跳转到对应网页，是再简单不过的操作。对于NiceGUI这样的WebUI框架来说，实现相同的超链接也很简单，`ui.link`控件就是超链接，甚至还可以使用`ui.html`控件、`ui.element`控件这样的万能控件实现：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -783,7 +783,7 @@ ui.run(
 
 如果不使用超链接的话，则可以使用`ui.navigate.to`方法打开链接。绑定到响应函数，或是在特定条件下执行，让打开链接这个操作不再局限于点击超链接，任意控件或者任何情况都可以：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -820,7 +820,7 @@ ui.run(
 
 在PySide6中，创建超链接的方法多种多样，不过核心点都是使用HTML中的超链接，但有的控件可以使用Markdown语法：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -859,7 +859,7 @@ app.exec()
 
 在PySide6中，`QDesktopServices.openUrl`方法（静态方法）可以随时随地打开指定链接：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -900,7 +900,7 @@ app.exec()
 
 Flet虽然也支持WebUI模式（网页模式），但其控件都是绘制出来的图形，不是传统意义上的HTML元素。因此，Flet中并没有直接对标NiceGUI的超链接控件。不过，`Text`控件的`spans`参数可以让部分文字支持超链接的功能，`Button`控件的`url`参数也能让按钮平替超链接：
 
-```python3
+```python
 import flet
 
 
@@ -938,7 +938,7 @@ flet.run(
 
 以按钮为例，不使用`url`参数，看看如何实现点击按钮、打开链接：
 
-```python3
+```python
 import flet
 
 
@@ -1032,7 +1032,7 @@ Flet的`Button`控件提供了`url`参数，可以让点击按钮、打开链接
 
 第一步就是继承：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.defaults import DEFAULT_PROP, resolve_defaults
 from nicegui.events import ClickEventArguments, Handler
@@ -1056,7 +1056,7 @@ class UrlButton(ui.button):
 
 扩展完参数，自然是用这两个参数。就和直接使用按钮一样，在初始化函数中添加一个响应函数即可：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.defaults import DEFAULT_PROP, resolve_defaults
 from nicegui.events import ClickEventArguments, Handler
@@ -1090,7 +1090,7 @@ class UrlButton(ui.button):
 
 创建完成，那就简单测试一下效果，示例代码如下：
 
-```python3
+```python
 from nicegui import ui
 from nicegui.defaults import DEFAULT_PROP, resolve_defaults
 from nicegui.events import ClickEventArguments, Handler
@@ -1176,7 +1176,7 @@ ui.run(
 
 一般情况下，样式是静态的，即设定之后立即显示，不会因为用户的交互而改变。但是，CSS支持使用伪类组合器，让样式仅在特定状态下生效，进而实现特定状态下样式发生改变。比如，想要让控件在鼠标悬停时的样式与一般情况不同，就要用到`:hover`这个伪类，将其放置在指定样式名之后（不要有空格），即表示使用该样式的控件并且鼠标悬停在控件上时，使用相应的样式：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -1204,7 +1204,7 @@ ui.run(
 
 如果读者对UnoCSS框架和Tailwind CSS框架比较熟悉，则可以换一种解法。给样式类前添加表示状态、不含英文冒号的伪类，使用“:”分隔状态和样式类：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -1223,7 +1223,7 @@ ui.run(
 
 如果启用了UnoCSS框架支持，状态和样式类之间的分隔符还可以改为“-”：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -1250,7 +1250,7 @@ ui.run(
 
 与伪类的用法一样，想要让样式仅在特定大小的屏幕中生效，只需将状态改成预定义的断点即可（断点含义可参考相关文档）：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -1269,7 +1269,7 @@ ui.run(
 
 除了预定义的断点，还可以使用`min-[{任意值}px]`（表示屏幕宽度大于任意值），在任意值上定义断点：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -1286,7 +1286,7 @@ ui.run(
 
 对应CSS的话，想要实现相同效果，就是在媒体查询的生效范围内定义样式类：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -1322,7 +1322,7 @@ CSS用起来有点麻烦，具体语法可以参考相关文档和网络，这�
 
 如果是使用UnoCSS框架和Tailwind CSS框架，同时使用`max-[{任意值}px]`（表示屏幕宽度小于任意值）和`min-[{任意值}px]`（使用英文冒号连接），则表示样式仅在该屏幕宽度范围内（被连接的两个断点应当为有限的闭合区间）生效：
 
-```python3
+```python
 from nicegui import ui
 
   
@@ -1357,7 +1357,7 @@ ui.run(
 
 `ui.column`控件和`ui.row`控件在实际使用时，用法、效果几乎一样，只是布局方向存在差异，前者是垂直排布，后者是水平排布：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1388,7 +1388,7 @@ ui.run(
 
 以`ui.column`控件为例，其参数用法的示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1424,7 +1424,7 @@ ui.run(
 
 `ui.separator`控件可以创建一个占用空间极小且不太明显的分隔符，但是，默认是水平方向的，如果用在行布局中，分隔线需要改为垂直方向：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1448,7 +1448,7 @@ ui.run(
 
 操作其实很简单，只需添加控件属性`vertical`即可：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1480,7 +1480,7 @@ ui.run(
 
 在《NiceGUI札记》（2026版）第13章中，简单介绍过网格布局，涉及到自定义网格规格的用法，有点类似于表格的合并单元格（跨列、跨行），算是一种自定义网格大小的方法，这里先通过示例复习一下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1509,7 +1509,7 @@ ui.run(
 
 除了给子控件添加样式来修改网格的规格，还可以给控件的参数传入字符串（使用空格分隔，表示每一列的列宽或者每一行的行高），变相修改网格的宽度、高度：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1579,7 +1579,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1604,7 +1604,7 @@ ui.run(
 
 `ui.card`控件本身用法不复杂，仅支持一个表示子控件对齐方向`align_items`参数，无需单独解释。要说特别之处，那就该控件支持`tight`方法，用于生成一个移除内边距的副本：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1643,7 +1643,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1688,7 +1688,7 @@ ui.run(
 
 `ui.item_section`控件和`ui.item_label`控件的参数一样，都是`text`参数，使得这两个控件用起来就像`ui.label`控件一样，但事实真的如此吗？一旦将其放在`ui.item`控件的上下文中，对比效果之后，就会发现不同：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1715,7 +1715,7 @@ ui.run(
 
 当然，这并不是说`ui.item_label`控件就一无是处，暂且用一下后面才会讲到的控件属性，看一下和`ui.label`控件相比，使用相同的控件属性，二者有何区别：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1751,7 +1751,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1784,7 +1784,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1825,7 +1825,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1864,7 +1864,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 def index():
@@ -1924,7 +1924,7 @@ ui.run(
 
 前面很多PySide6程序的示例中，都单独调用了`resize`方法来设置窗口的初始大小。其实，该方法就是`size`控件属性的设置方法，因此，该属性可以在初始化时直接传参：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -1948,7 +1948,7 @@ app.exec()
 
 效果是一样的，但代码复杂度有一点差异。虽然可以一步到位，但参数仅限`QSize`类型，不像`resize`方法可以传入两个整数或者`QSize`类型：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -1974,7 +1974,7 @@ app.exec()
 
 `cursor`参数（控件属性）决定了鼠标停留在该控件时的样式，传入（设置）`QCursor`对象即可：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -2004,7 +2004,7 @@ app.exec()
 
 在之前介绍PySide6中，经常使用`move`方法来修改控件的位置。当同样为控件的`QWidget`控件作为主窗口使用时，则该方法可以用来修改窗口的位置：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -2027,7 +2027,7 @@ app.exec()
 
 当然有，那就是`geometry`参数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -2058,7 +2058,7 @@ app.exec()
 
 如同`resize`方法是`size`控件属性的设置方法，前面示例中用来设置窗口标题的`setWindowTitle`方法也是对应控件属性的设置方法，因此，可以在创建窗口时直接指定窗口标题（使用`windowTitle`参数）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -2078,7 +2078,7 @@ app.exec()
 
 窗口图标和窗口标题一样，也可以使用参数（`windowIcon`参数）或者方法（`setWindowIcon`方法）来设置：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -2111,7 +2111,7 @@ app.exec()
 
  修改窗口透明度，只要了解一个参数（控件属性）就够了，那就是`windowOpacity`参数。该参数使用与百分比等值的小数表示透明度（0对应0%，0.5对应50%，1对应100%）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -2155,7 +2155,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2198,7 +2198,7 @@ app.exec()
 
 就Windows系统而已，默认窗口提供了最大化、最小化按钮，想要进入全屏状态的话，需要程序实现对应的交互方式才行。不过，不管是点击按钮还是绑定快捷键，都需要了解调用什么方法可以让窗口全屏。问题的答案很简单，那就是用`setWindowState`方法（参数为`Qt.WindowState`枚举类型，具体用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html#PySide6.QtWidgets.QWidget.setWindowState ）。用`setWindowState`方法，不仅可以进入全屏状态，还可以进入最大化、最小化状态：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2242,7 +2242,7 @@ app.exec()
 
 上面的示例中，点击不同的按钮可以让窗口进入不同的状态，结合上一节提供的方法，就可以实现一个切换全屏状态的功能：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2280,7 +2280,7 @@ app.exec()
 
 对于移动窗口位置，`geometry`参数（控件属性）和`move`方法都可以实现。不过，对于`geometry`参数（控件属性）而言，因为需要同时指定窗口宽度和高度，因此需要结合原窗口的信息使用，才能避免窗口大小发生变化：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -2321,7 +2321,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2366,7 +2366,7 @@ app.exec()
 
 点击按钮，窗口关闭，实现这个功能，只需用到按钮的`clicked`信号，将其连接到窗口的关闭方法（`close`方法）即可，代码很简单：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2389,7 +2389,7 @@ app.exec()
 
 除了这种简单的连接方法，PySide6还提供了一种基于签名字符串的连接方法。使用`SIGNAL`方法转换签名为信号字符串，使用`SLOT`方法转换签名为槽字符串，然后调用`QObject`类的`connect`方法（有静态方法也有实例方法），将两者连接（这里使用的是实例方法）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2417,7 +2417,7 @@ app.exec()
 
 对于信号、槽而言，其签名格式如下：
 
-```python3
+```python
 '{信号名或槽名}( {参数类型1}, ..., {参数类型n} )'
 ```
 
@@ -2425,7 +2425,7 @@ app.exec()
 
 `QObject`类的`connect`方法有多种参数情况，上面示例中使用了实例方法，因此，可以省略信号的发送者，默认为调用该方法的对象，参数中只是明确了信号的接收者（槽的提供者）。如果是静态方法，则要在参数中表明信号的发送者：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2462,7 +2462,7 @@ app.exec()
 
 基于这样的需求，需要用到定时器，完整代码如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2502,7 +2502,7 @@ app.exec()
 
 按照一般思路，不允许重复点击，那就把按钮禁用就好，等执行完操作再启用。于是，便有了通过禁用按钮来避免重复点击的**失败版**代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2541,7 +2541,7 @@ app.exec()
 
 笔者这里创建了新的Qt事件循环，并将定时器的动作设定为结束该事件循环，然后执行事件循环的`exec`方法，来实现计时阻塞的效果。因此，就有了通过禁用按钮来避免重复点击的**成功版**代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2581,7 +2581,7 @@ app.exec()
 
 还是上面的代码，首先去掉禁用、启用按钮的部分，然后导入信号屏蔽器（`from PySide6.QtCore import QSignalBlocker`），创建针对按钮的信号屏蔽器，关键代码如下：
 
-```python3
+```python
 # 省略其他代码
 from PySide6.QtCore import QSignalBlocker
 
@@ -2590,7 +2590,7 @@ QSignalBlocker(button)
 
 先用`with`关键字进入信号屏蔽器的上下文，然后把上面计时、阻塞的代码全部塞到上下文中：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2638,7 +2638,7 @@ app.exec()
 
 事件的用法之前介绍过，同时也是最简单的用法，那就重写对应事件的响应函数（示例改编自《易森》2704期第2节）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2671,7 +2671,7 @@ app.exec()
 
 该示例是直接给对应属性重新赋值，但实际更推荐规整的“继承-重写”结构，即先继承，然后在类内重写事件的响应函数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2724,7 +2724,7 @@ app.exec()
 
 基于上面的原则，第1节的示例可以这样写：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2764,7 +2764,7 @@ app.exec()
 
 为了方便区分，注册多个事件过滤器的示例，则额外写了一个新的事件过滤器（注意菜单内容）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2822,7 +2822,7 @@ app.exec()
 
 如果将第二个事件过滤器中事件响应函数（分支）的返回值改为`True`，则事件会被拦截，第一个事件过滤器中的相同事件的响应函数不会执行：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2892,7 +2892,7 @@ app.exec()
 
 关于事件冒泡，可以试一试下面的示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2943,7 +2943,7 @@ app.exec()
 
 事件过滤器与事件冒泡都有拦截的功能，如果同时使用，情况会变得复杂一些。为了方便学习，这里先了解一下用于测试的模板代码，后续的对比测试将基于下面的代码做微调：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3030,7 +3030,7 @@ app.exec()
 
 如果只在第二个事件过滤器中拦截（返回`True`），则除了第二个事件过滤器中的响应函数外，其余所有响应函数都不执行：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3114,7 +3114,7 @@ app.exec()
 
 如果只在第二个事件过滤器中拦截冒泡（调用`accept`方法），则只能影响父控件：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3198,7 +3198,7 @@ app.exec()
 
 虽然事件过滤器和冒泡机制都有拦截，但互相不会影响，因此可以用事件过滤器的拦截功能拦截该控件后续的响应函数，同时调用`ignore`方法豁免父控件的响应函数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3299,7 +3299,7 @@ app.exec()
 
 因此，可以直接通过`QApplication`类来调用：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3367,7 +3367,7 @@ app.exec()
 
 非也，本章说了`postEvent`方法是异步方法，上面的示例中也能多次重复使用，那就与之前介绍的结论相悖（示例来自《Qt For Python 札记》2025版第6章第2节）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3415,7 +3415,7 @@ app.exec()
 
 这里需要厘清其中原因：对于异步的`postEvent`方法，其`event`参数会在调用后销毁。因此，重复调用会报错是因为使用了全局对象，如果每次调用时构建一个对象，则不会有问题：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,

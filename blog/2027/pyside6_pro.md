@@ -1,6 +1,6 @@
 
 
-# PySide6札记（2027）
+《PySide6札记》（2027）
 
 原《Qt For Python 札记》，现改名为《PySide6札记》。
 
@@ -12,7 +12,7 @@
 
 在PySide6中，创建超链接的方法多种多样，不过核心点都是使用HTML中的超链接，但有的控件可以使用Markdown语法：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -51,7 +51,7 @@ app.exec()
 
 在PySide6中，`QDesktopServices.openUrl`方法（静态方法）可以随时随地打开指定链接：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -109,7 +109,7 @@ app.exec()
 
 前面很多PySide6程序的示例中，都单独调用了`resize`方法来设置窗口的初始大小。其实，该方法就是`size`控件属性的设置方法，因此，该属性可以在初始化时直接传参：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -133,7 +133,7 @@ app.exec()
 
 效果是一样的，但代码复杂度有一点差异。虽然可以一步到位，但参数仅限`QSize`类型，不像`resize`方法可以传入两个整数或者`QSize`类型：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -159,7 +159,7 @@ app.exec()
 
 `cursor`参数（控件属性）决定了鼠标停留在该控件时的样式，传入（设置）`QCursor`对象即可：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -189,7 +189,7 @@ app.exec()
 
 在之前介绍PySide6中，经常使用`move`方法来修改控件的位置。当同样为控件的`QWidget`控件作为主窗口使用时，则该方法可以用来修改窗口的位置：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -212,7 +212,7 @@ app.exec()
 
 当然有，那就是`geometry`参数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -243,7 +243,7 @@ app.exec()
 
 如同`resize`方法是`size`控件属性的设置方法，前面示例中用来设置窗口标题的`setWindowTitle`方法也是对应控件属性的设置方法，因此，可以在创建窗口时直接指定窗口标题（使用`windowTitle`参数）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -263,7 +263,7 @@ app.exec()
 
 窗口图标和窗口标题一样，也可以使用参数（`windowIcon`参数）或者方法（`setWindowIcon`方法）来设置：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -296,7 +296,7 @@ app.exec()
 
  修改窗口透明度，只要了解一个参数（控件属性）就够了，那就是`windowOpacity`参数。该参数使用与百分比等值的小数表示透明度（0对应0%，0.5对应50%，1对应100%）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -340,7 +340,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -383,7 +383,7 @@ app.exec()
 
 就Windows系统而已，默认窗口提供了最大化、最小化按钮，想要进入全屏状态的话，需要程序实现对应的交互方式才行。不过，不管是点击按钮还是绑定快捷键，都需要了解调用什么方法可以让窗口全屏。问题的答案很简单，那就是用`setWindowState`方法（参数为`Qt.WindowState`枚举类型，具体用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html#PySide6.QtWidgets.QWidget.setWindowState ）。用`setWindowState`方法，不仅可以进入全屏状态，还可以进入最大化、最小化状态：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -427,7 +427,7 @@ app.exec()
 
 上面的示例中，点击不同的按钮可以让窗口进入不同的状态，结合上一节提供的方法，就可以实现一个切换全屏状态的功能：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -465,7 +465,7 @@ app.exec()
 
 对于移动窗口位置，`geometry`参数（控件属性）和`move`方法都可以实现。不过，对于`geometry`参数（控件属性）而言，因为需要同时指定窗口宽度和高度，因此需要结合原窗口的信息使用，才能避免窗口大小发生变化：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -506,7 +506,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -543,7 +543,7 @@ app.exec()
 
 点击按钮，窗口关闭，实现这个功能，只需用到按钮的`clicked`信号，将其连接到窗口的关闭方法（`close`方法）即可，代码很简单：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -566,7 +566,7 @@ app.exec()
 
 除了这种简单的连接方法，PySide6还提供了一种基于签名字符串的连接方法。使用`SIGNAL`方法转换签名为信号字符串，使用`SLOT`方法转换签名为槽字符串，然后调用`QObject`类的`connect`方法（有静态方法也有实例方法），将两者连接（这里使用的是实例方法）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -594,7 +594,7 @@ app.exec()
 
 对于信号、槽而言，其签名格式如下：
 
-```python3
+```python
 '{信号名或槽名}( {参数类型1}, ..., {参数类型n} )'
 ```
 
@@ -602,7 +602,7 @@ app.exec()
 
 `QObject`类的`connect`方法有多种参数情况，上面示例中使用了实例方法，因此，可以省略信号的发送者，默认为调用该方法的对象，参数中只是明确了信号的接收者（槽的提供者）。如果是静态方法，则要在参数中表明信号的发送者：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -639,7 +639,7 @@ app.exec()
 
 基于这样的需求，需要用到定时器，完整代码如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -679,7 +679,7 @@ app.exec()
 
 按照一般思路，不允许重复点击，那就把按钮禁用就好，等执行完操作再启用。于是，便有了通过禁用按钮来避免重复点击的**失败版**代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -718,7 +718,7 @@ app.exec()
 
 笔者这里创建了新的Qt事件循环，并将定时器的动作设定为结束该事件循环，然后执行事件循环的`exec`方法，来实现计时阻塞的效果。因此，就有了通过禁用按钮来避免重复点击的**成功版**代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -758,7 +758,7 @@ app.exec()
 
 还是上面的代码，首先去掉禁用、启用按钮的部分，然后导入信号屏蔽器（`from PySide6.QtCore import QSignalBlocker`），创建针对按钮的信号屏蔽器，关键代码如下：
 
-```python3
+```python
 # 省略其他代码
 from PySide6.QtCore import QSignalBlocker
 
@@ -767,7 +767,7 @@ QSignalBlocker(button)
 
 先用`with`关键字进入信号屏蔽器的上下文，然后把上面计时、阻塞的代码全部塞到上下文中：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -807,7 +807,7 @@ app.exec()
 
 事件的用法之前介绍过，同时也是最简单的用法，那就重写对应事件的响应函数（示例改编自《易森》2704期第2节）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -840,7 +840,7 @@ app.exec()
 
 该示例是直接给对应属性重新赋值，但实际更推荐规整的“继承-重写”结构，即先继承，然后在类内重写事件的响应函数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -893,7 +893,7 @@ app.exec()
 
 基于上面的原则，第1节的示例可以这样写：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -933,7 +933,7 @@ app.exec()
 
 为了方便区分，注册多个事件过滤器的示例，则额外写了一个新的事件过滤器（注意菜单内容）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -991,7 +991,7 @@ app.exec()
 
 如果将第二个事件过滤器中事件响应函数（分支）的返回值改为`True`，则事件会被拦截，第一个事件过滤器中的相同事件的响应函数不会执行：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1061,7 +1061,7 @@ app.exec()
 
 关于事件冒泡，可以试一试下面的示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1112,7 +1112,7 @@ app.exec()
 
 事件过滤器与事件冒泡都有拦截的功能，如果同时使用，情况会变得复杂一些。为了方便学习，这里先了解一下用于测试的模板代码，后续的对比测试将基于下面的代码做微调：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1199,7 +1199,7 @@ app.exec()
 
 如果只在第二个事件过滤器中拦截（返回`True`），则除了第二个事件过滤器中的响应函数外，其余所有响应函数都不执行：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1283,7 +1283,7 @@ app.exec()
 
 如果只在第二个事件过滤器中拦截冒泡（调用`accept`方法），则只能影响父控件：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1367,7 +1367,7 @@ app.exec()
 
 虽然事件过滤器和冒泡机制都有拦截，但互相不会影响，因此可以用事件过滤器的拦截功能拦截该控件后续的响应函数，同时调用`ignore`方法豁免父控件的响应函数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1468,7 +1468,7 @@ app.exec()
 
 因此，可以直接通过`QApplication`类来调用：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1536,7 +1536,7 @@ app.exec()
 
 非也，本章说了`postEvent`方法是异步方法，上面的示例中也能多次重复使用，那就与之前介绍的结论相悖（示例来自《Qt For Python 札记》2025版第6章第2节）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1584,7 +1584,7 @@ app.exec()
 
 这里需要厘清其中原因：对于异步的`postEvent`方法，其`event`参数会在调用后销毁。因此，重复调用会报错是因为使用了全局对象，如果每次调用时构建一个对象，则不会有问题：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1648,7 +1648,7 @@ app.exec()
 
 
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget

@@ -1,6 +1,4 @@
-# Qt For Python 札记（2026）
-
-[toc]
+《Qt For Python 札记》（2026）
 
 ## 2026版更新计划
 
@@ -24,7 +22,7 @@
 
 上面提供了官方的文档地址，打开之后，可以点击各个模块的链接，跳转至响应模块的文档。因此，只需使用在所使用模块的文档中，查找对应类、方法的链接，即可查阅其使用方法。
 
-以QtWidgets程序的控件文档为例，模块名为`PySide6.QtWidgets`，但其名称为“Qt Widgets”，因此需要点击图示的链接（https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html）：
+以QtWidgets程序的控件文档为例，模块名为`PySide6.QtWidgets`，但其名称为“Qt Widgets”，因此需要点击图示的链接（ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html ）：
 
 ![2026_0_1](qt_for_python_pro.assets/2026_0_1.png)
 
@@ -44,7 +42,7 @@
 
 ![2026_0_3](qt_for_python_pro.assets/2026_0_3.png)
 
-需要注意的是，官方文档看似类别清晰、内容丰富，但并非没有问题，点击上图的链接（https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html）之后，会跳转到下面的页面：
+需要注意的是，官方文档看似类别清晰、内容丰富，但并非没有问题，点击上图的链接（ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html ）之后，会跳转到下面的页面：
 
 ![2026_0_4](qt_for_python_pro.assets/2026_0_4.png)
 
@@ -56,13 +54,13 @@
 
 先放下文档，在VSCode中写下如下代码：
 
-```python3
+```python
 from PySide6.QtWidgets import QPushButton
 ```
 
 这是一段导入`QPushButton`类的代码，随后，选中其中的`QPushButton`，按`f12`键或者 右键-转到定义，可以看到以下内容（部分代码）：
 
-```python3
+```python
 class QPushButton(PySide6.QtWidgets.QAbstractButton):
 
     @typing.overload
@@ -79,7 +77,7 @@ class QPushButton(PySide6.QtWidgets.QAbstractButton):
 
 因此，在实际学习时，最好结合代码提示和官方文档，只看官方文档的话，会忽略掉实际支持的参数。
 
-回到文档（https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html）：
+回到文档（ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html ）：
 
 ![2026_0_7](qt_for_python_pro.assets/2026_0_7.png)
 
@@ -97,7 +95,7 @@ class QPushButton(PySide6.QtWidgets.QAbstractButton):
 
 - 信号。虽然示例中没有看到，但其继承了父类的信号，实际上支持不少信号（可以参考其父类`QAbstractButton`的文档）。信号一般是调用其连接函数，将其与指定的槽函数连接，实现信号的响应。
 
-注意，这里也有一个坑。看文档（https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html）最上面的部分：
+注意，这里也有一个坑。看文档（ https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QPushButton.html ）最上面的部分：
 
 ![2026_0_8](qt_for_python_pro.assets/2026_0_8.png)
 
@@ -119,7 +117,7 @@ class QPushButton(PySide6.QtWidgets.QAbstractButton):
 
 本章介绍的`QPushButton`普通按钮控件算是最常用、最普通的按钮。如果程序中需要一个简单的、可以点击的按钮，那非普通按钮控件莫属：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -175,7 +173,7 @@ app.exec()
 
   示例如下（所需的图片`LOGO.png`请保存至源代码的同目录下）：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -231,7 +229,7 @@ app.exec()
 
 - `autoExclusive`方法（控件属性，可使用`setAutoExclusive`方法设置），返回控件是否启用自动独占。当多个按钮的父控件相同时，这些按钮就属于同一独占组。如果这些按钮启用了勾选和自动独占，那么，将只允许同时勾选最多一个按钮：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -269,7 +267,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -309,7 +307,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -392,7 +390,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -461,7 +459,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -501,7 +499,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -530,7 +528,7 @@ app.exec()
 
 上一章介绍`autoExclusive`方法时使用的示例看上去像是单选按钮，但那种费事、妥协的单选按钮并不完美，需要额外设置属性，样式上也不够直观。因此，本章要介绍的`QRadioButton`单选按钮控件，在支持不少`QPushButton`普通按钮控件功能的基础上，更适合作为单选按钮使用，代码也更简洁：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -595,7 +593,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -658,7 +656,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -719,7 +717,7 @@ app.exec()
 
 `QCheckBox`多选按钮控件用起来几乎和`QRadioButton`单选按钮控件一样，上一章的例子，直接改名就能用：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -776,7 +774,7 @@ app.exec()
 
     示例如下：
 
-    ```python3
+    ```python
     from PySide6.QtWidgets import (
         QApplication,
         QWidget,
@@ -847,7 +845,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -904,7 +902,7 @@ app.exec()
 
 `QCommandLinkButton`命令链接按钮控件看起来、用起来都很像`QPushButton`普通按钮控件：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1003,7 +1001,7 @@ app.exec()
 
 不过，因为是继承自`QPushButton`普通按钮控件，所以，依然可以使用`setIcon`方法修改按钮的图标：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1039,7 +1037,7 @@ app.exec()
 
 先看一下该控件的“错误”用法：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1064,7 +1062,7 @@ app.exec()
 
 运行起来没有报错，看上去也没有异常，为何说这是“错误”用法呢？那是因为该控件一般与`QToolBar`工具栏控件、`QMainWindow`主窗口控件搭配使用，因此，“正确”用法应当是：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -1152,7 +1150,7 @@ app.exec()
 
 前面介绍过`toolButtonStyle`参数表示按钮的显示样式（仅文本、仅图标、图标加文本），以下为该参数各个参数值的对比示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -1206,7 +1204,7 @@ app.exec()
 
 `popupMode`参数表示如何显示按钮的弹出菜单，以下为该参数各个参数值的对比示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -1260,7 +1258,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -1304,7 +1302,7 @@ app.exec()
 
 一般来说，槽函数与直接使用函数没什么区别，就好像下面改自前面的示例，使用普通函数代替槽函数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1339,7 +1337,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   @Slot()
   def on_{objectName}_{signalName}(self, ...):
       ...
@@ -1356,7 +1354,7 @@ app.exec()
 
 具体示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1386,7 +1384,7 @@ app.exec()
 
 只要是信号都可以自动连接，自定义信号也可以：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1427,7 +1425,7 @@ app.exec()
 
 所谓重载信号，可以简单理解为定义信号时，一次性定义信号支持的各种参数类型及其组合，无需为每一种组合分配一个变量，同时使用时也比较清晰明了：
 
-```python3
+```python
 mySignal = Signal((),(str,),(int,))
 ```
 
@@ -1437,7 +1435,7 @@ mySignal = Signal((),(str,),(int,))
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1488,7 +1486,7 @@ app.exec()
 
 当然，如果觉得每个参数组合都要单独连接一次槽函数甚至单独连接一个槽函数，有点麻烦的话，槽函数同样也支持类似的“重载”操作，只需将装饰器用在同一个函数上即可：
 
-```python3
+```python
 @Slot()
 @Slot(int)
 @Slot(str)
@@ -1500,7 +1498,7 @@ def on_window_mySignal(self,x=None):
 
 可能读者也发现了上面的槽函数名与上一章最后的自定义信号示例相同。没错，如果参数组合包含无参数的情况，只能使用槽函数的自动连接注册：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1544,7 +1542,7 @@ app.exec()
 
 若是不使用槽函数的自动连接，则信号、槽函数的无参数版本不能与有参数版本共用槽函数，并且槽函数的装饰器不能组合（也无需组合）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1590,7 +1588,7 @@ app.exec()
 
 需要注意，信号与槽函数手动连接时，槽函数装饰器的参数类型并非必需的，因此上面的示例才能正常使用。实际上，本章第一个示例中，去掉槽函数装饰器的参数，全部使用无参数的装饰器，也不会报错：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1653,7 +1651,7 @@ app.exec()
 
 代码很简单，只需给`setQuitOnLastWindowClosed`方法传入`False`，关闭最后一个窗口后，程序就不会退出：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -1686,7 +1684,7 @@ app.exec()
 
 说干就干，代码并不难，但是需要注意的是，有的系统不一定支持系统托盘，需要使用`QSystemTrayIcon.isSystemTrayAvailable`方法检查一下。另外，`QSystemTrayIcon`系统托盘图标类的初始化参数`visible`必须手动设置为`True`，否则要额外调用一次`show`方法，不然系统托盘图标不会显示：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1722,7 +1720,7 @@ app.exec()
 
 点击系统托盘图标，会触发`activated`信号。因此，只需将该信号连接到显示窗口的槽函数，就能解决之前的问题（笔者顺便在窗口中加了个退出程序的按钮）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1765,7 +1763,7 @@ app.exec()
 
 当然可以！`activated`信号会接收一个表示原因的参数，也就是使用什么按键触发的信号（左键单击、右键单击、中间单击、左键双击）。因此，只需给槽函数添加一个参数，并判断该参数的值即可：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1806,7 +1804,7 @@ app.exec()
 
 注意，左键双击包括左键单击，因此双击、单击都会显示窗口，如果想要仅限双击生效，需要修改判断的值：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1847,7 +1845,7 @@ app.exec()
 
 左键功能有了，右键的菜单也要安排上：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1899,7 +1897,7 @@ app.exec()
 
 也可以添加一个多选按钮控件，用于切换是否启用后台运行：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1967,7 +1965,7 @@ app.exec()
 
 也可以在关闭窗口时询问是否后台运行：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2043,7 +2041,7 @@ app.exec()
 
 `QComboBox`下拉组合框控件也叫下拉选择框，相比于前面介绍过的单选、多选控件，下拉组合框可以将选项折叠起来，节省直接占用的空间：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2190,7 +2188,7 @@ app.exec()
 
 添加选项时，可以同时设置选项的图标：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2230,7 +2228,7 @@ app.exec()
 
 除了单独调用`addItem`方法、`addItems`方法添加选项，还可以使用`setModel`方法何止数据模型，控件将自动基于数据模型中的数据生成对应选项：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2272,7 +2270,7 @@ app.exec()
 
 也可以使用自动补全器，搜索数据模型，手动添加数据模型内的数据：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2319,7 +2317,7 @@ app.exec()
 
 使用委托的示例（因为用法比较复杂，这里不做展开，后续章节再具体介绍）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2364,7 +2362,7 @@ app.exec()
 
 使用样式（QSS）的示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2405,7 +2403,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2551,7 +2549,7 @@ app.exec()
 
 `setCurrentSection`方法、`setCurrentSectionIndex`方法、`setSelectedSection`方法不能立即执行，必须延迟一段时间再执行，这样才能正常生效：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2582,7 +2580,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2637,7 +2635,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -2690,7 +2688,7 @@ app.exec()
 
 `PySide6.QtWidgets`模块提供了不少控件，前面的章节介绍了一部分，有的读者反馈有些控件用的时候想不起来，或者部分控件还没开始介绍，不知道需要特定功能时该用哪个控件。
 
-还好官网文档（https://doc.qt.io/qtforpython-6/overviews/qtwidgets-widget-classes.html#widgets-classes）提供了按功能分类的功能目录（仅包含部分控件），可以按需选择使用的控件。
+还好官网文档（ https://doc.qt.io/qtforpython-6/overviews/qtwidgets-widget-classes.html#widgets-classes ）提供了按功能分类的功能目录（仅包含部分控件），可以按需选择使用的控件。
 
 基础部分（最常用的控件）：
 
@@ -2874,9 +2872,9 @@ app.exec()
 | [`PySide6.QtWidgets.QGroupBox`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QGroupBox.html#PySide6.QtWidgets.QGroupBox) | 带有标题的编组控件             |
 | [`PySide6.QtWidgets.QStackedWidget`](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QStackedWidget.html#PySide6.QtWidgets.QStackedWidget) | 子控件可以堆叠的容器           |
 
-最后再附上一份`PySide6.QtWidgets`模块提供的所有控件类清单（功能目录不包含所有控件类，参考自 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html）：
+最后再附上一份`PySide6.QtWidgets`模块提供的所有控件类清单（功能目录不包含所有控件类，参考自 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html ）：
 
-```python3
+```python
 QAbstractButton
 QAbstractGraphicsShapeItem
 QAbstractItemDelegate
@@ -3079,7 +3077,7 @@ QWizardPage
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3182,7 +3180,7 @@ app.exec()
 
 不管使用什么框架，显示文本都很简单，在PySide6中也不例外：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3210,7 +3208,7 @@ app.exec()
 
 上面只是展示了显示文本且不做多余调整的情况，如果看一下定义（按`f12`键或者 右键-转到定义），就能看到更多初始化参数（并非都可以用，部分参数对应的控件属性为只读，实际上不可用）：
 
-```python3
+```python
     @typing.overload
     def __init__(self, text: str, /, parent: PySide6.QtWidgets.QWidget | None = ..., f: PySide6.QtCore.Qt.WindowType = ..., *, textFormat: PySide6.QtCore.Qt.TextFormat | None = ..., pixmap: PySide6.QtGui.QPixmap | None = ..., scaledContents: bool | None = ..., alignment: PySide6.QtCore.Qt.AlignmentFlag | None = ..., wordWrap: bool | None = ..., margin: int | None = ..., indent: int | None = ..., openExternalLinks: bool | None = ..., textInteractionFlags: PySide6.QtCore.Qt.TextInteractionFlag | None = ..., hasSelectedText: bool | None = ..., selectedText: str | None = ...) -> None: ...
     @typing.overload
@@ -3223,7 +3221,7 @@ app.exec()
 
 在了解其他参数之前，继续挖掘一下`text`参数的秘密。上一节只是简单将字符串传给该参数，但是，如果传入的字符串是HTML呢？比如，传入HTML的超链接：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3252,7 +3250,7 @@ app.exec()
 
 也可以设置`textFormat`参数为`PySide6.QtCore.Qt.TextFormat.MarkdownText`，让其支持解析Markdown，使用Markdown语法的超链接：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3283,7 +3281,7 @@ app.exec()
 
 `QLabel`标签控件看名字好像只能显示文本，但是，前一节介绍了可以显示超链接，再看参数中有个`pixmap`参数，那它显示图片也是可以的（需要用到的图片请自备）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3313,7 +3311,7 @@ app.exec()
 
 默认情况下，标签控件的文本不允许选择，但设置`textInteractionFlags`参数的值包含（该参数支持使用`|`同时设置多个值）`PySide6.QtCore.Qt.TextInteractionFlag.TextSelectableByMouse`，即可允许选择：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3349,7 +3347,7 @@ app.exec()
 
 示例简单到不能再简单，不需要多复杂的参数，就能创建一个输入框：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3373,7 +3371,7 @@ app.exec()
 
 输入不是目的，目的是获取输入的内容，`text`方法（控件属性）即可轻松做到：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3420,7 +3418,7 @@ app.exec()
 
 不仅可以获取输入的文本，还能使用`selectedText`方法（控件属性）获取到选择的文本（仅在控件获得焦点时可以获取）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3458,7 +3456,7 @@ app.exec()
 
 设置`echoMode`参数（表示回显模式），还能将单行输入框变成密码输入框：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3483,7 +3481,7 @@ app.exec()
 
 想要限制输入的内容可以设置`inputMask`参数（表示输入掩码，具体格式要求参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLineEdit.html#PySide6.QtWidgets.QLineEdit.inputMask ）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3508,7 +3506,7 @@ app.exec()
 
 `placeholderText`参数表示不输入任何内容时的占位文本，相比于只有鼠标悬停时才显示的工具提示，占位文本的提示效果更直接：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3547,7 +3545,7 @@ app.exec()
 
 `QLCDNumber`液晶数字控件是个有点复古的控件，在显示Qt程序的点阵液晶显示器上，实现了计算器上类似数码管的液晶显示效果：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3576,7 +3574,7 @@ app.exec()
 
 `QLCDNumber`液晶数字控件看名字能显示数字，但该控件不只能显示数字，还能显示字母：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3605,7 +3603,7 @@ app.exec()
 
 控件支持以下字符的显示：
 
-```python3
+```python
 # 所有的数字
 0123456789
 # 部分字母
@@ -3616,7 +3614,7 @@ AaBbCcDdEeFfgHhLlOoPpRrSsUuYy
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3662,7 +3660,7 @@ app.exec()
 
 定义（创建）菜单只需实例化控件即可（核心代码，不含其他部分，不可直接运行）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QMenu
 )
@@ -3683,7 +3681,7 @@ menu = QMenu(
 
 完整示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3719,7 +3717,7 @@ app.exec()
 
 通过信号给任意控件（`QWidget`控件）设置上下文菜单（右键点击），需要先设置控件的上下文菜单策略为自定义上下文菜单，然后将自定义上下文菜单的触发信号与菜单的弹出方法（`exec`方法）绑定：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3755,7 +3753,7 @@ app.exec()
 
 通过事件给任意控件（`QWidget`控件）设置上下文菜单（右键点击）也是类似的操作：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3785,7 +3783,7 @@ app.exec()
 
 如果想自由地在鼠标位置弹出菜单，就需要自定义菜单弹出方法，按需调用。示例为按下任意键都会在鼠标位置弹出菜单：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3816,7 +3814,7 @@ app.exec()
 
 支持`setContextMenu`方法的控件比较少，右键点击即可弹出菜单。示例来自第32章：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3884,7 +3882,7 @@ app.exec()
 
 部分按钮类控件支持`setMenu`方法，左键点击按钮的特定位置即可弹出菜单：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3916,7 +3914,7 @@ app.exec()
 
 若是给`QMenuBar`菜单栏控件添加菜单（左键点击），则菜单只能在固定位置显示：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3947,7 +3945,7 @@ app.exec()
 
 而`QMainWindow`主窗口控件自带菜单栏，添加菜单的代码和单独使用`QMenuBar`菜单栏控件一样（注意操作顺序）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -3983,7 +3981,7 @@ app.exec()
 
 `QProgressBar`进度条控件用于指示进度，外观简单，用起来也很简单：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4011,7 +4009,7 @@ app.exec()
 
 为了发布展示效果，这里借用了下一章介绍的滑块控件，将滑块控件的`valueChanged`信号与进度条控件的`setValue`方法连接。当拖动滑块时，进度条也会随之发生改变：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4057,7 +4055,7 @@ app.exec()
 
 进度条控件的`text`控件属性表示显示的文本（而非当前进度值）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4107,7 +4105,7 @@ app.exec()
 
 如果想要修改显示的文本，需要修改的是`format`控件属性（可以使用`['%v','%m','%p']`中的固定表达表示当前值、总步数、当前值的百分比，默认值为`'%p%'`）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4160,7 +4158,7 @@ app.exec()
 
 默认总步数是`100`（最大值减去最小值），因此总步数和当前值的百分比看起来一样。可以通过修改（直接或者使用`setRange`方法）`minimum`控件属性、`maximum`控件属性，间接调整总步数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4219,7 +4217,7 @@ app.exec()
 
 如果想要进度条反向，可以使用`setInvertedAppearance`方法：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4266,7 +4264,7 @@ app.exec()
 
 上一章在介绍进度条控件时用到了滑块控件，本章那就顺势介绍一下滑块控件：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4308,7 +4306,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4344,7 +4342,7 @@ app.exec()
 
 因此，本章只介绍`QSpinBox`整数编辑框控件：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4390,7 +4388,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4456,7 +4454,7 @@ app.exec()
 
 该控件的数值变化时会触发两个信号：`textChanged`信号和`valueChanged`信号。但是，两个信号接收的参数不同，前者是`text`控件属性，后者是`value`控件属性：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4487,7 +4485,7 @@ app.exec()
 
 输出结果为：
 
-```python3
+```python
 textChanged接收的是: 共 7 个
 valueChanged接收的是: 7
 textChanged接收的是: 共 6 个
@@ -4509,7 +4507,7 @@ valueChanged接收的是: 5
 
 `QToolBox`工具箱控件恰如其名，就像一个可以存放工具的多层工具箱，但每次只能展开一层，其他层会自动收起：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4559,7 +4557,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4620,7 +4618,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4677,7 +4675,7 @@ app.exec()
 
 窗口再大，也没法完整展示尺寸过大的控件，此时就需要使用`QScrollArea`滚动区域控件，添加到其中的控件尺寸过大的话，可以通过滚动的方式展示全貌：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4729,7 +4727,7 @@ app.exec()
 
 `ensureVisible`方法，自动滚动以确保指定位置（相对坐标）可见。示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4783,7 +4781,7 @@ app.exec()
 
 因为自定义选项卡内容控件还需要写不少切换内容的代码，为了避免额外的代码导致混淆，这里借用`QToolBox`工具箱控件作为选项卡内容控件，让读者可以聚焦于联动代码上。先看没有联动代码时的基本代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4835,7 +4833,7 @@ app.exec()
 
 联动代码很简单，就是将选项卡标签控件标签切换时触发的`currentChanged`信号，与工具箱控件切换当前项目的槽函数——`setCurrentIndex`方法连接。二者的参数都是整数类型的索引值，因此可以轻松联动。代码如下：
 
-```python3
+```python
 # 正向联动代码
 tabbar.currentChanged.connect(
     box.setCurrentIndex
@@ -4846,7 +4844,7 @@ tabbar.currentChanged.connect(
 
 上面的联动代码只是实现了点击标签然后切换工具箱控件的当前项目，基于类似思路，还可以将工具箱控件的`currentChanged`信号与选项卡标签控件的槽函数——`setCurrentIndex`方法，简单到只是换一下控件对应的变量名，即可实现反向联动：
 
-```python3
+```python
 # 反向联动代码
 box.currentChanged.connect(
     tabbar.setCurrentIndex
@@ -4855,7 +4853,7 @@ box.currentChanged.connect(
 
 双向联动的完整示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4923,7 +4921,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4984,7 +4982,7 @@ app.exec()
 
 `drawBase`参数，关键字参数，布尔类型，表示是否绘制基底，即下面示例图中的横线：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5047,7 +5045,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5114,7 +5112,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5180,7 +5178,7 @@ app.exec()
 
 `tabsClosable`参数，关键字参数，布尔类型，表示选项卡标签是否允许关闭。注意，允许关闭只是显示关闭按钮，想要真正实现关闭功能（移除标签和选项卡内容）需要额外处理`tabCloseRequested`信号。但是，相关逻辑设计比较复杂，这里不做展开，仅提供移除标签的功能：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5262,7 +5260,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5320,7 +5318,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5403,7 +5401,7 @@ app.exec()
 
 相比于使用`QTabBar`选项卡标签控件自定义选项卡内容还要写额外代码处理联动，本章介绍的`QTabWidget`选项卡控件使用时简单不少，直接添加内容即可：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5455,7 +5453,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5510,7 +5508,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5557,7 +5555,7 @@ app.exec()
 
 `cornerWidget`方法（控件属性，可使用`setCornerWidget`方法设置），返回选项卡标签栏的角落控件。注意，仅当`tabPosition`为`PySide6.QtWidgets.QTabWidget.TabPosition.North`或`PySide6.QtWidgets.QTabWidget.TabPosition.South`时该控件才能生效：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5653,7 +5651,7 @@ app.exec()
 
 第38章介绍过单行编辑框，只能显示、编辑单行文本，一旦原始文本是多行文本，控件就会无法显示原始的格式：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5685,7 +5683,7 @@ app.exec()
 
 使用标签控件可以正确显示多行文本：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5717,7 +5715,7 @@ app.exec()
 
 可这样的编辑体验很糟糕：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5763,7 +5761,7 @@ app.exec()
 
 聪明的读者看了看本章标题，一下子猜到了`QTextEdit`富文本控件就是正确答案，便有了下面的代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5811,7 +5809,7 @@ app.exec()
 
 明白这个原理，想要让多行文本正确显示，只需将文本通过关键字传给`text`参数或者`plainText`参数（最好用改参数，不要用自动判断）即可：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5983,7 +5981,7 @@ app.exec()
 
 虽然启用只读模式的富文本控件可以当显示多行文本的控件来用，但是，在显示文本方面，使用继承了富文本控件的`QTextBrowser`文本浏览器控件更好用：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -6038,7 +6036,7 @@ app.exec()
 
 然后示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,

@@ -1,4 +1,4 @@
-# Flet札记（2027）
+《Flet札记》（2027）
 
 2027年所有更新内容转入《易森》，以下内容为存稿、留档，在《易森》更新时复制到《易森》中。
 
@@ -12,7 +12,7 @@
 
 Flet虽然也支持WebUI模式（网页模式），但其控件都是绘制出来的图形，不是传统意义上的HTML元素。因此，Flet中并没有直接对标NiceGUI的超链接控件。不过，`Text`控件的`spans`参数可以让部分文字支持超链接的功能，`Button`控件的`url`参数也能让按钮平替超链接：
 
-```python3
+```python
 import flet
 
 
@@ -50,7 +50,7 @@ flet.run(
 
 以按钮为例，不使用`url`参数，看看如何实现点击按钮、打开链接：
 
-```python3
+```python
 import flet
 
 
@@ -104,7 +104,7 @@ flet.run(
 
 
 
-```python3
+```python
 import flet
 
 
@@ -138,7 +138,7 @@ flet.run(
 
 
 
-```python3
+```python
 import flet
 
 
@@ -164,7 +164,7 @@ flet.run(
 
 参考cookbook介绍一些基础，后续单独介绍一些实践用法。
 
-控件与服务（https://flet.dev/docs/reference/），每章详细介绍一个：
+控件与服务（ https://flet.dev/docs/reference/ ），每章详细介绍一个：
 
 - [控件](https://flet.dev/docs/controls) - 具有属性、事件和使用示例的用户界面构建块。
 - [服务](https://flet.dev/docs/services) - 设备和平台的功能，如传感器、存储和权限。
@@ -174,7 +174,7 @@ flet.run(
 
 
 
-页面设计（页面支持的部分属性比如`navigation_bar`属性、`bottom_appbar`属性、`appbar`属性、`drawer`属性、`end_drawer`属性等对应特定的区域，其他属性负责页面样式等等），https://flet.dev/docs/controls/basepage/，主要介绍页面支持的属性。
+页面设计（页面支持的部分属性比如`navigation_bar`属性、`bottom_appbar`属性、`appbar`属性、`drawer`属性、`end_drawer`属性等对应特定的区域，其他属性负责页面样式等等），https://flet.dev/docs/controls/basepage/ ，主要介绍页面支持的属性。
 
 
 
@@ -182,7 +182,7 @@ flet.run(
 
 手势控件结合窗口状态进入函数的使用：
 
-```python3
+```python
 import flet
 
 async def main(page: flet.Page):

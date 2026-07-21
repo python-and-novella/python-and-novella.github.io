@@ -1,10 +1,8 @@
-# Flet札记（2026）
-
-[TOC]
+《Flet札记》（2026）
 
 ## 0 为何而写
 
-Flet框架（官网https://flet.dev/）是一款优秀的WebUI、GUI框架，底层使用谷歌的Flutter框架实现，所以控件比较美观。而Flet框架实现了Flutter框架的Python接口，方便Python开发者使用Flutter框架的控件快速搭建出美观的UI界面。
+Flet框架（官网 https://flet.dev/ ）是一款优秀的WebUI、GUI框架，底层使用谷歌的Flutter框架实现，所以控件比较美观。而Flet框架实现了Flutter框架的Python接口，方便Python开发者使用Flutter框架的控件快速搭建出美观的UI界面。
 
 虽然Flet框架类似其他基于Web的GUI框架（比如NiceGUI），但Flet框架提供了运行时，使其作为桌面程序运行时，不需要额外安装类似浏览器的框架（比如`pywebview`库）来提供壳子，因为框架自带壳子。另外Flet框架也提供了完善的打包、编译支持（虽然体积依然比较大），方便分发给客户（无需安装Python）。
 
@@ -28,13 +26,13 @@ Flet框架（官网https://flet.dev/）是一款优秀的WebUI、GUI框架，底
 
 ## 2 认识Flet程序
 
-官网教程、文档：https://flet.dev/docs/
+官网教程、文档： https://flet.dev/docs/
 
 ### 2.1 基本结构
 
 先看示例，简单了解一下Flet程序的基本结构：
 
-```python3
+```python
 # 导入模块
 import flet
 # 创建控件
@@ -93,7 +91,7 @@ flet.run(main)
 
 直接以网页模式运行的示例如下：
 
-```python3
+```python
 # 导入模块
 import flet
 # 创建控件
@@ -116,7 +114,7 @@ flet.run(
 
 当程序什么控件都不添加时，实际上默认还有一个主页面控件：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -129,7 +127,7 @@ flet.run(main)
 
 主页面的`add`方法用于添加控件到页面中，而所有控件都可以通过`flet`（或者其别名）直接调用。添加的控件都会追加到`controls`属性中，默认以列布局的形式显示：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -152,7 +150,7 @@ flet.run(main)
 
 `add`方法支持不定参数，无需每次添加一个控件，可以一次性添加所有控件：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -170,7 +168,7 @@ flet.run(main)
 
 注意，虽然可以通过索引`controls`属性访问对应控件，但依然建议给每个控件分配变量，因为`controls`属性没法提示具体控件支持的属性，需要读者对具体控件比较熟悉才能这样使用：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -193,7 +191,7 @@ flet.run(main)
 
 除了使用`add`方法按顺序添加控件，也可以使用`insert`方法，在指定位置插入控件，改变控件顺序：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -230,7 +228,7 @@ flet.run(main)
 
 那就先看一个声明式的示例，通过代码来见真章：
 
-```python3
+```python
 import flet
 
 @flet.component
@@ -333,7 +331,7 @@ flet.run(main)
 
 完整示例如下：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -359,7 +357,7 @@ flet.run(main)
 
 就以上一章最后的示例为基础，看一下创建（定义）如何事件的响应函数：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -389,7 +387,7 @@ flet.run(main)
 - `on_click`属性，可以先创建控件，再创建响应函数，适合修改响应函数、创建控件之后随时创建响应函数的需求、
 - `on_click`参数，必须在创建控件前创建响应函数，否则会报错。
 
-上面的示例中，响应函数没有接收任何参数，其实，响应函数也可以接收参数，具体支持的参数可以参考官方文档（https://flet.dev/docs/types/event）或者代码提示（对应源代码）。
+上面的示例中，响应函数没有接收任何参数，其实，响应函数也可以接收参数，具体支持的参数可以参考官方文档（ https://flet.dev/docs/types/event ）或者代码提示（对应源代码）。
 
 一般来说，响应函数的参数支持以下属性（部分，可能会更多或者有变动）：
 
@@ -399,7 +397,7 @@ flet.run(main)
 
 示例如下：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -449,7 +447,7 @@ flet.run(main)
 
 比如，让两个控件分别靠边，而不是紧挨着：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -480,7 +478,7 @@ flet.run(main)
 
 如果两种布局组合使用，发挥一点想象力，很容易将按钮放在窗口的右下角：
 
-```python3
+```python
 import flet
 
 def main(page: flet.Page):
@@ -521,11 +519,11 @@ flet.run(main)
 
 ## 8 后台运行任务
 
-如果想让Flet程序在后台运行任务，那就离不开主页面的`run_task`方法（https://flet.dev/docs/controls/page/#flet.Page.run_task）和`run_thread`方法（https://flet.dev/docs/controls/page/#flet.Page.run_thread）。从表面上看，这两种方法的参数、用法几乎一样，只是前者是后台运行异步方法，后者是后台运行同步方法。但是，一旦深入研究，就会发现这两种方法暗含的坑远没有看上去那么简单。
+如果想让Flet程序在后台运行任务，那就离不开主页面的`run_task`方法（ https://flet.dev/docs/controls/page/#flet.Page.run_task ）和`run_thread`方法（ https://flet.dev/docs/controls/page/#flet.Page.run_thread ）。从表面上看，这两种方法的参数、用法几乎一样，只是前者是后台运行异步方法，后者是后台运行同步方法。但是，一旦深入研究，就会发现这两种方法暗含的坑远没有看上去那么简单。
 
-先说`run_task`方法，官方介绍异步用法的文档（https://flet.dev/docs/cookbook/async-apps/#threading）中提到了该方法，这里使用该方法实现了一个可以随时启动的、实时显示时间的程序：
+先说`run_task`方法，官方介绍异步用法的文档（ https://flet.dev/docs/cookbook/async-apps/#threading ）中提到了该方法，这里使用该方法实现了一个可以随时启动的、实时显示时间的程序：
 
-```python3
+```python
 import flet
 import asyncio
 import datetime
@@ -568,7 +566,7 @@ flet.run(main)
 
 对于`run_thread`方法，用起来就不如`run_task`方法轻量、自由，先看示例：
 
-```python3
+```python
 import flet
 import time
 import datetime
@@ -609,7 +607,7 @@ flet.run(main)
 
 如果后台任务支持接收参数，也可以给`run_task`方法，`run_thread`方法同时传入额外的位置参数、关键字参数，这些额外的参数会传给后台任务：
 
-```python3
+```python
 import flet
 import time
 import datetime
@@ -653,7 +651,7 @@ flet.run(main)
 
 示例如下：
 
-```python3
+```python
 import flet
 
 
@@ -682,7 +680,7 @@ flet.run(main)
 
 除了用十六进制数，也可以直接使用颜色的名字（支持的颜色名字可参考 https://flet.dev/docs/cookbook/colors/#named-color ）：
 
-```python3
+```python
 import flet
 
 
@@ -707,7 +705,7 @@ flet.run(main)
 
 可能有的读者觉得十六进制数和颜色名字都不太好记，用起来不方便，没关系，还可以使用`Colors`和`CupertinoColors`的枚举成员（本质上是颜色名字）：
 
-```python3
+```python
 import flet
 
 
@@ -734,7 +732,7 @@ flet.run(main)
 
 如果是使用十六进制数表达，则在原本的颜色前扩展两位，表示透明度（比如`7f`表示50%透明度）：
 
-```python3
+```python
 import flet
 
 
@@ -763,7 +761,7 @@ flet.run(main)
 
 如果是使用`Colors`和`CupertinoColors`的枚举成员，则可以使用`with_opacity`方法：
 
-```python3
+```python
 import flet
 
 
@@ -803,7 +801,7 @@ flet.run(main)
 
 而且，容器控件主题生效优先级高于主页面主题：
 
-```python3
+```python
 import flet
 
 
@@ -844,7 +842,7 @@ flet.run(main)
 
 ![2026_10_1](flet_pro.assets/2026_10_1.png)
 
-创建主题需要用到`flet.Theme`类的参数（属性，完整用法可参考https://flet.dev/docs/types/theme/）有（部分）：
+创建主题需要用到的`flet.Theme`类参数（属性，完整用法可参考 https://flet.dev/docs/types/theme/ ）有：
 
 - `color_scheme_seed`参数（属性），表示主题的种子色，主题会基于该颜色自动生成其他控件的相应颜色。
 - `color_scheme`参数（属性），表示主题的颜色方案，需要手动指定主题具体的场景的颜色。
@@ -857,7 +855,7 @@ flet.run(main)
 
 定义Flet程序的快捷键，只需给主页面设置按键事件的响应函数（`on_keyboard_event`属性）即可：
 
-```python3
+```python
 import flet
 
 
@@ -901,7 +899,7 @@ Material风格通常包含阴影、圆角；Cupertino风格也叫iOS风格，通
 
 以下为两种风格的按钮的对比：
 
-```python3
+```python
 import flet
 
 
@@ -941,7 +939,7 @@ flet.run(main)
 
 `content`参数，字符串类型或控件类型，表示按钮的主要内容。
 
-```python3
+```python
 import flet
 
 
@@ -967,7 +965,7 @@ flet.run(main)
 
 `icon`参数，图标数据类型（`Icons`的成员或者`CupertinoIcons`的成员）或控件类型，表示按钮的图标。
 
-```python3
+```python
 import flet
 
 
@@ -1000,7 +998,7 @@ flet.run(main)
 
 `elevation`参数，整数类型或者浮点类型，表示按钮的阴影高度，默认为`1`。
 
-```python3
+```python
 import flet
 
 
@@ -1029,7 +1027,7 @@ flet.run(main)
 
 `style`参数，`ButtonStyle`类型，表示按钮的样式。
 
-```python3
+```python
 import flet
 
 
@@ -1057,7 +1055,7 @@ flet.run(main)
 
 `clip_behavior`参数，裁切行为类型（`ClipBehavior`的成员），表示按钮的主要内容超出按钮边界时如何裁切，非必要不建议修改。
 
-```python3
+```python
 import flet
 
 
@@ -1122,7 +1120,7 @@ flet.run(main)
 
 `url`参数，字符串类型或者`Url`类型，表示点击按钮之后访问的网址。
 
-```python3
+```python
 import flet
 
 
@@ -1159,7 +1157,7 @@ flet.run(main)
 
 先看示例：
 
-```python3
+```python
 import flet
 
 
@@ -1283,7 +1281,7 @@ flet.run(main)
 
 最后，针对菜单项之间的分隔线和自动切换勾选状态的需求提供一个简单的示例：
 
-```python3
+```python
 import flet
 
 
@@ -1347,7 +1345,7 @@ Flet程序不支持多窗口，对于想要显示多套界面的需求，就要�
 
 简单来说，主页面的`views`属性是一个列表，存储了视图（`View`控件）。默认情况下，该属性包含一个默认视图，如果给该属性添加视图，那程序只会显示最上面的视图：
 
-```python3
+```python
 import flet
 
 
@@ -1382,7 +1380,7 @@ flet.run(main)
 
 就可以基于这样的设计，创建出一个可以访问指定视图、返回上一级视图的程序：
 
-```python3
+```python
 import flet
 
 
@@ -1441,7 +1439,7 @@ flet.run(main)
 
 主页面的`route`属性表示当前路径，不过，在上一节的代码中，改变视图，当前路径并不会改变：
 
-```python3
+```python
 import flet
 
 
@@ -1502,7 +1500,7 @@ flet.run(
 
 这是因为代码中其他视图不是基于主页面的`route`属性构建，而且跳转其他视图的方法不会改变主页面的`route`属性。因此，想要实现本节一开始的需求，首先做的，就是给主页面的`on_route_change`方法定义当前路径变化后执行的操作：
 
-```python3
+```python
 import flet
 
 
@@ -1588,7 +1586,7 @@ flet.run(
 
 对于上面示例中页面内容和路径相关、几乎相同的页面，可以使用模板路由（`TemplateRoute`）来匹配路径，并从中捕获符合匹配规则的部分，基于模板生成所需内容：
 
-```python3
+```python
 import flet
 
 
@@ -1659,7 +1657,7 @@ flet.run(
 
 比如，在一个页面发送，所有页面都能收到该消息（需要使用多个浏览器标签打开`http://127.0.0.1`）：
 
-```python3
+```python
 import flet
 
 
@@ -1725,7 +1723,7 @@ flet.run(
 
 上一章介绍消息订阅时，提到了会话的概念，那什么是会话呢？简单来说，每新建页面打开一次网址，都是创建一个会话。因此，如果使用`page.session.id`检查上一章示例中的会话ID，就会看到新建页面打开相同的网址之后，不同页面的会话ID不同，而相同页面的会话ID不会因为刷新而改变：
 
-```python3
+```python
 import flet
 
 
@@ -1779,7 +1777,7 @@ flet.run(
 
 上一章介绍了会话的特性，假如需要将数据存储到会话中，让不同会话之间的数据存取是隔离的话，不使用主页面的`session`属性，代码可以这样写：
 
-```python3
+```python
 import flet
 
 
@@ -1821,7 +1819,7 @@ flet.run(
 
 这种写法看上去没问题，但是，在数据不存在时程序会报错。还好主页面的`session`属性提供了更好用的属性`store`，能避免在数据不存在时程序报错：
 
-```python3
+```python
 import flet
 
 
@@ -1878,7 +1876,7 @@ flet.run(
 
 上一章介绍的数据存储方式，虽然说不同会话之间是独立的，但也存在一个弊端，那就是程序重启之后数据会丢失。当然，如果有时候需要不同会话之间共享数据，使用上一章的数据存储方式也不行，需要改为将数据存储到文件中：
 
-```python3
+```python
 import flet
 
 
@@ -1926,7 +1924,7 @@ flet.run(
 
 使用文件存储数据可以符合要求，但有点麻烦。好在Flet提供了方便好用的`SharedPreferences`服务，支持的方法和`store`属性相同，只是这些方法都是异步的（因为存储到文件中，必须异步操作）：
 
-```python3
+```python
 import flet
 
 
@@ -1977,7 +1975,7 @@ flet.run(
 
 好在Flet的`security`模块提供了加密（`encrypt`方法）、解密（`decrypt`方法）功能，可以将数据加密后存储，也能解密出原始内容：
 
-```python3
+```python
 import flet
 from flet.security import encrypt, decrypt
 
@@ -2034,7 +2032,7 @@ flet.run(
 
 因此，可以通过注入初始化方法来自定义控件：
 
-```python3
+```python
 import flet
 
 class MyButton(flet.Button):
@@ -2069,7 +2067,7 @@ flet.run(
 
 前面说过，Flet框架使用数据类设计控件，这个数据类就是`control`类。因此，可以参考控件的源码，直接使用`control`类作为装饰器，同时继承要修改的控件类：
 
-```python3
+```python
 import flet
 from dataclasses import field
 
@@ -2107,7 +2105,7 @@ flet.run(
 
 `control`类的用法、作用和数据类（`dataclass`类）一样，因此，直接使用数据类也可以：
 
-```python3
+```python
 import flet
 from dataclasses import field,dataclass
 
@@ -2150,7 +2148,7 @@ Flet的控件类还支持一些特别的生命周期方法，重写这些方法�
 
 生命周期方法的示例如下：
 
-```python3
+```python
 import flet
 from dataclasses import field
 
@@ -2199,7 +2197,7 @@ flet.run(
 
 可以重写`before_update`方法来验证隔离：
 
-```python3
+```python
 import flet
 
 @flet.control
@@ -2264,7 +2262,7 @@ flet.run(
 
 如果主页面没有添加对话框，只能这样显示对话框：
 
-```python3
+```python
 import flet
             
 
@@ -2296,7 +2294,7 @@ flet.run(
 
 如果主页面添加了对话框，且默认不显示（`open`参数为`False`），还可以这样显示：
 
-```python3
+```python
 import flet
             
 
@@ -2332,7 +2330,7 @@ flet.run(
 
 示例如下：
 
-```python3
+```python
 import flet
             
 
@@ -2394,7 +2392,7 @@ flet.run(
 
 示例如下：
 
-```python3
+```python
 import flet
 
 
@@ -2437,7 +2435,7 @@ flet.run(
 
 组件和控件一样，都可以复用。但是，相比于直接渲染组件时是传入函数名，被复用的组件需要先创建（调用函数，相当于变成普通控件）：
 
-```python3
+```python
 import flet
 
 
@@ -2485,7 +2483,7 @@ flet.run(
 
 `use_state`方法会返回变量本身和设置该变量值的设置方法，加入按照不使用`use_state`方法的思路设计，那代码可能如下：
 
-```python3
+```python
 import flet
 
 
@@ -2527,7 +2525,7 @@ flet.run(
 
 或者是使用全局变量：
 
-```python3
+```python
 import flet
 
 count = 0
@@ -2569,7 +2567,7 @@ flet.run(
 
 可是，当读者实际运行上面两个示例的时候，就会发现显示的数字根本没有变化。没错，显示的数字没有变化，不代表变量没有变化。如果在`set_count`方法中添加`print(count)`，就会看到变量是在变化的：
 
-```python3
+```python
 import flet
 
 
@@ -2626,7 +2624,7 @@ flet.run(
 
 于是，笔者突发奇想，将上面计数器的示例改为使用字典，以便于后续扩展其功能：
 
-```python3
+```python
 import flet
 
 
@@ -2669,7 +2667,7 @@ flet.run(
 
 字典不行，改成数据类试试：
 
-```python3
+```python
 import flet
 from dataclasses import dataclass
 
@@ -2718,7 +2716,7 @@ flet.run(
 
 先别急着放弃，使用数据类的思路是对的，只是直接使用数据类是功亏一篑，还需要加上`observable`装饰器，才能让`use_state`方法为其创建钩子。这样的话，无需调用设置方法，只要数据类的属性值或者组件内使用数据类的其他变量发生变化，Flet框架就会自动调用相关控件的`update`方法，确保控件准确显示：
 
-```python3
+```python
 import flet
 from dataclasses import dataclass
 
@@ -2794,7 +2792,7 @@ flet.run(
 
 单层路由：
 
-```python3
+```python
 import flet
 
 @flet.component
@@ -2836,7 +2834,7 @@ flet.run(
 
 多层路由（使用`children`参数，横向代码较多，可能需要左右滑动）：
 
-```python3
+```python
 import flet
 
 
@@ -2895,7 +2893,7 @@ flet.run(
 
  和命令式类似，声明式使用主页面的`push_route`方法和`navigate`方法跳转到指定路由，来避免在浏览器输入指定地址或者点击链接的麻烦，适合窗口模式等场景。不过，在组件中，没有表示主页面的参数，想要使用主页面的方法，就要先通过`flet.context.page`属性来获取当前上下文的主页面：
 
-```python3
+```python
 import flet
 
 @flet.component
@@ -2953,7 +2951,7 @@ flet.run(
 
 `manage_views`参数的示例如下：
 
-```python3
+```python
 import flet
 
 @flet.component
@@ -3030,7 +3028,7 @@ flet.run(
 
 部分参数的示例，运行之后访问`http://127.0.0.1/test/`查看结果：
 
-```python3
+```python
 import flet
 
 def loader(params):
@@ -3083,7 +3081,7 @@ flet.run(
 
 前面说过，**只有树叶**可以**定义**路由与组件的**映射关系**，表示该路由有实际的内容。其实，这个结论**不严谨**。如果组件中使用了**包含outlet控件**（伪控件，由`use_route_outlet`方法创建，不可单独使用，仅在组件内生效）的内容，则树干可以使用该组件（即**可以使用`component`参数**），并且该组件将成为树干的**布局模板**，outlet控件对应的部分会被**自动替换**为子路由对应的组件：
 
-```python3
+```python
 import flet
 
 
@@ -3145,7 +3143,7 @@ flet.run(
 
 同理，如果是视图模式的话，则需要将**包含outlet控件**的路由的**`outlet`参数为`True`**，且**子路由**对应的组件**不能为视图控件**，否则outlet控件对应的部分将无法正常渲染：
 
-```python3
+```python
 import flet
 
 

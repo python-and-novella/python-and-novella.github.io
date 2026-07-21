@@ -1,6 +1,4 @@
-# Qt For Python 札记（2025）
-
-[toc]
+《Qt For Python 札记》（2025）
 
 ## 0 为何而写
 
@@ -35,11 +33,11 @@ pyside6-uv-app v0.1.0
 
 PySide6（6.9.x版本）提供了很多模块，但不是所有模块都常用，其中，常用（狭义概念）的模块为：
 
-- `QtCore`模块，包含Qt框架中与GUI功能无关的核心类（具体参考https://doc.qt.io/qt-6/zh/qtcore-module.html）。
-- `QtGui`模块，包含Qt框架中与GUI功能相关的核心类（具体参考https://doc.qt.io/qt-6/zh/qtgui-module.html）。
-- `QtWidgets`模块，包含创建传统控件（使用C++设计的类似原生的控件）所需的类（具体参考https://doc.qt.io/qt-6/zh/qtwidgets-module.html）。
-- `QtQuick`模块，包含创建新式控件（使用QML设计的类似网页的控件）所需的类（具体参考https://doc.qt.io/qt-6/zh/qtquick-module.html）。
-- `QtQml`模块，提供了解析、处理QML所需的类（通常与`QtQuick`模块一起使用，具体参考https://doc.qt.io/qt-6/zh/qtqml-module.html）。
+- `QtCore`模块，包含Qt框架中与GUI功能无关的核心类（具体参考 https://doc.qt.io/qt-6/zh/qtcore-module.html ）。
+- `QtGui`模块，包含Qt框架中与GUI功能相关的核心类（具体参考 https://doc.qt.io/qt-6/zh/qtgui-module.html ）。
+- `QtWidgets`模块，包含创建传统控件（使用C++设计的类似原生的控件）所需的类（具体参考 https://doc.qt.io/qt-6/zh/qtwidgets-module.html ）。
+- `QtQuick`模块，包含创建新式控件（使用QML设计的类似网页的控件）所需的类（具体参考 https://doc.qt.io/qt-6/zh/qtquick-module.html ）。
+- `QtQml`模块，提供了解析、处理QML所需的类（通常与`QtQuick`模块一起使用，具体参考 https://doc.qt.io/qt-6/zh/qtqml-module.html ）。
 
 需要注意的是，不同开发目的所需的模块不尽相同，对于“常用”的理解也有所不同。这里的“常用”为狭义概念，是指创建简单桌面程序时必需的模块。如果涉及到其他功能（比如嵌入网页），则其他模块（与网页视图控件相关的模块）也会成为必需，因此常用的模块不是固定的几个模块，视具体情况而定。
 
@@ -49,7 +47,7 @@ Qt框架作为成熟的GUI框架，模块、类的命名也是统一且整齐的
 - 所有模块都是“Qt”开头，后接表明模块用途的字段。
 - 所有的类都是“Q”开头，后接表明类含义的字段。
 
-PySide6（6.9.x版本）包含的所有模块（目录参考自 https://doc.qt.io/qtforpython-6/py-modindex.html）及相关信息（资料有限，主要用途的解释可能存在偏差，以官方资料为准）参见下表：
+PySide6（6.9.x版本）包含的所有模块（目录参考自 https://doc.qt.io/qtforpython-6/py-modindex.html ）及相关信息（资料有限，主要用途的解释可能存在偏差，以官方资料为准）参见下表：
 
 | 模块名                 | 主要用途                         | 文档链接                                                     |
 | ---------------------- | -------------------------------- | ------------------------------------------------------------ |
@@ -116,7 +114,7 @@ PySide6（6.9.x版本）包含的所有模块（目录参考自 https://doc.qt.i
 
 以下为一个简单的Hello World程序示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -182,7 +180,7 @@ app.exec()
 
 以下为使用`QCoreApplication`类的简单示例：
 
-```python3
+```python
 # 控制台程序的简单示例
 from PySide6.QtCore import QCoreApplication,QTimer
 
@@ -197,7 +195,7 @@ app.exec()
 
 以下为使用`QCoreApplication`类的复杂示例：
 
-```python3
+```python
 # 控制台程序的复杂示例
 import sys
 import threading
@@ -247,7 +245,7 @@ app.exec()
 
 上面示例可以将相关功能从自定义类中剥离，进一步简化：
 
-```python3
+```python
 import sys
 import threading
 from PySide6.QtCore import QCoreApplication,Signal,QObject
@@ -298,7 +296,7 @@ app.exec()
 
 以下为使用`QGuiApplication`类的简单示例（QML等相关内容后续章节会介绍）：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QUrl,QByteArray
 from PySide6.QtQuick import QQuickView
@@ -340,7 +338,7 @@ app.exec()
 
 以下为使用`QApplication`类的简单示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -378,9 +376,9 @@ app.exec()
 
 除了主窗口控件与其他控件有所区别，三种主窗口控件之间也有区别：
 
-- `QWidget`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html#PySide6.QtWidgets.QWidget），`QWidget`类是所有控件的基类，可以说其他控件都是基于`QWidget`控件实现的。因此，该控件主要用于创建简单的窗口或者通用控件。如果需要给窗口增加工具栏、菜单栏、状态栏，则需要手动添加（默认`QWidget`控件不包括）。此外，想要让窗口变为模态窗口（只允许当前窗口获得焦点，符合要求的其他窗口不能获得焦点，除非关闭当前窗口）的话，只能使用`setWindowModality`方法（仅支持应用级模态`Qt.WindowModality.ApplicationModal`）手动设置窗口的模态：
+- `QWidget`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html#PySide6.QtWidgets.QWidget ），`QWidget`类是所有控件的基类，可以说其他控件都是基于`QWidget`控件实现的。因此，该控件主要用于创建简单的窗口或者通用控件。如果需要给窗口增加工具栏、菜单栏、状态栏，则需要手动添加（默认`QWidget`控件不包括）。此外，想要让窗口变为模态窗口（只允许当前窗口获得焦点，符合要求的其他窗口不能获得焦点，除非关闭当前窗口）的话，只能使用`setWindowModality`方法（仅支持应用级模态`Qt.WindowModality.ApplicationModal`）手动设置窗口的模态：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -404,9 +402,9 @@ app.exec()
   app.exec()
   ```
 
-- `QDialog`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDialog.html#PySide6.QtWidgets.QDialog），该控件的基类是`QWidget`类，生成的窗口只有关闭按钮，没有最大化、最小化按钮，一般用于创建简单的对话框，很多对话框控件也是通过继承`QDialog`类实现的。当然，对话框一般不需要工具栏、菜单栏、状态栏，自然也不包括。不同于`QWidget`控件只能手动设置窗口的模态，该控件还支持通过`exec`方法显示窗口（同时进入无限循环，阻止后续代码的运行），此时的窗口为模态窗口（其模态为窗口级模态`Qt.WindowModality.WindowModal`）：
+- `QDialog`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDialog.html#PySide6.QtWidgets.QDialog ），该控件的基类是`QWidget`类，生成的窗口只有关闭按钮，没有最大化、最小化按钮，一般用于创建简单的对话框，很多对话框控件也是通过继承`QDialog`类实现的。当然，对话框一般不需要工具栏、菜单栏、状态栏，自然也不包括。不同于`QWidget`控件只能手动设置窗口的模态，该控件还支持通过`exec`方法显示窗口（同时进入无限循环，阻止后续代码的运行），此时的窗口为模态窗口（其模态为窗口级模态`Qt.WindowModality.WindowModal`）：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QDialog,
@@ -437,9 +435,9 @@ app.exec()
 
   如上面的代码所示，`QDialog`控件与`QWidget`控件不同，可以在创建时设置父控件，组成父子关系，让父子窗口同时显示（`QWidget`控件不支持这样操作）。关于应用级模态与窗口级模态的区别，以及不同父子关系对模态影响，可以参考本节的扩展内容，这里受限于篇幅不做展开。
 
-- `QMainWindow`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow），该控件的基类是`QWidget`类，生成的窗口功能丰富，包含工具栏、菜单栏、状态栏（需要手动添加内容），一般用作程序的主窗口（适用于不想额外创建工具栏、菜单栏、状态栏的情况）。虽然该控件也支持`setWindowModality`方法，但不建议设置为模态窗口。以下为在状态栏中添加控件的示例：
+- `QMainWindow`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow ），该控件的基类是`QWidget`类，生成的窗口功能丰富，包含工具栏、菜单栏、状态栏（需要手动添加内容），一般用作程序的主窗口（适用于不想额外创建工具栏、菜单栏、状态栏的情况）。虽然该控件也支持`setWindowModality`方法，但不建议设置为模态窗口。以下为在状态栏中添加控件的示例：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QMainWindow,
@@ -479,7 +477,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -519,7 +517,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -576,7 +574,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -643,11 +641,11 @@ app.exec()
 
 #### 5.2.3 高亮主窗口或者其兄弟窗口
 
-上节提到主窗口也可以有兄弟窗口，这里顺便再说一个与之相关的功能，那就是`QApplication`类的`alert`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QApplication.html#PySide6.QtWidgets.QApplication.alert）。该方法可以高亮并闪烁当前没有获得焦点的主窗口或者其兄弟窗口，只有当地获得焦点时或者到一定时间后才会停止高亮和闪烁。
+上节提到主窗口也可以有兄弟窗口，这里顺便再说一个与之相关的功能，那就是`QApplication`类的`alert`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QApplication.html#PySide6.QtWidgets.QApplication.alert ）。该方法可以高亮并闪烁当前没有获得焦点的主窗口或者其兄弟窗口，只有当地获得焦点时或者到一定时间后才会停止高亮和闪烁。
 
 具体参数可以参考上面的文档链接，以下为示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -706,7 +704,7 @@ Qt框架中，独创的概念就是信号机制。所谓信号，就是执行指
 
 就以`clicked`信号为例，调用信号的`connect`方法，给该方法传入可调用类型的对象（比如lambda表达式或者函数），即可设定按钮被点击之后的响应函数（可以设定多个响应函数）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -731,7 +729,7 @@ app.exec()
 
 信号通常与槽函数连接，使用`Slot`装饰器（使用`from PySide6.QtCore import Slot`导入）修饰函数，该函数会变成槽函数（槽函数的具体用法这里不做展开，等后续再介绍相关内容时展开），不过与直接使用函数没什么区别：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -762,7 +760,7 @@ app.exec()
 
 除了真的点击按钮来发出信号，还可以通过调用`click`方法来模拟点击（内部会发出信号）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -793,7 +791,7 @@ app.exec()
 
 直接调用信号的`emit`方法发出信号也可以触发信号对应的响应函数：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -835,7 +833,7 @@ app.exec()
 
 因此，这里只能勉强用`mousePressEvent`事件代替`clicked`信号。示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -871,7 +869,7 @@ app.exec()
 
 首先，调用`click`方法没法触发事件的响应函数。但是，类似信号的`emit`方法，直接调用事件则可以触发：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -905,9 +903,9 @@ app.exec()
 - 控件的`event`方法。
 - 程序类实例的`sendEvent`方法（可以执行多次）、`postEvent`方法（只能执行一次）。
 
-对于控件的`event`方法，其参数可以是简化的鼠标事件（核心事件类实例，完整用可参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QEvent.html#PySide6.QtCore.QEvent.__init__）：
+对于控件的`event`方法，其参数可以是简化的鼠标事件（核心事件类实例，完整用可参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QEvent.html#PySide6.QtCore.QEvent.__init__ ）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -934,9 +932,9 @@ window2.show()
 app.exec()
 ```
 
-也可以是衍生的鼠标事件（鼠标事件类实例，完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QMouseEvent.html#PySide6.QtGui.QMouseEvent.__init__）：
+也可以是衍生的鼠标事件（鼠标事件类实例，完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QMouseEvent.html#PySide6.QtGui.QMouseEvent.__init__ ）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -984,7 +982,7 @@ app.exec()
 
 而程序类实例的`sendEvent`方法（可以执行多次）、`postEvent`方法（只能执行一次）的参数只能是衍生的鼠标事件（鼠标事件类实例）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1046,9 +1044,9 @@ app.exec()
 
 至于如何根据选择的结果决定是否执行动作，则要使用传给响应函数的参数。该参数是`QEvent`类型，调用该参数的`accept`方法，就会响应该事件，继续执行动作；如果调用`ignore`方法，则会忽略该事件，不执行动作。
 
-调用`QMessageBox`类的静态方法`question`（完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question）可以快速创建一个包含图标的问题对话框：
+调用`QMessageBox`类的静态方法`question`（完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question ）可以快速创建一个包含图标的问题对话框：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1086,9 +1084,9 @@ app.exec()
 
 `question`方法会返回点击的按钮对应的标准按钮，可以对该方法的返回值进行判断，进而确定用户选择的是Yes还是No，并据此决定是否执行动作——关闭窗口。
 
-需要注意的是，虽然`question`方法创建对话框很简单，但对话框按钮的文本是英文的，不使用本地化功能的话，是没法汉化按钮文本的。因此，在学习本地化之前（后面会讲的，但这里暂时卖个关子），想要让按钮文本变成中文，只能直接创建`QMessageBox`控件（完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.__init__），需要额外传入图标参数，并且参数的顺序也有要求：
+需要注意的是，虽然`question`方法创建对话框很简单，但对话框按钮的文本是英文的，不使用本地化功能的话，是没法汉化按钮文本的。因此，在学习本地化之前（后面会讲的，但这里暂时卖个关子），想要让按钮文本变成中文，只能直接创建`QMessageBox`控件（完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.__init__ ），需要额外传入图标参数，并且参数的顺序也有要求：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1133,13 +1131,13 @@ app.exec()
 
 ![2025_6_5](qt_for_python_pro.assets/2025_6_5.png)
 
-使用对话框对象的`button`方法（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.button）可以获取对应的按钮，再调用该按钮的`setText`方法即可修改按钮文本。
+使用对话框对象的`button`方法（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.button ）可以获取对应的按钮，再调用该按钮的`setText`方法即可修改按钮文本。
 
 不同于`question`方法会自动显示对话框，创建`QMessageBox`控件的话，想要显示对话框，需要执行`exec`方法（只能显示为模态窗口，不点击按钮的话不继续执行）。调用`clickedButton`方法会返回用户点击的按钮，判断该方法的返回值即可。
 
 当然，也可以调用`standardButton`方法转换输出的结果，这样的话，判断结果的代码就能沿用先前示例中的这部分代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -1220,7 +1218,7 @@ QtQuick程序（控件）主要依赖QML（文件），所以上面提供的参�
 
 `QQuickView`控件有点像QtWidgets程序中的主窗口控件，在实际使用时也一样。可以看到，示例中有着一样的`show`方法、`resize`方法，以及类似的`setTitle`方法，完成窗口的显示、大小修改、标题修改：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQuick import QQuickView
 
@@ -1261,7 +1259,7 @@ Rectangle {
 
 然后在初始化`QQuickView`控件时传入文件路径：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQuick import QQuickView
 
@@ -1281,7 +1279,7 @@ app.exec()
 
 需要注意的是，默认QML文件的相对路径是相对工作目录（命令启动时的路径）而言，如果想要使用绝对路径或者是以Python文件所在目录为相对路径起点，需要使用`QUrl`的静态方法`fromLocalFile`，传入绝对路径或者将相对路径转换为绝对路径后再传入（示例中就是将相对路径转换为绝对路径）：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQuick import QQuickView
 from pathlib import Path
@@ -1328,7 +1326,7 @@ Window {
 
 `QQmlApplicationEngine`控件加载QML文件的方法也和`QQuickView`控件一样，初始化时传入文件路径作即可，无需额外调用`show`方法：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 from pathlib import Path
@@ -1345,7 +1343,7 @@ app.exec()
 
 也可以使用`load`方法加载QML文件：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 from pathlib import Path
@@ -1381,7 +1379,7 @@ Window {
 
 则可以在Python文件中这样修改主窗口的大小、标题：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 from pathlib import Path
@@ -1412,7 +1410,7 @@ app.exec()
 
 `QQmlComponent`控件不能直接使用，需要借助`QQuickView`控件才能添加其他控件：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQuick import QQuickView
 from PySide6.QtQml import QQmlComponent
@@ -1443,7 +1441,7 @@ app.exec()
 
 相关的代码为：
 
-```python3
+```python
 # 使用view的engine创建component
 component = QQmlComponent(view.engine())
 # 使用component创建内容，并将其设置为view显示的内容
@@ -1456,7 +1454,7 @@ view.setContent(QUrl(), component, component.create())
 
 - 初始化时传入文件路径。支持`QUrl`类型（包括URI字符串）或者字符串类型（非URI字符串）表示的QML文件路径（相对路径或者绝对路径），完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtQml/QQmlComponent.html#PySide6.QtQml.QQmlComponent.__init__ 。示例如下（关键代码，非完整代码）：
 
-  ```python3
+  ```python
   from PySide6.QtCore import QUrl
   from pathlib import Path
   
@@ -1479,7 +1477,7 @@ view.setContent(QUrl(), component, component.create())
 
 以下为`loadUrl`方法加载QML文件的示例：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQuick import QQuickView
 from PySide6.QtQml import QQmlComponent
@@ -1510,11 +1508,11 @@ app.exec()
 
 以上都是常规用法，接下来要说的，才是本节的重点内容，让`QQmlComponent`控件加载QML字符串。
 
-想要加载QML字符串，就要使用`setData`方法（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtQml/QQmlComponent.html#PySide6.QtQml.QQmlComponent.setData ）。该方法的第一个参数为编码之后的QML字符串，第二个参数为基础URL地址，需要构建一个`QUrl`对象。
+想要加载QML字符串，就要使用`setData`方法（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtQml/QQmlComponent.html#PySide6.QtQml.QQmlComponent.setData ）。该方法的第一个参数为编码之后的QML字符串，第二个参数为基础URL地址，需要构建一个`QUrl`对象。
 
 完整示例如下：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QUrl
 from PySide6.QtQuick import QQuickView
@@ -1559,7 +1557,7 @@ app.exec()
 
 第一种临时文件是用Python的标准库`tempfile`创建，需要在完成加载后手动删除（通过代码，并非真的找到这个文件去删除）临时文件：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QUrl
 from PySide6.QtQuick import QQuickView
@@ -1600,9 +1598,9 @@ view.show()
 app.exec()
 ```
 
-不想写手动删除临时文件的代码，则可以使用`QTemporaryFile`类（使用`from PySide6.QtCore import QTemporaryFile`导入，完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTemporaryFile.html）创建临时文件，这种临时文件会在Qt程序退出时自动删除：
+不想写手动删除临时文件的代码，则可以使用`QTemporaryFile`类（使用`from PySide6.QtCore import QTemporaryFile`导入，完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTemporaryFile.html ）创建临时文件，这种临时文件会在Qt程序退出时自动删除：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QUrl,QTemporaryFile
 from PySide6.QtQuick import QQuickView
@@ -1649,7 +1647,7 @@ app.exec()
 
 `QQmlApplicationEngine`控件不需要借助其他控件就可以加载QML字符串，使用`loadData`方法加载编码的QML字符串（需要和QML文件内容一样，增加创建主窗口的代码）：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
@@ -1685,7 +1683,7 @@ app.exec()
 
 当然，上一节中，将字符串写入临时文件，加载QML字符串变成加载QML文件的方式，对`QQmlApplicationEngine`控件一样适用：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import QUrl,QTemporaryFile
@@ -1733,7 +1731,7 @@ app.exec()
 
 先回顾一下`QQmlApplicationEngine`控件加载QML字符串的示例：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
@@ -1766,11 +1764,11 @@ engine.loadData(qml_src.encode('utf-8'),QUrl())
 app.exec()
 ```
 
-可以看到，在`QQmlApplicationEngine`控件加载QML字符串的示例中，虽然只导入了`QtQuick.Window`模块，没有主动导入其他相关模块，但依然可以使用除了`Window`类型之外的其他类型，比如示例中的`Rectangle`类型和`Text`类型。这是因为在`QQmlApplicationEngine`控件或者`QQmlEngine`控件中，涉及到QML文件时，会自动注册`QtQuick`模块直属的类型（https://doc.qt.io/qt-6/zh/qtquick-qmlmodule.html#object-types）和`QtQml`模块直属的类型（https://doc.qt.io/qt-6/zh/qtqml-qmlmodule.html#object-types），这些类型无需手动导入`QtQuick`模块和`QtQml`模块即可使用。
+可以看到，在`QQmlApplicationEngine`控件加载QML字符串的示例中，虽然只导入了`QtQuick.Window`模块，没有主动导入其他相关模块，但依然可以使用除了`Window`类型之外的其他类型，比如示例中的`Rectangle`类型和`Text`类型。这是因为在`QQmlApplicationEngine`控件或者`QQmlEngine`控件中，涉及到QML文件时，会自动注册`QtQuick`模块直属的类型（ https://doc.qt.io/qt-6/zh/qtquick-qmlmodule.html#object-types ）和`QtQml`模块直属的类型（ https://doc.qt.io/qt-6/zh/qtqml-qmlmodule.html#object-types ），这些类型无需手动导入`QtQuick`模块和`QtQml`模块即可使用。
 
 不过，`Window`类型只是在当前Qt版本（6.x）划分为`QtQuick`模块的直属类型，底层为了兼容旧版本（5.x）还是将其算作原来独立模块（`QtQuick.Window`）的类型，依然需要导入对应的模块才能使用，不会自动注册。不过，在当前Qt版本中，因为其被划分为`QtQuick`模块的直属类型，只是导入`QtQuick`模块的话也可以使用（相当于主动注册所有直属类型）。要验证的话也简单，将为了使用`Window`类型而不得不添加的导入语句改为`import QtQuick`，`Window`类型依然可以正常使用：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
@@ -1805,7 +1803,7 @@ app.exec()
 
 以下为直接使用其他类型的示例：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
@@ -1854,7 +1852,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import QUrl,QTemporaryFile
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
@@ -1907,7 +1905,7 @@ app.exec()
 
 先看示例：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQuickWidgets import QQuickWidget
@@ -2039,9 +2037,9 @@ QtDesigner的用法这里不展开介绍，其他人自有更加详实的教程�
 
 创建好UI文件之后，就可以加载UI文件，生成对应控件了。
 
-想要加载UI文件，需要用到`QUiLoader`类（使用`from PySide6.QtUiTools import QUiLoader`导入，完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtUiTools/QUiLoader.html#PySide6.QtUiTools.QUiLoader）。创建`QUiLoader`类的实例后，使用实例的`load`方法加载UI文件，该方法会基于UI文件生成对应的控件结构，并返回最顶层的主窗口控件：
+想要加载UI文件，需要用到`QUiLoader`类（使用`from PySide6.QtUiTools import QUiLoader`导入，完整用法可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtUiTools/QUiLoader.html#PySide6.QtUiTools.QUiLoader ）。创建`QUiLoader`类的实例后，使用实例的`load`方法加载UI文件，该方法会基于UI文件生成对应的控件结构，并返回最顶层的主窗口控件：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 
@@ -2065,7 +2063,7 @@ app.exec()
 
 当然，主窗口的`name`属性并非完全没用，主窗口的`objectName`属性（Qt程序的部分属性在Python接口中使用方法获取，这里指的是`objectName`方法返回的值）就是`'MainWindow'`。如果使用`load`方法时，同时设置了`parentWidget`参数，可以使用`parentWidget`参数对应控件的`findChildren`方法或者`findChild`方法查找指定`objectName`的控件，此时主窗口的`objectName`属性就可以派上用场：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget
 from PySide6.QtUiTools import QUiLoader
 
@@ -2106,7 +2104,7 @@ app.exec()
 
 生成的Python代码如下：
 
-```python3
+```python
 # -*- coding: utf-8 -*-
 
 ################################################################################
@@ -2148,7 +2146,7 @@ class Ui_MainWindow(object):
 
 生成UI的代码之外，其余部分代码和前面加载UI文件的代码一样：
 
-```python3
+```python
 app = QApplication()
 
 # 创建UI的代码
@@ -2165,7 +2163,7 @@ app.exec()
 
 首先就是融合UI类和主窗口控件，创建自定义主窗口控件类：
 
-```python3
+```python
 # 创建UI的代码
 # 融合UI类和主窗口控件
 class MyWidget(QWidget,Ui_MainWindow):
@@ -2176,13 +2174,13 @@ class MyWidget(QWidget,Ui_MainWindow):
 
 创建自定义主窗口控件：
 
-```python3
+```python
 window = MyWidget()
 ```
 
 调用生成UI的`setupUi`方法：
 
-```python3
+```python
 # 生成UI
 window.setupUi(window)
 ```
@@ -2191,7 +2189,7 @@ window.setupUi(window)
 
 完整代码如下：
 
-```python3
+```python
 # UI模块开始
 
 # -*- coding: utf-8 -*-
@@ -2260,7 +2258,7 @@ app.exec()
 
 UI字符串如下（创建为Python字符串对象）：
 
-```python3
+```python
 # UI字符串，首行不能为空行（XML格式要求）
 ui_str = '''<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
@@ -2289,7 +2287,7 @@ ui_str = '''<?xml version="1.0" encoding="UTF-8"?>
 
 使用`tempfile`模块创建临时文件：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 
@@ -2339,7 +2337,7 @@ app.exec()
 
 使用`QTemporaryFile`类创建临时文件：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QTemporaryFile
@@ -2386,7 +2384,7 @@ app.exec()
 
 `QUiLoader`类的`load`方法也支持另一种非文件方式加载UI字符串，但需要借助`QBuffer`类（使用`from PySide6.QtCore import QBuffer`导入）的帮忙：使用`setData`方法，给`QBuffer`类实例设置数据为编码之后的UI字符串。核心代码如下：
 
-```python3
+```python
 # 构建buffer、设置数据、打开buffer必须分步
 buffer = QBuffer()
 buffer.setData(ui_str.encode())
@@ -2398,7 +2396,7 @@ window = QUiLoader().load(buffer)
 
 完整代码如下：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QBuffer
@@ -2446,7 +2444,7 @@ app.exec()
 
 ### 10.1 创建模块
 
-要使用模块，需要先创建模块文件夹，将QML文件（文件名不限制，但推荐文件名常规一些）和`qmldir`文件放在模块文件夹中，并在`qmldir`文件中编写模块名和QML文件对应的类型名。`qmldir`文件的具体语法规则参考 https://doc.qt.io/qtforpython-6/overviews/qtqml-modules-qmldir.html。
+要使用模块，需要先创建模块文件夹，将QML文件（文件名不限制，但推荐文件名常规一些）和`qmldir`文件放在模块文件夹中，并在`qmldir`文件中编写模块名和QML文件对应的类型名。`qmldir`文件的具体语法规则参考 https://doc.qt.io/qtforpython-6/overviews/qtqml-modules-qmldir.html 。
 
 模块文件夹的目录结构如下：
 
@@ -2481,7 +2479,7 @@ Window {
 
 `qmldir`文件的内容为：
 
-```python3
+```python
 module App
 Main 1.0 main.qml
 ```
@@ -2498,7 +2496,7 @@ Main 1.0 main.qml
 
   比如：
 
-  ```python3
+  ```python
   # Python代码中，添加下面代码至创建Qt程序之前
   import os
   os.environ['QML2_IMPORT_PATH'] = './' # 可以使用相对路径和绝对路径
@@ -2514,7 +2512,7 @@ Main 1.0 main.qml
 
   - 使用`setImportPathList`方法设置可识别的导入路径列表，但要包括原导入路径（使用`importPathList`方法获取）：
 
-    ```python3
+    ```python
     engine.setImportPathList(
         engine.importPathList()+[
             './'
@@ -2524,7 +2522,7 @@ Main 1.0 main.qml
 
   - 使用`addImportPath`方法添加模块所在的路径：
 
-    ```python3
+    ```python
     engine.addImportPath('./')
     ```
 
@@ -2532,7 +2530,7 @@ Main 1.0 main.qml
 
 - 在QML文件（或者QML字符串）中导入模块，但需要额外创建类型的实例：
 
-  ```python3
+  ```python
   # QML文件或者字符串的内容为
   '''
   import App
@@ -2542,7 +2540,7 @@ Main 1.0 main.qml
 
 - 使用`QQmlApplicationEngine`控件、`QQmlComponent`控件、`QQuickView`控件、`QQuickWidget`控件的`loadFromModule`方法导入模块，会自动创建类型的示例：
 
-  ```python3
+  ```python
   # 这里的engine是QQmlApplicationEngine控件
   # 不是引擎对象
   engine.loadFromModule(
@@ -2555,7 +2553,7 @@ Main 1.0 main.qml
 
 完整示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
@@ -2652,7 +2650,7 @@ Window {
 
 这样，原本只能直接使用的模块就多了三个自定义属性：`my_text`、`my_color`、`my_title`。
 
-自定义属性的相关语法可以参考 https://doc.qt.io/qt-6/zh/qtqml-syntax-objectattributes.html。
+自定义属性的相关语法可以参考 https://doc.qt.io/qt-6/zh/qtqml-syntax-objectattributes.html 。
 
 这里简单介绍一下示例中用到的部分语法。
 
@@ -2668,7 +2666,7 @@ Window {
 
 - 在导入模块前，给用引擎对象的`setInitialProperties`方法传入字典可以提前设置模块的自定义属性：
 
-  ```python3
+  ```python
   engine.setInitialProperties(
       {
           'my_text':'Hello',
@@ -2680,7 +2678,7 @@ Window {
 
 - 在QML文件（或者QML字符串）中导入模块时，控件的创建代码可以同时设置模块的自定义属性：
 
-  ```python3
+  ```python
   # QML文件或者字符串的内容为
   '''
   import App
@@ -2694,7 +2692,7 @@ Window {
 
 完整示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
@@ -2780,7 +2778,7 @@ app.exec()
 
 `QQuickView`获取上下文对象（为了避免QML代码出错导致程序无法正常关闭，后面注册`Property`属性的示例不使用QtQuick程序，这里仅作为获取上下文对象的示例）：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QUrl,QByteArray
 from PySide6.QtQuick import QQuickView
@@ -2831,7 +2829,7 @@ app.exec()
 
 `QQuickWidget`获取上下文对象：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl,QByteArray
 from PySide6.QtQuickWidgets import QQuickWidget
@@ -2890,7 +2888,7 @@ app.exec()
 
 `QQmlApplicationEngine`获取上下文对象：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
@@ -2966,13 +2964,13 @@ app.exec()
 
 导入相关类：
 
-```python3
+```python
 from PySide6.QtCore import QObject,Property
 ```
 
 创建自定义类（继承自`QObject`类）：
 
-```python3
+```python
 class Obj(QObject):
     def __init__(self):
         super().__init__()
@@ -2989,7 +2987,7 @@ class Obj(QObject):
 
 然后，就可以使用上下文对象的`setContextObject`方法注册这个自定义类的实例了：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl,QObject,Property
 from PySide6.QtQml import QQmlApplicationEngine
@@ -3056,7 +3054,7 @@ app.exec()
 
 相比之下，使用上下文对象的`setContextProperty`方法就简单不少。该方法的第一位置参数为字符串类型，表示属性名；第二位置参数表示该属性对应的对象（`QObject`类的派生类对象）：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine
@@ -3117,13 +3115,13 @@ app.exec()
 
 首先，导入`QQmlContext`类（`PropertyPair`类嵌在该类中）：
 
-```python3
+```python
 from PySide6.QtQml import QQmlContext
 ```
 
 然后继承`QQmlContext.PropertyPair`，创建自定义类（可以与`PropertyPair`类同名，也可以是其他名字），并添加如下的初始化方法（参数和`setContextProperty`方法一样）：
 
-```python3
+```python
 # 使用PropertyPair类
 class PropertyPair(QQmlContext.PropertyPair):
     def __init__(self,name:str,value:object):
@@ -3134,7 +3132,7 @@ class PropertyPair(QQmlContext.PropertyPair):
 
 这样，才能使用`setContextProperties`方法，一次注册多个`Property`属性（这里为了让其余代码和前面的示例保持一致，只注册一个）：
 
-```python3
+```python
 # 一次注册多个属性（Property）到QML全局
 root.setContextProperties(
     [
@@ -3145,7 +3143,7 @@ root.setContextProperties(
 
 完整示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QWidget,QPushButton
 from PySide6.QtCore import QUrl
 from PySide6.QtQml import QQmlApplicationEngine,QQmlContext
@@ -3217,7 +3215,7 @@ app.exec()
 
 第一个示例需要借用前面加载UI文件的示例，在Python代码中使用控件的`setFixedSize`方法修改控件的样式（大小）：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 
@@ -3261,7 +3259,7 @@ QPushButton {
 
 使用下面的代码，添加三个新的按钮，但是移动它们的位置、完全不设置它们的大小的话，它们默认的大小都会遵守样式表中的规则：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QPushButton
 from PySide6.QtUiTools import QUiLoader
 
@@ -3308,7 +3306,7 @@ app.exec()
 
 知道了使用样式表（QSS字符串）的方法，下一步，就是改造一下前面演示样式的示例。使用独立的UI文件，每次启动QtDesigner、在UI文件中修改样式表属实麻烦，那就将UI文件编译为Python代码，然后简化无用的代码。最后，将控件的样式表字符串传给`setStyleSheet`方法，本章最开始的示例将变成这样：
 
-```python3
+```python
 from PySide6.QtCore import QCoreApplication,QMetaObject
 from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 
@@ -3359,7 +3357,7 @@ app.exec()
 
 - 类型选择器，使用控件的类名表示，表明样式适用于该控件（控件类的实例）及其衍生控件（衍生类的实例）。示例如下（`QPushButton`类继承自`QAbstractButton`类）：
 
-  ```python3
+  ```python
   from PySide6.QtCore import QCoreApplication,QMetaObject
   from PySide6.QtWidgets import QApplication, QPushButton, QWidget
   
@@ -3404,7 +3402,7 @@ app.exec()
 
 - 属性选择器，使用`[{属性名}={属性值（字符串类型）}]`表示，表明样式适用于控件属性（只能匹配部分值可以转换为字符串的属性）为指定值的控件。比如，匹配`text`属性为`'click2'`的控件：
 
-  ```python3
+  ```python
   from PySide6.QtCore import QCoreApplication,QMetaObject
   from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
   
@@ -3460,7 +3458,7 @@ app.exec()
 
   属性选择器除了单独使用，还可以与类型选择器组合使用（之间没有空格，其实就是兼备组合器），表示在指定控件及其衍生控件中，只有控件属性为（或者包含）指定值的控件应用对应的样式。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtCore import QCoreApplication,QMetaObject
   from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
   
@@ -3514,7 +3512,7 @@ app.exec()
 
 - 类选择器，给控件的类名前加一个英语句号（`.`），表明样式只适用于该控件（控件类的实例），其效果相当于样式适用于控件属性`class`中包含指定控件类名的控件。比如，`.QPushButton`等效于`[class~='QPushButton']`。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtCore import QCoreApplication,QMetaObject
   from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
   
@@ -3564,7 +3562,7 @@ app.exec()
 
 - ID 选择器，给控件`objectName`属性的值前加一个井号（`#`），表明样式适用于控件属性`objectName`为指定值的控件。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtCore import QCoreApplication,QMetaObject
   from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
   
@@ -3614,7 +3612,7 @@ app.exec()
 
 - 内部子控件选择器，使用`::{内部子控件名}`表示，表明样式适用于指定的内部子控件。这里的内部子控件指的是有些控件的组成部分本质上是单独的控件，所以，可以通过内部子控件选择器进行匹配，设置这些控件的样式。比如，给按钮设置下拉菜单之后，按钮会多出一个菜单指示器，可以使用`::menu-indicator`匹配：
 
-  ```python3
+  ```python
   from PySide6.QtCore import QCoreApplication,QMetaObject
   from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
   
@@ -3671,7 +3669,7 @@ app.exec()
 
 - 伪类（状态类）选择器，使用`:{伪类（状态类）}`表示，表明样式适用于指定状态（比如，被禁用，被点击）的控件。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtCore import QCoreApplication,QMetaObject
   from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QToolButton
   
@@ -3741,7 +3739,7 @@ app.exec()
 
 示例如下（后代组合器与子代组合器的区别）：
 
-```python3
+```python
 from PySide6.QtCore import QCoreApplication,QMetaObject
 from PySide6.QtWidgets import QApplication, QPushButton, QWidget,QFrame
 
@@ -3823,7 +3821,7 @@ app.exec()
 
 因此，直接创建多个控件的话，控件会叠在一起，无法正常使用：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3848,7 +3846,7 @@ app.exec()
 
 当然，为了让控件不重叠，可以使用`move`方法调整控件的位置：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3872,11 +3870,11 @@ app.exec()
 
 但是，窗口大小调整的话，控件不会随之调整位置。对于上面的例子来说，这个特性没什么影响，若是想要实现控件始终在窗口的中心位置，让界面变得美观一些，那就要在窗口大小变化时，重新计算并调整控件位置，这个代码很麻烦。
 
-看完上面的示例，可以发现，图形界面不是控件的简单堆砌，为了让界面高效、美观，控件应当基于一定规则排布（比如始终在窗口中心位置），才能适应各种使用场景，这个规则就叫布局（相关参考资料 https://doc.qt.io/qt-6/zh/layout.html）。
+看完上面的示例，可以发现，图形界面不是控件的简单堆砌，为了让界面高效、美观，控件应当基于一定规则排布（比如始终在窗口中心位置），才能适应各种使用场景，这个规则就叫布局（相关参考资料 https://doc.qt.io/qt-6/zh/layout.html ）。
 
 为了更直观地了解布局的效果，笔者将基于本章的第一个示例，通过添加布局控件，轻松实现控件始终在窗口的中心位置，无需手动调整控件位置。哪怕调整窗口大小，控件也始终在窗口的中心位置：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -3962,7 +3960,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4009,7 +4007,7 @@ app.exec()
   - 创建布局控件时指定父控件，这种就是先设置布局，让布局生效，然后再设计布局。
   - 创建布局控件时不指定父控件，这种就是先设计布局，再使用非布局控件的`setlayout`方法设置布局，然后让布局生效。
 
-布局控件支持以下方法（部分常用的，完整的可参考https://doc.qt.io/qt-6/zh/qlayout.html#public-functions、https://doc.qt.io/qt-6/zh/qlayout.html#reimplemented-public-functions、https://doc.qt.io/qt-6/zh/qlayout.html#reimplemented-protected-functions）：
+布局控件支持以下方法（部分常用的，完整的可参考 https://doc.qt.io/qt-6/zh/qlayout.html#public-functions 、 https://doc.qt.io/qt-6/zh/qlayout.html#reimplemented-public-functions 、 https://doc.qt.io/qt-6/zh/qlayout.html#reimplemented-protected-functions ）：
 
 - `addWidget`方法，添加非布局控件到布局中。
 - `addLayout`方法，添加布局控件到布局中。
@@ -4022,7 +4020,7 @@ app.exec()
 - `removeWidget`方法，移除指定索引值的控件。
 - `isEmpty`方法，返回指定索引值的项目是否为空白控件。
 
-继承自`QBoxLayout`类的布局控件（垂直布局控件和水平布局控件）额外支持以下方法（部分常用的，完整的可参考https://doc.qt.io/qt-6/zh/qboxlayout.html#public-functions、https://doc.qt.io/qt-6/zh/qboxlayout.html#reimplemented-public-functions）：
+继承自`QBoxLayout`类的布局控件（垂直布局控件和水平布局控件）额外支持以下方法（部分常用的，完整的可参考 https://doc.qt.io/qt-6/zh/qboxlayout.html#public-functions 、 https://doc.qt.io/qt-6/zh/qboxlayout.html#reimplemented-public-functions ）：
 
 - `addStretch`方法，添加一个无限尺寸空白控件。
 
@@ -4030,7 +4028,7 @@ app.exec()
 
 - `setDirection`方法，修改布局的排布方向。比如，可以修改垂直布局的排布方向为从下至上：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -4074,7 +4072,7 @@ app.exec()
 
 - `insertSpacing`方法，在指定索引值处一个指定尺寸空白控件。
 
-网格布局控件额外支持以下方法（部分常用的，完整的可参考https://doc.qt.io/qt-6/zh/qgridlayout.html#public-functions、https://doc.qt.io/qt-6/zh/qgridlayout.html#reimplemented-public-functions、https://doc.qt.io/qt-6/zh/qgridlayout.html#reimplemented-protected-functions）：
+网格布局控件额外支持以下方法（部分常用的，完整的可参考 https://doc.qt.io/qt-6/zh/qgridlayout.html#public-functions 、 https://doc.qt.io/qt-6/zh/qgridlayout.html#reimplemented-public-functions 、 https://doc.qt.io/qt-6/zh/qgridlayout.html#reimplemented-protected-functions ）：
 
 - `columnCount`方法，返回网格的列数。
 - `rowCount`方法，返回网格的行数。
@@ -4092,7 +4090,7 @@ app.exec()
 
 以下为网格布局的示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4130,7 +4128,7 @@ app.exec()
 
 先看使用网格布局控件如何实现：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4162,7 +4160,7 @@ app.exec()
 
 使用水平布局控件、垂直布局控件组合的话，可以将下面两个按钮放在空白的框架控件中，单独设置框架控件的布局，将框架控件添加到主窗口控件的布局中：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4202,7 +4200,7 @@ app.exec()
 
 当然，使用`addLayout`方法可以直接将布局添加到其他布局中，就能省略一个框架控件，但是要给子布局的两端各添加一个空白控件，才能让按钮居中：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4243,7 +4241,7 @@ app.exec()
 
 在本章接近尾声的时候，笔者突发奇想，既然网格布局控件可以将控件放在网格，能不能利用这个特性，做一个类似软键盘一样的数字键盘，用于输入纯数字呢？说干就干，不出半小时，便有了以下代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4292,7 +4290,7 @@ app.exec()
 
 想让按钮尺寸变大很简单，创建每个按钮时，调整尺寸即可：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4344,7 +4342,7 @@ app.exec()
 
 样式是个很好的解决方法，不过，效果只能说差强人意：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4394,7 +4392,7 @@ app.exec()
 
 在问题陷入“水多了加面，面多了加水”的循环之前，先暂停一下寻找解决方法的脚步，静下心思考一下问题的来由，再说如何解决。
 
-其实，这个问题的原因很简单，就是本小节的标题——尺寸策略。所谓尺寸策略，就是指控件受布局影响时，控件的尺寸发生什么样的变化。因为布局默认倾向于让控件填满可用空间，尺寸策略可以决定控件是否扩展为最大，还是优先使用最佳尺寸（不同的控件有不同的默认尺寸策略，完整的尺寸策略可以参考 https://doc.qt.io/qt-6/zh/qsizepolicy.html#details）。
+其实，这个问题的原因很简单，就是本小节的标题——尺寸策略。所谓尺寸策略，就是指控件受布局影响时，控件的尺寸发生什么样的变化。因为布局默认倾向于让控件填满可用空间，尺寸策略可以决定控件是否扩展为最大，还是优先使用最佳尺寸（不同的控件有不同的默认尺寸策略，完整的尺寸策略可以参考 https://doc.qt.io/qt-6/zh/qsizepolicy.html#details ）。
 
 既然如此，那就要修改布局中所有控件的尺寸策略，让它们全部填满可用控件。
 
@@ -4402,7 +4400,7 @@ app.exec()
 
 尺寸策略对象由`QSizePolicy`类实例化而成，需要传入水平方向、垂直方向对应的策略类`QSizePolicy.Policy`枚举对象（`Expanding`表示扩展为最大）：
 
-```python3
+```python
 label.setSizePolicy(
     QSizePolicy.Policy.Expanding,
     QSizePolicy.Policy.Expanding
@@ -4415,7 +4413,7 @@ button.setSizePolicy(
 
 因此，代码应该改为：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4467,7 +4465,7 @@ app.exec()
 
 看起来好像没什么用，或者是存在bug。其实不然，这是因为前面代码中，给布局添加控件时，同时设置了控件在布局内的对齐方式（完全居中），对应方向上存在对齐方式的话，会让该方向上的尺寸策略失效。既然已经决定让控件填满可用空间，那就没有对齐的必要了。因此，只需将对齐相关的代码去掉，最后的结果就会顺心遂愿：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4527,7 +4525,7 @@ app.exec()
 
 其实，在本章之前，已经有示例用上了定时器：
 
-```python3
+```python
 # 控制台程序的简单示例
 from PySide6.QtCore import QCoreApplication,QTimer
 
@@ -4542,10 +4540,10 @@ app.exec()
 
 Qt提供了四种定时器：
 
-- `QTimer`通用定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimer.html）。
-- `QBasicTimer`简单定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QBasicTimer.html）。
-- `QDeadlineTimer`倒计时定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QDeadlineTimer.html）。
-- `QElapsedTimer`计时定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QElapsedTimer.html）。
+- `QTimer`通用定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimer.html ）。
+- `QBasicTimer`简单定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QBasicTimer.html ）。
+- `QDeadlineTimer`倒计时定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QDeadlineTimer.html ）。
+- `QElapsedTimer`计时定时器（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QElapsedTimer.html ）。
 
 接下来，以`QTimer`通用定时器为例，介绍一下定时器的基本用法。
 
@@ -4555,7 +4553,7 @@ Qt提供了四种定时器：
 
 先看一个`QTimer`通用定时器的示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4583,13 +4581,13 @@ app.exec()
 
 点击按钮（执行定时器的`start`方法），定时器才会开始计时并循环执行指定操作。
 
-可以使用`timeout`信号、`timerEvent`事件定义要执行的操作。其中，`timerEvent`事件对应的操作需要接收一个`QTimerEvent`定时器事件对象（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimerEvent.html ）作为参数。
+可以使用`timeout`信号、`timerEvent`事件定义要执行的操作。其中，`timerEvent`事件对应的操作需要接收一个`QTimerEvent`定时器事件对象（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimerEvent.html ）作为参数。
 
 `QTimer`类支持以下参数（部分）：
 
 - `singleShot`参数，布尔类型，表示定时器是否为一次性定时器（每次启动只执行一次指定操作），默认为`False`。注意，一次性模式仅针对`timeout`信号生效。
 - `interval`参数，整数类型，表示两次操作之间的时间间隔（单位毫秒）。注意，默认定时器启动时不执行操作，需要经过该参数定义的时间之后才会执行第一次操作。
-- `timerType`参数，`Qt.TimerType`类型（参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.TimerType），表示定时器的精确程度。比如`Qt.TimerType.PreciseTimer`表示精确定时器，但会频繁唤醒CPU，额外占用性能。
+- `timerType`参数，`Qt.TimerType`类型（参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.TimerType ），表示定时器的精确程度。比如`Qt.TimerType.PreciseTimer`表示精确定时器，但会频繁唤醒CPU，额外占用性能。
 
 `QTimer`类支持以下方法（部分）：
 
@@ -4610,7 +4608,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget
@@ -4638,7 +4636,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4664,7 +4662,7 @@ app.exec()
 
 `QDeadlineTimer`倒计时定时器用于创建一个超过一定时间后过期的定时器，可以与其他代码结合，实现倒计时结束后才执行指定代码：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4702,7 +4700,7 @@ app.exec()
 
 `QElapsedTimer`计时定时器用于计算定时器开始之后的时间间隔。使用`start`方法或者`restart`方法启动定时器，使用`elapsed`方法获取当前时间与开始时间之间的时间间隔，`hasExpired`方法加上表示超时时间间隔的参数，用来表示当前时间与开始时间之间的时间间隔是否超过指定值：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4738,7 +4736,7 @@ app.exec()
 
 很多程序在完全启动之前，需要做一些准备工作，界面不会立刻显示。此时，程序会先显示一个启动画面，英文名SplashScreen，用于表明程序已经启动，只是还要做一些耗时的准备工作，并在准备工作完成后将其隐藏。
 
-在Qt中，`QSplashScreen`启动画面控件（完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSplashScreen.html）就是用来实现此功能的。
+在Qt中，`QSplashScreen`启动画面控件（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSplashScreen.html ）就是用来实现此功能的。
 
 在正式学习之前，先准备好一张PNG格式的图片（或者直接用下面的图）：
 
@@ -4746,7 +4744,7 @@ app.exec()
 
 将图片保存为`LOGO.png`，放在Python源代码的同目录下，Python源代码为：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -4785,7 +4783,7 @@ app.exec()
 
 ![2025_15_2](qt_for_python_pro.assets/2025_15_2.png)
 
-代码中，创建启动画面控件时，`pixmap`参数需要传入`QPixmap`类对象作为启动画面的背景图，`f`参数默认可以不传入，也可以传入`Qt.WindowType`枚举对象（含义参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.WindowType），用于指定启动画面的窗口类型（启动画面本质上也是一个窗口），但对控件本身没什么影响。
+代码中，创建启动画面控件时，`pixmap`参数需要传入`QPixmap`类对象作为启动画面的背景图，`f`参数默认可以不传入，也可以传入`Qt.WindowType`枚举对象（含义参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.WindowType ），用于指定启动画面的窗口类型（启动画面本质上也是一个窗口），但对控件本身没什么影响。
 
 创建完控件，需要调用`show`方法才能显示。代码中使用`QThread`类的`sleep`方法模拟耗时操作，调用控件的`showMessage`方法可以在启动画面中显示简单的文字消息，使用`clearMessage`方法可以清除文字信息。
 
@@ -4793,7 +4791,7 @@ app.exec()
 
 ## 16 资源集合文件（`.qrc`）
 
-资源集合文件是一个XML格式文件，主要包含特定资源文件（图像、语言文件等）的描述，可供Qt资源系统使用，用于打包、编译资源文件。当然，这里的编译是指C++编写的Qt程序，可以将资源文件打包、编译到可执行文件中。对于Python编写的Qt程序，只能将资源文件编译为Python文件，供Python编写的Qt程序使用。完整用法可参考 https://doc.qt.io/qt-6/zh/resources.html。
+资源集合文件是一个XML格式文件，主要包含特定资源文件（图像、语言文件等）的描述，可供Qt资源系统使用，用于打包、编译资源文件。当然，这里的编译是指C++编写的Qt程序，可以将资源文件打包、编译到可执行文件中。对于Python编写的Qt程序，只能将资源文件编译为Python文件，供Python编写的Qt程序使用。完整用法可参考 https://doc.qt.io/qt-6/zh/resources.html 。
 
 ### 16.1 编译图片文件
 
@@ -4821,7 +4819,7 @@ app.exec()
 
 生成的Python文件（`image_qrc.py`）内容如下：
 
-```python3
+```python
 # Resource object code (Python 3)
 # Created by: object code
 # Created by: The Resource Compiler for Qt version 6.9.1
@@ -4980,7 +4978,7 @@ qInitResources()
 
 然后，就可以在主程序的Python文件中导入该Python文件：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5052,7 +5050,7 @@ Window {
 
 生成的Python文件（`ui_qrc.py`）内容如下：
 
-```python3
+```python
 # Resource object code (Python 3)
 # Created by: object code
 # Created by: The Resource Compiler for Qt version 6.9.1
@@ -5116,7 +5114,7 @@ qInitResources()
 
 使用时的代码如下：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 # 其实可以将导入的部分完全用生成的Python文件代替
@@ -5133,7 +5131,7 @@ app.exec()
 
 当然，也可以用生成的Python文件内容完全代替`import ui_qrc`，实现另一种意义上的加载“QML字符串”：
 
-```python3
+```python
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 # 生成的Python文件开始
@@ -5214,7 +5212,7 @@ app.exec()
 
 注意，因为被编译的文件原本就是Python文件，想要执行的话，需要先读取原始内容，这里需要借用`QFile`类加载`':/src/main.code'`：
 
-```python3
+```python
 import code_main # 文件名取决于编译出来的Python文件名或者代码存放的具体Python文件，也可以将下面内容追加到编译文件的末尾
 from PySide6.QtCore import QFile
 
@@ -5225,7 +5223,7 @@ exec(file.readAll())
 
 可以将上面代码放在单独的Python文件中执行，也可以追加到编译出来的Python文件最后（去掉代码中第一行的导入代码）：
 
-```python3
+```python
 # Resource object code (Python 3)
 # Created by: object code
 # Created by: The Resource Compiler for Qt version 6.9.1
@@ -5382,7 +5380,7 @@ exec(file.readAll())
 
 首先，没有提供其他语言的`main.py`文件内容如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5433,7 +5431,7 @@ app.exec()
 
 然后，需要修改`main.py`文件如下，来使用生成的语言文件：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5469,7 +5467,7 @@ app.exec()
 
 代码中，想要使用语言文件的翻译文本，首先要创建翻译类对象，让翻译类对象加载语言文件：
 
-```python3
+```python
 from PySide6.QtCore import QTranslator
 
 # 创建翻译类对象
@@ -5480,7 +5478,7 @@ translator.load('main_zh.qm')
 
 想要在程序中使用语言文件的翻译文本，接下来就是安装翻译类对象：
 
-```python3
+```python
 # 安装翻译类对象
 QApplication.instance().installTranslator(translator)
 # 或者
@@ -5489,7 +5487,7 @@ app.installTranslator(translator)
 
 只有程序类实例可以安装翻译类对象。另外，如果需要卸载的话（切换翻译前最好卸载当前翻译类对象，当然，直接安装也可以），则要调用`removeTranslator`方法：
 
-```python3
+```python
 # 卸载翻译类对象
 QApplication.instance().removeTranslator(translator)
 ```
@@ -5520,7 +5518,7 @@ QApplication.instance().removeTranslator(translator)
 
 `main.py`文件和上一节最后的示例基本相同，只是删掉了注释，并修改加载的语言文件为`main.qm`，避免使用上节的语言文件：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -5623,7 +5621,7 @@ app.exec()
 
 `main.py`文件内容如下：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QTranslator
@@ -5658,7 +5656,7 @@ app.exec()
 
 为了实现热切换（不重启程序），需要将UI文件转换为Python类，并在加载了指定语言的语言文件、重新安装翻译类对象之后，调用`window.retranslateUi(window)`来重新翻译程序界面：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton
 from PySide6.QtCore import QTranslator, QCoreApplication,QMetaObject
 
@@ -5715,7 +5713,7 @@ app.exec()
 
 为什么这么说呢？不知道读者是否还记得第一小节中，生成的`main_zh.qm`语言文件。刚好，此文件与基于`main.ui`文件的示例完美兼容，那就别浪费，接下来，用它们演示一下自动加载语言文件的独特方式：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QTranslator,QLocale
@@ -5749,7 +5747,7 @@ app.exec()
 
 编译成Python文件：
 
-```python3
+```python
 # Resource object code (Python 3)
 # Created by: object code
 # Created by: The Resource Compiler for Qt version 6.9.1
@@ -5840,7 +5838,7 @@ qInitResources()
 
 整合之后的`main.py`文件：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QTranslator,QLocale
@@ -5944,7 +5942,7 @@ app.exec()
 
 于是，便有了下面的示例：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication,QPushButton,QMessageBox
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QTranslator,QLocale
@@ -6115,7 +6113,7 @@ app.exec()
 
 复制`{Python的库文件目录}\site-packages\PySide6\translations\qtbass_{语言}.qm`（笔者这里使用的是虚拟环境，对应路径为`.venv\Lib\site-packages\PySide6\translations\qtbass_{语言}.qm`）到Python文件同目录或者直接使用该文件。下面的示例采用上一小节的自动切换语言设计，并手动复制了`qtbase_zh_CN.qm`到同目录：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -6167,13 +6165,13 @@ app.exec()
 
 需要使用`QLibraryInfo`类的静态方法`path`，传入`QLibraryInfo.LibraryPath.TranslationsPath`，让其返回包含内置控件语言包目录：
 
-```python3
+```python
 QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
 ```
 
 完整示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -6225,7 +6223,7 @@ app.exec()
 
 就以前面加载UI文件并加载语言包的示例为例，添加一个关闭窗口的询问对话框，同时汉化对话框的按钮。注意，UI文件生成的主窗口没法修改`closeEvent`事件，所以这里使用`QMainWindow`主窗口控件包装了一层，并将其标题与UI文件生成的主窗口标题同步：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -6298,7 +6296,7 @@ app.exec()
 
 第一种为：
 
-```python3
+```python
 QSettings(
     organization: str, 
     /, 
@@ -6314,7 +6312,7 @@ QSettings(
 
 第二种为：
 
-```python3
+```python
 QSettings(
     scope: PySide6.QtCore.QSettings.Scope, 
     organization: str, 
@@ -6336,7 +6334,7 @@ QSettings(
 
 第三种为：
 
-```python3
+```python
 QSettings(
     format: PySide6.QtCore.QSettings.Format, 
     scope: PySide6.QtCore.QSettings.Scope, 
@@ -6347,7 +6345,7 @@ QSettings(
 )
 ```
 
-增加了表示配置文件格式的`format`参数，该参数为`PySide6.QtCore.QSettings.Format`枚举对象（部分，其他对象限定系统，就不做介绍，具体参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#PySide6.QtCore.QSettings.Format）：
+增加了表示配置文件格式的`format`参数，该参数为`PySide6.QtCore.QSettings.Format`枚举对象（部分，其他对象限定系统，就不做介绍，具体参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#PySide6.QtCore.QSettings.Format ）：
 
 - `NativeFormat`，对应系统的默认格式。Windows为注册表；Unix类系统（主要是Linux系统）为ini格式，但文件扩展名为`.conf`。
 - `IniFormat`，ini格式，文件扩展名为`.ini`。
@@ -6361,9 +6359,9 @@ QSettings(
 - Windows系统，用户范围配置将保存到文件`%APPDATA%/{公司名}/{应用程序名}.ini`中，系统范围配置将保存到文件`%PROGRAMDATA%/{公司名}/{应用程序名}.ini`中（需要管理员权限）。
 - Unix类系统（主要是Linux系统），用户范围配置将保存到文件`$HOME/.config/{公司名}/{应用程序名}.ini`内，系统范围配置将保存到文件` {$XDG_CONFIG_DIRS中第一个有效值}/.config/{公司名}/{应用程序名}.ini`内（需要有写入权限）。
 
-注意，上面的默认位置仅为一般情况，特殊情况下，位置会有些许差异，具体可参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#locations-where-application-settings-are-stored。
+注意，上面的默认位置仅为一般情况，特殊情况下，位置会有些许差异，具体可参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#locations-where-application-settings-are-stored 。
 
-关于默认位置的配置文件，还有一点需要注意，那就是`application`参数、`scope`参数为不同值的情况下，如果默认位置无权限读写时，配置文件会按照以下优先级顺序使用其他位置（即回退机制，默认启用，可通过` setFallbacksEnabled`方法启用、禁用，完整介绍参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#fallback-mechanism）：
+关于默认位置的配置文件，还有一点需要注意，那就是`application`参数、`scope`参数为不同值的情况下，如果默认位置无权限读写时，配置文件会按照以下优先级顺序使用其他位置（即回退机制，默认启用，可通过` setFallbacksEnabled`方法启用、禁用，完整介绍参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html#fallback-mechanism ）：
 
 1. 用户范围的应用级位置，`application`参数不为空、`scope`参数为`PySide6.QtCore.QSettings.Scope.UserScope`（默认值，相当于省略`scope`参数）时对应的位置。
 2. 用户范围的公司级位置，`application`参数为空（默认值，相当于省略`application`参数）、`scope`参数为`PySide6.QtCore.QSettings.Scope.UserScope`（默认值，相当于省略`scope`参数）时对应的位置。
@@ -6372,7 +6370,7 @@ QSettings(
 
 不过，并不是所有默认位置无权限读写时，都能使用上面全部的位置，具体情况有所不同。以下面构建的几个配置文件对象为例：
 
-```python3
+```python
 obj1 = QSettings(公司名, 应用程序名)
 obj2 = QSettings(公司名)
 obj3 = QSettings(QSettings.SystemScope, 公司名, 应用程序名)
@@ -6394,7 +6392,7 @@ obj4 = QSettings(QSettings.SystemScope, 公司名)
 
 此时，就可以使用下面的方式创建指定配置文件文件名（位置）的配置文件对象：
 
-```python3
+```python
 QSettings(
     fileName: str, 
     format: PySide6.QtCore.QSettings.Format, 
@@ -6411,7 +6409,7 @@ QSettings(
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -6493,7 +6491,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -6544,7 +6542,7 @@ app.exec()
 
 这是本章的开端——一段平平无奇的、创建富文本控件的代码：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication, QTextEdit
 
 app = QApplication()
@@ -6580,7 +6578,7 @@ app.exec()
 
 如果不修改表格样式，只是插入一个表格，代码很简单：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication, QTextEdit
 
 app = QApplication()
@@ -6608,7 +6606,7 @@ app.exec()
 
 核心代码如下：
 
-```python3
+```python
 from PySide6.QtGui import QTextTableFormat, QBrush, QColor, QTextFrameFormat
 
 table_format = QTextTableFormat()
@@ -6628,7 +6626,7 @@ table_format.setBorderStyle(
 
 下一步更简单，调用表格对象的`setFormat`方法修改富文本表格格式对象：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication, QTextEdit
 from PySide6.QtGui import QTextTableFormat, QBrush, QColor, QTextFrameFormat
 
@@ -6670,7 +6668,7 @@ app.exec()
 
 ### 19.3 网上搜索无果后怀疑是个bug
 
-起初，以为是用错了方法，认真查看官网文档（https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html）好几遍，确认这些方法没有用错。
+起初，以为是用错了方法，认真查看官网文档（ https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html ）好几遍，确认这些方法没有用错。
 
 是不是漏了其他配置？
 
@@ -6678,9 +6676,9 @@ app.exec()
 
 用法没错，难道是bug？
 
-想要知道是不是bug，继续在网上像无头苍蝇一样乱撞可不行，这时需要到Qt官方的bug追踪系统（https://bugreports.qt.io/secure/Dashboard.jspa）寻求答案。
+想要知道是不是bug，继续在网上像无头苍蝇一样乱撞可不行，这时需要到Qt官方的bug追踪系统（ https://bugreports.qt.io/secure/Dashboard.jspa ）寻求答案。
 
-如何搜索、如何在茫茫bug中找到具体的问题就不赘述了，这里直接放结果。在这个bug（https://bugreports.qt.io/browse/QTBUG-132173）中，问题描述说的就是升级Qt版本之后，富文本控件中插入的表格不显示边框了，与笔者遇到的问题不谋而合。这个问题下面的评论中，也指出了问题的来源和解决方法：
+如何搜索、如何在茫茫bug中找到具体的问题就不赘述了，这里直接放结果。在这个bug（ https://bugreports.qt.io/browse/QTBUG-132173 ）中，问题描述说的就是升级Qt版本之后，富文本控件中插入的表格不显示边框了，与笔者遇到的问题不谋而合。这个问题下面的评论中，也指出了问题的来源和解决方法：
 
 ![2025_19_4](qt_for_python_pro.assets/2025_19_4.png)
 
@@ -6688,27 +6686,27 @@ app.exec()
 
 说是bug，其实也不算是bug，充其量算次要版本更新带来的不兼容。
 
-首先看更新日志（https://code.qt.io/cgit/qt/qtreleasenotes.git/about/qt/6.8.0/release-note.md），里面有这么一行：
+首先看更新日志（ https://code.qt.io/cgit/qt/qtreleasenotes.git/about/qt/6.8.0/release-note.md ），里面有这么一行：
 
 ![2025_19_5](qt_for_python_pro.assets/2025_19_5.png)
 
-查看对应的代码变更（https://codereview.qt-project.org/c/qt/qtbase/+/554132）：
+查看对应的代码变更（ https://codereview.qt-project.org/c/qt/qtbase/+/554132 ）：
 
 ![2025_19_6](qt_for_python_pro.assets/2025_19_6.png)
 
-好吧，使用Python的开发者不太理解C++代码，那就回到PySide6的文档，看看这个方法的说明（https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html#PySide6.QtGui.QTextTableFormat.setBorderCollapse）：
+好吧，使用Python的开发者不太理解C++代码，那就回到PySide6的文档，看看这个方法的说明（ https://doc.qt.io/qtforpython-6/PySide6/QtGui/QTextTableFormat.html#PySide6.QtGui.QTextTableFormat.setBorderCollapse ）：
 
 ![2025_19_7](qt_for_python_pro.assets/2025_19_7.png)
 
 这下能理解了，该方法在Qt 6.8.0之前，参数值默认为`False`，C++代码的含义是将该参数的默认值设置为`True`（即启用边框合并），因此，才出现了问题。既然这样，解决起来就容易多了，bug的评论也给了解决方法：
 
-```python3
+```python
 table_format.setBorderCollapse(False)
 ```
 
 完整代码如下：
 
-```python3
+```python
 from PySide6.QtWidgets import QApplication, QTextEdit
 from PySide6.QtGui import QTextTableFormat, QBrush, QColor, QTextFrameFormat
 
@@ -6763,7 +6761,7 @@ app.exec()
 
 其实，在前面的章节中，已经用了好几次消息对话框控件，比如下面的示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -6808,13 +6806,13 @@ app.exec()
 
 不过，消息对话框控件用起来简单，不代表控件本身没有难点。所以，本章将深入学习消息对话框控件，扫除可能遇到的问题。
 
-本章主要参考资料为官网文档 ：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html。
+本章主要参考资料为官网文档 ： https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html 。
 
 ### 20.1 基本用法
 
 先看一下消息对话框的基本结构：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -6888,7 +6886,7 @@ app.exec()
 
 - `iconPixmap`参数，仅限关键字参数，`PySide6.QtGui.QPixmap`类型，表示使用自定义图片当作图标。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -6933,9 +6931,9 @@ app.exec()
 
   需要注意的是，如果使用了该参数，则`icon`参数不会生效。
 
-- `textFormat`参数，仅限关键字参数，`PySide6.QtCore.Qt.TextFormat`类型，表示主要文本、信息文本的文本格式（纯文本、富文本、标记文本、自动识别富文本和纯文本，完整用法参考https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.TextFormat）。示例如下：
+- `textFormat`参数，仅限关键字参数，`PySide6.QtCore.Qt.TextFormat`类型，表示主要文本、信息文本的文本格式（纯文本、富文本、标记文本、自动识别富文本和纯文本，完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.TextFormat ）。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7007,13 +7005,13 @@ app.exec()
 
 `QMessageBox`消息对话框控件支持以下方法（部分，含控件属性）：
 
-- `addButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.addButton），在对话框中添加一个`PySide6.QtWidgets.QMessageBox.StandardButton`类型按钮，并返回该按钮。
+- `addButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.addButton ），在对话框中添加一个`PySide6.QtWidgets.QMessageBox.StandardButton`类型按钮，并返回该按钮。
 
   注意，如果默认没有设置`buttons`参数或者`standardButtons`参数（控件属性）的话，使用此方法会覆盖默认的按钮配置。即默认有一个按钮，使用此方法之后，默认按钮会消失。
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7060,7 +7058,7 @@ app.exec()
 
   除了直接添加`PySide6.QtWidgets.QMessageBox.StandardButton`类型按钮，可以在指定按钮角色的同时，添加自定义文本或者自定义按钮：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7108,9 +7106,9 @@ app.exec()
 
   至于按钮角色的含义，可以看下面`buttonRole`方法部分。
 
-- `button`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.button），返回消息对话框添加的、`PySide6.QtWidgets.QMessageBox.StandardButton`类型对应的按钮：
+- `button`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.button ），返回消息对话框添加的、`PySide6.QtWidgets.QMessageBox.StandardButton`类型对应的按钮：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7153,11 +7151,11 @@ app.exec()
 
   ![2025_20_6](qt_for_python_pro.assets/2025_20_6.png)
 
-- `buttonRole`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttonRole），返回消息对话框指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）的按钮角色。
+- `buttonRole`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttonRole ），返回消息对话框指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）的按钮角色。
 
-  所谓按钮角色，即点击按钮之后，消息对话框应当执行的操作，具体参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.ButtonRole。注意，按钮角色不限制按钮的功能，主要用在开发者实现按钮对应功能时，帮助开发者识别按钮应该执行的功能。比如，`QMessageBox.ButtonRole.YesRole`角色对应的按钮，点击按钮之后，应该执行确认之类的操作：
+  所谓按钮角色，即点击按钮之后，消息对话框应当执行的操作，具体参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.ButtonRole 。注意，按钮角色不限制按钮的功能，主要用在开发者实现按钮对应功能时，帮助开发者识别按钮应该执行的功能。比如，`QMessageBox.ButtonRole.YesRole`角色对应的按钮，点击按钮之后，应该执行确认之类的操作：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7204,11 +7202,11 @@ app.exec()
   app.exec()
   ```
 
-- `buttons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttons），返回`buttons`参数定义的和`addButton`方法添加的按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
+- `buttons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.buttons ），返回`buttons`参数定义的和`addButton`方法添加的按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- `checkBox`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.checkBox），返回复选框控件（需要通过`setCheckBox`方法添加，复选框控件必须分步创建）。示例如下：
+- `checkBox`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.checkBox ），返回复选框控件（需要通过`setCheckBox`方法添加，复选框控件必须分步创建）。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7252,11 +7250,11 @@ app.exec()
   app.exec()
   ```
 
-- `clickedButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.clickedButton），通过阻塞型方法（`exec`方法）显示对话框的话，该方法会返回用户点击的按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
+- `clickedButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.clickedButton ），通过阻塞型方法（`exec`方法）显示对话框的话，该方法会返回用户点击的按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
   借助该方法的返回值，可以准确判断出用户点击了哪个按钮：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7305,7 +7303,7 @@ app.exec()
 
   对于通过参数添加的按钮，没有变量表示对应按钮的话，可以使用`standardButton`方法或者`buttonRole`方法将返回值转换为其他可以判断的类型：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7352,57 +7350,57 @@ app.exec()
   app.exec()
   ```
 
-- `defaultButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.defaultButton），返回消息对话框默认获得焦点的按钮。
+- `defaultButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.defaultButton ），返回消息对话框默认获得焦点的按钮。
 
-- `detailedText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id0），返回详情文本。
+- `detailedText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id0 ），返回详情文本。
 
-- `escapeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.escapeButton），返回按下`escape`键时的等效按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
+- `escapeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.escapeButton ），返回按下`escape`键时的等效按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- `icon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id1），返回对话框显示的标准图标。
+- `icon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id1 ），返回对话框显示的标准图标。
 
-- `iconPixmap`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id2），返回使用自定义图片的图标。
+- `iconPixmap`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id2 ），返回使用自定义图片的图标。
 
-- `informativeText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id3），返回信息文本。
+- `informativeText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id3 ），返回信息文本。
 
-- `open`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.open），以非模态、非阻塞的方式显示对话框。除了此方法之外，`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞），也支持显示对话框。所谓阻塞，即执行方法时，如果对话框不关闭，该方法之后的其他代码不会执行。
+- `open`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.open ），以非模态、非阻塞的方式显示对话框。除了此方法之外，`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞），也支持显示对话框。所谓阻塞，即执行方法时，如果对话框不关闭，该方法之后的其他代码不会执行。
 
-- `removeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.removeButton），从对话框中移除指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
+- `removeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.removeButton ），从对话框中移除指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- `setCheckBox`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setCheckBox），在消息对话框中添加一个复选框。
+- `setCheckBox`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setCheckBox ），在消息对话框中添加一个复选框。
 
-- `setDefaultButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDefaultButton），设置消息对话框默认获得焦点的按钮为指定按钮。
+- `setDefaultButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDefaultButton ），设置消息对话框默认获得焦点的按钮为指定按钮。
 
-- `setDetailedText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDetailedText），设置详情文本。
+- `setDetailedText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setDetailedText ），设置详情文本。
 
-- `setEscapeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setEscapeButton），设置按下`escape`键时的等效按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
+- `setEscapeButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setEscapeButton ），设置按下`escape`键时的等效按钮（`PySide6.QtWidgets.QAbstractButton`类型）。
 
-- `setIcon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIcon），设置显示的标准图标。
+- `setIcon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIcon ），设置显示的标准图标。
 
-- `setIconPixmap`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIconPixmap），使用自定义图片当作图标。
+- `setIconPixmap`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setIconPixmap ），使用自定义图片当作图标。
 
-- `setInformativeText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setInformativeText），设置信息文本。
+- `setInformativeText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setInformativeText ），设置信息文本。
 
-- `setStandardButtons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setStandardButtons），设置消息对话框中显示的按钮。
+- `setStandardButtons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setStandardButtons ），设置消息对话框中显示的按钮。
 
-- `setText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setText），设置主要文本。
+- `setText`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setText ），设置主要文本。
 
-- `setTextFormat`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextFormat），设置主要文本、信息文本的文本格式。
+- `setTextFormat`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextFormat ），设置主要文本、信息文本的文本格式。
 
-- `setTextInteractionFlags`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextInteractionFlags），设置主要文本的可交互性。
+- `setTextInteractionFlags`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setTextInteractionFlags ），设置主要文本的可交互性。
 
-- `setWindowModality`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowModality），在消息对话框显示前设置其模态级别。
+- `setWindowModality`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowModality ），在消息对话框显示前设置其模态级别。
 
-- `setWindowTitle`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowTitle），设置消息对话框的标题。
+- `setWindowTitle`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.setWindowTitle ），设置消息对话框的标题。
 
-- `standardButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardButton），返回消息对话框指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）对应的标准按钮。
+- `standardButton`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardButton ），返回消息对话框指定按钮（`PySide6.QtWidgets.QAbstractButton`类型）对应的标准按钮。
 
-- `standardButtons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id5），返回消息对话框中显示的按钮（枚举对象对应的十六进制数）。
+- `standardButtons`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id5 ），返回消息对话框中显示的按钮（枚举对象对应的十六进制数）。
 
-- `text`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id6），返回消息对话框的主要文本。
+- `text`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id6 ），返回消息对话框的主要文本。
 
-- `textFormat`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id7），返回要文本、信息文本的文本格式。
+- `textFormat`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id7 ），返回要文本、信息文本的文本格式。
 
-- `textInteractionFlags`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id8），返回主要文本的可交互性。
+- `textInteractionFlags`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#id8 ），返回主要文本的可交互性。
 
 ### 20.2 扩展用法
 
@@ -7412,9 +7410,9 @@ app.exec()
 
 `QMessageBox`类支持的静态方法有：
 
-- `about`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.about），显示一个简化的、自定义关于信息的对话框（只有标题、主要文本）。示例如下：
+- `about`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.about ），显示一个简化的、自定义关于信息的对话框（只有标题、主要文本）。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7450,9 +7448,9 @@ app.exec()
 
   ![2025_20_7](qt_for_python_pro.assets/2025_20_7.png)
 
-- `aboutQt`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.aboutQt），显示一个主要文本为Qt框架版本信息的对话框（但可以自定义标题）。示例如下：
+- `aboutQt`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.aboutQt ），显示一个主要文本为Qt框架版本信息的对话框（但可以自定义标题）。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7488,9 +7486,9 @@ app.exec()
 
   ![2025_20_8](qt_for_python_pro.assets/2025_20_8.png)
 
-- `critical`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.critical），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Critical`的消息对话框（常用于表明主要文本内容为致命错误）。示例如下：
+- `critical`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.critical ），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Critical`的消息对话框（常用于表明主要文本内容为致命错误）。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7531,23 +7529,23 @@ app.exec()
 
   ![2025_20_9](qt_for_python_pro.assets/2025_20_9.png)
 
-- `information`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.information），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Information`的消息对话框（常用于表明主要文本内容为一般信息）。
+- `information`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.information ），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Information`的消息对话框（常用于表明主要文本内容为一般信息）。
 
-- `question`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Question`的消息对话框（常用于表明主要文本内容为问题，需要用户通过点击按钮的形式回答）。
+- `question`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.question ），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Question`的消息对话框（常用于表明主要文本内容为问题，需要用户通过点击按钮的形式回答）。
 
-- `warning`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.warning），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Warning`的消息对话框（常用于表明主要文本内容为警告信息）。
+- `warning`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.warning ），显示一个`icon`参数为`PySide6.QtWidgets.QMessageBox.Icon.Warning`的消息对话框（常用于表明主要文本内容为警告信息）。
 
-- `standardIcon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardIcon），将`PySide6.QtWidgets.QMessageBox.Icon`类型转换为`PySide6.QtGui.QPixmap`类型。
+- `standardIcon`方法（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMessageBox.html#PySide6.QtWidgets.QMessageBox.standardIcon ），将`PySide6.QtWidgets.QMessageBox.Icon`类型转换为`PySide6.QtGui.QPixmap`类型。
 
 ## 21 其他对话框控件
 
 除了消息对话框控件，Qt还提供一些功能各异的对话框：
 
-- `QFileDialog`文件选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html。
-- `QFontDialog`字体选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFontDialog.html。
-- `QColorDialog`颜色选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColorDialog.html。
-- `QInputDialog`输入对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QInputDialog.html。
-- `QProgressDialog`进度条对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressDialog.html。
+- `QFileDialog`文件选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html 。
+- `QFontDialog`字体选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFontDialog.html 。
+- `QColorDialog`颜色选择对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QColorDialog.html 。
+- `QInputDialog`输入对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QInputDialog.html 。
+- `QProgressDialog`进度条对话框控件，完整用法可参考：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QProgressDialog.html 。
 
 本章将简单介绍一下这些对话框的用法。
 
@@ -7557,7 +7555,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -7604,7 +7602,7 @@ app.exec()
 
 - `filter`参数，字符串类型，表示文件选择对话框的格式过滤器。格式过滤器的语法为：`{格式描述}({格式通配符}{空格或者分号}...);;...`。其中，双英文分号表示不同类型过滤器之间的分隔符。以下为合法的格式过滤器：
 
-  ```python3
+  ```python
   '支持的格式 (*.png;*.py *.md);;所有文件 (*.*)'
   ```
 
@@ -7614,7 +7612,7 @@ app.exec()
 
   注意，受限于Windows系统，想要让该参数生效，必须禁用原生的文件选择对话框：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7655,9 +7653,9 @@ app.exec()
 
   ![2025_21_2](qt_for_python_pro.assets/2025_21_2.png)
 
-- `fileMode`参数，`PySide6.QtWidgets.QFileDialog.FileMode`类型（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html#PySide6.QtWidgets.QFileDialog.FileMode），表示文件选择对话框的打开的文件类型（打开无论是否存在的单个文件、打开现有的单个文件、打开现有的多个文件、打开文件夹）。示例如下：
+- `fileMode`参数，`PySide6.QtWidgets.QFileDialog.FileMode`类型（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html#PySide6.QtWidgets.QFileDialog.FileMode ），表示文件选择对话框的打开的文件类型（打开无论是否存在的单个文件、打开现有的单个文件、打开现有的多个文件、打开文件夹）。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7703,7 +7701,7 @@ app.exec()
 
   示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7747,9 +7745,9 @@ app.exec()
 
 - `defaultSuffix`参数，字符串类型，表示默认后缀，当保存文件或者选择打开不存在的文件（实际上就是保存文件）时，如果输入的文件名不包含默认后缀，则自动添加默认后缀。
 
-- `options`参数，`PySide6.QtWidgets.QFileDialog.Option`类型（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html#PySide6.QtWidgets.QFileDialog.Option），表示文件选择对话框支持的额外选项，一般不需要单独设置。比如前面`viewMode`参数中使用的`QFileDialog.Option.DontUseNativeDialog`，表示不使用原生的文件选择对话框。多个额外选项可以组合使用，通过`|`连接即可：
+- `options`参数，`PySide6.QtWidgets.QFileDialog.Option`类型（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QFileDialog.html#PySide6.QtWidgets.QFileDialog.Option ），表示文件选择对话框支持的额外选项，一般不需要单独设置。比如前面`viewMode`参数中使用的`QFileDialog.Option.DontUseNativeDialog`，表示不使用原生的文件选择对话框。多个额外选项可以组合使用，通过`|`连接即可：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7804,7 +7802,7 @@ app.exec()
 
 - `filterSelected`信号，切换格式过滤器时发射该信号，并将表示当前类型过滤器的字符串作为参数传给槽函数（响应函数）。注意，只有非原生的文件选择对话框可以使用该信号。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7864,7 +7862,7 @@ app.exec()
 
 - `setMimeTypeFilters`方法，使用MIME格式表示格式过滤器。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7909,7 +7907,7 @@ app.exec()
 
 - `setNameFilter`方法、`setNameFilters`方法，限定打开文件的文件名（前者限制为单个文件名，后者可以指定多个文件名）。示例如下：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -7973,7 +7971,7 @@ app.exec()
 
 示例如下：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8016,7 +8014,7 @@ app.exec()
 
 和文件选择对话框控件一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8062,7 +8060,7 @@ app.exec()
 
 和文件选择对话框控件一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8108,7 +8106,7 @@ app.exec()
 
 和文件选择对话框控件一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8150,7 +8148,7 @@ app.exec()
 
 - `getDouble`方法，创建一个只允许输入小数的输入对话框控件：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -8196,7 +8194,7 @@ app.exec()
 
 - `getItem`方法，创建一个只允许从下拉框选择的输入对话框控件：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -8244,7 +8242,7 @@ app.exec()
 
 - `getText`方法，创建一个可以输入任意单行文本的输入对话框控件：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -8288,7 +8286,7 @@ app.exec()
 
 - `getMultiLineText`方法，创建一个可以输入任意多行文本的输入对话框控件：
 
-  ```python3
+  ```python
   from PySide6.QtWidgets import (
       QApplication,
       QWidget,
@@ -8336,7 +8334,7 @@ app.exec()
 
 和文件选择对话框控件一样，使用`exec`方法（模态、阻塞）、`show`方法（模态、非阻塞）、`open`方法（非模态、非阻塞）显示对话框：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8380,7 +8378,7 @@ app.exec()
 
 除了主动显示对话框，进度条对话框控件还支持`minimumDuration`参数（默认为`4000`，不能小于该值），表示创建了控件多少毫秒之后，自动显示对话框。比如，下面的示例中，虽然注释掉了`exec`方法的调用，但对话框依然会自动显示：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8432,7 +8430,7 @@ app.exec()
 
 使用`exec`方法的示例：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8481,7 +8479,7 @@ app.exec()
 
 使用非阻塞方法的示例（`fileSelected`信号）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8531,7 +8529,7 @@ app.exec()
 
 使用非阻塞方法的示例（`filesSelected`信号）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8581,7 +8579,7 @@ app.exec()
 
 使用非阻塞方法的示例（`accepted`信号、`finished`信号）：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8641,7 +8639,7 @@ app.exec()
 
 以下为能够展示这一反常的示例：
 
-```python3
+```python
 from PySide6.QtCore import QRect,QPoint,QSize
 
 rect = QRect(
@@ -8670,7 +8668,7 @@ print(
 
 想要给Qt程序绑定快捷键，可以使用`keyReleaseEvent`事件、`keyPressEvent`事件：
 
-````python3
+````python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8700,9 +8698,9 @@ window.keyReleaseEvent = on_key_ctrl_q
 app.exec()
 ````
 
-代码有点复杂，所以，也可以使用简单的`QShortcut`类（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QShortcut.html），实现相同的效果：
+代码有点复杂，所以，也可以使用简单的`QShortcut`类（完整用法参考 https://doc.qt.io/qtforpython-6/PySide6/QtGui/QShortcut.html ），实现相同的效果：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8735,7 +8733,7 @@ app.exec()
 
 除了绑定单个快捷键、组合快捷键，`QShortcut`类还支持快捷键序列，即依次按下一系列指定的快捷键才会触发：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8764,7 +8762,7 @@ app.exec()
 
 除了在实例化`QShortcut`类时传入快捷键对应的操作，还可以使用`activated`信号，当快捷键激活（触发）时，执行对应的操作：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8792,7 +8790,7 @@ app.exec()
 
 默认情况下，虽然`QShortcut`类指定了父控件，但快捷键在同窗口内都生效，比如：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8826,7 +8824,7 @@ app.exec()
 
 此时，可以给`context`参数传入指定值（具体含义参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.ShortcutContext ），限制快捷键的生效范围，让其只在获得焦点的控件（即`QShortcut`类的父控件）中生效：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8860,7 +8858,7 @@ app.exec()
 
 也可以修改为整个Qt程序全局生效的快捷键：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8898,7 +8896,7 @@ app.exec()
 
 除了这种一个快捷键在多个控件中生效的冲突情况，还存在多个同名快捷键在一个控件中生效的冲突情况：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8941,20 +8939,20 @@ app.exec()
 
 上面的示例中，两个输入框分别对应着不同生效范围的同名快捷键，并且使用了`activatedAmbiguously`信号，用于识别可能是该快捷键的触发信号。当第一个输入框获得焦点时，按下`Ctrl+Q`键，终端输出为：
 
-```python3
+```python
 ctrl+q
 ```
 
 当第二个输入框获得焦点时，按下`Ctrl+Q`键，终端输出为：
 
-```python3
+```python
 maybe ctrl+q
 maybe second ctrl+q
 ```
 
 没有触发第二个`QShortcut`类的`activated`信号，而是依次触发两个`QShortcut`类的`activatedAmbiguously`信号，这就是另一种快捷键冲突。因此，可以使用`activatedAmbiguously`信号处理冲突：
 
-```python3
+```python
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8994,3 +8992,5 @@ c_q_2.activatedAmbiguously.connect(lambda :c_q_2.activated.emit())
 
 app.exec()
 ```
+
+（完）

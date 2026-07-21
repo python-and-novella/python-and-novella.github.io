@@ -1350,328 +1350,250 @@ ui.run(
 
 ![2027_63_3](nicegui_pro.assets/2027_63_3.png)
 
-## 6x 学习控件——
+## 64 学习控件——弹性空间控件
+
+用户界面的空间是有限的，如果需要展示的内容、控件较多，全部铺平显示，很容易超过可见区域，用户想要看到其余的部分，只能滚动页面。
+
+在NiceGUI中，有这么一类控件，可以展开或者收起，让控件占据的空间发生改变；也可以在固定空间内实现内容的滚动或者切换。笔者将这类控件命名为弹性空间控件，因为它们可以实现堪比空间魔法的效果。
+
+本章要讲的，就是弹性空间控件的用法。
+
+### 64.1 可以变大变小的`ui.expansion`控件（更新中）
+
+相关文档：
+
+- https://nicegui.io/documentation/expansion
+- https://quasar.dev/vue-components/expansion-item
+
+`ui.expansion`控件就像是折页宣传册，可以折起来只看到封面，也可以展开后看到所有的内容，点击控件或者修改控件的`value`属性即可切换展开状态：
+
+```python3
+from nicegui import ui
+
+
+def index():
+    with ui.card(),ui.expansion(
+        'More',
+        caption='info'
+    ).props('header-class=bg-blue'):
+        ui.button('Hello')
+        ui.button('World')
+    with ui.card(),ui.expansion(
+        'More',
+        caption='info',
+        value=True
+    ).props('header-class=bg-blue'):
+        ui.button('Hello')
+        ui.button('World')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_64.1_1](nicegui_pro.assets/2027_64.1_1.png)
+
+`ui.expansion`控件支持以下参数：
+
+- `text`参数，字符串类型，表示标题文本。
+
+- `caption`参数，字符串类型，表示说明文本。
+
+  从该参数开始，只能通过关键字传入。
+
+- `icon`参数，字符串类型，表示图标。
+
+- `group`参数，字符串类型，表示分组。分组相同的控件只能展开一个，此时控件所处的模式也叫手风琴模式。
+
+- `value`参数，布尔类型，表示控件是否展开。
+
+- `on_value_change`参数，可调用类型，表示切换控件展开状态时执行的操作。
+
+`ui.expansion`控件支持以下方法：
+
+- `open`方法，展开控件。
+- `close`方法，收起控件。
+
+
+
+控件属性---
+
+
+
+### 64.2 内部空间比看上去更大的`ui.scroll_area`控件（更新中）
+
+相关文档：
+
+- https://nicegui.io/documentation/scroll_area
+- https://quasar.dev/vue-components/scroll-area/
 
 
 
 
 
-## 6x 学习控件——
+`ui.scroll_area`控件，将原本固定大小的区域，变成可以无限扩展的滚动区域，确保可以容纳所有控件。
 
+示例如下：
 
-
-
-
-## 6x 学习控件——
-
-
-
-
-
-
-
-## 58 学习控件——调整布局空间（更新中）
-
-前面控件创建的布局，所有子控件都是平铺展示，一旦控件较多，布局就会占据较多空间，甚至超出屏幕，只能滚动页面查看超出屏幕的部分。
-
-不过，下面的控件可以调整布局占据的空间：
-
-- `ui.expansion`控件，可以通过向下展开的方式扩展空间，显示原本隐藏的控件。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.card(),ui.expansion(
-          'More',
-          caption='info'
-      ).props('header-class=bg-blue'):
-          ui.button('Hello')
-          ui.button('World')
-      with ui.card(),ui.expansion(
-          'More',
-          caption='info',
-          value=True
-      ).props('header-class=bg-blue'):
-          ui.button('Hello')
-          ui.button('World')
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+```python3
+from nicegui import ui
   
-
-- `ui.scroll_area`控件，将原本固定大小的区域，变成可以无限扩展的滚动区域，确保可以容纳所有控件。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.card(),ui.scroll_area().classes(
-          'w-64 h-64'
-      ):
-          for i in range(99):
-              ui.button(
-                  str(i)
-              )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+def index():
+    with ui.card(),ui.scroll_area().classes(
+        'w-64 h-64'
+    ):
+        for i in range(99):
+            ui.button(
+                str(i)
+            )
   
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-- `ui.slide_item`控件，创建一个可以四向滑动的固定区域，向对应方向的反方向滑动，会将当前区域变为对应方向的独立区域，所有区域都可以放置其他控件。
 
-  示例如下：
 
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.list().classes(
-          'border-2 border-red-700'
-      ), ui.slide_item(
-          'center'
-      ).classes(
-          'w-32'
-      ) as slide:
-          ui.label('center')
-      with slide.left(
-          'left',
-          on_slide=slide.reset
-      ):
-          ui.label('left')
-      with slide.right(
-          'right',
-          on_slide=slide.reset
-      ):
-          ui.label('right')
-      with slide.top(
-          'top',
-          on_slide=slide.reset
-      ):
-          ui.label('top')
-      with slide.bottom(
-          'bottom',
-          on_slide=slide.reset
-      ):
-          ui.label('bottom')
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
 
+
+
+
+### 64.3 滑动解锁新空间的`ui.slide_item`控件（更新中）
+
+相关文档：
+
+- https://nicegui.io/documentation/slide_item
+- https://quasar.dev/vue-components/slide-item/
+
+
+
+
+
+`ui.slide_item`控件，创建一个可以四向滑动的固定区域，向对应方向的反方向滑动，会将当前区域变为对应方向的独立区域，所有区域都可以放置其他控件。
+
+示例如下：
+
+```python3
+from nicegui import ui
   
-
-- `ui.splitter`控件，创建一个划分为左中右（或者上中下）三块区域的区域，可以通过拖动中间区域（实际上是一条间隔线）来改变其余两块区域的大小。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.card():
-          splitter = ui.splitter(
-              value=75
-          ).classes('w-64 h-64')
-          with splitter.separator:
-              ui.icon('lightbulb')
-          with splitter.before:
-              ui.card().classes(
-                  'w-full h-full bg-red'
-              )
-          with splitter.after:
-              ui.card().classes(
-                  'w-full h-full bg-blue'
-              )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+def index():
+    with ui.list().classes(
+        'border-2 border-red-700'
+    ), ui.slide_item(
+        'center'
+    ).classes(
+        'w-32'
+    ) as slide:
+        ui.label('center')
+    with slide.left(
+        'left',
+        on_slide=slide.reset
+    ):
+        ui.label('left')
+    with slide.right(
+        'right',
+        on_slide=slide.reset
+    ):
+        ui.label('right')
+    with slide.top(
+        'top',
+        on_slide=slide.reset
+    ):
+        ui.label('top')
+    with slide.bottom(
+        'bottom',
+        on_slide=slide.reset
+    ):
+        ui.label('bottom')
   
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-## 59 学习控件——管理多页内容（更新中）
 
-对于内容多到需要分页的情况，下面的控件可以很好处理这种情况：
 
-- `ui.tabs`控件、`ui.tab`控件、`ui.tab_panels`控件、`ui.tab_panel`控件，共同组成完整的选项卡控件。其中，`ui.tabs`控件为选项卡的页标签容器，用于容纳表示页标签的`ui.tab`控件。`ui.tab_panels`控件是标签页的容器，用于容纳表示标签页的`ui.tab_panel`控件。标签页用于容纳需要分页的内容，点击页标签，标签页容器也会切换到对应的标签页。
 
-  示例如下：
 
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.tabs().props(
-          'no-caps'
-      ) as tabs:
-          ui.tab(
-              'a',
-              label='标签a'
-          )
-          ui.tab(
-              'b',
-              label='标签b'
-          )
-      with ui.tab_panels(
-          tabs,
-          value='a'
-      ).classes(
-          'w-64 h-64 border'
-      ):
-          with ui.tab_panel('a'):
-              ui.label('标签页a')
-          with ui.tab_panel('b'):
-              ui.label('标签页b')
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
+### 64.4 可以变脸的`ui.splitter`控件（更新中）
 
+相关文档：
+
+- https://nicegui.io/documentation/splitter
+- https://quasar.dev/vue-components/splitter
+
+
+
+
+
+`ui.splitter`控件，创建一个划分为左中右（或者上中下）三块区域的区域，可以通过拖动中间区域（实际上是一条间隔线）来改变其余两块区域的大小。
+
+示例如下：
+
+```python3
+from nicegui import ui
   
-
-- `ui.carousel`控件、`ui.carousel_slide`控件，共同组成轮播图控件，用法类似选项卡控件，只不过轮播图控件没有页标签，直接就是标签页。`ui.carousel`控件就是`ui.carousel_slide`控件的容器，`ui.carousel_slide`控件用于容纳需要分页的内容。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.carousel(
-          arrows=True,
-          navigation=True,
-          animated=True
-      ).classes('w-64 h-64 border'):
-          with ui.carousel_slide().classes(
-              'border bg-red'
-          ):
-              ui.label('内容a')
-          with ui.carousel_slide().classes(
-              'border bg-blue'
-          ):
-              ui.label('内容b')
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+def index():
+    with ui.card():
+        splitter = ui.splitter(
+            value=75
+        ).classes('w-64 h-64')
+        with splitter.separator:
+            ui.icon('lightbulb')
+        with splitter.before:
+            ui.card().classes(
+                'w-full h-full bg-red'
+            )
+        with splitter.after:
+            ui.card().classes(
+                'w-full h-full bg-blue'
+            )
   
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-- `ui.pagination`控件，用于切换内容的分页，该控件提供了页码显示和调整功能。
 
-  示例如下：
 
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      label = ui.label('当前页为第1页')
-      ui.pagination(
-          1,
-          5,
-          direction_links=True,
-          value=1,
-          on_change=lambda e:label.set_text(
-              f'当前页为第{e.value}页'
-          )
-      )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
 
+
+## 65 学习控件——多页控件
+
+
+
+
+
+`ui.pagination`控件，用于切换内容的分页，该控件提供了页码显示和调整功能。
+
+示例如下：
+
+```python3
+from nicegui import ui
   
-
-- `ui.stepper`控件、`ui.step`控件、`ui.stepper_navigation`控件，共同组成步骤控件。其中，`ui.stepper`控件是所有步骤的容器；`ui.step`控件为具体的步骤，必须设置不重复的`name`参数；`ui.stepper_navigation`控件用于放置控制当前步骤的按钮。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.stepper() as stepper:
-          with ui.step('first'):
-              ui.label('first')
-              with ui.stepper_navigation():
-                  ui.button(
-                      'next',
-                      on_click=stepper.next
-                  )
-          with ui.step('second'):
-              ui.label('second')
-              with ui.stepper_navigation():
-                  ui.button(
-                      'next',
-                      on_click=stepper.next
-                  )
-                  ui.button(
-                      'back',
-                      on_click=stepper.previous
-                  ).props('flat')
-          with ui.step('third'):
-              ui.label('third')
-              with ui.stepper_navigation():
-                  ui.button(
-                      'done',
-                      on_click=lambda :ui.notify(
-                          'done'
-                      )
-                  )
-                  ui.button(
-                      'back',
-                      on_click=stepper.previous
-                  ).props('flat')
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+def index():
+    label = ui.label('当前页为第1页')
+    ui.pagination(
+        1,
+        5,
+        direction_links=True,
+        value=1,
+        on_change=lambda e:label.set_text(
+            f'当前页为第{e.value}页'
+        )
+    )
   
-
-- `ui.timeline`控件、`ui.timeline_entry`控件，共同组成时间线控件，其中，`ui.timeline`控件是容器，`ui.timeline_entry`控件是具体时间点对应的内容。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      with ui.timeline(side='right'):
-          ui.timeline_entry('first')
-          ui.timeline_entry('second')
-          ui.timeline_entry('third')
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 
@@ -1679,8 +1601,169 @@ ui.run(
 
 
 
+`ui.tabs`控件、`ui.tab`控件、`ui.tab_panels`控件、`ui.tab_panel`控件，共同组成完整的选项卡控件。其中，`ui.tabs`控件为选项卡的页标签容器，用于容纳表示页标签的`ui.tab`控件。`ui.tab_panels`控件是标签页的容器，用于容纳表示标签页的`ui.tab_panel`控件。标签页用于容纳需要分页的内容，点击页标签，标签页容器也会切换到对应的标签页。
 
-## 61 学习控件——弹出提示信息（更新中）
+示例如下：
+
+```python3
+from nicegui import ui
+  
+def index():
+    with ui.tabs().props(
+        'no-caps'
+    ) as tabs:
+        ui.tab(
+            'a',
+            label='标签a'
+        )
+        ui.tab(
+            'b',
+            label='标签b'
+        )
+    with ui.tab_panels(
+        tabs,
+        value='a'
+    ).classes(
+        'w-64 h-64 border'
+    ):
+        with ui.tab_panel('a'):
+            ui.label('标签页a')
+        with ui.tab_panel('b'):
+            ui.label('标签页b')
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+
+
+
+
+## 66 学习控件——多页控件
+
+
+
+
+
+
+
+
+
+`ui.carousel`控件、`ui.carousel_slide`控件，共同组成轮播图控件，用法类似选项卡控件，只不过轮播图控件没有页标签，直接就是标签页。`ui.carousel`控件就是`ui.carousel_slide`控件的容器，`ui.carousel_slide`控件用于容纳需要分页的内容。
+
+示例如下：
+
+```python3
+from nicegui import ui
+  
+def index():
+    with ui.carousel(
+        arrows=True,
+        navigation=True,
+        animated=True
+    ).classes('w-64 h-64 border'):
+        with ui.carousel_slide().classes(
+            'border bg-red'
+        ):
+            ui.label('内容a')
+        with ui.carousel_slide().classes(
+            'border bg-blue'
+        ):
+            ui.label('内容b')
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+`ui.stepper`控件、`ui.step`控件、`ui.stepper_navigation`控件，共同组成步骤控件。其中，`ui.stepper`控件是所有步骤的容器；`ui.step`控件为具体的步骤，必须设置不重复的`name`参数；`ui.stepper_navigation`控件用于放置控制当前步骤的按钮。
+
+示例如下：
+
+```python3
+from nicegui import ui
+  
+def index():
+    with ui.stepper() as stepper:
+        with ui.step('first'):
+            ui.label('first')
+            with ui.stepper_navigation():
+                ui.button(
+                    'next',
+                    on_click=stepper.next
+                )
+        with ui.step('second'):
+            ui.label('second')
+            with ui.stepper_navigation():
+                ui.button(
+                    'next',
+                    on_click=stepper.next
+                )
+                ui.button(
+                    'back',
+                    on_click=stepper.previous
+                ).props('flat')
+        with ui.step('third'):
+            ui.label('third')
+            with ui.stepper_navigation():
+                ui.button(
+                    'done',
+                    on_click=lambda :ui.notify(
+                        'done'
+                    )
+                )
+                ui.button(
+                    'back',
+                    on_click=stepper.previous
+                ).props('flat')
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+`ui.timeline`控件、`ui.timeline_entry`控件，共同组成时间线控件，其中，`ui.timeline`控件是容器，`ui.timeline_entry`控件是具体时间点对应的内容。
+
+示例如下：
+
+```python3
+from nicegui import ui
+  
+def index():
+    with ui.timeline(side='right'):
+        ui.timeline_entry('first')
+        ui.timeline_entry('second')
+        ui.timeline_entry('third')
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+
+
+## 67 学习控件——弹出提示信息
+
+
 
 NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
@@ -1800,26 +1883,15 @@ NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
 
   
 
-这个还是放到具体控件学习介绍中吧。
 
-#### 3.9.14 `ui.tooltip`补充（2025.01.21更新）
 
-对于像`ui.html`、`ui.markdown`、`ui.upload`、`ui.table`等不支持在其上下文内添加`tooltip`的元素，可以使用`ui.element`包装来间接实现：
 
-```python3
-from nicegui import ui
 
-with ui.element().tooltip('...with a tooltip!'):
-    ui.html('This is <u>HTML</u>...')
 
-ui.run(
-    native=True
-)
-```
 
-注意，NiceGUI 3.4版本之后，任何控件都可以使用`tooltip`方法添加工具提示，没有上面的限制。
 
-因此，任意控件的添加工具提示可以改为：
+
+任意控件添加工具提示也可以这样写：
 
 ```python3
 from nicegui import ui
@@ -1898,119 +1970,147 @@ ui.run(
 
 
 
-## 7x 学习控件——`ui.tree`控件（更新中）
+
+
+
+
+## 68 学习控件——`ui.tree`控件（更新中）
 
 
 
 
 
+`ui.tree`控件，用于渲染树类型的数据。
 
+示例如下：
 
-## 56 学习控件——渲染复杂数据（更新中）
-
-除了前面提到的用图表展示数据的方式之外，下面的控件提供了针对特定类型数据、文件的展示方式：
-
-- `ui.tree`控件，用于渲染树类型的数据。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      ui.tree(
-          nodes=[
-              {
-                  'id': 'lang',
-                  'label': 'Language',
-                  'icon': 'dashboard',
-                  'children': [
-                      {
-                          'id': '1',
-                          'label': 'Python'
-                      },
-                      {
-                          'id': '2',
-                          'label': 'JavaScript'
-                      }
-                  ]
-              },
-          ],
-          node_key='id',
-          label_key='label',
-          children_key='children',
-          on_select=lambda e: ui.notify(
-              f'选择了 {e.value}'
-          ),
-          on_expand=lambda e: ui.notify(
-              f'展开了 {e.value}'
-          ),
-          on_tick=lambda e: ui.notify(
-              f'勾选了 {e.value}'
-          ),
-      ).expand()
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+```python3
+from nicegui import ui
   
-
-- `ui.leaflet`控件，用于渲染地图数据。
-
-  示例如下：
-
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      ui.leaflet(
-          center=(39.9072, 116.3912),
-          zoom=18,
-          options={
-              'attributionControl':False,
-          }
-      ).classes(
-          'w-64 h-64'
-      ).marker(
-          latlng=(39.9072, 116.3912)
-      )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+def index():
+    ui.tree(
+        nodes=[
+            {
+                'id': 'lang',
+                'label': 'Language',
+                'icon': 'dashboard',
+                'children': [
+                    {
+                        'id': '1',
+                        'label': 'Python'
+                    },
+                    {
+                        'id': '2',
+                        'label': 'JavaScript'
+                    }
+                ]
+            },
+        ],
+        node_key='id',
+        label_key='label',
+        children_key='children',
+        on_select=lambda e: ui.notify(
+            f'选择了 {e.value}'
+        ),
+        on_expand=lambda e: ui.notify(
+            f'展开了 {e.value}'
+        ),
+        on_tick=lambda e: ui.notify(
+            f'勾选了 {e.value}'
+        ),
+    ).expand()
   
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-- `ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交换的3D视图，后者则是基于前者创建、不可交互的固定视角视图。
 
-  示例如下：
 
-  ```python3
-  from nicegui import ui
-    
-  def index():
-      scene = ui.scene().classes(
-          'w-64 h-64'
-      )
-      scene.box().material(
-          'red'
-      )
-      ui.scene_view(scene).classes(
-          'w-64 h-64'
-      )
-        
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
 
+
+
+
+## 69 学习控件——`ui.scene`控件（更新中）
+
+
+
+
+
+`ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交换的3D视图，后者则是基于前者创建、不可交互的固定视角视图。
+
+示例如下：
+
+```python3
+from nicegui import ui
   
+def index():
+    scene = ui.scene().classes(
+        'w-64 h-64'
+    )
+    scene.box().material(
+        'red'
+    )
+    ui.scene_view(scene).classes(
+        'w-64 h-64'
+    )
+      
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+
+
+## 70 学习控件——`ui.leaflet`控件（更新中）
+
+
+
+
+
+
+
+
+
+
+
+`ui.leaflet`控件，用于渲染地图数据。
+
+示例如下：
+
+```python3
+from nicegui import ui
+  
+def index():
+    ui.leaflet(
+        center=(39.9072, 116.3912),
+        zoom=18,
+        options={
+            'attributionControl':False,
+        }
+    ).classes(
+        'w-64 h-64'
+    ).marker(
+        latlng=(39.9072, 116.3912)
+    )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+
 
 ## 7x 学习控件——`ui.anywidget`控件（更新中）
 
@@ -2042,7 +2142,7 @@ anywidget框架文档：https://anywidget.dev/en/getting-started/
 
 
 
-## 9x `ui.altair`控件——xxx（更新中）
+## 7x `ui.altair`控件——xxx（更新中）
 
 下面是`ui.altair`控件相关文档的地址：
 
@@ -2072,3 +2172,12 @@ window.location.reload(true)
 
 
 
+Skip link：
+
+https://nicegui.io/documentation/skip_link#skip_link
+
+
+
+Sortable：
+
+https://nicegui.io/documentation/sortable

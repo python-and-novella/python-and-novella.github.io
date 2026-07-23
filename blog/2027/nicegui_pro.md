@@ -1358,7 +1358,7 @@ ui.run(
 
 本章要讲的，就是弹性空间控件的用法。
 
-### 64.1 可以变大变小的`ui.expansion`控件（更新中）
+### 64.1 可以变大变小的`ui.expansion`控件
 
 相关文档：
 
@@ -1417,30 +1417,42 @@ ui.run(
 - `open`方法，展开控件。
 - `close`方法，收起控件。
 
+默认点击整个控件都可以切换展开状态，但是，如果添加了`expand-icon-toggle`控件属性，则只有点击控件右边的图标才能切换：
+
+```python
+from nicegui import ui
 
 
-控件属性---
+def index():
+    with ui.expansion().props('expand-icon-toggle'):
+        ui.button('Hello')
+        ui.button('World')
+    with ui.expansion():
+        ui.button('Hello')
+        ui.button('World')
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
 
+```
 
-### 64.2 内部空间比看上去更大的`ui.scroll_area`控件（更新中）
+![2027_64.1_2](nicegui_pro.assets/2027_64.1_2.png)
+
+### 64.2 内部空间比看上去更大的`ui.scroll_area`控件
 
 相关文档：
 
 - https://nicegui.io/documentation/scroll_area
 - https://quasar.dev/vue-components/scroll-area/
 
-
-
-
-
-`ui.scroll_area`控件，将原本固定大小的区域，变成可以无限扩展的滚动区域，确保可以容纳所有控件。
-
-示例如下：
+`ui.scroll_area`控件从外面看大小固定，但它作为容器时，其内部空间远比看上去更大。当内容尺寸超过外部大小时，就可以通过滚动显示看不见的部分：
 
 ```python
 from nicegui import ui
-  
+
+
 def index():
     with ui.card(),ui.scroll_area().classes(
         'w-64 h-64'
@@ -1449,37 +1461,74 @@ def index():
             ui.button(
                 str(i)
             )
-  
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_64.2_1](nicegui_pro.assets/2027_64.2_1.png)
+
+`ui.scroll_area`控件支持以下关键字参数：
+
+- `on_scroll`参数，可调用类型，表示滚动内容时执行的操作。
+
+`ui.scroll_area`控件支持以下方法：
+
+- `on_scroll`方法，设置滚动内容时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示滚动内容时执行的操作。
+- `scroll_to`方法，滚动到指定位置。该方法支持以下关键字参数：
+  - `pixels`参数，浮点类型，表示指定位置（像素）。
+  - `percent`参数，浮点类型，表示指定位置（百分比）。
+  - `axis`参数，字符串类型（仅支持`['vertical', 'horizontal']`中的值），表示滚动方向，默认为`'vertical'`。
+  - `duration`参数，浮点类型，表示滚动动画的播放时长，默认为`0.0`。
+
+示例如下：
+
+```python3
+from nicegui import ui
 
 
+def index():
+    with ui.card(),ui.scroll_area().classes(
+        'w-64 h-64'
+    ) as sa:
+        for i in range(99):
+            ui.button(
+                str(i)
+            )
+    ui.button(
+        'click',
+        on_click=lambda:sa.scroll_to(
+            percent=0.5,
+            duration=1
+        )
+    )
+    
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
 
+```
 
+![2027_64.2_2](nicegui_pro.assets/2027_64.2_2.gif)
 
-
-### 64.3 滑动解锁新空间的`ui.slide_item`控件（更新中）
+### 64.3 滑动解锁新空间的`ui.slide_item`控件
 
 相关文档：
 
 - https://nicegui.io/documentation/slide_item
 - https://quasar.dev/vue-components/slide-item/
 
-
-
-
-
-`ui.slide_item`控件，创建一个可以四向滑动的固定区域，向对应方向的反方向滑动，会将当前区域变为对应方向的独立区域，所有区域都可以放置其他控件。
-
-示例如下：
+`ui.slide_item`控件从表面上看似没有玄机，怎么点击都不会切换，但其秘密在于滑动，就好像手机的滑动解锁一样。向上下左右四个方向滑动，会解锁反方向对应的隐藏空间：
 
 ```python
 from nicegui import ui
-  
+
+
 def index():
     with ui.list().classes(
         'border-2 border-red-700'
@@ -1488,63 +1537,80 @@ def index():
     ).classes(
         'w-32'
     ) as slide:
-        ui.label('center')
+        ui.item('中心')
     with slide.left(
         'left',
         on_slide=slide.reset
     ):
-        ui.label('left')
+        ui.label('左')
     with slide.right(
         'right',
         on_slide=slide.reset
     ):
-        ui.label('right')
+        ui.label('右')
     with slide.top(
         'top',
         on_slide=slide.reset
     ):
-        ui.label('top')
+        ui.label('上')
     with slide.bottom(
         'bottom',
         on_slide=slide.reset
     ):
-        ui.label('bottom')
-  
+        ui.label('下')
+
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_64.3_1](nicegui_pro.assets/2027_64.3_1.gif)
 
+`ui.scroll_area`控件支持以下参数：
 
+- `text`参数，字符串类型，表示显示在控件内的文字。
+- `on_slide`参数，关键字参数，可调用类型，表示滑动完成后执行的动作。注意，该响应函数的参数对应的是最终显示的空间。
 
+`ui.scroll_area`控件支持以下方法：
 
-### 64.4 可以变脸的`ui.splitter`控件（更新中）
+- `on_slide`方法，设置滑动完成后执行的动作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示滑动完成后执行的动作。
+- `action`方法，返回任意方向空间的插槽。该方法支持以下参数：
+  - `side`参数，字符串类型（仅支持`['left', 'right', 'top', 'bottom']`中的值），表示对应的方向。
+  - `text`参数，字符串类型，表示该方向空间显示在控件内的文字。
+  - `on_slide`参数，关键字参数，可调用类型，表示该方向空间滑动完成后执行的动作。注意，该响应函数的参数对应的是最终显示的空间。
+  - `color`参数，字符串类型，表示对应方向空间的背景色，默认为`'primary'`（主题的主要颜色）。
+- `left`方法，返回左面空间的插槽。支持的参数与`action`方法基本相同（只是没有`side`参数）。
+- `right`方法，返回右面空间的插槽。支持的参数与`action`方法基本相同（只是没有`side`参数）。
+- `top`方法，返回上面空间的插槽。支持的参数与`action`方法基本相同（只是没有`side`参数）。
+- `bottom`方法，返回底面空间的插槽。支持的参数与`action`方法基本相同（只是没有`side`参数）。
+- `reset`方法，将控件复位为没有滑动时的状态。
+
+### 64.4 自由拼接两个空间的`ui.splitter`控件
 
 相关文档：
 
 - https://nicegui.io/documentation/splitter
 - https://quasar.dev/vue-components/splitter
 
-
-
-
-
-`ui.splitter`控件，创建一个划分为左中右（或者上中下）三块区域的区域，可以通过拖动中间区域（实际上是一条间隔线）来改变其余两块区域的大小。
+`ui.splitter`控件，一个完整空间划分为左中右（或者上中下）三个空间，可以通过拖动中间空间（实际上是一条间隔线）来改变其余两个空间的占比。
 
 示例如下：
 
 ```python
 from nicegui import ui
-  
+
+
 def index():
     with ui.card():
         splitter = ui.splitter(
             value=75
         ).classes('w-64 h-64')
         with splitter.separator:
-            ui.icon('lightbulb')
+            ui.button('home')
         with splitter.before:
             ui.card().classes(
                 'w-full h-full bg-red'
@@ -1553,30 +1619,108 @@ def index():
             ui.card().classes(
                 'w-full h-full bg-blue'
             )
-  
+
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_64.4_1](nicegui_pro.assets/2027_64.4_1.gif)
 
-
-
-
-## 65 学习控件——多页控件
-
-
-
-
-
-`ui.pagination`控件，用于切换内容的分页，该控件提供了页码显示和调整功能。
-
-示例如下：
+`ui.splitter`控件看起来只支持两个相同大小空间的拼接，实际上两个空间都像`ui.scroll_area`控件一样支持无限扩展：
 
 ```python
 from nicegui import ui
-  
+
+
+def index():
+    with ui.card():
+        splitter = ui.splitter(
+            value=75
+        ).classes('w-64 h-64')
+        with splitter.before,ui.row():
+            for i in range(99):
+                ui.button(
+                    str(i)
+                )
+        with splitter.after:
+            for i in range(99):
+                ui.button(
+                    str(i)
+                )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_64.4_2](nicegui_pro.assets/2027_64.4_2.png)
+
+`ui.splitter`控件支持以下关键字参数：
+
+- `horizontal`参数，布尔类型，表示分隔线的方向是否为水平，默认为`False`。
+- `reverse`参数，布尔类型，表示是否反转分隔线两边空间的位置，默认为`False`。
+- `limits`参数，元素为浮点数的双元素元组，表示允许分隔线拖动的范围，默认为`(0,100)`。
+- `value`参数，浮点类型，表示分隔线当前的位置，默认为`50`。
+- `on_change`参数，可调用类型，表示分隔线位置变化时执行的操作。
+
+`ui.splitter`控件继承了`ValueElement`类，因此，该控件的`value`属性可用于属性绑定。若是不希望分隔线内有其他内容影响显示，但又希望拖动分隔线的操作容易一些，可以绑定`value`属性到`ui.slider`控件：
+
+```python
+from nicegui import ui
+
+
+def index():
+    with ui.card():
+        splitter = ui.splitter(
+            value=75,
+        ).classes('w-64 h-64')
+        with splitter.before:
+            ui.card().classes(
+                'w-full h-full bg-red'
+            )
+        with splitter.after:
+            ui.card().classes(
+                'w-full h-full bg-blue'
+            )
+        ui.slider(min=0,max=100).bind_value(splitter).classes('w-64')
+    
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_64.4_3](nicegui_pro.assets/2027_64.4_3.png)
+
+## 65 学习控件——多页控件（更新中）
+
+需要展示的内容、控件较多，使用弹性空间控件是一种不错的解决方案。但是，多到一定程度，使用弹性空间控件来编排就有些“心有余而力不足”：滚动太多内容的话，难以精准定位；没法规整地展示每一部分。这个时候，可以实现分页效果的多页控件就能完美解决痛点。
+
+### 65.1 只负责页码的`ui.pagination`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/pagination
+- https://quasar.dev/vue-components/pagination
+
+说到分页，大家自然而然地会想到那种一页一页的排版，以及底部显示的页码。
+
+`ui.pagination`控件就用于生成这样的页码，并提供了可用于切换内容的响应函数，但不提供具体内容的显示。因此，该控件的示例如下：
+
+```python
+from nicegui import ui
+
+
 def index():
     label = ui.label('当前页为第1页')
     ui.pagination(
@@ -1588,18 +1732,173 @@ def index():
             f'当前页为第{e.value}页'
         )
     )
-  
+    
+
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_65.1_1](nicegui_pro.assets/2027_65.1_1.png)
+
+`ui.pagination`控件支持以下参数：
+
+- `min`参数，整数类型，表示页码的最小值。
+
+- `max`参数，整数类型，表示页码的最大值。
+
+- `direction_links`参数，布尔类型，表示是否显示上、下一页按钮，默认为`False`。
+
+  从该参数开始，只能通过关键字传入。
+
+- `value`参数，整数类型，表示当前页码。
+
+- `on_change`参数，可调用类型，表示当前页码变化时执行的操作。
+
+该控件同样支持`on_change`方法、`value`属性及相关绑定方法，这里就不再赘述。
+
+此外，`min`属性、`max`属性、`direction_links`属性与同名参数含义相同，都可以读写，在实际使用时如有需求，可以灵活使用这些属性。
+
+控件属性提供了额外的功能、样式，可以进一步定制控件的显示。
+
+`ui.pagination`控件支持以下控件属性（常用的部分）：
+
+- `input`属性，布尔类型，将页码选择方式改为直接输入。
+- `icon-first`属性，字符串类型，跳转至第一页按钮的图标。
+- `icon-last`属性，字符串类型，跳转至最后一页按钮的图标。
+- `icon-prev`属性，字符串类型，跳转至上一页按钮的图标。
+- `icon-next`属性，字符串类型，跳转至下一页按钮的图标。
+- `boundary-links`属性，布尔类型，表示是否显示第一页、最后一页按钮。
+- `boundary-numbers`属性，布尔类型，表示是否始终显示第一页、最后一页对应的页码。
+- `ellipses`属性，布尔类型，是否在页面数量多于`max-pages`属性的值时将其他页面的页码显示为省略号，默认启用。
+- `max-pages`属性，整数类型，表示最多显示多少页的页码。
+- `flat`属性，布尔类型，给除了当前页面外的其他按钮启用纯平风格。
+- `outline`属性，布尔类型，给除了当前页面外的其他按钮添加外轮廓。
+- `unelevated`属性，布尔类型，给除了当前页面外的其他按钮移除阴影。
+- `push`属性，布尔类型，给除了当前页面外的其他按钮启用立体效果。
+- `size`属性，字符串类型，表示按钮大小。
+- `color`属性，字符串类型，表示除了当前页面外的其他按钮的颜色。
+- `text-color`属性，字符串类型，表示文本的颜色。
+- `active-design`属性，字符串类型（支持`['flat','outline','push','unelevated']`中的值），表示当前页面按钮的风格。
+- `active-color`属性，字符串类型，表示当前页面按钮的颜色。
+- `active-text-color`属性，字符串类型，表示当前页面按钮的文本颜色。
+- `round`属性，布尔类型，将所有按钮的形状改为圆形。
+- `rounded`属性，布尔类型，给所有按钮添加圆角。注意，默认圆角半径为`12 px`，当按钮较小时，看起来和圆形一样。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+
+def index():
+    label = ui.label('当前页为第1页')
+    ui.pagination(
+        1,
+        5,
+        direction_links=True,
+        value=1,
+        on_change=lambda e:label.set_text(
+            f'当前页为第{e.value}页'
+        )
+    ).props(
+        '''
+        input
+        icon-first="home"
+        icon-last="flag"
+        icon-prev="arrow_left"
+        icon-next="arrow_right"
+        '''
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_65.1_2](nicegui_pro.assets/2027_65.1_2.png)
+
+```python
+from nicegui import ui
+
+
+def index():
+    label = ui.label('当前页为第1页')
+    ui.pagination(
+        1,
+        15,
+        direction_links=True,
+        value=1,
+        on_change=lambda e:label.set_text(
+            f'当前页为第{e.value}页'
+        )
+    ).props(
+        '''
+        boundary-links
+        boundary-numbers
+        max-pages=7
+        '''
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_65.1_3](nicegui_pro.assets/2027_65.1_3.png)
+
+```python
+from nicegui import ui
+
+
+def index():
+    label = ui.label('当前页为第1页')
+    ui.pagination(
+        1,
+        5,
+        direction_links=True,
+        value=1,
+        on_change=lambda e:label.set_text(
+            f'当前页为第{e.value}页'
+        )
+    ).props(
+        '''
+        active-color=red
+        color=green
+        push
+        '''
+    )
+    
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_65.1_4](nicegui_pro.assets/2027_65.1_4.png)
+
+### 65.2 选项卡也是一种分页（更新中）
+
+相关文档：
+
+- https://nicegui.io/documentation/tabs
+- https://quasar.dev/vue-components/tabs
+- https://quasar.dev/vue-components/tab-panels
 
 
 
-
-
+（需要绘制个草图示意各个控件的关系）
 
 `ui.tabs`控件、`ui.tab`控件、`ui.tab_panels`控件、`ui.tab_panel`控件，共同组成完整的选项卡控件。其中，`ui.tabs`控件为选项卡的页标签容器，用于容纳表示页标签的`ui.tab`控件。`ui.tab_panels`控件是标签页的容器，用于容纳表示标签页的`ui.tab_panel`控件。标签页用于容纳需要分页的内容，点击页标签，标签页容器也会切换到对应的标签页。
 
@@ -1761,131 +2060,50 @@ ui.run(
 
 
 
-## 67 学习控件——弹出提示信息
+## 67 学习控件——弹出控件
+
+弹出控件，也可以叫做临时显示控件。当用户与其交互或者执行特定操作时，控件会在独立位置显示，不会影响原有控件的布局；当其失去焦点或者达成某个条件时，控件会消失，就好像从来没出现过一样。
+
+### 67.1 鼠标悬停就会弹出工具提示的`ui.tooltip`控件（更新中）
 
 
 
-NiceGUI还提供了一类弹出提示信息的控件，用于提醒用户：
+NiceGUI还提供了一类可以弹出显示的控件，用于提醒用户：
 
-- `ui.tooltip`控件，添加到任意控件的上下文，可以给其添加一个鼠标悬停后弹出的工具提示。比如：
+`ui.tooltip`控件，添加到任意控件的上下文，可以给其添加一个鼠标悬停后弹出的工具提示。比如：
 
-  ```python
-  from nicegui import ui
-    
-  def index():
-      with ui.button('tooltip'):
-          ui.tooltip('Hello')
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+```python
+from nicegui import ui
   
-
-  另外，大部分控件支持`tooltip`方法，可以实现同样的效果：
-
-  ```python
-  from nicegui import ui
-    
-  def index():
-      ui.button(
-          'tooltip'
-      ).tooltip(
-          'Hello'
-      )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
-- `ui.notify`控件，创建之后立马弹出一条文字消息。
-
-  示例如下：
-
-  ```python
-  from nicegui import ui
-    
-  def index():
-      ui.button(
-          'notify',
-          on_click=lambda:ui.notify(
-              'Hello'
-          )
-      )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+def index():
+    with ui.button('tooltip'):
+        ui.tooltip('Hello')
   
+ui.run(
+    root=index,
+    native=True
+)
+```
 
-- `ui.notification`控件，用法和效果与`ui.notify`控件基本相同，但该控件允许更新消息的内容，也支持主动通过`dismiss`方法隐藏消息，一般用于提供实时更新的弹出消息。
 
-  示例如下：
 
-  ```python
-  from nicegui import ui
-  import asyncio
-    
-  def index():
-      async def notify():
-          n = ui.notification(
-              'Hello',
-              timeout=None
-          )
-          await asyncio.sleep(2)
-          n.message = 'World'
-          await asyncio.sleep(1)
-          n.dismiss()
-      ui.button(
-          'notification',
-          on_click=notify
-      )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
+另外，大部分控件支持`tooltip`方法，可以实现同样的效果：
 
+```python
+from nicegui import ui
   
-
-- `ui.dialog`控件，用于弹出一个基于控件设计界面、非系统原生的对话框。
-
-  示例如下：
-
-  ```python
-  from nicegui import ui
-    
-  def index():
-      with ui.dialog() as dialog,ui.card():
-          ui.label('dialog')
-          ui.button(
-              'close',
-              on_click=dialog.close
-          )
-      ui.button(
-          'dialog',
-          on_click=dialog.open
-      )
-    
-  ui.run(
-      root=index,
-      native=True
-  )
-  ```
-
+def index():
+    ui.button(
+        'tooltip'
+    ).tooltip(
+        'Hello'
+    )
   
-
-
-
-
+ui.run(
+    root=index,
+    native=True
+)
+```
 
 
 
@@ -1924,7 +2142,7 @@ ui.run(
 )
 ```
 
-![ui_tooltip_2](nicegui_pro.assets/ui_tooltip_2.png)
+
 
 前面说过`tooltip`方法返回的是控件本身，而不是`tooltip`。但是，这并不是说就没有办法设置`tooltip`方法生成的`tooltip`。如果想要获取到控件`tooltip`方法设置的`tooltip`，可以遍历控件来获取控件内部的其他控件，再判断控件是不是需要的类型：
 
@@ -1967,6 +2185,114 @@ ui.run(
 
 
 
+
+
+
+`ui.notify`控件，创建之后立马弹出一条文字消息。
+
+示例如下：
+
+```python
+from nicegui import ui
+  
+def index():
+    ui.button(
+        'notify',
+        on_click=lambda:ui.notify(
+            'Hello'
+        )
+    )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+`ui.notification`控件，用法和效果与`ui.notify`控件基本相同，但该控件允许更新消息的内容，也支持主动通过`dismiss`方法隐藏消息，一般用于提供实时更新的弹出消息。
+
+示例如下：
+
+```python
+from nicegui import ui
+import asyncio
+  
+def index():
+    async def notify():
+        n = ui.notification(
+            'Hello',
+            timeout=None
+        )
+        await asyncio.sleep(2)
+        n.message = 'World'
+        await asyncio.sleep(1)
+        n.dismiss()
+    ui.button(
+        'notification',
+        on_click=notify
+    )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+`ui.dialog`控件，用于弹出一个基于控件设计界面、非系统原生的对话框。
+
+示例如下：
+
+```python
+from nicegui import ui
+  
+def index():
+    with ui.dialog() as dialog,ui.card():
+        ui.label('dialog')
+        ui.button(
+            'close',
+            on_click=dialog.close
+        )
+    ui.button(
+        'dialog',
+        on_click=dialog.open
+    )
+  
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+`ui.popup`控件，可以弹出任意控件，相当于一个起始位置取决于所属上下文的弹窗（`ui.dialog`控件）。
+
+https://nicegui.io/documentation/popup
+
+https://quasar.dev/vue-components/popup-proxy
+
+
+
+```python
+```
 
 
 
@@ -2172,7 +2498,7 @@ window.location.reload(true)
 
 
 
-Skip link：
+Skip link（使用`tab`键解锁的隐藏锚点）：
 
 https://nicegui.io/documentation/skip_link#skip_link
 

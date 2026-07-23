@@ -16870,6 +16870,46 @@ Quasar框架文档：https://quasar.dev/layout/page-scroller
 
   ![2026_49_8](nicegui_pro.assets/2026_49_8.png)
 
+## 版本速览——3.15.0版本新增`ui.popup`控件
+
+NiceGUI 3.15.0 新增`ui.popup`控件，用于弹出任意内容，用法和效果上几乎与`ui.dialog`控件一样。但`ui.popup`控件有以下特点：
+
+- `ui.popup`控件需要放在特定控件的上下文，点击该控件才会弹出。
+- 屏幕大小决定了弹出内容的样式。默认情况下，屏幕宽度大于450px时，该控件弹出的内容不是弹窗，而是以上下文所属控件为起点的菜单。
+
+以下是二者对比的使用示例，读者可以改变窗口宽度，分别点击两个按钮，看弹出内容的样式有何区别：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.dialog() as dialog,ui.card():
+        ui.label('dialog')
+        ui.button(
+            'close',
+            on_click=dialog.close
+        )
+    ui.button(
+        'dialog',
+        on_click=dialog.open
+    )
+    with ui.button('popup'):
+        with ui.popup() as popup,ui.card():
+            ui.label('popup')
+            ui.button(
+                'close',
+                on_click=popup.close
+            )
+            
+
+ui.run(
+    root=index,
+    native=True
+)
+```
+
+![2026_3.15.0_1](nicegui_pro.assets/2026_3.15.0_1.png)
+
 ## 50 学习控件——显示矢量图（SVG或者其他格式）
 
 所谓矢量图，即不是记录所有像素、而是记录图形绘制方法的图片，其内容不会因为缩放而变得模糊。

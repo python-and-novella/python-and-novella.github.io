@@ -374,87 +374,101 @@ app.exec()
 
 当然，真要是较真的话，一个Qt程序不创建任何控件（真正意义上的没有主窗口）也可以运行，但是因为没有主窗口，所以不显示主窗口，没法正常点击结束，只能通过任务管理器（Windows系统，Linux系统通过命令）强制结束，这种状态的Qt程序是不能正常使用的。
 
-除了主窗口控件与其他控件有所区别，三种主窗口控件之间也有区别：
+除了主窗口控件与其他控件有所区别，三种主窗口控件之间也有区别。
 
-- `QWidget`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html#PySide6.QtWidgets.QWidget ），`QWidget`类是所有控件的基类，可以说其他控件都是基于`QWidget`控件实现的。因此，该控件主要用于创建简单的窗口或者通用控件。如果需要给窗口增加工具栏、菜单栏、状态栏，则需要手动添加（默认`QWidget`控件不包括）。此外，想要让窗口变为模态窗口（只允许当前窗口获得焦点，符合要求的其他窗口不能获得焦点，除非关闭当前窗口）的话，只能使用`setWindowModality`方法（仅支持应用级模态`Qt.WindowModality.ApplicationModal`）手动设置窗口的模态：
+#### 5.1.1 `QWidget`控件
 
-  ```python
-  from PySide6.QtWidgets import (
-      QApplication,
-      QWidget,
-  )
-  from PySide6.QtCore import Qt
-  
-  app = QApplication()
-  
-  # 窗口1正常显示
-  window = QWidget()
-  window.setWindowTitle('窗口1')
-  window.resize(400,300)
-  window.show()
-  # 窗口2模态显示
-  window2 = QWidget()
-  window2.resize(300,200)
-  window2.setWindowTitle('窗口2')
-  window2.setWindowModality(Qt.WindowModality.ApplicationModal)
-  window2.show()
-  
-  app.exec()
-  ```
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html#PySide6.QtWidgets.QWidget
 
-- `QDialog`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDialog.html#PySide6.QtWidgets.QDialog ），该控件的基类是`QWidget`类，生成的窗口只有关闭按钮，没有最大化、最小化按钮，一般用于创建简单的对话框，很多对话框控件也是通过继承`QDialog`类实现的。当然，对话框一般不需要工具栏、菜单栏、状态栏，自然也不包括。不同于`QWidget`控件只能手动设置窗口的模态，该控件还支持通过`exec`方法显示窗口（同时进入无限循环，阻止后续代码的运行），此时的窗口为模态窗口（其模态为窗口级模态`Qt.WindowModality.WindowModal`）：
+`QWidget`类是所有控件的基类，可以说其他控件都是基于`QWidget`控件实现的。因此，该控件主要用于创建简单的窗口或者通用控件。如果需要给窗口增加工具栏、菜单栏、状态栏，则需要手动添加（默认`QWidget`控件不包括）。此外，想要让窗口变为模态窗口（只允许当前窗口获得焦点，符合要求的其他窗口不能获得焦点，除非关闭当前窗口）的话，只能使用`setWindowModality`方法（仅支持应用级模态`Qt.WindowModality.ApplicationModal`）手动设置窗口的模态：
 
-  ```python
-  from PySide6.QtWidgets import (
-      QApplication,
-      QDialog,
-  )
-  
-  app = QApplication()
-  
-  # 窗口1正常显示
-  window = QDialog()
-  window.setWindowTitle('窗口1')
-  window.resize(400,300)
-  window.show()
-  
-  # 窗口2模态显示
-  window2=QDialog(window)
-  window2.setWindowTitle('窗口2')
-  window2.resize(300,200)
-  window2.exec()
-  
-  # 不关闭窗口2的话，窗口3不显示
-  window3=QDialog(window)
-  window3.setWindowTitle('窗口3')
-  window3.resize(300,200)
-  window3.show()
-  
-  app.exec()
-  ```
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+)
+from PySide6.QtCore import Qt
 
-  如上面的代码所示，`QDialog`控件与`QWidget`控件不同，可以在创建时设置父控件，组成父子关系，让父子窗口同时显示（`QWidget`控件不支持这样操作）。关于应用级模态与窗口级模态的区别，以及不同父子关系对模态影响，可以参考本节的扩展内容，这里受限于篇幅不做展开。
+app = QApplication()
 
-- `QMainWindow`控件（完整用法可参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow ），该控件的基类是`QWidget`类，生成的窗口功能丰富，包含工具栏、菜单栏、状态栏（需要手动添加内容），一般用作程序的主窗口（适用于不想额外创建工具栏、菜单栏、状态栏的情况）。虽然该控件也支持`setWindowModality`方法，但不建议设置为模态窗口。以下为在状态栏中添加控件的示例：
+# 窗口1正常显示
+window = QWidget()
+window.setWindowTitle('窗口1')
+window.resize(400,300)
+window.show()
+# 窗口2模态显示
+window2 = QWidget()
+window2.resize(300,200)
+window2.setWindowTitle('窗口2')
+window2.setWindowModality(Qt.WindowModality.ApplicationModal)
+window2.show()
 
-  ```python
-  from PySide6.QtWidgets import (
-      QApplication,
-      QMainWindow,
-      QPushButton
-  )
-  
-  app = QApplication()
-  
-  window = QMainWindow()
-  window.resize(400,300)
-  window.setWindowTitle('MainWindow')
-  window.statusBar().addWidget(QPushButton('Hello'))
-  window.show()
-  app.exec()
-  ```
+app.exec()
+```
 
-  ![2025_5_1](qt_for_python_pro.assets/2025_5_1.png)
+#### 5.1.2 `QDialog`控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDialog.html#PySide6.QtWidgets.QDialog
+
+该控件的基类是`QWidget`类，生成的窗口只有关闭按钮，没有最大化、最小化按钮，一般用于创建简单的对话框，很多对话框控件也是通过继承`QDialog`类实现的。当然，对话框一般不需要工具栏、菜单栏、状态栏，自然也不包括。不同于`QWidget`控件只能手动设置窗口的模态，该控件还支持通过`exec`方法显示窗口（同时进入无限循环，阻止后续代码的运行），此时的窗口为模态窗口（其模态为窗口级模态`Qt.WindowModality.WindowModal`）：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog,
+)
+
+app = QApplication()
+
+# 窗口1正常显示
+window = QDialog()
+window.setWindowTitle('窗口1')
+window.resize(400,300)
+window.show()
+
+# 窗口2模态显示
+window2=QDialog(window)
+window2.setWindowTitle('窗口2')
+window2.resize(300,200)
+window2.exec()
+
+# 不关闭窗口2的话，窗口3不显示
+window3=QDialog(window)
+window3.setWindowTitle('窗口3')
+window3.resize(300,200)
+window3.show()
+
+app.exec()
+```
+
+如上面的代码所示，`QDialog`控件与`QWidget`控件不同，可以在创建时设置父控件，组成父子关系，让父子窗口同时显示（`QWidget`控件不支持这样操作）。关于应用级模态与窗口级模态的区别，以及不同父子关系对模态影响，可以参考本节的扩展内容，这里受限于篇幅不做展开。
+
+#### 5.1.3 `QMainWindow`控件
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QMainWindow.html#PySide6.QtWidgets.QMainWindow
+
+该控件的基类是`QWidget`类，生成的窗口功能丰富，包含工具栏、菜单栏、状态栏（需要手动添加内容），一般用作程序的主窗口（适用于不想额外创建工具栏、菜单栏、状态栏的情况）。虽然该控件也支持`setWindowModality`方法，但不建议设置为模态窗口。以下为在状态栏中添加控件的示例：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QPushButton
+)
+
+app = QApplication()
+
+window = QMainWindow()
+window.resize(400,300)
+window.setWindowTitle('MainWindow')
+window.statusBar().addWidget(QPushButton('Hello'))
+window.show()
+app.exec()
+```
+
+![2025_5_1](qt_for_python_pro.assets/2025_5_1.png)
+
+#### 5.1.4 总结
 
 三种主窗口控件的直观对比可以参考下面的表格：
 
@@ -631,11 +645,11 @@ app.exec()
 
 ![2025_5_3](qt_for_python_pro.assets/2025_5_3.png)
 
-当窗口2的模态为应用级模态时，除了窗口4是窗口2的子窗口，不受任何模态的影响，窗口1、窗口3、窗口5都与窗口2同属于一个程序类实例（应用程序），所以，在关闭（或者隐藏）窗口2之前，不能获得焦点。
+当窗口2的模态为应用级模态时，除了窗口4是窗口2的子窗口，不受任何模态的影响，窗口1、窗口3、窗口5都与窗口2同属于一个程序类实例（应用程序）。所以，在关闭（或者隐藏）窗口2之前，窗口1、窗口3、窗口5都不能获得焦点。
 
 ![2025_5_4](qt_for_python_pro.assets/2025_5_4.png)
 
-当窗口2的模态为窗口级模态时，除了窗口4是窗口2的子窗口，不受任何模态的影响之外，窗口5与窗口2没有相同的父窗口（无限向上追溯，与窗口本身或者父窗口存在父子关系就算），也不受影响。窗口1、窗口3都与窗口2有相同的父窗口（无限向上追溯，与窗口本身或者父窗口存在父子关系就算），所以，在关闭（或者隐藏）窗口2之前，不能获得焦点。
+当窗口2的模态为窗口级模态时，除了窗口4是窗口2的子窗口，不受任何模态的影响之外，窗口5与窗口2没有相同的父窗口（无限向上追溯，与窗口本身或者父窗口存在父子关系就算），也不受影响。窗口1、窗口3都与窗口2有相同的父窗口（无限向上追溯，与窗口本身或者父窗口存在父子关系就算）。所以，在关闭（或者隐藏）窗口2之前，窗口1、窗口3都不能获得焦点。
 
 ![2025_5_5](qt_for_python_pro.assets/2025_5_5.png)
 

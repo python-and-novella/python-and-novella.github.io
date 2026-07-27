@@ -801,7 +801,7 @@ app.exec()
 
 信号屏蔽器的用法很简单，支持的其他方法可以参考官网文档（ https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSignalBlocker.html#PySide6.QtCore.QSignalBlocker ），考虑到相关示例会比较复杂，这里不做展开，等后续用到时再单独讲解。
 
-## 53 查漏补缺——PySide6的事件
+## 53 查漏补缺——PySide6的事件（《易森》2710期）
 
 ### 53.1 重写是最简单的用法
 
@@ -1632,9 +1632,9 @@ app.exec()
 
 ```
 
+## 54 `QbyteArray`类（待定）（更新中）
 
-
-
+学习`QbyteArray`类（来自`PySide6.QtCore`模块）的用法。
 
 
 

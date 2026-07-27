@@ -1487,7 +1487,7 @@ ui.run(
 
 示例如下：
 
-```python3
+```python
 from nicegui import ui
 
 
@@ -1702,9 +1702,9 @@ ui.run(
 
 ![2027_64.4_3](nicegui_pro.assets/2027_64.4_3.png)
 
-## 65 学习控件——多页控件（更新中）
+## 65 学习控件——分页控件
 
-需要展示的内容、控件较多，使用弹性空间控件是一种不错的解决方案。但是，多到一定程度，使用弹性空间控件来编排就有些“心有余而力不足”：滚动太多内容的话，难以精准定位；没法规整地展示每一部分。这个时候，可以实现分页效果的多页控件就能完美解决痛点。
+需要展示的内容、控件较多，使用弹性空间控件是一种不错的解决方案。但是，多到一定程度，使用弹性空间控件来编排就有些“心有余而力不足”：滚动太多内容的话，难以精准定位；没法规整地展示每一部分。这个时候，可以实现分页效果的分页控件就能完美解决痛点。
 
 ### 65.1 只负责页码的`ui.pagination`控件
 
@@ -1888,7 +1888,7 @@ ui.run(
 
 ![2027_65.1_4](nicegui_pro.assets/2027_65.1_4.png)
 
-### 65.2 选项卡也是一种分页（更新中）
+### 65.2 选项卡也是一种分页
 
 相关文档：
 
@@ -1896,17 +1896,21 @@ ui.run(
 - https://quasar.dev/vue-components/tabs
 - https://quasar.dev/vue-components/tab-panels
 
+在日常使用各种程序时，选项卡的使用场景几乎难以避免：
 
+- 浏览器访问多个页面，点击链接会在新的选项卡中打开。
+- 调整设置时，如果设置选项需要分页，经常使用选项卡而不是常规的分页，
 
-（需要绘制个草图示意各个控件的关系）
+由此可见，在分页数量有限、每一页的内容规模相当、页内的内容主题明确时，选项卡就成了代替常规分页的最佳选择。可以说，选项卡也是一种分页。
 
-`ui.tabs`控件、`ui.tab`控件、`ui.tab_panels`控件、`ui.tab_panel`控件，共同组成完整的选项卡控件。其中，`ui.tabs`控件为选项卡的页标签容器，用于容纳表示页标签的`ui.tab`控件。`ui.tab_panels`控件是标签页的容器，用于容纳表示标签页的`ui.tab_panel`控件。标签页用于容纳需要分页的内容，点击页标签，标签页容器也会切换到对应的标签页。
+那么，NiceGUI的分页是什么样子？该如何使用？
 
-示例如下：
+先看示例：
 
 ```python
 from nicegui import ui
-  
+
+
 def index():
     with ui.tabs().props(
         'no-caps'
@@ -1929,38 +1933,216 @@ def index():
             ui.label('标签页a')
         with ui.tab_panel('b'):
             ui.label('标签页b')
-  
+
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_65.2_1](nicegui_pro.assets/2027_65.2_1.png)
+
+看起来选项卡很简洁，但示例代码中使用的控件数量却足足有四种。不要被代码的复杂吓到，且听笔者一一拆解。
+
+`ui.tabs`控件、`ui.tab`控件、`ui.tab_panels`控件、`ui.tab_panel`控件，共同组成完整的选项卡控件。其中，`ui.tabs`控件为选项卡标签的容器，用于容纳表示选项卡标签的`ui.tab`控件。`ui.tab_panels`控件是选项卡面板的容器，用于容纳表示选项卡面板的`ui.tab_panel`控件。选项卡面板用于容纳需要分页的内容，选项卡标签与选项卡面板通过`name`控件属性自动建立关联，点击选项卡标签，选项卡面板的容器也会切换到对应的选项卡面板。
+
+文字太多不想看之图片版：
+
+![2027_65.2_2](nicegui_pro.assets/2027_65.2_2.png)
+
+尽管实现一个简单、完整的选项卡，`ui.tabs`控件、`ui.tab`控件、`ui.tab_panels`控件、`ui.tab_panel`控件都必不可少，但每个控件的参数却并不复杂。
+
+`ui.tab`控件支持以下参数：
+
+- `name`参数，字符串类型，表示选项卡标签的名字，用于识别选项卡标签。
+- `label`参数，字符串类型，表示选项卡标签显示的文字，如果该参数没有设置，将使用`name`参数的值。
+- `icon`参数，字符串类型，表示选项卡标签的图标。
+
+`ui.tab_panel`控件支持以下参数：
+
+- `name`参数，字符串类型或者`ui.tab`控件，表示选项卡面板关联的选项卡标签。
+
+`ui.tabs`控件支持以下关键字参数：
+
+- `value`参数，`ui.tab`控件或者`ui.tab_panel`控件，表示当前激活的选项卡。
+- `on_change`参数，可调用类型，表示选项卡切换时执行的操作。
+
+`ui.tab_panels`控件支持以下参数：
+
+- `tabs`参数，`ui.tabs`控件，表示容器内的选项卡面板与那个容器内的选项卡标签关联。
+
+- `value`参数，字符串或者`ui.tab`控件或者`ui.tab_panel`控件，表示当前激活的选项卡。
+
+  从该参数开始，只能通过关键字传入。
+
+- `on_change`参数，可调用类型，表示选项卡切换时执行的操作。
+
+- `animated`参数，布尔类型，默认为`True`，表示切换选项卡时是否播放过渡动画。
+
+- `keep_alive`参数，布尔类型，默认为`True`，表示是否使用保活组件。保活组件即VUE中的`keep-alive`组件，选项卡面板中的内容在选项卡不可见时会自动销毁，使用保活组件可以避免销毁，但会额外占用内存、性能。
+
+给选项卡便签添加图标：
+
+```python
+from nicegui import ui
 
 
+def index():
+    with ui.tabs().props(
+        'no-caps'
+    ) as tabs:
+        ui.tab(
+            'a',
+            label='标签a',
+            icon='home'
+        )
+        ui.tab(
+            'b',
+            label='标签b',
+            icon='flag'
+        )
+    with ui.tab_panels(
+        tabs,
+        value='a'
+    ).classes(
+        'w-64 h-64 border'
+    ):
+        with ui.tab_panel('a'):
+            ui.label('标签页a')
+        with ui.tab_panel('b'):
+            ui.label('标签页b')
 
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_65.2_3](nicegui_pro.assets/2027_65.2_3.png)
+
+`ui.tabs`控件和`ui.tab_panels`控件都使用`value`参数表示前激活的选项卡。而该参数实际上通过`set_value`方法绑定到`value`属性，因此，可以直接修改控件的该属性，或调用控件的`set_value`方法（源于绑定属性），由代码完成切换选项卡的操作：
+
+```python
+from nicegui import ui
 
 
+def index():
+    with ui.tabs().props(
+        'no-caps'
+    ) as tabs:
+        ui.tab(
+            'a',
+            label='标签a',
+            icon='home'
+        )
+        ui.tab(
+            'b',
+            label='标签b',
+            icon='flag'
+        )
+    with ui.tab_panels(
+        tabs,
+        value='a'
+    ).classes(
+        'w-64 h-64 border'
+    ) as panels:
+        def set_value():
+            #tabs.value = 'b'
+            panels.value = 'b'
+        with ui.tab_panel('a'):
+            ui.label('标签页a')
+            ui.button(
+                '切换选项卡（tabs）',
+                on_click=lambda:tabs.set_value('b')
+            )
+            ui.button(
+                '切换选项卡（panels）',
+                on_click=lambda:panels.set_value('b')
+            )
+            ui.button(
+                '切换选项卡（set_value）',
+                on_click=set_value
+            )
+        with ui.tab_panel('b'):
+            ui.label('标签页b')
 
 
-## 66 学习控件——多页控件
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_65.2_4](nicegui_pro.assets/2027_65.2_4.gif)
+
+`ui.tabs`控件和`ui.tab_panels`控件的控件属性`vertical`可以将原本水平方向的选项卡改成垂直方向：
+
+```python
+from nicegui import ui
 
 
+def index():
+    with ui.tabs().props(
+        'no-caps'
+    ).props('vertical') as tabs:
+        ui.tab(
+            'a',
+            label='标签a',
+            icon='home'
+        )
+        ui.tab(
+            'b',
+            label='标签b',
+            icon='flag'
+        )
+    with ui.tab_panels(
+        tabs,
+        value='a'
+    ).classes(
+        'w-64 h-64 border'
+    ).props('vertical') as panels:
+        with ui.tab_panel('a'):
+            ui.label('标签页a')
+        with ui.tab_panel('b'):
+            ui.label('标签页b')
+    row = ui.row()
+    tabs.move(row)
+    panels.move(row)
 
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
 
+```
 
+![2027_65.2_5](nicegui_pro.assets/2027_65.2_5.gif)
 
+## 66 学习控件——分页控件（补充）
 
+之前说过，选项卡也是一种分页。若是按照这个思路理解，操作逻辑、布局结构与选项卡类似的控件也能归为分页控件。
 
-`ui.carousel`控件、`ui.carousel_slide`控件，共同组成轮播图控件，用法类似选项卡控件，只不过轮播图控件没有页标签，直接就是标签页。`ui.carousel`控件就是`ui.carousel_slide`控件的容器，`ui.carousel_slide`控件用于容纳需要分页的内容。
+### 66.1 比选项卡更接近分页的轮播图控件
+
+相关文档：
+
+- https://nicegui.io/documentation/carousel
+- https://quasar.dev/vue-components/carousel#qcarousel-api
+
+`ui.carousel`控件、`ui.carousel_slide`控件，共同组成轮播图控件，用法类似选项卡控件，只不过轮播图控件没有选项卡标签，直接就是选项卡面板。`ui.carousel`控件是`ui.carousel_slide`控件的容器，相当于`ui.tab_panels`控件；`ui.carousel_slide`控件是显示内容的幻灯片，相当于选项卡面板（`ui.tab_panel`控件）。
 
 示例如下：
 
 ```python
 from nicegui import ui
-  
+
+
 def index():
     with ui.carousel(
         arrows=True,
@@ -1975,226 +2157,531 @@ def index():
             'border bg-blue'
         ):
             ui.label('内容b')
-  
+
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_66.1_1](nicegui_pro.assets/2027_66.1_1.png)
+
+`ui.carousel_slide`控件支持以下参数：
+
+- `name`参数，字符串类型，用于识别当前幻灯片，因此不能重名。
+
+`ui.carousel`控件支持以下关键字参数：
+
+- `value`参数，字符串或者`ui.carousel_slide`控件，表示当前显示的幻灯片。
+- `on_value_change`参数，可调用类型，表示幻灯片切换时执行的操作。
+- `animated`参数，布尔类型，默认为`False`，表示切换幻灯片时是否播放过渡动画。
+- `arrows`参数，布尔类型，默认为`False`，表示是否显示切换幻灯片的上一张、下一张按钮。
+- `navigation`参数，布尔类型，默认为`False`，表示是否显示跳转至指定幻灯片的导航按钮。
+
+`ui.carousel`控件支持以下方法：
+
+- `next`方法，切换为下一张幻灯片。
+- `previous`方法，切换为上一张幻灯片。
+
+从参数上看，使用默认参数时，轮播图控件确实像没有选项卡标签的选项卡，需要通过额外的控件来切换显示：
+
+```python
+from nicegui import ui
 
 
-`ui.stepper`控件、`ui.step`控件、`ui.stepper_navigation`控件，共同组成步骤控件。其中，`ui.stepper`控件是所有步骤的容器；`ui.step`控件为具体的步骤，必须设置不重复的`name`参数；`ui.stepper_navigation`控件用于放置控制当前步骤的按钮。
+def index():
+    with ui.carousel().classes('w-64 h-64 border') as carousel:
+        with ui.carousel_slide('a').classes(
+            'border bg-red'
+        ):
+            ui.label('内容a')
+        with ui.carousel_slide('b').classes(
+            'border bg-blue'
+        ):
+            ui.label('内容b')
+    with ui.row():
+        ui.button(
+            '<',
+            on_click=carousel.previous
+        )
+        ui.button(
+            '>',
+            on_click=carousel.next
+        )
+    with ui.row():
+        ui.button(
+            'a',
+            on_click=lambda:carousel.set_value('a')
+        )
+        ui.button(
+            'b',
+            on_click=lambda:carousel.set_value('b')
+        )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_66.1_2](nicegui_pro.assets/2027_66.1_2.png)
+
+而`ui.carousel`控件支持的控件属性中，也有一些与选项卡控件相同的。
+
+`ui.carousel`控件支持以下控件属性（部分）：
+
+- `fullscreen`属性，布尔类型，当控件没有设定尺寸时，使用该属性可以全屏显示控件。
+- `keep-alive`属性，布尔类型，表示是否使用保活组件。保活组件即VUE中的`keep-alive`组件，幻灯片中的内容在幻灯片不可见时会自动销毁，使用保活组件可以避免销毁，但会额外占用内存、性能。
+- `infinite`属性，布尔类型，表示轮播图是否可以循环切换，即在显示最后一张幻灯片时，可以切换下一张幻灯片，来显示第一种幻灯片，反之亦然。
+- `swipeable`属性，布尔类型，表示是否允许使用手势切换幻灯片。
+- `vertical`属性，布尔类型，表示将轮播图的方向改为垂直。
+- `autoplay`属性，布尔类型或整数类型，表示轮播图的自动播放间隔（单位毫秒，如果为布尔值，则在启用时相当于5000毫秒）。
+- `prev-icon`属性，字符串类型，表示上一张按钮的图标。
+- `next-icon`属性，字符串类型，表示下一张按钮的图标。
+- `navigation-position`属性，字符串类型，仅支持`['top','right','bottom','left']`中的值，表示导航按钮的位置。
+- `navigation-icon`属性，字符串类型，表示导航按钮的图标。
+- `navigation-active-icon`属性，字符串类型，表示当前激活的导航按钮的图标。
+- `thumbnails`属性，布尔类型，表示是否使用缩略图作为导航按钮。注意，需要禁用导航按钮，并且设置幻灯片的控件属性`img-src`为图片地址才能显示缩略图。
+- `control-color`属性，字符串类型，表示控件内各种按钮的颜色（上一张按钮、下一张按钮、导航按钮等）。
+- `control-text-color`属性，字符串类型，表示控件内各种按钮的文本颜色（上一张按钮、下一张按钮、导航按钮等）。
 
 示例如下：
 
 ```python
 from nicegui import ui
-  
+
+
 def index():
-    with ui.stepper() as stepper:
+    with ui.carousel(
+        arrows=True,
+        #navigation=True,
+        animated=True
+    ).classes('w-64 h-64 border').props(
+        'swipeable thumbnails vertical'
+    ):
+        with ui.carousel_slide().classes(
+            'border bg-red'
+        ).props('img-src="/favicon.ico"'):
+            ui.label('内容a')
+        with ui.carousel_slide().classes(
+            'border bg-blue'
+        ).props('img-src="/favicon.ico"'):
+            ui.label('内容b')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_66.1_3](nicegui_pro.assets/2027_66.1_3.png)
+
+### 66.2 可以变成轮播图的步骤控件
+
+相关文档：
+
+- https://nicegui.io/documentation/stepper
+- https://quasar.dev/vue-components/stepper#qstepper-api
+
+`ui.stepper`控件、`ui.step`控件、`ui.stepper_navigation`控件，共同组成步骤控件。其中，`ui.stepper`控件是所有步骤的容器；`ui.step`控件是具体的步骤，必须传入不重复的`name`参数；`ui.stepper_navigation`控件一般用于放置控制当前步骤的按钮，可有可无。
+
+这么一看，步骤控件很像轮播图控件，没错，如果加上两个控件属性的话，其操作方式确实很像：
+
+```python
+from nicegui import ui
+
+
+def index():
+    with ui.stepper().props(
+        'infinite header-nav'
+    ) as stepper:
         with ui.step('first'):
             ui.label('first')
-            with ui.stepper_navigation():
-                ui.button(
-                    'next',
-                    on_click=stepper.next
-                )
         with ui.step('second'):
             ui.label('second')
-            with ui.stepper_navigation():
-                ui.button(
-                    'next',
-                    on_click=stepper.next
-                )
-                ui.button(
-                    'back',
-                    on_click=stepper.previous
-                ).props('flat')
         with ui.step('third'):
             ui.label('third')
-            with ui.stepper_navigation():
-                ui.button(
-                    'done',
-                    on_click=lambda :ui.notify(
-                        'done'
-                    )
-                )
-                ui.button(
-                    'back',
-                    on_click=stepper.previous
-                ).props('flat')
-  
+    with ui.stepper_navigation():
+        ui.button(
+            '<',
+            on_click=stepper.previous
+        )
+        ui.button(
+            '>',
+            on_click=stepper.next
+        )
+
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_66.2_1](nicegui_pro.assets/2027_66.2_1.gif)
+
+不过，相比于轮播图控件，步骤控件会多出一块导航区，用于表示当前步骤的位置，之前的步骤会被标记为完成。
+
+`ui.step`控件支持以下参数：
+
+- `name`参数，字符串类型，用于识别当前步骤，因此不能重名。
+- `title`参数，字符串类型，表示显示在导航区的步骤标题，如果该参数没有设置，将使用`name`参数的值。
+- `icon`参数，字符串类型，表示步骤的图标。
+
+`ui.stepper`控件支持以下关键字参数：
+
+- `value`参数，字符串或者`ui.step`控件，表示当前激活的步骤。
+- `on_value_change`参数，可调用类型，表示步骤切换时执行的操作。
+
+- `keep_alive`参数，布尔类型，默认为`True`，表示是否使用保活组件。保活组件即VUE中的`keep-alive`组件，步骤中的内容在步骤不可见时会自动销毁，使用保活组件可以避免销毁，但会额外占用内存、性能。
 
 
+`ui.stepper_navigation`控件支持以下关键字参数：
 
+- `wrap`参数，布尔类型，默认为`True`，表示是否开启自动换行。
 
-`ui.timeline`控件、`ui.timeline_entry`控件，共同组成时间线控件，其中，`ui.timeline`控件是容器，`ui.timeline_entry`控件是具体时间点对应的内容。
+`ui.stepper`控件支持以下方法：
+
+- `next`方法，切换为下一步骤。
+- `previous`方法，切换为上一步骤。
+
+而`ui.stepper`控件支持的控件属性中，也有一些与`ui.carousel`控件相同的。
+
+`ui.stepper`控件支持以下控件属性（部分）：
+
+- `animated`属性，布尔类型，表示切换步骤时是否播放动画。
+- `infinite`属性，布尔类型，表示步骤是否可以循环切换，即在显示最后一步时，可以切换下一步，来显示第一个步骤，反之亦然。
+- `swipeable`属性，布尔类型，表示是否允许使用手势切换步骤。
+- `vertical`属性，布尔类型，表示将控件的方向改为垂直。
+- `header-nav`属性，布尔类型，表示是否可以通过点击导航区直接切换至对应步骤。
+- `contracted`属性，布尔类型，表示是否隐藏步骤标题并让控件尽可能紧凑。
+- `alternative-labels`属性，布尔类型，表示是否将步骤标题放在图标下面（仅限水平方向时生效）。
+- `inactive-icon`属性，字符串类型，表示未完成步骤的图标。
+- `inactive-color`属性，字符串类型，表示未完成步骤的颜色。
+- `done-icon`属性，字符串类型，表示已完成步骤的图标。
+- `done-color`属性，字符串类型，表示已完成步骤的颜色。
+- `active-icon`属性，字符串类型，表示当前步骤的图标。
+- `active-color`属性，字符串类型，表示当前步骤的颜色。
 
 示例如下：
 
 ```python
 from nicegui import ui
-  
+
+
+def index():
+    with ui.stepper().props(
+        'inactive-color=red active-color=blue done-color=green'
+    ) as stepper:
+        with ui.step('first'):
+            ui.label('first')
+        with ui.step('second'):
+            ui.label('second')
+        with ui.step('third'):
+            ui.label('third')
+    with ui.stepper_navigation():
+        ui.button(
+            '<',
+            on_click=stepper.previous
+        )
+        ui.button(
+            '>',
+            on_click=stepper.next
+        )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_66.2_2](nicegui_pro.assets/2027_66.2_2.png)
+
+## 67 学习控件——时间线控件
+
+相关文档：
+
+- https://nicegui.io/documentation/timeline
+- https://quasar.dev/vue-components/timeline#qtimeline-api
+
+`ui.timeline`控件、`ui.timeline_entry`控件，共同组成时间线控件，用于展示一些具备线性关系的内容，比如历史大事记。其中，`ui.timeline`控件是容器，`ui.timeline_entry`控件是具体时间点对应的内容。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+
 def index():
     with ui.timeline(side='right'):
         ui.timeline_entry('first')
         ui.timeline_entry('second')
         ui.timeline_entry('third')
-  
-ui.run(
-    root=index,
-    native=True
-)
-```
 
-
-
-
-
-
-
-## 67 学习控件——弹出控件
-
-弹出控件，也可以叫做临时显示控件。当用户与其交互或者执行特定操作时，控件会在独立位置显示，不会影响原有控件的布局；当其失去焦点或者达成某个条件时，控件会消失，就好像从来没出现过一样。
-
-### 67.1 鼠标悬停就会弹出工具提示的`ui.tooltip`控件（更新中）
-
-
-
-NiceGUI还提供了一类可以弹出显示的控件，用于提醒用户：
-
-`ui.tooltip`控件，添加到任意控件的上下文，可以给其添加一个鼠标悬停后弹出的工具提示。比如：
-
-```python
-from nicegui import ui
-  
-def index():
-    with ui.button('tooltip'):
-        ui.tooltip('Hello')
-  
-ui.run(
-    root=index,
-    native=True
-)
-```
-
-
-
-另外，大部分控件支持`tooltip`方法，可以实现同样的效果：
-
-```python
-from nicegui import ui
-  
-def index():
-    ui.button(
-        'tooltip'
-    ).tooltip(
-        'Hello'
-    )
-  
-ui.run(
-    root=index,
-    native=True
-)
-```
-
-
-
-
-
-任意控件添加工具提示也可以这样写：
-
-```python
-from nicegui import ui
-
-def index():
-    markdown = ui.markdown('markdown')
-    tooltip = ui.tooltip('tooltip')
-    tooltip.props['target'] = f'#{markdown.html_id}'
-    tooltip.set_text('tooltip for markdown')
 
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_67_1](nicegui_pro.assets/2027_67_1.png)
 
+时间线控件起来很像步骤控件，但时间线控件将所有内容一股脑地全部展现，因此没有将其和步骤控件放在一起介绍，而是单独开了一章。
 
-`tooltip`里除了显示一般的文本，还可以显示图像等其他内容。不过，不建议在`tooltip`内放置需要交互的内容，因为被添加`tooltip`的控件一旦失去焦点，`tooltip`就会消失，里面的交互内容永远无法交互：
+`ui.timeline`控件支持以下关键字参数：
 
-```python
-from nicegui import ui
+- `side`参数，字符串类型，仅支持`['left','right']`中的值，默认为`'left'`，表示内容在时间线的左侧还是右侧。
+- `layout`参数，字符串类型，字符串类型，仅支持`['dense','comfortable','loose']`中的值，默认为`'dense'`，表示布局风格。`'dense'`表示内容始终在时间线一侧；`'comfortable'`表示内容始终在时间线一侧，副标题始终在另一侧；`'loose'`表示内容在时间线一侧，副标题在另一侧，其方向取决于`ui.timeline_entry`控件的`side`参数。
+- `color`参数，字符串类型，表示时间线、时间点的颜色。
 
-with ui.label('Mountains...'):
-    with ui.tooltip().classes('bg-transparent'):
-        ui.image('https://picsum.photos/id/377/640/360').classes('w-64')
+`ui.timeline_entry`控件支持以下参数：
 
-ui.run(
-    native=True
-)
-```
+- `body`参数，字符串类型，表示时间点的具体内容。
 
+- `side`参数，字符串类型，仅支持`['left','right']`中的值，默认为`'left'`，表示内容在时间线的左侧还是右侧。
 
+  从该参数开始，只能通过关键字传入。
 
-前面说过`tooltip`方法返回的是控件本身，而不是`tooltip`。但是，这并不是说就没有办法设置`tooltip`方法生成的`tooltip`。如果想要获取到控件`tooltip`方法设置的`tooltip`，可以遍历控件来获取控件内部的其他控件，再判断控件是不是需要的类型：
+- `heading`参数，布尔类型，布尔类型，表示该时间点是否为头条。如果时间点为头条，会在时间线上形成中断，并且内容字体变大且居中显示。
 
-```python
-from nicegui import ui
+- `tag`参数，字符串类型，表示承接时间点内容所用的HTML标签。
 
-with ui.button(icon='thumb_up'):
-    ui.tooltip('I like this').classes('bg-green')
+- `icon`参数，字符串类型，表示时间点的图标。
 
-button = ui.button(icon='thumb_up')
-button.tooltip('I like this')
-for i in button:
-    if isinstance(i,ui.tooltip):
-        i.classes('bg-green')
+- `avatar`参数，字符串类型，表示时间点的头像。效果类似图标，但该参数使用图片的地址，并且优先级低于`icon`参数。
 
-ui.run(
-    native=True
-)
-```
+- `title`参数，字符串类型，表示时间点的标题。
 
-也可以使用`ElementFilter`方法，简单快捷地设置控件内部的`tooltip`：
+- `subtitle`参数，字符串类型，表示时间点的副标题。
 
-```python
-from nicegui import ui,ElementFilter
-
-with ui.button(icon='thumb_up'):
-    ui.tooltip('I like this').classes('bg-green')
-
-button = ui.button(icon='thumb_up')
-button.tooltip('I like this')
-
-with button:
-    ElementFilter(kind=ui.tooltip,local_scope=True).classes('bg-green')
-
-ui.run(
-    native=True
-)
-```
-
-
-
-
-
-
-
-`ui.notify`控件，创建之后立马弹出一条文字消息。
+- `color`参数，字符串类型，表示时间点的颜色。
 
 示例如下：
 
 ```python
 from nicegui import ui
-  
+
+
+def index():
+    with ui.timeline(layout='loose',color='red').classes('w-72'):
+        ui.timeline_entry('Python 1.0 发布',title='一切的开始',subtitle='1991年')
+        ui.timeline_entry(
+            'Python 2.0 发布',
+            title='生态成熟',
+            subtitle='2000年',
+            side='right'
+        ),
+        ui.timeline_entry(
+            '大版本升级',
+            heading=True,
+            tag='div'
+        )
+        with ui.timeline_entry(
+            'Python 3.0 发布',
+            title='精益求精',
+            subtitle='2008年',
+            icon='home',
+            avatar='favicon.ico',
+            color='green'
+        ):
+            ui.link('了解更多','https://python.org')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_67_2](nicegui_pro.assets/2027_67_2.png)
+
+## 68 学习控件——弹出控件
+
+弹出控件，也可以叫做临时显示控件。当用户与其交互或者执行特定操作时，控件会在独立位置显示，不会影响原有控件的布局；当其失去焦点或者达成某个条件时，控件会消失，就好像从来没出现过一样。
+
+### 68.1 鼠标悬停就会弹出工具提示的`ui.tooltip`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/tooltip
+- https://quasar.dev/vue-components/tooltip
+
+鼠标悬停，内容弹出，这就是工具提示的交互逻辑。
+
+在NiceGUI中，创建工具提示有以下方法：
+
+- 在控件的上下文中添加`ui.tooltip`控件。
+- 单独创建`ui.tooltip`控件，然后修改其控件属性`target`为需要添加工具提示的控件的ID选择器（`'#{目标控件的html_id属性}'`）。
+- 调用控件的`tooltip`方法。
+
+这几种方法各有利弊，有的方法存在限制，并非完全平替。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+
+def index():
+    with ui.button('button'):
+        ui.tooltip('tooltip')
+    tooltip = ui.tooltip('tooltip')
+    button = ui.button('button')
+    tooltip.props['target'] = f'#{button.html_id}'
+    ui.button('button').tooltip('tooltip')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_68.1_1](nicegui_pro.assets/2027_68.1_1.gif)
+
+`ui.tooltip`控件支持以下参数：
+
+- `text`参数，字符串类型，表示工具提示的内容。
+
+有`text`参数，同时也有对应的绑定属性，因此可以使用绑定属性的方式修改工具提示的内容：
+
+```python
+from nicegui import ui
+
+
+def index():
+    tooltip = ui.tooltip()
+    button = ui.button('button')
+    tooltip.props['target'] = f'#{button.html_id}'
+    ui.input().bind_value(tooltip,'text')
+    tooltip.set_text('tooltip')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_68.1_2](nicegui_pro.assets/2027_68.1_2.gif)
+
+虽然上面的示例中工具提示都是文本内容，但不代表只能使用文本作为工具提示，在`ui.tooltip`控件的上下文中添加其他控件，还可以显示图像等其他内容。不过，不建议在工具提示内放置需要交互的内容，因为被添加工具提示的控件一旦失去焦点，工具提示就会消失，里面的交互内容永远无法交互：
+
+```python
+from nicegui import ui
+
+
+def index():
+    with ui.button('button'):
+        with ui.tooltip():
+            ui.icon(
+                'img:/favicon.ico',
+                size='5em'
+            )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_68.1_3](nicegui_pro.assets/2027_68.1_3.png)
+
+需要注意的是，控件的`tooltip`方法返回的是控件本身，而不是`ui.tooltip`控件。因此，一般情况下，没法实现上面的修改内容的操作。
+
+但是，这并不是说就没有办法设置`tooltip`方法生成的`ui.tooltip`控件。可以使用`ElementFilter`方法获取所有`ui.tooltip`控件，再通过判断控件属性`target`找到目标`ui.tooltip`控件：
+
+```python
+from nicegui import ui, ElementFilter
+
+
+def index():
+    button = ui.button('button').tooltip('tooltip')
+    for i in ElementFilter(kind=ui.tooltip):
+        if i.props['target'] == f'#{button.html_id}':
+            tooltip = i
+    ui.input().bind_value(tooltip,'text')
+    tooltip.set_text('tooltip')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_68.1_2](nicegui_pro.assets/2027_68.1_2.gif)
+
+除了控件属性`target`，`ui.tooltip`控件还支持以下控件属性（部分）：
+
+- `delay`属性，整数类型，工具提示显示的延迟（单位毫秒）。
+- `hide-delay`属性，整数类型，工具提示消失的延迟（单位毫秒）。
+- `anchor`属性，字符串类型，仅支持`['top left','top middle','top right','top start','top end','center left','center middle','center right','center start','center end','bottom left','bottom middle','bottom right','bottom start','bottom end']`中的值，默认为`'bottom middle'`，表示工具提示的锚点在目标控件的什么位置（方向）。
+- `self`属性，字符串类型，仅支持`['top left','top middle','top right','top start','top end','center left','center middle','center right','center start','center end','bottom left','bottom middle','bottom right','bottom start','bottom end']`中的值，默认为`'top middle'`，表示工具提示的锚点在工具提示的什么位置（方向）。
+- `offset`属性，元素为整数的双元素列表类型，表示工具提示相对于锚点的偏移量（两个元素分别表示水平方向、垂直方向的偏移多少像素，正负方向取决于`anchor`属性的定义）。
+
+示例如下：
+
+```python
+from nicegui import ui, ElementFilter
+
+
+def index():
+    tooltip = ui.tooltip('tooltip')
+    ui.input().bind_value(tooltip,'text')
+    with ui.element('div').classes(
+        'w-64 h-64 border-2 relative'
+    ):
+        button = ui.button('button').classes(
+            'absolute-center'
+        )
+    tooltip.props['target'] = f'#{button.html_id}'
+    tooltip.props(
+        '''
+        anchor="bottom left" 
+        self="top left" 
+        offset=[0,10]
+        '''
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_68.1_4](nicegui_pro.assets/2027_68.1_4.png)
+
+### 68.2 创建之后立马弹出消息的`ui.notify`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/notify
+- https://quasar.dev/quasar-plugins/notify#notify-api
+
+创建`ui.notify`控件之后，页面底部的中间（默认位置，可以修改）会立马弹出一条文字消息，因此，使用该控件时，通常放在要执行的函数中：
+
+```python
+from nicegui import ui
+
 def index():
     ui.button(
         'notify',
@@ -2202,53 +2689,120 @@ def index():
             'Hello'
         )
     )
-  
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_68.2_1](nicegui_pro.assets/2027_68.2_1.png)
 
+`ui.notify`控件支持以下参数：
 
+- `message`参数，任意类型（但最后会被转换成字符串），表示消息的内容。
 
+- `position`参数，字符串类型，仅支持`['top-left','top-right','bottom-left','bottom-right','top','bottom','left','right','center',]`中的值，默认为`'bottom'`，表示消息显示的位置，
 
-`ui.notification`控件，用法和效果与`ui.notify`控件基本相同，但该控件允许更新消息的内容，也支持主动通过`dismiss`方法隐藏消息，一般用于提供实时更新的弹出消息。
+  从该参数开始，只能通过关键字传入。
+
+- `close_button`参数，布尔类型或者字符串类型，默认为`False`，表示是否添加关闭按钮以及关闭按钮显示的文本。
+
+- `type`参数，字符串类型，仅支持`['positive','negative','warning','info','ongoing']`中的值，默认为`None`，表示消息的类型。不同类型的消息具有特定样式、图标。
+
+- `color`参数，字符串类型，表示消息的背景颜色。
+
+- `multi_line`参数，布尔类型，默认为`False`，表示消息内容是否支持多行模式，即关闭按钮另起一行。
+
+- `**kwargs`参数，表示控件支持的配置项。`ui.notify`控件不像普通控件一样支持控件属性，对于类似控件属性的配置项，只能通过关键字参数传入。
+
+`ui.notify`控件额外支持以下配置项（关键字参数，部分）：
+
+- `textColor`参数，字符串类型，表示消息的文本颜色。
+- `caption`参数，字符串类型，表示给消息额外添加的说明性文字。
+- `icon`参数，字符串类型，表示给消息额外添加的图标。
+- `iconColor`参数，字符串类型，表示给消息额外添加的图标的颜色。
+- `iconSize`参数，字符串类型，表示给消息额外添加的图标的尺寸。
+- `avatar`参数，字符串类型，表示给消息额外添加的头像。效果与`icon`参数一致，但该参数使用图片的地址。
+- `spinner`参数，布尔类型，表示是否给消息额外添加的加载图标。
+- `spinnerColor`参数，字符串类型，表示给消息额外添加的加载图标的颜色。
+- `spinnerSize`参数，字符串类型，表示给消息额外添加的加载图标的尺寸。
+- `group`参数，字符串类型或者整数类型或者布尔类型，表示是否开启分组以及对应的分组。分组相同的消息会被合并，并在消息的左上角（默认位置）角标内显示当前该分组一共显示了多少条消息（不含已经消失的）。
+- `badgeColor`参数，字符串类型，表示角标的背景颜色。
+- `badgeTextColor`参数，字符串类型，表示角标的文字颜色。
+- `badgePosition`参数，字符串类型，仅支持`['top-left','top-right','bottom-left','bottom-right']`中的值，默认为`'top-left'`，表示角标的位置。
+- `progress`参数，布尔类型，表示是否显示一个与消失倒计时同步的进度条。
+- `classes`参数，字符串类型，表示消息使用的样式类。
+- `attrs`参数，字典类型，表示消息对应的HTML元素的属性及其属性值。注意，不要轻易覆盖原有的属性，可能会导致显示、功能出现问题。
+- `timeout`参数，整数类型，默认为`5000`，表示消息自动消失的时间（即超时，单位毫秒）。
 
 示例如下：
 
 ```python
 from nicegui import ui
-import asyncio
+
+def index():
+    ui.button(
+        'notify',
+        on_click=lambda:ui.notify(
+            '警告',
+            caption='一级预警',
+            icon='alarm',
+            attrs={'style':'background-color:red;'}
+        )
+    )
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_68.2_2](nicegui_pro.assets/2027_68.2_2.png)
+
+虽然上面`ui.notify`控件的参数不少，但该控件依然存在局限：
+
+- 不能通过调用方法主动关闭消息。
+- 不能随时更新消息。
+
+好在NiceGUI官方提供了解决方法，无需笔者“研发”解决方案。敬请期待后面将要学习的增强版，让弹出消息更随心所欲。
+
+### 68.3 按需弹出的弹窗——`ui.dialog`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/dialog
+- https://quasar.dev/vue-components/dialog
+
+不同于前面两种控件的弹出方式比较“草率”，想要弹出`ui.dialog`控件，则需要在创建之后调用`open`方法才行：
+
+```python
+from nicegui import ui
   
 def index():
-    async def notify():
-        n = ui.notification(
-            'Hello',
-            timeout=None
+    with ui.dialog() as dialog:
+        ui.label('dialog')
+        ui.button(
+            'close',
+            on_click=dialog.close
         )
-        await asyncio.sleep(2)
-        n.message = 'World'
-        await asyncio.sleep(1)
-        n.dismiss()
     ui.button(
-        'notification',
-        on_click=notify
+        'dialog',
+        on_click=dialog.open
     )
   
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_68.3_1](nicegui_pro.assets/2027_68.3_1.png)
 
-
-
-
-`ui.dialog`控件，用于弹出一个基于控件设计界面、非系统原生的对话框。
-
-示例如下：
+点击按钮才会弹出，但默认是全屏显示且布局为行布局，可能存在内容不明显、布局混乱的情况，因此建议使用`ui.card`控件作为外壳：
 
 ```python
 from nicegui import ui
@@ -2267,42 +2821,401 @@ def index():
   
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
+![2027_68.3_2](nicegui_pro.assets/2027_68.3_2.png)
 
+可能读者测试上面的示例已经摸索出关闭弹窗的方法，但笔者还是要单独强调一下默认参数时关闭弹窗的方法：
 
+- 点击没有内容的空白处。
+- 调用`close`方法或者`toggle`方法。
+- 按`esc`键。
 
+`ui.dialog`控件支持以下关键字参数：
 
+- `value`参数，布尔类型，默认为`False`，表示控件创建后是否显示。
 
+`ui.dialog`控件支持以下方法：
 
+- `open`方法，打开弹窗。
+- `close`方法，关闭弹窗。
+- `toggle`方法，切换弹窗的打开状态。
+- `submit`方法，关闭弹窗并提交结果。该方法主要用于提交异步弹出的弹窗中需要传递的数据。 
 
+`ui.dialog`控件支持以下控件属性（部分）：
 
+- `persistent`属性，布尔类型，表示是否禁止关闭弹窗。
+- `no-esc-dismiss`属性，布尔类型，表示是否禁止使用`esc`键关闭弹窗。
+- `no-backdrop-dismiss`属性，布尔类型，表示是否禁止点击空白处关闭弹窗。
+- `auto-close`属性，布尔类型，表示是否允许点击弹窗内部任意位置关闭弹窗。
+- `no-refocus`属性，布尔类型，表示当弹窗关闭时，是否禁止弹窗显示前已经获得焦点的控件重新获得焦点。
+- `no-focus`属性，布尔类型，表示当弹窗打开时，是否禁止弹窗获得焦点。
+- `no-shake`属性，布尔类型，表示是否禁用弹窗晃动（使用被禁用的关闭操作时触发）。
+- `seamless`属性，布尔类型，表示是否启用无缝模式。无缝模式下，用户可以与未被弹窗覆盖的控件交互。
+- `maximized`属性，布尔类型，表示是否最大化显示弹窗。
+- `full-width`属性，布尔类型，表示弹窗的宽度与窗口宽度一致。
+- `full-height`属性，布尔类型，表示弹窗的高度与窗口高度一致。
+- `position`属性，字符串类型，仅支持`['standard','top','right','bottom','left']`中的值，默认为`'standard'`，表示弹窗对齐、出现的方向。
+- `backdrop-filter`属性，字符串类型，表示弹窗背景的图形效果过滤器，语法同CSS的backdrop-filter（参考文档 https://developer.mozilla.org/zh-CN/docs/Web/CSS/Reference/Properties/backdrop-filter ）。
+- `square`属性，布尔类型，表示是否移除弹窗边框的圆角。
 
-
-
-
-`ui.popup`控件，可以弹出任意控件，相当于一个起始位置取决于所属上下文的弹窗（`ui.dialog`控件）。
-
-https://nicegui.io/documentation/popup
-
-https://quasar.dev/vue-components/popup-proxy
-
-
+示例如下：
 
 ```python
+from nicegui import ui
+  
+def index():
+    with ui.dialog().props(
+        'maximized'
+    ) as dialog,ui.card():
+        ui.label('dialog')
+        ui.button(
+            'close',
+            on_click=dialog.close
+        )
+    ui.button(
+        'dialog',
+        on_click=dialog.open
+    )
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
 ```
 
+![2027_68.3_3](nicegui_pro.assets/2027_68.3_3.gif)
 
+前面介绍`submit`方法可以关闭弹窗并提交结果，还提到了异步弹出，那么，什么是异步弹出？
 
+简单来说，就是通过异步等待控件来打开弹窗的方式就是异步弹出。而`submit`方法提交的数据就是异步等待获取的结果：
 
+```python
+from nicegui import ui
+  
+def index():
+    with ui.dialog() as dialog,ui.card():
+        ui.label('dialog')
+        with ui.row():
+            ui.button(
+                'yes',
+                color='green',
+                on_click=lambda:dialog.submit('yes')
+            )
+            ui.button(
+                'no',
+                color='red',
+                on_click=lambda:dialog.submit('no')
+            )
+    async def open_dialog():
+        result = await dialog
+        ui.notify(result)
+    ui.button(
+        'await dialog',
+        on_click=open_dialog
+    )
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
 
+```
 
+![2027_68.3_4](nicegui_pro.assets/2027_68.3_4.gif)
 
-## 68 学习控件——`ui.tree`控件（更新中）
+如果想监控弹窗的行为，可以使用`on`方法监听`ui.dialog`控件的事件：
 
+```python
+from nicegui import ui
+  
+def index():
+    with ui.dialog() as dialog,ui.card():
+        ui.label('dialog')
+        ui.button(
+            'close',
+            on_click=dialog.close
+        )
+    ui.button(
+        'dialog',
+        on_click=dialog.open
+    )
+    dialog.on('show', lambda: ui.notify('Dialog opened'))
+    dialog.on('hide', lambda: ui.notify('Dialog closed'))
+    dialog.on('escape-key', lambda: ui.notify('ESC pressed'))
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
 
+```
+
+![2027_68.3_5](nicegui_pro.assets/2027_68.3_5.gif)
+
+## 69 学习控件——弹出控件（补充）
+
+弹出控件，也可以叫做临时显示控件。当用户与其交互或者执行特定操作时，控件会在独立位置显示，不会影响原有控件的布局；当其失去焦点或者达成某个条件时，控件会消失，就好像从来没出现过一样。
+
+本章不是重复，而是额外介绍几种弹出控件。
+
+### 69.1 `ui.notify`控件的增强版——`ui.notification`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/notification
+- https://quasar.dev/quasar-plugins/notify#notify-api
+
+`ui.notification`控件的用法与`ui.notify`控件基本相同，但该控件是真正意义上的控件（但控件的部分用法依然不支持），允许实时更新消息的内容以及其他参数对应的配置项，还支持随时调用`dismiss`方法来让消息消失。
+
+示例如下：
+
+```python
+from nicegui import ui
+import asyncio
+  
+def index():
+    async def notify():
+        n = ui.notification(
+            'Hello',
+            timeout=None
+        )
+        await asyncio.sleep(2)
+        n.type = 'info'
+        n.message = 'World'
+        await asyncio.sleep(1)
+        n.dismiss()
+    ui.button(
+        'notification',
+        on_click=notify
+    )
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_69.1_1](nicegui_pro.assets/2027_69.1_1.gif)
+
+`ui.notification`控件支持以下参数：
+
+- `message`参数，任意类型（但最后会被转换成字符串），表示消息的内容。
+
+- `position`参数，字符串类型，仅支持`['top-left','top-right','bottom-left','bottom-right','top','bottom','left','right','center',]`中的值，默认为`'bottom'`，表示消息显示的位置，
+
+  从该参数开始，只能通过关键字传入。
+
+- `close_button`参数，布尔类型或者字符串类型，默认为`False`，表示是否添加关闭按钮以及关闭按钮显示的文本。
+
+- `type`参数，字符串类型，仅支持`['positive','negative','warning','info','ongoing']`中的值，默认为`None`，表示消息的类型。不同类型的消息具有特定样式、图标。
+
+- `color`参数，字符串类型，表示消息的背景颜色。
+
+- `multi_line`参数，布尔类型，默认为`False`，表示消息内容是否支持多行模式，即关闭按钮另起一行。
+
+- `icon`参数，字符串类型，表示给消息额外添加的图标。
+
+- `spinner`参数，布尔类型，表示是否给消息额外添加的加载图标。
+
+- `timeout`参数，浮点类型，默认为`5.0`，表示消息自动消失的时间（即超时，单位秒）。
+
+- `on_dismiss`参数，可调用类型，表示消息消失时执行的操作。
+
+- `options`参数，字典类型，表示控件的配置项。注意，该参数会覆盖控件原有的配置项。
+
+- `**kwargs`参数，表示控件支持的配置项。
+
+`ui.notification`控件额外支持以下配置项（通过`options`参数或者关键字参数传入）：
+
+- `textColor`参数，字符串类型，表示消息的文本颜色。
+- `caption`参数，字符串类型，表示给消息额外添加的说明性文字。
+- `iconColor`参数，字符串类型，表示给消息额外添加的图标的颜色。
+- `iconSize`参数，字符串类型，表示给消息额外添加的图标的尺寸。
+- `avatar`参数，字符串类型，表示给消息额外添加的头像。效果与`icon`参数一致，但该参数使用图片的地址。
+- `spinnerColor`参数，字符串类型，表示给消息额外添加的加载图标的颜色。
+- `spinnerSize`参数，字符串类型，表示给消息额外添加的加载图标的尺寸。
+- `group`参数，字符串类型或者整数类型或者布尔类型，表示是否开启分组以及对应的分组。分组相同的消息会被合并，并在消息的左上角（默认位置）角标内显示当前该分组一共显示了多少条消息（不含已经消失的）。
+- `badgeColor`参数，字符串类型，表示角标的背景颜色。
+- `badgeTextColor`参数，字符串类型，表示角标的文字颜色。
+- `badgePosition`参数，字符串类型，仅支持`['top-left','top-right','bottom-left','bottom-right']`中的值，默认为`'top-left'`，表示角标的位置。
+- `progress`参数，布尔类型，表示是否显示一个与消失倒计时同步的进度条。
+- `classes`参数，字符串类型，表示消息使用的样式类。
+- `attrs`参数，字典类型，表示消息对应的HTML元素的属性及其属性值。注意，不要轻易覆盖原有的属性，可能会导致显示、功能出现问题。
+
+`ui.notification`控件支持以下属性：
+
+- `message`属性，含义与同名参数系统。
+- `position`属性，含义与同名参数系统。
+- `type`属性，含义与同名参数系统。
+- `color`属性，含义与同名参数系统。
+- `mult_line`属性，含义与同名参数系统。
+- `icon`属性，含义与同名参数系统。
+- `spinner`属性，含义与同名参数系统。
+- `timeout`属性，含义与同名参数系统。
+- `close_button`属性，含义与同名参数系统。
+
+`ui.notification`控件支持以下方法：
+
+- `on_dismiss`方法，设置消息消失时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示消息消失时执行的操作。
+- `dismiss`方法，主动让消息消失。
+
+总的来说，相比于`ui.notify`控件，`ui.notification`控件提供的属性和方法可以让消息的显示、消失变得可控，但也更复杂一些。对于简单显示个消息，还是`ui.notify`控件更方便。一旦需要精细控制消息，只能使用`ui.notification`控件。
+
+### 69.2 用起来比`ui.dialog`控件更简单的弹窗——`ui.popup`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/popup
+- https://quasar.dev/vue-components/popup-proxy
+
+`ui.popup`控件，用于弹出任意内容，用法和效果上几乎与`ui.dialog`控件一样。但`ui.popup`控件有以下特点：
+
+- `ui.popup`控件需要放在特定控件的上下文，点击该控件才会弹出。
+- 屏幕大小决定了弹出内容的样式。默认情况下，屏幕宽度大于450px时，该控件弹出的内容不是弹窗，而是以上下文所属控件为起点的菜单。
+
+以下是二者对比的使用示例，读者可以改变窗口宽度，分别点击两个按钮，看弹出内容的样式有何区别：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.dialog() as dialog,ui.card():
+        ui.label('dialog')
+        ui.button(
+            'close',
+            on_click=dialog.close
+        )
+    ui.button(
+        'dialog',
+        on_click=dialog.open
+    )
+    with ui.button('popup'):
+        with ui.popup() as popup,ui.card():
+            ui.label('popup')
+            ui.button(
+                'close',
+                on_click=popup.close
+            )
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_69.2_1](nicegui_pro.assets/2027_69.2_1.png)
+
+除了将其作为`ui.dialog`控件的平替，还可以利用其类似弹出菜单的特性，将其作为菜单的平替。或者实现一个弹出式编辑器：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.button(icon='menu'),ui.menu():
+        ui.menu_item('menu')
+    with ui.button(icon='menu'),\
+    ui.popup() as popup:
+        ui.menu_item('menu',on_click=popup.close)
+    with ui.label('label') as label,\
+    ui.popup(),\
+    ui.card():
+        ui.input().props(
+            'autofocus'
+        ).bind_value(
+            label,'text'
+        )
+           
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_69.2_2](nicegui_pro.assets/2027_69.2_2.png)
+
+### 69.3 按下`tab`键解锁锚点并弹出内容的`ui.skip_link`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/skip_link#skip_link
+- https://www.w3.org/WAI/WCAG21/Understanding/bypass-blocks.html#main
+
+之所以称`ui.skip_link`控件“按下`tab`键解锁锚点并弹出内容”，那是因为在某种情况下，该控件的用法与常规锚点（`ui.link`控件指向具体控件）的用法一致：
+
+```python
+from nicegui import ui
+  
+def index():
+    ui.button('button a')
+    button = ui.button('button b',on_click=lambda:ui.notify('button b'))
+    ui.skip_link(
+        'go to here',
+        target=button
+    )
+    ui.link('button b',target=button)
+        
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_69.3_1](nicegui_pro.assets/2027_69.3_1.gif)
+
+可以看到，不管是点击超链接，还是按下`tab`键之后在按`enter`键，都是第二个按钮获得焦点，此时按下`enter`键，都是按下该按钮。
+
+结果一致，但过程还是存在不同：`ui.skip_link`控件额外弹出了一些内容。
+
+没错，这就是将`ui.skip_link`控件分类为弹出控件的原因。
+
+`ui.skip_link`控件支持以下参数：
+
+- `text`参数，字符串类型，默认为`'Skip to main content'`，表示弹出的内容。
+- `target`参数，关键字参数，`Element`类型，表示目标控件。目标控件只能是当前页面内的控件，在显示弹出内容后按下`enter`键会跳转到目标控件所在位置，同时目标控件获得焦点。
+
+虽然`ui.skip_link`控件的`text`参数是字符串类型，但不代表弹出内容只能是字符串。在`ui.skip_link`控件上下文创建的内容，会追加到`text`参数对应的文字内容之后：
+
+```python
+from nicegui import ui
+  
+def index():
+    ui.button('button a')
+    button = ui.button('button b',on_click=lambda:ui.notify('button b'))
+    with ui.skip_link(
+        'go to here',
+        target=button
+    ):
+        ui.icon('home',size='3em')
+    ui.link('button b',target=button)
+        
+  
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_69.3_2](nicegui_pro.assets/2027_69.3_2.png)
+
+## 70 学习控件——`ui.tree`控件（更新中）
+
+相关文档：
+
+- https://nicegui.io/documentation/tree
+- https://quasar.dev/vue-components/tree
 
 
 
@@ -2345,11 +3258,13 @@ def index():
             f'勾选了 {e.value}'
         ),
     ).expand()
+        
   
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
+
 ```
 
 
@@ -2358,9 +3273,12 @@ ui.run(
 
 
 
-## 69 学习控件——`ui.scene`控件（更新中）
+## 71 学习控件——`ui.scene`控件（更新中）
 
+相关文档：
 
+- https://nicegui.io/documentation/scene
+- https://threejs.org/docs/index.html
 
 
 
@@ -2394,11 +3312,12 @@ ui.run(
 
 
 
-## 70 学习控件——`ui.leaflet`控件（更新中）
+## 72 学习控件——`ui.leaflet`控件（更新中）
 
+相关文档：
 
-
-
+- https://nicegui.io/documentation/leaflet
+- 
 
 
 
@@ -2436,41 +3355,109 @@ ui.run(
 
 
 
+## 73 学习控件——`ui.keep_alive`控件（更新中）
 
+相关文档：
 
-## 7x 学习控件——`ui.anywidget`控件（更新中）
-
-下面是`ui.anywidget`控件相关文档的地址：
-
-NiceGUI框架文档：https://nicegui.io/documentation/anywidget
-
-anywidget框架文档：https://anywidget.dev/en/getting-started/
-
-注意，`ui.anywidget`控件依赖`anywidget`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[anywidget]`命令提前添加依赖库。
+- https://nicegui.io/documentation/keep_alive
 
 
 
-（主要介绍`ui.anywidget`控件支持的anywidget控件中，有哪些实用的，并提供相关示例和用法扩展。）
+ 什么情况下应该用保活控件？
+
+如何使用保活控件？
+
+
+
+没有保活的话：
+
+```python
+from nicegui import ui
+
+
+def index():
+    with ui.tabs() as tabs:
+        ui.tab('Other')
+        ui.tab('Terminal')
+    with ui.tab_panels(tabs, value='Other',keep_alive=False):
+        with ui.tab_panel('Other'):
+            ui.label('Open the second tab to see the buffered output.')
+        with ui.tab_panel('Terminal'):
+            terminal = ui.xterm({'cols': 28, 'rows': 9})
+    ui.button('Write hello', on_click=lambda: terminal.writeln('Hello, NiceGUI!'))
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+
+
+有保活：
+
+```python
+from nicegui import ui
+
+
+def index():
+    with ui.tabs() as tabs:
+        ui.tab('Other')
+        ui.tab('Terminal')
+    with ui.tab_panels(tabs, value='Other',keep_alive=False):
+        with ui.tab_panel('Other'):
+            ui.label('Open the second tab to see the buffered output.')
+        with ui.tab_panel('Terminal'):
+            with ui.keep_alive():
+                terminal = ui.xterm({'cols': 28, 'rows': 9})
+    ui.button('Write hello', on_click=lambda: terminal.writeln('Hello, NiceGUI!'))
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+
+
+选项卡、弹窗都可以按需设置需要保活的部分：
+
+```python
+from nicegui import ui
+
+
+def index():
+    with ui.dialog() as dialog, ui.card().classes('min-w-96'):
+        with ui.keep_alive():
+            grid = ui.aggrid({
+                'columnDefs': [{'field': 'name', 'editable': True}, {'field': 'age'}],
+                'rowData': [{'name': 'Alice', 'age': 18}, {'name': 'Bob', 'age': 21}],
+            })
+        ui.button('Close', on_click=dialog.close)
+
+    async def show_data():
+        ui.notify(await grid.get_client_data())
+
+    ui.button('Open dialog', on_click=dialog.open)
+    ui.button('Read data', on_click=show_data)
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
 
 
 
 
 
-## 7x 学习控件——`ui.keep_alive`控件（更新中）
-
-
-
-
-
-
-
-
-
-
-
-## 7x `ui.altair`控件——xxx（更新中）
-
-下面是`ui.altair`控件相关文档的地址：
+## 74 学习控件——`ui.altair`控件（更新中）
 
 NiceGUI框架文档：https://nicegui.io/documentation/altair
 
@@ -2486,6 +3473,34 @@ Vega-Altair框架文档：https://altair-viz.github.io/getting_started/overview.
 
 
 
+
+
+## 75 学习控件——`ui.anywidget`控件（更新中）
+
+NiceGUI框架文档：https://nicegui.io/documentation/anywidget
+
+anywidget框架文档：https://anywidget.dev/en/getting-started/
+
+注意，`ui.anywidget`控件依赖`anywidget`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[anywidget]`命令提前添加依赖库。
+
+
+
+（主要介绍`ui.anywidget`控件支持的anywidget控件中，有哪些实用的，并提供相关示例和用法扩展。）
+
+
+
+## 76 拖动（排序）控件（更新中）
+
+相关文档：
+
+- https://nicegui.io/documentation/sortable
+
+
+
+
+
+
+
 ## x 灵感（待定）
 
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
@@ -2496,14 +3511,3 @@ Vega-Altair框架文档：https://altair-viz.github.io/getting_started/overview.
 window.location.reload(true)
 ```
 
-
-
-Skip link（使用`tab`键解锁的隐藏锚点）：
-
-https://nicegui.io/documentation/skip_link#skip_link
-
-
-
-Sortable：
-
-https://nicegui.io/documentation/sortable

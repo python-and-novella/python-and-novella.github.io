@@ -3465,13 +3465,55 @@ app.exec()
 
 （完）
 
-## 271x期：xxx（更新中）
+## 2711期：Python大版本更新中的实用语法（更新中）
 
 ### 0 本期主要内容
 
-《NiceGUI札记》的63章？
+本期主要介绍从 Python 3.8 开始，每个版本新增的语法中，比较实用的语法。可以不用，但不能不知道。
 
-（编写本期主要内容和标题，同时作为内容规划）
+### 1 赋值表达式（始于3.8版本）
+
+相关文档：https://docs.python.org/zh-cn/3.8/whatsnew/3.8.html
+
+实用指数：3分（待定）
+
+使用难度：3分（待定）
+
+海象运算符是该语法使用运算符，因为运算符`:=`是冒号与等号的结合，将其顺时针旋转90度，看起来就像海象的两个鼻孔和象牙，因此得名。
+
+赋值表达式主要解决的痛点是，无法在创建变量的同时使用该变量。比如，在下面的代码中：
+
+```python
+a = 'abc'
+l = len(a)
+for i in range(l):
+    print(i,l,a[i])
+```
+
+原始字符串、字符串长度都要单独起一行赋值给变量，才能在迭代时使用。
+
+如果用了赋值表达式，就能省略两行：
+
+```python
+for i in range(l:=len(a:='abc')):
+    print(i,l,a[i])
+```
+
+注意，虽然赋值表达式可以在某种程度上减少行数，但不推荐过度使用，以免代码过于晦涩而导致调试困难。
+
+
+
+
+
+https://docs.python.org/zh-cn/3.9/whatsnew/3.9.html
+
+https://docs.python.org/zh-cn/3.10/whatsnew/3.10.html
+
+https://docs.python.org/zh-cn/3.12/whatsnew/3.12.html
+
+https://docs.python.org/zh-cn/3.14/whatsnew/3.14.html
+
+https://docs.python.org/zh-cn/3.15/whatsnew/3.15.html
 
 
 
@@ -3480,6 +3522,8 @@ app.exec()
 ## 271x期：xxx（更新中）
 
 ### 0 本期主要内容
+
+《NiceGUI札记》的63章？
 
 （编写本期主要内容和标题，同时作为内容规划）
 

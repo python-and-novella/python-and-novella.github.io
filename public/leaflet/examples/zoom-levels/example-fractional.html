@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<base target="_top">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Zoom Levels Tutorial - Leaflet</title>
+	
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.leaflet-container {
+			height: 400px;
+			width: 600px;
+			max-width: 100%;
+			max-height: 100%;
+		}
+	</style>
+
+	
+</head>
+<body>
+
+<div id='map'></div>
+
+<script>
+
+	const map = L.map('map', {
+		minZoom: 0,
+		maxZoom: 1,
+		zoomSnap: 0.25,
+		dragging: false
+	});
+
+	const cartodbAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution">CARTO</a>';
+
+	const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+		attribution: cartodbAttribution
+	}).addTo(map);
+
+	function zoomCycle() {
+		map.setZoom(0);
+		const timeouts = [];
+		timeouts.push(setTimeout(() => { map.setZoom(0.25); }, 1000));
+		timeouts.push(setTimeout(() => { map.setZoom(0.50); }, 2000));
+		timeouts.push(setTimeout(() => { map.setZoom(0.75); }, 3000));
+		timeouts.push(setTimeout(() => { map.setZoom(1.00); }, 4000));
+		timeouts.push(setTimeout(() => { map.setZoom(0.75); }, 5000));
+		timeouts.push(setTimeout(() => { map.setZoom(0.50); }, 6000));
+		timeouts.push(setTimeout(() => { map.setZoom(0.25); }, 7000));
+	}
+	zoomCycle();
+
+	const zoomingInterval = setInterval(zoomCycle, 8000);
+
+	const ZoomViewer = L.Control.extend({
+		onAdd() {
+			const container = L.DomUtil.create('div');
+			const gauge = L.DomUtil.create('div');
+			container.style.width = '200px';
+			container.style.background = 'rgba(255,255,255,0.5)';
+			container.style.textAlign = 'left';
+			map.on('zoomstart zoom zoomend', (ev) => {
+				gauge.innerHTML = `Zoom level: ${map.getZoom()}`;
+			});
+			container.appendChild(gauge);
+			return container;
+		}
+	});
+
+	const zoomViewerControl = (new ZoomViewer()).addTo(map);
+
+	map.setView([0, 0], 0);
+</script>
+
+
+
+</body>
+</html>

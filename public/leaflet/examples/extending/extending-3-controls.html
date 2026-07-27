@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	
+
+	<title>Extending Leaflet, New Handlers and Controls - Leaflet - a JavaScript library for interactive maps</title>
+
+	<meta charset="utf-8" />
+
+	
+
+	
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	
+
+	<link rel="shortcut icon" type="image/x-icon" href="../../docs/images/favicon.ico" />
+
+	<link href="https://leafletjs.com/atom.xml" type="application/atom+xml" rel="alternate" title="Leaflet Dev Blog Atom Feed" />
+
+	<link rel="stylesheet" href="../../docs/css/normalize.css" />
+	<link rel="stylesheet" href="../../docs/css/main.css" />
+	
+
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,300' rel='stylesheet' type='text/css'>
+
+	<script src="../../docs/highlight/highlight.pack.js"></script>
+	<link rel="stylesheet" href="../../docs/highlight/styles/github-gist.css" />
+
+	<!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+	
+
+	<script>
+		ACCESS_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+		MB_ATTR = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+		MB_URL = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + ACCESS_TOKEN;
+		OSM_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+		OSM_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+	</script>
+</head>
+<body>
+
+<header>
+	<h1><a href="https://leafletjs.com/"><img src="../../docs/images/logo.png" alt="Leaflet" width="300" /></a></h1>
+	<p class="tagline">an open-source JavaScript library<br> for mobile-friendly interactive maps</p>
+</header>
+
+<nav>
+	<ul class="nav">
+		<li>
+			
+				<a href="../../index.html">Overview</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../examples.html">Tutorials</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../reference.html">Docs</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../download.html">Download</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../plugins.html">Plugins</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../blog.html">Blog</a>
+			
+		</li>
+	</ul>
+</nav>
+
+<main>
+	<div class="container">
+		<p class="tutorials-back"><a href="../../examples.html">&larr; Tutorials</a></p>
+
+<p><br /></p>
+
+<p>This tutorial assumes you&#8217;ve read the <a href="./extending-1-classes.html">theory of Leaflet class inheritance</a>.</p>
+
+<p>In Leaflet, a &#8220;layer&#8221; is anything that moves with the map. In contraposition to that, a &#8220;control&#8221; is a HTML element that remains static relative to the map container, and a &#8220;handler&#8221; is a piece of invisible code that changes the map&#8217;s behaviour.</p>
+
+<h2 id="handlers">Handlers</h2>
+
+<p>Map handlers are a new concept in Leaflet 1.0, and their function is to process DOM events from the browser (like <code class="language-plaintext highlighter-rouge">click</code>, <code class="language-plaintext highlighter-rouge">dblclick</code> or <code class="language-plaintext highlighter-rouge">mousewheel</code>) and change the state of the map.</p>
+
+<p>Handlers are relatively simple: they just need an <code class="language-plaintext highlighter-rouge">addHooks()</code> method (which runs when the handler is enabled in a map) and a <code class="language-plaintext highlighter-rouge">removeHooks()</code>, which runs when the handler is disabled. A skeleton for handlers is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L.CustomHandler = L.Handler.extend({
+	addHooks: function() {
+		L.DomEvent.on(document, 'eventname', this._doSomething, this);
+	},
+
+	removeHooks: function() {
+		L.DomEvent.off(document, 'eventname', this._doSomething, this);
+	},
+
+	_doSomething: function(event) { … }
+});
+</code></pre></div></div>
+
+<p>This can be illustrated with a simple handler to pan the map when a mobile device is tilted, through <a href="https://developer.mozilla.org/en-US/docs/Web/API/Detecting_device_orientation"><code class="language-plaintext highlighter-rouge">deviceorientation</code> events</a>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L.TiltHandler = L.Handler.extend({
+	addHooks: function() {
+		L.DomEvent.on(window, 'deviceorientation', this._tilt, this);
+	},
+
+	removeHooks: function() {
+		L.DomEvent.off(window, 'deviceorientation', this._tilt, this);
+	},
+
+	_tilt: function(ev) {
+		// Treat Gamma angle as horizontal pan (1 degree = 1 pixel) and Beta angle as vertical pan
+		this._map.panBy( L.point( ev.gamma, ev.beta ) );
+	}
+});
+</code></pre></div></div>
+
+<p>The handler can be attached to the map using <code class="language-plaintext highlighter-rouge">map.addHandler('tilt', L.TiltHandler)</code> - this will store an instance of <code class="language-plaintext highlighter-rouge">L.TiltHandler</code> as <code class="language-plaintext highlighter-rouge">map.tilt</code>. However, it&#8217;s more usual to attach handlers to all maps with the <code class="language-plaintext highlighter-rouge">addInitHook</code> syntax:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L.Map.addInitHook('addHandler', 'tilt', L.TiltHandler);
+</code></pre></div></div>
+
+<p>Our handler can now be enabled by running <code class="language-plaintext highlighter-rouge">map.tilt.enable()</code> and disabled by <code class="language-plaintext highlighter-rouge">map.tilt.disable()</code></p>
+
+<p>Moreover, if the map has a property named the same as the handler, then that handler will be enabled by default if that options is <code class="language-plaintext highlighter-rouge">true</code>, so this will enable our handler by default:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var map = L.map('mapDiv', { tilt: true });
+</code></pre></div></div>
+
+<p>To see this example, you&#8217;ll need a mobile browser which <a href="http://caniuse.com/#search=deviceorientation">supports the <code class="language-plaintext highlighter-rouge">deviceorientation</code> event</a> - and even so, this event is particularly flaky and ill-specified, so beware.</p>
+
+<table role="presentation">
+<tr><td style="text-align: center; border: none; padding: 0;">
+<iframe src="tilt.html" width="600" height="400" style="max-width: 100%; max-height: 90vh; box-sizing: border-box;"></iframe>
+</td></tr>
+<tr><td style="text-align: center; border: none">
+<small><a href="tilt.html">See this example stand-alone.</a></small>
+</td></tr></table>
+
+<p>Depending on the type of event, a map handler can attach event listeners to the <code class="language-plaintext highlighter-rouge">document</code>, the <code class="language-plaintext highlighter-rouge">window</code>, or the container of the <code class="language-plaintext highlighter-rouge">L.Map</code> it&#8217;s attached to.</p>
+
+<h2 id="controls">Controls</h2>
+
+<p>You already know controls - the zoom control in the top left corner, the scale at the bottom left, the layer switcher at the top right. At their core, an <code class="language-plaintext highlighter-rouge">L.Control</code> is an HTML Element that is at a static position in the map container.</p>
+
+<p>To make a control, simply inherit from <code class="language-plaintext highlighter-rouge">L.Control</code> and implement <code class="language-plaintext highlighter-rouge">onAdd()</code> and <code class="language-plaintext highlighter-rouge">onRemove()</code>. These methods work in a similar way to their <code class="language-plaintext highlighter-rouge">L.Layer</code> counterparts (they run whenever the control is added to or removed from the map), except that <code class="language-plaintext highlighter-rouge">onAdd()</code> must return an instance of <code class="language-plaintext highlighter-rouge">HTMLElement</code> representing the control. Adding the element to the map is done automatically, and so is removing it.</p>
+
+<p>The simplest example of a custom control would be a watermark, which is just an image:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L.Control.Watermark = L.Control.extend({
+	onAdd: function(map) {
+		var img = L.DomUtil.create('img');
+
+		img.src = '../../docs/images/logo.png';
+		img.style.width = '200px';
+
+		return img;
+	},
+
+	onRemove: function(map) {
+		// Nothing to do here
+	}
+});
+
+L.control.watermark = function(opts) {
+	return new L.Control.Watermark(opts);
+}
+
+L.control.watermark({ position: 'bottomleft' }).addTo(map);
+</code></pre></div></div>
+
+<table role="presentation">
+<tr><td style="text-align: center; border: none; padding: 0;">
+<iframe src="watermark.html" width="600" height="400" style="max-width: 100%; max-height: 90vh; box-sizing: border-box;"></iframe>
+</td></tr>
+<tr><td style="text-align: center; border: none">
+<small><a href="watermark.html">See this example stand-alone.</a></small>
+</td></tr></table>
+
+<p>If your custom control has interactive elements such as clickable buttons, remember to use <code class="language-plaintext highlighter-rouge">L.DomEvent.on()</code> inside <code class="language-plaintext highlighter-rouge">onAdd()</code> and <code class="language-plaintext highlighter-rouge">L.DomEvent.off()</code> inside <code class="language-plaintext highlighter-rouge">onRemove()</code>.</p>
+
+<p>If your custom control consists of more than one HTML element (like <code class="language-plaintext highlighter-rouge">L.Control.Zoom</code>, which has two buttons), you&#8217;ll have to create the whole hierarchy of elements and return the topmost container.</p>
+
+<h2 id="publishing-your-plugin">Publishing your plugin</h2>
+
+<p>If you have understood everything so far, you&#8217;re ready to make some Leaflet plugins! But make sure to read the <a href="https://github.com/Leaflet/Leaflet/blob/main/PLUGIN-GUIDE.md"><code class="language-plaintext highlighter-rouge">PLUGIN-GUIDE.md</code> file</a>, as it contains some tips and good practices about naming and publishing your plugin.</p>
+
+	</div>
+</main>
+
+<footer class="container">
+	<div class="footer">
+		<p>&copy; 2010–2026 <a href="https://agafonkin.com">Volodymyr Agafonkin</a>. Maps &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.</p>
+	</div>
+
+	<nav class="ext-links">
+	  <a class="ext-link twitter" href="https://twitter.com/LeafletJS" title="Follow LeafletJS on X"><img alt="Follow LeafletJS on X" src="../../docs/images/x-round.svg" width="46" /></a>
+	  <a class="ext-link github" href="http://github.com/Leaflet/Leaflet" title="View Source on GitHub"><img alt="View Source on GitHub" src="../../docs/images/github-round.svg" width="46" /></a>
+	  <a class="ext-link forum" href="https://stackoverflow.com/questions/tagged/leaflet" title="Ask for help on Stack Overflow"><img alt="Leaflet questions on Stack Overflow" src="../../docs/images/forum-round.svg" width="46" /></a>
+	</nav>
+
+	<button id="back-to-top" title="Scroll back to top">
+		<svg viewBox="0 0 16 16">
+			<path d="M7.3,3.3c0.4-0.4,1-0.4,1.4,0l6,6c0.4,0.4,0.4,1,0,1.4s-1,0.4-1.4,0L8,5.4l-5.3,5.3c-0.4,0.4-1,0.4-1.4,0s-0.4-1,0-1.4L7.3,3.3L7.3,3.3z"/>
+		</svg>
+	</button>
+</footer>
+
+<script>
+	var _gaq = _gaq || [];
+	_gaq.push([ '_setAccount', 'UA-4147697-4' ]);
+	_gaq.push([ '_trackPageview' ]);
+
+	(function() {
+		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
+		ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+				: 'http://www')
+				+ '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+<script src="../../dialog/dialog.js"></script>
+<script src="../../docs/js/docs.js"></script>
+
+</body>
+</html>

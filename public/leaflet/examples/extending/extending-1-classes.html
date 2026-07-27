@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	
+
+	<title>Extending Leaflet, Class Theory - Leaflet - a JavaScript library for interactive maps</title>
+
+	<meta charset="utf-8" />
+
+	
+
+	
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	
+
+	<link rel="shortcut icon" type="image/x-icon" href="../../docs/images/favicon.ico" />
+
+	<link href="https://leafletjs.com/atom.xml" type="application/atom+xml" rel="alternate" title="Leaflet Dev Blog Atom Feed" />
+
+	<link rel="stylesheet" href="../../docs/css/normalize.css" />
+	<link rel="stylesheet" href="../../docs/css/main.css" />
+	
+
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,300' rel='stylesheet' type='text/css'>
+
+	<script src="../../docs/highlight/highlight.pack.js"></script>
+	<link rel="stylesheet" href="../../docs/highlight/styles/github-gist.css" />
+
+	<!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+	
+
+	<script>
+		ACCESS_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+		MB_ATTR = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+		MB_URL = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + ACCESS_TOKEN;
+		OSM_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+		OSM_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+	</script>
+</head>
+<body>
+
+<header>
+	<h1><a href="https://leafletjs.com/"><img src="../../docs/images/logo.png" alt="Leaflet" width="300" /></a></h1>
+	<p class="tagline">an open-source JavaScript library<br> for mobile-friendly interactive maps</p>
+</header>
+
+<nav>
+	<ul class="nav">
+		<li>
+			
+				<a href="../../index.html">Overview</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../examples.html">Tutorials</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../reference.html">Docs</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../download.html">Download</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../plugins.html">Plugins</a>
+			
+		</li>
+		<li>
+			
+				<a href="../../blog.html">Blog</a>
+			
+		</li>
+	</ul>
+</nav>
+
+<main>
+	<div class="container">
+		<p class="tutorials-back"><a href="../../examples.html">&larr; Tutorials</a></p>
+
+<h2 id="extending-leaflet">Extending Leaflet</h2>
+
+<p>Leaflet has literally hundreds of plugins. These expand the capabilities of Leaflet: sometimes in a generic way, sometimes in a very use-case-specific way.</p>
+
+<p>Part of the reason there are so many plugins is that Leaflet is easy to extend. This tutorial will cover the most commonly used ways of doing so.</p>
+
+<p>Please note that this tutorial assumes you have a good grasp of:</p>
+
+<ul>
+  <li><a href="https://developer.mozilla.org/en-US/Learn/JavaScript">JavaScript</a></li>
+  <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction">DOM handling</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Object-oriented_programming">Object-oriented programming</a> (understanding concepts like classes, instances, inheritance, methods and properties)</li>
+</ul>
+
+<h2 id="leaflet-architecture">Leaflet architecture</h2>
+
+<p>Let&#8217;s have a look at a simplified UML Class diagram for Leaflet 1.0.0. There are more than 60 JavaScript classes, so the diagram is a bit big. Luckily we can make a zoomable image with a <code class="language-plaintext highlighter-rouge">L.ImageOverlay</code>:</p>
+
+<table role="presentation">
+<tr><td style="text-align: center; border: none; padding: 0;">
+<iframe src="class-diagram.html" width="600" height="400" style="max-width: 100%; max-height: 90vh; box-sizing: border-box;"></iframe>
+</td></tr>
+<tr><td style="text-align: center; border: none">
+<small><a href="class-diagram.html">See this example stand-alone.</a></small>
+</td></tr></table>
+
+<p>From a technical point of view, Leaflet can be extended in different ways:</p>
+
+<ul>
+  <li>The most common: creating a new subclass of <code class="language-plaintext highlighter-rouge">L.Layer</code>, <code class="language-plaintext highlighter-rouge">L.Handler</code> or <code class="language-plaintext highlighter-rouge">L.Control</code>, with <code class="language-plaintext highlighter-rouge">L.Class.extend()</code>
+    <ul>
+      <li>Layers move when the map is moved/zoomed</li>
+      <li>Handlers are invisible and interpret browser events</li>
+      <li>Controls are fixed interface elements</li>
+    </ul>
+  </li>
+  <li>Including more functionality in an existing class with <code class="language-plaintext highlighter-rouge">L.Class.include()</code>
+    <ul>
+      <li>Adding new methods and options</li>
+      <li>Changing some methods</li>
+      <li>Using <code class="language-plaintext highlighter-rouge">addInitHook</code> to run extra constructor code.</li>
+    </ul>
+  </li>
+  <li>Changing parts of an existing class (replacing how a class method works) with <code class="language-plaintext highlighter-rouge">L.Class.include()</code>.</li>
+</ul>
+
+<p>This tutorial covers some classes and methods available only in Leaflet 1.0.0. Use caution if you are developing a plugin for a previous version.</p>
+
+<h2 id="lclass"><code class="language-plaintext highlighter-rouge">L.Class</code></h2>
+
+<p>JavaScript is a bit of a weird language. It&#8217;s not really an object-oriented language, but rather a <a href="https://en.wikipedia.org/wiki/Prototype-based_programming">prototype-oriented language</a>. This has made JavaScript historically difficult to use class inheritance in the classic OOP meaning of the term.</p>
+
+<p>Leaflet works around this by having <code class="language-plaintext highlighter-rouge">L.Class</code>, which eases up class inheritance.</p>
+
+<p>Even though modern JavaScript can use ES6 classes, Leaflet is not designed around them.</p>
+
+<h3 id="lclassextend"><code class="language-plaintext highlighter-rouge">L.Class.extend()</code></h3>
+
+<p>In order to create a subclass of anything in Leaflet, use the <code class="language-plaintext highlighter-rouge">.extend()</code> method. This accepts one parameter: a plain object with key-value pairs, each key being the name of a property or method, and each value being the initial value of a property, or the implementation of a method:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var MyDemoClass = L.Class.extend({
+
+    // A property with initial value = 42
+    myDemoProperty: 42,   
+
+    // A method 
+    myDemoMethod: function() { return this.myDemoProperty; }
+    
+});
+
+var myDemoInstance = new MyDemoClass();
+
+// This will output "42" to the development console
+console.log( myDemoInstance.myDemoMethod() );   
+</code></pre></div></div>
+
+<p>When naming classes, methods and properties, adhere to the following conventions:</p>
+
+<ul>
+  <li>Function, method, property and factory names should be in <a href="https://en.wikipedia.org/wiki/CamelCase"><code class="language-plaintext highlighter-rouge">lowerCamelCase</code></a>.</li>
+  <li>Class names should be in <a href="https://en.wikipedia.org/wiki/CamelCase"><code class="language-plaintext highlighter-rouge">UpperCamelCase</code></a>.</li>
+  <li>Private properties and methods start with an underscore (<code class="language-plaintext highlighter-rouge">_</code>). This doesn&#8217;t make them private, just recommends developers not to use them directly.</li>
+</ul>
+
+<h3 id="lclassinclude"><code class="language-plaintext highlighter-rouge">L.Class.include()</code></h3>
+
+<p>If a class is already defined, existing properties/methods can be redefined, or new ones can be added by using <code class="language-plaintext highlighter-rouge">.include()</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MyDemoClass.include({
+
+    // Adding a new property to the class
+    _myPrivateProperty: 78,
+    
+    // Redefining a method
+    myDemoMethod: function() { return this._myPrivateProperty; }
+
+});
+
+var mySecondDemoInstance = new MyDemoClass();
+
+// This will output "78"
+console.log( mySecondDemoInstance.myDemoMethod() );
+
+// However, properties and methods from before still exist
+// This will output "42"
+console.log( mySecondDemoInstance.myDemoProperty );
+</code></pre></div></div>
+
+<h3 id="lclassinitialize"><code class="language-plaintext highlighter-rouge">L.Class.initialize()</code></h3>
+
+<p>In OOP, classes have a constructor method. In Leaflet&#8217;s <code class="language-plaintext highlighter-rouge">L.Class</code>, the constructor method is always named <code class="language-plaintext highlighter-rouge">initialize</code>.</p>
+
+<p>If your class has some specific <code class="language-plaintext highlighter-rouge">options</code>, it&#8217;s a good idea to initialize them with <code class="language-plaintext highlighter-rouge">L.setOptions()</code> in the constructor. This utility function will merge the provided options with the default options of the class.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var MyBoxClass = L.Class.extend({
+
+    options: {
+        width: 1,
+        height: 1
+    },
+
+    initialize: function(name, options) {
+        this.name = name;
+        L.setOptions(this, options);
+    }
+    
+});
+
+var instance = new MyBoxClass('Red', {width: 10});
+
+console.log(instance.name); // Outputs "Red"
+console.log(instance.options.width); // Outputs "10"
+console.log(instance.options.height); // Outputs "1", the default
+</code></pre></div></div>
+
+<p>Leaflet handles the <code class="language-plaintext highlighter-rouge">options</code> property in a special way: options available for a parent class will be inherited by a children class:.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var MyCubeClass = MyBoxClass.extend({
+    options: {
+        depth: 1
+    }
+});
+
+var instance = new MyCubeClass('Blue');
+
+console.log(instance.options.width); // Outputs "1", parent class default
+console.log(instance.options.height); // Outputs "1", parent class default
+console.log(instance.options.depth); // Outputs "1"
+</code></pre></div></div>
+
+<p>It&#8217;s quite common for child classes to run the parent&#8217;s constructor, and then their own constructor. In Leaflet this is achieved using <code class="language-plaintext highlighter-rouge">L.Class.addInitHook()</code>. This method can be used to &#8220;hook&#8221; initialization functions that run right after the class&#8217; <code class="language-plaintext highlighter-rouge">initialize()</code>, for example:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MyBoxClass.addInitHook(function(){
+    this._area = this.options.width * this.options.length;
+});
+</code></pre></div></div>
+
+<p>That will run after <code class="language-plaintext highlighter-rouge">initialize()</code> is called (which calls <code class="language-plaintext highlighter-rouge">setOptions()</code>). This means that <code class="language-plaintext highlighter-rouge">this.options</code> exist and is valid when the init hook runs.</p>
+
+<p><code class="language-plaintext highlighter-rouge">addInitHook</code> has an alternate syntax, which uses method names and can fill method arguments in:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MyCubeClass.include({
+    _calculateVolume: function(arg1, arg2) {
+        this._volume = this.options.width * this.options.length * this.options.depth;
+    }
+});
+
+MyCubeClass.addInitHook('_calculateVolume', argValue1, argValue2);
+</code></pre></div></div>
+
+<h3 id="methods-of-the-parent-class">Methods of the parent class</h3>
+
+<p>Calling a method of a parent class is achieved by reaching into the prototype of the parent class and using <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call"><code class="language-plaintext highlighter-rouge">Function.call(…)</code></a>. This can be seen, for example, in the code for <code class="language-plaintext highlighter-rouge">L.FeatureGroup</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L.FeatureGroup = L.LayerGroup.extend({
+
+    addLayer: function (layer) {
+        …
+        L.LayerGroup.prototype.addLayer.call(this, layer);
+    },
+    
+    removeLayer: function (layer) {
+        …
+        L.LayerGroup.prototype.removeLayer.call(this, layer);
+    },
+
+    …
+});
+</code></pre></div></div>
+
+<p>Calling the parent&#8217;s constructor is done in a similar way, but using <code class="language-plaintext highlighter-rouge">ParentClass.prototype.initialize.call(this, …)</code> instead.</p>
+
+<h3 id="factories">Factories</h3>
+
+<p>Most Leaflet classes have a corresponding <a href="https://en.wikipedia.org/wiki/Factory_%28object-oriented_programming%29">factory function</a>. A factory function has the same name as the class, but in <code class="language-plaintext highlighter-rouge">lowerCamelCase</code> instead of <code class="language-plaintext highlighter-rouge">UpperCamelCase</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function myBoxClass(name, options) {
+    return new MyBoxClass(name, options);
+}
+</code></pre></div></div>
+
+<h3 id="naming-conventions">Naming conventions</h3>
+
+<p>When naming classes for Leaflet plugins, please adhere to the following naming conventions:</p>
+
+<ul>
+  <li>Never expose global variables in your plugin.</li>
+  <li>If you have a new class, put it directly in the <code class="language-plaintext highlighter-rouge">L</code> namespace (<code class="language-plaintext highlighter-rouge">L.MyPlugin</code>).</li>
+  <li>If you inherit one of the existing classes, make it a sub-property (<code class="language-plaintext highlighter-rouge">L.TileLayer.Banana</code>).</li>
+</ul>
+
+
+	</div>
+</main>
+
+<footer class="container">
+	<div class="footer">
+		<p>&copy; 2010–2026 <a href="https://agafonkin.com">Volodymyr Agafonkin</a>. Maps &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.</p>
+	</div>
+
+	<nav class="ext-links">
+	  <a class="ext-link twitter" href="https://twitter.com/LeafletJS" title="Follow LeafletJS on X"><img alt="Follow LeafletJS on X" src="../../docs/images/x-round.svg" width="46" /></a>
+	  <a class="ext-link github" href="http://github.com/Leaflet/Leaflet" title="View Source on GitHub"><img alt="View Source on GitHub" src="../../docs/images/github-round.svg" width="46" /></a>
+	  <a class="ext-link forum" href="https://stackoverflow.com/questions/tagged/leaflet" title="Ask for help on Stack Overflow"><img alt="Leaflet questions on Stack Overflow" src="../../docs/images/forum-round.svg" width="46" /></a>
+	</nav>
+
+	<button id="back-to-top" title="Scroll back to top">
+		<svg viewBox="0 0 16 16">
+			<path d="M7.3,3.3c0.4-0.4,1-0.4,1.4,0l6,6c0.4,0.4,0.4,1,0,1.4s-1,0.4-1.4,0L8,5.4l-5.3,5.3c-0.4,0.4-1,0.4-1.4,0s-0.4-1,0-1.4L7.3,3.3L7.3,3.3z"/>
+		</svg>
+	</button>
+</footer>
+
+<script>
+	var _gaq = _gaq || [];
+	_gaq.push([ '_setAccount', 'UA-4147697-4' ]);
+	_gaq.push([ '_trackPageview' ]);
+
+	(function() {
+		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
+		ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+				: 'http://www')
+				+ '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+<script src="../../dialog/dialog.js"></script>
+<script src="../../docs/js/docs.js"></script>
+
+</body>
+</html>

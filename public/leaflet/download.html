@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	
+
+	<title>Download - Leaflet - a JavaScript library for interactive maps</title>
+
+	<meta charset="utf-8" />
+
+	
+
+	
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	
+
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+	<link href="https://leafletjs.com/atom.xml" type="application/atom+xml" rel="alternate" title="Leaflet Dev Blog Atom Feed" />
+
+	<link rel="stylesheet" href="docs/css/normalize.css" />
+	<link rel="stylesheet" href="docs/css/main.css" />
+	
+
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,300' rel='stylesheet' type='text/css'>
+
+	<script src="docs/highlight/highlight.pack.js"></script>
+	<link rel="stylesheet" href="docs/highlight/styles/github-gist.css" />
+
+	<!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+	
+
+	<script>
+		ACCESS_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+		MB_ATTR = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+		MB_URL = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + ACCESS_TOKEN;
+		OSM_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+		OSM_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+	</script>
+</head>
+<body class="download-page">
+
+<header>
+	<h1><a href="https://leafletjs.com/"><img src="docs/images/logo.png" alt="Leaflet" width="300" /></a></h1>
+	<p class="tagline">an open-source JavaScript library<br> for mobile-friendly interactive maps</p>
+</header>
+
+<nav>
+	<ul class="nav">
+		<li>
+			
+				<a href="index.html">Overview</a>
+			
+		</li>
+		<li>
+			
+				<a href="examples.html">Tutorials</a>
+			
+		</li>
+		<li>
+			
+				<a href="reference.html">Docs</a>
+			
+		</li>
+		<li>
+			
+				<span>Download</span>
+			
+		</li>
+		<li>
+			
+				<a href="plugins.html">Plugins</a>
+			
+		</li>
+		<li>
+			
+				<a href="blog.html">Blog</a>
+			
+		</li>
+	</ul>
+</nav>
+
+<main>
+	<div class="container">
+		<h2 id="download-leaflet">Download Leaflet</h2>
+
+<table>
+	<tr>
+		<th>Version</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><a href="https://github.com/Leaflet/Leaflet/releases/download/v1.9.4/leaflet.zip">Leaflet 1.9.4</a></td>
+		<td>Stable version, released on May 18, 2023.</td>
+	</tr>
+	<tr>
+		<td><a href="https://github.com/Leaflet/Leaflet/releases/download/v2.0.0-alpha.1/leaflet.zip">Leaflet 2.0.0-alpha.1</a></td>
+		<td>Prerelease version, released on August 16, 2025.</td>
+	</tr>
+		<tr>
+		<td><a href="https://github.com/Leaflet/Leaflet/releases/download/dev/leaflet.zip">Development Snapshot</a> / (<a href="https://github.com/Leaflet/Leaflet/releases/tag/dev" target="_blank">Single files</a>)</td>
+		<td>In-progress version, developed on the <code>main</code> branch.</td>
+	</tr>
+</table>
+
+<p><a href="https://github.com/Leaflet/Leaflet/blob/main/CHANGELOG.md">View Changelog</a></p>
+
+<p>Note that the main version can contain incompatible changes,
+so please read the changelog carefully when upgrading to it.</p>
+
+<h3 id="using-a-hosted-version-of-leaflet">Using a Hosted Version of Leaflet</h3>
+
+<p>The latest stable Leaflet release is available on several CDN&#8217;s &mdash; to start using
+it straight away, place this in the <code class="language-plaintext highlighter-rouge">head</code> of your HTML code:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" /&gt;
+&lt;script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""&gt;&lt;/script&gt;
+</code></pre></div></div>
+
+<p>Note that the <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity"><code class="language-plaintext highlighter-rouge">integrity</code> hashes</a> are included for security when using Leaflet from CDN.</p>
+
+<p>Leaflet is available on the following free CDNs: <a href="https://unpkg.com/leaflet/dist/">unpkg</a>, <a href="https://cdnjs.com/libraries/leaflet">cdnjs</a>, <a href="https://www.jsdelivr.com/package/npm/leaflet?path=dist">jsDelivr</a>.</p>
+
+<p><em>Disclaimer: these services are external to Leaflet; for questions or support, please contact them directly.</em></p>
+
+<h3 id="using-a-downloaded-version-of-leaflet">Using a Downloaded Version of Leaflet</h3>
+
+<p>Inside the archives downloaded from the above links, you will see four things:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">leaflet.js</code> - This is the minified Leaflet JavaScript code.</li>
+  <li><code class="language-plaintext highlighter-rouge">leaflet-src.js</code> - This is the readable, unminified Leaflet JavaScript, which is sometimes helpful for debugging. <small>(integrity=&#8221;<nobr><tt>sha256-tPonvXioSHRQt1+4ztWR5mz/1KG1X3yHNzVXprP2gLo=</tt></nobr>&#8221;)</small></li>
+  <li><code class="language-plaintext highlighter-rouge">leaflet.css</code> - This is the stylesheet for Leaflet.</li>
+  <li><code class="language-plaintext highlighter-rouge">images</code> - This is a folder that contains images referenced by <code class="language-plaintext highlighter-rouge">leaflet.css</code>. It must be in the same directory as <code class="language-plaintext highlighter-rouge">leaflet.css</code>.</li>
+</ul>
+
+<p>Unzip the downloaded archive to your website&#8217;s directory and add this to the <code class="language-plaintext highlighter-rouge">head</code> of your HTML code:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;link rel="stylesheet" href="/path/to/leaflet.css" /&gt;
+&lt;script src="/path/to/leaflet.js"&gt;&lt;/script&gt;
+</code></pre></div></div>
+
+<h3 id="using-a-javascript-package-manager">Using a JavaScript package manager</h3>
+
+<p>If you use the <a href="https://www.npmjs.com/"><code class="language-plaintext highlighter-rouge">npm</code> package manager</a>, you can fetch a local copy of Leaflet by running:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install leaflet
+</code></pre></div></div>
+
+<p>You will find a copy of the Leaflet release files in <code class="language-plaintext highlighter-rouge">node_modules/leaflet/dist</code>.</p>
+
+<h3 id="leaflet-source-code">Leaflet Source Code</h3>
+
+<p>These download packages above only contain the library itself.
+If you want to download the full source code, including unit tests, files for debugging, build scripts, etc.,
+you can <a href="https://github.com/Leaflet/Leaflet/releases">download it</a>
+from the <a href="https://github.com/Leaflet/Leaflet">GitHub repository</a>.</p>
+
+<h3 id="building-leaflet-from-the-source">Building Leaflet from the Source</h3>
+
+<p>Leaflet build system is powered by the <a href="http://nodejs.org">Node.js</a> platform,
+which installs easily and works well across all major platforms.
+Here are the steps to set it up:</p>
+
+<ol>
+  <li><a href="http://nodejs.org">Download and install Node</a></li>
+  <li>Run the following command in the command line:</li>
+</ol>
+
+<pre><code>npm install</code></pre>
+
+<p>Now that you have everything installed, run <code class="language-plaintext highlighter-rouge">npm run build</code> inside the Leaflet directory.
+This will combine and compress the Leaflet source files, saving the build to the <code class="language-plaintext highlighter-rouge">dist</code> folder.</p>
+
+
+	</div>
+</main>
+
+<footer class="container">
+	<div class="footer">
+		<p>&copy; 2010–2026 <a href="https://agafonkin.com">Volodymyr Agafonkin</a>. Maps &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.</p>
+	</div>
+
+	<nav class="ext-links">
+	  <a class="ext-link twitter" href="https://twitter.com/LeafletJS" title="Follow LeafletJS on X"><img alt="Follow LeafletJS on X" src="docs/images/x-round.svg" width="46" /></a>
+	  <a class="ext-link github" href="http://github.com/Leaflet/Leaflet" title="View Source on GitHub"><img alt="View Source on GitHub" src="docs/images/github-round.svg" width="46" /></a>
+	  <a class="ext-link forum" href="https://stackoverflow.com/questions/tagged/leaflet" title="Ask for help on Stack Overflow"><img alt="Leaflet questions on Stack Overflow" src="docs/images/forum-round.svg" width="46" /></a>
+	</nav>
+
+	<button id="back-to-top" title="Scroll back to top">
+		<svg viewBox="0 0 16 16">
+			<path d="M7.3,3.3c0.4-0.4,1-0.4,1.4,0l6,6c0.4,0.4,0.4,1,0,1.4s-1,0.4-1.4,0L8,5.4l-5.3,5.3c-0.4,0.4-1,0.4-1.4,0s-0.4-1,0-1.4L7.3,3.3L7.3,3.3z"/>
+		</svg>
+	</button>
+</footer>
+
+<script>
+	var _gaq = _gaq || [];
+	_gaq.push([ '_setAccount', 'UA-4147697-4' ]);
+	_gaq.push([ '_trackPageview' ]);
+
+	(function() {
+		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
+		ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+				: 'http://www')
+				+ '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+<script src="dialog/dialog.js"></script>
+<script src="docs/js/docs.js"></script>
+
+</body>
+</html>

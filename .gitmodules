@@ -1,4 +1,0 @@
-[submodule "public/Leaflet"]
-	path = public/Leaflet
-	url = https://github.com/Leaflet/Leaflet.git
-	branch = main

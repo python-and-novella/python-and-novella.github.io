@@ -3310,53 +3310,11 @@ ui.run(
 
 
 
-
-
-## 72 学习控件——`ui.leaflet`控件（更新中）
-
-相关文档：
-
-- https://nicegui.io/documentation/leaflet
-- 
-
-
-
-`ui.leaflet`控件，用于渲染地图数据。
-
-示例如下：
-
-```python
-from nicegui import ui
-  
-def index():
-    ui.leaflet(
-        center=(39.9072, 116.3912),
-        zoom=18,
-        options={
-            'attributionControl':False,
-        }
-    ).classes(
-        'w-64 h-64'
-    ).marker(
-        latlng=(39.9072, 116.3912)
-    )
-  
-ui.run(
-    root=index,
-    native=True
-)
-```
-
-
-
-
-
-## 73 学习控件——`ui.keep_alive`控件（更新中）
+## 72 学习控件——`ui.keep_alive`控件（更新中）
 
 相关文档：
 
 - https://nicegui.io/documentation/keep_alive
-- 
 
 
 
@@ -3454,7 +3412,7 @@ ui.run(
 
 
 
-## 74 学习控件——`ui.altair`控件（更新中）
+## 73 学习控件——`ui.altair`控件（更新中）
 
 NiceGUI框架文档：https://nicegui.io/documentation/altair
 
@@ -3472,7 +3430,7 @@ Vega-Altair框架文档：https://altair-viz.github.io/getting_started/overview.
 
 
 
-## 75 学习控件——`ui.anywidget`控件（更新中）
+## 74 学习控件——`ui.anywidget`控件（更新中）
 
 NiceGUI框架文档：https://nicegui.io/documentation/anywidget
 
@@ -3486,7 +3444,7 @@ anywidget框架文档：https://anywidget.dev/en/getting-started/
 
 
 
-## 76 拖动（排序）控件（更新中）
+## 75 拖动（排序）控件（更新中）
 
 相关文档：
 

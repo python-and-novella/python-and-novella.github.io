@@ -1632,9 +1632,334 @@ app.exec()
 
 ```
 
-## 54 `QbyteArray`类（待定）（更新中）
+## 54 字符串的另一种表达方式——字节数组（`QbyteArray`类）
 
-学习`QbyteArray`类（来自`PySide6.QtCore`模块）的用法。
+### 54.1 字符串`str`、字节串`bytes`、字节数组`bytearray`
+
+相关文档： https://docs.python.org/zh-cn/3/reference/datamodel.html#objects-values-and-types
+
+Python的字符串操作相比于其他语言简单不少，也是很多读者入门编程时选择Python的原因。不过，看似简单的字符串，在某些情况下使用时并不简单。
+
+#### 54.1.1 字符的存储
+
+在正式介绍之前，请允许笔者带着各位复习一下字符的存储。如果有相关基础，可以直接跳到下一节。
+
+众所周知，计算机存储的数据是二进制，即0和1。每八位二进制数组成一个字节，可以表示一个十六进制的数字。因此，每个字节的数据实际上是十六进制数。字节则是计算机最基本的存储单位，很多数据在实际使用时也是以字节作为最小的处理单位。
+
+对于Python的字符串而言，其在实际存储的时候，并不是将原始内容直接存在设备里，毕竟前面说了，字节才是最小单位。因此，字符串实际上要先拆分为字符，每个字符再进行编码，得到一个或多个字节的十六进制数据，才能最终存储为二进制数据。
+
+说了这么多抽象的概念也不太好记，那接下来就用Python代码，一步一步感受字符串变成十六进制数据的过程。
+
+首先，准备一个字符串：
+
+```python
+s = 'hello'
+```
+
+将每个字符拆出来，用`ord`方法将其转换，会得到一个对应的十进制数：
+
+```python
+for i in s:
+    print(ord(i))
+```
+
+结果如下：
+
+```python
+104
+101
+108
+108
+111
+```
+
+很容易发现，每个字母对应一个数字，如果字母相同，数字也相同。数字就是字母的另一种表达方式，这种一一对应、将字符转换为数字的转换过程就叫编码。
+
+这里输出的是十进制数字，最终存储的是等值的十六进制数，不过后续代码中输出的结果均为十进制，这里暂不做转换，以免混乱。
+
+字符能变成数字，那对应的数字也可以通过`chr`方法变成字符：
+
+```python
+print(chr(104))
+# 结果为：h
+```
+
+上面的代码可以依次得到单个字符对应的字节数据，有没有办法一步到位，将字符串完整转换？
+
+当然有。
+
+前面所字符变成数字的过程叫编码，而这个方法就叫编码方法——`encode`方法：
+
+```python
+print(s.encode())
+# 结果为：b'hello'
+```
+
+这时就有读者好奇，明明是将字符串变成对应的数字，怎么输出结果还是字符串？
+
+其实这个前面加了`b`的字符串，并不是字符串，而叫字节串，每个元素不是字符，而是对应的数字：
+
+```python
+print(s.encode()[0])
+# 结果为：104
+```
+
+使用`type`方法检查编码前后的类型，结果确实不同：
+
+```python
+print(type(s))
+# 结果为：<class 'str'>
+print(type(s.encode()))
+# 结果为：<class 'bytes'>
+```
+
+`encode`方法类似`ord`方法，将字符串变成数字；同样的，也有类似`chr`方法将数字变成字符串的“还原”方法，即解码方法——`decode`方法：
+
+```python
+print(b'hello'.decode())
+# 结果为：hello
+```
+
+#### 54.1.2 字符串`str`和字节串`bytes`
+
+了解了字符串`str`和字节串`bytes`之后，也知道了编码和解码，对于日常使用Python且无需过分关注计算机底层原理的各位，那些似乎只是上课时让人犯困的枯燥知识，以后再也不会遇到。
+
+但是，存在即合理，前面铺垫了那么多，这一节就要说一说字节串的应用场景了。
+
+一般日常使用字符串，不需要用字节串，除非涉及到底层数据的操作，比如：
+
+- 字符串存入文件，实际上是存入编码之后的数据。
+- 网络传输数据，需要将字符串编码之后变成二进制再传输，接收方需要解码还原出字符串。
+- 字符串加密、解密、计算哈希，也需要将字符串编码、解码。
+
+别的操作都有点复杂，接下来就以计算哈希的一种——MD5为例，看看一个字符串，如何得到其MD5值。
+
+还是上一节的字符串为原始内容：
+
+```python
+s = 'hello'
+```
+
+计算MD5值的话，需要导入对应的库、方法：
+
+```python
+from hashlib import md5
+```
+
+`md5`方法可以计算指定数据的MD5值，但是，直接给其传入字符串的话，会得到报错：
+
+```python
+print(md5(s))
+# 部分结果为：TypeError: Strings must be encoded before hashing
+```
+
+其报错的含义就是，字符串要先编码再哈希。
+
+显而易见，直接使用字符串不行，要用其编码之后的字节串才行：
+
+```python
+print(md5(s.encode()))
+```
+
+不过，这样得到的只是哈希对象，想要直接获取到MD5结果，代码应当为：
+
+```python
+print(md5(s.encode()).hexdigest())
+# 结果为：5d41402abc4b2a76b9719d911017c592
+```
+
+#### 54.1.3 字节数组`bytearray`
+
+字节串本质上是字符编码后的数字组成的串，因此其特性和字符串一样：可以切片、索引，不可修改。
+
+比如，同样的操作，字符串和字节串都能执行：
+
+```python
+print(s[0:2])
+# 结果为：he
+print(s.encode()[0:2])
+# 结果为：b'he'
+print(s[0])
+# 结果为：h
+print(s.encode()[0])
+# 结果为：104
+```
+
+这个时候，可能有读者好奇，字节串在索引时输出的是数字，分明是个数组啊，为什么要叫字节串？不叫字节数组？
+
+这就不得不说一下其与数组的区别。
+
+先构建字节串，以及与字节串相同的数组：
+
+```python
+b = b'hello'
+l = [104,101,108,108,111]
+```
+
+二者在索引时输出的结果相同，但字节串和字符串一样，无法修改原始内容，即没法修改索引对应的值：
+
+```python
+b[0] = 101
+# 直接报错：TypeError: 'bytes' object does not support item assignment
+l[0] = 101
+# 成功执行
+```
+
+此时再看二者的值：
+
+```python
+print(b)
+# 结果为：b'hello'
+print(l)
+# 结果为：[101, 101, 108, 108, 111]
+```
+
+的确字节串没有修改，数组被修改了。
+
+虽然字节串不能叫字节数组是因为其不具备数组的功能，但不代表字节串这样的数据不能修改，因为字节数组`bytearray`的诞生，就是为了将二者的功能结合。
+
+字节数组的创建很简单，给`bytearray`类传入字节串、等效的数组均可：
+
+```python
+b = b'hello'
+ba = bytearray(b)
+print(ba)
+# 结果为：bytearray(b'hello')
+l = [104,101,108,108,111]
+ba2 = bytearray(l)
+print(ba2)
+# 结果为：bytearray(b'hello')
+```
+
+可以看到，结果是一样（但二者不是相同的对象）。
+
+就和数组一样，可以直接修改索引对应的值：
+
+```python
+ba[0] = 101
+print(ba)
+# 结果为：bytearray(b'eello')
+ba2[0] = 101
+print(ba2)
+# 结果为：bytearray(b'eello')
+```
+
+计算MD5的话，直接传入字节数组也可以：
+
+```python
+print(md5(ba).hexdigest())
+# 结果为：46c0d64a41d821a13f4555571a869e70
+print(md5(ba2).hexdigest())
+# 结果为：46c0d64a41d821a13f4555571a869e70
+```
+
+#### 54.1.4 小结
+
+简单总结一下Python内置的三种与字符串相关的数据类型的特点：
+
+| 类型         | `str`                 | `bytes`             | `bytearray`                     |
+| ------------ | --------------------- | ------------------- | ------------------------------- |
+| **内容**     | Unicode字符（文本）   | `0`-`255`（二进制） | `0`-`255`（二进制）             |
+| **可变性**   | ❌ 不可变              | ❌ 不可变            | ✅ 可变                          |
+| **哈希性**   | ✅可哈希、当字典键     | ✅可哈希、当字典键   | ❌不可哈希、不能当字典键         |
+| **字面量**   | `'hello'`             | `b'hello'`          | `bytearray(b'hello')`           |
+| **典型用途** | 文本处理              | 字节流、哈希        | 频繁修改二进制数据              |
+| **内存消耗** | 较大 (取决于字符宽度) | 较小 (1字节/元素)   | 略大于 `bytes` (需维护可变结构) |
+
+一句话总结如何选择：文本用 `str`，二进制用 `bytes`，修改二进制用 `bytearray`。
+
+### 54.2 Qt版字节数组——`QbyteArray`类
+
+相关文档： https://doc.qt.io/qtforpython-6/PySide6/QtCore/QByteArray.html
+
+前面洋洋洒洒介绍了一大段Python的基础知识，并不是笔者无病呻吟，而是为本章要介绍的Qt版字节数组——`QbyteArray`类做铺垫。`QbyteArray`类在字节数组`bytearray`的基础上，扩展了功能。因此，字节数组`bytearray`支持的部分操作，`QbyteArray`类也支持（要求的数据类型有所不同）：
+
+```python
+from PySide6.QtCore import QByteArray
+from hashlib import md5
+
+qba = QByteArray(b'hello')
+qba[0] = b'e'
+print(qba)
+# 结果为：b'eello'
+print(md5(qba).hexdigest())
+# 结果为：46c0d64a41d821a13f4555571a869e70
+```
+
+此外，`QbyteArray`类还支持一些字节数组`bytearray`不支持的操作。
+
+先说初始化方法。`QbyteArray`类可以创建指定大小、默认为指定字符的重复数据：
+
+```python
+from PySide6.QtCore import QByteArray
+
+qba = QByteArray(5,'a')
+
+print(qba)
+# 结果为：b'aaaaa'
+```
+
+重复的也可以是编码后的数字，但数字为0时，字节数组`bytearray`也支持类似操作：
+
+```python
+from PySide6.QtCore import QByteArray
+
+qba = QByteArray(5,0)
+
+print(qba)
+# 结果为：b'\x00\x00\x00\x00\x00'
+
+print(bytearray(5))
+# 结果为：bytearray(b'\x00\x00\x00\x00\x00')
+```
+
+`QbyteArray`类还支持直接传入未编码的字符串：
+
+```python
+from PySide6.QtCore import QByteArray
+
+qba = QByteArray('123')
+
+print(qba)
+# 结果为：b'123'
+```
+
+除了初始化方法，`QbyteArray`对象支持的方法也比字节数组多。
+
+“to”开头的方法是输出为指定数据的方法。当后面接着数字的类型时，可以将原本是数字表达方式的字符串直接转换为对应数字，比如，`toInt`方法，该方法的参数表示字符串对应的进制，输出结果为十进制整数和是否转换成功：
+
+```python
+from PySide6.QtCore import QByteArray
+
+qba = QByteArray('123')
+
+print(qba.toInt(8))
+# 结果为：(83, True)
+print(0o123)
+# 结果为：83
+```
+
+甚至无需额外的库就可以使用Base64编码：
+
+```python
+from PySide6.QtCore import QByteArray
+
+qba = QByteArray('123')
+
+print(qba.toBase64())
+# 结果为：b'MTIz'
+```
+
+当然，能编码就能解码，“from”开头方法就是解码方法，这些解码方法都是静态方法：
+
+```python
+from PySide6.QtCore import QByteArray
+
+print(QByteArray.fromBase64(b'MTIz'))
+# 结果为：b'123'
+```
+
+`QbyteArray`类支持的方法不一而足，这里就不全部介绍了，读者可以自行探索官网文档，发掘更多得心应手的方法。
 
 
 

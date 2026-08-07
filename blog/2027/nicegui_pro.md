@@ -2369,6 +2369,7 @@ ui.run(
 - `done-color`属性，字符串类型，表示已完成步骤的颜色。
 - `active-icon`属性，字符串类型，表示当前步骤的图标。
 - `active-color`属性，字符串类型，表示当前步骤的颜色。
+- `keep-alive`属性，布尔类型，表示是否使用保活组件。保活组件即VUE中的`keep-alive`组件，步骤中的内容在步骤不可见时会自动销毁，使用保活组件可以避免销毁，但会额外占用内存、性能。
 
 示例如下：
 
@@ -3210,44 +3211,305 @@ ui.run(
 
 ![2027_69.3_2](nicegui_pro.assets/2027_69.3_2.png)
 
-## 70 学习控件——`ui.tree`控件（更新中）
+## 70 学习控件——树形图控件（`ui.tree`控件）
+
+### 70.1 写在控件学习前——树
+
+在正式学习控件之前，需要先了解一个概念——树。如果读者有相关基础，知道树形数据结构，可以直接跳过本节，开始控件的学习。若是读者不太清楚树，请先看一下本节，对后面学习控件的使用很有帮助。
+
+在现实生活中，大部分人都见过树，也知道树是什么。但在编程中，树是指像树一样的数据结构。这么干巴巴地说比较枯燥、抽象，那就让笔者画一张图：
+
+![2027_70.1_1](nicegui_pro.assets/2027_70.1_1.png)
+
+就和现实中的树有树根、树干、树叶一样，构成树的节点也通常有对应树根的根节点、对应树干的树干节点、对应树叶的叶节点。对应上图，A就是根节点，B、C就是普通节点、D、E、F、G就是叶节点。图中还用箭头表明的父子关系，箭头的起始点对应父，箭头的终点表示子。
+
+因此，可以确定三种节点的定义或者特征：**没有父节点**的节点是**根节点**，也通常是最先创建的节点；**没有子节点**的节点是**叶节点**；不属于根节点、叶节点的**其余节点**就是**树干节点**。
+
+了解了树的基本含义，接下来，就通过Python代码简单实现一棵树。
+
+每个节点包含复杂的属性和数据，虽然列表、字典、类都能构建出树的结构，但考虑到代码复杂性和直观度，综合考量之后，笔者决定以字典为基本框架，适当使用列表，实现上图中的树。
+
+首先就是根节点：
+
+```python
+root = {
+    'id':'A',
+    'children':[]
+}
+```
+
+节点都有唯一的标识符，就好像上图中的节点A，A是其唯一的标识符。因此，节点对应的字典设计了`'id'`键，用于对应其标识符。除了叶节点之外的节点都有一个以上的子节点，而叶节点其实是0个子节点的节点。因此，`'children'`键表示该节点的子节点，其值是一个列表，可以存储0个以上节点。
+
+基于上面的设计，上图的树转换成代码，结果如下：
+
+```python
+root = {
+    'id':'A',
+    'children':[]
+}
+b = {
+    'id':'B',
+    'children':[]
+}
+c = {
+    'id':'C',
+    'children':[]
+}
+d = {
+    'id':'D',
+    'children':[]
+}
+e = {
+    'id':'E',
+    'children':[]
+}
+f = {
+    'id':'F',
+    'children':[]
+}
+g = {
+    'id':'G',
+    'children':[]
+}
+root['children'] = [b,c]
+b['children'] = [d,e]
+c['children'] = [f,g]
+```
+
+从代码上看，树的结构是对应上图且完整的，但是，想要直观展示这棵树，就没那么容易。如果直接打印，将得到以下结果：
+
+```python
+print(root)
+# 输出为：{'id': 'A', 'children': [{'id': 'B', 'children': [{'id': 'D', 'children': []}, {'id': 'E', 'children': []}]}, {'id': 'C', 'children': [{'id': 'F', 'children': []}, {'id': 'G', 'children': []}]}]}
+```
+
+当然，也可以借用`rich`库，让输出的内容错落有致：
+
+```python
+# 需要提前安装rich库
+from rich.console import Console
+
+Console(width=50).print(root)
+```
+
+结果为：
+
+```python
+{
+    'id': 'A',
+    'children': [
+        {
+            'id': 'B',
+            'children': [
+                {'id': 'D', 'children': []},
+                {'id': 'E', 'children': []}
+            ]
+        },
+        {
+            'id': 'C',
+            'children': [
+                {'id': 'F', 'children': []},
+                {'id': 'G', 'children': []}
+            ]
+        }
+    ]
+}
+```
+
+至于在NiceGUI中如何直观展现树这种数据结构，用哪个控件，怎么用，请看下节。
+
+### 70.2 树形图控件——`ui.tree`控件
 
 相关文档：
 
 - https://nicegui.io/documentation/tree
 - https://quasar.dev/vue-components/tree
 
-
-
-`ui.tree`控件，用于渲染树类型的数据。
-
-示例如下：
+在NiceGUI中，可以使用`ui.tree`控件渲染树类型的数据。对于上一节中的树，直接给`ui.tree`控件使用是不行的，需要给节点设置`'label'`键对应的值，该键表示该节点显示出来的文本：
 
 ```python
+root = {
+    'id':'A',
+    'label':'A',
+    'children':[]
+}
+b = {
+    'id':'B',
+    'label':'B',
+    'children':[]
+}
+c = {
+    'id':'C',
+    'label':'C',
+    'children':[]
+}
+d = {
+    'id':'D',
+    'label':'D',
+    'children':[]
+}
+e = {
+    'id':'E',
+    'label':'E',
+    'children':[]
+}
+f = {
+    'id':'F',
+    'label':'F',
+    'children':[]
+}
+g = {
+    'id':'G',
+    'label':'G',
+    'children':[]
+}
+root['children'] = [b,c]
+b['children'] = [d,e]
+c['children'] = [f,g]
+```
+
+对树做完改造之后，就可以将`root`这个根节点放在列表中，传给控件的`nodes`参数：
+
+```python
+root = {
+    'id':'A',
+    'label':'A',
+    'children':[]
+}
+b = {
+    'id':'B',
+    'label':'B',
+    'children':[]
+}
+c = {
+    'id':'C',
+    'label':'C',
+    'children':[]
+}
+d = {
+    'id':'D',
+    'label':'D',
+    'children':[]
+}
+e = {
+    'id':'E',
+    'label':'E',
+    'children':[]
+}
+f = {
+    'id':'F',
+    'label':'F',
+    'children':[]
+}
+g = {
+    'id':'G',
+    'label':'G',
+    'children':[]
+}
+root['children'] = [b,c]
+b['children'] = [d,e]
+c['children'] = [f,g]
+
 from nicegui import ui
   
 def index():
     ui.tree(
         nodes=[
-            {
-                'id': 'lang',
-                'label': 'Language',
-                'icon': 'dashboard',
-                'children': [
-                    {
-                        'id': '1',
-                        'label': 'Python'
-                    },
-                    {
-                        'id': '2',
-                        'label': 'JavaScript'
-                    }
-                ]
-            },
+            root
+        ]
+    ).expand()
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_70.2_1](nicegui_pro.assets/2027_70.2_1.png)
+
+控件还支持交互，可以展开收起任意有子节点的节点。这种展现方式就直观、方便多了。
+
+`ui.tree`控件支持以下参数：
+
+- `nodes`参数，元素为字典类型的列表，每个字典（节点字典）表示一个树形结构的数据。在节点字典中，不同的键有不同的含义：
+
+  - `'id'`键，字符串类型、整数类型、浮点类型、元组类型等可哈希的数据类型（一般推荐使用字符串类型），表示节点ID（具有唯一性，不可重复）。选择、勾选、展开节点会用到、得到节点ID。获取对应状态的节点，都会得到节点ID。
+  - `'label'`键，字符串类型，表示节点显示的文字，如果没有对应的值，该节点不会显示文字。
+  - `'children'`键，元素为节点字典的列表，表示节点的子节点，如果节点有子节点，该节点会变成可以展开的样式。
+  - `'icon'`键，字符串类型，表示节点的图标。
+
+- `node_key`参数，字符串类型，表示节点字典中用于获取节点ID的键（对应的值就是节点ID），默认值是`'id'`，可以根据实际情况修改为其他值。
+
+  从该参数开始，只能通过关键字传入。
+
+- `label_key`参数，字符串类型，表示节点字典中用于获取节点显示文字的键（对应的值就是节点显示文字），默认值是`'label'`，可以根据实际情况修改为其他值。
+
+- `children_key`参数，字符串类型，表示节点字典中用于获取子节点的键（对应的值就是该节点的子节点列表），默认值是`'children'`，可以根据实际情况修改为其他值。
+
+- `on_select`参数，可调用类型，表示当节点的选择状态（点击节点可以选择、取消选择该节点）改变时执行的操作。
+
+- `on_expand`参数，可调用类型，表示当节点的展开状态（点击树干节点本身或者树干节点前的三角形可以展开、收起该节点）改变时执行的操作。
+
+- `on_tick`参数，可调用类型，表示当节点的勾选状态（点击节点前的复选框可以勾选、取消勾选该节点）改变时执行的操作。注意，只有下面的`tick_strategy`参数不为`None`时，才会显示复选框。
+
+- `tick_strategy`参数，字符串类型，表示节点的勾选策略，仅支持`['leaf','leaf-filtered','strict']`，中的值，默认为`None`，即没有勾选策略，不显示复选框。具体勾选策略的含义可以参考下表或者官方文档（ https://quasar.dev/vue-components/tree#tick-strategy ）：
+
+  | 策略名            | 含义                                                       |
+  | :---------------- | :--------------------------------------------------------- |
+  | `'leaf'`          | 勾选任意节点都会影响父节点、子节点的勾选状态。             |
+  | `'leaf-filtered'` | 勾选任意节点只会影响过滤后可见的父节点、子节点的勾选状态。 |
+  | `'strict'`        | 只影响被勾选的节点，不影响父节点或子节点的勾选状态。       |
+
+示例如下：
+
+```python
+from nicegui import ui
+
+root = {
+    'id':'A',
+    'label':'A',
+    'children':[]
+}
+b = {
+    'id':'B',
+    'label':'B',
+    'children':[]
+}
+c = {
+    'id':'C',
+    'label':'C',
+    'children':[]
+}
+d = {
+    'id':'D',
+    'label':'D',
+    'children':[]
+}
+e = {
+    'id':'E',
+    'label':'E',
+    'children':[]
+}
+f = {
+    'id':'F',
+    'label':'F',
+    'children':[]
+}
+g = {
+    'id':'G',
+    'label':'G',
+    'children':[]
+}
+root['children'] = [b,c]
+b['children'] = [d,e]
+c['children'] = [f,g]
+
+  
+def index():
+    t = ui.tree(
+        nodes=[
+            root
         ],
-        node_key='id',
-        label_key='label',
-        children_key='children',
         on_select=lambda e: ui.notify(
             f'选择了 {e.value}'
         ),
@@ -3257,37 +3519,350 @@ def index():
         on_tick=lambda e: ui.notify(
             f'勾选了 {e.value}'
         ),
+        tick_strategy='leaf'
     ).expand()
-        
-  
+    ui.select(
+        ['leaf','leaf-filtered','strict'],
+        label='勾选策略'
+    ).bind_value(t.props,'tick-strategy').classes('w-48')
+    ui.input(
+        '筛选'
+    ).bind_value(t, 'filter').props('clearable').classes('w-48')
+    
+
 ui.run(
     root=index,
     title='易森-NiceGUI'
 )
-
 ```
 
+![2027_70.2_2](nicegui_pro.assets/2027_70.2_2.png)
 
+读者可以选择不同的勾选策略，测试勾选的效果。
 
+`ui.tree`控件支持以下方法：
 
+- `on_select`方法，设置当节点的选择状态（点击节点可以选择、取消选择该节点）改变时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示当节点的选择状态（点击节点可以选择、取消选择该节点）改变时执行的操作。
+- `select`方法，选择指定节点。该方法支持以下参数：
+  - `node_key`参数，字符串类型，表示选择节点的ID。
+- `deselect`方法，取消选择以选择的节点。注意，选择只能是单选，选择新的节点就会取消选择先前的节点。
+- `on_expand`方法，设置当节点的展开状态（点击树干节点本身或者树干节点前的三角形可以展开、收起该节点）改变时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示当节点的展开状态（点击树干节点本身或者树干节点前的三角形可以展开、收起该节点）改变时执行的操作。
+- `expand`方法，展开指定节点。该方法支持以下参数：
+  - `node_keys`参数，元素为字符串的列表类型，表示展开节点的ID。
+- `collapse`方法，收起指定节点。该方法支持以下参数：
+  - `node_keys`参数，元素为字符串的列表类型，表示收起节点的ID。
+- `on_tick`方法，设置当节点的勾选状态（点击节点前的复选框可以勾选、取消勾选该节点）改变时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示节点的勾选状态（点击节点前的复选框可以勾选、取消勾选该节点）改变时执行的操作。
+- `tick`方法，勾选指定节点。该方法支持以下参数：
+  - `node_keys`参数，元素为字符串的列表类型，表示勾选节点的ID。
+- `untick`方法，取消勾选指定节点。该方法支持以下参数：
+  - `node_keys`参数，元素为字符串的列表类型，表示取消勾选节点的ID。
+- `nodes`方法，返回一个迭代器，包含所有节点的节点字典。该方法支持以下参数：
+  - `visible`参数，关键字参数，布尔类型，表示是否只返回可见的节点。
 
+`ui.tree`控件支持以下属性（部分）：
 
+- `filter`属性，字符串类型，表示用于在数中搜索包含指定内容的节点时的关键字。
 
-## 71 学习控件——`ui.scene`控件（更新中）
+`ui.tree`控件支持以下控件属性（部分）：
+
+- `no-selection-unset`属性，布尔类型，表示不允许通过点击已选择的节点取消选择。
+- `default-expand-all`属性，布尔类型，表示是否默认展开所有节点。
+- `accordion`属性，布尔类型，表示是否启用手风琴模式，即仅允许展开一个节点，展开新的节点，先前的节点会收起。
+- `no-transition`属性，布尔类型，表示是否禁用展开、收起节点的过渡动画。
+- `nodes`属性，表示所有节点。
+- `no-nodes-label`属性，字符串类型，默认为`'No nodes to show!'`，表示没有节点时控件显示的文本。
+- `no-results-label`属性，字符串类型，默认为`'No results'`，表示搜索后没有匹配的节点时控件显示的文本。
+- `filter`属性，字符串类型，表示用于在数中搜索包含指定内容的节点时的关键字。
+- `ticked`属性，表示所有勾选节点的ID。
+- `expanded`属性，表示所有展开节点的ID。
+- `selected`属性，表示所有选择节点的ID。
+- `no-connectors`属性，布尔类型，表示是否禁用表明节点层级的连线。
+- `color`属性，字符串类型，表示展开符号、层级连线的颜色。
+- `control-color`属性，字符串类型，表示复选框的颜色。
+- `text-color`属性，字符串类型，表示节点文本的颜色。
+- `selected-color`属性，字符串类型，表示选择节点的节点文本颜色。
+- `dense`属性，布尔类型，表示是否启用紧凑模式。
+- `dark`属性，布尔类型，表示是否启用暗黑模式。注意，该属性启用的暗黑模式会与NiceGUI的上层设计冲突，实际生效的只有文本颜色。
+- `duration`属性，浮点类型，默认为`300`，表示展开、收起节点的过渡动画的播放时长（单位毫秒）。
+
+部分表示节点的控件属性可使用字典类型的`props`属性，获取控件属性对应的值。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+root = {
+    'id':'A',
+    'label':'A',
+    'children':[]
+}
+b = {
+    'id':'B',
+    'label':'B',
+    'children':[]
+}
+c = {
+    'id':'C',
+    'label':'C',
+    'children':[]
+}
+d = {
+    'id':'D',
+    'label':'D',
+    'children':[]
+}
+e = {
+    'id':'E',
+    'label':'E',
+    'children':[]
+}
+f = {
+    'id':'F',
+    'label':'F',
+    'children':[]
+}
+g = {
+    'id':'G',
+    'label':'G',
+    'children':[]
+}
+root['children'] = [b,c]
+b['children'] = [d,e]
+c['children'] = [f,g]
+
+  
+def index():
+    t = ui.tree(
+        nodes=[
+            root
+        ]
+    ).expand()
+    ui.button(
+        'all nodes',
+        on_click=lambda:ui.notify(
+            str(list(t.props['nodes']))
+        )
+    )
+    
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_70.2_3](nicegui_pro.assets/2027_70.2_3.png)
+
+### 70.3 写在控件学习后——小结
+
+如果想要选择、展开、勾选的方法和获取对应状态的节点，可以参照下表：
+
+| 状态 | 设置为该状态                                                 | 取消该转态                                                   | 获取该状态下的节点   |
+| ---- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------------------- |
+| 选择 | `.select(key)`                                               | `.deselect()`                                                | `.props['selected']` |
+| 展开 | `.expand([key1,...keyn])` <br />不传入参数的话就是对所有节点生效 | `.collapse([key1,...keyn])` <br />不传入参数的话就是对所有节点生效 | `.props['expanded']` |
+| 勾选 | `.tick([key1,...keyn])` <br />不传入参数的话就是对所有节点生效 | `.untick([key1,...keyn])` <br />不传入参数的话就是对所有节点生效 | `.props['ticked']`   |
+
+### 70.4 写在控件学习后——验证节点ID
+
+前面的介绍中，涉及到节点相关的操作都会用到节点ID，但也出现一个问题——如何确定节点ID是有效的？即这个ID有对应的节点。
+
+笔者在参考`nodes`方法的源代码之后，实现了两个助手方法，可以帮助读者验证节点ID的有效性：
+
+- `find_all_node_keys`方法，验证给定的ID是否有效，返回有效的ID或者所有ID。该方法支持以下参数：
+  - `tree`参数，表示提供节点的`ui.tree`控件。
+  - `node_keys`参数，元素为字符串的列表类型，表示要验证的ID。如果传入的是`None`或者不传值，则返回所有节点的ID。
+  - `parent_only`参数，布尔类型，默认为`False`，表示是否只在树干节点、根节点中验证给定的ID。
+- `get_related_nodes`方法，根据给定的ID获取对应节点、父节点、子节点的节点字典。该方法支持以下参数：
+  - `tree`参数，表示提供节点的`ui.tree`控件。
+  - `target_key`参数，字符串类型，表示给定的ID。
+
+代码如下：
+
+```python
+# 验证ID是否有效
+def find_all_node_keys(tree, node_keys:list|None=None, parent_only:bool=False):
+    NODES = tree.props['nodes']
+    CHILDREN_KEY = tree.props['children-key']
+    NODE_KEY = tree.props['node-key']
+    def iterate_nodes(nodes=NODES):
+        for node in nodes:
+            if parent_only:
+                if (CHILDREN_KEY in node.keys()):
+                    yield node
+                    yield from iterate_nodes(node.get(CHILDREN_KEY, []))
+                else:
+                    yield
+            else:
+                yield node
+                yield from iterate_nodes(node.get(CHILDREN_KEY, []))
+    finded_nodes = {node[NODE_KEY] for node in iterate_nodes(NODES) if node}
+    return finded_nodes if node_keys is None else {finded_node for finded_node in set(node_keys) if finded_node in finded_nodes}
+
+# 获取ID相关的节点字典
+def get_related_nodes(tree, target_key=None):
+    NODES = tree.props['nodes']
+    CHILDREN_KEY = tree.props['children-key']
+    NODE_KEY = tree.props['node-key']
+    result = {'current':None,'parent':None,'children':None}
+    def iterate_node(nodes=NODES,parent = None):
+        for node in nodes:
+            if target_key == node[NODE_KEY]:
+                result['parent'] = parent
+                result['current'] = node
+                if (CHILDREN_KEY in node.keys()):
+                    result['children'] = node.get(CHILDREN_KEY, [])
+            else:
+                if (CHILDREN_KEY in node.keys()):
+                    iterate_node(nodes=node.get(CHILDREN_KEY, []),parent=node)
+        return               
+    iterate_node(NODES)
+    return result
+```
+
+实际使用时的示例如下：
+
+```python
+from nicegui import ui
+
+root = {
+    'id':'A',
+    'label':'A',
+    'children':[]
+}
+b = {
+    'id':'B',
+    'label':'B',
+    'children':[]
+}
+c = {
+    'id':'C',
+    'label':'C',
+    'children':[]
+}
+d = {
+    'id':'D',
+    'label':'D',
+    'children':[]
+}
+e = {
+    'id':'E',
+    'label':'E',
+    'children':[]
+}
+f = {
+    'id':'F',
+    'label':'F',
+    'children':[]
+}
+g = {
+    'id':'G',
+    'label':'G',
+    'children':[]
+}
+root['children'] = [b,c]
+b['children'] = [d,e]
+c['children'] = [f,g]
+
+# 验证ID是否有效
+def find_all_node_keys(tree, node_keys:list|None=None, parent_only:bool=False):
+    NODES = tree.props['nodes']
+    CHILDREN_KEY = tree.props['children-key']
+    NODE_KEY = tree.props['node-key']
+    def iterate_nodes(nodes=NODES):
+        for node in nodes:
+            if parent_only:
+                if (CHILDREN_KEY in node.keys()):
+                    yield node
+                    yield from iterate_nodes(node.get(CHILDREN_KEY, []))
+                else:
+                    yield
+            else:
+                yield node
+                yield from iterate_nodes(node.get(CHILDREN_KEY, []))
+    finded_nodes = {node[NODE_KEY] for node in iterate_nodes(NODES) if node}
+    return finded_nodes if node_keys is None else {finded_node for finded_node in set(node_keys) if finded_node in finded_nodes}
+
+# 获取ID相关的节点字典
+def get_related_nodes(tree, target_key=None):
+    NODES = tree.props['nodes']
+    CHILDREN_KEY = tree.props['children-key']
+    NODE_KEY = tree.props['node-key']
+    result = {'current':None,'parent':None,'children':None}
+    def iterate_node(nodes=NODES,parent = None):
+        for node in nodes:
+            if target_key == node[NODE_KEY]:
+                result['parent'] = parent
+                result['current'] = node
+                if (CHILDREN_KEY in node.keys()):
+                    result['children'] = node.get(CHILDREN_KEY, [])
+            else:
+                if (CHILDREN_KEY in node.keys()):
+                    iterate_node(nodes=node.get(CHILDREN_KEY, []),parent=node)
+        return               
+    iterate_node(NODES)
+    return result
+
+def index():
+    with ui.row():
+        with ui.column():
+            ui.label('目标树：')
+            t = ui.tree(
+                nodes=[
+                    root
+                ],
+            ).expand().classes('w-[150px] h-64')
+        with ui.column():
+            ui.label('查询结果：')
+            j = ui.json_editor({'content':{}}).classes('w-[400px] h-64')
+    i = ui.input(
+        '验证ID有效性（使用英文逗号分隔多个ID）：'
+    ).classes('w-96')
+    ui.button(
+        '提交验证',
+        on_click=lambda:j.properties['content'].update(
+            {'json':str(find_all_node_keys(t,i.value.split(',') if i.value else None))}
+        )
+    )
+    i2 = ui.input(
+        '查询ID的相关节点：'
+    )
+    ui.button(
+        '提交查询',
+        on_click=lambda:j.properties['content'].update(
+            {'json':get_related_nodes(t,i2.value)}
+        )
+    )
+    
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+如果节点ID无效，`find_all_node_keys`方法将返回空集合，`get_related_nodes`方法返回的字典中，三个键对应的值均为空：
+
+![2027_70.4_1](nicegui_pro.assets/2027_70.4_1.png)
+
+## 71 学习控件——三维视图控件（`ui.scene`控件）
 
 相关文档：
 
 - https://nicegui.io/documentation/scene
 - https://threejs.org/docs/index.html
 
-
-
-`ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交换的3D视图，后者则是基于前者创建、不可交互的固定视角视图。
+`ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交互的三维视图，后者则是基于前者创建、不可交互的固定视角视图。
 
 示例如下：
 
 ```python
 from nicegui import ui
+
   
 def index():
     scene = ui.scene().classes(
@@ -3299,47 +3874,803 @@ def index():
     ui.scene_view(scene).classes(
         'w-64 h-64'
     )
-      
+
 ui.run(
     root=index,
-    native=True
+    title='易森-NiceGUI'
 )
 ```
 
+![2027_71_1](nicegui_pro.assets/2027_71_1.png)
+
+因为控件的用法比较复杂，每一部分都需要详细介绍相关知识，整体篇幅较长，故将控件的用法拆分为单独章节，方便阅读。
+
+### 71.1 初始化参数
+
+`ui.scene`控件支持以下参数：
+
+- `width`参数，整数类型，控件的宽度，默认为`400`，单位是像素。在没有缩放控件的情况下，此参数指定了控件的固定宽度。如果使用CSS样式缩放控件宽度，此参数指定的宽度优先级最低。
+- `height`参数，整数类型，控件的高度，默认为`300`，单位是像素。在没有缩放控件的情况下，此参数指定了控件的固定高度。如果使用CSS样式缩放控件高度，此参数指定的高度优先级最低。
+- `grid`参数，布尔类型或者双元素（整数类型）元组类型，表示是否显示辅助网格或者网格的大小。如果为`False`，则不显示辅助网格（显示在地平面的网格，用于确定物体的位置和大小）。如果为`True`，则显示辅助网格。也可以传入双元素（整数类型）元组来指定网格的规格。元组的第一个元素表示网格的大小（单位长度），网格为正方形，只需指定边长即可。第二个元素表示划分网格时每个方向几等分，这样就可以得到`'等分数的平方'`个正方形。网格大小的默认值是`(100,100)`，即网格为100个单位长度的正方形，每个方向100等分，共计一万个网格。
+- `camera`参数，`SceneCamera`类型，表示场景使用的相机（透视或正交）。该参数可以使用`ui.scene.perspective_camera`方法生成透视相机或使用 `ui.scene.orthographic_camera`方法生成正交相机，默认为透视相机。两种相机生成方法支持的参数详见下一节。
+- `on_click`参数，可调用类型，点击3D对象时执行的操作。注意，如果想要响应对应的点击事件，需要在`click_events`参数中添加对应事件的订阅。
+- `click_events`参数，字符串列表类型，控件订阅的JavaScript事件，默认为`['click', 'dblclick']`。
+- `on_drag_start`参数，可调用类型，开始拖动3D对象时执行的操作。
+- `on_drag_end`参数，可调用类型，停止拖动3D对象时执行的操作。
+- `drag_constraints`参数，字符串类型，表示用于限制被拖动的3D对象位置的几何函数表达式，比如：`'x=0,z=y/2'`。
+- `background_color`参数，字符串类型，场景的背景颜色，默认为`'#eee'`。
+- `control_type`参数，字符串类型，仅支持`['orbit', 'trackball', 'map']`中的值，默认为`orbit'`，表示控制视角时的交互类型。
+- `fps`参数，整数类型，默认为`20`，表示渲染帧率。
+- `show_stats`参数，布尔类型，默认为`False`，表示是否显示性能统计。
+
+### 71.2 方法
+
+`ui.scene`控件支持以下方法：
+
+- `on_click`方法，设置点击3D对象时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示点击3D对象时执行的操作。
+- `on_drag_start`方法，设置开始拖动3D对象时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示开始拖动3D对象时执行的操作。
+- `on_drag_end`方法，设置停止拖动3D对象时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示停止拖动3D对象时执行的操作。
+- `initialized`方法，异步方法，表示控件初始化完成才会结束的异步等待。使用时，异步等待该方法的调用结果即可。
+- `move_camera`方法，移动相机。该方法支持以下参数：
+  - `x`参数，浮点类型，表示相机的X坐标。
+  - `y`参数，浮点类型，表示相机的Y坐标。
+  - `z`参数，浮点类型，表示相机的Z坐标。
+  - `look_at_x`参数，浮点类型，表示相机朝向的X坐标。
+  - `look_at_y`参数，浮点类型，表示相机朝向的Y坐标。
+  - `look_at_z`参数，浮点类型，表示相机朝向的Z坐标。
+  - `up_x`参数，浮点类型，表示相机画面上方向向量的X坐标。
+  - `up_y`参数，浮点类型，表示相机画面上方向向量的Y坐标。
+  - `up_z`参数，浮点类型，表示相机画面上方向向量的Z坐标。
+  - `duration`参数，浮点类型，默认值为`0.5`，表示相机移动时过渡动画的播放时长（单位秒）。
+- `get_camera`方法，异步方法，获取当前相机的参数。
+- `delete_objects`方法，删除特定的3D对象。该方法支持以下参数：
+  - `callback`参数，可调用类型，通过返回`True`表示哪些3D对象要被删除。
+- `clear`方法，删除所有3D对象。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+  
+def index():
+    scene = ui.scene().classes(
+        'w-64 h-64'
+    )
+    box1 = scene.box().material(
+        'red'
+    )
+    box1.name = 'box1'
+    box2 = scene.box().material(
+        'green'
+    )
+    box2.move(
+        1,1,1
+    )
+    ui.button(
+        'del box1',
+        on_click=lambda:scene.delete_objects(
+            lambda e:e.name=='box1'
+        )
+    )
+    ui.button(
+        'del box2',
+        on_click=lambda:scene.delete_objects(
+            lambda e:e==box2
+        )
+    )
 
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_71.2_1](nicegui_pro.assets/2027_71.2_1.png)
+
+`ui.scene`控件支持以下静态方法：
+
+- `perspective_camera`方法，生成`camera`参数用的透视相机。该方法支持以下关键字参数：
+  - `fov`参数，浮点类型，表示视野角（单位为度），默认为`75`。
+  - `near`参数，浮点类型，表示近裁剪平面距离，默认值为`0.1`。
+  - `far`参数，浮点类型，表示远裁剪平面距离，默认值为`1000`。
+- `ui.scene.orthographic_camera`方法，生成`camera`参数用的正交相机。该方法支持以下关键字参数：
+  - `size`参数，浮点类型，表示视野角，默认为`10`。此参数与视野角的关系是这样的，官方文档（ https://threejs.org/docs/index.html#api/zh/cameras/OrthographicCamera ）中定义正交相机需要的左、右、顶、底四个视锥平面参数，NiceGUI基于此参数，将 `(-size/2)*控件的宽高比`、`(size/2)*控件的宽高比`、`size/2`、`-size/2`依次传递给对应参数。
+  - `near`参数，浮点类型，表示近裁剪平面距离，默认值为`0.1`。
+  - `far`参数，浮点类型，表示远裁剪平面距离，默认值为`1000`。
+
+### 71.3 响应函数的参数——事件参数
+
+对于控件而言，定义事件的响应函数有三种方式：
+
+- “on”开头的参数
+- “on”开头的方法
+- `on`方法。
+
+其实三种方法的结果都一样，都是在特定事件发生后，执行对应的函数（或者其他可调用对象）。不过，函数可以有参数，也可以没参数，都不会报错。前面大部分示例中，函数的响应函数没有参数，也有一部分示例中的响应函数带有参数，因为用的是lambda表达式，因此很好区分。
+
+这里就引出几个问题：
+
+1. 如果响应函数是普通函数，而不是lambda表达式，如何传入参数？
+2. 响应函数最多支持几个参数？
+3. 响应函数的参数有什么用？
+
+关于问题1，直接使用普通函数作为响应函数的话，仅当普通函数**存在没有默认值的位置参数**时，才会将控件的事件参数作为参数，传给符合条件的第一个参数。
+
+比如：
+
+```python
+from nicegui import ui
+
+  
+def index():
+    def handler(e):
+        if e:
+            ui.notify(e)
+    ui.button(
+        'event args',
+        on_click=handler
+    )
 
 
-## 72 学习控件——`ui.keep_alive`控件（更新中）
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_71.3_1](nicegui_pro.assets/2027_71.3_1.png)
+
+如果第一个位置参数有默认值，则函数会被当成没有参数的函数。注意，如果没有默认值的位置参数在有默认值的位置参数后，会报语法错误，代码无法执行。
+
+前面介绍响应函数的参数只是复习一下基础知识，接下来要说的才是本节的重点，那就是响应函数的参数——事件参数。
+
+响应函数是事件的响应函数，响应函数的参数就应该叫做事件参数，听起来好像有点啰嗦，其实不然，这里的事件参数是指`UiEventArguments`类及其派生类的实例对象。大部分派生类只是继承之后改个名，用于判断事件类型。少部分派生类会添加其他属性，这些属性通常与控件类型、事件类型相关，主要是为了方便使用。
+
+一一介绍每个事件参数的属性的话太浪费时间，这里简单介绍一下如何添加事件参数类型的参数标注，这样就能在开发环境中使用智能提示。
+
+NiceGUI的所有事件参数都在`nicegui.events`中定义，因此，只需从中导入对应的类，将其添加为参数标注即可：
+
+```python
+from nicegui import ui
+from nicegui import events
+  
+def index():
+    def handler(e:events.ClickEventArguments):
+        if e:
+            ui.notify(e)
+    ui.button(
+        'event args',
+        on_click=handler
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_71.3_2](nicegui_pro.assets/2027_71.3_2.png)
+
+如上图所示，智能提示显示事件参数支持的属性。至于如何确定该导入哪个类，鼠标悬停在响应函数相关的参数上，会有相应的提示出现：
+
+![2027_71.3_3](nicegui_pro.assets/2027_71.3_3.png)
+
+`ClickEventArguments`类支持以下属性：
+
+- `sender`属性，表示执行响应函数的控件。
+- `client`属性，表示客户端对象。
+
+上面介绍的两个属性也是所有控件的响应函数都支持的。
+
+铺垫了这么多，终于要轮到主角登场了。不同于其他控件的操作简单，`ui.scene`控件涉及到3D对象的操作，需要获取到3D对象的ID、`name`属性、位置坐标，因此响应函数的事件参数会复杂一些。
+
+以`on_click`参数为例，事件参数为`SceneClickEventArguments`类，支持以下属性：
+
+- `click_type`属性，字符串类型，仅支持`['click','dblclick']`中的值，表示点击的类型为单击还是双击。
+- `button`属性，整数类型（`0`-`4`），表示鼠标的哪个按键被按下。数字含义可以参考文档（ https://developer.mozilla.org/zh-CN/docs/Web/API/MouseEvent/button ）：`0`表示鼠标主要按键（通常是左键），`1`表示鼠标辅助按键（通常是中键），`2`表示鼠标次要按键（通常是右键），`3`表示鼠标第四个按键（如果有的话，一般是浏览器前进功能按键），`4`表示鼠标第五个按键（如果有的话，一般是浏览器后退功能按键）。注意，如果只是订阅`'click'`事件或者`'dblclick'`事件，没法获取到鼠标主要按键之外的其他按键响应，只有订阅`'mousedown'`事件或者`'mouseup'`事件才能获取到其他鼠标按键的响应。
+- `alt`属性，布尔类型，表示`alt`键（Mac的`opt`键）是否被按下。
+- `ctrl`属性，布尔类型，表示`ctrl`键是否被按下。
+- `meta`属性，布尔类型，表示`meta`键（WIn的`win`键或者Mac的`cmd`键）是否被按下。
+- `shift`属性，布尔类型，表示`shift`键是否被按下。
+- `hits`属性，元素为`SceneClickEventHit`类型的列表，表示被点击的结果。因为控件是二维的，空间是三维的，点击操作会覆盖到不止一个3D对象，所以结果就是一个包含多个被点击对象（`SceneClickEventHit`类型）的列表，根据到相机的距离由近到远排序。可以取索引值为`0`的对象表示第一个被点击的对象。注意，天空不是可以点击的对象。
+
+`SceneClickEventHit`类支持以下属性：
+
+- `object_id`属性，字符串类型，表示被点击对象的ID。如果该对象是NiceGUI创建且没有指定ID（给对象的`id`属性赋值即可指定ID），ID则是自动生成的随机ID。
+- `object_name`属性，字符串类型，表示被点击对象的名字。如果该对象是NiceGUI创建且没有指定名字（给对象的`name`属性赋值或使用`with_name`方法即可指定名字），名字则为`None`。
+- `x`属性、`y`属性、`z`属性，浮点类型，表示鼠标点击位置的X坐标、Y坐标、Z坐标。
+
+示例如下：
+
+```python
+from nicegui import ui
+from nicegui import events
+  
+def index():
+    def handler(e:events.SceneClickEventArguments):
+        if e:
+            ui.notify(e.hits)
+    scene = ui.scene(
+        on_click=handler
+    ).classes(
+        'w-64 h-64'
+    )
+    scene.box().with_name('box').material(
+        'red'
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_71.3_4](nicegui_pro.assets/2027_71.3_4.png)
+
+### 71.4 3D对象
+
+`ui.scene`控件只是提供了展示3D对象的场景，其参数并没有提供导入、创建3D对象的途径。因此，想要让场景里有3D对象，还需要单独创建。
+
+`ui.scene`类的内部类包括全部的3D对象类，和直接从`nicegui.elements.scene.scene_objects`中导入一样。创建3D对象，就是将这些类实例化。
+
+不过，使用内部类和使用导入的3D对象类相比，在某些情况下没有区别，在另一些情况下只能使用内部类。
+
+在控件的上下文中创建3D对象，相当于将3D对象添加到控件对应的场景。若是通过调用控件属性的方式使用内部类，会自动将3D对象添加到控件对应的场景。
+
+因此，在控件的上下文中创建3D对象时，二者没有区别。
+
+示例如下：
+
+```python
+from nicegui import ui
+from nicegui.elements.scene.scene_objects import Box
+  
+def index():
+    scene = ui.scene().classes(
+        'w-64 h-64'
+    )
+    scene.box().material(
+        'red'
+    )
+    with scene:
+        box = ui.scene.box().material(
+            'green'
+        )
+        box.move(
+            1,1,1
+        )
+    with scene:
+        box = Box().material(
+            'blue'
+        )
+        box.move(
+            1,-1,1
+        )
+        
+    
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_71.4_1](nicegui_pro.assets/2027_71.4_1.png)
+
+3D对象类都是`Object3D`类的派生类，大部分类没有新增方法、属性，但是初始化参数都有所不同。
+
+因此，先介绍`Object3D`类，但是不介绍初始化参数，只介绍方法。后面介绍具体的3D对象类时，只介绍初始化参数。
+
+`Object3D`类支持以下方法：
+
+- `with_name`方法，给3D对象设置名字。该方法支持以下参数：
+  - `name`参数，字符串类型，表示3D对象的名字。
+- `material`方法，设置3D对象的材质。该方法支持以下参数：
+  - `color`参数，字符串类型，默认为`'#ffffff'`，表示材质的颜色。
+  - `opacity`参数，浮点类型，默认为`1.0`，表示透明度。
+  - `side`参数，字符串类型，仅支持`['front', 'back', 'both']`中的值，默认为`'front'`，表示显示时渲染材质的哪一面（前面、后面、全部）。
+- `move`方法，移动3D对象到指定位置。该方法支持以下参数：
+  - `x`参数，浮点类型，表示目标位置的X坐标。
+  - `y`参数，浮点类型，表示目标位置的Y坐标。
+  - `z`参数，浮点类型，表示目标位置的Z坐标。
+- `rotate`方法，旋转3D对象。该方法支持以下参数：
+  - `r_x`参数，浮点类型，表示X轴的旋转角度（弧度）。
+  - `r_y`参数，浮点类型，表示Y轴的旋转角度（弧度）。
+  - `r_z`参数，浮点类型，表示Z轴的旋转角度（弧度）。
+- `rotate_R`方法，旋转3D对象。注意，该方法传入的是正交矩阵。
+- `scale`方法，缩放3D对象。该方法支持以下参数：
+  - `sx`参数，浮点类型，表示X方向的缩放比例（缩放比例=变换后的大小/原大小）。
+  - `sy`参数，浮点类型，表示Y方向的缩放比例（缩放比例=变换后的大小/原大小）。
+  - `sz`参数，浮点类型，表示Z方向的缩放比例（缩放比例=变换后的大小/原大小）。
+- `visible`方法，设置3D对象的可见性。。该方法支持以下参数：
+  - `value`参数，布尔类型，默认为`True`，表示3D对象是否可见。
+- `draggable`方法，设置3D对象的可拖动性。。该方法支持以下参数：
+  - `value`参数，布尔类型，默认为`True`，表示3D对象是否可拖动。注意，不设置的话，3D对象默认不可拖动。
+- `attach`方法，将3D对象挂载到另一个3D对象下，成为其子对象。挂载之后，3D对象的坐标系将变为以父对象为原点的局部坐标系。该方法支持以下参数：
+  - `parent`参数，`Object3D`类型，表示挂载之后的父对象。
+- `detach`方法，解除3D对象与其父对象挂载状态。 
+- `delete`方法，删除3D对象。
+
+NiceGUI提供了以下3D对象类：
+
+| 类名                  | 形状                     |
+| --------------------- | ------------------------ |
+| `Group`               | 分组（无具体形状）       |
+| `Box`                 | 长方体                   |
+| `Sphere`              | 球体                     |
+| `Cylinder`            | 圆柱体                   |
+| `Ring`                | 平面圆环                 |
+| `QuadraticBezierTube` | 二次贝塞尔曲线管道       |
+| `Extrusion`           | Z向棱柱（挤出体）        |
+| `Stl`                 | STL文件（由3D软件导出）  |
+| `Gltf`                | GLTF文件（由3D软件导出） |
+| `Line`                | 线条                     |
+| `Curve`               | 曲线                     |
+| `Text`                | 2D文本（始终与视角垂直） |
+| `Text3d`              | 3D文本                   |
+| `Texture`             | 图片                     |
+| `SpotLight`           | 聚光灯                   |
+| `PointCloud`          | 点云                     |
+| `AxesHelper`          | 坐标轴                   |
+
+`Group`类用于创建虚拟分组，不同的3D对象可以使用`attach`方法挂载到该对象下。
+
+`Box`类支持以下参数：
+
+- `width`参数，浮点类型，默认为`1`，表示宽度。
+- `height`参数，浮点类型，默认为`1`，表示高度。
+- `depth`参数，浮点类型，默认为`1`，表示深度。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Sphere`类支持以下参数：
+
+- `radius`参数，浮点类型，默认为`1`，表示半径。
+- `width_segments`参数，整数类型，默认为`32`，表示水平方向（经线）的球面细分度。
+- `height_segments`参数，整数类型，默认为`16`，表示垂直方向（纬线）的球面细分度。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Cylinder`类支持以下参数：
+
+- `top_radius`参数，浮点类型，默认为`1`，表示顶面半径。
+- `bottom_radius`参数，浮点类型，默认为`1`，表示底面半径。
+- `height`参数，浮点类型，默认为`1`，表示高度。
+- `radial_segments`参数，整数类型，默认为`8`，表示周向的细分度。
+- `height_segments`参数，整数类型，默认为`1`，表示轴向的细分度。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Ring`类支持以下参数：
+
+- `inner_radius`参数，浮点类型，默认为`0.5`，表示内圆半径。
+- `outer_radius`参数，浮点类型，默认为`1`，表示外圆半径。
+- `theta_segments`参数，整数类型，默认为`8`，表示周向的细分度。
+- `phi_segments`参数，整数类型，默认为`1`，表示径向的细分度。
+- `theta_start`参数，浮点类型，默认为`0`，表示起点位置的弧度。
+- `theta_length`参数，浮点类型，默认为`2*math.pi`，表示圆心角的弧度。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`QuadraticBezierTube`类支持以下参数：
+
+- `start`参数，三元素（浮点类型）列表类型，表示曲线起点。
+- `mid`参数，三元素（浮点类型）列表类型，表示曲线中点（控制点）。
+- `end`参数，三元素（浮点类型）列表类型，表示曲线终点。
+- `tubular_segments`参数，整数类型，默认为`64`，表示沿曲线方向的细分度。
+- `radius`参数，浮点类型，默认为`1`，表示管道半径。
+- `radial_segments`参数，整数类型，默认为`8`，表示周向的细分度。
+- `closed`参数，布尔类型，默认为`False`，表示起点、终点是否相连。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Extrusion`类支持以下参数：
+
+- `outline`参数，元素为列表（三浮点类型元素）的列表类型，表示在XY平面上的棱柱轮廓。
+- `height`参数，浮点类型，表示高度。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Stl`类支持以下参数：
+
+- `url`参数，字符串类型，表示STL文件的网络地址（本地文件需要使用`app.add_static_file`方法或者`app.add_static_files`方法挂载为网络地址）。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Gltf`类支持以下参数：
+
+- `url`参数，字符串类型，表示GLTF文件的网络地址（本地文件需要使用`app.add_static_file`方法或者`app.add_static_files`方法挂载为网络地址）。
+
+`Line`类支持以下参数：
+
+- `start`参数，三元素（浮点类型）列表类型，表示直线起点。
+- `end`参数，三元素（浮点类型）列表类型，表示直线终点。
+
+`Curve`类支持以下参数：
+
+- `start`参数，三元素（浮点类型）列表类型，表示曲线起点。
+- `control1`参数，三元素（浮点类型）列表类型，表示曲线控制点1。
+- `control2`参数，三元素（浮点类型）列表类型，表示曲线控制点2。
+- `end`参数，三元素（浮点类型）列表类型，表示曲线终点。
+- `num_points`参数，整数类型，默认为`20`，表示曲线的细分度（采样点数）。
+
+`Text`类支持以下参数：
+
+- `text`参数，字符串类型，表示文本。
+- `style`参数，字符串类型，表示文本的CSS样式。
+
+`Text3d`类支持以下参数：
+
+- `text`参数，字符串类型，表示文本。
+- `style`参数，字符串类型，表示文本的CSS样式。
+
+`Texture`类支持以下参数：
+
+- `url`参数，字符串类型，表示图片文件的网络地址（本地文件需要使用`app.add_static_file`方法或者`app.add_static_files`方法挂载为网络地址）。
+- `coordinates`参数，三维数组（具体结构详见下面关于UV坐标的解释），表示图片UV坐标的映射坐标。
+
+什么是UV坐标？
+
+如下图所示，图片是长方形，图片的左上角就是UV坐标的原点，向下为U轴的正方向，向右为V轴的正方向：
+
+![2027_71.4_2](nicegui_pro.assets/2027_71.4_2.png)
+
+`coordinates`参数是一个三维数组，比如：
+
+```python
+#第一层表示U坐标
+coordinates = [
+    #第二层表示V坐标
+    [
+        #UV坐标的原点
+        [0, 0, 0],
+        [0, 2, 0]
+    ],
+    [
+        [2, 0, 0],
+        [2, 2, 0]
+    ],
+]
+```
+
+第一维度表示U坐标，第二维度表示V坐标，第三维度表示该UV坐标对应的XYZ坐标（三维坐标）。
+
+简单理解的话就是：
+
+```python
+coordinates[U][V] = [X,Y,Z]
+```
+
+图片右下角的UV坐标取决于三维数组的第一、第二维度的最大索引值，最小为`(1,1)`。
+
+因此，UV坐标实际上就是将图片切成宫格之后，每个顶点的二维坐标，**U**坐标表示**垂直**方向，**V**坐标表示**水平**方向，两个方向的坐标值均为整数。
+
+映射坐标就是基于UV坐标，设置每个点的XYZ坐标（三维坐标），进而得到一个三维数组，**U**坐标表示**第一**维度，**V**坐标表示**第二**维度。
+
+示例如下：
+
+```python
+from nicegui import ui
+from nicegui.elements.scene.scene_objects import Texture,Box,AxesHelper
+
+
+#第一层表示U坐标
+coordinates = [
+    #第二层表示V坐标
+    [
+        #UV坐标的原点
+        [0, 0, 0],
+        [0, 2, 0]
+    ],
+    [
+        [2, 0, 0],
+        [2, 2, 0]
+    ],
+]
+# 打印图片右上角（UV坐标(0,1)）的XYZ坐标
+print(coordinates[0][1])
+# 输出为：[0, 2, 0]
+
+def index():
+    scene = ui.scene().classes(
+        'w-64 h-64'
+    )
+    with scene:
+        AxesHelper(2).material(None)
+        # X轴正方向，红色
+        Box().material('red').scale(0.5,0.5,0.5).move(2,0,0)
+        # Y轴正方向，绿色
+        Box().material('green').scale(0.5,0.5,0.5).move(0,2,0)
+        Texture(
+            'favicon.ico',
+            coordinates
+        )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_71.4_3](nicegui_pro.assets/2027_71.4_3.png)
+
+如上图所示，红色方块表示X轴正方向，坐标为`(2,0,0)`；绿色方块表示Y轴正方向，坐标为`(0,2,0)`。图片右上角（映射坐标的第一、第二维度的最大索引值均为1，因此UV坐标是`(0,1)`）的坐标为`(0,2,0)`，因此，绿色方块位于图片右上角。
+
+`Texture`类支持以下方法：
+
+- `set_url`方法，设置图片文件的网络地址。该方法支持以下参数：
+  - `url`参数，字符串类型，表示图片文件的网络地址。
+- `set_coordinates`方法，设置图片UV坐标的映射坐标。该方法支持以下参数：
+  - `coordinates`参数，表示图片UV坐标的映射坐标。
+
+`SpotLight`类支持以下参数：
+
+- `color`参数，字符串类型，默认为`#ffffff`，表示灯光颜色。
+- `intensity`参数，浮点类型，默认为`1`，表示光照强度。
+- `distance`参数，浮点类型，默认为`0`，表示光照距离。
+- `angle`参数，浮点类型，默认为`math.pi/3`，表示光锥半角。
+- `penumbra`参数，浮点类型，默认为`0`，表示光照半影系数。
+- `decay`参数，浮点类型，默认为`1`，表示光照衰减系数。
+
+`PointCloud`类支持以下参数：
+
+- `points`参数，元素为列表（三浮点类型元素）的列表类型，表示点云每个点的坐标。
+- `colors`参数，元素为列表（三浮点类型元素）的列表类型，表示点云每个点的RGB颜色（对应分量的取值范围为`0-1`）。
+- `point_size`参数，浮点类型，表示点的尺寸，默认为`1.0`。
+
+`PointCloud`类支持以下方法：
+
+- `set_points`方法，修改点云。该方法支持以下参数：
+  - `points`参数，元素为列表（三浮点类型元素）的列表类型，表示点云每个点的坐标。
+  - `colors`参数，元素为列表（三浮点类型元素）的列表类型，表示点云每个点的RGB颜色（对应分量的取值范围为`0-1`）。
+
+示例如下：
+
+```python
+from nicegui import ui
+from nicegui.elements.scene.scene_objects import PointCloud
+
+
+def index():
+    scene = ui.scene().classes(
+        'w-64 h-64'
+    )
+    with scene:
+        PointCloud(
+            [
+                [0,0,0],
+                [1,0,0],
+                [1,1,0],
+                [0,1,0],
+            ],
+            [
+                [1,0,0],
+                [0,1,0],
+                [0,0,1],
+                [0,1,0],
+            ],
+        )
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_71.4_4](nicegui_pro.assets/2027_71.4_4.png)
+
+`AxesHelper`类支持以下参数：
+
+- `length`参数，浮点类型，表示坐标轴的大小，默认为`1.0`。
+
+### 71.5 `ui.scene_view`控件
+
+`ui.scene_view`控件无法单独使用，必须先有`ui.scene`控件，才能使用`ui.scene_view`控件。
+
+对于只希望用户看3D对象的效果而不希望用户可以交互的场景，使用该控件可以实现。
+
+`ui.scene_view`控件支持以下参数：
+
+- `scene`参数，`Scene`类型，表示包含3D对象的三维视图控件。
+- `width`参数，整数类型，控件的宽度，默认为`400`，单位是像素。在没有缩放控件的情况下，此参数指定了控件的固定宽度。如果使用CSS样式缩放控件宽度，此参数指定的宽度优先级最低。
+- `height`参数，整数类型，控件的高度，默认为`300`，单位是像素。在没有缩放控件的情况下，此参数指定了控件的固定高度。如果使用CSS样式缩放控件高度，此参数指定的高度优先级最低。
+- `camera`参数，`SceneCamera`类型，表示场景使用的相机（透视或正交）。
+- `on_click`参数，可调用类型，点击3D对象时执行的操作。
+- `fps`参数，整数类型，默认为`20`，表示渲染帧率。
+- `show_stats`参数，布尔类型，默认为`False`，表示是否显示性能统计。
+
+`ui.scene_view`控件支持以下方法：
+
+- `on_click`方法，设置点击3D对象时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示点击3D对象时执行的操作。
+- `initialized`方法，异步方法，表示控件初始化完成才会结束的异步等待。使用时，异步等待该方法的调用结果即可。
+- `move_camera`方法，移动相机。该方法支持以下参数：
+  - `x`参数，浮点类型，表示相机的X坐标。
+  - `y`参数，浮点类型，表示相机的Y坐标。
+  - `z`参数，浮点类型，表示相机的Z坐标。
+  - `look_at_x`参数，浮点类型，表示相机朝向的X坐标。
+  - `look_at_y`参数，浮点类型，表示相机朝向的Y坐标。
+  - `look_at_z`参数，浮点类型，表示相机朝向的Z坐标。
+  - `up_x`参数，浮点类型，表示相机画面上方向向量的X坐标。
+  - `up_y`参数，浮点类型，表示相机画面上方向向量的Y坐标。
+  - `up_z`参数，浮点类型，表示相机画面上方向向量的Z坐标。
+  - `duration`参数，浮点类型，默认值为`0.5`，表示相机移动时过渡动画的播放时长（单位秒）。
+
+### 71.6 实战——右键菜单
+
+有的读者可能想给3D对象添加右键菜单，可在实际编写代码的时候，就会发现没有想象中那么简单。
+
+#### 71.6.1 无法弹出的右键菜单
+
+在控件的上下文中创建右键菜单，则右击控件可弹出菜单。可是，按照这个方法创建，并不能弹出：
+
+```python
+from nicegui import ui
+from nicegui.elements.scene.scene_objects import Box
+
+
+def index():
+    with ui.scene().classes(
+        'w-64 h-64'
+    ):
+        Box().material('red')
+        with ui.context_menu():
+            ui.menu_item('delete')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+#### 71.6.2 创建右键菜单正确方法
+
+因为`ui.scene`控件对应的前端结构与其他控件不同，因此不能使用常规的菜单创建方法，需要将其放在其他控件中，在其他控件的上下文创建右键菜单，这样的话，右击`ui.scene`控件才能弹出菜单：
+
+```python
+from nicegui import ui
+from nicegui.elements.scene.scene_objects import Box
+
+
+def index():
+    with ui.element():
+        with ui.scene().classes(
+            'w-64 h-64'
+        ):
+            Box().material('red')
+        with ui.context_menu():
+            ui.menu_item('delete')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_71.6.2_1](nicegui_pro.assets/2027_71.6.2_1.png)
+
+#### 71.6.3 无法使用的右键菜单
+
+菜单可以弹出了，但菜单没法与3D对象关联，因为弹出菜单的操作源于承载菜单的其他控件，而不是`ui.scene`控件。因此，菜单项无法获取3D对象的信息，弹出的右键菜单空有界面，没有实际功能。
+
+#### 71.6.4 获取3D对象的信息
+
+想让右键菜单获取3D对象的信息，就要在`ui.scene`控件上想办法。
+
+首先要给`click_events`参数添加右键菜单的事件订阅，这样`on_click`参数对应的可调用对象就能在右击3D对象时执行：
+
+```python
+from nicegui import ui
+from nicegui.elements.scene.scene_objects import Box
+
+
+def index():
+    def handle(e):
+        name = e.hits[0].object_name
+        if name:
+            ui.notify(name)
+            
+    with ui.scene(
+        click_events=['contextmenu'],
+        on_click=handle
+    ).classes(
+        'w-64 h-64'
+    ) as scene:
+        Box().with_name('box').material('red')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_71.6.4_1](nicegui_pro.assets/2027_71.6.4_1.png)
+
+#### 71.6.5 创建与3D对象相关的菜单项
+
+拿到了3D对象的信息，就可以使用该信息创建相关的菜单项。
+
+可以在响应函数中清空原来的右键菜单，创建相关的菜单项：
+
+```python
+from nicegui import ui
+from nicegui.elements.scene.scene_objects import Box
+
+
+def index():
+    def handle(e):
+        name = e.hits[0].object_name
+        if name:
+            with menu.clear():
+                ui.menu_item(
+                    f'delete {name}',
+                    on_click=lambda:scene.delete_objects(
+                        lambda e:e.name == name
+                    )
+                )
+    with ui.element():
+        with ui.scene(
+            click_events=['contextmenu'],
+            on_click=handle
+        ).classes(
+            'w-64 h-64'
+        ) as scene:
+            Box().with_name('box').material('red')
+        with ui.context_menu() as menu:
+            ui.menu_item('delete')     
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_71.6.5_1](nicegui_pro.assets/2027_71.6.5_1.png)
+
+## 72 学习控件——`ui.keep_alive`控件
 
 相关文档：
 
 - https://nicegui.io/documentation/keep_alive
 
+`ui.tab_panels`控件、`ui.carousel`控件、`ui.stepper`控件都支持`keep-alive`控件属性，部分控件还将该控件属性暴露给初始化参数——`keep_alive`参数，用于表示是否使用保活组件。
 
+可能就有读者好奇， 什么情况下应该用保活组件？
 
- 什么情况下应该用保活控件？
-
-如何使用保活控件？
-
-
-
-没有保活的话：
+简单来说，就是有些控件（比如`ui.xterm`控件）的内容存储在客户端，当控件挂载的DOM节点消失，控件会被销毁，内容也会随之消失。比如，下面这种情况：
 
 ```python
 from nicegui import ui
 
 
 def index():
-    with ui.tabs() as tabs:
-        ui.tab('Other')
-        ui.tab('Terminal')
-    with ui.tab_panels(tabs, value='Other',keep_alive=False):
-        with ui.tab_panel('Other'):
-            ui.label('Open the second tab to see the buffered output.')
-        with ui.tab_panel('Terminal'):
-            terminal = ui.xterm({'cols': 28, 'rows': 9})
-    ui.button('Write hello', on_click=lambda: terminal.writeln('Hello, NiceGUI!'))
+    with ui.carousel().classes('border-2 w-96 h-96') as c:
+        with ui.carousel_slide('one'):
+            term = ui.xterm(
+                {
+                    'cols': 30,
+                    'rows': 6,
+                }
+            )
+            i = ui.input()
+            ui.button(
+                '提交',
+                on_click=lambda: term.writeln(i.value)
+            )
+            ui.button('next', on_click=c.next)
+        with ui.carousel_slide('two'):
+            ui.button('prev', on_click=c.previous)
 
 
 ui.run(
@@ -3349,25 +4680,75 @@ ui.run(
 
 ```
 
+![2027_72_1](nicegui_pro.assets/2027_72_1.gif)
 
+可以看到，尽管控件内输出了内容，但切换之后，因为没有使用保活组件，原来的内容被清空了。
 
-有保活：
+因此，想要让内容保存的话，就要使用保活组件，添加`keep-alive`属性：
 
 ```python
 from nicegui import ui
 
 
 def index():
-    with ui.tabs() as tabs:
-        ui.tab('Other')
-        ui.tab('Terminal')
-    with ui.tab_panels(tabs, value='Other',keep_alive=False):
-        with ui.tab_panel('Other'):
-            ui.label('Open the second tab to see the buffered output.')
-        with ui.tab_panel('Terminal'):
+    with ui.carousel().classes('border-2 w-96 h-96').props('keep-alive') as c:
+        with ui.carousel_slide('one'):
+            term = ui.xterm(
+                {
+                    'cols': 30,
+                    'rows': 6,
+                }
+            )
+            i = ui.input()
+            ui.button(
+                '提交',
+                on_click=lambda: term.writeln(i.value)
+            )
+            ui.button('next', on_click=c.next)
+        with ui.carousel_slide('two'):
+            ui.button('prev', on_click=c.previous)
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_72_2](nicegui_pro.assets/2027_72_2.gif)
+
+只是添加了一个控件属性，内容就能保存，不会消失。但是，如前面介绍该控件属性时说过的那样，保活组件可以避免销毁，但会额外占用内存、性能。为了避免影响性能，还是只针对需要保活的部分控件（其实这类控件很少）提供保活，其他控件没必要纳入范围。
+
+但是，`keep-alive`属性影响的整个控件上下文，想要特事特办的话，需要深入正则表达式和VUE，用到`keep-alive-include`属性和`keep-alive-exclude`属性，因为比较吃前端知识，笔者才没有介绍。这倒不是笔者藏私，而是因为NiceGUI提供了更简单、方便的`ui.keep_alive`控件，免去诸多麻烦。
+
+该控件的用法很简单，放在该控件上下文内的控件都会保活。因此，即使控件的`keep-alive`属性是禁用状态，或者控件不支持`keep-alive`属性，可以使用该控件，保活有需求的部分控件。
+
+那么，上面的示例在不使用`keep-alive`属性的前提下，使用`ui.keep_alive`控件也可以：
+
+```python
+from nicegui import ui
+
+
+def index():
+    with ui.carousel().classes('border-2 w-96 h-96') as c:
+        with ui.carousel_slide('one'):
+            # 使用`ui.keep_alive`控件
             with ui.keep_alive():
-                terminal = ui.xterm({'cols': 28, 'rows': 9})
-    ui.button('Write hello', on_click=lambda: terminal.writeln('Hello, NiceGUI!'))
+                term = ui.xterm(
+                    {
+                        'cols': 30,
+                        'rows': 6,
+                    }
+                )
+            i = ui.input()
+            ui.button(
+                '提交',
+                on_click=lambda: term.writeln(i.value)
+            )
+            ui.button('next', on_click=c.next)
+        with ui.carousel_slide('two'):
+            ui.button('prev', on_click=c.previous)
 
 
 ui.run(
@@ -3377,28 +4758,27 @@ ui.run(
 
 ```
 
-
-
-选项卡、弹窗都可以按需设置需要保活的部分：
+`ui.dialog`控件、菜单控件不支持`keep-alive`属性，也存在需要保活的情况。以`ui.dialog`控件为例，默认不使用保活控件的话，弹窗消失，内容也随之消失：
 
 ```python
 from nicegui import ui
 
 
 def index():
-    with ui.dialog() as dialog, ui.card().classes('min-w-96'):
-        with ui.keep_alive():
-            grid = ui.aggrid({
-                'columnDefs': [{'field': 'name', 'editable': True}, {'field': 'age'}],
-                'rowData': [{'name': 'Alice', 'age': 18}, {'name': 'Bob', 'age': 21}],
-            })
+    with ui.dialog() as dialog, ui.card().classes('min-w-64'):
+        term = ui.xterm(
+            {
+                'cols': 30,
+                'rows': 6,
+            }
+        )
+        i = ui.input()
+        ui.button(
+            '提交',
+            on_click=lambda: term.writeln(i.value)
+        )
         ui.button('Close', on_click=dialog.close)
-
-    async def show_data():
-        ui.notify(await grid.get_client_data())
-
     ui.button('Open dialog', on_click=dialog.open)
-    ui.button('Read data', on_click=show_data)
 
 
 ui.run(
@@ -3408,11 +4788,250 @@ ui.run(
 
 ```
 
+![2027_72_3](nicegui_pro.assets/2027_72_3.gif)
+
+使用`ui.keep_alive`控件就可以解决此问题：
+
+```python
+from nicegui import ui
 
 
+def index():
+    with ui.dialog() as dialog, ui.card().classes('min-w-64'):
+        with ui.keep_alive():
+            term = ui.xterm(
+                {
+                    'cols': 30,
+                    'rows': 6,
+                }
+            )
+        i = ui.input()
+        ui.button(
+            '提交',
+            on_click=lambda: term.writeln(i.value)
+        )
+        ui.button('Close', on_click=dialog.close)
+    ui.button('Open dialog', on_click=dialog.open)
 
 
-## 73 学习控件——`ui.altair`控件（更新中）
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_72_4](nicegui_pro.assets/2027_72_4.gif)
+
+## 73 拖动（排序）控件
+
+相关文档：
+
+- https://nicegui.io/documentation/sortable
+- https://sortablejs.github.io/Sortable/
+
+### 73.1 基础用法
+
+`ui.card`控件、`ui.column`控件、`ui.expansion`控件、`ui.grid`控件、`ui.list`控件、`ui.row`控件、`ui.scroll_area`控件都继承自`SortableElement`类，使得这些控件都支持`make_sortable`方法。调用该方法可以控件内的直接子控件支持排序，同时还会返回一个可排序控件——`Sortable`控件（使用`from nicegui.elements.sortable import Sortable`导入）。
+
+当然，想要让控件内的直接子控件支持排序，只需调用`make_sortable`方法即可，这里介绍`Sortable`控件只是为了学习其属性、方法，而不用使用该控件，使用参数没有默认值的`Sortable`控件实现让排序反而会让代码变得复杂。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.card() as card:
+        for i in 'abc':
+            ui.label(i)
+    sortable = card.make_sortable()
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_73.1_1](nicegui_pro.assets/2027_73.1_1.gif)
+
+`make_sortable`方法支持以下参数：
+
+- `options`参数，字典类型，表示控件的配置项。注意，该参数会覆盖控件原有的配置项。
+
+- `on_end`参数，可调用类型，表示拖动完成后执行的操作。
+
+  从该参数开始，只能通过关键字传入。
+
+- `animation`参数，浮点类型，默认为`0.15`，表示排序动画的播放时间（单位秒）。
+
+- `handle`参数，字符串类型，表示可拖动区域的CSS选择器，可用于限制可拖动区域。
+
+- `group`参数，字符串类型或者字典类型，表示分组名或者分组配置。分组名相同的容器之间，子控件可以跨容器拖动。
+
+- `ghost_class`参数，字符串类型，默认为`'opacity-50'`，表示拖动时被拖动控件额外添加的样式类。
+
+`Sortable`控件支持以下属性：
+
+- `options`属性，含义与同名参数相同。
+- `animation`属性，含义与同名参数相同。
+- `handle`属性，含义与同名参数相同。
+- `group`属性，含义与同名参数相同。
+- `ghost_class`属性，含义与同名参数相同。
+
+`Sortable`控件支持以下方法：
+
+- `on_end`方法，设置拖动完成后执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示拖动完成后执行的操作。
+- `enable`方法，启用拖动。
+- `disable`方法，禁用拖动。
+
+### 73.2 扩展用法
+
+#### 73.2.1 启用与禁用
+
+`Sortable`控件的`enable`方法、`disable`方法用于启用、禁用拖动，因此，启用、禁用操作也是要通过这两个方法，没法通过绑定属性的方式进行：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.card() as card:
+        for i in 'abc':
+            ui.label(i)
+    sortable = card.make_sortable()
+    ui.switch(
+        'dragable',
+        value=True,
+        on_change=lambda e:sortable.enable() if e.value else sortable.disable()
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_73.2.1_1](nicegui_pro.assets/2027_73.2.1_1.png)
+
+#### 73.2.2 限制可拖动区域
+
+`handle`参数，表示可拖动区域的CSS选择器，可用于限制可拖动区域：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.card() as card:
+        for i in 'abc':
+            with ui.row().classes('w-32 h-16 border-2'):
+                ui.icon('menu').classes('hand cursor-grab w-16 border-2')
+                ui.label(i)
+    card.make_sortable(handle='.hand')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_73.2.2_1](nicegui_pro.assets/2027_73.2.2_1.png)
+
+除了上面这种通过参数绑定可拖动区域到指定控件的方式，配置项的`'swapThreshold'`键则提供了一种按百分比划分拖动生效区域的方式。默认情况下，只要鼠标位置到达另一控件的边界内，排序即刻生效，此时配置项的`'swapThreshold'`键对应值为`1`，即100%。
+
+如下图所示：
+
+![2027_73.2.2_2](nicegui_pro.assets/2027_73.2.2_2.png)
+
+图中阴影部分即为触发排序的有效区域，`'swapThreshold'`键表示有效区域占总体的百分比，有效区域默认以排序方向对称轴为起点。
+
+也可以同时设置`'invertSwap'`键的值为`True`，这样的话，有效区域就会是变成以边缘为起点：
+
+![2027_73.2.2_3](nicegui_pro.assets/2027_73.2.2_3.png)
+
+注意，此时要求鼠标到达远端的有效区域才会触发排序。
+
+#### 73.2.3 分组的作用
+
+`group`参数为字符串时表示分组名。分组名相同的容器之间，子控件可以跨容器拖动：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.row():
+        with ui.column().classes('border-2') as c1:
+            ui.item('a')
+            ui.item('b')
+            ui.item('c')
+        with ui.column().classes('border-2') as c2:
+            ui.item('d')
+            ui.item('e')
+            ui.item('f')
+    c1.make_sortable(group='a')
+    c2.make_sortable(group='a')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_73.2.3_1](nicegui_pro.assets/2027_73.2.3_1.gif)
+
+`group`参数还支持字典类型，字典表示分组配置，支持以下键：
+
+- `'name'`键，字符串类型，表示分组名。
+- `'pull'`键，布尔类型或者字符串类型（仅支持`'clone'`），表示是否允许拖出或者拖出模式是否为克隆（即拖出相当于复制）。
+- `'put'`键，布尔类型，表示是否允许拖入。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.row():
+        with ui.column().classes('border-2') as c1:
+            ui.item('a')
+            ui.item('b')
+            ui.item('c')
+        with ui.column().classes('border-2') as c2:
+            ui.item('d')
+            ui.item('e')
+            ui.item('f')
+    c1.make_sortable(
+        group={
+            'name':'a',
+            'pull':'clone',
+            'put':False
+        }
+    )
+    c2.make_sortable(
+        group='a'
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_73.2.3_2](nicegui_pro.assets/2027_73.2.3_2.gif)
+
+可以看到，从左边拖入到右边，不会消耗左边的内容，同时没法从右边拖入到左边。
+
+## 74 学习控件——`ui.altair`控件（更新中）
 
 NiceGUI框架文档：https://nicegui.io/documentation/altair
 
@@ -3430,7 +5049,7 @@ Vega-Altair框架文档：https://altair-viz.github.io/getting_started/overview.
 
 
 
-## 74 学习控件——`ui.anywidget`控件（更新中）
+## 75 学习控件——`ui.anywidget`控件（更新中）
 
 NiceGUI框架文档：https://nicegui.io/documentation/anywidget
 
@@ -3441,16 +5060,6 @@ anywidget框架文档：https://anywidget.dev/en/getting-started/
 
 
 （主要介绍`ui.anywidget`控件支持的anywidget控件中，有哪些实用的，并提供相关示例和用法扩展。）
-
-
-
-## 75 拖动（排序）控件（更新中）
-
-相关文档：
-
-- https://nicegui.io/documentation/sortable
-
-
 
 
 

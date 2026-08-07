@@ -3639,7 +3639,7 @@ ui.run(
 
   ![2026_15_21](nicegui_pro.assets/2026_15_21.png)
 
-- `ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交换的3D视图，后者则是基于前者创建、不可交互的固定视角视图。
+- `ui.scene`控件、`ui.scene_view`控件，使用ThreeJs框架渲染三维模型，前者为可以交互的3D视图，后者则是基于前者创建、不可交互的固定视角视图。
 
   示例如下：
 
@@ -18677,7 +18677,7 @@ ui.run(
 
 ##### 52.1.2.1 控件属性
 
-介绍列定义字典的`'required'`键时，提到了`visible-columns`控件属性，因此，这里先介绍一下啊`visible-columns`属性的含义和用法。
+介绍列定义字典的`'required'`键时，提到了`visible-columns`控件属性，因此，这里先介绍一下`visible-columns`属性的含义和用法。
 
 设置`visible-columns`属性为字符串列表之后，只有该列的`name`在字符串列表中，该列才会显示出来。比如：
 

@@ -5031,43 +5031,17 @@ ui.run(
 
 可以看到，从左边拖入到右边，不会消耗左边的内容，同时没法从右边拖入到左边。
 
-## 74 学习控件——`ui.altair`控件（更新中）
-
-NiceGUI框架文档：https://nicegui.io/documentation/altair
-
-Vega-Altair框架文档：https://altair-viz.github.io/getting_started/overview.html 和 https://altair-viz.github.io/user_guide/api.html
-
-注意，`ui.altair`控件依赖`altair`库和`anywidget`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[altair,anywidget]`命令提前添加依赖库。
+## 74 x（待定）（更新中）
 
 
 
-（`ui.altair`控件用法补充，主要介绍`altair`库的具体用法示例，NiceGUI后续版本`ui.altair`控件的用法如果有变动，也一并介绍。）
-
-
-
-
-
-
-
-## 75 学习控件——`ui.anywidget`控件（更新中）
-
-NiceGUI框架文档：https://nicegui.io/documentation/anywidget
-
-anywidget框架文档：https://anywidget.dev/en/getting-started/
-
-注意，`ui.anywidget`控件依赖`anywidget`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[anywidget]`命令提前添加依赖库。
-
-
-
-（主要介绍`ui.anywidget`控件支持的anywidget控件中，有哪些实用的，并提供相关示例和用法扩展。）
-
-
-
-
+（持续更新中）
 
 ## x 灵感（待定）
 
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
+
+### x.1 强制刷新页面
 
 强制刷新页面（忽略缓存，只从服务器加载资源）：
 
@@ -5075,3 +5049,20 @@ anywidget框架文档：https://anywidget.dev/en/getting-started/
 window.location.reload(true)
 ```
 
+### x.2 anywidget控件
+
+NiceGUI框架文档：https://nicegui.io/documentation/anywidget
+
+anywidget框架文档：https://anywidget.dev/en/getting-started/
+
+anywidget控件：https://try.anywidget.dev/
+
+注意，`ui.anywidget`控件依赖`anywidget`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[anywidget]`命令提前添加依赖库。
+
+介绍`ui.anywidget`控件支持的anywidget控件。
+
+### x.3 x（待定）
+
+
+
+（持续更新中）

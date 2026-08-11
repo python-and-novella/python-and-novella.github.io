@@ -187,7 +187,19 @@ flet.run(
 
 因为服务相关的代码比较多且复杂，这里就不一一提供示例，待后续实际使用到的时候再做更加详细的解释，届时再提供示例。
 
-## 27 （待定）（更新中）
+## 27 字体（更新中）
+
+相关文档：https://flet.dev/docs/cookbook/fonts
+
+
+
+
+
+
+
+## 28 资产（更新中）
+
+相关文档：https://flet.dev/docs/cookbook/assets/
 
 
 

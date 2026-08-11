@@ -1961,7 +1961,9 @@ print(QByteArray.fromBase64(b'MTIz'))
 
 `QbyteArray`类支持的方法不一而足，这里就不全部介绍了，读者可以自行探索官网文档，发掘更多得心应手的方法。
 
-## 55 x（待定）（更新中）
+## 55 字体（更新中）
+
+QFont（setFont，单个控件或者应用程序类）、QSS、
 
 
 

@@ -3465,19 +3465,19 @@ app.exec()
 
 （完）
 
-## 2711期：Python大版本更新中的实用语法（更新中）
+## 2711期：Python大版本更新中的实用语法
 
 ### 0 本期主要内容
 
 本期主要介绍从 Python 3.8 开始，每个版本新增的语法中，比较实用的语法。可以不用，但不能不知道。
 
-### 1 赋值表达式（始于3.8版本）
+### 1 赋值表达式（始于3.8版本）：定义变量，立刻使用
 
-相关文档：https://docs.python.org/zh-cn/3.8/whatsnew/3.8.html
+相关文档：https://docs.python.org/zh-cn/3.8/whatsnew/3.8.html#assignment-expressions
 
-实用指数：3分（待定）
+实用指数：⭐⭐⭐⭐⭐
 
-使用难度：3分（待定）
+易用指数：⭐⭐⭐⭐⭐
 
 海象运算符是该语法使用运算符，因为运算符`:=`是冒号与等号的结合，将其顺时针旋转90度，看起来就像海象的两个鼻孔和象牙，因此得名。
 
@@ -3501,29 +3501,258 @@ for i in range(l:=len(a:='abc')):
 
 注意，虽然赋值表达式可以在某种程度上减少行数，但不推荐过度使用，以免代码过于晦涩而导致调试困难。
 
+### 2 字典的合并运算符（始于3.9版本）：合并字典，简单直接
 
+相关文档：https://docs.python.org/zh-cn/3.9/whatsnew/3.9.html#dictionary-merge-update-operators
 
+实用指数：⭐⭐⭐⭐
 
+易用指数：⭐⭐⭐⭐
 
-https://docs.python.org/zh-cn/3.9/whatsnew/3.9.html
+在3.9版本，Python新增了针对字典的合并运算符——`|`。
 
-https://docs.python.org/zh-cn/3.10/whatsnew/3.10.html
+在之前版本，字典已经支持合并，但操作和结果只能说差强人意（大体上让人满意，但存在不足）：
 
-https://docs.python.org/zh-cn/3.12/whatsnew/3.12.html
+```python
+a = {'a':1}
+b = {'b':2}
+a.update(b)
+print(a)
+# 结果为：{'a': 1, 'b': 2}
+```
 
-https://docs.python.org/zh-cn/3.14/whatsnew/3.14.html
+如上面代码所示，通过调用`update`方法，可以将两个字典合并为一个字典。如果有新的键，则会增加；如果是相同的键，则会更新值。
 
-https://docs.python.org/zh-cn/3.15/whatsnew/3.15.html
+不过，上面代码也展示出这种合并的缺点：合并之后会修改原来的字典。因此，如果想将两个字典合并为新的字典且不影响原来的字典，就要先创建一个空字典，再调用两次`update`方法：
 
+```python
+a = {'a':1}
+b = {'b':2}
+c = {}
+c.update(a)
+c.update(b)
+print(a)
+# 结果为：{'a': 1}
+print(c)
+# 结果为：{'a': 1, 'b': 2}
+```
 
+当然，用合并运算符的话，可以更加简单、直观：
+
+```python
+a = {'a':1}
+b = {'b':2}
+c = a|b
+print(a)
+# 结果为：{'a': 1}
+print(c)
+# 结果为：{'a': 1, 'b': 2}
+```
+
+和`update`方法的调用者会影响同名键的值类似，合并运算符的前者相对于`update`方法的调用者，因此，合并运算符的前后顺序也会影响结果：
+
+```python
+a = {'a':1}
+b = {'a':2}
+c = a|b
+d = b|a
+print(c)
+# 结果为：{'a': 2}
+print(d)
+# 结果为：{'a': 1}
+```
+
+### 3 结构化模式匹配（始于3.10版本）：Python版`switch`
+
+相关文档：https://docs.python.org/zh-cn/3.10/whatsnew/3.10.html#pep-634-structural-pattern-matching
+
+实用指数：⭐⭐⭐⭐
+
+易用指数：⭐⭐⭐
+
+根据同一变量的不同值执行不同的代码，这就是模式匹配。对于之前版本的Python，想要实现类似效果，只能用 if-elif-else ：
+
+```python
+for i in range(6):
+    if i == 1:
+        print('一')
+    elif i == 2:
+        print('二')
+    else:
+        continue
+```
+
+一个两个倒还好，如果要匹配的结果比较多、匹配的情况比较复杂，代码就开始变得复杂了：
+
+```python
+for i in range(6):
+    if i == 1 or i == 2:
+        print('一或二')
+    else:
+        continue
+```
+
+当然，倘若读者学过C语言，C语言中有`switch`关键字，可用于这种复杂的匹配情况。没学过C语言也没关系，可以直接看Python版的`switch`关键字——`match`关键字：
+
+```python
+for i in range(6):
+    match i:
+        case 1|2:
+            print('一或二')
+        case _:
+            continue
+```
+
+`case`关键字支持复杂的匹配语法，可以使用`|`表示“或者”。而表示通配的`_`，除了可以当作`else`的代替，还能组成更加复杂的匹配结果：
+
+```python
+for i in [
+    (1,2),
+    (1,3),
+    (2,3)
+]:
+    match i:
+        case (1,_):
+            print('一')
+        case _:
+            continue
+```
+
+结构化模式匹配的使用场景远比上面介绍的复杂，受限于篇幅，这里不做展开，待后续有机会再详细介绍。
+
+### 4 f-字符串语法的改进（始于3.12版本）：f-字符串解除限制
+
+相关文档：https://docs.python.org/zh-cn/3.12/whatsnew/3.12.html#pep-701-syntactic-formalization-of-f-strings
+
+实用指数：⭐⭐⭐⭐⭐
+
+易用指数：⭐⭐⭐⭐
+
+不知道各位读者用 f-字符串 多不多，反正笔者在需要将变量、表达式嵌入字符串内的时候，最喜欢使用。
+
+不过，在3.12版本之前，f-字符串 存在很多限制，导致用起来没那么自由：
+
+- 不能在字符串内使用与字符串本身相同的引号。
+- 不支持多行字符串。
+- 不能使用反斜杠以及基于反斜杠语法的unicode字符。
+
+但在3.12版本，f-字符串 的上述限制统统解除，可以在其中自由使用合法的Python语法，也能无限嵌套：
+
+```python
+a = f'{'a'*3}'
+print(a)
+# 结果为：aaa
+b = f'''
+a is {a}
+'''
+print(b)
+# 结果为：a is aaa
+c = f'{"\N{BLACK HEART SUIT}"}'
+print(c)
+# 结果为：♥
+d = f'{f'{a}'}'
+print(d)
+# 结果为：aaa
+```
+
+不需要记住之前的版本存在什么限制，只需要记住，在3.12版本以后，f-字符串 没有限制。
+
+### 5 模板字符串（始于3.14版本）：t-字符串
+
+相关文档：https://docs.python.org/zh-cn/3.14/whatsnew/3.14.html#whatsnew314-template-string-literals
+
+实用指数：⭐⭐⭐⭐
+
+易用指数：⭐⭐⭐
+
+模板字符串也就 t-字符串，语法规则与 f-字符串 一致，只不过，t-字符串 的前缀是`t`而不是`f`。
+
+不同于 f-字符串 直接得到最终结果，直接打印 t-字符串，只会看到处于中间状态的字面量：
+
+```python
+a = 'a'
+b = t'a is {a}'
+print(b)
+# 结果为：Template(strings=('a is ', ''), interpolations=(Interpolation('a', 'a', None, ''),))
+```
+
+之所以会这样，是因为很多框架直接使用 f-字符串 作为模板的话，很容易导致用户通过变量注入非法内容，进而完成攻击，所以需要框架在输出 f-字符串 的最终结果之前，做好对用户输入的过滤、拦截、处理。
+
+使用 t-字符串 的话，可以只转换变量对应的值：
+
+```python
+from string.templatelib import Interpolation
+
+def to_upper(template):
+    parts = []
+    for part in template:
+        if isinstance(part, Interpolation):
+            parts.append(str(part.value).upper())
+        else:
+            parts.append(part.lower())
+    return ''.join(parts)
+
+a = 'a'
+b = t'a is {a}'
+print(to_upper(b))
+# 结果为：a is A
+```
+
+### 6 推导式中的解包（始于3.15版本）：让嵌套推导式更优雅
+
+相关文档：https://docs.python.org/zh-cn/3.15/whatsnew/3.15.html#whatsnew315-unpacking-in-comprehensions
+
+实用指数：⭐⭐⭐⭐⭐
+
+易用指数：⭐⭐⭐⭐⭐
+
+列表、集合、字典作为一个可遍历变量的元素时，将其中的元素拿出来，难免用到嵌套推导式：
+
+```python
+a = [[1,2,3],[4,5],[6]]
+b = [ k for i in a for k in i ]
+print(b)
+# 结果为：[1, 2, 3, 4, 5, 6]
+```
+
+虽然结果是对的，但这个推导式让人难以理解。好在3.15版本支持在推导式中使用解包语法，上面有点费解的代码，因此变得优雅不少：
+
+```python
+a = [[1,2,3],[4,5],[6]]
+b = [ *i for i in a ]
+print(b)
+# 结果为：[1, 2, 3, 4, 5, 6]
+```
+
+对于字典，同样支持在推导式中解包。
+
+3.15之前的嵌套推导式：
+
+```python
+a = [{'a':1,'b':2},{'b':3}]
+b = { k:v for i in a for k,v in i.items() }
+print(b)
+# 结果为：{'a': 1, 'b': 3}
+```
+
+3.15及以后的嵌套推导式：
+
+```python
+a = [{'a':1,'b':2},{'b':3}]
+b = { **i for i in a }
+print(b)
+# 结果为：{'a': 1, 'b': 3}
+```
 
 （完）
 
-## 271x期：xxx（更新中）
+## 2712期：字体（更新中）
 
 ### 0 本期主要内容
 
-《NiceGUI札记》的63章？
+
+
+三种框架显示字体的修改。
 
 （编写本期主要内容和标题，同时作为内容规划）
 
@@ -3562,6 +3791,54 @@ https://docs.python.org/zh-cn/3.15/whatsnew/3.15.html
 （完）
 
 ## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+
+
+## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+
+
+## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+
+
+## 271x期：xxx（更新中）
+
+### 0 本期主要内容
+
+（编写本期主要内容和标题，同时作为内容规划）
+
+
+
+（完）
+
+
+
+## 272x期：xxx（更新中）
 
 ### 0 本期主要内容
 

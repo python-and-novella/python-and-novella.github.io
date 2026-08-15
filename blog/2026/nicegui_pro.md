@@ -26116,46 +26116,45 @@ ui.run(
     - `'defaultMinWidth'`键，整数类型，表示列的默认最小宽度。
 
     - `'defaultMaxWidth'`键，整数类型，表示列的默认最大宽度。
-
-
+  
   示例如下：
-
+  
   ```python
-from nicegui import ui
-
-def index():
-    options = {
-        'columnDefs': [
-            {'headerName': 'Name', 'field': 'name'},
-            {'headerName': 'Age', 'field': 'age','headerClass':'bg-red'},
-        ],
-        'rowData': [
-            {'name': 'Alice', 'age': 18},
-            {'name': 'Bob', 'age': 21},
-            {'name': 'Carol','age': 20},
-        ],
-    }
-    aggrid = ui.aggrid(
-        options=options
-    )
-    grid_method = 'autoSizeColumns'
-    ui.button(
-        grid_method,
-        on_click=lambda:aggrid.run_grid_method(
-            grid_method,
-            {
-                'colIds':[
-                    'name',
-                    'age'
-                ],
-            }
-        )
-    ).props('no-caps')
-
-ui.run(
-    root=index,
-    native=True
-)
+  from nicegui import ui
+  
+  def index():
+      options = {
+          'columnDefs': [
+              {'headerName': 'Name', 'field': 'name'},
+              {'headerName': 'Age', 'field': 'age','headerClass':'bg-red'},
+          ],
+          'rowData': [
+              {'name': 'Alice', 'age': 18},
+              {'name': 'Bob', 'age': 21},
+              {'name': 'Carol','age': 20},
+          ],
+      }
+      aggrid = ui.aggrid(
+          options=options
+      )
+      grid_method = 'autoSizeColumns'
+      ui.button(
+          grid_method,
+          on_click=lambda:aggrid.run_grid_method(
+              grid_method,
+              {
+                  'colIds':[
+                      'name',
+                      'age'
+                  ],
+              }
+          )
+      ).props('no-caps')
+  
+  ui.run(
+      root=index,
+      native=True
+  )
   ```
 
 - `autoSizeAllColumns`方法，参数同`autoSizeColumns`方法，但该方法在没有参数时会调整所有列的列宽。

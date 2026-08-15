@@ -1961,9 +1961,584 @@ print(QByteArray.fromBase64(b'MTIz'))
 
 `QbyteArray`类支持的方法不一而足，这里就不全部介绍了，读者可以自行探索官网文档，发掘更多得心应手的方法。
 
-## 55 字体（更新中）
+## 55 字体
 
-QFont（setFont，单个控件或者应用程序类）、QSS、
+说到修改控件的字体用CSS，PySide6也有类似CSS的QSS，修改字体同样简单：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+button.setStyleSheet(
+    'font-family: SimSun;'
+)
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_55_1](pyside6_pro.assets/2027_55_1.png)
+
+当然，不太熟悉QSS的话，也可以修改`font`控件属性：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+button.setFont('SimSun')
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_55_1](pyside6_pro.assets/2027_55_1.png)
+
+甚至可以设置整个应用的默认字体，只是调用者变成了应用程序实例（对于QSS也是一样）：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+#app.setFont('SimSun')
+app.setStyleSheet('*{font-family:SimSun;font-size:16px;}')
+
+window.show()
+app.exec()
+
+```
+
+![2027_55_2](pyside6_pro.assets/2027_55_2.png)
+
+只是使用系统字体，需要针对特定系统做设置，不符合PySide6的跨平台要求，因此，使用自带的自定义字体也需要掌握。
+
+需要注意，PySide6使用在线字体的操作比较麻烦，这里介绍的是使用本地字体文件的方法。
+
+第一步，下载字体到本地，地址如下：
+
+- https://mirror.nju.edu.cn/adobe-fonts/source-han-sans/OTF/SimplifiedChinese/SourceHanSansSC-Regular.otf
+
+第二部就是注册自定义字体，关键点如下：
+
+- 先有应用程序实例，才能加载、注册自定义字体。
+- `QFontDatabase`类（使用`from PySide6.QtGui import QFontDatabase`导入）的`addApplicationFont`方法用于加载、注册自定义字体，并返回字体的ID。
+- `QFontDatabase`类的`applicationFontFamilies`方法负责根据字体ID查询字体名。
+
+因此，注册自定义字体，就是根据上面的关键点，按部就班操作即可：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtGui import QFontDatabase
+
+app = QApplication()
+
+# 先有应用程序实例，才能加载字体
+font_id = QFontDatabase.addApplicationFont('SourceHanSansSC-Regular.otf')
+font_families = QFontDatabase.applicationFontFamilies(font_id)
+
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+app.setFont('SimSun')
+button.setFont(font_families[0])
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_55_3](pyside6_pro.assets/2027_55_3.png)
+
+笔者写到这里，突然发现一个小问题，该问题的解决方法导致笔者不得不介绍一下`QFont`类，那就是修改`font`控件属性来加载自定义字体，导致字体变大了。这并不是字体的问题，而是默认字体大小没有沿用之前的值。
+
+使用`app.font().pointSize()`可以获取字体的大小，但是使用`app.font().setPointSize(size)`没法让字体大小生效：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtGui import QFontDatabase
+
+app = QApplication()
+
+# 先有应用程序实例，才能加载字体
+font_id = QFontDatabase.addApplicationFont('SourceHanSansSC-Regular.otf')
+font_families = QFontDatabase.applicationFontFamilies(font_id)
+
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+size = app.font().pointSize()
+app.setFont('SimSun')
+app.font().setPointSize(size)
+button.setFont(font_families[0])
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_55_3](pyside6_pro.assets/2027_55_3.png)
+
+看起来问题让人头疼，解决方案也很简单，只需先复制当前字体，修改字体大小之后再设置回去：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtGui import QFontDatabase
+
+app = QApplication()
+
+# 先有应用程序实例，才能加载字体
+font_id = QFontDatabase.addApplicationFont('SourceHanSansSC-Regular.otf')
+font_families = QFontDatabase.applicationFontFamilies(font_id)
+
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+size = app.font().pointSize()
+app.setFont('SimSun')
+current_font = app.font()
+current_font.setPointSize(size)
+app.setFont(current_font)
+button.setFont(font_families[0])
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_55_4](pyside6_pro.assets/2027_55_4.png)
+
+若是使用`QFont`类（使用`from PySide6.QtGui import QFont`导入）还可以更简单：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtGui import QFontDatabase,QFont
+
+app = QApplication()
+
+# 先有应用程序实例，才能加载字体
+font_id = QFontDatabase.addApplicationFont('SourceHanSansSC-Regular.otf')
+font_families = QFontDatabase.applicationFontFamilies(font_id)
+
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+size = app.font().pointSize()
+app.setFont(
+    QFont(
+        'SimSun',
+        size
+    )
+)
+button.setFont(font_families[0])
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_55_4](pyside6_pro.assets/2027_55_4.png)
+
+也可以单独定义控件的字体大小：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtGui import QFontDatabase,QFont
+
+app = QApplication()
+
+# 先有应用程序实例，才能加载字体
+font_id = QFontDatabase.addApplicationFont('SourceHanSansSC-Regular.otf')
+font_families = QFontDatabase.applicationFontFamilies(font_id)
+
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+size = app.font().pointSize()
+app.setFont(
+    QFont(
+        'SimSun',
+        size
+    )
+)
+button.setFont(
+    QFont(
+        font_families[0],
+        12
+    )
+)
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_55_5](pyside6_pro.assets/2027_55_5.png)
+
+## 56 资产——资源集合文件（`.qrc`）
+
+本章主要内容源自于《Qt For Python 札记》第16章《资源集合文件（`.qrc`）》。
+
+PySide6管理资产的思路与Flet、NiceGUI不同，它倾向于将这些资源文件整合，通过资源集合文件（`.qrc`）来管理、编译。没错，这里就用到了《Qt For Python 札记》第16章介绍的内容。当然，本章不会重复一遍之前的内容，只是提示一下各位读者，并以上一章的内容为例，看一下如何将字体文件整合到Python代码中而无需单独携带字体文件。
+
+准备`font.qrc`文件，内容如下（需要与字体文件同目录）：
+
+```xml
+<RCC>
+    <qresource prefix='/fonts'>
+        <file alias='SourceHanSansSC-Regular.otf'>SourceHanSansSC-Regular.otf</file>
+    </qresource>
+</RCC>
+```
+
+使用`pyside6-rcc .\font.qrc -o font.py`命令，将资源集合文件编译为Python文件（文件体积比较大，这里不提供详细内容）。
+
+导入并使用：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtGui import QFontDatabase
+import font
+
+app = QApplication()
+
+# 先有应用程序实例，才能加载字体
+font_id = QFontDatabase.addApplicationFont(':/fonts/SourceHanSansSC-Regular.otf')
+font_families = QFontDatabase.applicationFontFamilies(font_id)
+
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+QPushButton(
+    '按钮',
+    window
+)
+button = QPushButton(
+    '按钮',
+    window
+)
+button.move(0,30)
+app.setFont('SimSun')
+button.setFont(font_families[0])
+
+
+window.show()
+app.exec()
+
+```
+
+操作简单，几步搞定：
+
+1. 准备字体文件和对应的资源集合文件（`.qrc`）。
+2. 编译资源集合文件（`.qrc`），得到Python文件。
+3. 导入生成的Python文件，将字体地址改为资源集合文件（`.qrc`）中定义的路径，还要加上专属前缀（`':'`）。
+
+## 57 获取信息
+
+使用Python获取信息很简单，系统名、系统版本、系统架构、文件信息等都可以使用标准库获取。
+
+使用标准库获取这些信息虽然方便，但是功能分散在各个库中，在使用时需要东拼西凑，有些凌乱。好在PySide6将这些信息的获取方法整合到一个模块（`PySide6.QtCore`模块）中，使用时只需导入对应类即可。不仅用起来方便不少，甚至还提供了标准库没有的功能。
+
+本章将重点介绍`PySide6.QtCore`模块中可以获取信息的类，以及部分信息怎么用标准库获取。
+
+### 57.1 `QSysInfo`类
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSysInfo.html
+
+`QSysInfo`类提供了一些静态方法，可以获取与系统有关的信息。
+
+`buildAbi`方法，获取Qt编译时的目标应用二进制接口，用于识别Qt与系统的兼容性。
+
+`buildCpuArchitecture`方法，获取Qt编译时的目标CPU架构，用于识别Qt与系统的兼容性。。
+
+`currentCpuArchitecture`方法，获取当前系统的CPU架构。如果使用标准库，相当于`platform.machine`方法。
+
+`kernelType`方法，获取系统内核类型。如果使用标准库，相当于`platform.system`方法。
+
+`kernelVersion`方法，获取系统内核版本。如果使用标准库，相当于`platform.version`方法。
+
+`machineHostName`方法，获取主机名。如果使用标准库，相当于`platform.node`方法。
+
+`machineUniqueId`方法，获取机器码。
+
+`prettyProductName`方法，获取系统的产品类型、产品版本。
+
+`productType`方法，获取系统的产品类型。如果使用标准库，相当于`platform.system`方法。
+
+`productVersion`方法，获取系统的产品版本。如果使用标准库，相当于`platform.release`方法。
+
+### 57.2 `QLibraryInfo`类
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QLibraryInfo.html
+
+`QLibraryInfo`类提供了一些静态方法，可以获取与PySide6库有关的信息。
+
+`build`方法，获取Qt编译时信息。
+
+`isDebugBuild`方法，获取Qt编译时是否启用了调试。
+
+`isSharedBuild`方法，获取Qt编译时是否启用了静态链接。
+
+`path`方法，获取特定库文件的路径。该方法支持以下参数：
+
+- `p`参数，仅限位置参数，`PySide6.QtCore.QLibraryInfo.LibraryPath`类型，表示库文件的路径类型。
+
+库文件类型及含义参考下表：
+
+| `LibraryPath`的成员      | 库文件路径类型                                 |
+| ------------------------ | ---------------------------------------------- |
+| `PrefixPath`             | PySide6库的根目录                              |
+| `DocumentationPath`      | 文档目录                                       |
+| `HeadersPath`            | C++头文件目录                                  |
+| `LibrariesPath`          | 动态链接库目录<br />（实际上在`PrefixPath`中） |
+| `LibraryExecutablesPath` | 可执行的库文件的目录                           |
+| `BinariesPath`           | 二进制文件目录                                 |
+| `PluginsPath`            | 插件目录                                       |
+| `QmlImportsPath`         | QML库目录                                      |
+| `TranslationsPath`       | 翻译文件的目录                                 |
+| `ExamplesPath`           | 示例的目录（需要额外安装）                     |
+
+`paths`方法，获取特定库文件的所有路径。该方法支持以下参数：
+
+- `p`参数，仅限位置参数，`PySide6.QtCore.QLibraryInfo.LibraryPath`类型，表示库文件的路径类型。
+
+`version`方法，获取Qt的版本。
+
+### 57.3 `QStorageInfo`类
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QStorageInfo.html
+
+`QStorageInfo`类用于获取磁盘信息（总空间、剩余空间、文件系统类型、挂载点、分卷信息等）。
+
+`QStorageInfo`类支持以下方法（实例化时需要传入路径）：
+
+- `blockSize`方法，获取所属分卷的块大小。
+- `bytesAvailable`方法，获取所属分卷的可用空间大小（字节）。如果使用标准库，相当于`shutil.disk_usage('{路径}').free`属性。
+- `bytesFree`方法，获取所属分卷的空闲空间大小（字节）。如果使用标准库，相当于`shutil.disk_usage('{路径}').free`属性。
+- `bytesTotal`方法，获取所属分卷的总共空间大小（字节）。如果使用标准库，相当于`shutil.disk_usage('{路径}').total`属性。
+- `device`方法，获取所属分卷的设备路径。
+- `displayName`方法，获取所属分卷的卷标。
+- `fileSystemType`方法，获取所属分卷的文件系统类型。
+- `isReadOnly`方法，获取所属分卷是否只读。
+- `isReady`方法，获取所属分卷是否准备完毕。如果使用标准库，相当于`os.path.ismount`方法。
+- `isRoot`方法，获取所属分卷是否为系统所在分卷。
+- `isValid`方法，获取实例化时传入的路径是否为有效路径。
+- `name`方法，获取所属分卷的卷标。
+- `refresh`方法，刷新缓存信息。
+- `rootPath`方法，获取所属分卷的根目录或者股权爱在点。
+- `setPath`方法，修改实例化时传入的路径。
+- `subvolume`方法，获取所属分卷的子卷的卷标。
+- `swap`方法，将信息与另一`QStorageInfo`对象交换。
+
+`QStorageInfo`类支持以下静态方法：
+
+- `root`方法，返回系统根目录的挂载信息。
+- `mountedVolumes`方法，返回所有挂载点的挂载信息。
+
+### 57.4 `QFileInfo`类
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QFileInfo.html
+
+`QFileInfo`类用于文件、路径信息（大小、后缀、创建时间、是否为目录等）。
+
+`QFileInfo`类支持以下方法（实例化时需要传入路径）：
+
+- `absoluteDir`方法，获取文件父目录的绝对路径（`QDir`对象）。
+- `absoluteFilePath`方法，获取文件的绝对路径。如果使用标准库，相当于`pathlib.Path({路径}).parent`属性。
+- `absolutePath`方法，获取文件父目录的绝对路径（字符串）。如果使用标准库，相当于`pathlib.Path({路径}).parent`属性。
+- `baseName`方法，获取文件不带后缀的文件名（从左向右搜索）。如果使用标准库，相当于`pathlib.Path({路径}).stem.split('.')[0]`。
+- `birthTime`方法，获取文件的创建时间。如果使用标准库，类似于`pathlib.Path({路径}).stat().st_birthtime`属性（时间戳）。
+- `caching`方法，获取文件是否针对文件信息启用了缓存。
+- `canonicalFilePath`方法，获取文件的规范路径。如果使用标准库，相当于`pathlib.Path({路径}).resolve`方法。
+- `canonicalPath`方法，获取文件父目录的规范路径。如果使用标准库，相当于`pathlib.Path({路径}).parent.resolve`方法。
+- `completeBaseName`方法，获取文件不带后缀的文件名（从右向左搜索）。如果使用标准库，相当于`pathlib.Path({路径}).stem`属性。
+- `completeSuffix`方法，获取文件的所有后缀。如果使用标准库，相当于`pathlib.Path({路径}).suffixes`属性。
+- `dir`方法，获取文件父目录（`QDir`对象）。
+- `exists`方法，判断文件是否存在。
+- `fileName`方法，获取文件的文件名。如果使用标准库，相当于`pathlib.Path({路径}).name`属性。
+- `filePath`方法，获取文件的路径。如果使用标准库，相当于`pathlib.Path`方法。
+- `fileTime`方法，获取文件的时间（创建、修改、访问）。该方法支持以下仅限位置参数：
+  - `time`参数，`PySide6.QtCore.QFileDevice.FileTime`类型，表示时间的类型。
+  - `tz`参数，`PySide6.QtCore.QTimeZone`类型或者`PySide6.QtCore.QTimeZone.Initialization`类型，表示时区。
+- `isAbsolute`方法，返回给定路径是否为绝对路径。如果使用标准库，相当于`pathlib.Path({路径}).is_absolute`方法。
+- `isAlias`方法，返回给定路径是否为别名（仅限macOS）。如果使用标准库，类似于`pathlib.Path({路径}).is_symlink`方法。
+- `isBundle`方法，返回给定路径是否为包（仅限macOS）。
+- `isDir`方法，返回给定路径是否为目录。如果使用标准库，类似于`pathlib.Path({路径}).is_dir`方法。
+- `isExecutable`方法，返回给定路径是否有执行权限。
+- `isFile`方法，返回给定路径是否为文件。如果使用标准库，类似于`pathlib.Path({路径}).is_file`方法。
+- `isHidden`方法，返回给定路径是否隐藏。
+- `isJunction`方法，返回给定路径是否为NTFS联接（仅限Windows）。如果使用标准库，类似于`pathlib.Path({路径}).is_symlink`方法。
+- `isNativePath`方法，返回给定路径是否为系统原生路径（区别于Qt资源系统的路径）。
+- `isOther`方法，返回给定路径是否为除了目录、文件、符号链接之外的其他类型路径。注意，如果路径不存在，该方法也会返回`False`。
+- `isReadable`方法，返回给定路径是否可读。如果使用标准库，相当于`os.access({路径},os.R_OK)`。
+- `isRelative`方法，返回给定路径是否为相对路径。如果使用标准库，相当于`pathlib.Path({路径}).is_relative_to('./')`。
+- `isRoot`方法，返回给定路径是否为根目录。
+- `isShortcut`方法，返回给定路径是否为快捷方式（仅限Windows）。
+- `isSymLink`方法，返回给定路径是否为符号链接、快捷方式、别名。如果使用标准库，类似于于`pathlib.Path({路径}).is_symlink`方法。
+- `isSymbolicLink`方法，返回给定路径是否为符号链接。如果使用标准库，类似于于`pathlib.Path({路径}).is_symlink`方法。
+- `isWritable`方法，返回给定路径是否可写。如果使用标准库，相当于`os.access({路径},os.W_OK)`。
+- `junctionTarget`方法，解析NTFS联接的实际路径。
+- `lastModified`方法，获取文件的修改时间。
+- `lastRead`方法，获取文件的读取时间。
+- `makeAbsolute`方法，将实例化时传入的路径转换为绝对路径，返回是否转换成功。
+- `metadataChangeTime`方法，获取文件元数据的修改时间。
+- `path`方法，获取文件的所在目录。如果使用标准库，相当于`pathlib.Path({路径}).parent`属性。
+- `permission`方法，获取文件是否包含特定权限。该方法支持以下仅限位置参数：
+  - `permissions`参数，`PySide6.QtCore.QFileDevice.Permission`类型，表示文件权限，可以使用逻辑运算符`|`组合。
+- `permissions`方法，获取文件的权限信息。
+- `refresh`方法，刷新缓存信息。
+- `setCaching`方法，启用或禁用缓存信息。
+- `setFile`方法，修改实例化时传入的路径。支持的参数比较复杂，可以参考 https://doc.qt.io/qtforpython-6/PySide6/QtCore/QFileInfo.html#PySide6.QtCore.QFileInfo.setFile 。
+- `size`方法，获取文件的大小。
+- `stat`方法，获取文件的所有属性。
+- `suffix`方法，获取文件的后缀。如果使用标准库，相当于`pathlib.Path({路径}).suffix`属性。
+- `swap`方法，将信息与另一`QFileInfo`对象交换。
+- `symLinkTarget`方法，返回符号链接指向的文件或目录的绝对路径。
+
+`QFileInfo`类支持以下静态方法：
+
+- `exists`方法，判断指定路径是否存在。
+
+## 58 `Qxxx`xxx控件（更新中）
+
+相关文档：
+
+
+
+
 
 
 

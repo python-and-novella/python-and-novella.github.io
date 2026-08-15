@@ -187,19 +187,494 @@ flet.run(
 
 因为服务相关的代码比较多且复杂，这里就不一一提供示例，待后续实际使用到的时候再做更加详细的解释，届时再提供示例。
 
-## 27 字体（更新中）
+## 27 字体
+
+### 27.1 字体决定文字样式
 
 相关文档：https://flet.dev/docs/cookbook/fonts
 
+这是一个普通到不能再普通的Flet程序，却存在一个看似不大的问题：
+
+```python
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.add(
+        flet.Button(
+            '按钮',
+        ),
+    )
 
 
+flet.run(
+    main,
+)
+```
+
+![2027_27.1_1](flet_pro.assets/2027_27.1_1.png)
+
+“按钮”二字，一粗一细。
+
+如果将这两个字，放在`Text`控件中，原本的差异却又不见了：
+
+```python
+import flet
 
 
-## 28 资产（更新中）
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.add(
+        flet.Text(
+            '按钮',
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_27.1_2](flet_pro.assets/2027_27.1_2.png)
+
+既然如此，那就用`Text`控件代替字符串，可问题没有解决：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.add(
+        flet.Text(
+            '按钮',
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_27.1_3](flet_pro.assets/2027_27.1_3.png)
+
+究其原因，是字体的问题，因为字体决定了文字的样式。如果不信，那就请使用Windows系统的读者执行下面的代码：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.add(
+        flet.Button(
+            flet.Text(
+                '按钮',
+                # 修改字体
+                font_family='Microsoft YaHei'
+            ),
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+            ),
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_27.1_4](flet_pro.assets/2027_27.1_4.png)
+
+如上面代码所示，只是修改了字体，文字的样式就变得和谐不少，两个汉字的粗细一致了。
+
+### 27.2 使用字体的方法
+
+本节使用的外部字体下载地址：https://mirror.nju.edu.cn/adobe-fonts/source-han-sans/OTF/SimplifiedChinese/SourceHanSansSC-Regular.otf
+
+如前文所示，使用字体的方法可以很简单，一个名字就够了。
+
+但是，这并不是说，使用字体只是这么简单：
+
+- 使用系统字体可以直接用字体名；使用非系统字体，要先在主页面的`fonts`属性（字典）中注册（添加），然后才能使用。
+- 支持`font_family`参数的控件可以让指定控件单独使用字体。如果是`Theme`主题类的`font_family`参数，则会修改当前页面内所有控件的字体。
+
+以上是简单的总结，接下来看具体代码。
+
+给`font_family`参数传入系统字体的名字（不同系统的字体不同）即可使用系统字体：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.add(
+        flet.Text(
+            '按钮',
+            font_family='Microsoft YaHei'
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+                font_family='Microsoft YaHei'
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_27.2_1](flet_pro.assets/2027_27.2_1.png)
+
+如果使用外部字体，可以直接使用字体的网络地址，将其注册为指定字体名：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.fonts = {
+        'San': 'https://mirror.nju.edu.cn/adobe-fonts/source-han-sans/OTF/SimplifiedChinese/SourceHanSansSC-Regular.otf',
+    }
+    page.add(
+        flet.Text(
+            '按钮',
+            font_family='San'
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+                font_family='San'
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_27.2_2](flet_pro.assets/2027_27.2_2.png)
+
+但是，因为字体比较大，使用网络地址的话，字体下载较慢会导致最终字体没有生效。最好先下载到本地，再用本地地址：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.fonts = {
+        'San': 'SourceHanSansSC-Regular.otf',
+    }
+    page.add(
+        flet.Text(
+            '按钮',
+            font_family='San'
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+                font_family='San'
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_27.2_2](flet_pro.assets/2027_27.2_2.png)
+
+如果使用主题的话，可以统一所有控件的字体：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.fonts = {
+        'San': 'SourceHanSansSC-Regular.otf',
+    }
+    page.theme = flet.Theme(font_family='San')
+    page.add(
+        flet.Text(
+            '按钮',
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_27.2_3](flet_pro.assets/2027_27.2_3.png)
+
+## 28 资产
+
+### 28.1 神奇的`assets`文件夹
 
 相关文档：https://flet.dev/docs/cookbook/assets/
+
+之前讲了修改控件的字体，但也带来一个小小的问题：假如用到的字体很多，都放在同目录下的话会导致文件比较混乱。因此，为了让文件存放变得井井有条，最好将字体文件放在单独的文件夹内，使用字体时的路径也要做相应变化。
+
+以下是一个参考的目录结构，字体放在单独的文件夹内，请读者按照下面的示意创建相关文件夹（务必保证文件夹名字、结构一致，后面会介绍相关知识）：
+
+```shell
+{项目文件夹}
+│  main.py
+└─assets
+    └─fonts
+            SourceHanSansSC-Regular.otf
+```
+
+代码如下：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.fonts = {
+        'San': 'assets/fonts/SourceHanSansSC-Regular.otf',
+    }
+    page.theme = flet.Theme(font_family='San')
+    page.add(
+        flet.Text(
+            '按钮',
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_27.2_3](flet_pro.assets/2027_27.2_3.png)
+
+修改字体文件的路径没什么难度，接下来要做的事情，就会有点匪夷所思。如果将文件路径中的`assets`或者`assets/`去掉，字体还能用吗？
+
+按理来说，路径都不对了，不能用才对。可是，结果出乎意料：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.fonts = {
+        # 字体文件存放于assets/fonts目录下时，
+        # 此时路径以assets目录为根目录。
+        'San': 'fonts/SourceHanSansSC-Regular.otf',
+    }
+    page.theme = flet.Theme(font_family='San')
+    page.add(
+        flet.Text(
+            '按钮',
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+    #assets_dir='assets'
+)
+```
+
+![2027_27.2_3](flet_pro.assets/2027_27.2_3.png)
+
+没错，字体路径依然有效，秘诀就在于`assets`这个文件夹，这是资产目录。
+
+### 28.2 资产与资产文件夹
+
+assets这个单词翻译过来就是资产，但在网站开发中，资产通常是指图片、字体、音视频等静态资源。与源代码属于程序开发的原始文件不同，静态资源通常是非程序员提供的最终产物，程序员拿来就用，不需要维护。因此，为了与源代码区分开，这些资产通常放在特定的目录下，按照类型再放到单独的文件夹中。
+
+对于Flet而言，`assets`文件夹就是资产文件夹，所有放在该文件夹内的文件都是资产。因此，如果参数支持路径，可以省略资产文件夹的名字，直接使用资产文件夹内的资产，这就是资产文件夹的特殊之处。
+
+### 28.3 自定义资产文件夹
+
+资产文件夹并非一成不变，`run`方法的`assets_dir`参数可以自定义资产文件夹的名字：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.fonts = {
+        'San': 'fonts/SourceHanSansSC-Regular.otf',
+    }
+    page.theme = flet.Theme(font_family='San')
+    page.add(
+        flet.Text(
+            '按钮',
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+    assets_dir='files'
+)
+```
+
+或者设置环境变量`FLET_ASSETS_DIR`的值，也能修改资产文件夹的名字：
+
+```python
+import flet
+import os
+
+os.environ['FLET_ASSETS_DIR'] = 'files'
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.fonts = {
+        'San': 'fonts/SourceHanSansSC-Regular.otf',
+    }
+    page.theme = flet.Theme(font_family='San')
+    page.add(
+        flet.Text(
+            '按钮',
+        ),
+        flet.Button(
+            flet.Text(
+                '按钮',
+            ),
+        ),
+        flet.Button(
+            '按钮',
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+
+
+## 29 `xxx`控件（更新中）
+
+
 
 
 

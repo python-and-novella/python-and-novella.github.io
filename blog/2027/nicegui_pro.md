@@ -4118,7 +4118,7 @@ ui.run(
 
 `ui.scene`控件只是提供了展示3D对象的场景，其参数并没有提供导入、创建3D对象的途径。因此，想要让场景里有3D对象，还需要单独创建。
 
-`ui.scene`类的内部类包括全部的3D对象类，和直接从`nicegui.elements.scene.scene_objects`中导入一样。创建3D对象，就是将这些类实例化。
+`ui.scene`类的内部类包括全部的3D对象类，和直接从`nicegui.elements.scene.objects`中导入一样。创建3D对象，就是将这些类实例化。
 
 不过，使用内部类和使用导入的3D对象类相比，在某些情况下没有区别，在另一些情况下只能使用内部类。
 
@@ -4130,7 +4130,7 @@ ui.run(
 
 ```python
 from nicegui import ui
-from nicegui.elements.scene.scene_objects import Box
+from nicegui.elements.scene.objects import Box
   
 def index():
     scene = ui.scene().classes(
@@ -4351,7 +4351,7 @@ coordinates[U][V] = [X,Y,Z]
 
 ```python
 from nicegui import ui
-from nicegui.elements.scene.scene_objects import Texture,Box,AxesHelper
+from nicegui.elements.scene.objects import Texture,Box,AxesHelper
 
 
 #第一层表示U坐标
@@ -4430,7 +4430,7 @@ ui.run(
 
 ```python
 from nicegui import ui
-from nicegui.elements.scene.scene_objects import PointCloud
+from nicegui.elements.scene.objects import PointCloud
 
 
 def index():
@@ -4509,7 +4509,7 @@ ui.run(
 
 ```python
 from nicegui import ui
-from nicegui.elements.scene.scene_objects import Box
+from nicegui.elements.scene.objects import Box
 
 
 def index():
@@ -4534,7 +4534,7 @@ ui.run(
 
 ```python
 from nicegui import ui
-from nicegui.elements.scene.scene_objects import Box
+from nicegui.elements.scene.objects import Box
 
 
 def index():
@@ -4568,7 +4568,7 @@ ui.run(
 
 ```python
 from nicegui import ui
-from nicegui.elements.scene.scene_objects import Box
+from nicegui.elements.scene.objects import Box
 
 
 def index():
@@ -4603,7 +4603,7 @@ ui.run(
 
 ```python
 from nicegui import ui
-from nicegui.elements.scene.scene_objects import Box
+from nicegui.elements.scene.objects import Box
 
 
 def index():
@@ -5031,19 +5031,293 @@ ui.run(
 
 可以看到，从左边拖入到右边，不会消耗左边的内容，同时没法从右边拖入到左边。
 
-## 74 样式技巧——字体（更新中）
+## 74 样式技巧——字体
+
+相关文档：
+
+- https://tailwindcss.com/docs/font-family
+- https://developer.mozilla.org/zh-CN/docs/Web/CSS/Reference/Properties/font-family
+- https://developer.mozilla.org/zh-CN/docs/Web/CSS/Reference/At-rules/@font-face
+
+本节使用的外部字体下载地址：https://mirror.nju.edu.cn/adobe-fonts/source-han-sans/OTF/SimplifiedChinese/SourceHanSansSC-Regular.otf
+
+Flet程序修改字体之所以有点“费劲”，是因为Flet程序看似网页的渲染结果，其实都是画出来的，不是真的网页结构。相比之下，渲染为真网页的NiceGUI程序，修改控件字体就简单多了，只需具备一点前端的CSS知识即可。
+
+可以使用Tailwind CSS提供的样式类，也可以直接自定义样式：
+
+```python
+from nicegui import ui
+
+def index():
+    ui.button(
+        '按钮'
+    )
+    ui.button(
+        '按钮'
+    ).classes('font-["Microsoft_YaHei"]')
+    ui.button(
+        '按钮'
+    ).style('font-family: "Microsoft YaHei"')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_74_1](nicegui_pro.assets/2027_74_1.png)
+
+使用的是字体名，也就有使用自定义字体的时候。只不过，需要的前端知识更多了（修改了控件默认的字体，便于对比）：
+
+```python
+from nicegui import ui
+
+ui.add_head_html('''
+<style>
+  @font-face {
+    font-family: 'san';
+    src: url('https://mirror.nju.edu.cn/adobe-fonts/source-han-sans/OTF/SimplifiedChinese/SourceHanSansSC-Regular.otf') format('opentype');
+  }
+</style>
+''', shared=True)
+ 
+
+def index():
+    # 修改默认字体，以便于对比
+    ui.button.default_classes('font-["SimSun"]')
+    ui.button(
+        '按钮'
+    )
+    ui.button(
+        '按钮'
+    ).classes('font-[san]')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_74_2](nicegui_pro.assets/2027_74_2.png)
+
+自定义字体使用的是网络地址，如果要下载到本地后使用，需要先将目录挂载：
+
+```python
+from nicegui import ui,app
+
+app.add_static_files(
+    '/static',
+    local_directory='./static'
+)
+
+ui.add_head_html('''
+<style>
+  @font-face {
+    font-family: 'san';
+    src: url('/static/fonts/SourceHanSansSC-Regular.otf') format('opentype');
+  }
+</style>
+''', shared=True)
+ 
+
+def index():
+    # 修改默认字体，以便于对比
+    ui.button.default_classes('font-["SimSun"]')
+    ui.button(
+        '按钮'
+    )
+    ui.button(
+        '按钮'
+    ).classes('font-[san]')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+)
+
+```
+
+## 75 资产
+
+本章主要内容源自于《NiceGUI札记》第18章《管理静态文件、媒体文件》。
+
+Flet有资产的概念，对于NiceGUI来说也有，比如，上一章中的挂载目录就是NiceGUI资产管理的体现：
+
+```python
+from nicegui import ui,app
+
+app.add_static_files(
+    '/static',
+    local_directory='./static'
+)
+
+ui.add_head_html('''
+<style>
+  @font-face {
+    font-family: 'san';
+    src: url('/static/fonts/SourceHanSansSC-Regular.otf') format('opentype');
+  }
+</style>
+''', shared=True)
+ 
+
+def index():
+    # 修改默认字体，以便于对比
+    ui.button.default_classes('font-["SimSun"]')
+    ui.button(
+        '按钮'
+    )
+    ui.button(
+        '按钮'
+    ).classes('font-[san]')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI',
+)
+
+```
+
+没错，用到的方法是前面介绍过，如果读者忘了，这里简单复习一下：
+
+- `app.add_static_file`方法和`app.add_static_files`方法，用于管理静态文件。
+- `app.add_media_file`方法和`app.add_media_files`方法，用于管理媒体文件。
+
+## 76 HTML的弹窗（更新中）
+
+前面介绍过NiceGUI的弹窗，已经很方便了。不过，那些都是源于VUE等前端框架的实现。本章笔者将带着各位读者，回归稍微原始、麻烦的HTML，看看在HTML中，有没有实现弹窗功能的方法。
+
+### 76.1 `dialog`标签（更新中）
+
+相关文档：https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Elements/dialog
 
 
 
 
 
+```python
+from nicegui import ui
+  
+def index():
+    with ui.element('dialog').classes(
+        'absolute-center w-64 h-64 border-2'
+    ) as ele:
+        with ui.column().classes('w-full'):
+            with ui.row().classes('w-full'):
+                ui.space()
+                ui.button(
+                    'x',
+                    on_click=lambda:ele.run_method('close')
+                ).props('flat')
+    ui.button(
+        'show',
+        on_click=lambda:ele.run_method('show')
+    )
+    ui.button(
+        'show modal',
+        on_click=lambda:ele.run_method('showModal')
+    )
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
 
 
 
 
-## 75 x（待定）（更新中）
+
+### 76.2 `popover`属性（更新中）
+
+相关文档：https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Global_attributes/popover
 
 
+
+```python
+from nicegui import ui
+  
+def index():
+    with ui.element('div').props(
+        'popover'
+    ).classes(
+        'absolute-center w-64 h-64 border-2'
+    ) as ele:
+        with ui.column().classes('w-full'):
+            with ui.row().classes('w-full'):
+                ui.space()
+                ui.button('x').props(
+                    f'''
+                    popovertarget={ele.html_id} 
+                    popovertargetaction="hide" 
+                    flat
+                    '''
+                )
+    ui.button('show').props(
+        f'''
+    	popovertarget={ele.html_id} 
+    	popovertargetaction="show"
+    	'''
+    )
+    
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+
+
+
+
+可以切换为弹窗、常驻的示例：
+
+```python
+from nicegui import ui
+
+def index():
+    switch = ui.switch(
+        '显示为悬浮窗',
+        on_change=lambda e:ele.props(add='popover') if e.value else ele.props(remove='popover')
+    )
+    switch.on_value_change(
+        lambda e:ele.classes(add='absolute-center') if e.value else ele.classes(remove='absolute-center')
+    )
+    with ui.element('div').classes(
+        'w-64 h-64 border-2'
+    ) as ele:
+        with ui.column().classes('w-full'):
+            with ui.row().classes('w-full'):
+                ui.space()
+                ui.button('x').props(
+                    f'''
+                    popovertarget={ele.html_id} 
+                    popovertargetaction="hide" 
+                    flat
+                    '''
+                ).bind_visibility_from(switch,'value')
+          
+    ui.button('show').props(
+        f'''
+    	popovertarget={ele.html_id} 
+    	popovertargetaction="show"
+    	'''
+    ).bind_visibility_from(switch,'value')
+    
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+
+
+
+
+## 77 x（待定）（更新中）
 
 
 

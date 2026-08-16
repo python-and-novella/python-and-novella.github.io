@@ -1632,7 +1632,7 @@ app.exec()
 
 ```
 
-## 54 字符串的另一种表达方式——字节数组（`QbyteArray`类）
+## 54 字符串的另一种表达方式——字节数组（`QByteArray`类）
 
 ### 54.1 字符串`str`、字节串`bytes`、字节数组`bytearray`
 
@@ -1868,11 +1868,11 @@ print(md5(ba2).hexdigest())
 
 一句话总结如何选择：文本用 `str`，二进制用 `bytes`，修改二进制用 `bytearray`。
 
-### 54.2 Qt版字节数组——`QbyteArray`类
+### 54.2 Qt版字节数组——`QByteArray`类
 
 相关文档： https://doc.qt.io/qtforpython-6/PySide6/QtCore/QByteArray.html
 
-前面洋洋洒洒介绍了一大段Python的基础知识，并不是笔者无病呻吟，而是为本章要介绍的Qt版字节数组——`QbyteArray`类做铺垫。`QbyteArray`类在字节数组`bytearray`的基础上，扩展了功能。因此，字节数组`bytearray`支持的部分操作，`QbyteArray`类也支持（要求的数据类型有所不同）：
+前面洋洋洒洒介绍了一大段Python的基础知识，并不是笔者无病呻吟，而是为本章要介绍的Qt版字节数组——`QByteArray`类做铺垫。`QByteArray`类在字节数组`bytearray`的基础上，扩展了功能。因此，字节数组`bytearray`支持的部分操作，`QByteArray`类也支持（要求的数据类型有所不同）：
 
 ```python
 from PySide6.QtCore import QByteArray
@@ -1886,9 +1886,9 @@ print(md5(qba).hexdigest())
 # 结果为：46c0d64a41d821a13f4555571a869e70
 ```
 
-此外，`QbyteArray`类还支持一些字节数组`bytearray`不支持的操作。
+此外，`QByteArray`类还支持一些字节数组`bytearray`不支持的操作。
 
-先说初始化方法。`QbyteArray`类可以创建指定大小、默认为指定字符的重复数据：
+先说初始化方法。`QByteArray`类可以创建指定大小、默认为指定字符的重复数据：
 
 ```python
 from PySide6.QtCore import QByteArray
@@ -1913,7 +1913,7 @@ print(bytearray(5))
 # 结果为：bytearray(b'\x00\x00\x00\x00\x00')
 ```
 
-`QbyteArray`类还支持直接传入未编码的字符串：
+`QByteArray`类还支持直接传入未编码的字符串：
 
 ```python
 from PySide6.QtCore import QByteArray
@@ -1924,7 +1924,7 @@ print(qba)
 # 结果为：b'123'
 ```
 
-除了初始化方法，`QbyteArray`对象支持的方法也比字节数组多。
+除了初始化方法，`QByteArray`对象支持的方法也比字节数组多。
 
 “to”开头的方法是输出为指定数据的方法。当后面接着数字的类型时，可以将原本是数字表达方式的字符串直接转换为对应数字，比如，`toInt`方法，该方法的参数表示字符串对应的进制，输出结果为十进制整数和是否转换成功：
 
@@ -1959,7 +1959,7 @@ print(QByteArray.fromBase64(b'MTIz'))
 # 结果为：b'123'
 ```
 
-`QbyteArray`类支持的方法不一而足，这里就不全部介绍了，读者可以自行探索官网文档，发掘更多得心应手的方法。
+`QByteArray`类支持的方法不一而足，这里就不全部介绍了，读者可以自行探索官网文档，发掘更多得心应手的方法。
 
 ## 55 字体
 
@@ -2532,7 +2532,264 @@ app.exec()
 
 - `exists`方法，判断指定路径是否存在。
 
-## 58 `Qxxx`xxx控件（更新中）
+## 58 自定义控件属性——动态属性
+
+相关文档：https://doc.qt.io/qtforpython-6/overviews/qtcore-properties.html#reading-and-writing-properties-with-the-meta-object-system
+
+之前介绍过不少控件的控件属性，而控件属性背后是Qt的元对象系统，本章不深挖这个复杂的系统，只介绍控件属性的另一种用途。
+
+除了控件属性代表具体的功能，控件属性还可以与QSS结合，使用属性选择器，实现根据控件属性设置控件样式：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'yes',
+    window
+)
+button2 = QPushButton(
+    'no',
+    window
+)
+button2.move(0,30)
+
+qss = '''
+QPushButton[text='yes'] {
+    background-color: green;
+    color: white;
+}
+QPushButton[text='no'] {
+    background-color: red;
+    color: white;
+}
+'''
+app.setStyleSheet(qss)
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_58_1](pyside6_pro.assets/2027_58_1.png)
+
+可以看到，当按钮的文本为`'yes'`时，按钮显示为绿色，为`'no'`时显示为红色。按钮变色的秘密，就在QSS中的属性选择器`[text='yes']`。其中，`text`表示控件属性，等号后面表示控件属性的值，只有控件属性为对应值时，才会应用相关样式。
+
+ 通过QSS统一设置控件样式有利于外观统一，这样的话，确定按钮总是绿色，取消按钮总是红色，好处自不必说。可是，上面的示例也并非完美：按钮的文本不一定为`'yes'`或者`'no'`，也可能是`'ok'`或者`'cancel'`，甚至会因为设置了本地化UI而变成其他文本。
+
+因此，如果想让确定按钮总是绿色，取消按钮总是红色，将样式与按钮文本这个控件属性绑定肯定行不通，最好将其绑定到一个与正常功能没有关联的控件属性上。
+
+虽然在控件现有的控件属性中没有符合要求的，但思路并没有走到死路。在Python中可以增加属性，控件属性同样可以增加。因此，只要增加一个自定义属性即可。
+
+不过，使用Python中常用的自定义属性方式并不行，为什么？请看下面的代码：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    '是',
+    window
+)
+button.role = 'yes'
+button2 = QPushButton(
+    '否',
+    window
+)
+button2.move(0,30)
+button2.role = 'no'
+
+qss = '''
+QPushButton[role='yes'] {
+    background-color: green;
+    color: white;
+}
+QPushButton[role='no'] {
+    background-color: red;
+    color: white;
+}
+'''
+app.setStyleSheet(qss)
+
+
+window.show()
+app.exec()
+
+```
+
+代码中，给按钮自定义了一个`role`属性，使其值分别为之前的文本，然后修改按钮的文本，这样就可以检验样式是否与文本解除了关联。当然，QSS中也不能忘了修改属性选择器。但是，最终结果却不符合预期：
+
+![2027_58_2](pyside6_pro.assets/2027_58_2.png)
+
+原本的颜色消失了，变成了默认颜色，自定义属性并没有生效。
+
+自定义属性并非没有生效，只是QSS中的属性选择器，只能识别控件属性。因此，自定义属性也必须是控件属性。
+
+在PySide6中，想要新增、修改控件属性，就要用到`setProperty`方法，读取控件属性则用`property`方法。通过`setProperty`方法增加的自定义控件属性，也叫动态属性。
+
+这两个方法除了用于自定义控件属性，控件原本的控件属性也能用，这部分知识就属于Qt的元对象系统，本章不做展开，有兴趣的读者可以查看相关文档，或者期待后续笔者的更新。
+
+既然如此，那就改用`setProperty`方法自定义控件属性：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    '是',
+    window
+)
+button.setProperty('role','yes')
+button2 = QPushButton(
+    '否',
+    window
+)
+button2.move(0,30)
+button2.setProperty('role','no')
+
+qss = '''
+QPushButton[role='yes'] {
+    background-color: green;
+    color: white;
+}
+QPushButton[role='no'] {
+    background-color: red;
+    color: white;
+}
+'''
+app.setStyleSheet(qss)
+
+
+window.show()
+app.exec()
+
+```
+
+![2027_58_3](pyside6_pro.assets/2027_58_3.png)
+
+`setProperty`方法支持以下仅限位置参数：
+
+- `name`参数，字符串类型，表示动态属性名。
+- `value`参数，任意类型，表示动态属性值。
+
+`property`方法支持以下仅限位置参数：
+
+- `name`参数，字符串类型，表示动态属性名。
+
+如果想要获取控件现有的动态属性，可以使用`dynamicPropertyNames`方法：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    '是',
+    window
+)
+button.setProperty('role','yes')
+button2 = QPushButton(
+    '否',
+    window
+)
+button2.move(0,30)
+button2.setProperty('role','no')
+print(button.dynamicPropertyNames())
+
+window.show()
+app.exec()
+
+```
+
+![2027_58_4](pyside6_pro.assets/2027_58_4.png)
+
+最后，虽然说本章不会展开介绍Qt的元对象系统，但笔者还是忍不住提供一个方法，用于看控件所有自带的控件属性，说不定会有用：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    '是',
+    window
+)
+button.setProperty('role','yes')
+
+def get_inner_properties(widget):
+    result = {}
+    # 获取元对象
+    meta = widget.metaObject()
+    for i in range(meta.propertyCount()):
+        # 元对象的控件属性
+        meta_prop = meta.property(i)
+        # 控件属性名
+        meta_prop_name = meta_prop.name()
+        # 控件属性值
+        try:
+            meta_prop_value = widget.property(meta_prop_name)
+            # 控件属性存入结果字典
+            result[meta_prop_name] = meta_prop_value
+        except RuntimeError as e:
+            # 不能通过property获取的控件属性存入结果字典
+            result[meta_prop_name] = getattr(widget,meta_prop_name)()
+    return result
+
+print(get_inner_properties(button))
+
+window.show()
+app.exec()
+
+```
+
+结果如下：
+
+```python
+{'objectName': '', 'modal': False, 'windowModality': <WindowModality.NonModal: 0>, 'enabled': True, 'geometry': PySide6.QtCore.QRect(0, 0, 81, 26), 'frameGeometry': PySide6.QtCore.QRect(0, 0, 81, 26), 'normalGeometry': PySide6.QtCore.QRect(0, 0, 0, 0), 'x': 0, 'y': 0, 'pos': PySide6.QtCore.QPoint(0, 0), 'frameSize': PySide6.QtCore.QSize(81, 26), 'size': PySide6.QtCore.QSize(81, 26), 'width': 81, 'height': 26, 'rect': PySide6.QtCore.QRect(0, 0, 81, 26), 'childrenRect': PySide6.QtCore.QRect(0, 0, 0, 0), 'childrenRegion': <PySide6.QtGui.QRegion(null) at 0x000002AED1034480>, 'sizePolicy': <PySide6.QtWidgets.QSizePolicy(horizontalPolicy = QSizePolicy::Minimum, verticalPolicy = QSizePolicy::Fixed) at 0x000002AED1049200>, 'minimumSize': PySide6.QtCore.QSize(0, 0), 'maximumSize': PySide6.QtCore.QSize(16777215, 16777215), 'minimumWidth': 0, 'minimumHeight': 0, 'maximumWidth': 16777215, 'maximumHeight': 16777215, 'sizeIncrement': PySide6.QtCore.QSize(0, 0), 'baseSize': PySide6.QtCore.QSize(0, 0), 'palette': <PySide6.QtGui.QPalette(resolve=0x0) at 0x000002AED104AF00>, 'font': <PySide6.QtGui.QFont(Microsoft YaHei UI,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0) at 0x000002AED105C300>, 'cursor': <PySide6.QtGui.QCursor(Qt::CursorShape(Qt::ArrowCursor)) at 0x000002AED105C4C0>, 'mouseTracking': False, 'tabletTracking': False, 'isActiveWindow': True, 'focusPolicy': <FocusPolicy.StrongFocus: 11>, 'focus': True, 'contextMenuPolicy': <ContextMenuPolicy.DefaultContextMenu: 1>, 'updatesEnabled': True, 'visible': True, 'minimized': False, 'maximized': False, 'fullScreen': False, 'sizeHint': PySide6.QtCore.QSize(81, 26), 'minimumSizeHint': PySide6.QtCore.QSize(81, 26), 'acceptDrops': False, 'windowTitle': '', 'windowIcon': <PySide6.QtGui.QIcon(null) at 0x000002AED105C940>, 'windowIconText': '', 'windowOpacity': 1.0, 'windowModified': False, 'toolTip': '', 'toolTipDuration': -1, 'statusTip': '', 'whatsThis': '', 'accessibleName': '', 'accessibleDescription': '', 'accessibleIdentifier': '', 'layoutDirection': <LayoutDirection.LeftToRight: 0>, 'autoFillBackground': False, 'styleSheet': '', 'locale': <PySide6.QtCore.QLocale()/* Chinese, Simplified Han, China */ at 0x000002AED105CC40>, 'windowFilePath': '', 'inputMethodHints': <InputMethodHint.ImhNone: 0>, 'text': '是', 'icon': <PySide6.QtGui.QIcon(null) at 0x000002AED105CD40>, 'iconSize': PySide6.QtCore.QSize(16, 16), 'shortcut': QKeySequence(), 'checkable': False, 'checked': False, 'autoRepeat': False, 'autoExclusive': False, 'autoRepeatDelay': 300, 'autoRepeatInterval': 100, 'down': False, 'autoDefault': False, 'default': False, 'flat': False}
+```
+
+注意，有的控件属性没有同名的获取方法，可能需要通过带“is”前缀的方法获取，但可以通过`property`方法获取。有的控件属性则没法通过`property`方法获取，只能使用同名的获取方法。
+
+## 59 `Qxxx`xxx控件（更新中）
 
 相关文档：
 
@@ -2542,11 +2799,17 @@ app.exec()
 
 
 
+## 60 `Qxxx`xxx控件（更新中）
+
+相关文档：
 
 
-## xx `Qxxx`xxx控件（更新中）
 
-本章参考文档：
+
+
+## 6x `Qxxx`xxx控件（更新中）
+
+相关文档：
 
 
 

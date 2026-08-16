@@ -5184,24 +5184,31 @@ ui.run(
 - `app.add_static_file`方法和`app.add_static_files`方法，用于管理静态文件。
 - `app.add_media_file`方法和`app.add_media_files`方法，用于管理媒体文件。
 
-## 76 HTML的弹窗（更新中）
+## 76 HTML的弹窗
 
-前面介绍过NiceGUI的弹窗，已经很方便了。不过，那些都是源于VUE等前端框架的实现。本章笔者将带着各位读者，回归稍微原始、麻烦的HTML，看看在HTML中，有没有实现弹窗功能的方法。
+前面介绍过NiceGUI的弹窗，已经很方便了。不过，那些都是源于VUE等前端框架的实现。本章笔者将带着各位读者，回归稍微原始、麻烦一些的HTML，看看在HTML中，有没有实现弹窗功能的方法。
 
-### 76.1 `dialog`标签（更新中）
+### 76.1 `dialog`标签
 
 相关文档：https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Elements/dialog
 
+NiceGUI的弹窗使用的是`ui.dialog`控件，在HTML中，`dialog`标签不管从名称还是从功能上，都适合作为该控件的平替。
 
+`dialog`标签可以当普通`div`控件使用，在其内部创建的内容就是弹窗的内容。想要让弹窗显示，需要调用JavaScript方法（通过`run_method`方法）：
 
+- `show`方法，显示弹窗。
+- `showModal`方法，显示模态弹窗。
 
+如果想要关闭弹窗，则需要调用`close`方法。
+
+示例如下：
 
 ```python
 from nicegui import ui
   
 def index():
     with ui.element('dialog').classes(
-        'absolute-center w-64 h-64 border-2'
+        'absolute-center w-64 h-64 border-2 z-100'
     ) as ele:
         with ui.column().classes('w-full'):
             with ui.row().classes('w-full'):
@@ -5225,15 +5232,17 @@ ui.run(
 )
 ```
 
+![2027_76.1_1](nicegui_pro.assets/2027_76.1_1.gif)
 
-
-
-
-### 76.2 `popover`属性（更新中）
+### 76.2 `popover`属性
 
 相关文档：https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Global_attributes/popover
 
+`dialog`标签固然好用，但也存在局限：只能使用`dialog`标签，且依赖JavaScript。
 
+但是，如果想要将`div`元素转化为弹窗，且不依赖JavaScript，就可以使用`popover`属性。
+
+弹出基于`popover`属性实现的弹窗，需要给按钮添加`popovertarget`属性，指向添加了`popover`属性的元素的ID：
 
 ```python
 from nicegui import ui
@@ -5268,11 +5277,11 @@ ui.run(
 )
 ```
 
+![2027_76.2_1](nicegui_pro.assets/2027_76.2_1.gif)
 
+按钮的`popovertargetaction`属性用于指定点击按钮之后，添加了`popover`属性的元素执行什么动作（显示、隐藏、切换），默认为切换。
 
-
-
-可以切换为弹窗、常驻的示例：
+相比于`dialog`标签，`popover`属性的用法更多样。比如，将内容改造为可以在弹窗、常驻两种状态之间切换的智能内容：
 
 ```python
 from nicegui import ui
@@ -5284,6 +5293,9 @@ def index():
     )
     switch.on_value_change(
         lambda e:ele.classes(add='absolute-center') if e.value else ele.classes(remove='absolute-center')
+    )
+    switch.on_value_change(
+        lambda e:ele.run_method('showPopover') if e.value else None
     )
     with ui.element('div').classes(
         'w-64 h-64 border-2'
@@ -5313,11 +5325,29 @@ ui.run(
 )
 ```
 
-
-
-
+![2027_76.2_2](nicegui_pro.assets/2027_76.2_2.gif)
 
 ## 77 x（待定）（更新中）
+
+
+
+
+
+## 78 x（待定）（更新中）
+
+
+
+
+
+## 79 x（待定）（更新中）
+
+
+
+
+
+## 80 x（待定）（更新中）
+
+
 
 
 

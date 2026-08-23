@@ -2789,19 +2789,124 @@ app.exec()
 
 注意，有的控件属性没有同名的获取方法，可能需要通过带“is”前缀的方法获取，但可以通过`property`方法获取。有的控件属性则没法通过`property`方法获取，只能使用同名的获取方法。
 
-## 59 `Qxxx`xxx控件（更新中）
+## 59 多线程（更新中）
 
 相关文档：
 
 
 
+QThread
+
+QThreadPool
+
+QMutex
+
+QWaitCondition
 
 
 
-
-## 60 `Qxxx`xxx控件（更新中）
+## 60 QtQuick程序之QML（暂定）（更新中）
 
 相关文档：
+
+- https://doc.qt.io/qt-6/zh/qmlreference.html
+- https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+
+
+
+QML是什么，QML控件怎么显示（复习），QML的基础概念
+
+使用相关QML模块前需要导入，缩进只是为了方便阅读，可以加上分号之后改为一行。
+
+
+
+```dart
+import QtQuick
+import QtQuick.Window
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        anchors.fill: parent
+        color: 'green'
+        Button {
+            text: 'Hello World'
+            palette.buttonText: 'black'
+            anchors.centerIn: parent
+        }
+    }
+}
+```
+
+
+
+
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Window
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        anchors.fill: parent
+        color: 'green'
+        Button {
+            text: 'Hello World'
+            palette.buttonText: 'black'
+            anchors.centerIn: parent
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+#engine.load('main.qml')
+engine.loadData(qml_string.encode('utf-8'))
+
+app.exec()
+```
+
+
+
+压缩为一行：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''import QtQuick;import QtQuick.Window;import QtQuick.Controls;Window {visible: true;title: '易森-PySide6';width: 400;height: 300;Rectangle {anchors.fill: parent;color: 'green';Button {text: 'Hello World';palette.buttonText: 'black';anchors.centerIn: parent;}}}'''
+engine = QQmlApplicationEngine()
+#engine.load('main.qml')
+engine.loadData(qml_string.encode('utf-8'))
+
+app.exec()
+```
+
+
+
+## 61 `Qxxx`控件——xx的故事（更新中）
+
+相关文档：
+
+
+
+以故事的形式介绍控件的相关用法，主要介绍思路和实际代码，通过营造悬念吸引读者兴趣。
 
 
 

@@ -5031,6 +5031,62 @@ ui.run(
 
 可以看到，从左边拖入到右边，不会消耗左边的内容，同时没法从右边拖入到左边。
 
+#### 73.2.4 拖动（排序）的事件参数
+
+分组相同的情况，如何判断被移动的控件脱离了原来的容器？
+
+控件被移动之后，如何知道先前、当前的位置？
+
+移动控件之后，怎么给被移动的控件设置特殊的样式？
+
+这些问题的答案，全在`on_end`方法（参数）的事件参数中。
+
+`on_end`方法（参数）的事件参数为`SortableEventArguments`类型，支持以下属性：
+
+- `item`属性，表示被移动的控件。
+- `source`属性，表示被移动控件的原容器。
+- `target`属性，表示被移动控件的当前容器。
+- `old_index`属性，表示移动前控件在原容器中的位置（索引值）。
+- `new_index`属性，表示移动前控件在当前容器中的位置（索引值）。
+
+了解了`SortableEventArguments`类的属性之后，本节开头的几个问题自然迎刃而解。只需判断原容器与当前容器是不是同一个，就知道控件是否脱离了原容器。因此，可以对上一节中的示例稍加改造，让脱离原容器的控件更容易识别：
+
+```python
+from nicegui import ui
+from nicegui.events import SortableEventArguments
+
+def index():
+    with ui.row():
+        with ui.column().classes('border-2') as c1:
+            ui.item('a')
+            ui.item('b')
+            ui.item('c')
+        with ui.column().classes('border-2') as c2:
+            ui.item('d')
+            ui.item('e')
+            ui.item('f')
+
+    def handle_sortable(e:SortableEventArguments):
+        if e.source != e.target:
+            e.item.classes(toggle='bg-red')
+            
+    c1.make_sortable(group='a').on_end(
+        handle_sortable
+    )
+    c2.make_sortable(group='a').on_end(
+        handle_sortable
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_73.2.4_1](nicegui_pro.assets/2027_73.2.4_1.gif)
+
 ## 74 样式技巧——字体
 
 相关文档：

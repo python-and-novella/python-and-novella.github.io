@@ -1,6 +1,6 @@
 
 
-《PySide6札记》（2027）
+## 《PySide6札记》（2027）
 
 原《Qt For Python 札记》，现改名为《PySide6札记》。
 

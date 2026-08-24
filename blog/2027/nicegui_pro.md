@@ -5383,11 +5383,439 @@ ui.run(
 
 ![2027_76.2_2](nicegui_pro.assets/2027_76.2_2.gif)
 
-## 77 x（待定）（更新中）
+## 77 `ui.table`控件——定制单元格的内容
+
+相关文档：
+
+- https://nicegui.io/documentation/table#table_with_buttons
+- https://nicegui.io/documentation/table#table_with_drop_down_selection
+
+### 77.1 `ui.table`控件的内部类——`cell`类
+
+之前在介绍`ui.table`控件的插槽时，尤其是对应单元格的插槽，往往使用了`ui.element('q-td')`作为二级容器，才能正常显示，比如：
+
+```python
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+    with table.add_slot('body-cell-age'):
+        with ui.element('q-td'):
+            ui.badge().props(':innerHTML="props.value?props.value:`无效值`"')
 
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2026_52_45](nicegui_pro.assets/2026_52_45.png)
+
+其实，`ui.table`控件还提供了一个内部类`cell`，可以代替`ui.element('q-td')`：
+
+```python
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+    with table.add_slot('body-cell-age'),table.cell('age').classes('text-start'):
+        ui.badge().props(':innerHTML="props.value?props.value:`无效值`"')
 
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2026_52_45](nicegui_pro.assets/2026_52_45.png)
+
+可能读者也注意到，上面的示例中，`cell`类初始化时传入了列定义字典`'field'`键的值，这个参数有什么用？
+
+其实，这个参数用于定义该单元格继承哪一列的控件属性，比如对齐：
+
+```python
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+    with table.add_slot('body-cell-age'),table.cell('firstname'):
+        ui.badge().props(':innerHTML="props.value?props.value:`无效值`"')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2026_52_45](nicegui_pro.assets/2026_52_45.png)
+
+JavaScript变量`props`对应插槽的当前作用域（scope），当前作用域支持的属性，也是`props`变量的属性。因此，可以使用`props`变量得到单元格对应的相关数据。
+
+就像上面的示例，对于`ui.badge`控件而言，其内部文本对应控件属性`label`，也可以通过`props`方法（属性），在该控件属性的值中使用`props`变量：
+
+```python
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+    with table.add_slot('body-cell-age'),table.cell('firstname'):
+        ui.badge().props(':label="props.value?props.value:`无效值`"')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2026_52_45](nicegui_pro.assets/2026_52_45.png)
+
+注意，任何使用需要在客户端计算实际结果的JavaScript表达式，其对应的变量名必须添加英文冒号（`:`）前缀。
+
+### 77.2 使用下拉选择框选择单元格内容
+
+既然能用NiceGUI的控件关联单元格内容，通过下拉选择框选择单元格内容应该也可以。可是，在实现的时候，笔者才发现没那么简单。
+
+承接上一节的内容，就以年龄那一列为例，如果想允许编辑，控件属性就没有编辑相关的，更别说想要使用下拉选择框来选择。
+
+先看一下如何让控件的值与单元格的值绑定。为了方便观察单元格的值是否改变，这里新增了专用于编辑的列，用来放置下拉选择框：
+
+```python
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+        {
+            'name': 'edit', 
+            'label': 'Edit', 
+            'field': 'edit',
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+    with table.add_slot('body-cell-edit'),table.cell():
+        ui.select(
+            [ i for i in range(99)]
+        ).props(':model-value=props.row.age')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+
+```
+
+![2027_77.2_1](nicegui_pro.assets/2027_77.2_1.png)
+
+如代码所示，因为单元格的值存在于JavaScript变量`props`中，因此，想要让控件显示单元格的值，只能通过控件属性使用。注意，不同NiceGUI控件的当前值、显示文本对应的控件属性有所不同，具体参考控件的文档或者源代码。
+
+外观看上去完美，但使用时，第一步就出现了问题。先不说编辑单元格的值是否生效，下拉选择框本身就没法选择：
+
+![2027_77.2_2](nicegui_pro.assets/2027_77.2_2.gif)
+
+之所以会出这样的问题，就是因为选择之后，下拉选择框依然显示的是单元格的值，而单元格的值并没有随着选择而改变。因此，只需将单元格的值修改为对应值即可：
+
+```python
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+        {
+            'name': 'edit', 
+            'label': 'Edit', 
+            'field': 'edit',
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+    def update_table(e):
+        row_id,value = e.args
+        for row in table.rows:
+            if row['firstname'] == row_id:
+                row['age'] = range(99)[value]
+
+    with table.add_slot('body-cell-edit'),table.cell():
+        ui.select(
+            [ i for i in range(99)]
+        ).props(
+            ':model-value=props.row.age'
+        ).on(
+            'update:model-value',
+            handler=update_table,
+            js_handler='(e) => emit(props.row.firstname,e.value)'
+        ).on_value_change
+        
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_77.2_3](nicegui_pro.assets/2027_77.2_3.gif)
+
+首先，响应函数的类型必须是`update:model-value`（代码中第53行），这个相当于`on_value_change`方法（参数），但是，相关操作需要获取到具体行的ID，需要额外用到客户端的JavaScript响应函数，因此，只能使用`on`方法。
+
+接下来就是关键的客户端JavaScript响应函数，必须是`(e) => emit(props.row.firstname,e.value)`（代码中第55行），必须将行ID和当前选择的索引值发射出去，才能在Python响应函数中知道该更新哪一行的数据。注意，这里的`props.row.firstname`取决于`row_key`参数的值，默认值的话，应该为`props.row.id`。
+
+下一步就到了Python响应函数。因为上一步将行ID和当前选择的索引值通过客户端JavaScript响应函数发射给Python响应函数，Python响应函数必须通过参数的`args`属性解包后赋值给变量（代码中第42行）。
+
+因为表格的`rows`属性是一个包含所有行数据的列表，没法直接查找对应行，因此需要先遍历，再对比行ID（代码中第43、44行）。传入的是当前选择的索引值，因此还要将索引值转换为选项实际内容（代码中第45行）。
+
+最后，给认真看完文章的读者留个练习题。下面的代码中有一个与上面内容相关的**问题**，请读者运行之后，找出其中的问题，并尝试解决：
+
+```python
+from nicegui import ui
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'align': 'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age', 
+            'sortable': True
+        },
+        {
+            'name': 'edit', 
+            'label': 'Edit', 
+            'field': 'edit',
+        },
+    ]
+    rows = [
+        {
+            'firstname': 'Alice', 
+            'age': 18
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname'
+    )
+    def update_table(e):
+        row_id,value = e.args
+        for row in table.rows:
+            if row['firstname'] == row_id:
+                row['age'] = range(99)[value]
+
+    with table.add_slot('body-cell-edit'),table.cell():
+        ui.select(
+            [ i for i in range(18,66)]
+        ).props(
+            ':model-value=props.row.age'
+        ).on(
+            'update:model-value',
+            handler=update_table,
+            js_handler='(e) => emit(props.row.firstname,e.value)'
+        )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
 
 ## 78 x（待定）（更新中）
 
@@ -5395,7 +5823,11 @@ ui.run(
 
 
 
+
+
 ## 79 x（待定）（更新中）
+
+
 
 
 

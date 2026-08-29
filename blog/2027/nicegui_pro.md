@@ -4,6 +4,116 @@
 
 2027年所有更新内容转入《易森》，以下内容为存稿、留档，在《易森》更新时复制到《易森》中。
 
+## 版本速览——3.16.0版本
+
+### 0 主要内容
+
+更新日志：https://github.com/zauberzeug/nicegui/releases/tag/v3.16.0
+
+本次版本速览主要介绍以下内容：
+
+- `ui.scene`控件，重构3D对象的注册方式，并修复了一个问题。
+- `ui.codemirror`控件，新增行锚点相关参数、方法、属性。
+- `ui.table`控件，同步客户端方法切换的全屏状态到服务器。
+- `html`模块，新增其他规格的标题（HTML标签，`h2-h6`）。
+
+### 1 `ui.scene`控件
+
+问题修复对日常使用没有影响，只是原本颜色显示不正确的3D对象现在终于显示正确的颜色了。
+
+会影响该控件使用的，主要是创建3D对象时导入的`nicegui.elements.scene.scene_objects`模块，该模块已经标记为弃用（虽然还能用，但会在终端输出警告），并将在4.0版本中彻底移除，后续建议改用`nicegui.elements.scene.objects`模块。
+
+### 2 `ui.codemirror`控件
+
+`ui.codemirror`控件新增行锚点相关参数、属性。
+
+行锚点，就像超链接中的锚点一样，用于定位特定内容的所在行（自然排序）。通过`line_anchors`参数定义了行锚点之后（包含的内容为键，所在行为值，内容必须存在且所在行必须正确），即可通过`on_anchor_change`参数（方法）跟踪行锚点所在行的变化情况。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+  
+def index():
+    cm = ui.codemirror(
+        'return',
+        line_anchors={
+            'return':1
+        },
+        on_anchor_change=lambda e:ui.notify(e.anchors)
+    )
+    #cm.on_anchor_change(lambda e:ui.notify(e.anchors))
+    ui.button(
+        'print line_anchors',
+        on_click=lambda :print(cm.line_anchors)
+    ).props('no-caps')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![v3.16.0_2_1](nicegui_pro.assets/v3.16.0_2_1.png)
+
+自从上次介绍`ui.codemirror`控件之后，NiceGUI多次版本更新给该控件增加了不少参数、属性、方法，关于该控件的教程后续将基于最新版本重制，敬请期待。
+
+### 3 `ui.table`控件
+
+如果是使用VUE代码在插槽中定义`ui.table`控件的全屏切换操作，而不是在Python代码中调用控件的`toggle_fullscreen`方法，Quasar框架对于前者这纯前端（客户端）切换全屏的操作，并不会将控件的全屏状态同步到后端（服务器），这样会导致后端感知到的全屏状态与实际不一致。
+
+因此，本次版本更新，NiceGUI可以将纯前端切换全屏后的全屏状态同步到后端。
+
+以下为示例代码：
+
+```python
+from nicegui import ui
+
+  
+def index():
+    table = ui.table(rows=[{'name': 'Alice'}]).classes('w-full')
+    table.add_slot(
+        'top-left', 
+        '<q-btn no-caps label="fullscreen" @click="props.toggleFullscreen" />'
+    )
+    with table.add_slot('bottom'):
+        ui.label('backend fullscreen：')
+        state = ui.label()
+        state.bind_text_from(table,'is_fullscreen',str)
+
+    with table.add_slot('top-right'):
+        ui.button(
+            'fullscreen', 
+            on_click=table.toggle_fullscreen
+        ).props('no-caps')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![v3.16.0_3_1](nicegui_pro.assets/v3.16.0_3_1.png)
+
+左侧白色按钮是纯前端切换控件全屏状态的方式，右侧蓝色按钮是后端切换控件全屏状态的方式，底部的文字会实时显示后端的全屏状态。
+
+在之前版本，白色按钮总能正确切换全屏状态，但不会影响后端的全屏状态。蓝色按钮仅能确保全屏状态与后端的全屏状态一致，如果使用白色按钮切换了全屏状态但与后端的全屏状态不一致时，点击蓝色按钮可能会出现实际反应与预期不一致的情况。
+
+在3.15.0版本中的运行结果：
+
+![v3.16.0_3_2](nicegui_pro.assets/v3.16.0_3_2.gif)
+
+在3.16.0版本中的运行结果：
+
+![v3.16.0_3_3](nicegui_pro.assets/v3.16.0_3_3.gif)
+
+### 4 `html`模块
+
+原本该模块中，只有对应一级标题的HTML标签（`h1`），现在其他级别的标题也有了（`h2-h6`）。
+
 ## 55 详解多页面模式（《易森》2703期）
 
 前面的教程几乎都是用单页面模式、窗口模式作为示例，而很多读者实际开发中，可能会用多页面模式作为程序的主要运行模式。因此，2027版的第一章，就先来回顾一下多页面模式，学习一下多页面模式中相关的功能。
@@ -2958,7 +3068,7 @@ ui.run(
 
 ![2027_68.3_5](nicegui_pro.assets/2027_68.3_5.gif)
 
-## 69 学习控件——弹出控件（补充）
+## 69 学习控件——弹出控件+
 
 弹出控件，也可以叫做临时显示控件。当用户与其交互或者执行特定操作时，控件会在独立位置显示，不会影响原有控件的布局；当其失去焦点或者达成某个条件时，控件会消失，就好像从来没出现过一样。
 
@@ -5817,11 +5927,91 @@ ui.run(
 )
 ```
 
-## 78 x（待定）（更新中）
+## 78 学习控件——`ui.codemirror`控件（2027版）（更新中）
+
+### 78.0 前言
+
+自从上次介绍`ui.codemirror`控件之后，NiceGUI多次版本更新给该控件增加了不少参数、属性、方法，于是，在一年之后，笔者决定重新介绍一下，顺便针对实际场景，写一些相关的示例。
+
+下面是`ui.codemirror`控件相关文档的地址：
+
+- NiceGUI框架文档：https://nicegui.io/documentation/codemirror
+- CodeMirror框架文档：https://codemirror.net/docs/
+
+### 78.1 基本用法（更新中）
+
+（下面内容基于最新版重新核对）
+
+`ui.codemirror`控件支持以下参数：
+
+- `value`参数，字符串类型，表示编辑器的初始内容。
+
+- `on_change`参数，可调用类型，当编辑器内容变化时执行什么操作。
+
+  从该参数开始，只能通过关键字传入。
+
+- `keymap`参数，---
+
+- `language`参数，字符串类型，表示编辑器使用的语法高亮方案，即对应的编程语言。可以通过调用控件实例的`supported_languages`属性获取控件支持的语言。
+
+- `theme`参数，字符串类型，表示编辑器使用的主题，默认为`'basicLight'`。可以通过调用控件实例的`supported_themes`属性获取控件支持的主题。
+
+- `indent`参数，字符串类型，表示代码一个级别的缩进使用的字符，默认为4个英文空格。
+
+- `line_wrapping`参数，布尔类型，表示是否自动换行，默认为`False`。
+
+- `highlight_whitespace`参数，布尔类型，表示是否高亮显示出空白字符，默认为`False`。
+
+- `line_anchors`参数，---
+
+- `on_anchor_change`参数，---
+
+- `line_tooltips`参数，---
+
+- `line_tooltip_html`参数，---
+
+`ui.codemirror`控件支持以下属性（部分）：
+
+- `theme`属性，含义同`theme`参数。
+- `language`属性，含义同`language`参数。
+- `line_wrapping`属性，含义同`line_wrapping`参数。
+- `supported_themes`属性，表示控件支持的主题。
+- `supported_languages`属性，表示控件支持的语言。
+- `line_tooltips`属性，含义同`line_tooltips`参数。
+- `line_anchors`属性，含义同`line_anchors`参数。
+
+`ui.codemirror`控件支持以下方法（部分）：
+
+- `set_theme`方法，设置`theme`属性。该方法支持以下参数：
+  - `theme`参数，字符串类型，表示编辑器使用的主题。
+- `set_language`方法，设置`language`属性。该方法支持以下参数：
+  - `language`参数，字符串类型，表示编辑器使用的语法高亮方案，即对应的编程语言。
+- `set_line_wrapping`方法，设置`line_wrapping`属性。该方法支持以下参数：
+  - `line_wrapping`参数，布尔类型，表示是否自动换行。
+- `map_key`方法，---
+- `unmap_key`方法，---
+- `on_value_change`方法，---
+- `on_anchor_change`方法，---
+
+### 78.2 开发实战（更新中）
+
+#### 78.2.1 xxx（更新中）
 
 
 
+局部内容更新不会影响其他内容：https://nicegui.io/documentation/codemirror#preserving_cursor_position
 
+行锚点不会因为内容改变而丢失：https://nicegui.io/documentation/codemirror#line_anchors
+
+可以绑定快捷键也可以阻止按键的默认响应（介绍不同的快捷键，组合快捷键、序列快捷键、不同系统用不同的快捷键）：https://codemirror.net/docs/ref/#view.KeyBinding
+
+https://codemirror.net/docs/ref/#view.KeyBinding
+
+每行的工具提示都可以不同：
+
+https://nicegui.io/documentation/codemirror#hover_tooltips_on_lines
+
+https://nicegui.io/documentation/codemirror#html_rendering_for_tooltips
 
 
 
@@ -5840,6 +6030,28 @@ ui.run(
 
 
 （持续更新中）
+
+
+
+
+
+## 版本速览——3.x.0版本（更新中）
+
+### 0 主要内容
+
+（列出这个版本主要有哪些新增功能，点明控件、类、模块）
+
+更新日志：：xxx
+
+本次版本速览主要介绍以下内容：
+
+- `ui.xxx`控件，---
+
+### 1 `ui.xxx`控件（更新中）
+
+（分章节介绍每个新增功能，提供相关示例代码）
+
+（图片格式为`v{版本号}_{章节号}_{序号}.png`）
 
 ## x 灵感（待定）
 

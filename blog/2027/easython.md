@@ -4,16 +4,6 @@
 
 《易森》一般周更（可能每一周或者每两周，特殊情况加更或者停更），专注于提供与Python相关的文章（不限于基础知识，还有框架教程和实际问题的解决方案）。
 
-封面图：
-
-![易森封面](easython.assets/易森封面.png)
-
-LOGO图：
-
-![易森LOGO](easython.assets/易森LOGO.png)
-
-![易森LOGO](easython.assets/易森LOGO.svg)
-
 ## 2701期：起点
 
 ### 0 写在创刊号的特别章

@@ -5841,7 +5841,7 @@ def index():
             'update:model-value',
             handler=update_table,
             js_handler='(e) => emit(props.row.firstname,e.value)'
-        ).on_value_change
+        )
         
 
 ui.run(
@@ -5927,7 +5927,7 @@ ui.run(
 )
 ```
 
-## 78 学习控件——`ui.codemirror`控件（2027版）（更新中）
+## 78 学习控件——`ui.codemirror`控件（2027版）
 
 ### 78.0 前言
 
@@ -5938,19 +5938,48 @@ ui.run(
 - NiceGUI框架文档：https://nicegui.io/documentation/codemirror
 - CodeMirror框架文档：https://codemirror.net/docs/
 
-### 78.1 基本用法（更新中）
+### 78.1 基本用法
 
-（下面内容基于最新版重新核对）
+`ui.codemirror`控件是一个编辑器，不过该控件通常用于代码，因为背后的CodeMirror框架对于编程语言提供了较好的语法支持。
+
+先看示例（选自《版本速览——3.16.0版本》第二节）：
+
+```python
+from nicegui import ui
+
+  
+def index():
+    cm = ui.codemirror(
+        'return',
+        line_anchors={
+            'return':1
+        },
+        on_anchor_change=lambda e:ui.notify(e.anchors)
+    )
+    #cm.on_anchor_change(lambda e:ui.notify(e.anchors))
+    ui.button(
+        'print line_anchors',
+        on_click=lambda :print(cm.line_anchors)
+    ).props('no-caps')
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![v3.16.0_2_1](nicegui_pro.assets/v3.16.0_2_1.png)
 
 `ui.codemirror`控件支持以下参数：
 
 - `value`参数，字符串类型，表示编辑器的初始内容。
 
-- `on_change`参数，可调用类型，当编辑器内容变化时执行什么操作。
+- `on_change`参数，可调用类型，表示编辑器内容变化时执行的操作。
 
   从该参数开始，只能通过关键字传入。
 
-- `keymap`参数，---
+- `keymap`参数，字典类型（键为字符串类型，表示按键；值为可调用类型或者`ui.codemirror.KeyBinding`类型，表示按键对应的操作），表示快捷键。
 
 - `language`参数，字符串类型，表示编辑器使用的语法高亮方案，即对应的编程语言。可以通过调用控件实例的`supported_languages`属性获取控件支持的语言。
 
@@ -5962,13 +5991,13 @@ ui.run(
 
 - `highlight_whitespace`参数，布尔类型，表示是否高亮显示出空白字符，默认为`False`。
 
-- `line_anchors`参数，---
+- `line_anchors`参数，字典类型（键为字符串类型，表示绑定行锚点时的内容；值为整数，表示绑定行锚点时内容对应的行号），表示行锚点。
 
-- `on_anchor_change`参数，---
+- `on_anchor_change`参数，可调用类型，表示行锚点变化时执行的操作。
 
-- `line_tooltips`参数，---
+- `line_tooltips`参数，字典类型（键为整数，表示行号；值为字符串类型，表示对应行的工具提示），表示行的工具提示。
 
-- `line_tooltip_html`参数，---
+- `line_tooltip_html`参数，布尔类型，默认为`False`，表示是否将工具提示当作HTML渲染。
 
 `ui.codemirror`控件支持以下属性（部分）：
 
@@ -5988,32 +6017,250 @@ ui.run(
   - `language`参数，字符串类型，表示编辑器使用的语法高亮方案，即对应的编程语言。
 - `set_line_wrapping`方法，设置`line_wrapping`属性。该方法支持以下参数：
   - `line_wrapping`参数，布尔类型，表示是否自动换行。
-- `map_key`方法，---
-- `unmap_key`方法，---
-- `on_value_change`方法，---
-- `on_anchor_change`方法，---
+- `on_value_change`方法，设置编辑器内容变化时执行的操作。该方法支持以下参数：
+  - `callback`参数，可调用类型，表示编辑器内容变化时执行的操作。
+- `on_anchor_change`方法，设置行锚点变化时执行的操作。该方法支持以下参数：
+  - `handler`参数，可调用类型，表示行锚点变化时执行的操作。
+- `map_key`方法，绑定快捷键。该方法支持以下参数：
+  - `key`参数，字符串类型，表示按键。
+  - `handler`参数，可调用类型或者`ui.codemirror.KeyBinding`类型，表示按键对应的操作。
+- `unmap_key`方法，解绑快捷键。该方法支持以下参数：
+  - `key`参数，字符串类型，表示按键。
 
-### 78.2 开发实战（更新中）
+### 78.2 开发实战
 
-#### 78.2.1 xxx（更新中）
+在上一节中，介绍了`ui.codemirror`控件的基本用法，但是受限于篇幅，没有提供相关的示例。因为每个用法并不是 看上去那么简单，需要额外解释较多内容。因此，本节针对该控件在实际使用中的特点、用法，再分门别类地仔细介绍一下，免得读者一头雾水。
+
+#### 78.2.1 内容更新仅更新局部
+
+相关文档：https://nicegui.io/documentation/codemirror#preserving_cursor_position
+
+`ui.codemirror`控件作为一个编辑器，相比于名字上更接近的`ui.editor`控件，`ui.codemirror`控件可以实现内容更新不会影响其他内容，即仅更新局部。
+
+因此，可以在首行添加一个实时的时间，而其它行的内容、选择状态不会因为时间的更新而产生异常：
+
+```python
+from nicegui import ui
+from datetime import datetime
+  
+def index():
+    cm = ui.codemirror(
+        value=f'# {datetime.now():%H:%M:%S}\nprint(\'hello\')'
+    )
+    ui.timer(
+        1,
+        lambda: cm.set_value(
+            f'# {datetime.now():%H:%M:%S}\n' + cm.value.split('\n', 1)[-1]
+        )
+    )
 
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
 
-局部内容更新不会影响其他内容：https://nicegui.io/documentation/codemirror#preserving_cursor_position
+![2027_78.2.1_1](nicegui_pro.assets/2027_78.2.1_1.gif)
 
-行锚点不会因为内容改变而丢失：https://nicegui.io/documentation/codemirror#line_anchors
+相比之下，`ui.editor`控件的表现就不符合预期了：
 
-可以绑定快捷键也可以阻止按键的默认响应（介绍不同的快捷键，组合快捷键、序列快捷键、不同系统用不同的快捷键）：https://codemirror.net/docs/ref/#view.KeyBinding
+```python
+from nicegui import ui
+from datetime import datetime
+  
+def index():
+    cm = ui.editor(
+        value=f'# {datetime.now():%H:%M:%S}\n<br>print(\'hello\')'
+    )
+    ui.timer(
+        1,
+        lambda: cm.set_value(
+            f'# {datetime.now():%H:%M:%S}\n' + cm.value.split('\n', 2)[-1]
+        )
+    )
 
-https://codemirror.net/docs/ref/#view.KeyBinding
 
-每行的工具提示都可以不同：
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
 
-https://nicegui.io/documentation/codemirror#hover_tooltips_on_lines
+#### 78.2.2 行锚点比行号更好用
 
-https://nicegui.io/documentation/codemirror#html_rendering_for_tooltips
+相关文档：https://nicegui.io/documentation/codemirror#line_anchors
+
+行锚点，就像超链接中的锚点一样，用于定位特定内容的所在行（自然排序）。通过`line_anchors`参数定义了行锚点之后（包含的内容为键，所在行为值，内容必须存在且所在行必须正确），即可通过`on_anchor_change`参数（方法）跟踪行锚点所在行的变化情况。
+
+相比于使用行号定位还需要实时跟踪对应行特定内容的位置变化，以及内容变化之后还需要重新跟踪，使用行锚点可以有效避免这些问题，且无需太多额外的处理。`line_anchors`属性实时同步已经定义的行锚点，`on_anchor_change`参数（方法）也能响应每个行锚点变化的动作。
+
+示例如下（选自《版本速览——3.16.0版本》第二节）：
+
+```python
+from nicegui import ui
+
+  
+def index():
+    cm = ui.codemirror(
+        'return',
+        line_anchors={
+            'return':1
+        },
+        on_anchor_change=lambda e:ui.notify(e.anchors)
+    )
+    #cm.on_anchor_change(lambda e:ui.notify(e.anchors))
+    ui.button(
+        'print line_anchors',
+        on_click=lambda :print(cm.line_anchors)
+    ).props('no-caps')
 
 
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![v3.16.0_2_1](nicegui_pro.assets/v3.16.0_2_1.png)
+
+#### 78.2.3 绑定快捷键很简单
+
+相关文档：
+
+1. https://nicegui.io/documentation/codemirror#custom_keybindings
+2. https://codemirror.net/docs/ref/#view.KeyBinding
+3. https://developer.mozilla.org/zh-CN/docs/Web/API/KeyboardEvent/key
+4. https://developer.mozilla.org/zh-CN/docs/Web/API/UI_Events/Keyboard_event_key_values
+
+在第11章《绑定快捷键》中介绍了使用`ui.keyborad`键盘响应器绑定快捷键，那是一个通用的方法，用起来也有点复杂。
+
+好在`ui.codemirror`控件提供了`keymap`参数以及`map_key`方法，让该控件绑定快捷键的操作没那么复杂，最简单的绑定只需一行代码。
+
+先看示例：
+
+```python
+from nicegui import ui
+
+
+def index():
+    ui.codemirror(
+        value='return',
+        keymap={
+            'Ctrl-r':lambda e:print(e),
+            'Ctrl-t':ui.codemirror.KeyBinding(
+                callback=lambda e:print(e),
+                prevent_default=True,
+                win='Alt-t',
+                mac='Cmd-t',
+                linux='Ctrl-t'
+            )
+        }
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+如代码所示，字典的键是字符串，表示绑定哪个快捷键；键对应的值，就是该快捷键对应的操作。简单的就是直接传入可调用类型，按对应快捷键，直接执行对应操作。复杂一点的，就是使用`ui.codemirror.KeyBinding`对象，除了可以定义对应操作，还能决定是否阻止按键的默认响应（比如`f5`键会刷新网页，可以通过`prevent_default`参数阻止该操作），以及不同系统使用不同的快捷键（`win`参数、`linux`参数、`mac`参数）。
+
+关于快捷键的描述，可以参考相关文档4，除了常用的可见字符外，一些功能键只能用规定格式，并且要求大小写一致。
+
+代码中使用的是组合快捷键，这里顺便说一下快捷键的两个变种，即除了单个普通快捷键之外，组合快捷键和序列快捷键怎么表示。
+
+组合快捷键，使用连字符（`-`）连接多个按键，表示同时按下多个按键，要求：
+
+- 修饰符（通常是`ctrl`键、`alt`键等非可见字符按键）在前，可见字符按键在后。
+- 只能有一个可见字符按键。
+- 大写字符表示可见字符按键加上`shift`键，此时不能再与`shift`键组合。
+
+序列快捷键，使用英文空格连接多个按键，表示短时间内依次按下相应快捷键。序列快捷键中的每个快捷键可以是单个普通快捷键，也可以是组合快捷键。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+
+def index():
+    ui.codemirror(
+        value='return',
+        keymap={
+            'p y':lambda e:e.sender.set_value('\u0050\u0079\u0074\u0068\u006f\u006e\u4e0e\u5c0f\u8bf4'),
+        }
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+读者可以尝试快速输入`py`，解锁神秘彩蛋。
+
+#### 78.2.4 每行都有独立的工具提示
+
+相关文档：
+
+- https://nicegui.io/documentation/codemirror#hover_tooltips_on_lines
+- https://nicegui.io/documentation/codemirror#html_rendering_for_tooltips
+
+不同于`ui.tooltip`控件、`tooltip`方法只能给整个控件添加工具提示，`ui.codemirror`控件每行都有独立的工具提示，甚至可以将其当作HTML渲染。
+
+`line_tooltips`参数是个字典，字典的键就是行号，其值就是该行的工具提示：
+
+```python
+from nicegui import ui
+
+
+def index():
+    ui.codemirror(
+        value='hello\nworld',
+        line_tooltips={
+            1:'第一行',
+            2:'第二行'
+        }
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_78.2.4_1](nicegui_pro.assets/2027_78.2.4_1.png)
+
+如果使用`ui.tooltip`控件，可以添加HTML代码作为工具提示的内容，但需要借助`ui.element`控件、`ui.html`控件、`html`模块才行。
+
+在`ui.codemirror`控件中，只需启用`line_tooltip_html`参数，即可将工具提示当作HTML渲染：
+
+```python
+from nicegui import ui
+
+
+def index():
+    ui.codemirror(
+        value='hello\nworld',
+        line_tooltips={
+            1:'第一行',
+            2:'第二行<br>正文'
+        },
+        line_tooltip_html=True
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_78.2.4_2](nicegui_pro.assets/2027_78.2.4_2.png)
 
 ## 79 x（待定）（更新中）
 

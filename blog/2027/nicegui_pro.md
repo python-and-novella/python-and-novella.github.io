@@ -2234,7 +2234,7 @@ ui.run(
 
 ![2027_65.2_5](nicegui_pro.assets/2027_65.2_5.gif)
 
-## 66 学习控件——分页控件（补充）
+## 66 学习控件——分页控件+
 
 之前说过，选项卡也是一种分页。若是按照这个思路理解，操作逻辑、布局结构与选项卡类似的控件也能归为分页控件。
 
@@ -5028,6 +5028,12 @@ ui.run(
 
 ![2027_73.2.1_1](nicegui_pro.assets/2027_73.2.1_1.png)
 
+注意，如果是通过调用`make_sortable`方法来启用排序（即启用排序之前没在创建控件后调用`make_sortable`方法），第一次调用会报错，无法正常启用排序，需要刷新页面后第二次调用才能正常启用。
+
+这是因为调用`make_sortable`方法本质上是创建`Sortable`控件，而`Sortable`控件对应前端库的相关前端模块默认没有注册，只有调用一次`make_sortable`方法之后，相关前端模块才会加入注册列表中，并在刷新页面后生效。
+
+如果不想额外调用一次`make_sortable`方法，可以在`ui.run`方法调用之前，导入`Sortable`类（`from nicegui.elements.sortable import Sortable`），确保相关前端模块在调用`make_sortable`方法之前注册、生效。
+
 #### 73.2.2 限制可拖动区域
 
 `handle`参数，表示可拖动区域的CSS选择器，可用于限制可拖动区域：
@@ -6303,29 +6309,3 @@ ui.run(
 ## x 灵感（待定）
 
 更多内容参考 https://nicegui.io/documentation#map-of-nicegui ，看看有没有前面遗漏的。
-
-### x.1 强制刷新页面
-
-强制刷新页面（忽略缓存，只从服务器加载资源）：
-
-```javascript
-window.location.reload(true)
-```
-
-### x.2 anywidget控件
-
-NiceGUI框架文档：https://nicegui.io/documentation/anywidget
-
-anywidget框架文档：https://anywidget.dev/en/getting-started/
-
-anywidget控件：https://try.anywidget.dev/
-
-注意，`ui.anywidget`控件依赖`anywidget`库，需要先安装依赖库才能使用对应控件。可以使用`uv add nicegui[anywidget]`命令提前添加依赖库。
-
-介绍`ui.anywidget`控件支持的anywidget控件。
-
-### x.3 x（待定）
-
-
-
-（持续更新中）

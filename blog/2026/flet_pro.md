@@ -849,6 +849,46 @@ flet.run(main)
 - `*_theme`参数（属性），表示特定控件的主题。该类参数（属性）会涉及很多控件类型，因为比较多，这里使用通配符代替。
 - `*_color`参数（属性），表示特定交互行为的颜色。该类参数（属性）会涉及很多交互类型，因为比较多，这里使用通配符代替。
 
+## 版本速览——1.0.0版本
+
+更新日志：https://github.com/flet-dev/flet/releases/tag/v1.0.0
+
+千呼万唤始出来，等了好久终于等到了Flet的1.0.0版本。虽然这次版本号变化很大，预示着这是一次大版本更新，但笔者看完更新日志之后，实测了部分代码，可以给各位读者吃颗定心丸，之前介绍的功能中没有需要变动的部分，后续介绍的功能将以该版本为准，只需确保版本是1.0.0以上即可。
+
+本次版本更新中，值得说一下的就是`action`参数。
+
+继承了`ActionControl`类的控件将会支持`action`参数（`ClientAction`类型或者元素为`ClientAction`类型的列表），该参数表示点击控件之后执行的客户端操作（对应的操作只在客户端响应，不经过服务端）。
+
+该参数的用法类似`on_click`参数，但`action`参数不用经过服务端，而且功能有限，仅支持特定的几个操作。
+
+示例如下：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+
+    page.add(
+        flet.Button(
+            '按钮',
+            action=flet.OpenUrl(
+                'https://www.baidu.com'
+            )
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+后续用到相关功能时再具体介绍，这里仅介绍`action`参数的基本用法。
+
 ## 11 快捷键
 
 本章参考文档：https://flet.dev/docs/cookbook/keyboard-shortcuts/
@@ -1150,6 +1190,8 @@ flet.run(main)
 `on_focus`参数，可调用类型，表示控件获得焦点之后执行的操作。
 
 `on_blur`参数，可调用类型，表示控件失去焦点之后执行的操作。
+
+`action`参数，`ClientAction`类型或者元素为`ClientAction`类型的列表，表示点击按钮之后执行的客户端操作。注意，与`on_click`参数不同的是，该参数对应的操作只在客户端响应，不经过服务端。
 
 ## 14 `ContextMenu`控件（上下文菜单）与`PopupMenuItem`控件（菜单项）
 

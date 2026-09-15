@@ -926,6 +926,8 @@ flet.run(
 
 如果不使用超链接的平替，在Flet中，使用`UrlLauncher`服务提供的`launch_url`方法可以打开任意链接（后面再详细介绍服务，这里简单理解为类似PySide6的`QDesktopServices.openUrl`方法）。
 
+在Flet 1.0.0以后，还能使用`action`参数定义打开链接的客户端操作。
+
 以按钮为例，不使用`url`参数，看看如何实现点击按钮、打开链接：
 
 ```python
@@ -934,7 +936,7 @@ import flet
 
 def main(page: flet.Page):
     page.window.width = 400
-    page.window.height = 300
+    page.window.height = 400
     page.window.alignment = flet.Alignment(0, 0)
     page.title = '易森-Flet'
     # 创建并注册服务
@@ -959,11 +961,33 @@ def main(page: flet.Page):
             url=url
         ),
         flet.Button(
-            content='点击访问链接（同时使用两种方法）',
+            content='点击访问链接（action）',
+            action=flet.OpenUrl(url)
+        ),
+        flet.Button(
+            content='点击访问链接（on_click+url）',
             on_click=open_url,
             data={'url':url},
             url=url
-        )
+        ),
+        flet.Button(
+            content='点击访问链接（on_click+action）',
+            on_click=open_url,
+            data={'url':url},
+            action=flet.OpenUrl(url)
+        ),
+        flet.Button(
+            content='点击访问链接（action+url）',
+            action=flet.OpenUrl(url),
+            url=url
+        ),
+        flet.Button(
+            content='点击访问链接（on_click+action+url）',
+            on_click=open_url,
+            data={'url':url},
+            action=flet.OpenUrl(url),
+            url=url
+        ),
     )
 
 

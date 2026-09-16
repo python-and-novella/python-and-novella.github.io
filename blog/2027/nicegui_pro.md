@@ -114,6 +114,79 @@ ui.run(
 
 原本该模块中，只有对应一级标题的HTML标签（`h1`），现在其他级别的标题也有了（`h2-h6`）。
 
+## 版本速览——3.17.0版本
+
+### 0 主要内容
+
+更新日志：https://github.com/zauberzeug/nicegui/releases/tag/v3.17.0
+
+本次版本速览主要介绍以下内容：
+
+- `ui.codemirror`控件新增`decorations`参数和`decoration_html`参数。
+
+### 1 `ui.codemirror`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/codemirror#decorations
+
+`decorations`参数表示叠加修饰。叠加修饰虽然会显示在原始内容之上，但不会修改原始内容：
+
+```python
+from nicegui import ui
+
+
+def index():
+    ui.codemirror(
+        value='hello\nworld',
+        decorations=[
+            {
+                'kind':'widget',
+                'text':'第一行',
+                'position':5,
+                'class':'text-red'
+            }
+        ],
+    )
+
+
+ui.run(
+    root=index,
+)
+```
+
+![v3.17.0_1_1](nicegui_pro.assets/v3.17.0_1_1.png)
+
+比如上面图中显示的内容，读者可以尝试复制之后再粘贴，就会发现得到的内容中不包含红色文本。
+
+叠加修饰甚至可以使用HTML代码（需要启用`decoration_html`参数）：
+
+```python
+from nicegui import ui
+
+
+def index():
+    ui.codemirror(
+        value='hello\nworld',
+        decorations=[
+            {
+                'kind':'widget',
+                'text':'<b>第一行</b>第一行',
+                'position':5,
+                'class':'text-red'
+            }
+        ],
+        decoration_html=True
+    )
+
+
+ui.run(
+    root=index,
+)
+```
+
+![v3.17.0_1_2](nicegui_pro.assets/v3.17.0_1_2.png)
+
 ## 55 详解多页面模式（《易森》2703期）
 
 前面的教程几乎都是用单页面模式、窗口模式作为示例，而很多读者实际开发中，可能会用多页面模式作为程序的主要运行模式。因此，2027版的第一章，就先来回顾一下多页面模式，学习一下多页面模式中相关的功能。
@@ -6005,6 +6078,26 @@ ui.run(
 
 - `line_tooltip_html`参数，布尔类型，默认为`False`，表示是否将工具提示当作HTML渲染。
 
+- `decorations`参数，元素为字典的列表类型，表示不修改原始内容的叠加修饰。字典支持以下键（部分）：
+
+  - `'kind'`键，字符串类型，仅支持`['mark','line','replace','widget']`中的值，表示叠加修饰的类型（装饰指定范围字符、装饰整行、替换指定范围字符的显示内容、在指定位置插入文本注释）。
+
+  - `'from'`键，整数类型，表示字符范围的起始位置，仅`'kind'`键为`'replace'`或`'mark'`时可用。
+
+  - `'to'`键，整数类型，表示字符范围的终止位置，仅`'kind'`键为`'replace'`或`'mark'`时可用。
+
+  - `'line'`键，整数类型，表示整行的行号，仅`'kind'`键为`'line'`时可用。
+
+  - `'positon'`键，整数类型，表示指定位置（相对于所有字符），仅`'kind'`键为`'widget'`时可用。
+
+  - `'text'`键，字符串类型，表示叠加修饰的内容，仅`'kind'`键为`'replace'`或`'widget'`时可用。
+
+  - `'class'`键，字符串类型，表示叠加修饰的样式类。
+
+  - `'block'`键，布尔类型，表示叠加修饰跨越多行时是否另起一行显示，仅`'kind'`键为`'replace'`时可用。
+
+- `decoration_html`参数，布尔类型，默认为`False`，表示是否将叠加修饰的内容当作HTML渲染。
+
 `ui.codemirror`控件支持以下属性（部分）：
 
 - `theme`属性，含义同`theme`参数。
@@ -6014,6 +6107,7 @@ ui.run(
 - `supported_languages`属性，表示控件支持的语言。
 - `line_tooltips`属性，含义同`line_tooltips`参数。
 - `line_anchors`属性，含义同`line_anchors`参数。
+- `decorations`属性，含义同`decorations`参数。
 
 `ui.codemirror`控件支持以下方法（部分）：
 
@@ -6267,6 +6361,71 @@ ui.run(
 ```
 
 ![2027_78.2.4_2](nicegui_pro.assets/2027_78.2.4_2.png)
+
+#### 78.2.5 显示内容可以不是实际内容 
+
+相关文档：
+
+- https://nicegui.io/documentation/codemirror#decorations
+
+`decorations`参数表示的叠加修饰虽然会显示在原始内容之上，但不会修改原始内容：
+
+```python
+from nicegui import ui
+
+
+def index():
+    ui.codemirror(
+        value='hello\nworld',
+        decorations=[
+            {
+                'kind':'widget',
+                'text':'第一行',
+                'position':5,
+                'class':'text-red'
+            }
+        ],
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_78.2.5_1](nicegui_pro.assets/2027_78.2.5_1.png)
+
+比如上面图中显示的内容，读者可以尝试复制之后再粘贴，就会发现得到的内容中不包含红色文本。
+
+叠加修饰甚至可以使用HTML代码（需要启用`decoration_html`参数）：
+
+```python
+from nicegui import ui
+
+
+def index():
+    ui.codemirror(
+        value='hello\nworld',
+        decorations=[
+            {
+                'kind':'widget',
+                'text':'<b>第一行</b>第一行',
+                'position':5,
+                'class':'text-red'
+            }
+        ],
+        decoration_html=True
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_78.2.5_2](nicegui_pro.assets/2027_78.2.5_2.png)
 
 ## 79 x（待定）（更新中）
 

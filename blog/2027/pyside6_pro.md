@@ -2789,23 +2789,374 @@ app.exec()
 
 注意，有的控件属性没有同名的获取方法，可能需要通过带“is”前缀的方法获取，但可以通过`property`方法获取。有的控件属性则没法通过`property`方法获取，只能使用同名的获取方法。
 
-## 59 多线程（更新中）
+## 59 轻松上手多线程之`QThread`类（更新中）
 
-相关文档：
+### 59.0 前言
+
+在Python中，为了提高计算资源的利用率、提升程序的响应速度，通常会用到多线程、多进程技术。多线程相较于多进程技术开销较小，因此多线程技术更常用。当然，多线程、多进程技术存在区别，并非多线程一定就好，但这并不是本章讨论的中点。
+
+说回多线程，一般用的是标准库`threading`。该库用法简单易懂，操作方便，无需额外安装，通常是Python开发的首选。但是，如果是在PySide6程序中使用多线程，笔者反而不推荐使用标准库，因为PySide6的`QtCore`模块提供了更好用的多线程类——`QThread`类。
+
+为什么这么说？暂且允许笔者卖个关子。请读者跟随笔者的思路，一步步上手实现多线程，在实践中体会用法和好处。
+
+### 59.1 认识主线程——不用多线程会发生什么
+
+前面说使用多线程可以提高计算资源的利用率、提升程序的响应速度，那么，对于PySide6程序而言，如果计算资源足够、程序简单，是不是没必要多线程了？
+
+非也，有的情况，多线程技术是必要的。
+
+先看下面的代码：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+def do_something():
+    time.sleep(3)
+    print('ok')
+
+button.clicked.connect(
+    do_something
+)
+
+
+window.show()
+app.exec()
+```
+
+代码中，使用`time.sleep`方法模拟耗时的操作，虽然可以在等待期间禁用按钮避免误操作，还能添加动画减少等待的焦虑，但最大问题不在于等待，而是点击按钮之后，窗口无法移动，甚至多点击几次按钮还会导致程序进入未响应状态。
+
+![2027_59.1_1](pyside6_pro.assets/2027_59.1_1.gif)
+
+为什么会出现这样的问题？这里需要解释一下，并非笔者的电脑配置太差，也不是鼠标不灵敏，而是因为主线程上的耗时操作阻塞了程序界面的响应。
+
+程序启动时的第一个线程就是主线程，而程序界面就是在主线程中渲染。因此，如果主线程执行较多不必要的或者耗时的操作，就会影响程序界面的响应。如果太多操作没有响应，界面就会进入未响应状态。
+
+注意，使用多线程技术并不能解决操作本身卡住的问题，只是避免了主线程中操作卡住之后导致界面未响应的问题。
+
+### 59.2 `QThread`类的两种用法——继承`QThread`类与`QObject`类的`moveToThread`方法
+
+上一节的代码展示了主线程执行较多不必要的或者耗时的操作会影响程序界面响应的问题，而本章的主题是多线程，问题的答案不言而喻。
+
+`QThread`类有两种用法：
+
+1. 继承`QThread`类，在`run`方法中定义需要在其他线程中执行的操作。当线程启动时，`run`方法会自动执行。该用法比较**简单**，但只能在指定方法中定义操作，适合快速使用多线程的情况。
+2. 继承`QObject`类，在任意方法中定义需要在其他线程中执行的操作。实例化`QObject`类之后，调用`moveToThread`方法可以将该对象移动到指定线程（`QThread`类实例），之后`QObject`类实例调用的方法都会在其他线程中执行。该用法比较**复杂**，但可以在任意方法中定义操作，用法也更强大、规范，推荐在中大型项目中使用。
+
+继承`QThread`类的示例如下：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+class MyThread(QThread):
+    def run(self):
+        time.sleep(3)
+        print('ok')
+
+t = MyThread()
+
+button.clicked.connect(
+    t.start
+)
+
+
+window.show()
+app.exec()
+```
+
+调用`start`方法可以启动线程，`run`方法会在线程启动之后自动执行。
+
+继承`QObject`类、`moveToThread`方法的示例如下：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread,QObject,Signal
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+class MyTask(QObject):
+    finished = Signal()
+    def do_something(self):
+        time.sleep(3)
+        print('ok')
+        self.finished.emit()
+
+t = QThread()
+m = MyTask()
+m.moveToThread(t)
+t.started.connect(m.do_something)
+# 执行完操作及时退出线程
+m.finished.connect(t.quit)
+
+button.clicked.connect(
+    t.start
+)
+
+
+window.show()
+app.exec()
+```
+
+继承`QObject`类、`moveToThread`方法不会在线程启动之后执行自动执行相关操作，需要使用`started`信号关联才行。
+
+另外，不同于继承`QThread`类的`run`方法执行完毕之后线程自动退出，继承`QObject`类、`moveToThread`方法需要额外调用`quit`方法或`exit`方法退出线程。因为线程无法重复启动，不退出的话，`started`信号关联无法重复执行。
+
+虽然在程序启动时直接启动线程，使用按钮的`clicked`信号关联相关操作也可以，但一般建议线程按需启动，并且这种操作需要在程序退出前妥善退出线程，否则会触发警告（不影响正常使用，但不推荐这样做）。
+
+程序启动时直接启动线程的示例如下：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread,QObject
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+class MyTask(QObject):
+    def do_something(self):
+        time.sleep(3)
+        print('ok')
+
+
+t = QThread()
+t.start()
+m = MyTask()
+m.moveToThread(t)
+
+button.clicked.connect(
+    m.do_something
+)
+# 关闭窗口时退出线程
+window.closeEvent = lambda e:t.quit()
+
+window.show()
+app.exec()
+```
+
+本节的示例中涉及到的`QThread`类的方法、信号、槽和多线程跨线程交流将在后续细讲，本节不做展开。
+
+### 59.3 `QThread`类的基础知识——方法、信号和槽（更新中）
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QThread.html
 
 
 
-QThread
+
+
+`QThread`类支持以下方法：
+
+- `xxx`方法，---
+- 
+
+`QThread`类支持以下静态方法：
+
+- `xxx`方法，---
+- 
+
+
+
+`QThread`类支持以下信号：
+
+- `started`信号，---
+
+
+
+`QThread`类支持以下槽：
+
+- `start`方法，---
+
+
+
+
+
+### 59.4 `QThread`类的注意事项——使用信号和槽跨线程交流（更新中）
+
+
+
+
+
+### 59.5 `QThread`类的注意事项——只在主线程上操作控件（更新中）
+
+
+
+注意，程序界面是在主线程中渲染，意味着只能在主线程中访问、操作控件，其他线程只能通过信号发送数据到主线程，让主线程更新界面。可能在其他线程中操作不会报错，但依然不建议这样做。
+
+比如，通过禁用按钮避免耗时操作期间重复点击：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread,QObject,Signal
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+class MyTask(QObject):
+    finished = Signal()
+    def do_something(self):
+        button.setDisabled(True)
+        time.sleep(3)
+        print('ok')
+        button.setDisabled(False)
+        self.finished.emit()
+
+t = QThread()
+m = MyTask()
+m.moveToThread(t)
+t.started.connect(m.do_something)
+# 执行完操作及时退出线程
+m.finished.connect(t.quit)
+
+button.clicked.connect(
+    t.start
+)
+
+
+window.show()
+app.exec()
+```
+
+跨线程时，应当使用信号传递数据，在主线程操作控件：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread,QObject,Signal
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+class MyTask(QObject):
+    finished = Signal()
+    def do_something(self):
+        time.sleep(3)
+        print('ok')
+        self.finished.emit()
+
+t = QThread()
+m = MyTask()
+m.moveToThread(t)
+t.started.connect(m.do_something)
+# 执行完操作及时退出线程
+m.finished.connect(t.quit)
+t.finished.connect(lambda:button.setDisabled(False))
+
+button.clicked.connect(
+    t.start
+)
+button.clicked.connect(lambda:button.setDisabled(True))
+
+window.show()
+app.exec()
+```
+
+Qt的多线程默认不会主动退出，在使用多线程时务必养成良好的习惯：不用时及时关闭。
+
+
+
+
+
+## 60 轻松上手多线程之`QThreadPool`类（更新中）
+
+### 60.0 前言（更新中）
+
+
+
+
 
 QThreadPool
 
+
+
+
+
+## 6x 轻松上手多线程：`QMutex`类（更新中）
+
 QMutex
+
+
+
+## 6x 轻松上手多线程：`QWaitCondition`类（更新中）
 
 QWaitCondition
 
 
 
-## 60 QtQuick程序之QML（暂定）（更新中）
+## 6x QtQuick程序之QML（暂定）（更新中）
 
 相关文档：
 

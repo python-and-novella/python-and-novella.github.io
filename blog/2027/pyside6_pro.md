@@ -2789,7 +2789,7 @@ app.exec()
 
 注意，有的控件属性没有同名的获取方法，可能需要通过带“is”前缀的方法获取，但可以通过`property`方法获取。有的控件属性则没法通过`property`方法获取，只能使用同名的获取方法。
 
-## 59 轻松上手多线程之`QThread`类（更新中）
+## 59 轻松上手多线程之`QThread`类
 
 ### 59.0 前言
 
@@ -2989,53 +2989,254 @@ app.exec()
 
 本节的示例中涉及到的`QThread`类的方法、信号、槽和多线程跨线程交流将在后续细讲，本节不做展开。
 
-### 59.3 `QThread`类的基础知识——方法、信号和槽（更新中）
+### 59.3 `QThread`类的基础知识——方法、信号和槽
 
 相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QThread.html
 
+前面介绍了多线程的实际使用，本节暂且回归基础，了解一下`QThread`类的基础知识。
+
+`QThread`类支持以下方法（部分，含属性，具体代码可参考后面的示例）：
+
+- `exec`方法，进入当前线程的事件循环（当前线程变成阻塞状态，不再执行新的操作），直到线程正常结束（通过`exit`方法或者`quit`方法）时才会退出循环。注意，该方法仅能在继承`QThread`类时的`run`方法中使用，此时`run`方法因为进入了事件循环而没有执行完，因此线程不再自动退出，需要手动调用`exit`方法或者`quit`方法。
+- `isCurrentThread`方法，返回上下文对应的线程是否为当前线程。
+- `isFinished`方法，返回上下文对应的线程是否已经结束。
+- `isRunning`方法，返回上下文对应的线程是否正在运行。
+- `wait`方法，进入阻塞状态，等待上下文对应的线程结束，在超时之后返回线程是否已经退出。
+
+`exec`方法的示例如下：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something once',
+    window
+)
+class MyThread(QThread):
+    def run(self):
+        time.sleep(3)
+        print('ok')
+        self.exec()
+
+t = MyThread()
+
+button.clicked.connect(
+    t.start
+)
+button2 = QPushButton(
+    'exit thread',
+    window
+)
+button2.move(
+    0,30
+)
+button2.clicked.connect(
+    t.exit
+)
+
+window.show()
+app.exec()
+```
+
+![2027_59.3_1](pyside6_pro.assets/2027_59.3_1.png)
+
+不退出线程（点击第二个按钮）的话，点击第一个按钮只能在终端输出一次（即`run`方法执行一次），并且直接退出也会在终端看到线程仍在运行的提示。
+
+`isCurrentThread`方法的示例如下：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+class MyThread(QThread):
+    def run(self):
+        if app.thread().isCurrentThread():
+            print('not ok')
+            return
+        time.sleep(3)
+        print('ok')
+
+t = MyThread()
+
+button.clicked.connect(
+    t.start
+)
+button2 = QPushButton(
+    'do something in main thread',
+    window
+)
+button2.move(
+    0,30
+)
+button2.clicked.connect(
+    t.run
+)
 
 
+window.show()
+app.exec()
+```
 
+![2027_59.3_2](pyside6_pro.assets/2027_59.3_2.png)
 
-`QThread`类支持以下方法：
+点击第二个按钮，此时`app.thread().isCurrentThread()`为`True`，表明`run`方法在主线程中执行，终端输出的是“not ok”，并且直接返回，而不会执行后续的耗时操作。
 
-- `xxx`方法，---
-- 
+`QThread`类支持以下静态方法（部分）：
 
-`QThread`类支持以下静态方法：
-
-- `xxx`方法，---
-- 
-
-
+- `currentThread`方法，返回上下文对应的线程。
+- `isMainThread`方法，返回上下文对应的线程是否为主线程。
+- `sleep`方法，让上下文对应的线程休眠指定时长。
 
 `QThread`类支持以下信号：
 
-- `started`信号，---
-
-
+- `started`信号，线程启动后触发。
+- `finished`信号，线程结束后触发。
 
 `QThread`类支持以下槽：
 
-- `start`方法，---
+- `start`方法，启动线程。
+- `quit`方法，结束线程。
+- `exit`方法，结束线程。但该方法可以传返回码，用于表明线程的结束原因。
+
+### 59.4 `QThread`类的注意事项——通过信号和槽跨线程
+
+虽然使用多线程可以有效避免耗时操作导致程序进入未响应状态，但使用多线程还是会让某些问题变得复杂，比如，如何跨线程传递数据？
+
+首先要明确一点，虽然在代码中没有明确区分线程，但在实际使用时，需要注意当前操作对应的线程，不可随意跨线程访问对象。
+
+跨线程也没法随意传递对象，即使要传递，也只能传递数据，也就是数据类型中常说的值，不能是对象。
+
+即使只能传递数据，也不能直接传递给其他线程的方法，而是要通过信号和槽间接传递。相应的，想要调用其他程序的方法或者给其传参，也只能使用信号和槽，因为信号和槽可以安全地跨线程操作，这是Qt设计好的机制。
+
+示例如下：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread,QObject
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+class MyTask(QObject):
+    def do_something(self):
+        print(QThread.currentThread())
+        
+
+t = QThread()
+m = MyTask()
+m.moveToThread(t)
+t.start()
+
+button.clicked.connect(
+    m.do_something
+)
+
+button.keyPressEvent = lambda e:m.do_something()
+window.closeEvent = lambda e:t.quit()
+window.show()
+app.exec()
+```
+
+![2027_59.4_1](pyside6_pro.assets/2027_59.4_1.png)
+
+按钮通过信号（点击按钮）调用`do_something`方法，终端输出的当前线程不是主线程；如果是通过事件（按任意按键）调用，则输出当前线程为主线程。这就是信号和槽可以安全、准确跨线程的表现。
+
+同样的，传递数据也要通过信号：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread,QObject,Signal
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+class MyTask(QObject):
+    get_data = Signal(str)
+    def __init__(self):
+        super().__init__()
+        self.get_data.connect(
+            self.do_something
+        )
+    def do_something(self,data=''):
+        print(QThread.currentThread())
+        print(f'data is {data}.')
+        
+
+t = QThread()
+m = MyTask()
+m.moveToThread(t)
+t.start()
 
 
+button.clicked.connect(
+    lambda :m.get_data.emit('Hello')
+)
+button.clicked.connect(
+    lambda :m.do_something('Hello from main')
+)
 
 
+window.closeEvent = lambda e:t.quit()
+window.show()
+app.exec()
+```
 
-### 59.4 `QThread`类的注意事项——使用信号和槽跨线程交流（更新中）
+![2027_59.4_2](pyside6_pro.assets/2027_59.4_2.png)
 
+通过信号传递数据，对应的执行结果表明，其所在线程不是主线程。
 
+### 59.5 `QThread`类的注意事项——只在主线程上操作控件
 
+前面提到，跨线程时应当使用信号和槽传递数据，程序界面就是在主线程中渲染，这就意味着程序只能在主线程中访问、操作控件。在其他线程中，只能通过信号和槽将数据发送到主线程，让主线程更新界面。虽然在其他线程中操作控件可能不会报错，但依然不建议这样做。
 
-
-### 59.5 `QThread`类的注意事项——只在主线程上操作控件（更新中）
-
-
-
-注意，程序界面是在主线程中渲染，意味着只能在主线程中访问、操作控件，其他线程只能通过信号发送数据到主线程，让主线程更新界面。可能在其他线程中操作不会报错，但依然不建议这样做。
-
-比如，通过禁用按钮避免耗时操作期间重复点击：
+比如，通过禁用按钮避免耗时操作期间重复点击，虽然在线程中操作可能正常生效：
 
 ```python
 from PySide6.QtWidgets import (
@@ -3080,7 +3281,7 @@ window.show()
 app.exec()
 ```
 
-跨线程时，应当使用信号传递数据，在主线程操作控件：
+但跨线程时，最好只在主线程操作控件：
 
 ```python
 from PySide6.QtWidgets import (
@@ -3124,13 +3325,27 @@ window.show()
 app.exec()
 ```
 
-Qt的多线程默认不会主动退出，在使用多线程时务必养成良好的习惯：不用时及时关闭。
+值得一提的是，如果在线程中，通过信号连接到控件的槽，则属于推荐用法，因为信号和槽可以安全地跨线程操作。
 
+### 59.6 总结
 
+最后简单总结一下。
 
+PySide6程序的控件在主线程上渲染，在主线程上执行耗时操作会让程序卡住，因此需要用多线程。
 
+继承`QThread`类和继承`QObject`类是两种使用多线程的用法，前者简单，后者规范。
+
+信号和槽可以准确跨线程操作、传递数据。
+
+只能在主线程上操作控件，虽然在其他线程上操作不一定报错，但依然不推荐。
+
+涉及到多线程的用法往往更容易出现问题，问题也更不好解决。但考虑到读者的基础和本章内容量，暂且介绍到这里，等后续再深入学习多线程相关的知识，并解决使用多线程时遇到的问题。
 
 ## 60 轻松上手多线程之`QThreadPool`类（更新中）
+
+本章以及后面同主题的几章是额外补充的内容，是同期的付费增刊。
+
+因为相关用法不太常用，所以补充的内容只会简单介绍，并不会深入。
 
 ### 60.0 前言（更新中）
 
@@ -3144,13 +3359,15 @@ QThreadPool
 
 
 
-## 6x 轻松上手多线程：`QMutex`类（更新中）
+## 6x 轻松上手多线程之`QMutex`类（更新中）
 
 QMutex
 
 
 
-## 6x 轻松上手多线程：`QWaitCondition`类（更新中）
+
+
+## 6x 轻松上手多线程之`QWaitCondition`类（更新中）
 
 QWaitCondition
 

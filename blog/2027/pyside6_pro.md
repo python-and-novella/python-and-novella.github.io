@@ -3349,13 +3349,27 @@ PySide6程序的控件在主线程上渲染，在主线程上执行耗时操作�
 
 ### 60.0 前言（更新中）
 
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QThreadPool.html
 
 
 
+（为什么要用这个类）
 
-QThreadPool
 
 
+基本用法
+
+
+
+（怎么使用这个类，相关的方法和对应功能）
+
+
+
+注意事项
+
+
+
+（有什么特别的用法）
 
 
 

@@ -3341,49 +3341,214 @@ PySide6程序的控件在主线程上渲染，在主线程上执行耗时操作�
 
 涉及到多线程的用法往往更容易出现问题，问题也更不好解决。但考虑到读者的基础和本章内容量，暂且介绍到这里，等后续再深入学习多线程相关的知识，并解决使用多线程时遇到的问题。
 
-## 60 轻松上手多线程之`QThreadPool`类（更新中）
+## 60 轻松上手多线程之`QThreadPool`类
 
-本章以及后面同主题的几章是额外补充的内容，是同期的付费增刊。
+### 60.1 线程池——`QThread`类的不足之处
 
-因为相关用法不太常用，所以补充的内容只会简单介绍，并不会深入。
+前面介绍过多线程的用法，用的是`QThread`类。不过，虽然说的是轻松上手，用起来不难，但还是存在一些“瑕疵”：
 
-### 60.0 前言（更新中）
+1. 虽然耗时操作不在主线程运行，但多出来的线程只是单线程，对于耗时操作而言不是多线程。
+2. 假如多出来的线程可以是多个并且能同时运行，想要限制同时运行的线程数，生命周期管理也没那么简单、方便。
 
-相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QThreadPool.html
+根据第2个问题的描述，显然笔者找到了解决方法，只是从代码看上去确实如其所言，不太简单、方便：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThread
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+class MyThread(QThread):
+    def run(self):
+        time.sleep(3)
+        print('ok')
+
+threads = {}
+def call():
+    t = MyThread()
+    t.finished.connect(
+        lambda t=t:threads.pop(hash(t))
+    )
+    t.finished.connect(
+        lambda :print(threads)
+    )
+    threads[hash(t)] = t
+    t.start()
+
+button.clicked.connect(
+    call
+)
 
 
+window.show()
+app.exec()
+```
 
-（为什么要用这个类）
+笔者使用字典存储每个`QThread`实例，可以让耗时操作真的使用多线程运行。不过，考虑到代码复杂度，笔者并没有实现线程数限制功能。当然，想要实现也没多难，只是在创建线程之前先检查字典中项目数，不超过指定数字的话才能创建，否则直接返回。
+
+但接下来要说的并不是如何为`QThread`类设计这一套方案，而是基于上面的代码，介绍一下线程池。
+
+大多数人学过水池进出水问题，水池可以同时进水、出水，满了之后没法进水。线程池就和水池一样，线程数超过指定值之后，没法继续创建新的线程，但执行完、结束的线程会给线程池腾出空间，允许新的线程创建。这样的话，线程池就可以限制同时运行的线程数量。
+
+这里单独解释一下，为什么要限制同时运行的线程数量。现在大多数计算机都是多核处理器，但核心数并非无限增长，大部分设备的核心数有限。而实际执行时，一般一个核心对应一个线程（或者两个），线程太多的话，处理器的执行效率反而会有折扣。因此，同时运行的线程数最好与处理器核心数匹配，最好不要超过。
+
+和水池概念类似的线程池，就是第2个问题的答案，也是前面示例代码的目标。
+
+好在PySide6提供了线程池相关的类，不需要费劲重复造轮子。
+
+### 60.2 `QThreadPool`类就是线程池
+
+`QThreadPool`类就是PySide6提供的线程池，和`QThread`类一样，同属于`PySide6.QtCore`模块。
+
+用法很简单，直接实例化即可。`QThreadPool`类支持的参数方法后面讲，本节先简单看一下如何用：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QRunnable,QThreadPool
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+class MyThread(QRunnable):
+    def run(self):
+        time.sleep(3)
+        print('ok')
+        
+p = QThreadPool(maxThreadCount=3)
+
+button.clicked.connect(
+    lambda :p.start(MyThread())
+)
 
 
+window.show()
+app.exec()
+```
 
-基本用法
+虽然`QThreadPool`类是线程池，但能放到线程池的“线程”不是`QThread`类，而是`QRunnable`类。因此，继承`QThread`类要改成继承`QRunnable`类，耗时操作相关的代码（所属的`run`方法）不用变动。
+
+因为是线程池管理线程，所以启动线程不需要单独调用线程的`start`方法，而是调用线程池的`start`方法，除了将线程添加到线程池，还会在添加的同时启动线程，并在线程结束之后自动释放相关资源。
+
+读者可以尝试运行上面的代码，会看到连续点击按钮时，最多同时运行三个线程（停止点击之后还会在终端输出三次）。
+
+### 60.3 `QThreadPool`类、`QRunnable`类的基础知识
+
+相关文档：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtCore/QThreadPool.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtCore/QRunnable.html
+
+`QThreadPool`类支持以下参数：
+
+- `maxThreadCount`参数，整数类型，表示线程池最多同时运行多少个线程。
+- `expiryTimeout`参数，整数类型，表示空闲线程的过多久之后销毁，单位毫秒。
+- `stackSize`参数，整数类型，表示每个线程的栈大小。
+- `threadPriority`参数，`PySide6.QtCore.QThread.Priority`类型，表示线程的调度优先级。
+
+`QThreadPool`类支持以下方法（部分，含属性）：
+
+- `activeThreadCount`方法，返回当前正在运行的线程数量。
+- `clear`方法，清除队列中尚未运行的线程。
+- `contains`方法，判断指定线程是否在线程池中。
+- `start`方法，使用一个线程运行指定可调用对象或者可运行对象（`QRunnable`类）。
+- `reserveThread`方法，保留一个线程。
+- `releaseThread`方法，释放一个保留的线程。
+- `tryStart`方法，尝试使用一个线程运行指定可调用对象或者可运行对象（`QRunnable`类）。
+- `tryTake`方法，尝试从队列中移除指定可运行对象（`QRunnable`类）。
+- `waitForDone`方法，等待线程池中的所有线程结束。
+
+`QThreadPool`类支持以下静态方法：
+
+- `globalInstance`方法，返回全局线程池。
+
+`QRunnable`类支持以下静态方法：
+
+- `create`方法，使用可调用对象创建可运行对象。
+
+### 60.4 总结
+
+从用法上看，`QThreadPool`类作为线程池的实现，主要体现在对线程的管理上，因此少了`QThread`类在使用中的繁文缛节。
+
+一是线程的启动不再需要单独启动每个线程，由线程池负责启动。
+
+二是`start`方法的参数是可调用对象或者可运行对象（`QRunnable`类）。不仅可以将前面示例中的`QThread`类直接改成`QRunnable`类，让线程池接管原本`QThread`类对应的耗时操作，实现更高效、灵活的多线程管理。还能将耗时操作进一步简化，直接使用可调用对象（但依然建议使用可运行对象）：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QRunnable,QThreadPool
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+def run():
+    time.sleep(3)
+    print('ok')
+        
+p = QThreadPool(
+    maxThreadCount=3,
+)
+
+button.clicked.connect(
+    lambda :p.start(run)
+)
+
+window.show()
+app.exec()
+```
+
+本章主要介绍如何轻松上手，因此部分方法（不常用的方法、有难度的方法）没有介绍，待后续遇到时再展开介绍。
+
+## 61 轻松上手多线程之`QMutex`类和`QWaitCondition`类（更新中）
+
+相关文档：
+
+- https://doc.qt.io/qtforpython-6/PySide6/QtCore/QMutex.html
+- https://doc.qt.io/qtforpython-6/PySide6/QtCore/QWaitCondition.html
 
 
-
-（怎么使用这个类，相关的方法和对应功能）
-
-
-
-注意事项
-
-
-
-（有什么特别的用法）
-
-
-
-## 6x 轻松上手多线程之`QMutex`类（更新中）
 
 QMutex
 
-
-
-
-
-## 6x 轻松上手多线程之`QWaitCondition`类（更新中）
-
 QWaitCondition
+
+
 
 
 

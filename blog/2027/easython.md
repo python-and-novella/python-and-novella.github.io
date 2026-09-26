@@ -297,7 +297,7 @@ ui.run()
 
   从该参数开始，只能通过关键字传入。
 
-- `viewport`参数，字符串类型，表示网页的VIewport属性。
+- `viewport`参数，字符串类型，表示网页的viewport设置。
 
 - `favicon`参数，字符串类型或者`Path`类型，表示页面在标题栏的图标。
 

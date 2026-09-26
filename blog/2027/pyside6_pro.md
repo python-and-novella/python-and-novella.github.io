@@ -3504,7 +3504,7 @@ from PySide6.QtWidgets import (
     QWidget,
     QPushButton
 )
-from PySide6.QtCore import QRunnable,QThreadPool
+from PySide6.QtCore import QThreadPool
 import time
 
 app = QApplication()
@@ -3535,24 +3535,325 @@ app.exec()
 
 本章主要介绍如何轻松上手，因此部分方法（不常用的方法、有难度的方法）没有介绍，待后续遇到时再展开介绍。
 
-## 61 轻松上手多线程之`QMutex`类和`QWaitCondition`类（更新中）
+## 61 轻松上手多线程之`QMutex`类
 
-相关文档：
+### 61.1 多线程的致命缺陷
 
-- https://doc.qt.io/qtforpython-6/PySide6/QtCore/QMutex.html
-- https://doc.qt.io/qtforpython-6/PySide6/QtCore/QWaitCondition.html
+`QThreadPool`类看似是完美的多线程用法，功能强大、用法简单，但笔者在这里要泼一盆冷水：示例中的用法存在致命缺陷！
+
+先看下面的代码：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThreadPool
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
 
 
+var = 0
+def set_var():
+    global var
+    time.sleep(2)
+    var+=1
+    time.sleep(2)
+    print(var)
+        
+p = QThreadPool(
+    maxThreadCount=3,
+)
 
-QMutex
+button.clicked.connect(
+    lambda :p.start(set_var)
+)
 
-QWaitCondition
+window.show()
+app.exec()
+```
+
+笔者定义了一个全局变量，让其他线程分别给这个全局变量加一。代码看上去没有问题，实际运行时也没有报错。但是，如果2秒内连续点击三次，就会看到下面的诡异结果：
+
+```python
+3
+3
+3
+```
+
+有一定基础且熟悉代码的读者肯定会反驳，2秒内连续点击三次，等第一次点击对应的操作开始输出前，所有的加一操作已经执行完毕，自然每次输出的结果都是一样的。最后输出的结果确实是点击三次之后对应的`3`，根本不诡异。
+
+虽然从全局看，最终结果确实应该如此，但对于单个线程而言，这个过程就有点诡异了：`var`在线程开始执行时是初始值`0`，执行完加一操作之后应该是`1`，但在最后输出到终端前，全局变量被其他线程修改，最后变成了`3`。
+
+这么一来，对于多个线程同时访问、修改同一变量的情况，中间过程会变得混乱。
+
+只是这样看代码还不太好理解这个问题的严重性，那就允许笔者使用实际的场景类比一下。
+
+购买车票时，车票的余票就是那个全局变量，每个线程相当于一个购买车票的人。若是买票者买票时看到余票为`1`，满心欢喜地下单订票，结果最后出票时却被告知余票为`-2`，恐怕除了唯一出票成功的幸运儿之外，其他人都要欲哭无泪了。
+
+因此，多线程同时访问、修改同一资源时的同步问题，似乎成了多线程的致命缺陷。
+
+### 61.2 互斥锁——治病的灵丹妙药
+
+针对多线程同时访问、修改同一资源时的同步问题，并非无药可治，假如访问、修改同一资源时限制其他线程同时访问、修改，这个问题也就引刃而解了。
+
+在计算机领域，一个线程访问资源时，不允许其他线程访问的机制叫做互斥。对于多线程，通常会有一个类似锁一样的存在，用于实现互斥机制，这个锁就叫互斥锁。
+
+对于上一节中存在缺陷的示例，可以通过简单的全局变量实现互斥锁，但不推荐这样用：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThreadPool
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
 
 
+var = 0
+var_ing = False
+def set_var():
+    global var,var_ing
+    time.sleep(2)
+    while var_ing:
+        ...
+    var_ing = True
+    var+=1
+    time.sleep(2)
+    print(var)
+    var_ing = False
+        
+p = QThreadPool(
+    maxThreadCount=3,
+)
+
+button.clicked.connect(
+    lambda :p.start(set_var)
+)
+
+window.show()
+app.exec()
+```
+
+当线程访问资源时，将另一个布尔类型的全局变量设置为`True`，告诉其他线程当前线程正在使用资源。当线程不使用该资源，则将全局变量设置为`False`，其他就知道没有线程在使用该资源，可以放心使用。相应的，每个线程在使用资源之前，需要检查该全局变量，避免同时使用。
+
+于是，对于同样的2秒内连续点击三次，虽然等待时间会变长，结果就没那么诡异了。
+
+读者可以运行上面的代码，验证结果。
+
+### 61.3 `QMutex`类——PySide6的互斥锁
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QMutex.html
+
+上一节之所以不推荐看似简单的互斥锁实现，是因为PySide6提供了更好用、更完善、更优雅的互斥锁——`QMutex`类。
+
+实例化之后，只需在访问不允许多线程同时访问的资源前获取该互斥锁，当前就会自动检查是否存在其他线程已经获取互斥锁。
+
+如果没有，则获取该互斥锁，阻止其他线程获取。这样的话，其他线程就只能在当前线程释放互斥锁之后获取。
+
+相应的，如果其他线程已经获取了互斥锁，当前线程只能在其他线程释放互斥锁之后获取。
+
+在实际代码中，一般使用`QMutex`类的以下方法获取、释放互斥锁：
+
+- `lock`方法，锁上互斥锁，即当前线程获取互斥锁。
+- `unlock`方法，解锁互斥锁，即释放互斥锁。
+- `tryLock`方法，尝试锁上互斥锁，返回上锁结果，但等待超时之后放弃上锁。
+- `try_lock`方法，尝试锁上互斥锁，返回上锁结果，但无等待超时。
+
+示例如下：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThreadPool,QMutex
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
 
 
+var = 0
+var_ing = QMutex()
+def set_var():
+    global var
+    time.sleep(2)
+    var_ing.lock()
+    var+=1
+    time.sleep(2)
+    print(var)
+    var_ing.unlock()
+        
+p = QThreadPool(
+    maxThreadCount=3,
+)
 
-## 6x QtQuick程序之QML（暂定）（更新中）
+button.clicked.connect(
+    lambda :p.start(set_var)
+)
+
+window.show()
+app.exec()
+```
+
+相比之下，代码看上去清晰不少。
+
+### 61.4 `QMutexLocker`类——优雅使用互斥锁
+
+访问资源前获取互斥锁、不使用资源后及时释放互斥锁，这是使用互斥锁的基本原则。
+
+但是，每次获取、释放都要单独调用对应的方法，难免会忘记，这就会导致使用多线程时出现问题。
+
+不过，这个小小的不方便并不是没有解决办法，PySide6提供了一个包装类——`QMutexLocker`类，可以将`QMutex`类实例转换为`QMutexLocker`类实例，额外提供了上下文协议支持。使用`with`进入上下文时会自动获取`QMutex`类实例对应的互斥锁，离开上下文时自动释放，无需手动操作。
+
+因此，上一节的示例可以这样写：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThreadPool,QMutex,QMutexLocker
+import time
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+var = 0
+var_ing = QMutex()
+def set_var():
+    global var
+    time.sleep(2)
+    with QMutexLocker(var_ing):
+        var+=1
+        time.sleep(2)
+        print(var)
+        
+p = QThreadPool(
+    maxThreadCount=3,
+)
+
+button.clicked.connect(
+    lambda :p.start(set_var)
+)
+
+window.show()
+app.exec()
+```
+
+相比之下，代码更清晰了。
+
+### 61.5 `QWaitCondition`类——配合互斥锁实现线程休眠
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtCore/QWaitCondition.html
+
+前面介绍多线程都是通过`time.sleep`方法模拟耗时操作，是因为线程一旦启动就会自动执行，不延长执行时间的话，看不出多线程的效果。
+
+可是，有些操作的耗时并没有那么明显，如果想要使用多线程运行，并且希望这些线程一开始先暂停，等需要的时候再启动，那就只能使用`QWaitCondition`类了。
+
+`QWaitCondition`类的`wait`方法，可以让线程进入休眠状态，只有调用`wakeOne`方法或者`wakeAll`方法才能将线程唤醒。
+
+`wait`方法必须接收一个`QMutex`类的参数（`QMutexLocker`类不行，但其`qmutex`方法返回的对象可以），而且该参数必须是已经获取的互斥锁（即上锁状态的互斥锁）。因为在线程休眠期间，需要通过互斥锁释放被当前线程“占用”的资源，同时线程管理器也要通过互斥锁实现完善的休眠唤醒机制。
+
+所以，去掉示例中所有的`time.sleep`方法之后，有了`QWaitCondition`类的加持，`QThreadPool`类的示例变成一个真正可以按需启动的线程池：
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton
+)
+from PySide6.QtCore import QThreadPool,QMutex,QMutexLocker,QWaitCondition
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+button = QPushButton(
+    'do something',
+    window
+)
+
+var = 0
+var_ing = QMutex()
+c = QWaitCondition()
+def set_var():
+    global var
+    with QMutexLocker(var_ing):
+        c.wait(var_ing)
+        var+=1
+        print(var)
+        
+p = QThreadPool(
+    maxThreadCount=3,
+)
+
+button.clicked.connect(
+    lambda :p.start(set_var)
+)
+
+
+button2 = QPushButton(
+    'wake one',
+    window
+)
+button2.move(
+    0,30
+)
+button2.clicked.connect(
+    c.wakeOne
+)
+
+# 在关闭窗口时唤醒所有休眠的线程，否则无法正常退出程序
+window.closeEvent = lambda e:c.wakeAll()
+window.show()
+app.exec()
+```
+
+`QWaitCondition`类和互斥锁的用法类似，只需创建一个实例即可，在线程需要休眠的位置（互斥锁必须已经上锁）调用`wait`方法。
+
+注意，如果退出程序时有线程处于休眠状态，则无法退出程序。因此，务必确保退出程序前，**唤醒**所有休眠的线程。
+
+## 6x QML基础（更新中）
 
 相关文档：
 
@@ -3647,7 +3948,7 @@ app.exec()
 
 
 
-## 61 `Qxxx`控件——xx的故事（更新中）
+## 6x `Qxxx`控件——xx的故事（更新中）
 
 相关文档：
 

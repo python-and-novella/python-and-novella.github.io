@@ -3479,7 +3479,7 @@ app.exec()
 
 ![2026_38_4](qt_for_python_pro.assets/2026_38_4.png)
 
-想要限制输入的内容可以设置`inputMask`参数（表示输入掩码，具体格式要求参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLineEdit.html#PySide6.QtWidgets.QLineEdit.inputMask ）：
+想要限制输入的内容，可以设置`inputMask`参数（表示输入掩码，具体格式要求参考 https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QLineEdit.html#PySide6.QtWidgets.QLineEdit.inputMask ）：
 
 ```python
 from PySide6.QtWidgets import (

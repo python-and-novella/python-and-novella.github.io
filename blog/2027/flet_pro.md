@@ -719,7 +719,8 @@ def main(page: flet.Page):
     page.window.width = 400
     page.window.height = 300
     page.window.alignment = flet.Alignment(0, 0)
-
+    page.title = '易森-Flet'
+    
     page.add(
         flet.Button(
             'OpenUrl',
@@ -782,7 +783,8 @@ def main(page: flet.Page):
     page.window.width = 400
     page.window.height = 300
     page.window.alignment = flet.Alignment(0, 0)
-
+    page.title = '易森-Flet'
+    
     page.add(
         flet.Button(
             'OpenUrl BLANK',
@@ -843,7 +845,8 @@ def main(page: flet.Page):
     page.window.width = 400
     page.window.height = 300
     page.window.alignment = flet.Alignment(0, 0)
-
+    page.title = '易森-Flet'
+    
     f = flet.TextField(
         value='Hello',
     )
@@ -888,6 +891,7 @@ def main(page: flet.Page):
     page.window.width = 400
     page.window.height = 300
     page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
 
     f = flet.TextField(
         value='Hello',
@@ -960,6 +964,7 @@ def main(page: flet.Page):
     page.window.width = 400
     page.window.height = 300
     page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
 
     t = flet.Text('未选择')
     f = flet.FilePicker(
@@ -993,19 +998,24 @@ flet.run(
 
 ![2027_29.4_1](flet_pro.assets/2027_29.4_1.png)
 
-## 30 `FilePicker`服务（更新中）
+## 30 `FilePicker`服务
 
 相关文档：https://flet.dev/docs/services/filepicker/
 
 客户端动作中的`PickFiles`类用于选择文件，而该类实际上是通过`FilePicker`服务的`pick_files`方法实现的。如果不使用客户端动作，或者想要使用其他与选择文件相关的功能（保存文件、上传文件），那就有必要详细了解一下`FilePicker`服务。
 
+`FilePicker`服务的参数很简单，但参数的使用场景有所不同：
 
+- `on_result`参数，可调用类型，表示通过客户端动作选择文件之后执行的操作。
+- `on_upload`参数，可调用类型，表示通过`upload`方法上传文件之后执行的操作。
 
+`FilePicker`服务支持以下异步方法：
 
+- `pick_files`方法，打开选择文件的对话框。
+- `save_file`方法，打开保存文件的对话框。
+- `get_directory_path`方法，打开选择目录的对话框。
 
-（介绍`FilePicker`类的参数和方法，以及每个方法的参数、示例）
-
-
+`pick_files`方法的参数其实在介绍客户端动作`PickFiles`类的参数时介绍了，这里不再重复，仅提供使用`pick_files`方法的实现相同效果的示例：
 
 ```python
 import flet
@@ -1015,6 +1025,7 @@ def main(page: flet.Page):
     page.window.width = 400
     page.window.height = 300
     page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
 
     t = flet.Text('未选择')
     f = flet.FilePicker()
@@ -1048,17 +1059,591 @@ flet.run(
 )
 ```
 
+`save_file`方法支持以下参数：
+
+- `dialog_title`参数，字符串类型，表示对话框的标题。
+- `file_name`参数，字符串类型，表示保存文件的文件名。
+- `initial_directory`参数，字符串类型，表示对话框的初始的路径。
+- `file_type`参数，`flet.FilePickerFileType`成员，表示保存时允许覆盖的文件类型，默认为`ANY`。如果是`CUSTOM`，或者定义了`allowed_extensions`参数，则表示仅允许`allowed_extensions`参数中的文件类型。
+- `allowed_extensions`参数，元素为字符串的列表，表示保存时允许覆盖的文件类型，优先于`file_type`参数生效。
+- `src_bytes`参数，字节数组，表示保存文件的内容。如果该参数不为空，则执行该方法会创建文件；反之不会创建。
+
+`save_file`方法会返回保存文件的路径，如果内容不是不通过`src_bytes`参数保存到文件，则需要使用该路径，单独完成保存操作：
+
+```python
+import flet
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    f = flet.FilePicker()
+    i = flet.TextField(label='输入要保存的内容，为空则保存源代码：')
+    async def handler():
+        path:str = await f.save_file(
+            dialog_title='保存文件',
+            initial_directory=__file__+'\\..',
+            file_type=flet.FilePickerFileType.CUSTOM,
+            allowed_extensions=['txt', 'py'],
+            src_bytes=i.value.encode() or None
+        )
+        # 没输入任何内容的话，则手动写入源代码
+        if not i.value.encode():
+            with open(__file__,encoding='utf-8') as o,open(path,'w+',encoding='utf-8') as s:
+                s.writelines(o.readlines())
+
+    page.add(
+        i,
+        flet.Button(
+            'save file',
+            on_click=handler
+        ),
+    )
 
 
-## 31 异步技巧（更新中）
+flet.run(
+    main,
+)
+```
+
+![2027_30_1](flet_pro.assets/2027_30_1.png)
+
+`get_directory_path`方法支持以下参数：
+
+- `dialog_title`参数，字符串类型，表示对话框的标题。
+- `initial_directory`参数，字符串类型，表示对话框的初始的路径。
+
+示例如下：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    f = flet.FilePicker()
+    async def handler():
+        path:str = await f.get_directory_path(
+            dialog_title='选择目录',
+            initial_directory=__file__,
+        )
+        print(path)
+
+    page.add(
+        flet.Button(
+            'select dir',
+            on_click=handler
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+## 31 异步技巧：同步==异步?
 
 相关文档：https://flet.dev/docs/cookbook/async-apps/
 
+Flet程序本身是运行在`asyncio`的事件循环中，程序中使用异步的地方也不少，这就牵扯出不少与异步相关的用法、技巧。
+
+对于Flet程序而言，有的场景下，既可以用同步函数，也可以用异步函数。
+
+### 31.1 主函数
+
+Flet程序的主函数（传给`flet.run`方法`main`参数的函数），可以是同步函数，也可以是异步函数，都能正常运行：
+
+```python
+import flet
+
+async def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    page.add(
+        flet.Text('Hello')
+    )
+
+flet.run(
+    main
+)
+```
+
+### 31.2 运行方法
+
+除了主函数，`flet.run`方法也有一个异步版本——`flet.run_async`方法，同样支持同步、异步的主函数。只不过该方法是异步函数，想要在同步函数或者全局作用域内直接运行，需要借助`asyncio.run`方法：
+
+```python
+import flet
+import asyncio
 
 
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
 
+    page.add(
+        flet.Text('Hello')
+    )
+
+
+asyncio.run(
+    flet.run_async(
+        main
+    )
+)
+```
+
+### 31.3 响应函数
+
+主函数、运行方法有双版本，响应函数也支持双版本：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    def handler_sync():
+        print('sync')
+
+    async def handler_async():
+        print('async')
+
+    page.add(
+        flet.Button(
+            'sync',
+            on_click=handler_sync
+        ),
+        flet.Button(
+            'async',
+            on_click=handler_async
+        )
+    )
+
+
+flet.run(
+    main
+)
+```
+
+同步函数、异步函数都能直接传。
+
+### 31.4 lambda 表达式
+
+在响应函数使用其他函数时，不需要传参的话可以直接用，自然同步函数、异步函数都能直接传。但是，如果想要传参，通常使用 lambda 表达式包装一下，这时就会出现一个问题：lambda 表达式不能使用异步等待，传参之后的异步函数不能运行。
+
+不过，如果读者看过前面的内容，肯定想当然以为借助`asyncio.run`方法就能将异步函数包装为同步函数来运行，似乎可以间接实现，那就会看到下面的示例：
+
+```python
+import flet
+import asyncio
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    def handler_sync(s):
+        print(s)
+
+    async def handler_async(s):
+        print(s)
+
+    page.add(
+        flet.Button(
+            'sync',
+            on_click=lambda :handler_sync(
+                'sync'
+            )
+        ),
+        flet.Button(
+            'async',
+            on_click=lambda :asyncio.run(
+                handler_async(
+                    'async'
+                )
+            )
+        ),
+    )
+
+
+flet.run(
+    main
+)
+```
+
+![2027_31.4_1](flet_pro.assets/2027_31.4_1.png)
+
+居然报错了！
+
+这个报错很明确，解决方法网上也有：
+
+```python
+import flet
+import asyncio
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    def handler_sync(s):
+        print(s)
+
+    async def handler_async(s):
+        print(s)
+
+    page.add(
+        flet.Button(
+            'sync',
+            on_click=lambda :handler_sync('sync')
+        ),
+        flet.Button(
+            'async',
+            on_click=lambda :asyncio.get_event_loop().create_task(
+                handler_async(
+                    'async'
+                )
+            )
+        ),
+    )
+
+
+flet.run(
+    main
+)
+```
+
+`asyncio.run`方法是创建新的事件循环，但不能在事件循环内创建新的事件循环，因此解决方法就是获取当前事件循环，使用`create_task`方法来运行。
+
+当然，主页面的`loop`属性就是当前事件循环，可以将上面的正确代码简化一下：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    def handler_sync(s):
+        print(s)
+
+    async def handler_async(s):
+        print(s)
+
+    page.add(
+        flet.Button(
+            'sync',
+            on_click=lambda :handler_sync(
+                'sync'
+            )
+        ),
+        flet.Button(
+            'async',
+            on_click=lambda :page.loop.create_task(
+                handler_async(
+                    'async'
+                )
+            )
+        ),
+    )
+
+
+flet.run(
+    main
+)
+```
+
+其实，直接使用`asyncio.create_task`方法的话，也能直接在当前事件循环内运行异步函数：
+
+```python
+import flet
+import asyncio
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    def handler_sync(s):
+        print(s)
+
+    async def handler_async(s):
+        print(s)
+
+    page.add(
+        flet.Button(
+            'sync',
+            on_click=lambda :handler_sync('sync')
+        ),
+        flet.Button(
+            'async',
+            on_click=lambda :asyncio.create_task(
+                handler_async(
+                    'async'
+                )
+            )
+        ),
+    )
+
+
+flet.run(
+    main
+)
+```
+
+前面还介绍过后台运行任务的方法——主页面的`run_task`方法，该方法也支持异步函数，只是传给异步函数的参数要单独作为该方法的参数：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    def handler_sync(s):
+        print(s)
+
+    async def handler_async(s):
+        print(s)
+
+    page.add(
+        flet.Button(
+            'sync',
+            on_click=lambda :handler_sync('sync')
+        ),
+        flet.Button(
+            'async',
+            on_click=lambda :page.run_task(
+                handler_async,
+                'async'
+            )
+        ),
+    )
+
+
+flet.run(
+    main
+)
+```
+
+### 31.5 后台任务
+
+之前介绍过，运行后台任务的方法有两种：主页面的`run_thread`方法和主页面的`run_task`方法。其中，前者仅支持同步函数，使用的是多线程技术；后者仅支持异步函数，使用的是协程技术。算是运行后台任务的同步、异步版本。
+
+示例如下：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    def handler_sync(s):
+        print(s)
+
+    async def handler_async(s):
+        print(s)
+
+    page.add(
+        flet.Button(
+            'sync',
+            on_click=lambda :page.run_thread(handler_sync,'sync')
+        ),
+        flet.Button(
+            'async',
+            on_click=lambda :page.run_task(handler_async,'async')
+        ),
+    )
+
+
+flet.run(
+    main
+)
+```
+
+## 32 多线程
+
+虽然在运行后台任务时可以根据函数的类型选择合适的方法，但主页面的`run_task`方法仅支持异步函数，使用的是协程技术，而不是多线程技术，难免太局限了。
+
+但是，主页面的`run_thread`方法仅支持同步函数，不代表异步函数就与多线程技术无缘，还是有方法的。
+
+主页面的`run_task`方法是同步函数，同时支持异步函数，使用其包装异步函数，是个有点“套娃”但有效的方法：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    async def handler_async(s):
+        print(s)
+
+    page.add(
+        flet.Button(
+            'async',
+            on_click=lambda :page.run_thread(
+                page.run_task,
+                handler_async,
+                'async'
+            )
+        ),
+    )
+
+
+flet.run(
+    main
+)
+```
+
+其他包装异步函数的同步函数方法也可以：
+
+```python
+import flet
+import asyncio
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    async def handler_async(s):
+        print(s)
+
+    page.add(
+        flet.Button(
+            'async',
+            on_click=lambda :page.run_thread(
+                page.loop.create_task,
+                handler_async(
+                    'async'
+                )
+            )
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+不过，本章不光要介绍主页面的`run_thread`方法运行同步函数、异步函数的两种场景，还要介绍一下使用多线程技术的前提下，除了主页面的`run_thread`方法，有没有其他方法。
+
+这就不得不提前面出现过多次的`asyncio`库。该库不仅提供了将异步函数转换为同步函数的方法，还提供了使用多线程运行同步函数的方法——`asyncio.to_thread`方法：
+
+```python
+import flet
+import asyncio
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    async def handler_async():
+        result = await asyncio.to_thread(
+            lambda e:e,
+            'async'
+        )
+        print(result)
+
+    page.add(
+        flet.Button(
+            'async',
+            on_click=handler_async
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+`asyncio.to_thread`方法是异步函数，能接收在其他线程运行函数的返回值，适合需要知道函数运行结果的情况。
+
+如果想要使用线程池，则可以使用事件循环（主页面的`loop`属性或者`asyncio.get_event_loop()`）的`run_in_executor`方法：
+
+```python
+import flet
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    pool = ThreadPoolExecutor(2)
+    async def handler_async():
+        def task():
+            time.sleep(2)
+            print('async')
+        page.loop.run_in_executor(
+            pool,
+            task
+        )
+
+
+    page.add(
+        flet.Button(
+            'async',
+            on_click=handler_async
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+使用标准库的`ThreadPoolExecutor`类（使用`from concurrent.futures import ThreadPoolExecutor`导入）创建线程池，即可以在`run_in_executor`方法中使用该线程池，之后创建的任务都会受到线程池制约。
+
+最后简单总结一下：
+
+| 多线程方法                      | 场景                   |
+| ------------------------------- | ---------------------- |
+| `asyncio.to_thread`方法（异步） | 获取运行结果（返回值） |
+| `page.run_thread`方法           | 无结果的简单场景       |
+| `page.loop.run_in_executor`方法 | 使用线程池限制线程数   |
+
+其实，Flet程序也支持标准库`threading`的多线程用法，只是其用法稍微有点复杂，故本章并未介绍。
+
+PS：可能有读者注意到本章的开头似乎与《异步技巧：同步==异步?》的内容有些关联。没错，本章原本是那一章的最后一节。笔者写到最后发现，该节内容与多线程关联较大，与异步的技巧关联较小。故将其独立，单独命名为《多线程》。
 
 ## 3x `xxx`控件（更新中）
 

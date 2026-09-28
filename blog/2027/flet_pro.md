@@ -694,21 +694,365 @@ flet.run(
 )
 ```
 
+## 29 客户端动作
+
+### 29.0 前言
+
+Flet 在 1.0.0 版本为继承了`ActionControl`类的控件添加了`action`参数（`ClientAction`类型或者元素为`ClientAction`类型的列表），该参数表示点击控件之后执行的客户端操作（对应的操作只在客户端响应，不经过服务端）。
+
+版本速览里只是介绍了参数的基本用法，却没有介绍其他客户端动作（`ClientAction`类型），本章将展开介绍一下。
+
+目前有以下几种客户端动作：
+
+- `OpenUrl`类，表示打开链接。
+- `CopyToClipboard`类，表示复制内容到剪贴板。
+- `ShareText`类，表示分享内容。
+- `PickFiles`类，表示选择文件。
+
+示例如下：
+
+```python
+import flet
 
 
-## 29 客户端动作（更新中）
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+
+    page.add(
+        flet.Button(
+            'OpenUrl',
+            action=flet.OpenUrl(
+                'https://www.baidu.com'
+            )
+        ),
+        flet.Button(
+            'CopyToClipboard',
+            action=flet.CopyToClipboard(
+                'https://www.baidu.com'
+            )
+        ),
+        flet.Button(
+            'ShareText',
+            action=flet.ShareText(
+                'https://www.baidu.com'
+            )
+        ),
+        flet.Button(
+            'PickFiles',
+            action=flet.PickFiles(
+                flet.FilePicker(
+                    on_result=lambda e:print(e.files[0].bytes.decode())
+                ),
+                with_data=True
+            )
+        ),
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_29.0_1](flet_pro.assets/2027_29.0_1.png)
+
+### 29.1 `OpenUrl`类
+
+相关文档：
+
+- https://flet.dev/docs/types/openurl/
+- https://flet.dev/docs/types/urltarget/
+
+`OpenUrl`类的参数不多：
+
+- `url`参数，字符串类型，表示要打开的链接。
+- `target`参数，字符串类型或者`flet.UrlTarget`成员，表示在哪里打开链接。
+
+`target`参数可用于指定是否在新标签页打开链接：当其值为`'_blank'`或者`flet.UrlTarget.BLANK`时，就是在新标签页中打开链接；当其值为`'_self'`或者`flet.UrlTarget.SELF`时，就是在当前标签页中打开链接。
+
+示例如下：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+
+    page.add(
+        flet.Button(
+            'OpenUrl BLANK',
+            action=flet.OpenUrl(
+                url='https://www.baidu.com',
+                target=flet.UrlTarget.BLANK
+            )
+        ),
+        flet.Button(
+            'OpenUrl SELF',
+            action=flet.OpenUrl(
+                url='https://www.baidu.com',
+                target=flet.UrlTarget.SELF
+            )
+        ),
+        flet.Button(
+            'OpenUrl PARENT',
+            action=flet.OpenUrl(
+                url='https://www.baidu.com',
+                target=flet.UrlTarget.PARENT
+            )
+        ),
+        flet.Button(
+            'OpenUrl TOP',
+            action=flet.OpenUrl(
+                url='https://www.baidu.com',
+                target=flet.UrlTarget.TOP
+            )
+        ),
+    )
+
+
+flet.run(
+    main,
+    view=flet.AppView.WEB_BROWSER
+)
+```
+
+![2027_29.1_1](flet_pro.assets/2027_29.1_1.png)
+
+注意，涉及到浏览器标签页的操作，只有使用网页模式才能正确生效，窗口模式一律使用浏览器的新标签页打开外部链接。
+
+### 29.2 `CopyToClipboard`类
+
+相关文档：https://flet.dev/docs/types/copytoclipboard/
+
+`CopyToClipboard`类的参数只有一个：
+
+- `data`参数，字符串类型，表示要复制到剪贴板的数据。
+
+注意，`data`参数不支持变量。因此，如果想要改变复制到剪贴板的数据，则要更新`CopyToClipboard`类`args`属性`'data'`键对应的值：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+
+    f = flet.TextField(
+        value='Hello',
+    )
+    a = flet.CopyToClipboard(
+        f.value
+    )
+    b = flet.Button(
+        'CopyToClipboard',
+        action=a
+    )
+    page.add(
+        f,b,
+        flet.Button(
+            'update CopyToClipboard',
+            on_click=lambda e:a.args.update(
+                {'data':f.value}
+            )
+        )
+    )
+    
+
+flet.run(
+    main,
+)
+```
+
+![2027_29.2_1](flet_pro.assets/2027_29.2_1.png)
+
+当输入框的内容改变，只有点击第二个按钮，更新第一个按钮的客户端动作，第一个按钮点击之后复制到剪贴板的内容才会改变。
+
+可能会有读者好奇，为什么不能直接修改`CopyToClipboard`类`data`属性，非要修改`CopyToClipboard`类`args`属性`'data'`键对应的值？
+
+那是因为`data`属性仅在`CopyToClipboard`类初始化时使用一次，先将其更新到`args`属性这个字典中，再将其传到Flutter控件中。如果后续想要修改Flutter控件中对应的值，则只能修改`args`属性这个字典。后续会遇到很多类似的属性，请读者牢记这个技巧。
+
+如果读者不相信，可以看一下示例：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+
+    f = flet.TextField(
+        value='Hello',
+    )
+    a = flet.CopyToClipboard(
+        f.value
+    )
+    b = flet.Button(
+        'CopyToClipboard',
+        action=a
+    )
+    def update_data():
+        a.data = f.value
+        print(f'{a.data=}')
+        print(f'{b.action.data=}')
+
+    u = flet.Button(
+        'update CopyToClipboard',
+        on_click=update_data
+    )
+    page.add(
+        f,b,u
+    )
+    
+
+flet.run(
+    main,
+)
+```
+
+![2027_29.2_2](flet_pro.assets/2027_29.2_2.png)
+
+尽管点击第二个按钮之后，`data`属性都已改变，但之后再点击第一个按钮，然后粘贴到文本框，内容依然是“Hello”。
+
+### 29.3 `ShareText`类
+
+相关文档：https://flet.dev/docs/types/sharetext
+
+`ShareText`类支持以下参数：
+
+- `text`参数，字符串类型，表示分享的主要内容。
+- `title`参数，字符串类型，表示分享内容的标题。
+- `subject`参数，字符串类型，表示分享内容的主题（邮件形式支持）。
+
+参数简单，也没有需要特别注意的问题，因此本节不提供示例。
+
+### 29.4 `PickFiles`类
+
+相关文档：https://flet.dev/docs/types/pickfiles
+
+`PickFiles`类支持以下参数：
+
+- `file_picker`参数，`flet.FilePicker`类型，表示选择文件时使用的文件选择对话框服务。选择完毕之后的操作只能在创建文件选择对话框服务时定义，`PickFiles`类的后面几个参数实际上也是`flet.FilePicker`类`pick_files`方法的参数。
+- `dialog_title`参数，字符串类型，表示对话框的标题。
+- `initial_directory`参数，字符串类型，表示对话框的初始的路径。
+- `file_type`参数，`flet.FilePickerFileType`成员，表示允许选择的文件类型。如果是`CUSTOM`，或者定义了`allowed_extensions`参数，则表示仅允许`allowed_extensions`参数中的文件类型。
+- `allowed_extensions`参数，元素为字符串的列表，表示允许选择的文件类型，优先于`file_type`参数生效。
+- `allow_multiple`参数，布尔类型，表示是否允许多选。
+- `with_data`参数，布尔类型，表示是否将文件内容读取到`flet.FilePickerFile.bytes`属性。对话框服务`on_result`参数（仅在`PickFiles`类中使用时有效）的事件参数中，其`files`属性的每个元素就是`flet.FilePickerFile`类型，每个属性的`bytes`属性会在`with_data`参数启用后变成文件内容。
+- `compression_quality`参数，整数类型（0-100），表示对图片文件的压缩等级。
+- `cancel_upload_on_window_blur`参数，布尔类型，表示当网页模式的浏览器窗口失去焦点时，是否自动取消选择。
+
+示例如下：
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+
+    t = flet.Text('未选择')
+    f = flet.FilePicker(
+        on_result=lambda e:setattr(
+            t,
+            'value',
+            e.files[0].bytes.decode() if e.files else '未选择'
+        )
+    )
+    page.add(
+        flet.Button(
+            'PickFiles',
+            action=flet.PickFiles(
+                f,
+                dialog_title='选择文件',
+                initial_directory=__file__+'\\..',
+                file_type=flet.FilePickerFileType.CUSTOM,
+                allowed_extensions=['txt','py'],
+                allow_multiple=False,
+                with_data=True,
+            )
+        ),
+        t
+    )
+
+
+flet.run(
+    main,
+)
+```
+
+![2027_29.4_1](flet_pro.assets/2027_29.4_1.png)
+
+## 30 `FilePicker`服务（更新中）
+
+相关文档：https://flet.dev/docs/services/filepicker/
+
+客户端动作中的`PickFiles`类用于选择文件，而该类实际上是通过`FilePicker`服务的`pick_files`方法实现的。如果不使用客户端动作，或者想要使用其他与选择文件相关的功能（保存文件、上传文件），那就有必要详细了解一下`FilePicker`服务。
 
 
 
-控件的`action`参数对应的几种客户端动作：分享、打开链接等。
+
+
+（介绍`FilePicker`类的参数和方法，以及每个方法的参数、示例）
+
+
+
+```python
+import flet
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+
+    t = flet.Text('未选择')
+    f = flet.FilePicker()
+
+    async def handler():
+        files = await f.pick_files(
+            dialog_title='选择文件',
+            initial_directory=__file__+'\\..',
+            file_type=flet.FilePickerFileType.CUSTOM,
+            allowed_extensions=['txt', 'py'],
+            allow_multiple=False,
+            with_data=True,
+            cancel_upload_on_window_blur=True
+        )
+        setattr(
+            t,
+            'value',
+            files[0].bytes.decode() if files else '未选择'
+        )
+    page.add(
+        flet.Button(
+            'PickFiles',
+            on_click=handler
+        ),
+        t
+    )
+
+
+flet.run(
+    main,
+)
+```
 
 
 
 
 
-
-
-## 30 异步技巧（更新中）
+## 31 异步技巧（更新中）
 
 相关文档：https://flet.dev/docs/cookbook/async-apps/
 

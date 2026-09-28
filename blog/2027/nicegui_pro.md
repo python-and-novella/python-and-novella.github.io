@@ -6147,7 +6147,7 @@ ui.run(
 
 ![2027_78.2.1_1](nicegui_pro.assets/2027_78.2.1_1.gif)
 
-相比之下，`ui.editor`控件的表现就不符合预期了：
+相比之下，`ui.editor`控件的表现就不符合预期了（读者可以实测对比效果）：
 
 ```python
 from nicegui import ui

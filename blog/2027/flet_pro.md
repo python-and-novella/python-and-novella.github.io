@@ -1151,6 +1151,8 @@ flet.run(
 
 ## 31 异步技巧：同步==异步?
 
+### 31.0 前言
+
 相关文档：https://flet.dev/docs/cookbook/async-apps/
 
 Flet程序本身是运行在`asyncio`的事件循环中，程序中使用异步的地方也不少，这就牵扯出不少与异步相关的用法、技巧。
@@ -1644,6 +1646,313 @@ flet.run(
 其实，Flet程序也支持标准库`threading`的多线程用法，只是其用法稍微有点复杂，故本章并未介绍。
 
 PS：可能有读者注意到本章的开头似乎与《异步技巧：同步==异步?》的内容有些关联。没错，本章原本是那一章的最后一节。笔者写到最后发现，该节内容与多线程关联较大，与异步的技巧关联较小。故将其独立，单独命名为《多线程》。
+
+## 33 详解声明式——对话框
+
+### 33.0 前言
+
+相关文档：https://flet.dev/docs/cookbook/declarative-dialogs
+
+《Flet札记》之前介绍过如何显示对话框，但那是命令式风格，而非声明式。如果在声明式风格中显示对话框，代码会有一些差异。
+
+### 33.1 命令式风格的对话框
+
+先来回顾一下命令式风格如何显示对话框：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '警告信息'
+        ),
+    )
+    
+    page.add(
+        flet.Button(
+            content='show dialog',
+            on_click=lambda :page.show_dialog(
+                dialog
+            )
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+或者：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '警告信息'
+        ),
+    )
+    def show_dialog():
+        dialog.open = True
+    page.add(
+        dialog,
+        flet.Button(
+            content='show dialog',
+            on_click=show_dialog
+        ),
+    )
+
+flet.run(
+    main
+)
+```
+
+![2027_33.1_1](flet_pro.assets/2027_33.1_1.png)
+
+命令式风格中，控制对话框是否显示的本质就是修改对话框的`open`属性。相比于直接修改，`page.show_dialog`方法不用单独对话框添加到主页面。因此，使用`page.show_dialog`方法更简单。
+
+### 33.2 声明式风格的对话框——沿用`page.show_dialog`方法
+
+对于声明式风格，`page.show_dialog`方法依然可以使用，只是主页面没法通过参数直接访问，可以使用 lambda 表达式间接传递：
+
+```python
+import flet
+
+@flet.component
+def App(page:flet.Page):
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '警告信息'
+        ),
+    )
+
+    return flet.Button(
+        content='show dialog',
+        on_click=lambda :page.show_dialog(
+            dialog
+        )
+    )
+    
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    page.render(
+        lambda :App(page)
+    )
+
+flet.run(
+    main
+)
+```
+
+也可以直接改用`flet.context.page`代替主页面：
+
+```python
+import flet
+
+@flet.component
+def App():
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '警告信息'
+        ),
+    )
+
+    return flet.Button(
+        content='show dialog',
+        on_click=lambda :flet.context.page.show_dialog(
+            dialog
+        )
+    )
+    
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    page.render(
+        App
+    )
+
+flet.run(
+    main
+)
+```
+
+### 33.3 声明式风格的对话框——改用`flet.use_dialog`方法
+
+命令式风格的特点是关注过程，显示内容随过程变化；声明式风格的特点是关注状态，显示内容随状态变化。
+
+虽然上一节的示例中，最终显示控件的方法是声明式风格独有的`render`方法，但决定对话框是否显示的，并非`open`属性，而是是否调用`page.show_dialog`方法，有了几分命令式风格的味道，看起来不够纯粹。
+
+不过，并不能把对话框当作普通控件处理，因为直接添加对话框到其他容器控件中的话，设置其`open`属性，并不能正常使用：
+
+```python
+import flet
+
+@flet.component
+def App():
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '警告信息'
+        ),
+    )
+
+    def show_dialog():
+        dialog.open = True
+    return flet.Row(
+        [
+            dialog,
+            flet.Button(
+                content='show dialog',
+                on_click=show_dialog
+            )
+        ]
+    )
+    
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    page.render(
+        App
+    )
+
+flet.run(
+    main
+)
+```
+
+![2027_33.3_1](flet_pro.assets/2027_33.3_1.png)
+
+这是因为显示对话框的位置在叠加层，需要特殊处理，因此对话框实际上要单独添加。对于声明式风格，则要改用`flet.use_dialog`方法添加（使用）对话框：
+
+```python
+import flet
+
+@flet.component
+def App():
+    dialog = flet.AlertDialog(
+        flet.Text(
+            '警告信息'
+        ),
+    )
+    flet.use_dialog(dialog)
+    def show_dialog():
+        dialog.open = True
+    return flet.Button(
+        content='show dialog',
+        on_click=show_dialog
+    )
+
+    
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    page.render(
+        App
+    )
+
+flet.run(
+    main
+)
+```
+
+但是，`flet.use_dialog`方法添加的对话框，显示、隐藏不受控，一添加就显示，也没法通过修改`open`属性控制其显示状态。
+
+这是因为`flet.use_dialog`方法内部接管了`open`属性，直接修改`open`属性没法控制对话框的显示状态。既然如此，那就只能另辟蹊径。
+
+给`flet.use_dialog`方法传入`None`可以隐藏已经显示的对话框，每次状态值变化都会触发组件的刷新。而`use_state`方法可以在组件中创建一个状态值，不会因为组件的刷新而丢失当前值。
+
+因此，可以使用`use_state`方法创建一个决定对话框是否显示的状态值，让按钮的响应操作变成修改该状态值为`True`，当对话框消失时（`on_dismiss`参数对应的响应函数）将该状态值改为`False`。
+
+于是，得到以下代码：
+
+```python
+import flet
+
+@flet.component
+def App():
+    dialog,set_dialog = flet.use_state(False)
+    flet.use_dialog(
+        flet.AlertDialog(
+            flet.Text(
+                '警告信息'
+            ),
+            on_dismiss=lambda :set_dialog(False)
+        )
+        if dialog else None
+    )
+    return flet.Button(
+        content='show dialog',
+        on_click=lambda :set_dialog(True)
+    )
+    
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0,0)
+    page.title = '易森-Flet'
+
+    page.render(
+        App
+    )
+
+flet.run(
+    main
+)
+```
+
+这就是比较纯粹的声明式风格的对话框使用方法。
+
+## 34 xxx（更新中）
+
+子进程
+
+https://flet.dev/docs/cookbook/subprocess
+
+多进程
+
+https://flet.dev/docs/cookbook/multiprocessing
+
+子解释器
+
+https://flet.dev/docs/cookbook/subinterpreters
+
+动画
+
+https://flet.dev/docs/cookbook/animations
+
+拖放
+
+https://flet.dev/docs/cookbook/drag-and-drop
+
+控件引用
+
+https://flet.dev/docs/cookbook/control-refs
+
+
 
 ## 3x `xxx`控件（更新中）
 

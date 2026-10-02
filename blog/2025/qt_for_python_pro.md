@@ -3133,7 +3133,7 @@ app.exec()
 from PySide6.QtQml import QQmlContext
 ```
 
-然后继承`QQmlContext.PropertyPair`，创建自定义类（可以与`PropertyPair`类同名，也可以是其他名字），并添加如下的初始化方法（参数和`setContextProperty`方法一样）：
+然后继承`QQmlContext.PropertyPair`类，创建自定义类（可以与`PropertyPair`类同名，也可以是其他名字），并添加如下的初始化方法（参数和`setContextProperty`方法一样）：
 
 ```python
 # 使用PropertyPair类

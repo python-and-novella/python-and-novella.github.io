@@ -1926,7 +1926,224 @@ flet.run(
 
 这就是比较纯粹的声明式风格的对话框使用方法。
 
-## 34 xxx（更新中）
+## 34 引用
+
+### 34.0 前言
+
+在介绍引用之前，需要先了解一下使用引用的场景。
+
+在本章之前，给控件指定变量名，可以重复使用该控件，但是，这样做会有一个小小的缺陷：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    text = flet.TextField()
+    def change_text():
+        text.value = 'text'
+    button = flet.Button(
+        'button',
+        on_click=change_text
+    )
+	
+    ...
+    
+    page.add(
+        button,
+        text
+    )
+
+flet.run(
+    main
+)
+```
+
+虽然上面的代码很简单，还没到难以理解的地步，但倘若省略号位置有较多代码，不使用开发工具的定义跳转功能的话，最后添加到主页面的控件只能看到几个变量名，没法一眼看出是什么控件。如果需要频繁调试显示效果，也免不了多次跳转。
+
+这里笔者需要补充几句。
+
+其实项目不大、开发工具足够强大的话，上面的问题并没有想象中大，这里只是为了引出下面要介绍的功能——引用。
+
+引用的用法在前端框架React中大量使用，在实际Python项目中并不常见。笔者接触的几种Python框架中，只有Flet有这个概念，其他框架没有。
+
+在Python中，分配变量即定义引用，一般不会专门设计个复杂的类将其包装一下，产生类似其他编程语言先定义函数类型、再具体定义函数代码的效果。
+
+Flet之所以这样做，是因为Flet程序是一步添加所有控件到主页面，为了方便开发人员审阅那一步的控件树，才有了引用。
+
+如果读者不太习惯这种React风格的功能，可以跳过本章，继续使用Python风格的写法。
+
+### 34.1 更推荐命令式风格使用的`Ref`类
+
+相关文档：https://flet.dev/docs/cookbook/control-refs
+
+为了方便在添加控件时看清楚控件的类型、参数值，Flet创造了引用这一概念：先定义变量对应控件的引用，随后在实际添加控件时将`ref`参数指定为引用；引用的`current`属性就是后面实际添加的控件。
+
+引用对应的类就是`Ref`类，这是一个泛型类，可以在初始化时指定泛型对应的具体类：
+
+```python
+text = flet.Ref[flet.TextField]()
+```
+
+当然，不指定泛型对应的具体类也不会报错，只是之后使用该引用对象时，开发工具不会提示其包含的属性。因此，建议指定。
+
+有了`Ref`类的帮助，上一节的示例就可以改成这样：
+
+```python
+import flet
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    text = flet.Ref[flet.TextField]()
+    def change_text():
+        text.current.value = 'text'
+    button = flet.Ref[flet.Button]()
+
+    ...
+
+    page.add(
+        flet.Button(
+            'button',
+            on_click=change_text,
+            ref=button,
+        ),
+        flet.TextField(
+            ref=text
+        )
+    )
+
+flet.run(
+    main
+)
+```
+
+代码看上去冗杂了一些，但添加到主页面的控件可以一眼看出具体类型、参数，对于频繁调试界面显示情况而言，更方便一些。
+
+上面是命令式风格的示例，声明式风格也可以使用`Ref`类：
+
+```python
+import flet
+
+
+@flet.component
+def App():
+    s,set_s = flet.use_state('')
+    text = flet.Ref[flet.TextField]()
+    def change_text():
+        set_s('text')
+    button = flet.Ref[flet.Button]()
+
+    return flet.Column(
+        [
+            flet.Button(
+                'button',
+                on_click=change_text,
+                ref=button,
+            ),
+            flet.TextField(
+                value=s,
+                ref=text
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.render(
+        App
+    )
+
+
+flet.run(
+    main
+)
+```
+
+只不过，声明式风格中，控件显示内容的变动是通过重新渲染控件实现，定义的引用会在输入框内容变化后重新创建。
+
+### 34.2 仅限声明式风格使用的`use_ref`方法
+
+相关文档：https://flet.dev/docs/types/useref/
+
+在声明式风格中，除了`Ref`类这个不太推荐使用的引用，还有一个仅限声明式风格使用的引用——`use_ref`方法。
+
+只不过，这个引用的用法看起来像`Ref`类，但作用更像状态（`use_state`方法）。
+
+示例如下：
+
+```python
+import flet
+
+
+@flet.component
+def App():
+    v1, set_v1 = flet.use_state(0)
+    def change_v1():
+        set_v1(v1+1)
+    v2 = flet.use_ref(0)
+    def change_v2():
+        v2.current += 1
+    
+    return flet.Column(
+        [
+            flet.Button(
+                'v1 + 1',
+                on_click=change_v1,
+            ),
+            flet.TextField(
+                value=v1
+            ),
+            flet.Button(
+                'v2 + 1',
+                on_click=change_v2,
+            ),
+            flet.TextField(
+                value=v2.current
+            )
+        ]
+    )
+
+
+def main(page: flet.Page):
+    page.window.width = 400
+    page.window.height = 300
+    page.window.alignment = flet.Alignment(0, 0)
+    page.title = '易森-Flet'
+
+    page.render(
+        App
+    )
+
+
+flet.run(
+    main
+)
+```
+
+注意，只有状态改变（点击第一个按钮），输入框的显示数字才会改变。如果只是引用改变（点击第二个按钮），输入框显示的数字不变，但实际上值已经改变。当状态改变时，使用引用的输入框会更新显示：
+
+![2027_34.2_1](flet_pro.assets/2027_34.2_1.gif)
+
+这就是声明式风格独有的方法中，引用与状态的区别：引用的改变不会更新显示，状态会。
+
+## 35 xx（更新中）
+
+
+
+
 
 子进程
 
@@ -1948,9 +2165,7 @@ https://flet.dev/docs/cookbook/animations
 
 https://flet.dev/docs/cookbook/drag-and-drop
 
-控件引用
 
-https://flet.dev/docs/cookbook/control-refs
 
 
 

@@ -3804,6 +3804,59 @@ PySide6则使用了Qt的资源系统（qrc）。
 
 
 
+介绍两个单文件Python库，第一个功能简单，因此只需一个文件；第二个可以灵活扩展，核心功能只需一个文件。
+
+
+
+
+
+requests的无依赖替代版——fetch.py
+
+项目地址：https://github.com/kennethreitz/fetch.py
+
+相关文档：https://github.com/kennethreitz/fetch.py#get-started
+
+简短示例：
+
+```python
+# fetch.py from https://github.com/kennethreitz/fetch.py/raw/refs/heads/main/fetch.py
+import fetch as f
+
+result = f.get('http://baidu.com')
+print(result.content.decode())
+```
+
+
+
+Flask风格的轻量级Web框架——Microdot
+
+项目地址：https://github.com/miguelgrinberg/microdot/
+
+相关文档：https://microdot.readthedocs.io/en/stable/index.html
+
+简短示例：
+
+```python
+# microdot.py from https://github.com/miguelgrinberg/microdot/raw/refs/heads/main/src/microdot/microdot.py
+from microdot import Microdot
+
+app = Microdot()
+
+@app.route('/')
+async def index(request):
+    return 'Hello, world!'
+
+app.run(
+    host='127.0.0.1',
+    port=8000
+)
+# 运行后访问 http://127.0.0.1:8000/
+```
+
+
+
+
+
 （完）
 
 ## 271x期：xxx（更新中）

@@ -3851,26 +3851,34 @@ app.exec()
 
 `QWaitCondition`类和互斥锁的用法类似，只需创建一个实例即可，在线程需要休眠的位置（互斥锁必须已经上锁）调用`wait`方法。
 
-注意，如果退出程序时有线程处于休眠状态，则无法退出程序。因此，务必确保退出程序前，**唤醒**所有休眠的线程。
+注意，如果退出程序时有线程处于休眠状态，则无法退出程序。因此，在退出程序前，务必**唤醒**所有休眠的线程。
 
-## 6x QML基础（更新中）
+## 62 QML基础——学前准备
 
-相关文档：
+在介绍具体语法之前，本章先复习一下相关基础，做一些准备工作。
 
-- https://doc.qt.io/qt-6/zh/qmlreference.html
-- https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+### 62.1 QtQuick控件和QML
 
+> 不同于直接使用Python语法导入、使用的QWidgets控件，QtQuick控件（QML控件）只能使用QML语法导入、使用。
 
+上面这句话涉及几个概念，直接解释不太好理解，那就重点解释一下这几个概念的含义。
 
-QML是什么，QML控件怎么显示（复习），QML的基础概念
+**QWidgets程序**就是之前学习过程中使用Python语法导入、使用控件的PySide6程序。QWidgets程序中导入、使用的控件，就是**QWidgets控件**。
 
-使用相关QML模块前需要导入，缩进只是为了方便阅读，可以加上分号之后改为一行。
+与QWidgets控件不同的是，**QtQuick控件**只能使用QML语法导入、使用，因此，QtQuick控件也可以叫做**QML控件**。后续学习相关知识时，QML控件、QML中的控件，都是指QtQuick控件。
 
+**QML**是QtQuick程序专用的编程语言，其语法类似JSON和CSS，用于描述QtQuick程序的界面。QML写入文件的话，就成了**QML文件**（通常后缀为`.qml`），和QWidgets程序的UI文件作用类似，可以看作是QtQuick程序的“UI文件”。QML也可以直接以字符串形式使用，就成了**QML字符串**。QML字符串与QML文件的内容效果相同，只是使用方式有所区别。
 
+程序类的继承关系为：`QCoreApplication -> QGuiApplication -> QApplication`。虽然狭义上的**QtQuick程序**是程序类实例为`QGuiApplication`类实例的PySide6程序，但QtWidgets程序（程序类实例为`QApplication`类实例的PySide6程序）支持QtQuick程序的大部分功能（部分功能的用法不一样），所以QtWidgets程序同样可以使用QML。
 
-```dart
+### 62.2 使用QML的方法——`QQmlApplicationEngine`控件
+
+如果通过`QQmlApplicationEngine`控件（使用`from PySide6.QtQml import QQmlApplicationEngine`导入）使用QML，则QML文件（字符串）中需要创建主窗口。
+
+QML文件（字符串）内容如下：
+
+```json
 import QtQuick
-import QtQuick.Window
 import QtQuick.Controls
 
 Window {
@@ -3890,9 +3898,9 @@ Window {
 }
 ```
 
+第5行的`Window`就是创建的主窗口。
 
-
-
+如果是使用QML文件，方法很简单，只需使用`load`方法加载即可 ：
 
 ```python
 from PySide6.QtGui import QGuiApplication
@@ -3900,9 +3908,27 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 app = QGuiApplication()
 
+engine = QQmlApplicationEngine()
+engine.load('main.qml')
+
+app.exec()
+```
+
+![2027_62.2_1](pyside6_pro.assets/2027_62.2_1.png)
+
+但需要注意，如果QML文件不存在、路径错误，上面的代码不会自动退出。
+
+如果是使用QML字符串，可以借助`QQmlComponent`控件：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQml import QQmlComponent
+
+app = QGuiApplication()
+
 qml_string = '''
 import QtQuick
-import QtQuick.Window
 import QtQuick.Controls
 
 Window {
@@ -3922,15 +3948,17 @@ Window {
 }
 '''
 engine = QQmlApplicationEngine()
-#engine.load('main.qml')
-engine.loadData(qml_string.encode('utf-8'))
+component = QQmlComponent(engine)
+component.setData(
+    qml_string.encode(),
+    ''
+)
+component.create()
 
 app.exec()
 ```
 
-
-
-压缩为一行：
+也可以直接使用`loadData`方法：
 
 ```python
 from PySide6.QtGui import QGuiApplication
@@ -3938,7 +3966,234 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 app = QGuiApplication()
 
-qml_string = '''import QtQuick;import QtQuick.Window;import QtQuick.Controls;Window {visible: true;title: '易森-PySide6';width: 400;height: 300;Rectangle {anchors.fill: parent;color: 'green';Button {text: 'Hello World';palette.buttonText: 'black';anchors.centerIn: parent;}}}'''
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        anchors.fill: parent
+        color: 'green'
+        Button {
+            text: 'Hello World'
+            palette.buttonText: 'black'
+            anchors.centerIn: parent
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+app.exec()
+```
+
+注意，使用QML的控件必须赋值给变量，用于保持引用，且分步调用方法，否则会出现异常。
+
+### 62.3 使用QML的方法——`QQuickView`控件
+
+如果通过`QQuickView`控件（使用`from PySide6.QtQuick import QQuickView`导入）使用QML，`QQuickView`控件就是主窗口，则QML文件（字符串）中不能创建主窗口。
+
+QML文件（字符串）内容如下：
+
+```json
+import QtQuick
+import QtQuick.Controls
+
+Rectangle {
+    anchors.fill: parent
+    color: 'green'
+    Button {
+        text: 'Hello World'
+        palette.buttonText: 'black'
+        anchors.centerIn: parent
+    }
+}
+```
+
+如果是使用QML文件，方法很简单，在创建`QQuickView`控件传入QML文件路径即可，也可以使用`setSource`方法：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQuick import QQuickView
+
+app = QGuiApplication()
+view = QQuickView('main.qml')
+#view.setSource('main.qml')
+
+# 必须在加载完QML文件之后调整窗口大小标题
+view.resize(400,300)
+view.setTitle('易森-PySide6')
+view.show()
+
+app.exec()
+```
+
+如果是使用QML字符串，则要借助`QQmlComponent`控件，过程比较复杂，这里仅提供示例：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQuick import QQuickView
+from PySide6.QtQml import QQmlComponent
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Rectangle {
+    anchors.fill: parent
+    color: 'green'
+    Button {
+        text: 'Hello World'
+        palette.buttonText: 'black'
+        anchors.centerIn: parent
+    }
+}
+'''
+view = QQuickView()
+
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 给component加载qml字符串
+component.setData(
+    qml_string.encode(),
+    ''
+)
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+view.setContent(
+    '',
+    component,
+    component.create()
+)
+
+# 必须在加载完QML文件之后调整窗口大小标题
+view.resize(400,300)
+view.setTitle('易森-PySide6')
+view.show()
+
+app.exec()
+```
+
+### 62.4 使用QML的方法——`QQuickWidget`控件
+
+`QQuickWidget`控件（使用`from PySide6.QtQuickWidgets import QQuickWidget`导入）可以看作`QQuickView`控件的平替，效果相同，QML文件（字符串）中同样不能创建主窗口。
+
+QML文件（字符串）内容如下：
+
+```json
+import QtQuick
+import QtQuick.Controls
+
+Rectangle {
+    anchors.fill: parent
+    color: 'green'
+    Button {
+        text: 'Hello World'
+        palette.buttonText: 'black'
+        anchors.centerIn: parent
+    }
+}
+```
+
+说是平替，但`QQuickWidget`控件不能直接代替`QQuickView`控件，有些地方还是要改一下：
+
+- 程序类只能是`QApplication`。因为`QQuickWidget`控件继承自`QWidget`控件，因此只能在QWidgets程序中使用。
+- 部分方法与`QQuickWidget`控件不同。比如，`QWidget`控件修改窗口标题的方法是`setWindowTitle`方法。
+
+这样的话，使用QML文件的示例只需很小的改动：
+
+```python
+from PySide6.QtWidgets import QApplication
+from PySide6.QtQuickWidgets import QQuickWidget
+
+# 应用程序类不一样
+app = QApplication()
+view = QQuickWidget('main.qml')
+#view.setSource('main.qml')
+
+# 必须在加载完QML文件之后调整窗口大小标题
+view.resize(400,300)
+# 修改窗口标题的方法不一样
+view.setWindowTitle('易森-PySide6')
+view.show()
+
+app.exec()
+```
+
+使用QML字符串的改动也一样：
+
+```python
+from PySide6.QtWidgets import QApplication
+from PySide6.QtQuickWidgets import QQuickWidget
+from PySide6.QtQml import QQmlComponent
+
+# 应用程序类不一样
+app = QApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Rectangle {
+    anchors.fill: parent
+    color: 'green'
+    Button {
+        text: 'Hello World'
+        palette.buttonText: 'black'
+        anchors.centerIn: parent
+    }
+}
+'''
+view = QQuickWidget()
+
+# 使用view的engine创建component
+component = QQmlComponent(view.engine())
+# 给component加载qml字符串
+component.setData(
+    qml_string.encode(),
+    ''
+)
+# 让view的根内容变成component，并将实际内容变为component的生成内容
+view.setContent(
+    '',
+    component,
+    component.create()
+)
+
+# 必须在加载完QML文件之后调整窗口大小标题
+view.resize(400,300)
+# 修改窗口标题的方法不一样
+view.setWindowTitle('易森-PySide6')
+view.show()
+
+app.exec()
+```
+
+`QQuickView`控件可以使用QML，为何还会存在`QQuickWidget`控件？
+
+这是因为`QQuickWidget`控件继承自`QWidget`控件，可以将QML控件嵌入到QtWidgets程序中，而不像`QQuickView`控件只是一个独立的窗口，只能显示QML控件。
+
+当然，看似`QQuickWidget`控件兼容性更好、功能更强，但`QQuickWidget`控件也不是完美的。同样因为`QQuickWidget`控件继承自`QWidget`控件，渲染QML控件需要额外的性能，因此性能表现上不及`QQuickView`控件。
+
+读者在实际使用时，可以自行取舍。
+
+### 62.5 小技巧——减小QML文件（字符串）的大小
+
+QML的缩进只是为了方便阅读，加上分号之后就能去掉用于缩进的空格、换行，可以减小QML文件（字符串）的大小：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''import QtQuick;import QtQuick.Controls;Window {visible: true;title: '易森-PySide6';width: 400;height: 300;Rectangle {anchors.fill: parent;color: 'green';Button {text: 'Hello World';palette.buttonText: 'black';anchors.centerIn: parent;}}}'''
 engine = QQmlApplicationEngine()
 #engine.load('main.qml')
 engine.loadData(qml_string.encode('utf-8'))
@@ -3946,23 +4201,414 @@ engine.loadData(qml_string.encode('utf-8'))
 app.exec()
 ```
 
+### 62.5 小技巧——检查QML文件（字符串）的错误
+
+前面说过，如果QML文件不存在、路径错误，程序不会自动退出。检查文件是否存在倒还好说，Python中的方法有很多。但是，如果QML文件（字符串）存在错误，Python代码不会上报异常，程序同样不会自动退出，这个就不太好解决。
+
+因此，为了避免这种异常，建议在代码中（运行`app.exec()`之前）增加检查QML字符串错误的相关代码：
+
+```python
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+```
+
+其中的`engine`可以是`QQmlApplicationEngine`控件，也可以是`QQuickView`控件、`QQuickWidget`控件的`engine`控件属性。
+
+至于QML文件，则额外添加一个读取QML文件的过程：
+
+```python
+# 检查QML文件是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+with open('main.qml') as f:
+    comp.setData(
+        ''.join(f.readlines()).encode(),
+        ''
+    )
+if comp.isError():
+    sys.exit()
+```
+
+### 62.6 总结
+
+前面介绍了三种使用QML文件（字符串）的控件，综合对比使用难度之后，笔者决定在后续示例中优先通过`QQmlApplicationEngine`控件使用QML字符串，理由如下：
+
+- `QQmlApplicationEngine`控件的窗口内容完全由QML字符串定义，代码简洁。
+- 使用QML字符串的话，可以实现单个Python文件直接运行。
+
+当然，可能会存在需要通过`QQuickView`控件、`QQuickWidget`控件使用QML文件（字符串）的情况，或者读者更倾向于另外两种控件、QML文件，笔者也会在适当的时候介绍相关示例，并非局限一种方法，笔者的选择也只是出于简洁、方便的需求。
+
+## 63 QML基础——语法
+
+### 63.1 导入QML模块
+
+相关文档：https://doc.qt.io/qt-6/zh/qtqml-syntax-imports.html
+
+先看QML字符串：
+
+```json
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        anchors.fill: parent
+        color: 'green'
+        Button {
+            text: 'Hello World'
+            palette.buttonText: 'black'
+            anchors.centerIn: parent
+        }
+    }
+}
+```
+
+熟悉Python的读者肯定下意识以为前三行和Python的导入一样，其实不然。和Python类似，QML中，想要使用相关控件、功能，需要先导入QML模块。虽然用的`import`这个关键字，但QML的导入语法不是Python的导入语法，其语法规则如下：
+
+```json
+import <ModuleIdentifier> [<Version.Number>] [as <Qualifier>]
+```
+
+`<ModuleIdentifier>`是模块名，不可省略。
+
+`<Version.Number>`是模块版本，可以省略。版本号可以包含主要版本号、次要版本号（比如`2.11`），也可以只有主要版本号（比如`2`）。如果只有主要版本号，相当于使用次要版本号最新的版本。
+
+`as <Qualifier>`用于定义模块别名，适用于模块名重复的情况，按需使用。注意，模块别名必须以大写字母开头。
+
+不同于Python中导入模块之后，想要使用模块提供的功能，还要带上模块名，QML中导入QML模块之后，如果没有模块别名，可以直接使用模块提供的所有功能；若是有别名，则必须采用`{别名}.{功能}`的格式。
+
+QML字符串示例如下：
+
+```json
+import QtQuick 2 as Q
+import QtQuick.Controls as C
+
+Q.Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Q.Rectangle {
+        anchors.fill: parent
+        color: 'green'
+        C.Button {
+            text: 'Hello World'
+            palette.buttonText: 'black'
+            anchors.centerIn: parent
+        }
+    }
+}
+```
+
+完整示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick 2 as Q
+import QtQuick.Controls as C
+
+Q.Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Q.Rectangle {
+        anchors.fill: parent
+        color: 'green'
+        C.Button {
+            text: 'Hello World'
+            palette.buttonText: 'black'
+            anchors.centerIn: parent
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+除了导入QML模块，QML中的导入语法还支持导入QML目录、JavaScript资源，相关用法将在后续涉及时介绍，这里不做展开。
+
+### 63.2 创建对象
+
+还是先看QML字符串：
+
+```json
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        anchors.fill: parent
+        color: 'green'
+        Button {
+            text: 'Hello World'
+            palette.buttonText: 'black'
+            anchors.centerIn: parent
+        }
+    }
+}
+```
+
+导入模块之后，就是使用模块提供的功能。对于QtQuick程序而言，不管是控件还是形状，都是对象。就和控件通过明确的父子关系定义了一棵控件树一样，QML中的对象也有类似的对象树。对象之间的父子关系，就是通过是否包含来体现。
+
+创建对象的语法很简单，类似CSS，只是QML中的格式是这样的：
+
+```json
+对象 {
+    属性: 属性值
+}
+```
+
+在具体示例中，创建窗口的话，是这样的：
+
+```json
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+}
+```
+
+想要在窗口中添加控件（创建子对象），直接与其属性并列即可：
+
+```json
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        anchors.fill: parent
+        color: 'green'
+    }
+}
+```
+
+### 63.3 注释
+
+QML中使用的功能简单易懂倒还好，若是功能复杂、经常修改，就需要添加注释，辅助说明。
+
+在QML中，有两种注释方式：
+
+- 单行注释：以`//`开头，至换行之前的部分。
+- 多行注释：以`/*`开头，以`*/`结尾，二者之间的部分。
+
+示例如下：
+
+```json
+import QtQuick
+import QtQuick.Controls
+/*
+这里是多行注释，
+一时想不出写点什么。
+*/
+Window {
+    visible: true
+    title: '易森-PySide6'//窗口的标题
+    width: 400
+    height: 300
+    Rectangle {
+        anchors.fill: parent
+        color: 'green'
+        Button {
+            text: 'Hello World'
+            palette.buttonText: 'black'
+            anchors.centerIn: parent
+        }
+    }
+}
+```
+
+注意，如果为了减小QML文件（字符串）的大小而去掉换行、空格，单行注释则会导致`//`之后的所有QML代码失效。因此，在这种情况下，需要将单行注释改为多行注释。
+
+## 64 QML基础——定位（更新中）
+
+### 64.0 前言（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquick-positioning-topic.html
 
 
-## 6x `Qxxx`控件——xx的故事（更新中）
+
+（引出给控件定位的问题）
+
+
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        width: 200
+        height: 100
+        color: 'green'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+
+
+
+
+
+
+坐标定位、锚点定位、定位器定位、布局定位。
+
+
+
+### 64.1 坐标定位（更新中）
+
+
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 200
+        height: 100
+        color: 'green'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+
+
+### 64.2 锚点定位（更新中）
+
+
+
+
+
+### 64.3 定位器定位（更新中）
+
+
+
+
+
+### 64.4 布局定位（更新中）
+
+
+
+
+
+## 6x QML基础——`QtQuick`模块（QML模块）（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquick-qmlmodule.html
+
+
+
+简单介绍一些形状、功能、基础控件。
+
+
+
+## 6x QML基础——`QtQuick.Layouts`模块（QML模块）（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquick-layouts-qmlmodule.html
+
+
+
+介绍一下布局。
+
+
+
+## 6x QML基础——`QtQuick.Controls`模块（QML模块）（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquick-controls-qmlmodule.html
+
+
+
+介绍控件库的一部分控件。
+
+
+
+
+
+## 6x 控件故事——故事的标题（更新中）
 
 相关文档：
 
 
 
 以故事的形式介绍控件的相关用法，主要介绍思路和实际代码，通过营造悬念吸引读者兴趣。
-
-
-
-
-
-## 6x `Qxxx`xxx控件（更新中）
-
-相关文档：
 
 
 
@@ -3973,8 +4619,9 @@ from PySide6.QtWidgets import (
 )
 
 app = QApplication()
-window = QWidget()
-window.setWindowTitle('易森-PySide6')
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
 window.resize(400, 300)
 
 
@@ -3982,6 +4629,46 @@ window.resize(400, 300)
 window.show()
 app.exec()
 ```
+
+
+
+
+
+
+
+
+
+## 6x 控件故事——故事的标题（更新中）
+
+相关文档：
+
+
+
+以故事的形式介绍控件的相关用法，主要介绍思路和实际代码，通过营造悬念吸引读者兴趣。
+
+
+
+```python
+from PySide6.QtWidgets import (
+    QApplication,
+    QWidget
+)
+
+app = QApplication()
+window = QWidget(
+    windowTitle='易森-PySide6',
+)
+window.resize(400, 300)
+
+
+
+window.show()
+app.exec()
+```
+
+
+
+
 
 
 

@@ -3853,7 +3853,7 @@ app.exec()
 
 注意，如果退出程序时有线程处于休眠状态，则无法退出程序。因此，在退出程序前，务必**唤醒**所有休眠的线程。
 
-## 62 QML基础——学前准备
+## 62 QML基础——准备
 
 在介绍具体语法之前，本章先复习一下相关基础，做一些准备工作。
 
@@ -4452,17 +4452,33 @@ Window {
 
 注意，如果为了减小QML文件（字符串）的大小而去掉换行、空格，单行注释则会导致`//`之后的所有QML代码失效。因此，在这种情况下，需要将单行注释改为多行注释。
 
-## 64 QML基础——定位（更新中）
+## 64 QML基础——定位
 
-### 64.0 前言（更新中）
+### 64.0 前言
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquick-positioning-topic.html
 
+控件不能简单堆砌，需要用合适的方式找到合适的位置，才能更好发挥出控件的作用。
 
+之前的示例中，直接给出了配置好的完整QML代码。为了更好理解定位，本节将去掉一些配置和控件，让代码更清晰一些：
 
-（引出给控件定位的问题）
+```json
+import QtQuick
 
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        width: 200
+        height: 100
+        color: 'green'
+    }
+}
+```
 
+完整代码如下：
 
 ```python
 from PySide6.QtGui import QGuiApplication
@@ -4499,19 +4515,303 @@ if comp.isError():
 app.exec()
 ```
 
+![2027_64.0_1](pyside6_pro.assets/2027_64.0_1.png)
 
+示例中只有一个绿色的矩形，但没用任何定位方法。接下来，将以上述示例为基础，介绍四种定位方法：坐标定位、锚点定位、排列定位、布局定位。
 
+### 64.1 坐标定位
 
+顾名思义，坐标定位就是在坐标系中，使用具体坐标确定控件的位置。
 
+不管是窗口还是控件，其左上角都是坐标原点，向右为X轴正方向，向下为Y轴正方向。因此，可以使用坐标值（`x`属性、`y`属性）表示子对象相对父对象的位置：
 
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
-坐标定位、锚点定位、定位器定位、布局定位。
+app = QGuiApplication()
 
+qml_string = '''
+import QtQuick
 
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 50
+        width: 200
+        height: 100
+        color: 'green'
+        Rectangle {
+            x: 20
+            y: 10
+            width: 100
+            height: 50
+            color: 'red'
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
-### 64.1 坐标定位（更新中）
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
 
+app.exec()
+```
 
+![2027_64.1_1](pyside6_pro.assets/2027_64.1_1.png)
+
+### 64.2 锚点定位
+
+坐标定位简单、直接、自由，但缺乏弹性，有时候想准确对齐时，还要单独计算坐标，比较麻烦。
+
+因此，使用锚点定位，可以让对齐的操作更简单。
+
+这里先说一下什么是锚点，以下图为例：
+
+![2027_64.2_1](pyside6_pro.assets/2027_64.2_1.png)
+
+一个对象的边界是矩形（如果对象的形状不是矩形，则过四个方向的极限坐标做坐标轴的平行线，最终围成正好覆盖对象的矩形，算作对象的边界），则矩形的四个边和两个方向的对称轴，一共六条线，就是对象的锚点，其名称如图所示。
+
+锚点定位，就是让子对象的锚点与特定对象的锚点重合。注意，锚点定位仅支持直接父对象、兄弟对象，且只能是相同方向的锚点（水平的锚点不能与垂直的锚点对齐）。
+
+锚点定位的语法如下：
+
+```json
+anchors.{锚点}: {目标ID}.{目标的锚点}
+```
+
+特别的，`parent`表示直接父对象。
+
+因此，如果想要让子对象与父对象中心对齐，需要这样写：
+
+```json
+anchors.verticalCenter: parent.verticalCenter
+anchors.horizontalCenter: parent.horizontalCenter
+```
+
+完整示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 50
+        width: 200
+        height: 100
+        color: 'green'
+        Rectangle {
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 100
+            height: 50
+            color: 'red'
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_64.2_2](pyside6_pro.assets/2027_64.2_2.png)
+
+### 64.3 排列定位
+
+排列定位类似于布局，但不是QML中的布局，因为布局是单独的QML模块。可用的排列定位参见下表：
+
+| 排列定位                                                    | 含义                             |
+| ----------------------------------------------------------- | -------------------------------- |
+| [Column](https://doc.qt.io/qt-6/zh/qml-qtquick-column.html) | 将子对象排列成一列               |
+| [Flow](https://doc.qt.io/qt-6/zh/qml-qtquick-flow.html)     | 将子对象并排排列，必要时自动换行 |
+| [Grid](https://doc.qt.io/qt-6/zh/qml-qtquick-grid.html)     | 将子对象以网格形式排列           |
+| [Row](https://doc.qt.io/qt-6/zh/qml-qtquick-row.html)       | 将子对象排列成行                 |
+
+使用排列定位的方式很简单，就和使用普通对象一样，当作容器使用即可：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Row {
+        x: 100
+        y: 100
+        Rectangle {
+            width: 100
+            height: 50
+            color: 'green'
+        }
+        Rectangle {
+            width: 100
+            height: 50
+            color: 'red'
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_64.3_1](pyside6_pro.assets/2027_64.3_1.png)
+
+### 64.4 布局定位
+
+布局定位用法与排列定位相同，效果与排列定位类似，只不够布局定位用到的功能来自于`QtQuick.Layouts`模块（QML模块），使用时需要导入该模块。可用的布局参见下表：
+
+| 布局                                                         | 效果                     |
+| ------------------------------------------------------------ | ------------------------ |
+| [ColumnLayout](https://doc.qt.io/qt-6/zh/qml-qtquick-layouts-columnlayout.html) | 排成一列                 |
+| [GridLayout](https://doc.qt.io/qt-6/zh/qml-qtquick-layouts-gridlayout.html) | 网格布局                 |
+| [RowLayout](https://doc.qt.io/qt-6/zh/qml-qtquick-layouts-rowlayout.html) | 排成一列                 |
+| [StackLayout](https://doc.qt.io/qt-6/zh/qml-qtquick-layouts-stacklayout.html) | 堆栈，只显示最上面的内容 |
+
+不同于排列定位不调整子对象的宽度、高度，布局定位可以影响子对象的宽度、高度，比如让子对象始终填满布局：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Layouts
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    RowLayout {
+        x: 100
+        y: 100
+        spacing: 0
+        width: 200
+        height: 100
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            color: 'green'
+        }
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            color: 'red'
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_64.4_1](pyside6_pro.assets/2027_64.4_1.png)
+
+## 65 QML基础——文档（以`QtQuick`模块为例）
+
+`QtQuick`模块提供了非常多的对象（功能），全部都讲不太现实。本章就以具体对象为例，介绍一下查阅文档的方法，以及对象的基础知识，更多对象的学习就交给读者自己或者后续的章节。
+
+### 65.0 如何查阅文档
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquick-qmlmodule.html
+
+访问上面相关文档的链接，可以看到如下内容：
+
+![2027_65.0_1](pyside6_pro.assets/2027_65.0_1.png)
+
+当前页面的下面就有该模块提供的对象，右侧的目录取决于具体模块，其他模块不一定相同。
+
+子模块可以看作独立的模块，因为使用子模块也要单独导入一次，仅少数子模块会被默认导入。
+
+向下滑动，可以看到模块提供的对象以表格形式呈现：
+
+![2027_65.0_2](pyside6_pro.assets/2027_65.0_2.png)
+
+点击对象对应的超链接（绿色文字），即可跳转到该对象的详细文档。以`Rectangle`对象为例（`ctrl+f`键搜索），点击之后可以看到如下内容：
+
+![2027_65.0_3](pyside6_pro.assets/2027_65.0_3.png)
+
+和模块页面类似，右边有目录，中间展示具体内容。
+
+大多数情况下，遵循上述的查询路径，可以很快找到所使用对象的官方文档。当然，文档是机器翻译，更新也可能不及时，部分术语存在偏差，示例代码也不一定完整，具体用法还要以实际运行结果为准。
+
+### 65.1 属性、子属性
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-rectangle.html
+
+一个对象最常用的就是属性，以`Rectangle`对象为例：
+
+![2027_65.1_1](pyside6_pro.assets/2027_65.1_1.png)
+
+可以看到，`Rectangle`对象提供的属性不多，也都比较直观，但从格式看明显分成了两类：
+
+- 只有一个属性名。
+- 一个属性名有子属性，同时子属性的名字中带有英文句号。
+
+只有一个属性名的属性用起来很简单，直接设置属性即可：
 
 ```python
 from PySide6.QtGui import QGuiApplication
@@ -4530,8 +4830,516 @@ Window {
     Rectangle {
         x: 100
         y: 100
-        width: 200
+        width: 100
+        height: 50
+        color: 'green'
+    }
+
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+不过，带有子属性的属性，就让人有点摸不着头脑。
+
+简单来说，带有子属性的属性，有两种表示方法：
+
+1. 类似对象树的格式。父属性按对象处理，子属性按属性处理，子属性的属性名是去掉英文句号及其前面的部分。
+2. 直接使用带英文句号的子属性。这种用法简单直接，**推荐**使用。
+
+表示方法1的示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        color: 'green'
+        border {
+            color: 'red'
+            width: 2
+        }
+    }
+
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+表示方法2的示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        color: 'green'
+        border.color: 'red'
+        border.width: 2
+    }
+
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_65.1_2](pyside6_pro.assets/2027_65.1_2.png)
+
+### 65.2 关联属性
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-window.html
+
+`Rectangle`对象的属性简单，只是子属性有两种表达方式，稍微有点难度。不过，有的对象还有一种关联属性，这种属性的用法稍微有点特殊。
+
+以`Window`对象为例，访问相关文档，可以看到其支持的属性、关联属性如下：
+
+![2027_65.2_1](pyside6_pro.assets/2027_65.2_1.png)
+
+为了更好理解关联属性的用法，先看一下普通属性在子对象中怎么用。
+
+以下为基础模板，后面的修改都是基于以下代码：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        color: 'green'
+    }
+
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_65.2_2](pyside6_pro.assets/2027_65.2_2.png)
+
+假如，想要设定矩形的颜色在默认时为绿色，在特定条件时为红色，那就要用到三元表达式——`逻辑判断?值1:值2`（用法同C语言的同名三元表达式）。
+
+很显然，只需将矩形的`color`属性的值改成三元表达式即可实现。
+
+情况1，特定条件为窗口激活。窗口激活的情况可以通过`Window`对象的`active`属性判断，而`Rectangle`对象**没有同名属性**。因此，可以直接使用`active`属性作为判断条件：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        //满足特定条件时矩形为红色
+        color: active?'red':'green'
+    }
+
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_65.2_3](pyside6_pro.assets/2027_65.2_3.png)
+
+情况2，特定条件为窗口宽度大于400。窗口宽度对应`Window`对象的`width`属性，`Rectangle`对象同样有该属性，因此不能直接使用该属性名，需要一个可以明确为`Window`对象`width`属性的表达。因为`Rectangle`对象的**直接父对象**就是`Window`对象，所以，可以通过`parent`这个特殊的对象访问`Window`对象：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        //满足特定条件时矩形为红色
+        color: parent.width>400?'red':'green'
+    }
+
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_65.2_4](pyside6_pro.assets/2027_65.2_4.png)
+
+情况2，特定条件为窗口宽度大于400，但目标矩形的**直接父对象**不是`Window`对象。
+
+此时代码如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 150
         height: 100
+        color: 'yellow'
+        Rectangle {
+            x: 10
+            y: 20
+            width: 100
+            height: 50
+            //满足特定条件时矩形为红色
+            color: parent.width>400?'red':'green'
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_65.2_5](pyside6_pro.assets/2027_65.2_5.png)
+
+绿色矩形的直接父对象变成了黄色矩形，因此`parent`对象不是`Window`对象，想要判断窗口宽度的话，需要采用其他方法。
+
+QML中，每个对象都有`id`属性，表示每个对象的ID。ID具有唯一性，并且可以直接通过**ID**访问任意对象。
+
+这样的话，就可以使用ID代替`Window`对象：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    //指定窗口的ID
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 150
+        height: 100
+        color: 'yellow'
+        Rectangle {
+            x: 10
+            y: 20
+            width: 100
+            height: 50
+            //满足特定条件时矩形为红色
+            color: w.width>400?'red':'green'
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_65.2_6](pyside6_pro.assets/2027_65.2_6.png)
+
+到这里为止，还只是普通属性的用法，那么，关联属性有什么特殊之处？
+
+如上个示例所写，想要准确判断窗口宽度且不受层级影响，似乎只能通过ID访问。但是，`Window`对象的**关联属性**中也有`width`属性，因此，可以直接使用`Window.width`访问窗口宽度，**无需**`Window`对象的**ID**：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 150
+        height: 100
+        color: 'yellow'
+        Rectangle {
+            x: 10
+            y: 20
+            width: 100
+            height: 50
+            //满足特定条件时矩形为红色
+            color: Window.width>400?'red':'green'
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+如果将ID比作Python中类的实例，通过ID访问的属性就是实例属性，无需ID即可访问的关联属性就是类属性。
+
+除了堪比Python中类属性的便捷，关联属性还**支持信号**（大部分支持，但也存在不支持的关联属性），可以使用类似`Window.onWidthChanged`的格式定义属性值变化信号的响应操作：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    Rectangle {
+        x: 100
+        y: 100
+        width: 150
+        height: 100
+        color: 'yellow'
+        Rectangle {
+            x: 10
+            y: 20
+            width: 100
+            height: 50
+            //满足特定条件时矩形为红色
+            color: Window.width>400?'red':'green'
+        }
+        Window.onWidthChanged:console.log("窗口宽度为：",Window.width)
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_65.2_7](pyside6_pro.assets/2027_65.2_7.png)
+
+### 65.3 信号
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-window.html
+
+上一节提到了信号，这一节正好看一下如何。
+
+以`Window`对象为例，支持的信号如下：
+
+![2027_65.3_1](pyside6_pro.assets/2027_65.3_1.png)
+
+有两种使用信号的方式：
+
+1. 定义信号的响应操作。
+2. 将信号与槽连接。
+
+定义信号的响应操作，有以下要求：
+
+- 只能在对象内部定义。
+- 定义时的属性名为“on{大驼峰写法的信号名}”。比如，定义`closing`信号的响应操作，需要设置`onClosing`属性的值。
+
+示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    //只能在对象内部定义响应操作
+    onClosing:(e) => console.log(e)
+    Rectangle {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
         color: 'green'
     }
 }
@@ -4550,57 +5358,165 @@ if comp.isError():
 app.exec()
 ```
 
+这样的话，关闭窗口就能在终端看到输出：
 
+```python
+qml: QQuickCloseEvent(0x7fca4db390)
+```
 
-### 64.2 锚点定位（更新中）
+信号只能连接可执行对象，因此需要先定义函数或者传入lambda表达式（JavaScript的箭头函数）：
 
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
+app = QGuiApplication()
 
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
 
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    //先定义函数
+    function onClose(e) {
+        console.log(e)
+    }
+    //通过onCompleted执行连接操作
+    Component.onCompleted: w.closing.connect(onClose)
+    //直接连接lambda表达式
+    //Component.onCompleted: w.closing.connect((e) => console.log(e))
+    Rectangle {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        color: 'green'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
-### 64.3 定位器定位（更新中）
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
 
+app.exec()
+```
 
+注意，QML是声明式语言，对于信号连接这种过程式操作，需要通过响应操作间接执行。因此，在下面的示例中，如果不点击按钮，关闭窗口时，终端不会有相关输出：
 
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
+app = QGuiApplication()
 
-### 64.4 布局定位（更新中）
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
 
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Button {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        palette.buttonText: 'black'
+        text: '连接信号'
+        onClicked: w.closing.connect((e) => console.log(e))
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
 
+app.exec()
+```
 
+![2027_65.3_2](pyside6_pro.assets/2027_65.3_2.png)
 
-## 6x QML基础——`QtQuick`模块（QML模块）（更新中）
+### 65.4 方法
 
-相关文档：https://doc.qt.io/qt-6/zh/qtquick-qmlmodule.html
+相关文档：
 
+- https://doc.qt.io/qt-6/zh/qml-qtquick-window.html
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-button.html
 
+以`Window`对象为例，其支持的方法如下：
 
-简单介绍一些形状、功能、基础控件。
+![2027_65.4_1](pyside6_pro.assets/2027_65.4_1.png)
 
+对象支持的方法只能通过ID调用：
 
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
-## 6x QML基础——`QtQuick.Layouts`模块（QML模块）（更新中）
+app = QGuiApplication()
 
-相关文档：https://doc.qt.io/qt-6/zh/qtquick-layouts-qmlmodule.html
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
 
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Button {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        palette.buttonText: 'black'
+        text: '关闭窗口'
+        onClicked:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
 
-介绍一下布局。
+app.exec()
+```
 
+![2027_65.4_2](pyside6_pro.assets/2027_65.4_2.png)
 
-
-## 6x QML基础——`QtQuick.Controls`模块（QML模块）（更新中）
-
-相关文档：https://doc.qt.io/qt-6/zh/qtquick-controls-qmlmodule.html
-
-
-
-介绍控件库的一部分控件。
-
-
-
-
+点击按钮即可关闭窗口。
 
 ## 6x 控件故事——故事的标题（更新中）
 

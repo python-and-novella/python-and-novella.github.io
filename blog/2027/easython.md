@@ -1000,7 +1000,7 @@ flet.run(
 
 （完）
 
-## 2705期+：尝鲜（首期免费）
+## 2705期+：打开链接（尝鲜，首期免费）
 
 ### 0 增刊的更新说明及本期主要内容
 
@@ -3796,21 +3796,13 @@ PySide6则使用了Qt的资源系统（qrc）。
 
 （完）
 
-## 271x期：xxx（更新中）
+## 271x期：单文件（更新中）
 
 ### 0 本期主要内容
 
-（编写本期主要内容和标题，同时作为内容规划）
-
-
-
 介绍两个单文件Python库，第一个功能简单，因此只需一个文件；第二个可以灵活扩展，核心功能只需一个文件。
 
-
-
-
-
-requests的无依赖替代版——fetch.py
+### 1 `requests`的零依赖替代版——`fetch.py`（更新中）
 
 项目地址：https://github.com/kennethreitz/fetch.py
 
@@ -3828,7 +3820,13 @@ print(result.content.decode())
 
 
 
-Flask风格的轻量级Web框架——Microdot
+（先说`requests`的作用，然后介绍`fetch.py`是其平替，但`fetch.py`无需额外依赖，只需一个文件即可使用）
+
+
+
+
+
+### 2 Flask风格的轻量级Web框架——`microdot`（更新中）
 
 项目地址：https://github.com/miguelgrinberg/microdot/
 
@@ -3854,6 +3852,8 @@ app.run(
 ```
 
 
+
+（先说Microdot可以通过pip安装，然后介绍该控件的结构比较简单，甚至可以只复制一个文件，就能使用核心功能）
 
 
 

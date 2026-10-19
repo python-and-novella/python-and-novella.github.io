@@ -5518,6 +5518,308 @@ app.exec()
 
 点击按钮即可关闭窗口。
 
+## 66 QML控件——初识控件（以`QtQuick.Controls`模块的`Button`控件为例）
+
+### 66.0 前言
+
+上一章虽然是以`QtQuick`模块为例，但还是用了`QtQuick.Controls`模块提供的QML控件。
+
+之前笔者说QML模块时，说的是模块提供的功能、对象，但这里说`QtQuick.Controls`模块，却用的是“提供的QML控件”。恰如模块名，`QtQuick.Controls`模块表明该模块就是控件（常用的QML控件）的合集。可以说，`QtQuick.Controls`模块对于QtQuick程序，相当于`PySide6.QtWidgets`模块对于QWidgets程序。
+
+因此，本章就以其中的`Button`控件为例，了解一下QML控件的用法。
+
+### 66.1 控件的属性不简单
+
+相关文档：
+
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-button.html
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-abstractbutton.html
+
+之前介绍过不少QWidgets控件，参数是其最常用的。但对于QML控件而言，属性相当于参数，因此了解一个控件的基本用法，实际上就是了解这个控件支持的属性。
+
+本节开头提供了两个文档，看起来有点多余，其实很有必要。因为只看第一个文档的话，少得可怜的属性可能会让想要使用`Button`控件的读者误以为该控件的功能很简单：
+
+![2027_66.1_1](pyside6_pro.assets/2027_66.1_1.png)
+
+可能会因为属性较少而窃喜，以为不用深入学习。也可能会担心功能较少而放弃使用，甚至放弃使用所有QML控件。
+
+不管是哪种想法，都是掉入了陷阱。因为控件的功能远比看上去强大，其继承的父类早已为其打下了扎实的基础。
+
+因此，想要真正了解`Button`控件，还要向上追溯，看一看`AbstractButton`控件为`Button`控件提供了哪些属性（打开第二个文档链接，受限于篇幅，只展示部分）：
+
+![2027_66.1_2](pyside6_pro.assets/2027_66.1_2.png)
+
+当然，`AbstractButton`控件依然可以向上追溯，笔者就不再啰嗦，请读者自行探索。
+
+### 66.2 控件的交互不简单
+
+之前介绍QML基础时，不使用控件的话，只能使用形状展示界面，并不能交互。不过，形状并非不能交互，只是默认没有交互相关的属性，想要添加交互，需要费点功夫（相关功能不是本章重点，故仅提供示例，不做详细解释）：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Rectangle {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        Text {
+            text: '关闭窗口'
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked:w.close()
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_66.2_1](pyside6_pro.assets/2027_66.2_1.png)
+
+注意，虽然示例看上去和按钮类似，但没有导入`QtQuick.Controls`模块，因此功能全部来自`QtQuick`模块。
+
+相比之下，使用`QtQuick.Controls`模块的`Button`控件，代码就简单不少，交互效果也更多（鼠标悬停时有样式变化）：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Button {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        palette.buttonText: 'black'
+        text: '关闭窗口'
+        onClicked:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_66.2_2](pyside6_pro.assets/2027_66.2_2.png)
+
+![2027_66.2_3](pyside6_pro.assets/2027_66.2_3.png)
+
+既然代码更简单了，为何本节标题说控件的交互不简单？这就不得不说一下控件的属性。控件的属性中，有相当一部分属性用于控制控件的交互行为。比如`checkable`属性，表示按钮的选择状态是否可以切换，可以将一个可点击的按钮变成一个可以切换选择状态的按钮。
+
+示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Button {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        palette.buttonText: checked?'red':'black'
+        text: '交互测试'
+        checkable: true
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_66.2_4](pyside6_pro.assets/2027_66.2_4.gif)
+
+### 66.3 控件的信号不简单
+
+与控件交互，除了能看到控件的状态变化，还会触发一些相关的信号。不同于形状支持的信号较少甚至没有，控件通常定义了一些与交互相关的信号：
+
+![2027_66.3_1](pyside6_pro.assets/2027_66.3_1.png)
+
+比如，其中的`clicked`信号，就是点击按钮时触发的信号，可用于定义点击按钮后执行的操作。
+
+### 66.4 控件的方法不简单
+
+和信号类似，控件的方法也会根据需求内置，以便于使用：
+
+![2027_66.4_1](pyside6_pro.assets/2027_66.4_1.png)
+
+比如，`click`方法用于模拟点击按钮，无需用户真的去点击。
+
+### 66.5 总结
+
+总的来说，QML控件的用法并不复杂，如果读者熟悉QWidgets控件，很多相似控件的用法很好理解。不过，QML控件没有参数，属性和参数类似，同时属性的功能也比较丰富，这一点需要理解。
+
+QML控件是状态优先，而非QWidgets控件的过程优先。所谓状态优先，即控件的状态是互相关联，进而实现预定的交互效果。而QWidgets控件的过程优先，则是通过执行具体方法的过程实现交互效果，有个明显的“执行方法-展示结果”代码。这一思维模式的转变，需要读者适应。
+
+## 67 QML控件——按钮控件（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+
+上一章在介绍QML控件的同时顺便简单介绍了`Button`控件。虽然`Button`控件用法简单，没必要详细介绍，但与`Button`控件所属的按钮控件还是有必要说一下：
+
+![2027_67_1](pyside6_pro.assets/2027_67_1.png)
+
+注意，按钮控件的用法都比较简单，因此本章不会详细介绍控件的用法，只会简单点明按钮用途、提供基本用法示例，但遇到实际使用中需要注意的地方，笔者还是会稍微展开说说。
+
+### 67.1 `AbstractButton`控件（更新中）
+
+
+
+
+
+
+
+### 67.x `xxx`控件（更新中）
+
+
+
+### 67.x `xxx`控件（更新中）
+
+
+
+### 67.x `xxx`控件（更新中）
+
+
+
+### 67.x `xxx`控件（更新中）
+
+
+
+### 67.x `xxx`控件（更新中）
+
+
+
+### 67.x `xxx`控件（更新中）
+
+
+
+### 67.x `xxx`控件（更新中）
+
+
+
+
+
+## 6x QML控件——xxx（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+
+
+
+
+
+
+
+## 6x QML控件——xxx（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+
+
+
+
+
+
+
+## 6x QML控件——xxx（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+
+
+
+
+
+
+
+## 6x 自定义控件——QWidgets控件（更新中）
+
+
+
+自定义QWidgets控件。
+
+
+
+
+
+## 6x 自定义控件——QML控件（QtQuick控件）（更新中）
+
+
+
+自定义QML控件（QtQuick控件）。
+
+
+
 ## 6x 控件故事——故事的标题（更新中）
 
 相关文档：

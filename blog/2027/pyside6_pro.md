@@ -5724,17 +5724,490 @@ app.exec()
 
 QML控件是状态优先，而非QWidgets控件的过程优先。所谓状态优先，即控件的状态是互相关联，进而实现预定的交互效果。而QWidgets控件的过程优先，则是通过执行具体方法的过程实现交互效果，有个明显的“执行方法-展示结果”代码。这一思维模式的转变，需要读者适应。
 
-## 67 QML控件——按钮控件（更新中）
+## 67 QML控件——按钮控件
 
-相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#button-controls
 
 上一章在介绍QML控件的同时顺便简单介绍了`Button`控件。虽然`Button`控件用法简单，没必要详细介绍，但与`Button`控件所属的按钮控件还是有必要说一下：
 
 ![2027_67_1](pyside6_pro.assets/2027_67_1.png)
 
-注意，按钮控件的用法都比较简单，因此本章不会详细介绍控件的用法，只会简单点明按钮用途、提供基本用法示例，但遇到实际使用中需要注意的地方，笔者还是会稍微展开说说。
+注意，按钮控件的用法都比较简单，因此本章不会详细介绍控件的用法，只会简单点明按钮用途、提供基本用法示例。如果是遇到实际使用中需要注意的地方，笔者还是会稍微展开说说。
 
-### 67.1 `AbstractButton`控件（更新中）
+### 67.1 `AbstractButton`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-abstractbutton.html
+
+`AbstractButton`控件是其他按钮的基类，因此一般不会单独使用。不过，`AbstractButton`控件提供了大量按钮类控件的基本功能，如果想要自定义按钮，可以使用该控件。但是，`AbstractButton`控件的文本并非`text`属性，而是`contentItem`属性，该属性为对象类型，建议使用文本对象或者其他控件。`AbstractButton`控件的默认背景也没有，需要设置`background`属性，该属性同样为对象类型。
+
+示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    AbstractButton {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        contentItem: Text {
+            text: '按钮'
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+        background: Rectangle {}
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.1_1](pyside6_pro.assets/2027_67.1_1.png)
+
+如代码所示，想要显示出来的话，需要设置的属性不少。因此，仅建议想要高度自定义按钮外观的情况使用，这种自定义按钮不用单独定义按钮常用的其他属性，相比于完全使用形状来自定义按钮简单一些。
+
+### 67.2 `Button`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-button.html
+
+`Button`控件就是可以点击的普通按钮，功能较为丰富，可定制性也比较强，相比于`AbstractButton`控件容易使用，是开发中常用的按钮控件。
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Button {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        palette.buttonText: 'black'
+        text: '按钮'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.2_1](pyside6_pro.assets/2027_67.2_1.png)
+
+### 67.3 `CheckBox`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-checkbox.html
+
+`CheckBox`控件虽然归属于按钮控件，但其功能却是常见的复选框：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    CheckBox {
+        x: 100
+        y: 100
+        text: '复选框'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.3_1](pyside6_pro.assets/2027_67.3_1.png)
+
+相比于使用`Button`控件模拟选择状态的切换，`CheckBox`控件的选择状态看上去更直观，甚至有三种类型：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    CheckBox {
+        x: 100
+        y: 100
+        text: '复选框1'
+        palette.buttonText:'white'
+        tristate: true
+    }
+    CheckBox {
+        x: 100
+        y: 120
+        text: '复选框2'
+        palette.buttonText:'white'
+        tristate: true
+        checkState: Qt.Checked
+    }
+    CheckBox {
+        x: 100
+        y: 140
+        text: '复选框3'
+        palette.buttonText:'white'
+        tristate: true
+        checkState: Qt.PartiallyChecked
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.3_2](pyside6_pro.assets/2027_67.3_2.png)
+
+### 67.4 `DelayButton`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-delaybutton.html
+
+相比于`Button`控件点击即触发，`DelayButton`控件提供了一种长按指定时长之后才会触发的模式：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.4_1](pyside6_pro.assets/2027_67.4_1.png)
+
+### 67.5 `RadioButton`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-radiobutton.html
+
+`RadioButton`控件是单选按钮，如果多个控件在同一父对象内，则只能同时选择一个：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    RadioButton {
+        x: 100
+        y: 100
+        text: '单选框1'
+        palette.buttonText: 'black'
+    }
+    RadioButton {
+        x: 100
+        y: 120
+        text: '单选框2'
+        palette.buttonText: 'black'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.5_1](pyside6_pro.assets/2027_67.5_1.png)
+
+### 67.6 `RoundButton`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-roundbutton.html
+
+`RoundButton`控件就和它的名字一样，是个圆形的按钮：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    RoundButton {
+        x: 100
+        y: 100
+        width: 50
+        height: 50
+        text: '按钮'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.6_1](pyside6_pro.assets/2027_67.6_1.png)
+
+### 67.7 `Switch`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-switch.html
+
+`Switch`控件则是开关：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Switch {
+        x: 100
+        y: 100
+        width: 100
+        height: 50
+        text: '开关'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.7_1](pyside6_pro.assets/2027_67.7_1.png)
+
+### 67.8 `ToolButton`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-toolbutton.html
+
+`ToolButton`控件的功能和`Button`控件类似，但其外观看上去有明显不同，通常用在`ToolBar`控件中：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    ToolBar {
+        background: Rectangle {
+            color: 'yellow'
+        }
+        RowLayout {
+            anchors.fill: parent
+            spacing: 10
+            ToolButton {
+                width: 100
+                height: 50
+                text: '工具按钮1'
+            }
+            ToolButton {
+                width: 100
+                height: 50
+                text: '工具按钮2'
+            }
+        }
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_67.8_1](pyside6_pro.assets/2027_67.8_1.png)
+
+## 68 QML控件——输入控件（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#input-controls
 
 
 
@@ -5742,39 +6215,9 @@ QML控件是状态优先，而非QWidgets控件的过程优先。所谓状态优
 
 
 
-### 67.x `xxx`控件（更新中）
+## 69 QML控件——弹出控件（更新中）
 
-
-
-### 67.x `xxx`控件（更新中）
-
-
-
-### 67.x `xxx`控件（更新中）
-
-
-
-### 67.x `xxx`控件（更新中）
-
-
-
-### 67.x `xxx`控件（更新中）
-
-
-
-### 67.x `xxx`控件（更新中）
-
-
-
-### 67.x `xxx`控件（更新中）
-
-
-
-
-
-## 6x QML控件——xxx（更新中）
-
-相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#popup-controls
 
 
 
@@ -5782,19 +6225,9 @@ QML控件是状态优先，而非QWidgets控件的过程优先。所谓状态优
 
 
 
-## 6x QML控件——xxx（更新中）
+## 70 QML控件——菜单控件（更新中）
 
-相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
-
-
-
-
-
-
-
-## 6x QML控件——xxx（更新中）
-
-相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#menu-controls
 
 
 
@@ -5802,7 +6235,17 @@ QML控件是状态优先，而非QWidgets控件的过程优先。所谓状态优
 
 
 
-## 6x 自定义控件——QWidgets控件（更新中）
+## 71 自定义控件——QML控件（QtQuick控件）（更新中）
+
+
+
+自定义QML控件（QtQuick控件）。
+
+
+
+
+
+## 72 自定义控件——QWidgets控件（更新中）
 
 
 
@@ -5812,15 +6255,9 @@ QML控件是状态优先，而非QWidgets控件的过程优先。所谓状态优
 
 
 
-## 6x 自定义控件——QML控件（QtQuick控件）（更新中）
 
 
-
-自定义QML控件（QtQuick控件）。
-
-
-
-## 6x 控件故事——故事的标题（更新中）
+## 7x 控件故事——故事的标题（更新中）
 
 相关文档：
 
@@ -5856,7 +6293,7 @@ app.exec()
 
 
 
-## 6x 控件故事——故事的标题（更新中）
+## 7x 控件故事——故事的标题（更新中）
 
 相关文档：
 

@@ -6205,17 +6205,591 @@ app.exec()
 
 ![2027_67.8_1](pyside6_pro.assets/2027_67.8_1.png)
 
-## 68 QML控件——输入控件（更新中）
+## 68 QML控件——主题
+
+### 68.0 前言
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-delaybutton.html
+
+原定本章是继续讲其他QML控件的，之前讲完按钮控件之后，有的读者向笔者反馈，`DelayButton`控件的示例看起来和官网文档不太一样：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+这是笔者示例代码的结果：
+
+![2027_68.0_1](pyside6_pro.assets/2027_68.0_1.png)
+
+而官网文档中显示如下：
+
+![2027_68.0_2](pyside6_pro.assets/2027_68.0_2.gif)
+
+笔者在查了相关资料之后，终于找到了问题所在，只加一行，即可让按钮变换模样：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Basic
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_68.0_3](pyside6_pro.assets/2027_68.0_3.png)
+
+于是，笔者决定临时打断一下节奏，讲一下其中的奥秘。
+
+### 68.1 认识主题
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-styles.html
+
+所谓主题，即成套的控件默认样式。相比于单独调整每个控件的样式，使用主题更快捷，一次使用、全部生效。因此，对于想要美化QML控件但又嫌弃挨个调整控件麻烦的情况，主题无疑是最好的选择。
+
+对于QtQuick程序而言，有两种具备主题效果方式：
+
+- QML模块内定义控件样式。
+- Python端的配色盘（`PySide6.QtGui.QPalette`，仅能定义颜色）。
+
+第二种方式在QtWidgets程序也能用，因此，QtWidgets程序而言，也有两种具备主题效果方式：
+
+- QSS内定义控件样式。
+- Python端的配色盘（`PySide6.QtGui.QPalette`，仅能定义颜色）。
+
+考虑到本章主要介绍QML控件的主题，并且如何创建自定义主题不是本章的重点，使用主题才是；而Python端的配色盘属于QtQuick程序、QtWidgets程序通用方式且只能自定义颜色，因此本章不介绍配色盘的用法，配色盘的用法将在单独章节专门介绍。
+
+### 68.2 内置主题
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-styles.html
+
+想要使用主题，需要先有主题，而如何创建自定义主题不是本章的重点，按照之前的习惯， 笔者在应该本节开头提供一个现成的主题。不过，笔者看了一下创建自定义主题的步骤和代码量，发现步骤比较繁琐且代码较多，不适合用作示例。于是，笔者在查找资料之后，决定使用Qt的内置主题作为本节示例中使用的主题。
+
+内置主题有哪些和具体外观可以参考本节相关文档，网页右侧有可以快速跳转的链接：
+
+![2027_68.2_1](pyside6_pro.assets/2027_68.2_1.png)
+
+Qt官方将其翻译为“款”、“风格”，其实就是本章所讲的主题。不过，翻译为中文反而给各位带来了阻碍，因为主题名看不出来了。因此，这里建议访问英文版文档（ https://doc.qt.io/qt-6/qtquickcontrols-styles.html#using-styles-in-qt-quick-controls ）：
+
+![2027_68.2_2](pyside6_pro.assets/2027_68.2_2.png)
+
+可以看到，红框中的英文都是“{主题名} Style”的格式，其中的主题名，就是使用主题的各种方法中用到的主题名。
+
+这里简单说一下其中几个主题。
+
+`Windows`主题，Windows系统下Qt程序的默认主题，仅限Windows系统使用，这也是前面很多控件看起来和官方文档不一致的原因：
+
+![2027_68.2_3](pyside6_pro.assets/2027_68.2_3.png)
+
+`Basic`主题，这是一个多系统均支持且性能较好的主题，对于希望不同系统下控件样式表现一致的情况，推荐使用该主题：
+
+![2027_68.2_4](pyside6_pro.assets/2027_68.2_4.png)
+
+`Fusion`主题，这是也一个多系统均支持的主题，这里之所以要说一下，是因为QtWidgets程序也支持，对于希望QtQuick程序的控件外观与QtWidgets程序一致的情况，推荐使用该主题：
+
+![2027_68.2_5](pyside6_pro.assets/2027_68.2_5.png)
+
+所需的主题已经准备就绪，接下来就是使用主题的方法。
+
+### 68.3 使用主题
+
+#### 68.3.1 导入QML模块
+
+使用主题的方法有时候很简单，本章前言的示例中，就有一个简单到不能再简单的方法——导入QML模块。
+
+`QtQuick.Controls`模块的子模块中，就有对应主题的同名模块，其实就是相关控件的主题样式。因此，可以直接导入`QtQuick.Controls.{主题名}`模块，让QML控件使用该主题。
+
+注意，导入主题对应的模块必须放在最后导入才能覆盖QML控件的默认样式。
+
+示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Fusion
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_68.3.1_1](pyside6_pro.assets/2027_68.3.1_1.png)
+
+#### 68.3.2 使用`setStyle`方法
+
+在Python端，可用的方法就多了，`PySide6.QtQuickControls2`模块的`QQuickStyle`类提供了静态方法——`setStyle`方法，在加载QML之前执行该方法，即可切换主题：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQuickControls2 import QQuickStyle
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+
+# 在加载QML之前执行
+QQuickStyle.setStyle('Fusion')
+
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_68.3.1_1](pyside6_pro.assets/2027_68.3.1_1.png)
+
+注意，该方法的优先级低于导入QML模块。
+
+#### 68.3.3 设置环境变量`QT_QUICK_CONTROLS_STYLE`
+
+设置环境变量`QT_QUICK_CONTROLS_STYLE`同样可以切换主题：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+import os
+
+# 设置环境变量
+os.environ['QT_QUICK_CONTROLS_STYLE'] = 'Fusion'
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_68.3.1_1](pyside6_pro.assets/2027_68.3.1_1.png)
+
+注意，该方法的优先级低于使用`setStyle`方法。
+
+#### 68.3.4 增加配置文件`qtquickcontrols2.conf`
+
+除了用环境变量直接指定主题，还可以用环境变量`QT_QUICK_CONTROLS_CONF`指定配置文件`qtquickcontrols2.conf`（本质上是ini文件），在配置文件中指定主题（ini文件的语法）。
+
+配置文件`qtquickcontrols2.conf`内容如下：
+
+```ini
+[Controls]
+Style=Fusion
+```
+
+示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+import os
+
+# 指定配置文件为同目录下的qtquickcontrols2.conf
+os.environ['QT_QUICK_CONTROLS_CONF'] = './qtquickcontrols2.conf'
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_68.3.1_1](pyside6_pro.assets/2027_68.3.1_1.png)
+
+看起来该方法还是需要设置环境变量，只是环境变量的值变成了配置文件的路径，似乎与上一节介绍的方法大同小异。但是，该方法还是有点不同。
+
+比如环境变量的值并不限定文件名，可以将配置文件的文件名改为`main.conf`，示例代码同步修改：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+import os
+
+# 指定配置文件为同目录下的main.conf
+os.environ['QT_QUICK_CONTROLS_CONF'] = './main.conf'
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+结果是相同的，这就是将主题写在配置文件中与直接使用环境变量指定主题的区别。
+
+当然，本节开头处指定的配置文件名并非随意编造，如果将其打包、编译为资源文件，该文件对应的资源路径必须是`/qtquickcontrols2.conf`。
+
+`main.qrc`内容如下：
+
+```xml
+<RCC>
+    <qresource prefix='/'>
+        <file alias='qtquickcontrols2.conf'>main.conf</file>
+    </qresource>
+</RCC>
+```
+
+用`pyside6-rcc .\main.qrc -o main_qrc.py`命令，将资源集合文件编译为Python文件。
+
+`main_qrc.py`的内容如下：
+
+```python
+from PySide6 import QtCore
+
+qt_resource_data = b"\
+\x00\x00\x00\x18\
+[\
+Controls]\x0d\x0aStyle\
+=Fusion\
+"
+
+qt_resource_name = b"\
+\x00\x15\
+\x08\x1e\x16f\
+\x00q\
+\x00t\x00q\x00u\x00i\x00c\x00k\x00c\x00o\x00n\x00t\x00r\x00o\x00l\x00s\x002\x00.\
+\x00c\x00o\x00n\x00f\
+"
+
+qt_resource_struct = b"\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
+\x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\xa1Y\xc5\xfa\xb9\
+"
+
+def qInitResources():
+    QtCore.qRegisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+def qCleanupResources():
+    QtCore.qUnregisterResourceData(0x03, qt_resource_struct, qt_resource_name, qt_resource_data)
+
+qInitResources()
+```
+
+将`main_qrc.py`的内容添加开头到或者导入`main_qrc`，主题切换即生效：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+import main_qrc
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DelayButton {
+        x: 100
+        y: 100
+        text: '长按按钮3秒来关闭窗口'
+        palette.buttonText:'black'
+        delay: 3000
+        onActivated:w.close()
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+这就是使用配置文件的独特之处。
+
+注意，该方法的优先级低于设置环境变量`QT_QUICK_CONTROLS_STYLE`。
+
+## 69 QML控件——输入控件（更新中）
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#input-controls
 
 
 
+### 69.1 `ComboBox`控件（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-combobox.html
 
 
 
 
-## 69 QML控件——弹出控件（更新中）
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Fusion
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    ComboBox {
+        x: 100
+        y: 100
+        model: ['a','b','c']
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+
+
+
+
+## 70 QML控件——弹出控件（更新中）
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#popup-controls
 
@@ -6225,7 +6799,7 @@ app.exec()
 
 
 
-## 70 QML控件——菜单控件（更新中）
+## 71 QML控件——菜单控件（更新中）
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#menu-controls
 
@@ -6235,7 +6809,7 @@ app.exec()
 
 
 
-## 71 自定义控件——QML控件（QtQuick控件）（更新中）
+## 72 自定义控件——QML控件（QtQuick控件）（更新中）
 
 
 
@@ -6245,11 +6819,19 @@ app.exec()
 
 
 
-## 72 自定义控件——QWidgets控件（更新中）
+## 73 自定义控件——QWidgets控件（更新中）
 
 
 
 自定义QWidgets控件。
+
+
+
+
+
+## 7x 调色盘（待定）（更新中）
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QPalette.html
 
 
 

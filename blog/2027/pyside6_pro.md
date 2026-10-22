@@ -6809,7 +6809,7 @@ app.exec()
 
 
 
-## 72 自定义控件——QML控件（QtQuick控件）（更新中）
+## 72 自定义QML控件（QtQuick控件）（更新中）
 
 
 
@@ -6817,21 +6817,39 @@ app.exec()
 
 
 
+自定义现有控件，创建新的控件。
 
 
-## 73 自定义控件——QWidgets控件（更新中）
+
+
+
+
+
+## 73 QML控件——自定义主题（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-customize.html
+
+
+
+
+
+## 74 调色盘（待定）（更新中）
+
+相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QPalette.html
+
+
+
+
+
+
+
+
+
+## 75 自定义QWidgets控件（更新中）
 
 
 
 自定义QWidgets控件。
-
-
-
-
-
-## 7x 调色盘（待定）（更新中）
-
-相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QPalette.html
 
 
 

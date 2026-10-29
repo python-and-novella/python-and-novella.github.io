@@ -5101,12 +5101,6 @@ ui.run(
 
 ![2027_73.2.1_1](nicegui_pro.assets/2027_73.2.1_1.png)
 
-注意，在NiceGUI 3.16.0版本中，如果是通过调用`make_sortable`方法来启用排序（即启用排序之前没在创建控件后调用`make_sortable`方法），第一次调用会报错，无法正常启用排序，需要刷新页面后第二次调用才能正常启用。
-
-这是因为调用`make_sortable`方法本质上是创建`Sortable`控件，而`Sortable`控件对应前端库的相关前端模块默认没有注册，只有调用一次`make_sortable`方法之后，相关前端模块才会加入注册列表中，并在刷新页面后生效。
-
-如果不想额外调用一次`make_sortable`方法，可以在`ui.run`方法调用之前，导入`Sortable`类（`from nicegui.elements.sortable import Sortable`），确保相关前端模块在调用`make_sortable`方法之前注册、生效。
-
 #### 73.2.2 限制可拖动区域
 
 `handle`参数，表示可拖动区域的CSS选择器，可用于限制可拖动区域：
@@ -5145,6 +5139,32 @@ ui.run(
 ![2027_73.2.2_3](nicegui_pro.assets/2027_73.2.2_3.png)
 
 注意，此时要求鼠标到达远端的有效区域才会触发排序。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.card() as card:
+        for i in 'abc':
+            with ui.row().classes('w-32 h-16 border-2'):
+                ui.icon('menu').classes('hand cursor-grab w-16 border-2')
+                ui.label(i)
+    card.make_sortable(
+        handle='.hand',
+        options={
+            'swapThreshold':0.1,
+            'invertSwap':True
+        }
+    )
+
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
 
 #### 73.2.3 分组的作用
 

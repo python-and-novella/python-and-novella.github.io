@@ -187,6 +187,187 @@ ui.run(
 
 ![v3.17.0_1_2](nicegui_pro.assets/v3.17.0_1_2.png)
 
+## 版本速览——3.19.0版本
+
+### 0 主要内容
+
+更新日志：https://github.com/zauberzeug/nicegui/releases/tag/v3.19.0
+
+本次版本速览主要介绍以下内容：
+
+- 新增`ui.uplot`控件。
+- `ui.scene`控件支持更多3D对象（`Plane`、`Capsule`、`Cone`、`Torus`、`Lathe`、`Polyline`）。
+
+### 1 `ui.uplot`控件
+
+相关文档：
+
+- https://nicegui.io/documentation/uplot
+- https://github.com/leeoniya/uPlot/tree/master/docs
+
+`ui.uplot`控件是一个主要绘制时序类图表的图表控件，相比于之前介绍过的其他图表控件，该控件具有以下特点：体积小，速度快。
+
+当然，受限于体积和为了性能而不得不做的妥协，该控件也有一些不足：
+
+- 不支持自动解析数据，需要提前处理好数据。
+- 没有过渡动画。
+- 支持的图表类型有限。
+- 底层原理决定了性能存在上限，数据量超大时性能表现反而不佳。
+
+因此，如果在数据量较少且数据类型简单时，希望客户端的性能表现更好，可以使用该控件。一旦需要专业的数据解析、过渡动画、更多类型的图表、超大数据量的支持，建议使用其他图表控件。
+
+示例如下：
+
+```python
+from nicegui import ui
+import time
+
+def index():
+    ui.uplot(
+        options={
+            'series': [
+                {'label': 'time'},
+                {'label': 'value','stroke': 'red'},
+            ],
+        },
+        data=[
+            [
+                time.mktime(
+                    time.struct_time(
+                        [2027,1,1,12,0,0,1,1,-1]
+                    )
+                )+i*60 
+                for i in range(10)
+            ],
+            [i for i in range(10)]
+        ]
+    ).classes('w-128 h-64')
+    
+ui.run(
+    root=index,
+)
+```
+
+![v3.19.0_1_1](nicegui_pro.assets/v3.19.0_1_1.png)
+
+### 2 `ui.scene`控件
+
+`ui.scene`控件新增以下3D对象：
+
+- `Plane`，平面。
+- `Capsule`，胶囊体。
+- `Cone`，圆锥。
+- `Torus`，甜甜圈。
+- `Lathe`，旋转体。
+- `Polyline`，折线。
+
+示例如下：
+
+```python
+from nicegui import ui
+import math
+
+
+def index():
+    scene = ui.scene().classes(
+        'w-64 h-64'
+    )
+    scene.lathe(
+        points=[
+            [0, 0],
+            [0.4, 0.2],
+            [0.5, 0.6],
+            [0.2, 1.0],
+            [0, 1.1]
+        ]
+    ).material(
+        'chocolate'
+    ).move(
+        2.5, 0, 0
+    ).rotate(
+        math.pi / 2, 0, 0
+    )
+    scene.cone(
+        radius=0.5,
+        height=1.0
+    ).material(
+        'tomato'
+    ).move(
+        1.2, 2.2, 0.5
+    ).rotate(
+        math.pi / 2, 0, 0
+    )
+    scene.torus(
+        radius=0.4,
+        tube=0.15
+    ).material(
+        'gold'
+    ).move(
+        -1.2, 2.2, 0.15
+    )
+    scene.plane(
+        width=1.0,
+        height=1.0
+    ).material(
+        'deepskyblue'
+    ).move(
+        -2.5, 0, 0.5
+    ).rotate(
+        math.pi / 2, 0, 0
+    )
+    scene.capsule(
+        radius=0.3,
+        height=0.8
+    ).material(
+        'mediumorchid'
+    ).move(
+        -1.2, -2.2, 0.7
+    ).rotate(
+        math.pi / 2, 0, 0
+    )
+    scene.polyline(
+        points=[
+            [-2, 0, 2.5],
+            [-1, 0, 3.0],
+            [0, 0, 2.5],
+            [1, 0, 3.0],
+            [2, 0, 2.5]
+        ],
+        colors=[
+            [1, 0, 0],
+            [1, 0.5, 0],
+            [1, 1, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ],
+    )
+
+
+ui.run(
+    root=index,
+)
+```
+
+![v3.19.0_2_1](nicegui_pro.assets/v3.19.0_2_1.png)
+
+注意，如果在 3.19.0 版本中使用`from nicegui.elements.scene.objects import Torus`导入`Torus`类，会因为一处代码错误而导入失败，后续版本已经修复该问题，暂时可以用`from nicegui.elements.scene.objects.torus import Torus`代替。
+
+该控件的用法和3D对象的学习可以期待明年更新的2027版内容，届时将会详细介绍。
+
+### 3 后记——4.0.0版本
+
+3.19.0版本发布没多久，4.0.0版本很快就发布了，但笔者看了一眼之后，决定版本速览跳过该版本。原因很简单：4.0.0版本没有太大的不兼容更新。
+
+因此，如果项目需要升级4.0.0版本，代码变动远比想象中少。不过，即便如此，笔者依然建议稍微等几个版本再升级。原因同样很简单：4.0.0版本涉及到多个前端库的更新，版本跨度较大，可能部分控件、功能容易出现未测试出来的问题。
+
+对于迫切想要升级4.0.0版本的项目，笔者建议如下：
+
+- 关注前端库相关的控件，先做小范围升级测试，解决相关问题之后再升级。
+- 关注弃用的API，审查当前项目是否使用了相关API，先做好代码变动相关的测试，确认没问题之后再升级。
+- 如果项目追求稳定，可以等待一到两个小版本再更新。
+
+如果各位在项目升级过程中遇到问题，欢迎留言询问，笔者将尽量解答，并发文分享解决方案。
+
 ## 55 详解多页面模式（《易森》2703期）
 
 前面的教程几乎都是用单页面模式、窗口模式作为示例，而很多读者实际开发中，可能会用多页面模式作为程序的主要运行模式。因此，2027版的第一章，就先来回顾一下多页面模式，学习一下多页面模式中相关的功能。
@@ -4336,7 +4517,6 @@ def index():
         box.move(
             1,-1,1
         )
-        
     
 
 ui.run(
@@ -4402,6 +4582,12 @@ NiceGUI提供了以下3D对象类：
 | `SpotLight`           | 聚光灯                   |
 | `PointCloud`          | 点云                     |
 | `AxesHelper`          | 坐标轴                   |
+| `Plane`               | 平面                     |
+| `Capsule`             | 胶囊体                   |
+| `Cone`                | 圆锥体                   |
+| `Torus`               | 甜甜圈（立体圆环）       |
+| `Lathe`               | 自定义截面的旋转体       |
+| `Polyline`            | 折线                     |
 
 `Group`类用于创建虚拟分组，不同的3D对象可以使用`attach`方法挂载到该对象下。
 
@@ -4648,6 +4834,59 @@ ui.run(
 `AxesHelper`类支持以下参数：
 
 - `length`参数，浮点类型，表示坐标轴的大小，默认为`1.0`。
+
+`Plane`类支持以下参数：
+
+- `width`参数，浮点类型，默认为`1`，表示宽度。
+- `height`参数，浮点类型，默认为`1`，表示高度。
+- `width_segments`参数，整数类型，默认为`1`，表示水平方向的细分度。
+- `height_segments`参数，整数类型，默认为`1`，表示垂直方向的细分度。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Capsule`类支持以下参数：
+
+- `radius`参数，浮点类型，默认为`1`，表示胶囊体的半径。
+- `height`参数，浮点类型，默认为`1`，表示胶囊体的长度（不含半球部分）。
+- `cap_segments`参数，整数类型，默认为`4`，表示胶囊体的细分度。
+- `radial_segments`参数，整数类型，默认为`8`，表示半径的细分度。
+- `height_segments`参数，整数类型，默认为`1`，表示长度的细分度。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Cone`类支持以下参数：
+
+- `radius`参数，浮点类型，默认为`1`，表示圆锥体的底面半径。
+- `height`参数，浮点类型，默认为`1`，表示圆锥体的高度。
+- `radial_segments`参数，整数类型，默认为`8`，表示半径的细分度。
+- `height_segments`参数，整数类型，默认为`1`，表示高度的细分度。
+- `open_ended`参数，布尔类型，默认为`False`，表示是否不封闭底面（`True`表示不封闭）。
+- `theta_start`参数，浮点类型，默认为`0`，表示圆锥体的旋转起始弧度（将圆锥体看作直角三角形绕直角边旋转形成的）。
+- `theta_length`参数，浮点类型，默认为`2 * math.pi`，表示圆锥体的旋转弧度（将圆锥体看作直角三角形绕直角边旋转形成的）。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Torus`类支持以下参数：
+
+- `radius`参数，浮点类型，默认为`1`，表示圆环轴线的半径。
+- `tube`参数，浮点类型，默认为`0.4`，表示圆环截面的半径。
+- `radial_segments`参数，整数类型，默认为`12`，表示圆环轴线的半径细分度。
+- `tubular_segments`参数，整数类型，默认为`48`，表示圆环截面的半径细分度。
+- `arc`参数，浮点类型，默认为`2 * math.pi`，表示圆环轴线的弧度（轴线也是圆的一部分，默认为整圆）。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Lathe`类支持以下参数：
+
+- `points`参数，元素为列表（两个浮点类型元素）的列表类型，表示截面的每个点的坐标。
+- `segments`参数，整数类型，默认为`12`，表示旋转体的细分度。
+- `phi_start`参数，浮点类型，默认为`0`，表示旋转体的旋转起始弧度。
+- `phi_length`参数，浮点类型，默认为`2 * math.pi`，表示旋转体的旋转弧度。
+- `wireframe`参数，布尔类型，默认为`False`，表示是否显示为线框。
+
+`Polyline`类支持以下参数：
+
+- `points`参数，元素为列表（三浮点类型元素）的列表类型，表示折线每个点的坐标。
+- `colors`参数，元素为列表（三浮点类型元素）的列表类型，表示折线每个点的RGB颜色（对应分量的取值范围为`0-1`）。
+- `dashed`参数，布尔类型，默认为`False`，表示是否显示为虚线。
+- `dash_size`参数，浮点类型，默认为`0.1`，表示虚线中每段可见部分的长度。
+- `gap_size`参数，浮点类型，默认为`0.05`，表示虚线中每段不可见部分的长度。
 
 ### 71.5 `ui.scene_view`控件
 
@@ -6456,7 +6695,12 @@ ui.run(
 
 总的来说，各个键的含义没那么费解，笔者这里就不提供额外的示例了，若是使用过程中有具体问题，到时候再详细展开。
 
-## 79 x（待定）（更新中）
+## 79 学习控件——`ui.uplot`控件（更新中）
+
+相关文档：
+
+- https://nicegui.io/documentation/uplot
+- https://github.com/leeoniya/uPlot/tree/master/docs
 
 
 

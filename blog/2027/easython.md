@@ -3859,11 +3859,30 @@ app.run(
 
 （完）
 
-## 271x期：xxx（更新中）
+## 271x期：FastAPI（更新中）
 
 ### 0 本期主要内容
 
 （编写本期主要内容和标题，同时作为内容规划）
+
+
+
+
+
+```python
+import uvicorn
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get('/')
+def index():
+    return {'Hello':'World'}
+
+uvicorn.run(app)
+```
+
+
 
 
 

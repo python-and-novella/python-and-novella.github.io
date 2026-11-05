@@ -6695,7 +6695,751 @@ ui.run(
 
 总的来说，各个键的含义没那么费解，笔者这里就不提供额外的示例了，若是使用过程中有具体问题，到时候再详细展开。
 
-## 79 学习控件——`ui.uplot`控件（更新中）
+## 79 轻松上手单页面应用
+
+### 79.1 认识单页面应用
+
+NiceGUI程序按照是否使用`ui.page`创建页面，可划分为三种构建模式：
+
+- **脚本模式**。不使用`ui.page`创建页面、不给`ui.run`的第一位置参数`root`传值的话，所有的控件都在全局作用域内创建，这样的构建模式就是脚本模式。
+- **多页面模式**。脚本模式只支持一个“主页面”，一旦想创建多个页面展示不同的内容，就只能使用`ui.page`创建其他页面，这样的构建模式就是多页面模式。
+- **单页面模式**、**根页面模式**。除了上面这种明显使用`ui.page`的多页面模式，还可以将所有创建控件的过程放在函数中用来构建页面，并将构建页面的函数名传给`ui.run`方法的第一位置参数`root`。这种构建模式也算多页面模式，但只能创建一个页面，所以叫单页面模式（与后面介绍的单页面应用不同，请注意区分）。因为单页面模式下的网站只有一个“主页面”（地址为网站的根路径），所以，单页面模式也可以被称为根页面模式。
+
+**单页面应用**（Single Page Application，简称SPA）是一种Web应用架构，并不是NiceGUI程序的构建模式。单页面应用仅动态更新部分区域，避免页面整体刷新，减少不必要的性能开销。
+
+在NiceGUI中，**单页面应用**与多页面模式效果类似的，可以在不增加普通页面的前提下，增加多个子页面，并且可以和脚本模式、单页面模式同时使用，让这两种模式实现多页面模式的效果。
+
+既然单页面应用与多页面模式效果类似，直接使用多页面模式是不是也可以？
+
+在大部分情况下，单页面应用与多页面模式难分伯仲，甚至多页面模式的结构、代码反而更简单、更清晰，确实没必要使用单页面应用。但是，单页面应用仅更新局部，如果有的控件加载一次的性能开销较大，并且不需要随着页面变化一起重载，就可以尝试使用单页面应用，仅将需要更新的部分区域改造为单页面应用，减少不必要的性能开销。
+
+此外，单页面应用不是构建模式，与多页面模式并非水火不容，二者可以同时使用，只是底层实现的复杂性让二者同时使用时多了一些“技巧”。
+
+### 79.2 单页面应用与页面模块化的区别
+
+单页面应用的页面结构类似框架网页，除去更新的部分，就是不更新的部分。因此，可能有的读者在查阅官方文档、社区之后，将页面模块化的示例、用法误当作单页面应用的写法。
+
+当然，从结果上看，页面模块化和单页面应用类似，但实际效果是不同的。
+
+对于模块化页面，跳转不同的页面，不更新的部分每次都会重新创建（页面ID会变）：
+
+```python
+from nicegui import ui,APIRouter,app
+from uuid import uuid4
+from contextlib import contextmanager
+
+@contextmanager
+def header():
+    ui.label('主页面')
+    ui.label('这部内容为公用模块，切换子页面会刷新（页面ID会变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    yield
+
+router = APIRouter(prefix='/sub')
+
+@ui.page('/')  
+def index():
+    ui.link('访问模块化页面', '/sub')
+
+@router.page('/')  
+def main():
+    with header():
+        ui.label('/子页面的内容')
+        ui.link('去page1子页面', '/sub/page1')
+
+@router.page('/page1')  
+def page1():
+    with header():
+        ui.label('page1子页面的内容')
+        ui.link('回到主页面', '/sub')
+
+app.include_router(router)
+ui.run(
+    title='易森-NiceGUI'
+)
+```
+
+![2027_79.2_1](nicegui_pro.assets/2027_79.2_1.png)
+
+对于单页面应用，跳转不同的页面，不更新的部分不会重新创建（页面ID不变）：
+
+```python
+from nicegui import ui
+from uuid import uuid4
+
+def index():
+    ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（页面ID不变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': main,
+            '/page1': page1
+        },
+    )
+  
+def main():
+    ui.label('/子页面的内容')
+    ui.link('去page1子页面', '/page1')
+
+def page1():
+    ui.label('page1子页面的内容')
+    ui.link('回到主页面', '/')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_79.2_2](nicegui_pro.assets/2027_79.2_2.png)
+
+### 79.3 单页面应用的核心——`ui.sub_pages`类
+
+恰如上节示例中所写，实现一个单页面应用，核心功能全在`ui.sub_pages`类。将需要更新的部分放在单独的函数中，使用`ui.sub_pages`类的`routes`参数定义子页面路径与对应函数的映射，即可实现不同路径的主页面、子页面分离，仅子页面部分更新。
+
+单页面应用的结构通常如下图所示：
+
+![2027_79.3_1](nicegui_pro.assets/2027_79.3_1.png)
+
+下面这个示例可以更直观地展现`ui.sub_pages`类的效果：
+
+```python
+from nicegui import ui
+
+def index():
+    with ui.card():
+        ui.label('页眉')
+    with ui.card(),ui.row():
+        with ui.card():
+            ui.label('左抽屉')
+        with ui.card():
+            ui.sub_pages(
+                {
+                    '/': main,
+                    '/a': a,
+                    '/b': b
+                }
+            )
+        with ui.card():
+            ui.label('右抽屉')
+    with ui.card():
+        ui.label('页脚')
+
+
+def main():
+    ui.link('Page A', '/a')
+    ui.link('Page B', '/b')
+
+
+def a():
+    ui.link('Page Main', '/')
+    ui.link('Page B', '/b')
+
+
+def b():
+    ui.link('Page Main', '/')
+    ui.link('Page A', '/a')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_79.3_2](nicegui_pro.assets/2027_79.3_2.png)
+
+`ui.sub_pages`类支持以下参数：
+
+- `routes`参数，字典类型（键为子页面的路径，值为子页面构建函数的函数名），表示子页面与具体构建函数的对应关系。
+
+- `root_path`参数，字符串类型，表示单页面应用所属页面的路径。当所属页面的路径非`'/'`时，必须给该参数传入所属页面的路径才能让子页面正常生效。
+
+  从此参数开始，只能通过关键字传入。
+
+- `data`参数，字典类型（键为使用字符串表示的子页面构建函数的参数，值为参数对应的值），表示传给子页面构建函数具体参数的值，可以在不同页面之间共享变量、控件。
+
+- `show_404`参数，布尔类型，表示如果子页面没有对应的构建函数，是否显示一段展示该错误的简短字符串，默认为`True`。如果该参数为`False`，则没有任何提示内容。
+
+`ui.sub_pages`类支持以下方法：
+
+- `add`方法，添加、更新子页面。该方法支持以下参数：
+  - `path`参数，字符串类型，表示子页面的路径。
+  - `page`参数，可调用类型，表示子页面对应的构建函数。
+- `refresh`方法，刷新子页面。
+
+### 79.4 单页面应用的注意事项
+
+#### 79.4.1 多页面模式下的单页面应用
+
+NiceGUI程序支持两种URL参数注入：
+
+- 嵌在URL中的路径参数（路径中的部分字段即为参数的值，比如`/icon/star`中的`star`），需要通过定义通配路径来捕获参数的值：`'/icon/{icon}'`。
+- 放在英文问号之后的查询参数（需要显式指明参数和对应的值，比如`/icon/star?amount=5`中的`amount=5`），则会自动捕获参数名和对应的值。
+
+以上是多页面模式的URL参数注入方式，那和本章要介绍的单页面应用有什么关系？
+
+不仅有关系，而且密切相关。单页面应用和多页面模式可以同时使用，脚本模式可以像前面单页面模式的示例中那样简单、直接使用，但多页面模式不能。
+
+先看示例：
+
+```python
+from nicegui import ui
+from uuid import uuid4
+
+@ui.page('/')
+def index():
+    ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（页面ID不变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': main,
+            '/page1': page1
+        },
+    )
+  
+def main():
+    ui.label('/子页面的内容')
+    ui.link('去page1子页面', '/page1')
+
+def page1():
+    ui.label('page1子页面的内容')
+    ui.link('回到主页面', '/')
+
+ui.run(
+    title='易森-NiceGUI'
+)
+```
+
+将单页面模式改成多页面模式很简单，用起来似乎也没有问题：
+
+![2027_79.4.1_1](nicegui_pro.assets/2027_79.4.1_1.png)
+
+如果是直接点击链接跳转，会正常显示上图，但是，如果直接输入地址或者在点击跳转之后刷新，则会看到下图：
+
+![2027_79.4.1_2](nicegui_pro.assets/2027_79.4.1_2.png)
+
+先不要急着上报问题，让笔者分析一下为什么会出现这个问题。
+
+直接输入地址或者在点击跳转之后刷新，此时的地址不再由原本`'/'`对应的页面处理，而是程序内部进行路径匹配之后，发现路径不存在，因此报404错误。但是，**点击链接**的话，`ui.sub_pages`类先接收到了路径变化，完成局部更新，跳过了路径匹配过程，因此没有报404错误，而是正常显示。
+
+至此，问题的触发条件就明确了：输入地址或者刷新页面时，地址会交给内部进行路径匹配，而不是让`ui.sub_pages`类处理。因此，为了让多页面模式的单页面应用更完善，必须让单页面应用所属的页面接收该页面对应地址开头的所有地址。基于这个目的，本节开头介绍的URL参数注入就派上用场了。
+
+示例如下：
+
+```python
+from nicegui import ui
+from uuid import uuid4
+
+@ui.page('/')
+# 增加通配路径捕获指定开头的所有路径
+@ui.page('/{_}')
+def index():
+    ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（页面ID不变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': main,
+            '/page1': page1
+        },
+    )
+  
+def main():
+    ui.label('/子页面的内容')
+    ui.link('去page1子页面', '/page1')
+
+def page1():
+    ui.label('page1子页面的内容')
+    ui.link('回到主页面', '/')
+
+ui.run(
+    title='易森-NiceGUI'
+)
+```
+
+增加通配路径捕获指定开头的所有路径，是多页面模式的单页面应用必不可少的步骤。
+
+关于通配路径，可能还有读者好奇，都已经通配了，还有必要保留无通配的路径吗？
+
+可以不保留，但有时候必须保留，这里要分情况看：
+
+| 通配路径    | 是否保留 | 影响                |
+| ----------- | -------- | ------------------- |
+| `/{_}`      | 是       | 无                  |
+| `/{_}`      | 否       | `'/'`子页面无法访问 |
+| `/{_:path}` | 是       | 无                  |
+| `/{_:path}` | 否       | 无                  |
+
+通配路径语法中的类型注释（表格正文的第三、四行，且类型必须是`path`）是FastAPI框架的内容，这里不做展开，如果只涉及NiceGUI，只需记住，要么保留无通配的路径，要么使用包含指定类型注释的通配路径。
+
+#### 79.4.2 跳转链接的路径
+
+以上节多页面模式的单页面应用为基础（实际上其他模式的单页面应用也会存在同样的问题），假定笔者为了方便将单页面应用挂载到任意路径，而将路径的前缀设计为一个变量：
+
+```python
+from nicegui import ui
+from uuid import uuid4
+
+sub_path = '/sub'
+
+@ui.page('/')
+def index():
+    ui.link('访问单页面应用', f'{sub_path}/')
+
+# 使用通配路径捕获指定开头的所有路径
+@ui.page(f'{sub_path}'+'/{_:path}')
+def sub_index():
+    ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（页面ID不变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': main,
+            '/page1': page1
+        },
+        root_path=sub_path
+    )
+  
+def main():
+    ui.label('/子页面的内容')
+    ui.link('去page1子页面', f'{sub_path}/page1')
+
+def page1():
+    ui.label('page1子页面的内容')
+    ui.link('回到主页面', f'{sub_path}/')
+
+ui.run(
+    title='易森-NiceGUI'
+)
+```
+
+![2027_79.4.2_1](nicegui_pro.assets/2027_79.4.2_1.png)
+
+然后笔者灵机一动，心想：“跳转到单页面应用的链接和单页面应用所属的页面用路径前缀那是没办法的事情，单页面应用子页面对应链接为什么也要用路径前缀？直接改成相对路径不行吗？”
+
+于是，为了让程序更普适，笔者将子页面对应的链接改成了相对路径：
+
+```python
+from nicegui import ui
+from uuid import uuid4
+
+sub_path = '/sub'
+
+@ui.page('/')
+def index():
+    ui.link('访问单页面应用', f'{sub_path}/')
+
+# 使用通配路径捕获指定开头的所有路径
+@ui.page(f'{sub_path}'+'/{_:path}')
+def sub_index():
+    ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（页面ID不变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': main,
+            '/page1': page1
+        },
+        root_path=sub_path
+    )
+  
+def main():
+    ui.label('/子页面的内容')
+    ui.link('去page1子页面', './page1')
+
+def page1():
+    ui.label('page1子页面的内容')
+    ui.link('回到主页面', '../')
+
+ui.run(
+    title='易森-NiceGUI'
+)
+```
+
+![2027_79.4.2_2](nicegui_pro.assets/2027_79.4.2_2.png)
+
+这里回到主页面，并没有如预期般返回上一级，而是直接回到了根页面。
+
+解决办法也很简单，返回上一级的超链接，要改成`'~/../'`：
+
+```python
+from nicegui import ui
+from uuid import uuid4
+
+sub_path = '/sub'
+
+@ui.page('/')
+def index():
+    ui.link('访问单页面应用', f'{sub_path}/')
+
+# 使用通配路径捕获指定开头的所有路径
+@ui.page(f'{sub_path}'+'/{_:path}')
+def sub_index():
+    ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（页面ID不变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': main,
+            '/page1': page1
+        },
+        root_path=sub_path
+    )
+  
+def main():
+    ui.label('/子页面的内容')
+    ui.link('去page1子页面', './page1')
+
+def page1():
+    ui.label('page1子页面的内容')
+    ui.link('回到主页面', '~/../')
+
+ui.run(
+    title='易森-NiceGUI'
+)
+```
+
+事情到这里还没有结束，笔者心血来潮，想要在单页面模式或脚本模式中创建使用自定义前缀的单页面应用（必须访问指定路径才能看到子页面内容），于是代码改成了这样（单页面模式）：
+
+```python
+from nicegui import ui
+from uuid import uuid4
+
+sub_path = '/sub'
+
+def sub_index():
+    ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（页面ID不变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': main,
+            '/page1': page1
+        },
+        root_path=sub_path,
+        show_404=False
+    )
+  
+def main():
+    ui.label('/子页面的内容')
+    ui.link('去page1子页面', './page1')
+
+def page1():
+    ui.label('page1子页面的内容')
+    ui.link('回到主页面', '~/../')
+
+ui.run(
+    root=sub_index,
+    title='易森-NiceGUI'
+)
+```
+
+实际访问时，又出现了新的问题。
+
+路径为`http://127.0.0.1:8080/sub`时，跳转至`./page1`的超链接没有包含`sub`这个前缀。而多页面模式下，`http://127.0.0.1:8080/sub`会自动跳转到`http://127.0.0.1:8080/sub/`，因此不存在该问题。
+
+如果路径为`http://127.0.0.1:8080/sub/`，跳转倒是没问题了，但每次跳转之后页面ID都会变，单页面应用失效了。
+
+解决方法很简单，只要使用绝对路径即可：
+
+```python
+from nicegui import ui
+from uuid import uuid4
+
+sub_path = '/sub'
+
+def sub_index():
+    ui.label('主页面')
+    ui.label('这部内容为普通页面，切换子页面不会刷新（页面ID不变）。')
+    ui.label(f'页面ID为 {str(uuid4())}')
+    ui.separator()
+    ui.sub_pages(
+        routes={
+            '/': main,
+            '/page1': page1
+        },
+        root_path=sub_path,
+        show_404=False
+    )
+  
+def main():
+    ui.label('/子页面的内容')
+    ui.link('去page1子页面', f'{sub_path}/page1')
+
+def page1():
+    ui.label('page1子页面的内容')
+    ui.link('回到主页面', f'{sub_path}/')
+
+ui.run(
+    root=sub_index,
+    title='易森-NiceGUI'
+)
+```
+
+最后简单总结一下。对于多页面模式，跳转链接的路径最好使用绝对路径；如果是相对路径，返回上一级的超链接要改成`'~/../'`。对于单页面模式、脚本模式，跳转链接的路径必须使用绝对路径，不然单页面应用会失效。
+
+## 80 `ui.table`控件——搜索、分页、美化（更新中）
+
+`ui.table`控件相关文档的地址：
+
+NiceGUI框架文档：https://nicegui.io/documentation/table
+
+Quasar框架文档：https://quasar.dev/vue-components/table
+
+其实去年详细介绍过`ui.table`控件的用法，只不过当时介绍得太详细，以至于有些明明是常用的功能，有的读者就是被密密麻麻的文字催眠，一眼看不到头。于是，为了方便读者，本章挑了几个常用的功能，简单回顾一下。
+
+### 80.1 搜索（更新中）
+
+
+
+搜索：
+
+```python
+from nicegui import ui
+
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age',
+        },
+    ]
+    rows = [
+        {
+            'age': 18,
+            'firstname': 'Alice', 
+
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname',
+    )
+    ui.input('Search').bind_value_to(
+        table,
+        'filter'
+    )
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+
+
+### 80.2 分页（更新中）
+
+
+
+分页：
+
+```python
+from nicegui import ui
+
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age',
+        },
+    ]
+    rows = [
+        {
+            'age': 18,
+            'firstname': 'Alice', 
+
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname',
+        pagination={
+            'rowsPerPage':2,
+            'sortedBy':'age',
+            'page':2
+        }
+    )
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+
+
+### 80.3 美化（列定义）（更新中）
+
+
+
+
+
+美化（列定义）：
+
+```python
+from nicegui import ui
+
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+            'headerClasses':'bg-yellow',
+            'headerStyle':'height:100px',
+            'classes':'bg-grey',
+            'style':'width:100px',
+            'align':'left'
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age',
+        },
+    ]
+    rows = [
+        {
+            'age': 18,
+            'firstname': 'Alice', 
+
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname',
+    )
+    table.props('')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+
+
+
+
+### 80.4 美化（控件属性）（更新中）
+
+
+
+美化（控件属性）：
+
+```python
+from nicegui import ui
+
+
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age',
+        },
+    ]
+    rows = [
+        {
+            'age': 18,
+            'firstname': 'Alice', 
+
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21
+        },
+        {
+            'firstname': 'Carol'
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname',
+    )
+    table.props('''
+    table-class="bg-yellow"
+    ''')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+
+
+
+
+- `table-style`属性，字符串类型，表示整个表格使用的样式。
+- `table-class`属性，字符串类型，表示整个表格使用的样式类。
+- `table-header-style`属性，字符串类型，表示表头使用的样式。
+- `table-header-class`属性，字符串类型，表示表头使用的样式类。
+- `table-row-style-fn`属性，使用字符串表达的JavaScript函数，表示除了表头外的每行使用的样式。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+  - `row`参数，表示每一行的行对象，其支持的属性与该行数据字典包含的键相同。
+- `table-row-class-fn`属性，使用字符串表达的JavaScript函数，表示除了表头外的每行的样式类。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
+  - `row`参数，表示每一行的行对象，其支持的属性与该行数据字典包含的键相同。
+
+
+
+
+
+## 81 学习控件——`ui.uplot`控件（更新中）
 
 相关文档：
 
@@ -6704,11 +7448,7 @@ ui.run(
 
 
 
-
-
-
-
-## 80 x（待定）（更新中）
+## 8x x（待定）（更新中）
 
 
 
@@ -6717,6 +7457,14 @@ ui.run(
 （持续更新中）
 
 
+
+## 8x x（待定）（更新中）
+
+
+
+
+
+（持续更新中）
 
 
 

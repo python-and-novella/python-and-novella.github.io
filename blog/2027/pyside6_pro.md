@@ -6732,6 +6732,56 @@ app.exec()
 
 注意，该方法的优先级低于设置环境变量`QT_QUICK_CONTROLS_STYLE`。
 
+#### 68.3.5 命令行参数`-style`
+
+如果将命令行参数传给应用程序类，还可以通过命令行参数`-style`指定程序主题。
+
+示例如下：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+import sys
+
+# python main.py -style Fusion 相当于 app = QGuiApplication([__file__,'-style', 'Fusion'])
+app = QGuiApplication(sys.argv)
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    ComboBox {
+        x: 100
+        y: 100
+        model: ['a','b','c']
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+注意，该方法QtWidgets程序、QtQuick程序均可使用。
+
+在QtQuick程序中，该方法的优先级等于使用`setStyle`方法。
+
 ## 69 QML控件——输入控件（更新中）
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#input-controls

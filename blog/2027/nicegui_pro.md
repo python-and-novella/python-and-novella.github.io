@@ -7188,7 +7188,7 @@ ui.run(
 
 最后简单总结一下。对于多页面模式，跳转链接的路径最好使用绝对路径；如果是相对路径，返回上一级的超链接要改成`'~/../'`。对于单页面模式、脚本模式，跳转链接的路径必须使用绝对路径，不然单页面应用会失效。
 
-## 80 `ui.table`控件——搜索、分页、美化（更新中）
+## 80 `ui.table`控件——搜索、分页、美化
 
 `ui.table`控件相关文档的地址：
 
@@ -7198,11 +7198,11 @@ Quasar框架文档：https://quasar.dev/vue-components/table
 
 其实去年详细介绍过`ui.table`控件的用法，只不过当时介绍得太详细，以至于有些明明是常用的功能，有的读者就是被密密麻麻的文字催眠，一眼看不到头。于是，为了方便读者，本章挑了几个常用的功能，简单回顾一下。
 
-### 80.1 搜索（更新中）
+### 80.1 搜索
 
+表格可用于展示庞杂的数据，但数据一多，找起来就没那么容易。
 
-
-搜索：
+控件属性`filter`，表示在表格中搜索包含指定内容的单元格时的关键字。因此，可以通过设置该控件属性的值间接实现搜索功能：
 
 ```python
 from nicegui import ui
@@ -7251,13 +7251,13 @@ ui.run(
 )
 ```
 
+![2027_80.1_1](nicegui_pro.assets/2027_80.1_1.png)
 
+### 80.2 分页
 
-### 80.2 分页（更新中）
+数据多了，搜索是快速找到指定数据的方法，但全都放在一页展示会让表格变得很长，分页就是不搜索时的排版需求。
 
-
-
-分页：
+前面介绍过分页控件，但对`ui.table`控件而言，分页无需借助控件，使用自带的控件属性`pagination`即可轻松实现：
 
 ```python
 from nicegui import ui
@@ -7307,15 +7307,21 @@ ui.run(
 )
 ```
 
+![2027_80.2_1](nicegui_pro.assets/2027_80.2_1.png)
 
+### 80.3 美化（列定义）
 
-### 80.3 美化（列定义）（更新中）
+默认情况下，表格的颜色取决于主题、样式，但不好对具体内容做精细的控制。
 
+如果想要美化表格，首选的就是列定义。在列定义中，以下键可以控制相关样式：
 
+- `'style'`键，字符串类型，表示非表头部分的内容使用的样式。
+- `'classes'`键，字符串类型，表示非表头部分的内容使用的样式类。
+- `'headerStyle'`键，字符串类型，表示表头部分的内容使用的样式。
+- `'headerClasses'`键，字符串类型，表示表头部分的内容使用的样式类。
+- `'align'`键，字符串类型，表示该列内容的对齐方向。
 
-
-
-美化（列定义）：
+示例如下：
 
 ```python
 from nicegui import ui
@@ -7366,15 +7372,11 @@ ui.run(
 )
 ```
 
+![2027_80.3_1](nicegui_pro.assets/2027_80.3_1.png)
 
+### 80.4 美化（控件属性）
 
-
-
-### 80.4 美化（控件属性）（更新中）
-
-
-
-美化（控件属性）：
+除了列定义，控件属性也可以美化表格：
 
 ```python
 from nicegui import ui
@@ -7422,9 +7424,9 @@ ui.run(
 )
 ```
 
+![2027_80.4_1](nicegui_pro.assets/2027_80.4_1.png)
 
-
-
+可以美化表格的控件属性有：
 
 - `table-style`属性，字符串类型，表示整个表格使用的样式。
 - `table-class`属性，字符串类型，表示整个表格使用的样式类。
@@ -7435,18 +7437,255 @@ ui.run(
 - `table-row-class-fn`属性，使用字符串表达的JavaScript函数，表示除了表头外的每行的样式类。该JavaScript函数支持以下位置参数（为了方便记忆，这里命名了参数，但实际使用时不限制参数名）：
   - `row`参数，表示每一行的行对象，其支持的属性与该行数据字典包含的键相同。
 
+相比于列定义，控件属性可以实现的效果更多样，比如，让表格的每行样式交替变化：
+
+```python
+from nicegui import ui
 
 
+def index():
+    columns = [
+        {
+            'name': 'firstname', 
+            'label': 'Name', 
+            'field': 'firstname',
+        },
+        {
+            'name': 'age', 
+            'label': 'Age', 
+            'field': 'age',
+        },
+    ]
+    rows = [
+        {
+            'age': 18,
+            'firstname': 'Alice', 
+            'id':0
+
+        },
+        {
+            'firstname': 'Bob', 
+            'age': 21,
+            'id':1
+        },
+        {
+            'firstname': 'Carol',
+            'id':2
+        },
+    ]
+    table = ui.table(
+        columns=columns, 
+        rows=rows, 
+        row_key='firstname',
+    )
+    table.props('''
+    :table-row-class-fn="row=>row.id%2?`bg-red`:`bg-green`"
+    ''')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_80.4_2](nicegui_pro.assets/2027_80.4_2.png)
+
+## 81 学习控件——`ui.uplot`控件（简单介绍）
+
+### 81.1 NiceGUI侧的用法
+
+相关文档：https://nicegui.io/documentation/uplot
+
+`ui.uplot`控件在其引入的版本发布时，笔者通过版本速览简单提供了示例，但因为其属于图表控件并且之前已经完整介绍过图表控件，因此当时没有介绍该控件。
+
+时过境迁，该控件的使用者与日俱增，是时候介绍一下了。
+
+`ui.uplot`控件的参数很少，一共三个：
+
+- `options`参数，字典类型，表示控件的配置项。
+- `data`参数，列表类型或者`numpy.ndarray`类型，表示具体数据。
+- `keep_zoom`参数，仅限关键字参数，布尔类型，默认为`True`，表示更新数据时是否保持图表的缩放状态。
+
+`ui.uplot`控件新增的属性也很少，只有含义、属性名与`options`参数、`data`参数相同的两个属性。
+
+在NiceGUI这边，`ui.uplot`控件的用法几乎没有什么特别之处，因此需要学习的部分几乎没有。但是，该控件所用的前端框架uPlot提供了不少配置项，相关参数的用法也与其相关。因此，学习的大头也就落在了NiceGUI这边没讲的配置项上。要想弄清楚该控件的用法，还要到uPlot侧深入了解。
+
+### 81.2 uPlot侧的用法
+
+相关文档：https://github.com/leeoniya/uPlot/tree/master/docs
+
+#### 81.2.1 数据格式
+
+`data`参数表示具体数据，该参数的格式实际上遵循数据格式（ https://github.com/leeoniya/uPlot/tree/master/docs#data-format ）的要求。
+
+当使用数据模式1（配置项`'mode'`键的值为1，该值为默认值）时，要求如下：
+
+- 第一元素是整数列表或是小数列表，表示每个点的X坐标。
+- 第二元素开始是整数列表或是小数列表，表示该组散点的Y坐标。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+def index():
+    ui.uplot(
+        options={
+            'scales': {
+                'x': {'time': False},
+            },
+            'series': [
+                {'label': 'X'},
+                {'label': 'A','stroke': 'red'},
+                {'label': 'B','stroke': 'green'},
+            ],
+        },
+        data=[
+            [1,2,3,4],
+            [1,2,3,4],
+            [2,3,4],
+        ]
+    ).classes('w-128 h-64')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_81.2.1_1](nicegui_pro.assets/2027_81.2.1_1.png)
+
+当使用数据模式2（配置项`'mode'`键的值为2）时，要求如下：
+
+- 第一元素会被忽略，仅作为占位符。
+- 第二元素开始是双元素列表，表示一组散点。双元素列表的第一元素是整数列表或是小数列表，表示每个点的X坐标。双元素列表的第二元素是整数列表或是小数列表，表示该组散点的Y坐标。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+def index():
+    ui.uplot(
+        options={
+            'mode': 2,
+            'scales': {
+                'x': {'time': False},
+            },
+            'series': [
+                {},
+                {'label': 'A', 'stroke': 'red'},
+                {'label': 'B', 'stroke': 'green'},
+            ],
+        },
+        data=[
+            None,
+            [
+                [1,2,3,4], [1,2,3,4]
+            ],
+            [
+                [1,2,3], [2,3,4]
+            ],
+        ]
+    ).classes('w-128 h-64')
 
 
-## 81 学习控件——`ui.uplot`控件（更新中）
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
 
-相关文档：
+![2027_81.2.1_2](nicegui_pro.assets/2027_81.2.1_2.png)
 
-- https://nicegui.io/documentation/uplot
-- https://github.com/leeoniya/uPlot/tree/master/docs
+#### 81.2.2 配置项
 
+`options`参数表示配置项，要说其中最重要的，无疑是`'series'`键。该键为列表，每个元素依次对应X坐标、各组散点的样式配置。如果不配置该键，对应的散点将无法显示。
 
+`'series'`键的每个元素都是字典，其支持的部分键如下：
+
+- `'show'`键，布尔类型，表示默认的显示状态。
+- `'label'`键，字符串类型，表示图例显示名。
+- `':value'`键，字符串类型，表示图例值的格式化函数。
+- `'width'`键，浮点类型，表示线宽。
+- `'stroke'`键，字符串类型，表示线的颜色。
+- `'dash'`键，双元素的整数数组，表示线为虚线（第一个元素表示实线部分长度，第二个元素表示空白部分长度）。
+- `'alpha'`键，浮点类型，表示透明度（对应百分数的小数形式）。
+
+示例如下：
+
+```python
+from nicegui import ui
+
+def index():
+    ui.uplot(
+        options={
+            'scales': {
+                'x': {'time': False},
+            },
+            'series': [
+                {'label': 'X'},
+                {
+                    'label': 'A',
+                    'stroke': 'red',
+                    'show':True,
+                    ':value':'(self,rowValue)=>rowValue+`个`',
+                    'width':2,
+                    'dash':[10,5],
+                    'alpha':0.5
+                },
+                {'label': 'B','stroke': 'green'},
+            ],
+        },
+        data=[
+            [1,2,3,4],
+            [1,2,3,4],
+            [2,3,4],
+        ]
+    ).classes('w-128 h-64')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_81.2.2_1](nicegui_pro.assets/2027_81.2.2_1.png)
+
+`'title'`键可以设置图表的标题：
+
+```python
+from nicegui import ui
+
+def index():
+    ui.uplot(
+        options={
+            'title':'A and B',
+            'scales': {
+                'x': {'time': False},
+            },
+            'series': [
+                {'label': 'X'},
+                {'label': 'A','stroke': 'red'},
+                {'label': 'B','stroke': 'green'},
+            ],
+        },
+        data=[
+            [1,2,3,4],
+            [1,2,3,4],
+            [2,3,4],
+        ]
+    ).classes('w-128 h-64')
+
+ui.run(
+    root=index,
+    title='易森-NiceGUI'
+)
+```
+
+![2027_81.2.2_2](nicegui_pro.assets/2027_81.2.2_2.png)
+
+配置项有很多，但是官网文档在笔者创作本文时尚在创建中，部分内容存在缺失。上述内容仅为笔者基于源码的个人理解，如果有遗漏、错误，以实际运行效果为准。部分配置项受限于笔者创作时的水平没有介绍（主要是当时没理解、代码没跑通，怕说错所以没写），可以期待后续使用时的相关介绍。
 
 ## 8x x（待定）（更新中）
 

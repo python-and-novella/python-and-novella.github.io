@@ -5795,7 +5795,7 @@ app.exec()
 
 相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-button.html
 
-`Button`控件就是可以点击的普通按钮，功能较为丰富，可定制性也比较强，相比于`AbstractButton`控件容易使用，是开发中常用的按钮控件。
+`Button`控件就是可以点击的普通按钮，功能较为丰富，可定制性也比较强，相比于`AbstractButton`控件容易使用，是开发中常用的按钮控件：
 
 ```python
 from PySide6.QtGui import QGuiApplication
@@ -6786,15 +6786,11 @@ app.exec()
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#input-controls
 
-
-
-### 69.1 `ComboBox`控件（更新中）
+### 69.1 `ComboBox`控件
 
 相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-combobox.html
 
-
-
-
+`ComboBox`控件是下拉选择框，通过弹出下拉框为用户提供选项，供用户选择：
 
 ```python
 from PySide6.QtGui import QGuiApplication
@@ -6835,11 +6831,166 @@ if comp.isError():
 app.exec()
 ```
 
+![2027_69.1_1](pyside6_pro.assets/2027_69.1_1.png)
+
+### 69.2 `Dial`控件
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-dial.html
+
+`Dial`控件是旋钮，提供了类似真实旋钮的操作手感，可以看作滑块的一种变形：
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Fusion
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Dial {
+        x: 100
+        y: 100
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+![2027_69.2_1](pyside6_pro.assets/2027_69.2_1.png)
+
+### 69.3 `DoubleSpinBox`控件和`SpinBox`控件（更新中）
+
+相关文档：
+
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-doublespinbox.html
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-spinbox.html
 
 
 
 
-## 70 QML控件——弹出控件（更新中）
+
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+app = QGuiApplication()
+
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Fusion
+
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    DoubleSpinBox {
+        x: 100
+        y: 100
+        value: 2
+    }
+    SpinBox {
+        x: 100
+        y: 140
+        value: 2
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
+
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
+
+app.exec()
+```
+
+
+
+
+
+### 69.4 `Slider`控件和`RangeSlider`控件（更新中）
+
+相关文档：
+
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-slider.html
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-rangeslider.html
+
+
+
+
+
+
+
+### 69.5 `TextField`控件和`TextArea`控件（更新中）
+
+相关文档：
+
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-textfield.html
+- https://doc.qt.io/qt-6/zh/qml-qtquick-controls-textfield.html
+
+
+
+
+
+
+
+### 69.6 `SearchField`控件（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-searchfield.html
+
+
+
+
+
+
+
+### 69.7 `Tumbler`控件（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-tumbler.html
+
+
+
+
+
+## 70 QML控件——容器控件（更新中）
+
+相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#container-controls
+
+
+
+
+
+## 7x QML控件——弹出控件（更新中）
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#popup-controls
 
@@ -6849,7 +7000,7 @@ app.exec()
 
 
 
-## 71 QML控件——菜单控件（更新中）
+## 7x QML控件——菜单控件（更新中）
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#menu-controls
 
@@ -6859,7 +7010,7 @@ app.exec()
 
 
 
-## 72 自定义QML控件（QtQuick控件）（更新中）
+## 7x 自定义QML控件（QtQuick控件）（更新中）
 
 
 
@@ -6875,7 +7026,7 @@ app.exec()
 
 
 
-## 73 QML控件——自定义主题（更新中）
+## 7x QML控件——自定义主题（更新中）
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-customize.html
 
@@ -6883,7 +7034,7 @@ app.exec()
 
 
 
-## 74 调色盘（待定）（更新中）
+## 7x 调色盘（待定）（更新中）
 
 相关文档：https://doc.qt.io/qtforpython-6/PySide6/QtGui/QPalette.html
 
@@ -6895,7 +7046,7 @@ app.exec()
 
 
 
-## 75 自定义QWidgets控件（更新中）
+## 7x 自定义QWidgets控件（更新中）
 
 
 

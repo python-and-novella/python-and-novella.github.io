@@ -6782,7 +6782,7 @@ app.exec()
 
 在QtQuick程序中，该方法的优先级等于使用`setStyle`方法。
 
-## 69 QML控件——输入控件（更新中）
+## 69 QML控件——输入控件
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#input-controls
 
@@ -6879,16 +6879,16 @@ app.exec()
 
 ![2027_69.2_1](pyside6_pro.assets/2027_69.2_1.png)
 
-### 69.3 `DoubleSpinBox`控件和`SpinBox`控件（更新中）
+### 69.3 `DoubleSpinBox`控件和`SpinBox`控件
 
 相关文档：
 
 - https://doc.qt.io/qt-6/zh/qml-qtquick-controls-doublespinbox.html
 - https://doc.qt.io/qt-6/zh/qml-qtquick-controls-spinbox.html
 
+`DoubleSpinBox`控件和`SpinBox`控件的用法完全相同，唯一区别就是二者存储的数据类型不同：前者为小数，后者为整数。
 
-
-
+`DoubleSpinBox`控件和`SpinBox`控件看上去是个额外有调整按钮的输入框，实际功能确实如此：
 
 ```python
 from PySide6.QtGui import QGuiApplication
@@ -6912,11 +6912,13 @@ Window {
         x: 100
         y: 100
         value: 2
+        editable: true
     }
     SpinBox {
         x: 100
         y: 140
         value: 2
+        editable: true
     }
 }
 '''
@@ -6934,61 +6936,229 @@ if comp.isError():
 app.exec()
 ```
 
+![2027_69.3_1](pyside6_pro.assets/2027_69.3_1.png)
 
-
-
-
-### 69.4 `Slider`控件和`RangeSlider`控件（更新中）
+### 69.4 `Slider`控件和`RangeSlider`控件
 
 相关文档：
 
 - https://doc.qt.io/qt-6/zh/qml-qtquick-controls-slider.html
 - https://doc.qt.io/qt-6/zh/qml-qtquick-controls-rangeslider.html
 
+`Slider`控件是一般滑块，`RangeSlider`控件是范围滑块，二者外观相似，只不过后者同时有两个滑块：
 
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
+app = QGuiApplication()
 
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Fusion
 
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Slider {
+        x: 100
+        y: 100
+        value: 0.2
+    }
+    RangeSlider {
+        x: 100
+        y: 140
+        first.value: 0.2
+        second.value: 0.5
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
 
-### 69.5 `TextField`控件和`TextArea`控件（更新中）
+app.exec()
+```
+
+![2027_69.4_1](pyside6_pro.assets/2027_69.4_1.png)
+
+### 69.5 `TextField`控件和`TextArea`控件
 
 相关文档：
 
 - https://doc.qt.io/qt-6/zh/qml-qtquick-controls-textfield.html
 - https://doc.qt.io/qt-6/zh/qml-qtquick-controls-textfield.html
 
+说起输入控件，可能会有读者想起基础的文本输入框——`TextInput`，相比于输入控件——`TextField`控件和`TextArea`控件，文本输入框还是有些简陋。输入控件基于文本输入框实现了更多功能，也让默认外观更具辨识度：
 
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
+app = QGuiApplication()
 
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Fusion
 
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    TextInput {
+        x: 100
+        y: 100
+        text: 'Hello\nWorld'
+    }
+    TextField {
+        x: 100
+        y: 120
+        text: 'Hello\nWorld'
+    }
+    TextArea {
+        x: 100
+        y: 160
+        text: 'Hello\nWorld'
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
 
-### 69.6 `SearchField`控件（更新中）
+app.exec()
+```
+
+![2027_69.5_1](pyside6_pro.assets/2027_69.5_1.png)
+
+### 69.6 `SearchField`控件
 
 相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-searchfield.html
 
+`SearchField`控件是一个搜索框，支持搜索输入的内容，还自带与之相关的按钮（搜索、清除），还能弹出建议、搜索结果。
 
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
+app = QGuiApplication()
 
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Fusion
 
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    SearchField {
+        x: 100
+        y: 100
+        text: 'Hello'
+        live: true
+        onSearchTriggered: suggestionModel = [text]
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
 
-### 69.7 `Tumbler`控件（更新中）
+app.exec()
+```
+
+![2027_69.6_1](pyside6_pro.assets/2027_69.6_1.png)
+
+### 69.7 `Tumbler`控件
 
 相关文档：https://doc.qt.io/qt-6/zh/qml-qtquick-controls-tumbler.html
 
+`Tumbler`控件提供了一种通过滚轮选择选项的体验：
 
+```python
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
-滚轮
+app = QGuiApplication()
 
+qml_string = '''
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Fusion
 
+Window {
+    id: 'w'
+    visible: true
+    title: '易森-PySide6'
+    width: 400
+    height: 300
+    color: 'green'
+    Tumbler {
+        x: 100
+        y: 100
+        height: 100
+        model: ['a','b','c']
+        wrap: true
+    }
+}
+'''
+engine = QQmlApplicationEngine()
+engine.loadData(qml_string.encode('utf-8'))
 
+# 检查QML字符串是否有错误
+from PySide6.QtQml import QQmlComponent
+import sys
+comp = QQmlComponent(engine)
+comp.setData(qml_string.encode(),'')
+if comp.isError():
+    sys.exit()
 
+app.exec()
+```
+
+![2027_69.7_1](pyside6_pro.assets/2027_69.7_1.png)
 
 ## 70 QML控件——容器控件（更新中）
 
 相关文档：https://doc.qt.io/qt-6/zh/qtquickcontrols-index.html#container-controls
+
+
+
+
 
 
 
